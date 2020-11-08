@@ -1,0 +1,22 @@
+tr.row-important {
+
+    background: #007bff14;
+
+    &:hover {
+        background: #007bff20 !important;
+    }
+
+    td, td a {
+        font-weight: 500;
+    }
+}
+
+div.card-important {
+
+    box-shadow: 0 0 6px 7px #007bff30;
+
+    .card-title {
+        font-weight: 500;
+    }
+
+}

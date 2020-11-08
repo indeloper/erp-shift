@@ -1,0 +1,169 @@
+
+/* Оформление документа. Коммерч.предл */
+
+@page {
+  margin-top: 5mm;
+  margin-left: 5mm;
+  margin-right: 3mm
+}
+
+@media print {
+  body {margin-top: 0mm; margin-bottom: 0mm;
+    margin-left: 0mm; margin-right: 0mm}
+}
+
+.list-header{
+  margin-bottom: 5px;
+}
+
+.offer-list h4 {
+  font-family: 'TimesNewRoman', serif;
+  font-weight: 500;
+}
+
+.offer-list {
+  /*width: 520px;   !* ширина *!*/
+  padding-left:45px; /* внутренние отступы */
+  padding-right: 35px;
+  padding-top:15px;
+  margin: 20px auto;  /* выравнивание по центру */
+  background-color: white;  /* цвет фона в блоке */
+  font-family: 'Noto Serif', serif;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.top-header {
+  margin-bottom: 0;
+}
+
+.kp-table {
+  font-size: 12px;
+  border: 1px solid red;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.kp-table th, .kp-table td {
+  border: 1px solid black;
+}
+
+.kp-table thead tr th {
+  background-color: rgb(204, 255, 204);
+  font-family: 'Palatino Linotype', serif;
+  font-size: 12px;
+}
+
+.kp-table tbody tr td {
+  font-size: 10px;
+  font-family: 'Palatino Linotype', serif;
+}
+
+.kp-table tbody tr .td-head {
+  background-color: rgb(193, 192, 192);
+  font-weight: bold;
+  text-align:left;
+  font-family: 'Palatino Linotype', serif;
+  font-size: 12px;
+}
+
+.kp-table tbody tr .td-footer {
+  text-align:right;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.kp-table tbody tr .td-total {
+  text-align:center;
+  font-weight: bold;
+  font-size: 10px;
+  background-color:rgb(193, 192, 192);
+}
+
+.prim ol {
+  margin-top: 0px;
+  padding-left: 15px;
+}
+
+.prim ol li {
+  margin-bottom: 2px;
+}
+
+.prim ul {
+  margin-top: 0px;
+  padding-left: 10px;
+}
+
+.prim ul li {
+  margin-bottom: 5px;
+}
+
+.prim p {
+  margin-bottom: 5px;
+}
+
+.list-footer {
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.address {
+  font-size: 10px;
+  margin-top:0;
+  font-family: sans-serif;
+}
+
+.contacts {
+  width: 100%;
+  float:right;
+  text-align: right;
+}
+
+.contacts p {
+  font-size:10px;
+  margin-top:0;
+}
+
+.h6-offer {
+  text-align: center;
+  margin:0;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.prim h6 {
+  font-size: 11px;
+  text-decoration: underline;
+  font-weight: 600;
+  font-style: italic;
+  margin:5px 0;
+}
+
+.footer-contacts {
+  font-size:7px;
+  text-align: left;
+  float: left;
+}
+
+.logo {
+  width:240px;
+  float:left;
+}
+
+.small-logo {
+  width:200px;
+  float:left;
+}
+
+.number {
+  font-size:11px;
+  font-weight: bold;
+  margin-top: 3px;
+}
