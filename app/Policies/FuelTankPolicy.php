@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use App\Models\TechAcc\FuelTank\FuelTank;
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class FuelTankPolicy
+{
+    use HandlesAuthorization;
+
+    /**
+     * Determine whether the user can create fuel tanks.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TechAcc\FuelTank\FuelTank  $fuelTank
+     * @return mixed
+     */
+    public function store(User $user)
+    {
+        // rp and mehanic
+        return in_array($user->group_id, [8, 27, 13, 19, 47]);
+    }
+
+    /**
+     * Determine whether the user can update the fuel tank.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TechAcc\FuelTank\FuelTank  $fuelTank
+     * @return mixed
+     */
+    public function update(User $user, FuelTank $fuelTank)
+    {
+        // rp and mehanic
+        return in_array($user->group_id, [8, 27, 13, 19, 47]);
+    }
+
+    /**
+     * Determine whether the user can delete the fuel tank.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TechAcc\FuelTank\FuelTank  $fuelTank
+     * @return mixed
+     */
+    public function destroy(User $user, FuelTank $fuelTank)
+    {
+        // rp and mehanic
+        return in_array($user->group_id, [15]) || $user->id == $user->main_logist_id;
+    }
+}

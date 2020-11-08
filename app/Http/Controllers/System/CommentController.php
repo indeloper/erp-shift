@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Controllers\System;
+
+use App\Models\Comment;
+use App\Models\FileEntry;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class CommentController extends Controller
+{
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
+        $attributes = $request->all();
+        $attributes['author_id'] = Auth::id();
+
+        $comment = $this->system_service->storeComment($attributes);
+
+        DB::commit();
+        return response(['data' => compact('comment')]);
+    }
+
+    public function update(Request $request, Comment $comment)
+    {
+        DB::beginTransaction();
+        //update ticket
+        $comment->update($request->all());
+
+        //detach old files
+        FileEntry::whereIn('id', $request->deleted_file_ids)->delete();
+
+        //attach new files
+        $documents = FileEntry::find($request->file_ids);
+        $comment->documents()->saveMany($documents);
+        $comment->refresh();
+
+        DB::commit();
+
+        return response(['data' => compact('comment')]);
+    }
+
+    public function destroy(Comment $comment)
+    {
+        $comment->delete();
+
+        return response(['status' => 'success']);
+    }
+}
