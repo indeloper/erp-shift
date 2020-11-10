@@ -82,10 +82,10 @@ class NotificationService
                 $text = $this->createErrorMessage($e);
             }
             try {
-                Telegram::sendMessage([
+                /*Telegram::sendMessage([
                     'chat_id' => config('app.env') == 'production' ? '-1001481434440' : '-1001245014814',
                     'text' => $text
-                ]);
+                ]);*/
             } catch (\Throwable $t) {
                 // unsuccess
             }

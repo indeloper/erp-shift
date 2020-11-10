@@ -53,10 +53,10 @@ class Handler extends ExceptionHandler
             }
 
             if (isset($text)) {
-                Telegram::sendMessage([
+                /*Telegram::sendMessage([
                     'chat_id' =>  config('app.env') == 'production' ? '-1001481434440' : '-1001245014814',
                     'text' => $text
-                ]);
+                ]);*/
             }
         }
 
