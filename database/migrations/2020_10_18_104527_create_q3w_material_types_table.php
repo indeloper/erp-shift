@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialType;
+use App\Models\q3wMaterial\q3wMeasureUnit;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -53,7 +56,7 @@ class CreateQ3wMaterialTypesTable extends Migration
         $measuresUnitsNames = ['м.п', 'м²', 'м³', 'шт', 'т'];
 
         foreach ($measuresUnitsNames as $measuresUnitsName) {
-            $newMeasureUnit = new \App\Models\q3wMaterial\q3wMeasureUnit();
+            $newMeasureUnit = new q3wMeasureUnit();
             $newMeasureUnit -> value = $measuresUnitsName;
             $newMeasureUnit -> save();
         }
@@ -61,7 +64,7 @@ class CreateQ3wMaterialTypesTable extends Migration
         $accountingTypeNames = ['Штучный', 'По единице измерения(?)'];
 
         foreach ($accountingTypeNames as $accountingTypeName) {
-            $accountingType = new \App\Models\q3wMaterial\q3wMaterialAccountingType();
+            $accountingType = new q3wMaterialAccountingType();
             $accountingType -> value = $accountingTypeName;
             $accountingType -> save();
         }
@@ -69,10 +72,10 @@ class CreateQ3wMaterialTypesTable extends Migration
         $materialCategories = App\Models\Manual\ManualMaterialCategory::all();
 
         foreach ($materialCategories as $materialCategory) {
-            $materialType = new \App\Models\q3wMaterial\q3wMaterialType();
+            $materialType = new q3wMaterialType();
             $materialType->name = $materialCategory->name;
             $materialType->description = $materialCategory->description;
-            $materialType->measure_unit = \App\Models\q3wMaterial\q3wMeasureUnit::where('value', $materialCategory->category_unit)->first()->id;
+            $materialType->measure_unit = q3wMeasureUnit::where('value', $materialCategory->category_unit)->first()->id;
             $materialType->accounting_type = 1;
             $materialType->save();
         }
@@ -85,9 +88,8 @@ class CreateQ3wMaterialTypesTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('q3w_material_types');
         Schema::dropIfExists('q3w_measure_units');
         Schema::dropIfExists('q3w_material_accounting_types');
-        Schema::dropIfExists('q3w_material_types');
-
     }
 }
