@@ -577,11 +577,11 @@
 <script src="{{ asset('js/plugins/emojionearea.min.js') }}"></script>
 
 <!-- DevExtreme themes -->
-<link rel="stylesheet" href="/js/Devextreme-20.1.8/css/dx.common.css">
-<link rel="stylesheet" href="/js/Devextreme-20.1.8/css/dx.material.blue.light.compact.css">
+<link rel="stylesheet" href="{{ asset('css/devextreme/dx.common.css')}}">
+<link rel="stylesheet" href="{{ asset('css/devextreme/dx.material.blue.light.compact.css')}}">
 
 <!-- DevExtreme library -->
-<script type="text/javascript" src="/js/Devextreme-20.1.8/js/dx.all.js"></script>
+<script type="text/javascript" src="{{ asset('js/devextreme/dx.all.js')}}"></script>
 <!-- DevExtreme localization -->
 <script type="text/javascript" src="/js/Devextreme-20.1.8/js/localization/dx.messages.ru.js"></script>
 <meta name="csrf-token" content="{{ csrf_token() }}" />

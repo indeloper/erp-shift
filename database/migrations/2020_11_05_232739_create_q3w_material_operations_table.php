@@ -82,11 +82,11 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->integer('source_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор объекта, с которого отправляется материал');
             $table->integer('destination_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор идентификатор объекта, куда должен прибыть материал');
 
-            $table->integer('contractor_id')->unsigned()->index()->comment('Идентификатор контрагента (поставщика)');
+            $table->integer('contractor_id')->unsigned()->nullable()->index()->comment('Идентификатор контрагента (поставщика)');
             //Договор $table->time('contractor_id')->unsigned()->nullable()->index()->comment('Идентификатор контрагента (поставщика)');
 
-            $table->timestamp('planned_date_start')->comment('Плановая дата начала поставки');
-            $table->timestamp('planned_date_end')->nullable()->comment('Плановая дата окончания поставки');
+            $table->timestamp('date_start')->comment('Дата начала');
+            $table->timestamp('date_end')->nullable()->comment('Дата окончания ');
 
             $table->integer('creator_user_id')->unsigned()->index()->comment('ID пользователя, создавшего операцию');
             $table->integer('responsible_user_id')->unsigned()->index()->comment('ID ответственного пользователя');

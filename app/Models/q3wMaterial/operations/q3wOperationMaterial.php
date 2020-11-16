@@ -1,5 +1,5 @@
 <?php
-
+/**  * @mixin ..\Eloquent  */
 namespace App\Models\q3wMaterial\operations;
 
 use Illuminate\Database\Eloquent\Model;

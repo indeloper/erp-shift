@@ -20,7 +20,6 @@
             let accountingTypesData = {!!$accountingTypes!!};
             let materialTypesData = {!!$materialTypes!!};
             let materialStandardsData = {!!$materialStandards!!};
-            //let projectObjectsData = {!! $projectObjects !!};
             let projectObject = {{$projectObjectId}};
 
             let projectObjectsData = new DevExpress.data.DataSource({
@@ -35,7 +34,7 @@
                 reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
                     key: "id",
-                    load: function(loadOptions) {
+                    load: function() {
                         return $.getJSON("{{route('materials.list')}}",
                             {
                                 project_object: projectObject
@@ -49,81 +48,8 @@
 
             //</editor-fold>
 
-            //<editor-fold desc="JS: Edit form configurtion">
-            let editForm = {
-                items: [{
-                    dataField: "material_type",
-                    label: {
-                        text: "Тип материала"
-                    },
-                    editorType: "dxSelectBox",
-                    editorOptions: {
-                        items: materialTypesData,
-                        displayExpr: "name",
-                        valueExpr: "id",
-                        searchEnabled: false,
-                        fieldTemplate: function(data, container) {
-                            let result = $("<div class='custom-item'>" +
-                                "<div class='material-type-name'></div></div>");
-                            result
-                                .find(".material-type-name")
-                                .dxTextBox({
-                                    value: data && data.name + " (" + data.measure_unit_value + "; учет: " + data.accounting_type_value + ")",
-                                    readOnly: true});
-                            container.append(result);
-                        },
-                        itemTemplate: function (data) {
-                            return "<div class='custom-item'>" +
-                                "<div class='material-type-name'>" +
-                                data.name + " (" + data.measure_unit_value + "; учет: " + data.accounting_type_value  + ")" +
-                                "</div>" +
-                                "</div>"
-                        }
-                    },
-                    validationRules: [{
-                        type: "required",
-                        message: 'Поле "Тип материала" обязательно для заполнения'
-                    }]
-                },
-                    {
-                        dataField: "name",
-                        label: {
-                            text: "Наименование"
-                        },
-                        validationRules: [{
-                            type: "required",
-                            message: 'Поле "Наименование" обязательно для заполнения'
-                        }]
-                    },
-                    {
-                        dataField: "weight",
-                        label: {
-                            text: "Вес"
-                        },
-                        editorType: "dxNumberBox",
-                        editorOptions: {
-                            format: "#0 кг",
-                            min: 0,
-                            showSpinButtons: true
-                        },
-                        validationRules: [{
-                            type: "required",
-                            message: 'Поле "Вес" обязательно для заполнения'
-                        }]
-                    },
-                    {
-                        dataField: "description",
-                        editorType: "dxTextArea",
-                        colSpan: 1,
-                        label: {
-                            text: "Описание"
-                        },
-                        editorOptions: {
-                            height: 100
-                        }
-                    }
-                ]
-            };
+            //<editor-fold desc="JS: Edit form configuration">
+
             //</editor-fold>
 
             //<editor-fold desc="JS: Columns definition">
@@ -148,12 +74,22 @@
                     }
                 },
                 {
+                    dataField: "measure_unit",
+                    dataType: "number",
+                    caption: "Ед. изм.",
+                    lookup: {
+                        dataSource: measureUnitsData,
+                        displayExpr: "value",
+                        valueExpr: "id"
+                    }
+                },
+                {
                     dataField: "computed_quantity",
                     dataType: "number",
                     caption: "Количество",
                     cellTemplate: function (container, options) {
                         let data = options.data;
-                        let computedQuantity = null;
+                        let computedQuantity;
 
                         if (data.accounting_type === 1){
                             computedQuantity = data.computed_quantity + " шт.";
@@ -170,11 +106,10 @@
                     dataType: "number",
                     caption: "Вес",
                     cellTemplate: function (container, options) {
-                        $("<div>" + options.data.computed_weight + " т.</div>")
+                        $("<div>" + options.data.computed_weight.toFixed(3) + " т.</div>")
                             .appendTo(container);
                     }
                 },
-
                 {
                     dataField: "material_type",
                     dataType: "number",
@@ -185,11 +120,11 @@
                         displayExpr: "name",
                         valueExpr: "id"
                     }
-                },
+                }
             ];
             //</editor-fold>
 
-            //<editor-fold desc="JS: Grid configurtion">
+            //<editor-fold desc="JS: Grid configuration">
             $("#gridContainer").dxDataGrid({
                 dataSource: materialStandardsDataSource,
                 focusedRowEnabled: false,
@@ -230,20 +165,23 @@
                     {
                         column: "computed_weight",
                         summaryType: "sum",
-                        displayFormat: "Всего: {0} т.",
+                        //displayFormat: "Всего: {0} т.",
+                        customizeText: function (data) {
+                            return "Всего: " + data.value.toFixed(3) + " т."
+                        },
                         showInGroupFooter: false,
                         alignByColumn: true
                     }],
                     totalItems: [{
                         column: "computed_weight",
                         summaryType: "sum",
-                        displayFormat: "Итого: {0} т.",
+                        customizeText: function (data) {
+                            return "Итого: " + data.value.toFixed(3) + " т."
+                        }
                     }]
                 },
 
                 onToolbarPreparing: function(e) {
-                    let dataGrid = e.component;
-
                     e.toolbarOptions.items.unshift(
                         {
                             location: "before",

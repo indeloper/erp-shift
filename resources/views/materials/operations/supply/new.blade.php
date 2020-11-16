@@ -18,25 +18,40 @@
 @section('js_footer')
     <script>
         $(function(){
+            let measureUnitData = {!!$measureUnits!!};
             let projectObject = {{$projectObjectId}};
             let materialStandardsData = {!!$materialStandards!!};
             let materialTypesData = {!!$materialTypes!!};
 
+            let supplyMaterialTempID = 0;
 
             //<editor-fold desc="JS: DataSources">
-            let selectedDataSource = new DevExpress.data.DataSource ({
-                reshapeOnPush: true,
+            let materialsStandardsListDataSource = new DevExpress.data.DataSource ({
+                group: "material_type_name",
                 store: new DevExpress.data.ArrayStore({
                     key: "id",
                     data: materialStandardsData
                 })
             })
 
-            let supplyMaterialDataSource = new DevExpress.data.DataSource({
-                reshapeOnPush: true,
+            let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource ({
+                //reshapeOnPush: true,
                 store: new DevExpress.data.ArrayStore({
+                    key: "id",
                     data: []
                 })
+            })
+
+            let supplyMaterialData = [];
+
+            let supplyMaterialStore = new DevExpress.data.ArrayStore({
+                key: "id",
+                data: supplyMaterialData
+            })
+
+            let supplyMaterialDataSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: supplyMaterialStore
             })
 
             let projectObjectsData = new DevExpress.data.DataSource({
@@ -60,45 +75,104 @@
                 colCount: 2,
                 items:[{
                     editorType: "dxList",
-                    id: "checkList",
+                    name: "materialsStandardsList",
                     editorOptions: {
                         height: 400,
-                        dataSource: new DevExpress.data.DataSource ({
-                           store: new DevExpress.data.ArrayStore({
-                               key: "id",
-                               data: materialStandardsData
-                           })
-                        }),
+                        dataSource: materialsStandardsListDataSource,
                         showSelectionControls: true,
                         selectionMode: "multiply",
                         searchEnabled: true,
                         searchExpr: "name",
+                        grouped: true,
+                        collapsibleGroups: true,
                         itemTemplate: function(data) {
                             return $("<div>").text(data.name)
                         },
                         onSelectionChanged: function(data) {
-                            selectedDataSource.store().push([{id: 1, name: "asdasd"}]);
-                            selectedDataSource.reload();
-                        }
-                        /*grouped: true,
-                        collapsibleGruops: true,
+                            data.addedItems.forEach(function (addedItem){
+                                console.log(addedItem);
+                                selectedMaterialStandardsListDataSource.store().insert({
+                                    id: addedItem.id,
+                                    name: addedItem.name,
+                                    accounting_type: addedItem.accounting_type,
+                                    material_type: addedItem.material_type,
+                                    measure_unit: addedItem.measure_unit,
+                                    weight: addedItem.weight
+                                })
+                            })
 
-                        ,
+                            data.removedItems.forEach(function (removedItem){
+                                selectedMaterialStandardsListDataSource.store().remove(removedItem.id)
+                            })
+
+                            selectedMaterialStandardsListDataSource.reload();
+                        },
+
+
+                        /*,
                         groupTemplate: function(data)*/
                     }
                 },
                 {
                     editorType: "dxList",
-                    id: "selectionList",
+                    name: "selectedMaterialsStandardsList",
                     editorOptions: {
+                        dataSource: selectedMaterialStandardsListDataSource,
+                        allowItemDeleting: true,
+                        itemDeleteMode: "static",
                         height: 400,
+
                         itemTemplate: function(data) {
                             return $("<div>").text(data.name)
+                        },
+
+                        onItemDeleted: function(e){
+                            console.log(e);
+                            let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                            let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList");
+
+                            materialsStandardsList.option("selectedItems", selectedMaterialsStandardsList.option("items"));
+                        }
+                    }
+                },
+                {
+                    itemType: "button",
+                    colSpan: 2,
+                    horizontalAlignment: "right",
+                    buttonOptions: {
+                        text: "Добавить",
+                        type: "default",
+                        stylingMode: "text",
+                        useSubmitBehavior: false,
+
+                        onClick: function () {
+                            let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList").option("items");
+                            // id: addedItem.id,
+                            //     name: addedItem.name,
+                            //     accounting_type: addedItem.accounting_type,
+                            //     material_type: addedItem.material_type,
+                            //     measure_unit: addedItem.measure_unit,
+                            //     weight: addedItem.weight
+
+                            selectedMaterialsData.forEach(function(materialStandard){
+                                supplyMaterialDataSource.store().insert({
+                                    id: ++supplyMaterialTempID,
+                                    standard_id: materialStandard.id,
+                                    standard_name: materialStandard.name,
+                                    accounting_type: materialStandard.accounting_type,
+                                    material_type: materialStandard.material_type,
+                                    measure_unit: materialStandard.measure_unit,
+                                    standard_weight: materialStandard.weight
+                                })
+                            })
+                            supplyMaterialDataSource.reload();
+                            console.log(supplyMaterialDataSource.store());
+                            $("#popupContainer").dxPopup("hide")
                         }
                     }
                 }
                 ]
-            });
+            }).dxForm("instance");
 
             let popupContainer = $("#popupContainer").dxPopup({height: "auto",
                 width: "auto",
@@ -106,54 +180,81 @@
             });
 
             //<editor-fold desc="JS: Columns definition">
-            let materialColumns = [
+            let supplyMaterialColumns = [
+                {
+                    type: "buttons",
+                    width: 110,
+                    buttons: ["delete", {
+                        hint: "Копировать",
+                        icon: "copy",
+                        onClick: function(e) {
+                            let clonedItem = $.extend({}, e.row.data, {id: ++supplyMaterialTempID});
+                            console.log(supplyMaterialData);
+                            supplyMaterialData.splice(e.row.rowIndex, 0, clonedItem);
+                            e.component.refresh(true);
+                            e.event.preventDefault();
+                        }
+                    }]
+                },
                 {
                     dataField: "standard_id",
                     dataType: "string",
+                    allowEditing: false,
                     caption: "Наименование",
                     lookup: {
                         dataSource: materialStandardsData,
                         displayExpr: "name",
                         valueExpr: "id"
-                    },
-                    cellTemplate: function (container, options) {
-                        let data = options.data;
-                        let materialName = data.standard_name;
-                        if (data.accounting_type === 1){
-                            materialName += " (" + data.quantity + " " + data.measure_unit_value + ")";
-                        }
-                        $("<div>" + materialName + "</div>")
-                            .appendTo(container);
                     }
                 },
                 {
-                    dataField: "computed_quantity",
+                    dataField: "measure_unit",
+                    dataType: "number",
+                    allowEditing: false,
+                    caption: "Единица измерения",
+                    lookup: {
+                        dataSource: measureUnitData,
+                        displayExpr: "value",
+                        valueExpr: "id"
+                    }
+                },
+                {
+                dataField: "length_quantity",
+                    dataType: "number",
+                    caption: "Метраж",
+                    showSpinButtons: true
+                },
+                {
+                    dataField: "material_quantity",
                     dataType: "number",
                     caption: "Количество",
-                    cellTemplate: function (container, options) {
-                        let data = options.data;
-                        let computedQuantity = null;
-
-                        if (data.accounting_type === 1){
-                            computedQuantity = data.computed_quantity + " шт.";
-                        } else {
-                            computedQuantity = data.computed_quantity + " " + data.measure_unit_value;
-                        }
-
-                        $("<div>" + computedQuantity + "</div>")
-                            .appendTo(container);
-                    }
                 },
                 {
                     dataField: "computed_weight",
                     dataType: "number",
+                    allowEditing: false,
                     caption: "Вес",
-                    cellTemplate: function (container, options) {
-                        $("<div>" + options.data.computed_weight + " т.</div>")
-                            .appendTo(container);
+                    calculateCellValue: function (rowData) {
+                        console.log(rowData);
+
+                        let weight;
+                        if (rowData.accounting_type === 1){
+                            weight = rowData.material_quantity * rowData.length_quantity * rowData.standard_weight;
+                        } else {
+                            weight = rowData.material_quantity * rowData.standard_weight;
+                        }
+
+                        if (isNaN(weight)) {
+                            weight = 0;
+                        } else {
+                            weight = weight.toFixed(3)
+                        }
+
+                        rowData.computed_weight = weight;
+                        return weight;
+
                     }
                 },
-
                 {
                     dataField: "material_type",
                     dataType: "number",
@@ -175,44 +276,51 @@
                 hoverStateEnabled: true,
                 columnAutoWidth: false,
                 showBorders: true,
-                filterRow: {
+                /*filterRow: {
                     visible: true,
                     applyFilter: "auto"
-                },
+                },*/
                 grouping: {
                     autoExpandAll: true,
                 },
                 groupPanel: {
                     visible: false
                 },
-                selection: {
-                    allowSelectAll:true,
-                    deferred:false,
-                    mode:"multiple",
-                    selectAllMode:"allPages",
-                    showCheckBoxesMode:"always"
+                editing: {
+                    mode: "cell",
+                    allowUpdating: true,
+                    allowDeleting: true,
+                    selectTextOnEditStart: false,
+                    startEditAction: "click"
                 },
-                columns: materialColumns,
+                columns: supplyMaterialColumns,
                 summary: {
                     groupItems: [{
                         column: "standard_id",
                         summaryType: "count",
                         displayFormat: "Количество: {0}",
                     },
-                        {
-                            column: "computed_quantity",
-                            summaryType: "sum",
-                            displayFormat: "Всего: {0}",
-                            showInGroupFooter: false,
-                            alignByColumn: true
-                        },
-                        {
-                            column: "computed_weight",
-                            summaryType: "sum",
-                            displayFormat: "Всего: {0} т.",
-                            showInGroupFooter: false,
-                            alignByColumn: true
-                        }],
+                    {
+                        column: "length_quantity",
+                        summaryType: "sum",
+                        displayFormat: "Всего: {0}",
+                        showInGroupFooter: false,
+                        alignByColumn: true
+                    },
+                    {
+                        column: "material_quantity",
+                        summaryType: "sum",
+                        displayFormat: "Всего: {0}",
+                        showInGroupFooter: false,
+                        alignByColumn: true
+                    },
+                    {
+                        column: "computed_weight",
+                        summaryType: "sum",
+                        displayFormat: "Всего: {0} т.",
+                        showInGroupFooter: false,
+                        alignByColumn: true
+                    }],
                     totalItems: [{
                         column: "computed_weight",
                         summaryType: "sum",
@@ -244,7 +352,7 @@
             //</editor-fold>
 
             //<editor-fold desc="JS: Edit form configuration">
-            $("#formContainer").dxForm({
+            let operationForm = $("#formContainer").dxForm({
                 formData: [],
                 colCount: 2,
                 items: [{
@@ -263,34 +371,26 @@
                             displayExpr: "name",
                             valueExpr: "id",
                             searchEnabled: true,
-                            value: projectObject
+                            value: projectObject,
+                            onValueChanged: function(e){
+                                projectObject = e.value;
+                            }
                         }
                     },
                     {
-                        dataField: "",
+                        dataField: "date_start",
                         colSpan: 1,
                         label: {
-                            text: "Дата начала"
+                            text: "Дата поставки"
                         },
                         editorType: "dxDateBox",
                         editorOptions: {
-
-                        }
-                    },
-                    {
-                        dataField: "",
-                        colSpan: 1,
-                        label: {
-                            text: "Дата окончания"
-                        },
-                        editorType: "dxDateBox",
-                        editorOptions: {
-
+                            value: Date.now()
                         }
                     },
                     {
                         colSpan: 2,
-                        dataField: "",
+                        dataField: "responsible_user_id",
                         label: {
                             text: "Ответственный"
                         },
@@ -299,14 +399,15 @@
                             dataSource: usersData,
                             displayExpr: "full_name",
                             valueExpr: "id",
-                            searchEnabled: true
+                            searchEnabled: true,
+                            value: {{$currentUserId}}
                         }
                     }]
                 },{
                     itemType: "group",
                     caption: "Контрагент",
                     items: [{
-                        dataField: "",
+                        dataField: "contractor_id",
                         label: {
                             text: "Поставщик"
                         },
@@ -316,7 +417,7 @@
                         }
                     },
                     {
-                        dataField: "",
+                        dataField: "contract_id",
                         label: {
                             text: "Договор"
                         },
@@ -337,11 +438,57 @@
                     }
                     ]
 
+                },
+                {
+                    itemType: "button",
+                    colSpan: 2,
+                    horizontalAlignment: "right",
+                    buttonOptions: {
+                        text: "Создать поставку",
+                        type: "default",
+                        stylingMode: "contained",
+                        useSubmitBehavior: false,
+
+                        onClick: function () {
+                            let supplyOperationData = {};
+
+                            supplyOperationData.project_object_id = operationForm.option("formData").project_object_id;
+                            //TODO Дата формаируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
+                            supplyOperationData.date_start = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
+                            supplyOperationData.responsible_user_id = operationForm.option("formData").responsible_user_id;
+                            supplyOperationData.contractor_id = operationForm.option("formData").contractor_id;
+                            supplyOperationData.contract_id = operationForm.option("formData").contract_id;
+
+                            supplyOperationData.materials = supplyMaterialData;
+
+                            console.log(operationForm.option("formData"));
+                            console.log(supplyOperationData);
+                            console.log(JSON.stringify(supplyOperationData));
+
+                            $.ajax({
+                                url: "{{route('materials.operations.supply.new')}}",
+                                method: "POST",
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                data: {
+                                    data: JSON.stringify(supplyOperationData),
+                                    options: null
+                                },
+
+                                success: function (data, textStatus, jqXHR){
+                                    window.location.href = '{{route('materials.index')}}/?project_object=' + projectObject
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
+                                }
+                            })
+                        }
+                    }
                 }]
-            })
+
+            }).dxForm("instance")
             //</editor-fold>
-
-
 
             //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>

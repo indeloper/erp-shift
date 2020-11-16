@@ -111,7 +111,7 @@
 
         //</editor-fold>
 
-        //<editor-fold desc="JS: Edit form configurtion">
+        //<editor-fold desc="JS: Edit form configuration">
         let editForm = {
             colCount: 2,
             items: [
@@ -138,17 +138,6 @@
                         displayExpr: "name",
                         valueExpr: "id",
                         searchEnabled: false,
-                        /*fieldTemplate: function(data, container) {
-                            let result = $("<div class='custom-item'>" +
-                                "<div class='material-type-name'></div></div>");
-                            result
-                                .find(".material-type-name")
-                                .dxTextBox({
-                                    value: data && data.name + " (" + data.measure_unit_value + "; учет: " + (data.accounting_type_value).toLowerCase() + ")",
-                                });
-                            container.append(result);
-                        },*/
-                        
                         itemTemplate: function (data) {
                             return "<div class='custom-item'>" +
                                     "<div class='material-type-name'>" +
@@ -169,13 +158,13 @@
                     colSpan: 1,
                     dataField: "weight",
                     label: {
-                        text: "Вес"
+                        text: "Вес (т)"
                     },
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        format: "#0 кг",
+                        format: "##0.### т; ##0,### т",
                         min: 0,
-                        showSpinButtons: true
+                        showSpinButtons: false
                     },
                     validationRules: [{
                         type: "required",
@@ -212,7 +201,7 @@
             },
             {
                 dataField: "weight",
-                caption: "Вес, кг",
+                caption: "Вес, т",
                 dataType: "number",
                 width: 120
             },
@@ -235,7 +224,7 @@
         ];
         //</editor-fold>
 
-        //<editor-fold desc="JS: Grid configurtion">
+        //<editor-fold desc="JS: Grid configuration">
         $("#gridContainer").dxDataGrid({
             dataSource: materialStandardsDataSource,
             focusedRowEnabled: true,
@@ -280,7 +269,7 @@
         });
         //</editor-fold>
 
-        //<editor-fold desc="JS: Toolbar configurtion">
+        //<editor-fold desc="JS: Toolbar configuration">
         //</editor-fold>
 
 
