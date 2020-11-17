@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\q3wMaterial\operations;
+namespace App\Http\Controllers\q3wMaterial\operations\operations;
 
 use App\Models\ProjectObject;
 use App\models\q3wMaterial\operations\q3wMaterialOperation;

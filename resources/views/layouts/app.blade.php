@@ -583,7 +583,7 @@
 <!-- DevExtreme library -->
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.all.js')}}"></script>
 <!-- DevExtreme localization -->
-<script type="text/javascript" src="/js/Devextreme-20.1.8/js/localization/dx.messages.ru.js"></script>
+<script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}">></script>
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 <script>
     var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
