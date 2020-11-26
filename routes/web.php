@@ -236,13 +236,21 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/updated-activity', 'Tasks\TasksController@updatedActivity');
 
     //Q3W Routing
-    //Material Types
+    //Common
+    Route::get('/project-objects/list', 'q3wMaterial\q3wCommonController@projectObjectsList')->name('project-objects.list');
+    Route::get('/material/measure-units/list', 'q3wMaterial\q3wCommonController@measureUnitsList')->name('material.measure-units.list');
+    Route::get('/material/accounting-types/list', 'q3wMaterial\q3wCommonController@materialAccountingTypesList')->name('material.accounting-types.list');
+    Route::get('/material/operations/routes/list', 'q3wMaterial\q3wCommonController@operationRoutesList')->name('material.operation.routes.list');
+    //Materials
     Route::get('/materials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
     Route::get('/materials/list', 'q3wMaterial\q3wMaterialController@show')->name('materials.list');
+    Route::get('/materials/snapshots/list', 'q3wMaterial\q3wMaterialController@snapshot')->name('materials.snapshots.list');
 
     //Material Types
     Route::get('/materials/material-type', 'q3wMaterial\q3wMaterialTypeController@index')->name('materials.types.index');
     Route::get('/materials/material-type/list', 'q3wMaterial\q3wMaterialTypeController@show')->name('materials.types.list');
+    Route::get('/materials/material-type/by-key', 'q3wMaterial\q3wMaterialTypeController@byKey')->name('materials.types.by-key');
+
     Route::put('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@update')->name('materials.types.update');
     Route::post('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@store')->name('materials.types.store');
     Route::delete('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@delete')->name('materials.types.delete');
@@ -254,10 +262,13 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::post('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@store')->name('materials.standards.store');
     Route::delete('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@delete')->name('materials.standards.delete');
 
-    //Material supply
+    //Material Operations
+    Route::get('/materials/operations/all', 'q3wMaterial\operations\q3wMaterialOperationController@index')->name('materials.operations.index');
+    Route::get('/materials/operations/all/list', 'q3wMaterial\operations\q3wMaterialOperationController@show')->name('materials.operations.list');
 
-    Route::get('/materials/supply/new/', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@create')->name('materials.operations.supply.new');
-    Route::post('/materials/supply/new/', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@store')->name('materials.operations.supply.new');
+    //Material supply
+    Route::get('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@create')->name('materials.operations.supply.new');
+    Route::post('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@store')->name('materials.operations.supply.new');
 });
 
 

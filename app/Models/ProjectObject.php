@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Building\ObjectResponsibleUser;
 
 class ProjectObject extends Model
 {
+    use DevExtremeDataSourceLoadable;
+
     protected $fillable = ['name', 'address', 'cadastral_number', 'short_name'];
 
     protected $appends = ['location', 'name_tag'];

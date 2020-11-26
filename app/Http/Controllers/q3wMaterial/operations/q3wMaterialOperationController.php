@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Models\ProjectObject;
+use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
-use http\Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -24,15 +25,7 @@ class q3wMaterialOperationController extends Controller
      */
     public function index()
     {
-        return view('materials.material-standard')->with([
-            'measureUnits' => q3wMeasureUnit::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
-            'accountingTypes' => q3wMaterialAccountingType::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
-            'materialTypes' => DB::table('q3w_material_types as a')
-                                ->leftJoin('q3w_measure_units as b', 'a.measure_unit', '=', 'b.id')
-                                ->leftJoin('q3w_material_accounting_types as d', 'a.accounting_type', '=', 'd.id')
-                                ->get(['a.id as id', 'a.name as name', 'b.value as measure_unit_value', 'd.value as accounting_type_value'])
-                                ->toJson(JSON_UNESCAPED_UNICODE)
-        ]);
+        return view('materials.operations.all');
     }
 
     /**
@@ -53,45 +46,36 @@ class q3wMaterialOperationController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $materialStandard = new q3wMaterialStandard(json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/));
-            $materialStandard->save();
 
-            return response()->json([
-                'result' => 'ok',
-                'key' => $materialStandard->id
-            ], 200);
-        }
-        catch(Exception $e)
-        {
-            return response()->json([
-                'result' => 'error',
-                'errors'  => $e->getMessage(),
-            ], 400);
-        }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param Request $request
      * @return string
      */
-    public function show(q3wMaterialStandard $q3wMaterialStandard)
+    public function show(Request $request)
     {
-/*      return q3wMaterialStandard::with('types')
-            ->get()
-            ->toJson(JSON_UNESCAPED_UNICODE);*/
-        return DB::table('q3w_material_standards as a')
-            ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
-            ->get(['a.*', 'b.accounting_type', 'b.measure_unit'])
-            ->toJSON();
+        $options = json_decode($request['data']);
+
+        $response = array(
+            "data" => (new q3wMaterialOperation)
+                ->dxLoadOptions($options)
+                ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
+                ->addSelect('q3w_material_operations.*', 'q3w_operation_route_stages.name as operation_route_stage_name')
+                ->withMaterialsSummary()
+                ->get(),
+            "totalCount" => (new q3wMaterialOperation)->dxLoadOptions($options)->count()
+        );
+
+        return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param q3wMaterialStandard $q3wMaterialStandard
      * @return \Illuminate\Http\Response
      */
     public function edit(q3wMaterialStandard $q3wMaterialStandard)
@@ -102,57 +86,23 @@ class q3wMaterialOperationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param \Illuminate\Http\Request $request
+     * @param q3wMaterialStandard $q3wMaterialStandard
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
     {
-        try {
-            $id = $request->all()["key"];
-            $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
 
-            $materialStandard = q3wMaterialStandard::findOrFail($id);
-
-            $materialStandard -> update($modifiedData);
-
-            return response()->json([
-                'result' => 'ok'
-            ], 200);
-
-        }
-        catch(Exception $e)
-        {
-            return response()->json([
-                'result' => 'error',
-                'errors'  => $e->getMessage(),
-            ], 400);
-        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param q3wMaterialStandard $q3wMaterialStandard
      * @return \Illuminate\Http\JsonResponse
      */
     public function delete(Request $request)
     {
-        try {
-            $id = $request->all()["key"];
 
-            $materialStandard = q3wMaterialStandard::find($id);
-            $materialStandard -> delete();
-
-            return response()->json([
-                'result' => 'ok'
-            ], 200);
-        }
-        catch (Exception $e){
-            return response()->json([
-                'result' => 'error',
-                'errors'  => $e->getMessage(),
-            ], 400);
-        }
     }
 }

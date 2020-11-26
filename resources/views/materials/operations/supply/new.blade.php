@@ -73,11 +73,12 @@
 
             let materialsStandardsAddingForm = $("#materialsStandardsAddingForm").dxForm({
                 colCount: 2,
-                items:[{
+                items: [{
                     editorType: "dxList",
                     name: "materialsStandardsList",
                     editorOptions: {
                         height: 400,
+                        width: 500,
                         dataSource: materialsStandardsListDataSource,
                         showSelectionControls: true,
                         selectionMode: "multiply",
@@ -85,7 +86,7 @@
                         searchExpr: "name",
                         grouped: true,
                         collapsibleGroups: true,
-                        itemTemplate: function(data) {
+                        itemTemplate: function (data) {
                             return $("<div>").text(data.name)
                         },
                         onSelectionChanged: function(data) {
@@ -113,25 +114,25 @@
                         groupTemplate: function(data)*/
                     }
                 },
-                {
-                    editorType: "dxList",
-                    name: "selectedMaterialsStandardsList",
-                    editorOptions: {
-                        dataSource: selectedMaterialStandardsListDataSource,
-                        allowItemDeleting: true,
-                        itemDeleteMode: "static",
-                        height: 400,
+                    {
+                        editorType: "dxList",
+                        name: "selectedMaterialsStandardsList",
+                        editorOptions: {
+                            dataSource: selectedMaterialStandardsListDataSource,
+                            allowItemDeleting: true,
+                            itemDeleteMode: "static",
+                            height: 400,
+                            width: 500,
+                            itemTemplate: function (data) {
+                                return $("<div>").text(data.name)
+                            },
 
-                        itemTemplate: function(data) {
-                            return $("<div>").text(data.name)
-                        },
+                            onItemDeleted: function (e) {
+                                console.log(e);
+                                let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                                let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList");
 
-                        onItemDeleted: function(e){
-                            console.log(e);
-                            let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
-                            let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList");
-
-                            materialsStandardsList.option("selectedItems", selectedMaterialsStandardsList.option("items"));
+                                materialsStandardsList.option("selectedItems", selectedMaterialsStandardsList.option("items"));
                         }
                     }
                 },
@@ -174,9 +175,9 @@
                 ]
             }).dxForm("instance");
 
-            let popupContainer = $("#popupContainer").dxPopup({height: "auto",
-                width: "auto",
-                width: "600px"
+            let popupContainer = $("#popupContainer").dxPopup({
+                height: "auto",
+                width: "auto"
             });
 
             //<editor-fold desc="JS: Columns definition">
@@ -307,30 +308,35 @@
                         showInGroupFooter: false,
                         alignByColumn: true
                     },
-                    {
-                        column: "material_quantity",
-                        summaryType: "sum",
-                        displayFormat: "Всего: {0}",
-                        showInGroupFooter: false,
-                        alignByColumn: true
-                    },
-                    {
-                        column: "computed_weight",
-                        summaryType: "sum",
-                        displayFormat: "Всего: {0} т.",
-                        showInGroupFooter: false,
-                        alignByColumn: true
-                    }],
+                        {
+                            column: "material_quantity",
+                            summaryType: "sum",
+                            displayFormat: "Всего: {0}",
+                            showInGroupFooter: false,
+                            alignByColumn: true
+                        },
+                        {
+                            column: "computed_weight",
+                            summaryType: "sum",
+                            //displayFormat: "Всего: {0} т.",
+                            customizeText: function (data) {
+                                return "Всего: " + data.value.toFixed(3) + " т."
+                            },
+                            showInGroupFooter: false,
+                            alignByColumn: true
+                        }],
                     totalItems: [{
                         column: "computed_weight",
                         summaryType: "sum",
-                        displayFormat: "Итого: {0} т.",
+                        //displayFormat: "Итого: {0} т.",
+                        customizeText: function (data) {
+                            return "Итого: " + data.value.toFixed(3) + " т."
+                        }
                     }]
                 },
 
-                onToolbarPreparing: function(e) {
+                onToolbarPreparing: function (e) {
                     let dataGrid = e.component;
-
                     e.toolbarOptions.items.unshift(
                         {
                             location: "before",

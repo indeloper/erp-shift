@@ -30,9 +30,13 @@
 
 @section('js_footer')
     <script>
-    $(function(){
-        //<editor-fold desc="JS: DataSources">
-        let measureUnitsData = {!!$measureUnits!!};
+        $(function () {
+            $("div.content").children(".container-fluid.pd-0-360").removeClass();
+        });
+
+        $(function () {
+            //<editor-fold desc="JS: DataSources">
+            let measureUnitsData = {!!$measureUnits!!};
         let accountingTypesData = {!!$accountingTypes!!};
         let materialTypesData = {!!$materialTypes!!};
 
@@ -222,25 +226,27 @@
                 }
             },
         ];
-        //</editor-fold>
+            //</editor-fold>
 
-        //<editor-fold desc="JS: Grid configuration">
-        $("#gridContainer").dxDataGrid({
-            dataSource: materialStandardsDataSource,
-            focusedRowEnabled: true,
-            hoverStateEnabled: true,
-            columnAutoWidth: false,
-            showBorders: true,
-            filterRow: {
-                visible: true,
-                applyFilter: "auto"
-            },
-            grouping: {
-                autoExpandAll: true,
-            },
-            groupPanel: {
-                visible: true
-            },
+            //<editor-fold desc="JS: Grid configuration">
+            $("#gridContainer").dxDataGrid({
+                dataSource: materialStandardsDataSource,
+                focusedRowEnabled: true,
+                hoverStateEnabled: true,
+                columnAutoWidth: false,
+                showBorders: true,
+                showColumnLines: true,
+                height: "100%",
+                filterRow: {
+                    visible: true,
+                    applyFilter: "auto"
+                },
+                grouping: {
+                    autoExpandAll: true,
+                },
+                groupPanel: {
+                    visible: true
+                },
             editing: {
                 mode: "popup",
                 allowUpdating: true,

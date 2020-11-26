@@ -201,9 +201,19 @@
                             </p>
                         </a>
 
-                        <div class="collapse @if((Request::is('building') || Request::is('building/*')) && !Request::is('*fuel_tank*') && !Request::is('*our_technic_tickets*') && !Request::is('*defects*') && !Request::is('*tech_acc*') && !Request::is('*vehicles*')) show @endif" id="building">
+                        <div
+                            class="collapse @if((Request::is('building') || Request::is('building/*')) && !Request::is('*fuel_tank*') && !Request::is('*our_technic_tickets*') && !Request::is('*defects*') && !Request::is('*tech_acc*') && !Request::is('*vehicles*')) show @endif"
+                            id="building">
                             <ul class="nav">
                                 <!--Q3W Menu Items-->
+                                @if(Auth::user()->can('manual_materials'))
+                                    <li class="nav-item @if (Request::is('/materials/operations/all') || Request::is('/materials/operations/all/*')) active @endif">
+                                        <a class="nav-link" href="{{ route('materials.operations.index') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Операции</span>
+                                        </a>
+                                    </li>
+                                @endif
                                 @if(Auth::user()->can('manual_materials'))
                                     <li class="nav-item @if (Request::is('materials/material') || Request::is('materials/material/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.index') }}">

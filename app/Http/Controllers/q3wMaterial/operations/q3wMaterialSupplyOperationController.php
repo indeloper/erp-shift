@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\q3wMaterial\operations\operations;
+namespace App\Http\Controllers\q3wMaterial\operations;
 
 use App\Models\ProjectObject;
 use App\models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
+use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
@@ -73,8 +74,10 @@ class q3wMaterialSupplyOperationController extends Controller
         //TODO Нужно разобраться с механизмом искллючений и откатом транзакции
         DB::beginTransaction();
         $requestData = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
+
         $materialOperation = new q3wMaterialOperation([
             'operation_route_id' => 1,
+            'operation_route_stage_id' => 3,
             'destination_project_object_id' => $requestData['project_object_id'],
             'date_start' => $requestData['date_start'],
             'creator_user_id' => Auth::id(),
@@ -83,12 +86,14 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
         $materialOperation->save();
 
+        (new q3wMaterialSnapshot)->takeSnapshot($materialOperation, ProjectObject::find($requestData['project_object_id']));
+
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
-            $materialType = q3wMaterialType::findOrFail($materialStandard -> material_type);
+            $materialType = q3wMaterialType::findOrFail($materialStandard->material_type);
 
-            $inputMaterialAmount = $materialType -> accounting_type == 1 ? $inputMaterial['material_quantity'] : null;
-            $inputMaterialQuantity = $materialType -> accounting_type == 1 ? $inputMaterial['length_quantity'] : $inputMaterial['material_quantity'];
+            $inputMaterialAmount = $materialType->accounting_type == 1 ? $inputMaterial['material_quantity'] : null;
+            $inputMaterialQuantity = $materialType->accounting_type == 1 ? $inputMaterial['length_quantity'] : $inputMaterial['material_quantity'];
 
 
             $operationMaterial = new q3wOperationMaterial([

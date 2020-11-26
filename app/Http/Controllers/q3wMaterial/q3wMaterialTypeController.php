@@ -18,10 +18,7 @@ class q3wMaterialTypeController extends Controller
      */
     public function index()
     {
-        return view('materials.material-type')->with([
-            'measureUnits' => q3wMeasureUnit::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
-            'accountingTypes' => q3wMaterialAccountingType::all('id','value')->toJson(JSON_UNESCAPED_UNICODE)
-        ]);
+        return view('materials.material-type');
     }
 
     /**
@@ -63,21 +60,38 @@ class q3wMaterialTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\q3wMaterial\q3wMaterialType  $q3wMaterialType
+     * @param Request $request
      * @return string
      */
-    public function show(q3wMaterialType $q3wMaterialType)
+    public function show(Request $request)
     {
-        return q3wMaterialType::all()->toJson(JSON_UNESCAPED_UNICODE);
+
+        $filterOptions = json_decode($request['data'])->filterOptions;
+
+        $response = array(
+            "data" => (new q3wMaterialType)
+                ->dxLoadOptions($filterOptions)
+                ->get(),
+            "totalCount" => (new q3wMaterialType)->dxLoadOptions($filterOptions)->count()
+        );
+        return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function byKey(Request $request)
+    {
+
+        $id = $request->all()["key"];
+
+        return q3wMaterialType::findOrFail($id)->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\q3wMaterial\q3wMaterialType  $q3wMaterialType
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return void
      */
-    public function edit(q3wMaterialType $q3wMaterialType)
+    public function edit(Request $request)
     {
         //
     }

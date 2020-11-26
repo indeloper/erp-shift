@@ -64,7 +64,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->foreign('operation_route_stage_type_id')->references('id')->on('q3w_operation_route_stage_types');
         });
 
-        $routeStageNames = [['Инициализация', null, 1, 1], ['Уведомление руководителю проектов', 1, 1, 4], ['Заявка завершена', 2, 1, 2]];
+        $routeStageNames = [['Инициализация', null, 1, 1], ['Уведомление руководителю проектов', 1, 1, 4], ['Завершена', 2, 1, 2]];
 
         foreach ($routeStageNames as $routeStageName) {
             $routeStage = new q3wOperationRouteStage();
@@ -78,12 +78,12 @@ class CreateQ3wMaterialOperationsTable extends Migration
         Schema::create('q3w_material_operations', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
             $table->integer('operation_route_id')->unsigned()->index()->comment('Идентификатор типа операции');
+            $table->integer('operation_route_stage_id')->unsigned()->index()->comment('Идентификатор этапа операции');
 
             $table->integer('source_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор объекта, с которого отправляется материал');
             $table->integer('destination_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор идентификатор объекта, куда должен прибыть материал');
 
             $table->integer('contractor_id')->unsigned()->nullable()->index()->comment('Идентификатор контрагента (поставщика)');
-            //Договор $table->time('contractor_id')->unsigned()->nullable()->index()->comment('Идентификатор контрагента (поставщика)');
 
             $table->timestamp('date_start')->comment('Дата начала');
             $table->timestamp('date_end')->nullable()->comment('Дата окончания ');
@@ -97,6 +97,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->softDeletes();
 
             $table->foreign('operation_route_id')->references('id')->on('q3w_operation_routes');
+            $table->foreign('operation_route_stage_id')->references('id')->on('q3w_operation_route_stages');
             $table->foreign('source_project_object_id')->references('id')->on('project_objects');
             $table->foreign('destination_project_object_id')->references('id')->on('project_objects');
             $table->foreign('contractor_id')->references('id')->on('contractors');
