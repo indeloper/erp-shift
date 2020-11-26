@@ -157,7 +157,5 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
 
  mix.copy('node_modules/devextreme/dist/js/dx.all.js', 'public/js/devextreme/dx.all.js');
  mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
- mix.copyDirectory('node_modules/devextreme/dist/css/fonts', 'public/css/devextreme/fonts');
- mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextreme/icons');
 
  mix.version();

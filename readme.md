@@ -28,7 +28,9 @@ Start:
 - Install all composer packages (for MacOS Catalina need to update php via brew)
 - Install all npm packages
 - Creating database, then run command: `php artisan migrate` -- Doesn`t work. Migration have data dependencies.
-- Comment again creating of table users (ust in case, unknown why it was commented out)
-- Uncomment boot(): in `App/Http/Providers/AuthServiceProvider.php` uncomment public function boot()
-- Run project: `npm run dev`
 
+- Comment again creating of table users (just in case, unknown why it was commented out)
+- Uncomment boot(): in `App/Http/Providers/AuthServiceProvider.php` uncomment public function boot()
+- Run npm: `npm run dev`
+- Generate Laravel application key: php artisan key:generate
+- Run project: php artisan serve

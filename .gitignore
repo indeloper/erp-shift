@@ -24,3 +24,4 @@ package-lock.json
 \.idea/
 
 .env.testing
+/database/debug.log
