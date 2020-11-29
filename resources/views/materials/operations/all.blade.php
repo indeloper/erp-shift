@@ -131,7 +131,7 @@
                 {
                     dataField: "operation_route_stage_name",
                     dataType: "string",
-                    caption: "Этап"
+                    caption: "Статус"
                 }
             ];
             //</editor-fold>
