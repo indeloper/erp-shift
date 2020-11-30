@@ -6,6 +6,7 @@ use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -20,6 +21,18 @@ class q3wCommonController extends Controller
         $options = json_decode($request['data']);
 
         return (new ProjectObject)->dxLoadOptions($options)->get(['id', 'name', 'short_name'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function usersList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new User)->dxLoadOptions($options)
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->orderBy('patronymic')
+            ->get()
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function operationRoutesList(Request $request)

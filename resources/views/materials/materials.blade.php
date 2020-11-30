@@ -622,7 +622,7 @@
             //</editor-fold>
 
             //<editor-fold desc="JS: Grid configuration">
-            $("#gridContainer").dxDataGrid({
+            let materialsDataGrid = $("#gridContainer").dxDataGrid({
                 dataSource: materialStandardsDataSource,
                 focusedRowEnabled: false,
                 hoverStateEnabled: true,
@@ -694,7 +694,12 @@
                                     if (e.itemData === "Поставка") {
                                         document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
                                     }
+
+                                    if (e.itemData === "Перемещение") {
+                                        transferMaterials();
+                                    }
                                 },
+
                                 items: ["Поставка", "Перемещение", "Производство", "Списание"]
                             }
                         }
@@ -703,11 +708,22 @@
                 onRowDblClick: function (e) {
                     console.log(e);
                 }
-            });
+            }).dxDataGrid("instance");
             //</editor-fold>
 
             //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>
+
+            function transferMaterials() {
+                let materialsToTransferArray = materialsDataGrid.getSelectedRowKeys();
+                let transferParams = "sourceProjectObjectId=" + projectObject;
+
+                if (materialsToTransferArray.length !== 0) {
+                    transferParams = transferParams + "&materialsToTransfer=" + encodeURIComponent(materialsToTransferArray.join('+'));
+                }
+
+                document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?" + transferParams;
+            }
 
             function updateProjectObjectDetailInfo(projectObjectID) {
                 projectObjectsData.store().byKey(projectObjectID).done(function (dataItem) {

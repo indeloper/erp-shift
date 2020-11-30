@@ -48,6 +48,7 @@ class q3wMaterialSupplyOperationController extends Controller
             $projectObjectId = 0;
         }
 
+
         return view('materials.operations.supply.new')->with([
             'projectObjectId' => $projectObjectId,
             'currentUserId' => Auth::id(),
@@ -81,7 +82,7 @@ class q3wMaterialSupplyOperationController extends Controller
             'destination_project_object_id' => $requestData['project_object_id'],
             'date_start' => $requestData['date_start'],
             'creator_user_id' => Auth::id(),
-            'responsible_user_id' => $requestData['responsible_user_id'],
+            'destination_responsible_user_id' => $requestData['destination_responsible_user_id'],
             'contractor_id' => isset($requestData['contractor_id']) ? $requestData['contractor_id'] : null
         ]);
         $materialOperation->save();

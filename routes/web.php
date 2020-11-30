@@ -238,6 +238,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     //Q3W Routing
     //Common
     Route::get('/project-objects/list', 'q3wMaterial\q3wCommonController@projectObjectsList')->name('project-objects.list');
+    Route::get('/users/list', 'q3wMaterial\q3wCommonController@usersList')->name('users.list');
     Route::get('/material/measure-units/list', 'q3wMaterial\q3wCommonController@measureUnitsList')->name('material.measure-units.list');
     Route::get('/material/accounting-types/list', 'q3wMaterial\q3wCommonController@materialAccountingTypesList')->name('material.accounting-types.list');
     Route::get('/material/operations/routes/list', 'q3wMaterial\q3wCommonController@operationRoutesList')->name('material.operation.routes.list');
@@ -269,6 +270,11 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     //Material supply
     Route::get('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@create')->name('materials.operations.supply.new');
     Route::post('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@store')->name('materials.operations.supply.new');
+
+    //Material transfer
+    Route::get('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@create')->name('materials.operations.transfer.new');
+    Route::get('/materials/transfer/view', 'q3wMaterial\operations\q3wMaterialTransferOperationController@show')->name('materials.operations.transfer.view');
+    Route::post('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@store')->name('materials.operations.transfer.new');
 });
 
 

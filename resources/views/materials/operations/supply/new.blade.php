@@ -17,8 +17,8 @@
 
 @section('js_footer')
     <script>
-        $(function(){
-            let measureUnitData = {!!$measureUnits!!};
+        $(function () {
+            let measureUnitData = {!!$measureUnits ?? ''!!};
             let projectObject = {{$projectObjectId}};
             let materialStandardsData = {!!$materialStandards!!};
             let materialTypesData = {!!$materialTypes!!};
@@ -26,7 +26,7 @@
             let supplyMaterialTempID = 0;
 
             //<editor-fold desc="JS: DataSources">
-            let materialsStandardsListDataSource = new DevExpress.data.DataSource ({
+            let materialsStandardsListDataSource = new DevExpress.data.DataSource({
                 group: "material_type_name",
                 store: new DevExpress.data.ArrayStore({
                     key: "id",
@@ -35,7 +35,6 @@
             })
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource ({
-                //reshapeOnPush: true,
                 store: new DevExpress.data.ArrayStore({
                     key: "id",
                     data: []
@@ -148,12 +147,6 @@
 
                         onClick: function () {
                             let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList").option("items");
-                            // id: addedItem.id,
-                            //     name: addedItem.name,
-                            //     accounting_type: addedItem.accounting_type,
-                            //     material_type: addedItem.material_type,
-                            //     measure_unit: addedItem.measure_unit,
-                            //     weight: addedItem.weight
 
                             selectedMaterialsData.forEach(function(materialStandard){
                                 supplyMaterialDataSource.store().insert({
@@ -277,10 +270,7 @@
                 hoverStateEnabled: true,
                 columnAutoWidth: false,
                 showBorders: true,
-                /*filterRow: {
-                    visible: true,
-                    applyFilter: "auto"
-                },*/
+                showColumnLines: true,
                 grouping: {
                     autoExpandAll: true,
                 },
@@ -301,17 +291,21 @@
                         summaryType: "count",
                         displayFormat: "Количество: {0}",
                     },
-                    {
-                        column: "length_quantity",
-                        summaryType: "sum",
-                        displayFormat: "Всего: {0}",
-                        showInGroupFooter: false,
-                        alignByColumn: true
-                    },
+                        {
+                            column: "length_quantity",
+                            summaryType: "sum",
+                            customizeText: function (data) {
+                                return "Всего: " + data.value.toFixed(3)
+                            },
+                            showInGroupFooter: false,
+                            alignByColumn: true
+                        },
                         {
                             column: "material_quantity",
                             summaryType: "sum",
-                            displayFormat: "Всего: {0}",
+                            customizeText: function (data) {
+                                return "Всего: " + data.value.toFixed(3)
+                            },
                             showInGroupFooter: false,
                             alignByColumn: true
                         },
@@ -394,19 +388,19 @@
                             value: Date.now()
                         }
                     },
-                    {
-                        colSpan: 2,
-                        dataField: "responsible_user_id",
-                        label: {
-                            text: "Ответственный"
-                        },
-                        editorType: "dxSelectBox",
-                        editorOptions: {
-                            dataSource: usersData,
-                            displayExpr: "full_name",
-                            valueExpr: "id",
-                            searchEnabled: true,
-                            value: {{$currentUserId}}
+                        {
+                            colSpan: 2,
+                            dataField: "destination_responsible_user_id",
+                            label: {
+                                text: "Ответственный"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: usersData,
+                                displayExpr: "full_name",
+                                valueExpr: "id",
+                                searchEnabled: true,
+                                value: {{$currentUserId}}
                         }
                     }]
                 },{
@@ -461,7 +455,7 @@
                             supplyOperationData.project_object_id = operationForm.option("formData").project_object_id;
                             //TODO Дата формаируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
                             supplyOperationData.date_start = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
-                            supplyOperationData.responsible_user_id = operationForm.option("formData").responsible_user_id;
+                            supplyOperationData.destination_responsible_user_id = operationForm.option("formData").destination_responsible_user_id;
                             supplyOperationData.contractor_id = operationForm.option("formData").contractor_id;
                             supplyOperationData.contract_id = operationForm.option("formData").contract_id;
 

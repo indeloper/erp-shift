@@ -11,7 +11,7 @@ use App\Models\Vacation\{
     ProjectResponsibleUserRedirectHistory,
     VacationsHistory
 };
-use App\Traits\{Messagable, Reviewable, TicketResponsibleUser};
+use App\Traits\{DevExtremeDataSourceLoadable, Messagable, Reviewable, TicketResponsibleUser};
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,6 +23,7 @@ class User extends Authenticatable
     use Reviewable;
     use Messagable;
     use TicketResponsibleUser;
+    use DevExtremeDataSourceLoadable;
 
     /**
      * The attributes that are mass assignable.

@@ -115,11 +115,12 @@ class q3wMaterialController extends Controller
                 'b.weight',
                 'd.accounting_type',
                 'd.measure_unit',
+                'd.name as material_type_name',
                 'e.value as measure_unit_value',
                 DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`quantity` END AS `length_quantity`'),
                 DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`amount` ELSE `a`.`quantity` END AS `computed_quantity`'),
                 DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN (`a`.`amount` * `a`.`quantity` * `b`.`weight`) ELSE (`a`.`quantity` * `b`.`weight`) END AS `computed_weight`')])
-            ->toJSON();
+            ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
     /**
