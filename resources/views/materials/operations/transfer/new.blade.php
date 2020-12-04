@@ -267,7 +267,8 @@
                     dataField: "length_quantity",
                     dataType: "number",
                     caption: "Метраж",
-                    showSpinButtons: true
+                    allowEditing: false,
+                    showSpinButtons: false
                 },
                 {
                     dataField: "material_quantity",
@@ -548,7 +549,7 @@
 
                                 transferOperationData.transfer_operation_initiator = transferOperationInitiator;
                                 transferOperationData.source_project_object_id = operationForm.option("formData").source_project_object_id;
-                                transferOperationData.destination_project_object_id = operationForm.option("formData").source_project_object_id;
+                                transferOperationData.destination_project_object_id = operationForm.option("formData").destination_project_object_id;
                                 //TODO Дата формаируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
                                 if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
                                     transferOperationData.date_start = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
@@ -582,10 +583,10 @@
 
                                     success: function (data, textStatus, jqXHR) {
                                         if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
-                                            //window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
+                                            window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
                                         }
                                         if (transferOperationInitiator === "destination") {
-                                            //window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
+                                            window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
                                         }
                                     },
                                     error: function (jqXHR, textStatus, errorThrown) {

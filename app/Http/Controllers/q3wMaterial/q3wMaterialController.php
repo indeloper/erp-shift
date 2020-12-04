@@ -27,7 +27,7 @@ class q3wMaterialController extends Controller
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
         } else {
-            $projectObjectId = ProjectObject::all('id')->first()->value('id');
+            $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
         }
 
         return view('materials.materials')->with([
@@ -101,7 +101,7 @@ class q3wMaterialController extends Controller
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
         } else {
-            $projectObjectId = ProjectObject::all('id')->first()->value('id');
+            $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
         }
 
         return DB::table('q3w_materials as a')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
@@ -47,9 +48,7 @@ class q3wMaterialTypeController extends Controller
                 'result' => 'ok',
                 'key' => $materialType->id
             ], 200);
-        }
-        catch(Exception $e)
-        {
+        } catch(Exception $e) {
             return response()->json([
                 'result' => 'error',
                 'errors'  => $e->getMessage(),
@@ -116,9 +115,7 @@ class q3wMaterialTypeController extends Controller
                 'result' => 'ok'
             ], 200);
 
-        }
-        catch(Exception $e)
-        {
+        } catch(Exception $e) {
             return response()->json([
                 'result' => 'error',
                 'errors'  => $e->getMessage(),
@@ -144,8 +141,7 @@ class q3wMaterialTypeController extends Controller
             return response()->json([
                 'result' => 'ok'
             ], 200);
-        }
-        catch (Exception $e){
+        } catch (Exception $e){
             return response()->json([
                 'result' => 'error',
                 'errors'  => $e->getMessage(),

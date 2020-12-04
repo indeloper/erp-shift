@@ -10,4 +10,9 @@ class q3wMaterial extends Model
     use SoftDeletes;
 
     protected $guarded = array('id');
+
+    public function standard()
+    {
+        return $this->hasOne(q3wMaterialStandard::class);
+    }
 }

@@ -66,7 +66,10 @@
                     dataField: "id",
                     caption: "Номер",
                     dataType: "number",
-                    width: 70
+                    width: 70,
+                    cellTemplate: function (container, options) {
+                        container.html('<a href="{{route('materials.operations.transfer.view')}}/?operationId=' + options.displayValue + '">' + options.displayValue + '</a>');
+                    }
                 },
                 {
                     dataField: "operation_route_id",

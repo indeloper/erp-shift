@@ -6,6 +6,10 @@
 
 @section('css_top')
     <style>
+        td.dx-command-select {
+            border-right: none !important;
+        }
+
         .dx-command-expand {
             border-left: none !important;
         }
@@ -453,9 +457,13 @@
 
             let projectObjectsData = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
-                store: new DevExpress.data.ArrayStore({
+                store: new DevExpress.data.CustomStore({
                     key: "id",
-                    data: {!! $projectObjects !!}
+                    loadMode: "raw",
+                    load: function (loadOptions) {
+                        return $.getJSON("{{route('project-objects.list')}}",
+                            {data: JSON.stringify(loadOptions)});
+                    },
                 })
             });
 
@@ -728,7 +736,11 @@
             function updateProjectObjectDetailInfo(projectObjectID) {
                 projectObjectsData.store().byKey(projectObjectID).done(function (dataItem) {
                     console.log(dataItem);
-                    $('#projectObjectDetailInfo').html(`Полное наименование: ${dataItem.name}<br>Адрес: ${dataItem.address}`)
+
+                    let name = dataItem.name === undefined ? '<Не указано>' : dataItem.name;
+                    let address = dataItem.address === undefined ? '<Не указан>' : dataItem.address;
+
+                    $('#projectObjectDetailInfo').html(`Полное наименование: ${name}<br>Адрес: ${address}`)
                 })
             }
 

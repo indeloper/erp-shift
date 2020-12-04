@@ -20,7 +20,10 @@ class q3wCommonController extends Controller
     {
         $options = json_decode($request['data']);
 
-        return (new ProjectObject)->dxLoadOptions($options)->get(['id', 'name', 'short_name'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return (new ProjectObject)->dxLoadOptions($options)
+            ->whereNotNull('short_name')
+            ->get(['id', 'name', 'short_name'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function usersList(Request $request)
