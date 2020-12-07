@@ -28,7 +28,7 @@ class CreateQ3wMaterialSnapshotsTable extends Migration
         Schema::create('q3w_material_snapshot_materials', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
             $table->bigInteger('snapshot_id')->unsigned()->index()->comment('Идентификатор снапшота');
-            $table->bigInteger('standard_id')->unsigned()->index()->comment('Идентификатор эталона');
+            $table->integer('standard_id')->unsigned()->index()->comment('Идентификатор эталона');
             $table->integer('amount')->unsigned()->nullable()->comment('Количество в штуках (для штучного учета)');
             $table->double('quantity')->unsigned()->comment('Количество в единицах измерения');
 

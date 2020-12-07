@@ -15,7 +15,7 @@ class CreateQ3wMaterialsTable extends Migration
     {
         Schema::create('q3w_materials', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
-            $table->bigInteger('standard_id')->unsigned()->comment('Идентификатор эталона')->index();
+            $table->integer('standard_id')->unsigned()->comment('Идентификатор эталона')->index();
             $table->integer('project_object')->unsigned()->comment('Идентификатор объекта')->index();
             $table->integer('amount')->unsigned()->nullable()->comment('Количество в штуках (для штучного учета)');
             $table->double('quantity')->unsigned()->comment('Количество в единицах измерения');

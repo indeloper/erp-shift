@@ -19,9 +19,9 @@ class CreateQ3wMaterialStandardsTable extends Migration
     public function up()
     {
         Schema::create('q3w_material_standards', function (Blueprint $table) {
-            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+            $table->increments('id')->comment('Уникальный идентификатор');
             $table->string('name')->index()->unique()->comment('Наименование эталона');
-            $table->bigInteger('material_type')->unsigned()->comment('Тип материала');
+            $table->integer('material_type')->unsigned()->comment('Тип материала');
             $table->double('weight')->unsigned()->comment('Вес за 1 единицу измерения');
             $table->text('description')->nullable()->comment('Описание');
 
@@ -80,9 +80,10 @@ class CreateQ3wMaterialStandardsTable extends Migration
                 case 26:
                 case 27:
                 case 22:
-                    $materialWeight = round($materialWeight, 6);
+                $materialWeight = round($materialWeight, 5);
                     break;
-                default: $materialWeight = round($materialWeight/1000, 6);
+                default:
+                    $materialWeight = round($materialWeight / 1000, 5);
             }
 
             $materialStandard = q3wMaterialStandard::where('name', $materialReference->name)->count();

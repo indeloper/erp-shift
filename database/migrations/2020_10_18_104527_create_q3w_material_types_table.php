@@ -18,7 +18,7 @@ class CreateQ3wMaterialTypesTable extends Migration
     public function up()
     {
         Schema::create('q3w_measure_units', function (Blueprint $table) {
-            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+            $table->increments('id')->comment('Уникальный идентификатор');
             $table->string('value')->comment('Наименование');
 
             $table->timestamps();
@@ -26,7 +26,7 @@ class CreateQ3wMaterialTypesTable extends Migration
         });
 
         Schema::create('q3w_material_accounting_types', function (Blueprint $table) {
-            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+            $table->increments('id')->comment('Уникальный идентификатор');
             $table->string('value')->comment('Наименование');
 
             $table->timestamps();
@@ -34,12 +34,12 @@ class CreateQ3wMaterialTypesTable extends Migration
         });
 
         Schema::create('q3w_material_types', function (Blueprint $table) {
-            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+            $table->increments('id')->comment('Уникальный идентификатор');
             $table->string('name')->comment('Наименование');
             $table->text('description')->nullable()->comment('Описание');
-            $table->bigInteger('measure_unit')->unsigned()->comment('Основная единица измерения');
+            $table->integer('measure_unit')->unsigned()->comment('Основная единица измерения');
             $table->text('measure_instructions')->nullable()->comment('Инструкция по измерению материала');
-            $table->bigInteger('accounting_type')->unsigned()->comment('Тип учета');
+            $table->integer('accounting_type')->unsigned()->comment('Тип учета');
 
             $table->timestamps();
             $table->softDeletes();
@@ -61,7 +61,7 @@ class CreateQ3wMaterialTypesTable extends Migration
             $newMeasureUnit -> save();
         }
 
-        $accountingTypeNames = ['Штучный', 'По единице измерения(?)'];
+        $accountingTypeNames = ['По-умолчанию', 'Шпунт'];
 
         foreach ($accountingTypeNames as $accountingTypeName) {
             $accountingType = new q3wMaterialAccountingType();
@@ -76,7 +76,11 @@ class CreateQ3wMaterialTypesTable extends Migration
             $materialType->name = $materialCategory->name;
             $materialType->description = $materialCategory->description;
             $materialType->measure_unit = q3wMeasureUnit::where('value', $materialCategory->category_unit)->first()->id;
-            $materialType->accounting_type = 1;
+            if ($materialCategory->name == 'Шпунт') {
+                $materialType->accounting_type = 2;
+            } else {
+                $materialType->accounting_type = 1;
+            }
             $materialType->save();
         }
     }
