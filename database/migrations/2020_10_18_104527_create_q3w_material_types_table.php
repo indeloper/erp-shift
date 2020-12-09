@@ -39,7 +39,7 @@ class CreateQ3wMaterialTypesTable extends Migration
             $table->text('description')->nullable()->comment('Описание');
             $table->integer('measure_unit')->unsigned()->comment('Основная единица измерения');
             $table->text('measure_instructions')->nullable()->comment('Инструкция по измерению материала');
-            $table->integer('accounting_type')->unsigned()->comment('Тип учета');
+            $table->integer('accounting_type')->unsigned()->default(1)->comment('Тип учета');
 
             $table->timestamps();
             $table->softDeletes();
