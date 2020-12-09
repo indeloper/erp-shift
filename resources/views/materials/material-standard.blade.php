@@ -37,7 +37,6 @@
         $(function () {
             //<editor-fold desc="JS: DataSources">
             let measureUnitsData = {!!$measureUnits!!};
-        let accountingTypesData = {!!$accountingTypes!!};
         let materialTypesData = {!!$materialTypes!!};
 
         let materialStandardsDataSource = new DevExpress.data.DataSource({
@@ -144,13 +143,13 @@
                         searchEnabled: false,
                         itemTemplate: function (data) {
                             return "<div class='custom-item'>" +
-                                    "<div class='material-type-name'>" +
-                                    data.name +
-                                    "</div>" +
-                                    "<div class='material-type-description'>" +
-                                    data.measure_unit_value + "; учет: " + (data.accounting_type_value).toLowerCase()  +
-                                    "</div>" +
-                                    "</div>"
+                                "<div class='material-type-name'>" +
+                                data.name +
+                                "</div>" +
+                                "<div class='material-type-description'>" +
+                                "Единица измерения:" + data.measure_unit_value +
+                                "</div>" +
+                                "</div>"
                         }
                     },
                     validationRules: [{

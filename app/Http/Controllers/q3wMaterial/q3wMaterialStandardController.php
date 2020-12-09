@@ -24,9 +24,8 @@ class q3wMaterialStandardController extends Controller
             'measureUnits' => q3wMeasureUnit::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
             'accountingTypes' => q3wMaterialAccountingType::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
             'materialTypes' => DB::table('q3w_material_types as a')
-                                ->leftJoin('q3w_measure_units as b', 'a.measure_unit', '=', 'b.id')
-                                ->leftJoin('q3w_material_accounting_types as d', 'a.accounting_type', '=', 'd.id')
-                                ->get(['a.id as id', 'a.name as name', 'b.value as measure_unit_value', 'd.value as accounting_type_value'])
+                ->leftJoin('q3w_measure_units as b', 'a.measure_unit', '=', 'b.id')
+                ->get(['a.id as id', 'a.name as name', 'b.value as measure_unit_value'])
                                 ->toJson(JSON_UNESCAPED_UNICODE)
         ]);
     }
@@ -80,7 +79,7 @@ class q3wMaterialStandardController extends Controller
             ->toJson(JSON_UNESCAPED_UNICODE);*/
         return DB::table('q3w_material_standards as a')
             ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
-            ->get(['a.*', 'b.accounting_type', 'b.measure_unit'])
+            ->get(['a.*', 'b.measure_unit'])
             ->toJSON();
     }
 
