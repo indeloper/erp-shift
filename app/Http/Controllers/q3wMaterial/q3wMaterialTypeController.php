@@ -65,13 +65,12 @@ class q3wMaterialTypeController extends Controller
     public function show(Request $request)
     {
 
-        $filterOptions = json_decode($request['data'])->filterOptions;
-
+        $dxLoadOptions = $request['data']['dxLoadOptions'];
         $response = array(
             "data" => (new q3wMaterialType)
-                ->dxLoadOptions($filterOptions)
+                ->dxLoadOptions($dxLoadOptions)
                 ->get(),
-            "totalCount" => (new q3wMaterialType)->dxLoadOptions($filterOptions)->count()
+            "totalCount" => (new q3wMaterialType)->dxLoadOptions($dxLoadOptions)->count()
         );
         return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }

@@ -20,15 +20,6 @@
 
         $(function () {
             //<editor-fold desc="JS: DataSources">
-            let accountingTypesStore = new DevExpress.data.CustomStore({
-                key: "id",
-                loadMode: "raw",
-                load: function (loadOptions) {
-                    return $.getJSON("{{route('material.accounting-types.list')}}",
-                        {data: JSON.stringify(loadOptions)});
-                },
-            });
-
             let measureUnitsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -44,7 +35,7 @@
                     key: "id",
                     load: function (loadOptions) {
                         return $.getJSON("{{route('materials.types.list')}}",
-                            {data: JSON.stringify({filterOptions: loadOptions})});
+                            {data: {dxLoadOptions: loadOptions}});
                     },
                     byKey: function (key) {
                         return $.getJSON("{{route('materials.types.by-key')}}",
@@ -108,7 +99,7 @@
 
             //</editor-fold>
 
-            //<editor-fold desc="JS: Edit form configurtion">
+            //<editor-fold desc="JS: Edit form configuration">
             let editForm = {
                 colCount: 2,
                 items: [{
@@ -138,24 +129,6 @@
                         validationRules: [{
                             type: "required",
                             message: 'Поле "Единица измерения" обязательно для заполнения'
-                        }]
-                    },
-                    {
-                        colSpan: 1,
-                        dataField: "accounting_type",
-                        label: {
-                            text: "Учет"
-                        },
-                        editorType: "dxSelectBox",
-                        editorOptions: {
-                            items: accountingTypesStore,
-                            displayExpr: "value",
-                            valueExpr: "id",
-                            searchEnabled: false
-                        },
-                        validationRules: [{
-                            type: "required",
-                            message: 'Поле "Учет" обязательно для заполнения'
                         }]
                     },
                     {
@@ -212,20 +185,6 @@
                     }
                 },
                 {
-                    dataField: "accounting_type",
-                    dataType: "number",
-                    caption: "Учет",
-                    lookup: {
-                        dataSource: {
-                            paginate: true,
-                            pageSize: 25,
-                            store: accountingTypesStore
-                        },
-                        displayExpr: "value",
-                        valueExpr: "id"
-                    }
-                },
-                {
                     dataField: "description",
                     dataType: "string",
                     caption: "Описание"
@@ -238,7 +197,7 @@
             ];
             //</editor-fold>
 
-            //<editor-fold desc="JS: Grid configurtion">
+            //<editor-fold desc="JS: Grid configuration">
             $("#gridContainer").dxDataGrid({
                 dataSource: materialTypesDataSource,
                 focusedRowEnabled: true,
@@ -307,7 +266,7 @@
             });
             //</editor-fold>
 
-            //<editor-fold desc="JS: Toolbar configurtion">
+            //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>
 
 
