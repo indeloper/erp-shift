@@ -65,7 +65,8 @@ class q3wMaterialTypeController extends Controller
     public function show(Request $request)
     {
 
-        $dxLoadOptions = $request['data']['dxLoadOptions'];
+        $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
+
         $response = array(
             "data" => (new q3wMaterialType)
                 ->dxLoadOptions($dxLoadOptions)

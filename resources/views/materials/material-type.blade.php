@@ -35,7 +35,7 @@
                     key: "id",
                     load: function (loadOptions) {
                         return $.getJSON("{{route('materials.types.list')}}",
-                            {data: {dxLoadOptions: loadOptions}});
+                            {data: JSON.stringify({dxLoadOptions: loadOptions})});
                     },
                     byKey: function (key) {
                         return $.getJSON("{{route('materials.types.by-key')}}",
