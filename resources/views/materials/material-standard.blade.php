@@ -147,7 +147,7 @@
                                 data.name +
                                 "</div>" +
                                 "<div class='material-type-description'>" +
-                                "Единица измерения:" + data.measure_unit_value +
+                                data.measure_unit_value +
                                 "</div>" +
                                 "</div>"
                         }
@@ -165,7 +165,6 @@
                     },
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        format: "##0.### т; ##0,### т",
                         min: 0,
                         showSpinButtons: false
                     },
