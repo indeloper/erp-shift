@@ -90,7 +90,9 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->integer('source_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор объекта, с которого отправляется материал');
             $table->integer('destination_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор идентификатор объекта, куда должен прибыть материал');
 
-            $table->integer('contractor_id')->unsigned()->nullable()->index()->comment('Идентификатор контрагента (поставщика)');
+            $table->integer('contractor_id')->unsigned()->index()->comment('Идентификатор контрагента (поставщика)');
+            $table->integer('consignment_note_number')->unsigned()->comment('Номер ТТН');
+
             $table->timestamp('date_start')->comment('Дата начала');
             $table->timestamp('date_end')->nullable()->comment('Дата окончания ');
 
@@ -108,6 +110,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->foreign('source_project_object_id')->references('id')->on('project_objects');
             $table->foreign('destination_project_object_id')->references('id')->on('project_objects');
             $table->foreign('contractor_id')->references('id')->on('contractors');
+
             $table->foreign('creator_user_id')->references('id')->on('users');
             $table->foreign('source_responsible_user_id')->references('id')->on('users');
             $table->foreign('destination_responsible_user_id')->references('id')->on('users');
