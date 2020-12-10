@@ -117,7 +117,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
             $table->bigInteger('material_operation_id')->unsigned()->comment('Идентификатор операции')->index();
             $table->integer('standard_id')->unsigned()->comment('Идентификатор эталона')->index();
-            $table->integer('amount')->unsigned()->nullable()->comment('Количество в штуках (для штучного учета)');
+            $table->integer('amount')->unsigned()->nullable()->comment('Количество в штуках');
             $table->double('quantity')->unsigned()->comment('Количество в единицах измерения');
 
             $table->timestamps();
