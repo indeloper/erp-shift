@@ -83,10 +83,7 @@ class q3wMaterialController extends Controller
                 'b.weight',
                 'd.accounting_type',
                 'd.measure_unit',
-                'e.value as measure_unit_value',
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`quantity` END AS `length_quantity`'),
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`amount` ELSE `a`.`quantity` END AS `computed_quantity`'),
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN (`a`.`amount` * `a`.`quantity` * `b`.`weight`) ELSE (`a`.`quantity` * `b`.`weight`) END AS `computed_weight`')])
+                'e.value as measure_unit_value'])
             ->toJSON();
     }
 
@@ -116,44 +113,7 @@ class q3wMaterialController extends Controller
                 'd.accounting_type',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value',
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`quantity` END AS `length_quantity`'),
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`amount` ELSE `a`.`quantity` END AS `computed_quantity`'),
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN (`a`.`amount` * `a`.`quantity` * `b`.`weight`) ELSE (`a`.`quantity` * `b`.`weight`) END AS `computed_weight`')])
+                'e.value as measure_unit_value'])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\models\q3wMaterial\q3wMaterial  $q3wMaterial
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(q3wMaterial $q3wMaterial)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\models\q3wMaterial\q3wMaterial  $q3wMaterial
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, q3wMaterial $q3wMaterial)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\models\q3wMaterial\q3wMaterial  $q3wMaterial
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(q3wMaterial $q3wMaterial)
-    {
-        //
     }
 }

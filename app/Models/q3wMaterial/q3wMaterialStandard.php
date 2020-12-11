@@ -14,4 +14,5 @@ class q3wMaterialStandard extends Model
     public function materialType() {
         return $this->belongsTo(q3wMaterialType::class,'material_type','id');
     }
+
 }

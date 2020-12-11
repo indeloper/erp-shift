@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
@@ -23,6 +24,15 @@ class q3wCommonController extends Controller
         return (new ProjectObject)->dxLoadOptions($options)
             ->whereNotNull('short_name')
             ->get(['id', 'name', 'short_name'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function ContractorsList(Request $request)
+    {
+        $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
+
+        return (new Contractor)->dxLoadOptions($dxLoadOptions)
+            ->get(['id', 'short_name'])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 

@@ -74,9 +74,6 @@ class q3wMaterialStandardController extends Controller
      */
     public function show(q3wMaterialStandard $q3wMaterialStandard)
     {
-/*      return q3wMaterialStandard::with('types')
-            ->get()
-            ->toJson(JSON_UNESCAPED_UNICODE);*/
         return DB::table('q3w_material_standards as a')
             ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
             ->get(['a.*', 'b.measure_unit'])

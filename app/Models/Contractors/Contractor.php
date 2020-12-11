@@ -2,6 +2,7 @@
 
 namespace App\Models\Contractors;
 
+use App\Traits\DevExtremeDataSourceLoadable;
 use App\Models\{Notification, Project, ProjectContractors, Task, User};
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,14 +10,14 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Contractor extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, DevExtremeDataSourceLoadable;
 
     protected $fillable = [
         'full_name', 'short_name', 'inn', 'kpp',
         'ogrn', 'legal_address', 'physical_adress',
         'general_manager', 'phone_number', 'email',
         'main_type', 'in_archive', 'notify', 'user_id'
-     ];
+    ];
 
     protected $appends = ['types'];
 
