@@ -114,7 +114,7 @@
                     }]
                 },
                     {
-                        colSpan: 1,
+                        colSpan: 2,
                         dataField: "measure_unit",
                         label: {
                             text: "Единица измерения"
