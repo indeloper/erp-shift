@@ -231,8 +231,8 @@
                 selection: {
                     allowSelectAll:true,
                     deferred:false,
-                    mode:"multiple",
-                    selectAllMode:"allPages",
+                    mode: "multiple",
+                    selectAllMode: "allPages",
                     showCheckBoxesMode: "always"
                 },
                 columns: materialColumns,
@@ -245,14 +245,7 @@
                         {
                             column: "amount",
                             summaryType: "sum",
-                            displayFormat: "Всего: {0}",
-                            showInGroupFooter: false,
-                            alignByColumn: true
-                        },
-                        {
-                            column: "quantity",
-                            summaryType: "sum",
-                            displayFormat: "Всего: {0}",
+                            displayFormat: "Всего: {0} шт.",
                             showInGroupFooter: false,
                             alignByColumn: true
                         },
@@ -261,8 +254,8 @@
                             summaryType: "sum",
                             customizeText: function (data) {
                                 return "Всего: " + data.value.toFixed(3) + " т."
-                        },
-                        showInGroupFooter: false,
+                            },
+                            showInGroupFooter: false,
                         alignByColumn: true
                     }],
                     totalItems: [{

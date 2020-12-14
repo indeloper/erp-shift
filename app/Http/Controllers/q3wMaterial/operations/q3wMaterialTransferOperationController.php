@@ -66,14 +66,14 @@ class q3wMaterialTransferOperationController extends Controller
                 ->whereIn('a.id', $predefinedMaterialsArray)
                 ->get(['a.id',
                     'a.standard_id',
+                    'a.amount',
+                    'a.quantity',
                     'b.name as standard_name',
                     'b.material_type',
                     'b.weight as standard_weight',
                     'd.accounting_type',
                     'd.measure_unit',
-                    'e.value as measure_unit_value',
-                    DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`quantity` END AS `length_quantity`'),
-                    DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`amount` ELSE `a`.`quantity` END AS `material_quantity`')])
+                    'e.value as measure_unit_value'])
                 ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         } else {
             $predefinedMaterials = json_encode([]);
@@ -89,26 +89,110 @@ class q3wMaterialTransferOperationController extends Controller
         ]);
     }
 
-    public function move(Request $request)
+    public function move(q3wMaterialOperation $operation)
     {
-        $requestData = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
+        DB::beginTransaction();
 
-        if (isset($requestData['operationId'])) {
-            $operation = q3wMaterialOperation::findOrFail($requestData['operationId']);
+        foreach ($operation->materials as $operationMaterial) {
+            switch ($operationMaterial->standard->materialType->accounting_type) {
+                case 2:
+                    $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                        ->where('standard_id', $operationMaterial->standard->id)
+                        ->where('quantity', $operationMaterial->quantity)
+                        ->first();
+                    $destinationProjectObjectMaterial = q3wMaterial::where('project_object', $operation->destination_project_object_id)
+                        ->where('standard_id', $operationMaterial->standard->id)
+                        ->where('quantity', $operationMaterial->quantity)
+                        ->first();
+                    break;
+                default:
+                    $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                        ->where('standard_id', $operationMaterial->standard->id)
+                        ->first();
+                    $destinationProjectObjectMaterial = q3wMaterial::where('project_object', $operation->destination_project_object_id)
+                        ->where('standard_id', $operationMaterial->standard->id)
+                        ->first();
+            }
+
+            if (!isset($sourceProjectObjectMaterial)) {
+                abort(400, 'Материала не существует на объекте отправителя');
+            }
+
+            switch ($operationMaterial->standard->materialType->accounting_type) {
+                case 2:
+                    $sourceProjectObjectMaterialDelta = $sourceProjectObjectMaterial->amount - $operationMaterial->amount;
+                    break;
+                default:
+                    $sourceProjectObjectMaterialDelta = $sourceProjectObjectMaterial->quantity - $operationMaterial->amount * $operationMaterial->quantity;
+            }
+
+            if ($sourceProjectObjectMaterialDelta < 0) {
+                abort(400, 'На объекте отправления недостаточно материала');
+            }
+
+            switch ($operationMaterial->standard->materialType->accounting_type) {
+                case 2:
+                    $sourceProjectObjectMaterial->amount = $sourceProjectObjectMaterial->amount - $operationMaterial->amount;
+                    $sourceProjectObjectMaterial->save();
+
+                    if (isset($destinationProjectObjectMaterial)) {
+                        $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->amount + $operationMaterial->amount;
+                        $destinationProjectObjectMaterial->save();
+                    } else {
+                        $destinationProjectObjectMaterial = new q3wMaterial([
+                            'standard_id' => $operationMaterial->standard->id,
+                            'project_object' => $operation->destination_project_object_id,
+                            'amount' => $operationMaterial->amount,
+                            'quantity' => $operationMaterial->quantity
+                        ]);
+                        $destinationProjectObjectMaterial->save();
+                    }
+                    break;
+                default:
+                    $sourceProjectObjectMaterial->amount = $sourceProjectObjectMaterial->amount - $operationMaterial->amount * $operationMaterial->quantity;
+                    $sourceProjectObjectMaterial->save();
+
+                    if (isset($destinationProjectObjectMaterial)) {
+                        $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->amount + $operationMaterial->amount * $operationMaterial->quantity;
+                        $destinationProjectObjectMaterial->save();
+                    } else {
+                        $destinationProjectObjectMaterial = new q3wMaterial([
+                            'standard_id' => $operationMaterial->standard->id,
+                            'project_object' => $operation->destination_project_object_id,
+                            'amount' => 1,
+                            'quantity' => $operationMaterial->amount * $operationMaterial->quantity
+                        ]);
+                        $destinationProjectObjectMaterial->save();
+                    }
+            }
         }
 
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->source_project_object_id));
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->destination_project_object_id));
 
+        $this->moveOperationToNextStage($operation->id);
+
+        DB::commit();
+    }
+
+    /*public function move(q3wMaterialOperation $operation)
+    {
+        $requestData = json_decode($request["data"], JSON_OBJECT_AS_ARRAY);
+
+        if (isset($requestData['operationId'])) {
+            $operation = q3wMaterialOperation::findOrFail($requestData['operationId']);
+        }
+
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
-            $materialType = q3wMaterialType::findOrFail($materialStandard->material_type);
 
-            $inputMaterialAmount = $materialType->accounting_type == 1 ? $inputMaterial['material_quantity'] : null;
-            $inputMaterialQuantity = $materialType->accounting_type == 1 ? $inputMaterial['length_quantity'] : $inputMaterial['material_quantity'];
+            $materialType = $materialStandard->materialType;
+
+            $inputMaterialAmount = $inputMaterial['amount'];
+            $inputMaterialQuantity = $inputMaterial['quantity'];
 
             // Изменение материалов у отправителя
-            if ($materialType->accounting_type == 1) {
+            if ($materialType->accounting_type == 2) {
                 $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $inputMaterialQuantity)
@@ -120,17 +204,7 @@ class q3wMaterialTransferOperationController extends Controller
             }
 
             if (isset($sourceProjectObjectMaterial)) {
-                if ($materialType->accounting_type == 1) {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->amount - $request['material']['quantity'];
-                } else {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $request['material']['quantity'];
-                }
-
-                if ($materialAmountDelta < 0) {
-
-                }
-
-                if ($materialType->accounting_type == 1) {
+                if ($materialType->accounting_type == 2) {
                     $materialAmountDelta = $sourceProjectObjectMaterial->amount - $inputMaterialAmount;
                     if ($materialAmountDelta >= 0) {
                         $sourceProjectObjectMaterial->amount = $materialAmountDelta;
@@ -138,9 +212,9 @@ class q3wMaterialTransferOperationController extends Controller
                         abort(400, 'Материала недостаточно на объекте отправления');
                     }
                 } else {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $inputMaterialAmount;
-                    if ($materialAmountDelta >= 0) {
-                        $sourceProjectObjectMaterial->quantity = $materialAmountDelta;
+                    $materialQuantityDelta = $sourceProjectObjectMaterial->quantity - $inputMaterialQuantity * $inputMaterialAmount;
+                    if ($materialQuantityDelta >= 0) {
+                        $sourceProjectObjectMaterial->quantity = $materialQuantityDelta;
                     } else {
                         abort(400, 'Материала недостаточно на объекте отправления');
                     }
@@ -148,7 +222,7 @@ class q3wMaterialTransferOperationController extends Controller
 
                 $sourceProjectObjectMaterial->save();
             } else {
-                abort(400, 'Материала не сузествует на объекте отправителя');
+                abort(400, 'Материала не существует на объекте отправителя');
             }
 
             // Изменение материалов у получателя
@@ -164,10 +238,10 @@ class q3wMaterialTransferOperationController extends Controller
             }
 
             if (isset($destinationProjectObjectMaterial)) {
-                if ($materialType->accounting_type == 1) {
+                if ($materialType->accounting_type == 2) {
                     $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->amount + $inputMaterialAmount;
                 } else {
-                    $destinationProjectObjectMaterial->quantity = $destinationProjectObjectMaterial->quantity + $inputMaterialQuantity;
+                    $destinationProjectObjectMaterial->quantity = $destinationProjectObjectMaterial->quantity + $inputMaterialQuantity * $inputMaterialAmount;
                 }
 
                 $destinationProjectObjectMaterial->save();
@@ -182,6 +256,11 @@ class q3wMaterialTransferOperationController extends Controller
                 $destinationProjectObjectMaterial->save();
             }
         }
+
+
+        (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->source_project_object_id));
+        (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->destination_project_object_id));
+
         $this->moveOperationToNextStage($operation->id);
 
         DB::commit();
@@ -189,7 +268,7 @@ class q3wMaterialTransferOperationController extends Controller
         return response()->json([
             'result' => 'ok'
         ], 200);
-    }
+    }*/
 
     public function moveOperationToNextStage($operationID)
     {
@@ -280,9 +359,8 @@ class q3wMaterialTransferOperationController extends Controller
      */
     public function store(Request $request)
     {
-        //TODO Нужно разобраться с механизмом искллючений и откатом транзакции
         DB::beginTransaction();
-        $requestData = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
+        $requestData = json_decode($request["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
 
         $operationRouteStage = 4;
 
@@ -297,16 +375,24 @@ class q3wMaterialTransferOperationController extends Controller
         //Нужно проверить, что материал существует
         //Нужно проверить, что остаток будет большим, или равным нулю
         foreach ($requestData['materials'] as $inputMaterial) {
-            if ($inputMaterial['accounting_type'] == 1) {
+            if ($inputMaterial['accounting_type'] == 2) {
                 $sourceMaterial = q3wMaterial::where('project_object', $requestData['source_project_object_id'])
                     ->where('standard_id', $inputMaterial['standard_id'])
-                    ->where('quantity', $inputMaterial['length_quantity'])
+                    ->where('quantity', $inputMaterial['quantity'])
                     ->firstOrFail();
 
-                if ($inputMaterial['material_quantity'] > $sourceMaterial['amount']) {
+                if ($inputMaterial['amount'] > $sourceMaterial['amount']) {
                     abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
                 }
 
+            } else {
+                $sourceMaterial = q3wMaterial::where('project_object', $requestData['source_project_object_id'])
+                    ->where('standard_id', $inputMaterial['standard_id'])
+                    ->firstOrFail();
+
+                if ($inputMaterial['amount'] > $sourceMaterial['quantity']) {
+                    abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
+                }
             }
         }
 
@@ -315,63 +401,35 @@ class q3wMaterialTransferOperationController extends Controller
             'operation_route_stage_id' => $operationRouteStage,
             'source_project_object_id' => $requestData['source_project_object_id'],
             'destination_project_object_id' => $requestData['destination_project_object_id'],
-            'date_start' => $requestData['date_start'],
-            'date_end' => $requestData['date_end'],
+            'date_start' => isset($requestData['date_start']) ? $requestData['date_start'] : null,
+            'date_end' => isset($requestData['date_end']) ? $requestData['date_end'] : null,
             'creator_user_id' => Auth::id(),
             'source_responsible_user_id' => $requestData['source_responsible_user_id'],
             'destination_responsible_user_id' => $requestData['destination_responsible_user_id'],
+            'consignment_note_number' => $requestData['consignment_note_number']
         ]);
 
         $materialOperation->save();
 
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
-            $materialType = q3wMaterialType::findOrFail($materialStandard->material_type);
+            $materialType = $materialStandard->materialType;
 
-            $inputMaterialAmount = $materialType->accounting_type == 1 ? $inputMaterial['material_quantity'] : null;
-            $inputMaterialQuantity = $materialType->accounting_type == 1 ? $inputMaterial['length_quantity'] : $inputMaterial['material_quantity'];
+            $inputMaterialAmount = $inputMaterial['amount'];
+            $inputMaterialQuantity = $inputMaterial['quantity'];
 
             $operationMaterial = new q3wOperationMaterial([
                 'material_operation_id' => $materialOperation->id,
                 'standard_id' => $materialStandard->id,
                 'amount' => $inputMaterialAmount,
-                'quantity' => $inputMaterialQuantity
+                'quantity' => $inputMaterialQuantity,
+                'initial_amount' => $inputMaterialAmount,
+                'initial_quantity' => $inputMaterialQuantity,
+                'edit_states' => json_encode(['addedByInitiator'])
             ]);
 
             $operationMaterial->save();
-
-            /*if ($materialType -> accounting_type == 1) {
-                $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
-                    ->where('standard_id', $materialStandard -> id)
-                    ->where ('quantity', $inputMaterialQuantity)
-                    ->first();
-            } else {
-                $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
-                    ->where('standard_id', $materialStandard -> id)
-                    ->first();
-            }
-
-            if (isset($material)) {
-                if ($materialType -> accounting_type == 1) {
-                    $material -> amount = $material -> amount + $inputMaterialAmount;
-                } else {
-                    $material -> quantity = $material -> quantity + $inputMaterialQuantity;
-                }
-
-                $material -> save();
-            } else {
-                $material = new q3wMaterial([
-                   'standard_id' => $materialStandard -> id,
-                   'project_object' => $requestData['project_object_id'],
-                   'amount' => $inputMaterialAmount,
-                   'quantity' => $inputMaterialQuantity
-                ]);
-
-                $material -> save();
-            }*/
         }
-
-        //(new q3wMaterialSnapshot)->takeSnapshot($materialOperation, ProjectObject::find($requestData['project_object_id']));
 
         DB::commit();
 
@@ -383,12 +441,12 @@ class q3wMaterialTransferOperationController extends Controller
     }
 
     /**
-     * Валидирует одночный эталон материала для операции
+     * Валидирует одиночный материал для операции
      * Материал считается валидным для перемещения если:
      *      1) Существует переданная в запросе заявка (operationId)
      *      2) Существует объект отправления (sourceProjectObjectId)
      *      3) На объекте сущесвует
-     *          3.1) Для штучного учета: Эталон + равное количество в единицах измерения (Пример: Шпунт VL 606A 14.5 м.п.)
+     *          3.1) Для шпунтового учета: Эталон + равное количество в единицах измерения (Пример: Шпунт VL 606A 14.5 м.п.)
      *          3.2) Для учета по единицам измерения: Эталон
      *      4) Количество материала на объекте отправления больше или равно, чем количество в заявке
      *      5) Отстатки не будут конфликтовать по количеству с ранее созданными заявками (//TODO: Реализовать проверку на конфликт заявок)
@@ -481,15 +539,24 @@ class q3wMaterialTransferOperationController extends Controller
             ->where('a.material_operation_id', '=', $operation->id)
             ->get(['a.id',
                 'a.standard_id',
+                'a.amount',
+                'a.initial_amount',
+                'a.quantity',
+                'a.edit_states',
+                'a.initial_quantity',
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight as standard_weight',
                 'd.accounting_type',
                 'd.measure_unit',
-                'e.value as measure_unit_value',
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`quantity` END AS `length_quantity`'),
-                DB::raw('CASE WHEN `d`.`accounting_type` = 1 THEN `a`.`amount` ELSE `a`.`quantity` END AS `material_quantity`')])
-            ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+                'e.value as measure_unit_value'])
+            ->toArray();
+
+        foreach ($materials as $material) {
+            $material->edit_states = json_decode($material->edit_states);
+        }
+
+        $materials = json_encode($materials, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 
         $operationData = $operation->toJSON(JSON_OBJECT_AS_ARRAY);
 
@@ -516,12 +583,61 @@ class q3wMaterialTransferOperationController extends Controller
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param q3wMaterialOperation $q3wMaterialOperation
      * @return Response
      */
-    public function update(Request $request, q3wMaterialOperation $q3wMaterialOperation)
+    public function update(Request $request)
     {
-        //
+        $requestData = json_decode($request["data"]);
+
+        if (isset($requestData->operationId)) {
+            $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
+        }
+
+        $moveToConflict = false;
+        DB::beginTransaction();
+        foreach ($requestData->materials as $inputMaterial) {
+            $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial->standard_id);
+
+            if (in_array("addedByRecipient", $inputMaterial->edit_states) ||
+                in_array("deletedByRecipient", $inputMaterial->edit_states)) {
+                $moveToConflict = true;
+            }
+
+            $operationMaterial = q3wOperationMaterial::find($inputMaterial->id);
+            if (!isset($operationMaterial)) {
+                $moveToConflict = true;
+
+                $operationMaterial = new q3wOperationMaterial([
+                        'material_operation_id' => $operation->id,
+                        'standard_id' => $materialStandard->id,
+                        'amount' => $inputMaterial->amount,
+                        'quantity' => $inputMaterial->quantity,
+                        'edit_states' => json_encode($inputMaterial->edit_states)
+                    ]
+                );
+                $operationMaterial->save();
+            } else {
+                $operationMaterial->amount = $inputMaterial->amount;
+                $operationMaterial->quantity = $inputMaterial->quantity;
+                $operationMaterial->edit_states = json_encode($inputMaterial->edit_states);
+                $operationMaterial->save();
+            }
+
+            if (!$moveToConflict) {
+                if ($operationMaterial->initial_amount != $operationMaterial->amount ||
+                    $operationMaterial->initial_quantity != $operationMaterial->quantity) {
+                    $moveToConflict = true;
+                }
+            }
+        }
+
+        DB::commit();
+
+        if ($moveToConflict) {
+            //$this->createConflict($operation);
+        } else {
+            $this->move($operation);
+        }
     }
 
     /**
@@ -544,6 +660,73 @@ class q3wMaterialTransferOperationController extends Controller
                 return Auth::id() == $operation->destination_responsible_user_id;
             default:
                 return false;
+        }
+    }
+
+    //TODO - Сейчас, если указать много объектов с 1 стандартом и количеством, превышающее на объекте отправления - валидация это пропустит. Исправить :)
+    public function validateNewMaterialList(Request $request)
+    {
+        $errors = [];
+
+        $requestData = json_decode($request['data']);
+
+        $projectObject = ProjectObject::find($requestData->source_project_object_id);
+        if (!isset($projectObject)) {
+            $errors['sourceProjectObjectNotFound'] = 'Объект отправления не найден';
+        }
+
+        foreach ($requestData->materials as $material) {
+            if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
+                $errors['amountIsNull'][] = array('id' => $material->id, 'message' => 'Количество в штуках не указано');
+            }
+
+            if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
+                $errors['quantityIsNull'][] = array('id' => $material->id, 'message' => 'Количество не указано');
+            }
+
+            $materialStandard = q3wMaterialStandard::find($material->standard_id);
+
+            $accountingType = $materialStandard->materialType->accounting_type;
+
+            if ($accountingType == 2) {
+                $sourceProjectObjectMaterial = (new q3wMaterial)
+                    ->where('project_object', $projectObject->id)
+                    ->where('standard_id', $material->standard_id)
+                    ->where('quantity', $material->quantity)
+                    ->get()
+                    ->first();
+            } else {
+                $sourceProjectObjectMaterial = (new q3wMaterial)
+                    ->where('project_object', $projectObject->id)
+                    ->where('standard_id', $material->standard_id)
+                    ->get()
+                    ->first();
+            }
+
+            if (!isset($sourceProjectObjectMaterial)) {
+                $errors['materialNotFound'][] = array('id' => $material->id, 'message' => 'Этого материала не существует на объекте отправления');
+            } else {
+                if ($accountingType == 2) {
+                    $materialAmountDelta = $sourceProjectObjectMaterial->amount - $material->amount;
+                } else {
+                    $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $material->quantity * $material->amount;
+                }
+
+                if ($materialAmountDelta < 0) {
+                    $errors['negativeMaterialQuantity'] = array('id' => $material->id, 'message' => 'Материала недостаточно на объекте отправления');
+                }
+            }
+        }
+
+        if (count($errors) == 0) {
+            return response()->json([
+                'result' => 'ok'
+            ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+        } else {
+            return response()->json([
+                'result' => 'error',
+                'errors' => $errors
+            ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         }
     }
 }

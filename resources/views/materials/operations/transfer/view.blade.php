@@ -5,7 +5,41 @@
 @section('url', "#")
 
 @section('css_top')
+    <style>
+        .initial-content {
+            float: left;
+            text-align: left;
+            line-height: 20px;
+            margin: -4px;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
 
+        .initial-content.equal {
+            background: #c6efce;
+            color: #006100;
+        }
+
+        .initial-content.negative {
+            background: #ffc7ce;
+            color: #9c0006;
+        }
+
+
+        .amount-cell-content {
+            float: right;
+            min-width: 50%;
+        }
+
+        .quantity-cell-content {
+            float: right;
+            min-width: 50%;
+        }
+
+        .dx-link.dx-icon-add {
+            color: #006100;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -19,7 +53,7 @@
     <script>
         $(function () {
             let operationData = {!! $operationData !!};
-
+            console.log(operationData);
             let measureUnitsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -33,12 +67,12 @@
                 loadMode: "processed",
                 load: function (loadOptions) {
                     return $.getJSON("{{route('materials.types.list')}}",
-                        {data: JSON.stringify({filterOptions: loadOptions})});
+                        {data: JSON.stringify({dxLoadOptions: loadOptions})});
                 },
             });
             let materialStandardsStore = new DevExpress.data.CustomStore({
                 key: "id",
-                loadMode: "raw",
+                loadMode: "processed",
                 load: function (loadOptions) {
                     return $.getJSON("{{route('materials.standards.list')}}"/*,
                         {data: JSON.stringify(loadOptions)}*/);
@@ -113,7 +147,7 @@
                         collapsibleGroups: true,
                         itemTemplate: function (data) {
                             switch (data.accounting_type) {
-                                case 1:
+                                case 2:
                                     return $("<div>").text(data.standard_name +
                                         ' (' +
                                         data.quantity +
@@ -160,7 +194,7 @@
                             width: 500,
                             itemTemplate: function (data) {
                                 switch (data.accounting_type) {
-                                    case 1:
+                                    case 2:
                                         return $("<div>").text(data.standard_name +
                                             ' (' +
                                             data.quantity +
@@ -202,14 +236,17 @@
 
                                 selectedMaterialsData.forEach(function (material) {
                                     transferMaterialDataSource.store().insert({
-                                        id: material.id,
+                                        //id: material.id,
                                         standard_id: material.standard_id,
                                         standard_name: material.standard_name,
                                         accounting_type: material.accounting_type,
                                         material_type: material.material_type,
                                         measure_unit: material.measure_unit,
+                                        measure_unit_value: material.measure_unit_value,
                                         standard_weight: material.weight,
-                                        length_quantity: material.accounting_type === 1 ? material.quantity : material.amount
+                                        quantity: material.quantity,
+                                        amount: material.amount,
+                                        edit_states: ["addedByRecipient"]
                                     })
                                 })
                                 transferMaterialDataSource.reload();
@@ -233,13 +270,41 @@
                     buttons: [
                         {
                             icon: "warning",
-                            style: "color: red",
+                            cssStyle: "color: red",
                             visible: (e) => {
                                 return typeof e.row.data.errors !== "undefined"
                             }
                         },
-                        "delete"
-
+                        {
+                            icon: "add",
+                            visible: (e) => {
+                                return e.row.data.edit_states.indexOf("addedByRecipient") !== -1
+                            }
+                        },
+                        {
+                            icon: "revert",
+                            visible: (e) => {
+                                return e.row.data.edit_states.indexOf("deletedByRecipient") !== -1
+                            },
+                            onClick: (e) => {
+                                e.row.data.edit_states.splice(e.row.data.edit_states.indexOf("deletedByRecipient"), 1);
+                                e.component.repaintRows(e.row.rowIndex);
+                            }
+                        },
+                        {
+                            icon: "trash",
+                            visible: (e) => {
+                                return e.row.data.edit_states.indexOf("deletedByRecipient") === -1
+                            },
+                            onClick: (e) => {
+                                if (e.row.data.edit_states.indexOf("addedByInitiator") === -1) {
+                                    e.component.deleteRow(e.row.rowIndex);
+                                } else {
+                                    e.row.data.edit_states.push("deletedByRecipient");
+                                    e.component.repaintRows(e.row.rowIndex);
+                                }
+                            }
+                        }
                     ]
                 },
                 {
@@ -258,6 +323,7 @@
                     dataType: "number",
                     allowEditing: false,
                     caption: "Единица измерения",
+                    alignment: "right",
                     lookup: {
                         dataSource: {store: measureUnitsStore},
                         displayExpr: "value",
@@ -265,15 +331,73 @@
                     }
                 },
                 {
-                    dataField: "length_quantity",
-                    dataType: "number",
-                    caption: "Метраж",
-                    showSpinButtons: true
-                },
-                {
-                    dataField: "material_quantity",
+                    dataField: "quantity",
                     dataType: "number",
                     caption: "Количество",
+                    showSpinButtons: false,
+                    cellTemplate: function (container, options) {
+                        let initialQuantity = options.data.initial_quantity;
+                        let quantity = options.data.quantity;
+                        if (options.data.edit_states.indexOf("addedByInitiator") !== -1 && options.data.accounting_type !== 2) {
+                            let quantityDelta = quantity - initialQuantity;
+                            let initialQuantityContentStyle = "initial-content";
+
+                            if (quantityDelta === 0) {
+                                quantityDelta = '='
+                                initialQuantityContentStyle = initialQuantityContentStyle + " equal"
+                            } else {
+                                initialQuantityContentStyle = initialQuantityContentStyle + " negative"
+                            }
+
+                            if (quantityDelta > 0) {
+                                quantityDelta = '+' + quantityDelta
+                            }
+
+                            if (quantity !== null) {
+                                $(`<div class="${initialQuantityContentStyle}">${initialQuantity} [${quantityDelta}]</div><div class="quantity-cell-content">${quantity} ${options.data.measure_unit_value}</div>`)
+                                    .appendTo(container);
+                            }
+                        } else {
+                            $(`<div class="quantity-cell-content">${quantity} ${options.data.measure_unit_value}</div>`)
+                                .appendTo(container);
+                        }
+                    }
+                },
+                {
+                    dataField: "amount",
+                    dataType: "number",
+                    caption: "Количество (шт.)",
+                    editorOptions: {
+                        min: 0,
+                        format: "#"
+                    },
+                    cellTemplate: function (container, options) {
+                        let initialAmount = options.data.initial_amount;
+                        let amount = options.data.amount;
+                        if (options.data.edit_states.indexOf("addedByInitiator") !== -1) {
+                            let amountDelta = amount - initialAmount;
+                            let initialAmountContentStyle = "initial-content";
+
+                            if (amountDelta === 0) {
+                                amountDelta = '='
+                                initialAmountContentStyle = initialAmountContentStyle + " equal"
+                            } else {
+                                initialAmountContentStyle = initialAmountContentStyle + " negative"
+                            }
+
+                            if (amountDelta > 0) {
+                                amountDelta = '+' + amountDelta
+                            }
+
+                            if (amount !== null) {
+                                $(`<div class="${initialAmountContentStyle}">${initialAmount} [${amountDelta}]</div><div class="amount-cell-content">${amount} шт.</div>`)
+                                    .appendTo(container);
+                            }
+                        } else {
+                            $(`<div class="amount-cell-content">${amount} шт.</div>`)
+                                .appendTo(container);
+                        }
+                    }
                 },
                 {
                     dataField: "computed_weight",
@@ -281,12 +405,7 @@
                     allowEditing: false,
                     caption: "Вес",
                     calculateCellValue: function (rowData) {
-                        let weight;
-                        if (rowData.accounting_type === 1) {
-                            weight = rowData.material_quantity * rowData.length_quantity * rowData.standard_weight;
-                        } else {
-                            weight = rowData.material_quantity * rowData.standard_weight;
-                        }
+                        let weight = rowData.quantity * rowData.amount * rowData.standard_weight;
 
                         if (isNaN(weight)) {
                             weight = 0;
@@ -297,7 +416,15 @@
                         rowData.computed_weight = weight;
                         return weight;
 
-                    }
+                    },
+                    cellTemplate: function (container, options) {
+                        let computed_weight = options.data.computed_weight;
+                        if (computed_weight !== null) {
+                            $(`<div>${computed_weight} т.</div>`)
+                                .appendTo(container);
+                        }
+                    },
+
                 },
                 {
                     dataField: "material_type",
@@ -344,10 +471,10 @@
                         displayFormat: "Количество: {0}",
                     },
                         {
-                            column: "material_quantity",
+                            column: "amount",
                             summaryType: "sum",
                             customizeText: function (data) {
-                                return "Всего: " + data.value.toFixed(3)
+                                return `Всего: ${data.value} шт.`
                             },
                             showInGroupFooter: false,
                             alignByColumn: true
@@ -355,9 +482,8 @@
                         {
                             column: "computed_weight",
                             summaryType: "sum",
-                            //displayFormat: "Всего: {0} т.",
                             customizeText: function (data) {
-                                return "Всего: " + data.value.toFixed(3) + " т."
+                                return `Всего: ${data.value.toFixed(3)} т.`
                             },
                             showInGroupFooter: false,
                             alignByColumn: true
@@ -372,7 +498,7 @@
                     }]
                 },
                 @if($allowEditing)
-                onToolbarPreparing: function (e) {
+                onToolbarPreparing: (e) => {
                     let dataGrid = e.component;
                     e.toolbarOptions.items.unshift(
                         {
@@ -389,6 +515,22 @@
                     );
                 },
                 @endif
+                onEditorPreparing: (e) => {
+                    if (e.dataField === "quantity" && e.parentType === "dataRow") {
+                        if (e.row.data.edit_states.indexOf("addedByInitiator") !== -1) {
+                            if (e.row.data.accounting_type === 2) {
+                                e.cancel = true
+                            }
+                        }
+                    }
+                },
+                onRowUpdating: (e) => {
+                    console.log(e);
+                    if (e.oldData.edit_states.indexOf("editedByRecipient") === -1) {
+                        e.newData.edit_states = e.oldData.edit_states;
+                        e.newData.edit_states.push("editedByRecipient");
+                    }
+                },
                 onRowUpdated: validateSingleMaterial
             };
             //</editor-fold>
@@ -463,7 +605,7 @@
                         }
                     },
                         {
-                            colSpan: 3,
+                            colSpan: 2,
                             dataField: "destination_responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -476,6 +618,19 @@
                                 displayExpr: "full_name",
                                 valueExpr: "id",
                                 searchEnabled: true
+                            }
+                        },
+                        {
+                            colSpan: 1,
+                            dataField: "consignment_note_number",
+                            label: {
+                                text: "Номер ТТН"
+                            },
+                            editorType: "dxNumberBox",
+                            editorOptions: {
+                                min: 0,
+                                format: "000000",
+                                showSpinButtons: false
                             }
                         }]
                 },
@@ -495,22 +650,7 @@
                         @if($allowEditing)
                     {
                         itemType: "button",
-                        colSpan: 1,
-                        horizontalAlignment: "left",
-                        buttonOptions: {
-                            text: "Конфликт?",
-                            type: "danger",
-                            stylingMode: "contained",
-                            useSubmitBehavior: false,
-
-                            onClick: function () {
-                                //
-                            }
-                        }
-                    },
-                    {
-                        itemType: "button",
-                        colSpan: 1,
+                        colSpan: 2,
                         horizontalAlignment: "right",
                         buttonOptions: {
                             text: "Подтвердить",
@@ -524,30 +664,8 @@
                                 transferOperationData.materials = transferMaterialData;
 
                                 console.log(transferOperationData);
-
-                                $.ajax({
-                                    url: "{{route('materials.operations.transfer.move')}}",
-                                    method: "POST",
-                                    headers: {
-                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                    },
-                                    data: {
-                                        data: JSON.stringify(transferOperationData),
-                                        options: null
-                                    },
-
-                                    success: function (data, textStatus, jqXHR) {
-                                        if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
-                                            //window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
-                                        }
-                                        if (transferOperationInitiator === "destination") {
-                                            //window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
-                                        }
-                                    },
-                                    error: function (jqXHR, textStatus, errorThrown) {
-                                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
-                                    }
-                                })
+                                //validateMaterialList(transferOperationData);
+                                postEditingData(transferOperationData);
                             }
                         }
                     }
@@ -584,6 +702,55 @@
                         }
                     }
                 });
+            }
+
+            function validateMaterialList(transferOperationData, forcePostData) {
+                $.ajax({
+                    url: "{{route('materials.operations.transfer.new.validate-material-list')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        data: JSON.stringify(transferOperationData)
+                    },
+
+                    success: function (data, textStatus, jqXHR) {
+                        postEditingData(transferOperationData)
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        if (forcePostData) {
+                            postEditingData(transferOperationData)
+                        }
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка<br>Список ошибок", "error", 5000)
+                    }
+                })
+            }
+
+            function postEditingData(transferOperationData) {
+                $.ajax({
+                    url: "{{route('materials.operations.transfer.update')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        data: JSON.stringify(transferOperationData),
+                        options: null
+                    },
+
+                    success: function (data, textStatus, jqXHR) {
+                        if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
+                            //window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
+                        }
+                        if (transferOperationInitiator === "destination") {
+                            //window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
+                    }
+                })
             }
         });
     </script>

@@ -31,7 +31,7 @@
                 loadMode: "processed",
                 load: function (loadOptions) {
                     return $.getJSON("{{route('materials.types.list')}}",
-                        {data: JSON.stringify({filterOptions: loadOptions})});
+                        {data: JSON.stringify({dxLoadOptions: loadOptions})});
                 },
             });
             let materialStandardsStore = new DevExpress.data.CustomStore({
@@ -118,7 +118,7 @@
                         collapsibleGroups: true,
                         itemTemplate: function (data) {
                             switch (data.accounting_type) {
-                                case 1:
+                                case 2:
                                     return $("<div>").text(data.standard_name +
                                         ' (' +
                                         data.quantity +
@@ -166,7 +166,7 @@
                             width: 500,
                             itemTemplate: function (data) {
                                 switch (data.accounting_type) {
-                                    case 1:
+                                    case 2:
                                         return $("<div>").text(data.standard_name +
                                             ' (' +
                                             data.quantity +
@@ -217,7 +217,8 @@
                                         material_type: material.material_type,
                                         measure_unit: material.measure_unit,
                                         standard_weight: material.weight,
-                                        length_quantity: material.accounting_type === 1 ? material.quantity : material.amount
+                                        quantity: material.quantity,
+                                        amount: material.amount
                                     })
                                 })
                                 transferMaterialDataSource.reload();
@@ -257,6 +258,7 @@
                     dataType: "number",
                     allowEditing: false,
                     caption: "Единица измерения",
+                    alignment: "right",
                     lookup: {
                         dataSource: {store: measureUnitsStore},
                         displayExpr: "value",
@@ -264,16 +266,35 @@
                     }
                 },
                 {
-                    dataField: "length_quantity",
-                    dataType: "number",
-                    caption: "Метраж",
-                    allowEditing: false,
-                    showSpinButtons: false
-                },
-                {
-                    dataField: "material_quantity",
+                    dataField: "quantity",
                     dataType: "number",
                     caption: "Количество",
+                    allowEditing: false,
+                    showSpinButtons: false,
+                    cellTemplate: function (container, options) {
+                        let quantity = options.data.quantity;
+                        console.log(options.data);
+                        if (quantity !== null) {
+                            $(`<div>${quantity} ${options.data.measure_unit_value}</div>`)
+                                .appendTo(container);
+                        }
+                    },
+                },
+                {
+                    dataField: "amount",
+                    dataType: "number",
+                    caption: "Количество (шт.)",
+                    editorOptions: {
+                        min: 0,
+                        format: "#"
+                    },
+                    cellTemplate: function (container, options) {
+                        let amount = options.data.amount;
+                        if (amount !== null) {
+                            $(`<div>${amount} шт.</div>`)
+                                .appendTo(container);
+                        }
+                    }
                 },
                 {
                     dataField: "computed_weight",
@@ -281,14 +302,7 @@
                     allowEditing: false,
                     caption: "Вес",
                     calculateCellValue: function (rowData) {
-                        console.log(rowData);
-
-                        let weight;
-                        if (rowData.accounting_type === 1) {
-                            weight = rowData.material_quantity * rowData.length_quantity * rowData.standard_weight;
-                        } else {
-                            weight = rowData.material_quantity * rowData.standard_weight;
-                        }
+                        let weight = rowData.quantity * rowData.amount * rowData.standard_weight;
 
                         if (isNaN(weight)) {
                             weight = 0;
@@ -299,7 +313,15 @@
                         rowData.computed_weight = weight;
                         return weight;
 
-                    }
+                    },
+                    cellTemplate: function (container, options) {
+                        let computed_weight = options.data.computed_weight;
+                        if (computed_weight !== null) {
+                            $(`<div>${computed_weight} т.</div>`)
+                                .appendTo(container);
+                        }
+                    },
+
                 },
                 {
                     dataField: "material_type",
@@ -344,10 +366,10 @@
                         displayFormat: "Количество: {0}",
                     },
                         {
-                            column: "material_quantity",
+                            column: "amount",
                             summaryType: "sum",
                             customizeText: function (data) {
-                                return "Всего: " + data.value.toFixed(3)
+                                return `Всего: ${data.value} шт.`
                             },
                             showInGroupFooter: false,
                             alignByColumn: true
@@ -355,9 +377,8 @@
                         {
                             column: "computed_weight",
                             summaryType: "sum",
-                            //displayFormat: "Всего: {0} т.",
                             customizeText: function (data) {
-                                return "Всего: " + data.value.toFixed(3) + " т."
+                                return `Всего: ${data.value.toFixed(3)} т.`
                             },
                             showInGroupFooter: false,
                             alignByColumn: true
@@ -416,7 +437,7 @@
                             displayExpr: "short_name",
                             valueExpr: "id",
                             searchEnabled: true,
-                            value: transferOperationInitiator === "source" ? sourceProjectObjectId : 0,
+                            value: transferOperationInitiator === "source" ? sourceProjectObjectId : null,
                             onValueChanged: function (e) {
                                 if (operationForm.getEditor("transferMaterialGrid").option("dataSource").items().length > 0) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('При смене объекта отправления будут удалены введенные данные по материалам операции.<br>Продолжить?', 'Смена объекта отправления');
@@ -439,7 +460,11 @@
                                     availableMaterialsDataSource.reload();
                                 }
                             }
-                        }
+                        },
+                        validationRules: [{
+                            type: "required",
+                            message: 'Поле "Объект отправления" обязательно для заполнения'
+                        }]
                     },
                         {
                             dataField: "date_start",
@@ -451,7 +476,11 @@
                             editorType: "dxDateBox",
                             editorOptions: {
                                 value: transferOperationInitiator === "source" ? Date.now() : null,
-                            }
+                            },
+                            validationRules: [{
+                                type: transferOperationInitiator !== "destination" ? "required" : "",
+                                message: 'Поле "Дата получения" обязательно для заполнения'
+                            }]
                         },
                         {
                             colSpan: 2,
@@ -467,8 +496,12 @@
                                 displayExpr: "full_name",
                                 valueExpr: "id",
                                 searchEnabled: true,
-                                value: transferOperationInitiator === "source" ? {{$currentUserId}} : 0
-                            }
+                                value: transferOperationInitiator === "source" ? {{$currentUserId}} : null
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Ответственный" обязательно для заполнения'
+                            }]
                         }]
                 }, {
                     itemType: "group",
@@ -488,8 +521,12 @@
                             displayExpr: "short_name",
                             valueExpr: "id",
                             searchEnabled: true,
-                            value: transferOperationInitiator === "destination" ? destinationProjectObjectId : 0,
-                        }
+                            value: transferOperationInitiator === "destination" ? destinationProjectObjectId : null,
+                        },
+                        validationRules: [{
+                            type: "required",
+                            message: 'Поле "Объект получения" обязательно для заполнения'
+                        }]
                     },
                         {
                             dataField: "date_end",
@@ -501,7 +538,11 @@
                             editorType: "dxDateBox",
                             editorOptions: {
                                 value: transferOperationInitiator === "destination" ? Date.now() : null,
-                            }
+                            },
+                            validationRules: [{
+                                type: transferOperationInitiator === "destination" ? "required" : "",
+                                message: 'Поле "Дата получения" обязательно для заполнения'
+                            }]
                         },
                         {
                             colSpan: 2,
@@ -517,8 +558,29 @@
                                 displayExpr: "full_name",
                                 valueExpr: "id",
                                 searchEnabled: true,
-                                value: transferOperationInitiator === "destination" ? {{$currentUserId}} : 0
-                            }
+                                value: transferOperationInitiator === "destination" ? {{$currentUserId}} : null
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Ответственный" обязательно для заполнения'
+                            }]
+                        },
+                        {
+                            dataField: "consignment_note_number",
+                            label: {
+                                text: "Номер ТТН"
+                            },
+                            editorType: "dxNumberBox",
+                            editorOptions: {
+                                min: 0,
+                                format: "000000",
+                                showSpinButtons: false,
+                                value: null
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Номер ТТН" обязательно для заполнения'
+                            }]
                         }]
                 },
                     {
@@ -544,8 +606,13 @@
                             stylingMode: "contained",
                             useSubmitBehavior: false,
 
-                            onClick: function () {
+                            onClick: function (e) {
                                 let transferOperationData = {};
+
+                                let result = e.validationGroup.validate();
+                                if (!result.isValid) {
+                                    return;
+                                }
 
                                 transferOperationData.transfer_operation_initiator = transferOperationInitiator;
                                 transferOperationData.source_project_object_id = operationForm.option("formData").source_project_object_id;
@@ -564,35 +631,14 @@
                                 transferOperationData.source_responsible_user_id = operationForm.option("formData").source_responsible_user_id;
                                 transferOperationData.destination_responsible_user_id = operationForm.option("formData").destination_responsible_user_id;
 
+                                transferOperationData.consignment_note_number = operationForm.option("formData").consignment_note_number;
+
                                 transferOperationData.materials = transferMaterialData;
 
                                 console.log(operationForm.option("formData"));
                                 console.log(transferOperationData);
                                 console.log(JSON.stringify(transferOperationData));
-
-                                $.ajax({
-                                    url: "{{route('materials.operations.transfer.new')}}",
-                                    method: "POST",
-                                    headers: {
-                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                    },
-                                    data: {
-                                        data: JSON.stringify(transferOperationData),
-                                        options: null
-                                    },
-
-                                    success: function (data, textStatus, jqXHR) {
-                                        if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
-                                            window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
-                                        }
-                                        if (transferOperationInitiator === "destination") {
-                                            window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
-                                        }
-                                    },
-                                    error: function (jqXHR, textStatus, errorThrown) {
-                                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
-                                    }
-                                })
+                                validateMaterialList(transferOperationData, false);
                             }
                         }
                     }]
@@ -603,7 +649,54 @@
             //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>
 
+            function validateMaterialList(transferOperationData, forcePostData) {
+                $.ajax({
+                    url: "{{route('materials.operations.transfer.new.validate-material-list')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        data: JSON.stringify(transferOperationData)
+                    },
 
+                    success: function (data, textStatus, jqXHR) {
+                        postEditingData(transferOperationData)
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        if (forcePostData) {
+                            postEditingData(transferOperationData)
+                        }
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка<br>Список ошибок", "error", 5000)
+                    }
+                })
+            }
+
+            function postEditingData(transferOperationData) {
+                $.ajax({
+                    url: "{{route('materials.operations.transfer.new')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        data: JSON.stringify(transferOperationData),
+                        options: null
+                    },
+
+                    success: function (data, textStatus, jqXHR) {
+                        if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
+                            window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
+                        }
+                        if (transferOperationInitiator === "destination") {
+                            window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        DevExpress.ui.notify("При сохранении данных произошли ошибки - список ошибок", "error", 5000)
+                    }
+                })
+            }
         });
 
     </script>

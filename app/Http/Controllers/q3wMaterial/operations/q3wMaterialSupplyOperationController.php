@@ -65,6 +65,20 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
     }
 
+    public function validateMaterialTransfer(array $materials)
+    {
+        foreach ($materials as $material) {
+            $errors = [];
+            $materialStandard = q3wMaterialStandard::find($material->standard_id);
+            if (!isset($materialStandard)) {
+                //errors[] = array ('')
+                continue;
+            }
+
+            //$sourceMaterial = q3w
+        }
+    }
+
     public function validateMaterialList(Request $request)
     {
         $errors = [];
@@ -203,26 +217,17 @@ class q3wMaterialSupplyOperationController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param q3wMaterialOperation $q3wMaterialOperation
-     * @return Response
-     */
-    public function edit(q3wMaterialOperation $q3wMaterialOperation)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param q3wMaterialOperation $q3wMaterialOperation
-     * @return Response
+     * @return void
      */
-    public function update(Request $request, q3wMaterialOperation $q3wMaterialOperation)
+    public function update(Request $request)
     {
-        //
+        DB::beginTransaction();
+        $requestData = json_decode($request["data"]);
+
+        dd($requestData->materials);
     }
 
     /**

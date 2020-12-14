@@ -90,7 +90,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->integer('source_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор объекта, с которого отправляется материал');
             $table->integer('destination_project_object_id')->unsigned()->nullable()->index()->comment('Идентификатор идентификатор объекта, куда должен прибыть материал');
 
-            $table->integer('contractor_id')->unsigned()->index()->comment('Идентификатор контрагента (поставщика)');
+            $table->integer('contractor_id')->unsigned()->nullable()->index()->comment('Идентификатор контрагента (поставщика)');
             $table->integer('consignment_note_number')->unsigned()->comment('Номер ТТН');
 
             $table->timestamp('date_start')->comment('Дата начала');
@@ -120,8 +120,14 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
             $table->bigInteger('material_operation_id')->unsigned()->comment('Идентификатор операции')->index();
             $table->integer('standard_id')->unsigned()->comment('Идентификатор эталона')->index();
+
             $table->integer('amount')->unsigned()->nullable()->comment('Количество в штуках');
+            $table->integer('initial_amount')->unsigned()->nullable()->comment('Количество в штуках, которые указал инициатор');
+
             $table->double('quantity')->unsigned()->comment('Количество в единицах измерения');
+            $table->double('initial_quantity')->unsigned()->comment('Количество в единицах измерения, которые указал инициатор');
+
+            $table->json('edit_states')->nullable()->comment('Массив состояний записи в процессе работы с операцией');
 
             $table->timestamps();
             $table->softDeletes();

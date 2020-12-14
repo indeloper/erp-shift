@@ -276,6 +276,8 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     //Material transfer
     Route::get('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@create')->name('materials.operations.transfer.new');
     Route::post('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@store')->name('materials.operations.transfer.new');
+    Route::post('/materials/transfer/update', 'q3wMaterial\operations\q3wMaterialTransferOperationController@update')->name('materials.operations.transfer.update');
+    Route::post('/materials/transfer/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateNewMaterialList')->name('materials.operations.transfer.new.validate-material-list');
 
     Route::get('/materials/transfer/view', 'q3wMaterial\operations\q3wMaterialTransferOperationController@show')->name('materials.operations.transfer.view');
     Route::post('/materials/transfer/move', 'q3wMaterial\operations\q3wMaterialTransferOperationController@move')->name('materials.operations.transfer.move');

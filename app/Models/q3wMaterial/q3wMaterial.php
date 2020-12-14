@@ -13,6 +13,6 @@ class q3wMaterial extends Model
 
     public function standard()
     {
-        return $this->hasOne(q3wMaterialStandard::class);
+        return $this->hasOne(q3wMaterialStandard::class, 'standard_id', 'id');
     }
 }

@@ -271,7 +271,6 @@
                     dataType: "number",
                     allowEditing: false,
                     caption: "Вес",
-                    allowEditing: false,
                     calculateCellValue: function (rowData) {
                         let weight = rowData.quantity * rowData.amount * rowData.standard_weight;
 
@@ -512,6 +511,7 @@
 
                             onClick: function (e) {
                                 let supplyOperationData = {};
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -551,7 +551,6 @@
                     data: {
                         data: JSON.stringify(supplyOperationData)
                     },
-
                     success: function (data, textStatus, jqXHR) {
                         postEditingData(supplyOperationData)
                     },
@@ -559,7 +558,7 @@
                         if (forcePostData) {
                             postEditingData(supplyOperationData)
                         }
-                        DevExpress.ui.notify("При сохранении данных произошла ошибка\nСписок ошибок", "error", 5000)
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка<br>Список ошибок", "error", 5000)
                     }
                 })
             }
@@ -583,8 +582,6 @@
                     }
                 })
             }
-
-
         });
 
     </script>

@@ -13,6 +13,11 @@ class q3wMaterialOperation extends Model
 
     protected $guarded = array('id');
 
+    public function materials()
+    {
+        return $this->hasMany(q3wOperationMaterial::class, 'material_operation_id', 'id');
+    }
+
     function scopeWithMaterialsSummary($query)
     {
         $materialRawQuery = DB::raw("(SELECT
