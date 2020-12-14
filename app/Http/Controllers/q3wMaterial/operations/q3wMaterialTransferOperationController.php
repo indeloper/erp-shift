@@ -311,6 +311,7 @@ class q3wMaterialTransferOperationController extends Controller
                     $operation->save();
                     break;
                 case 7:
+                case 15:
                     $notification = new Notification();
                     $notification->save();
                     $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
@@ -328,6 +329,7 @@ class q3wMaterialTransferOperationController extends Controller
                     $operation->save();
                     break;
                 case 8:
+                case 16:
                     $notification = new Notification();
                     $notification->save();
                     $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
@@ -633,11 +635,78 @@ class q3wMaterialTransferOperationController extends Controller
 
         DB::commit();
 
+        switch ($operation->operation_route_stage_id) {
+            case 7:
+            case 8:
+                if ($moveToConflict) {
+                    $this->createConflict($operation);
+                } else {
+                    $this->move($operation);
+                }
+                break;
+            case 15:
+                if (Auth::id() == ProjectObject::findOrFail($operation->source_project_object_id)->resp_users->first()->user_id) {
+                    $this->move($operation);
+                }
+                break;
+            case 16:
+                if (Auth::id() == ProjectObject::findOrFail($operation->destination_project_object_id)->resp_users->first()->user_id) {
+                    $this->move($operation);
+                }
+                break;
+        }
+
         if ($moveToConflict) {
-            //$this->createConflict($operation);
+            $this->createConflict($operation);
         } else {
             $this->move($operation);
         }
+    }
+
+    public function createConflict($operation)
+    {
+
+        switch ($operation->operation_route_stage_id) {
+            case 7:
+                $projectObject = ProjectObject::findOrFail($operation->source_project_object_id);
+                $responsibleUser = $projectObject->resp_users->first();
+                $notification = new Notification();
+                $notification->save();
+                $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
+                $notification->update([
+                    'name' => 'Конфликт в операции',
+                    'user_id' => $responsibleUser->user_id,
+                    //'task_id' => $task->id,
+                    //'contractor_id' => $task->contractor_id,
+                    'object_id' => $operation->source_project_object_id,
+                    //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
+                    'created_at' => now(),
+                    'type' => 11
+                ]);
+                $operation->operation_route_stage_id = 15;
+                $operation->save();
+                break;
+            case 8:
+                $projectObject = ProjectObject::findOrFail($operation->destination_project_object_id);
+                $responsibleUser = $projectObject->resp_users->first();
+                $notification = new Notification();
+                $notification->save();
+                $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
+                $notification->update([
+                    'name' => 'Конфликт в операции',
+                    'user_id' => $responsibleUser->user_id,
+                    //'task_id' => $task->id,
+                    //'contractor_id' => $task->contractor_id,
+                    'object_id' => $operation->destination_project_object_id,
+                    //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
+                    'created_at' => now(),
+                    'type' => 11
+                ]);
+                $operation->operation_route_stage_id = 16;
+                $operation->save();
+                break;
+        }
+
     }
 
     /**
@@ -658,6 +727,10 @@ class q3wMaterialTransferOperationController extends Controller
                 return Auth::id() == $operation->source_responsible_user_id;
             case 8:
                 return Auth::id() == $operation->destination_responsible_user_id;
+            case 15:
+                return Auth::id() == ProjectObject::findOrFail($operation->source_project_object_id)->resp_users->first()->user_id;
+            case 16:
+                return Auth::id() == ProjectObject::findOrFail($operation->destination_project_object_id)->resp_users->first()->user_id;
             default:
                 return false;
         }
