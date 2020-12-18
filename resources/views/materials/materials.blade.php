@@ -266,7 +266,44 @@
                         }
                     }]
                 },
+                masterDetail: {
+                    enabled: true,
+                    template: function(container, options) {
+                        var currentMaterialData = options.data;
 
+                        $("<div>")
+                            .addClass("master-detail-caption")
+                            .text("История материала")
+                            .appendTo(container);
+
+                        $("<div>")
+                            .dxDataGrid({
+                                columnAutoWidth: true,
+                                showBorders: true,
+                                columns: [
+                                    {
+                                        dataField: "operation_date",
+                                        dataType: "date"
+                                    },
+                                    {
+                                        caption: "quantity",
+                                        dataType: "number"
+                                    },
+                                    {
+                                        caption: "amount",
+                                        dataType: "number"
+                                    }
+                                ],
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: new DevExpress.data.ArrayStore({
+                                        key: "id",
+                                        data: []
+                                    }),
+                                    filter: ["standard_id", "=", currentMaterialData.standard_id]
+                                })
+                            }).appendTo(container);
+                    }
+                },
                 onToolbarPreparing: function(e) {
                     e.toolbarOptions.items.unshift(
                         {

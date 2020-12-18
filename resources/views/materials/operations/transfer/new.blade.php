@@ -216,6 +216,7 @@
                                         accounting_type: material.accounting_type,
                                         material_type: material.material_type,
                                         measure_unit: material.measure_unit,
+                                        measure_unit_value: material.measure_unit_value,
                                         standard_weight: material.weight,
                                         quantity: material.quantity,
                                         amount: material.amount
@@ -392,7 +393,13 @@
                         }
                     }]
                 },
-
+                onEditorPreparing: (e) => {
+                    if (e.dataField === "quantity" && e.parentType === "dataRow") {
+                        if (e.row.data.accounting_type === 2) {
+                            e.cancel = true
+                        }
+                    }
+                },
                 onToolbarPreparing: function (e) {
                     let dataGrid = e.component;
                     e.toolbarOptions.items.unshift(
