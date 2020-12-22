@@ -5,6 +5,8 @@
 @section('url', route('materials.index'))
 
 @section('css_top')
+    <link rel="stylesheet" href="{{ asset('css/plugins/codyhouse-horizontal-timeline-2.0/style.css')}}">
+
     <style>
         td.dx-command-select {
             border-right: none !important;
@@ -110,7 +112,11 @@
                     },
                     {
                         itemType: "group",
-                        caption: "Активные операции"
+                        caption: "Активные операции",
+                        items: [{
+                            editorType: "dxDataGrid",
+                            editorOptions: {}
+                        }]
                     },
                     {
                         itemType: "group",
@@ -365,38 +371,54 @@
 
             function updateTimeline() {
                 $('#snapshotsTimeline')
-                    .append('<section class="cd-horizontal-timeline">' +
-                        '<div class="timeline">' +
-                        '   <div class="events-wrapper">' +
-                        '        <div class="events">' +
-                        '            <ol id="timelineItems" style="list-style-type: none;">' +
-                        '            </ol>' +
-                        '            <span class="filling-line" aria-hidden="true"></span>' +
-                        '        </div>' +
-                        '    </div>' +
-                        '    <ul class="cd-timeline-navigation" style="list-style-type: none;">' +
-                        '        <li><a href="#0" class="prev inactive"></a></li>' +
-                        '        <li><a href="#0" class="next"></a></li>' +
-                        '    </ul>' +
-                        '</div> ')
+                    .append('<section id="snapshots-timeline" class="cd-h-timeline margin-bottom-md cd-h-timeline">' +
+                        '      <div class="cd-h-timeline__container container">' +
+                        '        <div class="cd-h-timeline__dates">' +
+                        '             <div class="cd-h-timeline__line">' +
+                        '                 <ol id="timelineItems">' +
+                        '                 </ol>' +
+                        '                 <span class="cd-h-timeline__filling-line" aria-hidden="true"></span>' +
+                        '             </div>' +
+                        '         </div>' +
+                        '         <ul>' +
+                        '             <li><a href="#" class="text-replace cd-h-timeline__navigation cd-h-timeline__navigation--prev cd-h-timeline__navigation--inactive">Предыдущие</a></li>' +
+                        '             <li><a href="#" class="text-replace cd-h-timeline__navigation cd-h-timeline__navigation--next">Следующие</a></li>' +
+                        '         </ul>' +
+                        '       </div>' +
+                        '       <div class="cd-h-timeline__events">' +
+                        '         <ol id="timelineEvents">' +
+                        '         </ol>' +
+                        '       </div>' +
+                        '     </section>')
 
-                snapshotsData.forEach(function (item) {
-                    /*<li><a href="#0" data-date="16/01/2014" class="selected">16 Jan</a></li>*/
-                    console.log(item);
-                    let $li = $('<li><a href="#" class="" style="font-size: 8pt;" data-date="' + item.created_at + '">' + item.created_at + '</a></li>').appendTo($("#timelineItems"));
+                snapshotsData.forEach(function (item, i) {
+                    let className = "";
+                    snapshotsData.length - 1 !== i ? className = "cd-h-timeline__date" : className = "cd-h-timeline__date cd-h-timeline__date--selected"
+
+                    let $li = $(`<li><a href="#" class="${className}" data-date="${item.created_at}">$rjhjyfdbhec cnfnbcnbrf
+</a></li>`).appendTo($("#timelineItems"));
+
                     $li.click(function () {
                         snapshotId = item.id;
                         $("#gridContainer").dxDataGrid("instance").refresh();
                     });
+
+                    $(`<li class="cd-h-timeline__event text-component"></li>`).appendTo($("#timelineEvents"));
                 })
 
-                if (!isNullOrUndefined($li)) {
-                    $li.addClass("selected")
-                }
+                new HorizontalTimeline(document.getElementById('snapshots-timeline'));
+
             }
 
             updateTimeline();
 
         });
+
+
     </script>
+
+    <script type="text/javascript" src="{{ asset('js/plugins/codyhouse-horizontal-timeline-2.0/util.js')}}"></script>
+    <script type="text/javascript"
+            src="{{ asset('js/plugins/codyhouse-horizontal-timeline-2.0/swipe-content.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/codyhouse-horizontal-timeline-2.0/main.js')}}"></script>
 @endsection
