@@ -20,9 +20,24 @@
             color: #006100;
         }
 
+        .initial-content.equal.deleted {
+            background: lightgray;
+            color: white;
+        }
+
+        .initial-content.equal.deleted {
+            background: lightgray;
+            color: white;
+        }
+
         .initial-content.negative {
             background: #ffc7ce;
             color: #9c0006;
+        }
+
+        .initial-content.negative.deleted {
+            background: lightgray;
+            color: white;
         }
 
 
@@ -36,8 +51,24 @@
             min-width: 50%;
         }
 
-        .dx-link.dx-icon-add {
+        .dx-link.dx-icon-add.dx-datagrid {
             color: #006100;
+        }
+
+        .dx-link.dx-icon-revert.deleted {
+            color: lightblue;
+        }
+
+        .dx-form-group {
+            background-color: #fff;
+            border: 1px solid #cfcfcf;
+            border-radius: 1px;
+            box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .dx-layout-manager .dx-field-item:not(.dx-first-col) {
+            padding-left: 0px !important;
         }
     </style>
 @endsection
@@ -155,7 +186,7 @@
                                         data.measure_unit_value +
                                         '; ' +
                                         data.amount +
-                                        ' шт.)'
+                                        ' шт)'
                                     )
                                 default:
                                     return $("<div>").text(data.standard_name +
@@ -202,7 +233,7 @@
                                             data.measure_unit_value +
                                             '; ' +
                                             data.amount +
-                                            ' шт.)'
+                                            ' шт)'
                                         )
                                     default:
                                         return $("<div>").text(data.standard_name +
@@ -275,16 +306,26 @@
                                 return typeof e.row.data.errors !== "undefined"
                             }
                         },
+                            @if ($allowEditing)
                         {
                             icon: "add",
                             visible: (e) => {
                                 return e.row.data.edit_states.indexOf("addedByRecipient") !== -1
                             }
                         },
+
                         {
-                            icon: "revert",
+                            icon: "dx-icon-revert deleted",
                             visible: (e) => {
-                                return e.row.data.edit_states.indexOf("deletedByRecipient") !== -1
+                                if (e.row.data.edit_states.indexOf("deletedByRecipient") !== -1) {
+                                    let rowElement = e.row.cells[0].cellElement.parent();
+                                    rowElement.css("color", "lightgrey");
+                                    console.log(rowElement.find("a.dx-icon-revert"))//.css("color", "red")
+                                    return true
+                                } else {
+                                    return false
+                                }
+
                             },
                             onClick: (e) => {
                                 e.row.data.edit_states.splice(e.row.data.edit_states.indexOf("deletedByRecipient"), 1);
@@ -305,6 +346,7 @@
                                 }
                             }
                         }
+                        @endif
                     ]
                 },
                 {
@@ -349,6 +391,9 @@
                                 initialQuantityContentStyle = initialQuantityContentStyle + " negative"
                             }
 
+                            if (options.data.edit_states.indexOf("deletedByRecipient") !== -1)
+                                initialQuantityContentStyle = initialQuantityContentStyle + " deleted";
+
                             if (quantityDelta > 0) {
                                 quantityDelta = '+' + quantityDelta
                             }
@@ -366,7 +411,7 @@
                 {
                     dataField: "amount",
                     dataType: "number",
-                    caption: "Количество (шт.)",
+                    caption: "Количество (шт)",
                     editorOptions: {
                         min: 0,
                         format: "#"
@@ -385,16 +430,20 @@
                                 initialAmountContentStyle = initialAmountContentStyle + " negative"
                             }
 
+                            if (options.data.edit_states.indexOf("deletedByRecipient") !== -1) {
+                                initialAmountContentStyle = initialAmountContentStyle + " deleted"
+                            }
+
                             if (amountDelta > 0) {
                                 amountDelta = '+' + amountDelta
                             }
 
                             if (amount !== null) {
-                                $(`<div class="${initialAmountContentStyle}">${initialAmount} [${amountDelta}]</div><div class="amount-cell-content">${amount} шт.</div>`)
+                                $(`<div class="${initialAmountContentStyle}">${initialAmount} [${amountDelta}]</div><div class="amount-cell-content">${amount} шт</div>`)
                                     .appendTo(container);
                             }
                         } else {
-                            $(`<div class="amount-cell-content">${amount} шт.</div>`)
+                            $(`<div class="amount-cell-content">${amount} .</div>`)
                                 .appendTo(container);
                         }
                     }
@@ -474,7 +523,7 @@
                             column: "amount",
                             summaryType: "sum",
                             customizeText: function (data) {
-                                return `Всего: ${data.value} шт.`
+                                return `Всего: ${data.value} шт`
                             },
                             showInGroupFooter: false,
                             alignByColumn: true

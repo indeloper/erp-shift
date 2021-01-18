@@ -115,7 +115,7 @@ class q3wMaterialTransferOperationController extends Controller
             }
 
             if (!isset($sourceProjectObjectMaterial)) {
-                abort(400, 'Материала не существует на объекте отправителя');
+                abort(400, 'На объекте отправления материал не существует');
             }
 
             switch ($operationMaterial->standard->materialType->accounting_type) {
@@ -153,7 +153,7 @@ class q3wMaterialTransferOperationController extends Controller
                     $sourceProjectObjectMaterial->save();
 
                     if (isset($destinationProjectObjectMaterial)) {
-                        $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->amount + $operationMaterial->amount * $operationMaterial->quantity;
+                        $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->quantity + $operationMaterial->amount * $operationMaterial->quantity;
                         $destinationProjectObjectMaterial->save();
                     } else {
                         $destinationProjectObjectMaterial = new q3wMaterial([

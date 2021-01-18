@@ -28,6 +28,8 @@ class q3wMaterialStandardController extends Controller
                 ->get(['a.id as id', 'a.name as name', 'b.value as measure_unit_value'])
                                 ->toJson(JSON_UNESCAPED_UNICODE)
         ]);
+
+
     }
 
     /**
@@ -125,26 +127,37 @@ class q3wMaterialStandardController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $id = $request->all()["key"];
 
             $materialStandard = q3wMaterialStandard::find($id);
-            $materialStandard -> delete();
+            $materialStandard->delete();
 
             return response()->json([
                 'result' => 'ok'
             ], 200);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'result' => 'error',
-                'errors'  => $e->getMessage(),
+                'errors' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    public function list(Request $request): string
+    {
+        $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
+
+        return (new q3wMaterialStandard())->dxLoadOptions($dxLoadOptions)
+            ->leftJoin('q3w_material_types as b', 'q3w_material_standards.material_type', '=', 'b.id')
+            ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
+            ->get(['q3w_material_standards.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
+            //->groupBy('material_type_name')
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

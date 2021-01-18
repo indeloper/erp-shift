@@ -18,7 +18,17 @@ class q3wMaterialOperation extends Model
         return $this->hasMany(q3wOperationMaterial::class, 'material_operation_id', 'id');
     }
 
-    function scopeWithMaterialsSummary($query)
+    public function scopeOnlyActive($query)
+    {
+        $query->whereNotIn('operation_route_stage_id', [3, 11, 12]);
+    }
+
+    public function scopeOnlyCompleted($query)
+    {
+        $query->whereIn('operation_route_stage_id', [3, 11, 12]);
+    }
+
+    public function scopeWithMaterialsSummary($query)
     {
         $materialRawQuery = DB::raw("(SELECT
                                               SUMMARY.id AS material_operation_id,

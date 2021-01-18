@@ -72,6 +72,20 @@ class q3wMaterialOperationController extends Controller
         return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
+    public function projectObjectActiveOperations(Request $request)
+    {
+        $projectObject = ProjectObject::findOrFail($request->projectObjectId);
+
+        return q3wMaterialOperation::where(function ($query) use ($projectObject) {
+            $query->where('source_project_object_id', $projectObject->id)
+                ->orWhere('destination_project_object_id', $projectObject->id);
+        })
+            ->onlyActive()
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'operation_route_id', 'operation_route_stage_id'])
+            ->toJson(JSON_UNESCAPED_UNICODE);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

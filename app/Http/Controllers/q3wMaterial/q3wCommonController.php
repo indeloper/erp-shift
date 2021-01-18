@@ -5,6 +5,7 @@ namespace App\Http\Controllers\q3wMaterial;
 use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
+use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\User;
@@ -53,6 +54,13 @@ class q3wCommonController extends Controller
         $options = json_decode($request['data']);
 
         return (new q3wOperationRoute())->dxLoadOptions($options)->get(['id', 'name'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function operationRouteStagesList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new q3wOperationRouteStage())->dxLoadOptions($options)->get(['id', 'name'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function measureUnitsList(Request $request)

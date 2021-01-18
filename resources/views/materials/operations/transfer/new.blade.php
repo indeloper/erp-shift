@@ -5,7 +5,19 @@
 @section('url', "#")
 
 @section('css_top')
+    <style>
+        .dx-form-group {
+            background-color: #fff;
+            border: 1px solid #cfcfcf;
+            border-radius: 1px;
+            box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
 
+        .dx-layout-manager .dx-field-item:not(.dx-first-col) {
+            padding-left: 0px !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -126,7 +138,7 @@
                                         data.measure_unit_value +
                                         '; ' +
                                         data.amount +
-                                        ' шт.)'
+                                        ' шт)'
                                     )
                                 default:
                                     return $("<div>").text(data.standard_name +
@@ -174,7 +186,7 @@
                                             data.measure_unit_value +
                                             '; ' +
                                             data.amount +
-                                            ' шт.)'
+                                            ' шт)'
                                         )
                                     default:
                                         return $("<div>").text(data.standard_name +
@@ -284,7 +296,7 @@
                 {
                     dataField: "amount",
                     dataType: "number",
-                    caption: "Количество (шт.)",
+                    caption: "Количество (шт)",
                     editorOptions: {
                         min: 0,
                         format: "#"
@@ -292,7 +304,7 @@
                     cellTemplate: function (container, options) {
                         let amount = options.data.amount;
                         if (amount !== null) {
-                            $(`<div>${amount} шт.</div>`)
+                            $(`<div>${amount} шт</div>`)
                                 .appendTo(container);
                         }
                     }
@@ -370,7 +382,7 @@
                             column: "amount",
                             summaryType: "sum",
                             customizeText: function (data) {
-                                return `Всего: ${data.value} шт.`
+                                return `Всего: ${data.value} шт`
                             },
                             showInGroupFooter: false,
                             alignByColumn: true

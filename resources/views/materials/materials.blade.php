@@ -5,7 +5,7 @@
 @section('url', route('materials.index'))
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/plugins/codyhouse-horizontal-timeline-2.0/style.css')}}">
+    <link rel="stylesheet" href="{{asset('css/plugins/codyhouse-horizontal-timeline-2.0/style.css')}}">
 
     <style>
         td.dx-command-select {
@@ -15,6 +15,66 @@
         .dx-command-expand {
             border-left: none !important;
         }
+
+        /*Snapshot tiles*/
+        .dx-item-content .dx-tile-content {
+            display: flex;
+        }
+
+        .snapshot-tile-icon {
+            width: 20%;
+            height: 100%;
+            border-right: 1px lightgray dashed;
+
+            text-align: center;
+        }
+
+        .snapshot-tile-icon > i {
+            line-height: 40px;
+
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        .snapshot-tile-icon > i.fa-sign-out-alt {
+            font-size: large;
+        }
+
+        .snapshot-tile-icon > i.fa-sign-in-alt {
+            font-size: large;
+        }
+
+        i.dx-icon-plus {
+            color: green;
+        }
+
+        i.fas.fa-sign-out-alt {
+            color: indianred;
+        }
+
+        i.fas.fa-sign-in-alt {
+            color: green;
+        }
+
+        .snapshot-tile-content {
+            width: 80%;
+            height: 100%;
+            padding: 4px;
+            text-align: right;
+        }
+
+        .dx-form-group {
+            background-color: #fff;
+            border: 1px solid #cfcfcf;
+            border-radius: 1px;
+            box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .dx-layout-manager .dx-field-item:not(.dx-first-col) {
+            padding-left: 0px !important;
+        }
+
     </style>
 @endsection
 
@@ -31,9 +91,26 @@
             let accountingTypesData = {!!$accountingTypes!!};
             let materialTypesData = {!!$materialTypes!!};
             let materialStandardsData = {!!$materialStandards!!};
-            let snapshotsData = {!!$snapshots!!};
             let projectObject = {{$projectObjectId}};
             let snapshotId = null;
+
+            let operationRoutesStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('material.operation.routes.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
+            });
+
+            let operationRouteStagesStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "processed",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('material.operation.route-stages.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
+            });
 
             let projectObjectsData = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
@@ -58,7 +135,7 @@
                                     project_object: projectObject
                                 });
                         } else {
-                            return $.getJSON("{{route('materials.snapshots.list')}}",
+                            return $.getJSON("{{route('materials.snapshots-materials.list')}}",
                                 {
                                     snapshotId: snapshotId
                                 });
@@ -66,6 +143,33 @@
                     }
                 })
             });
+
+            let materialSnapshotsStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.snapshots.list')}}",
+                        {projectObjectId: projectObject});
+                },
+            });
+
+            let materialSnapshotsDataSource = new DevExpress.data.DataSource({
+                store: materialSnapshotsStore
+            })
+
+            let projectObjectActiveOperationsStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.operations.list.project-object.active')}}",
+                        {projectObjectId: projectObject});
+                },
+            });
+
+            let projectObjectActiveOperationsDataSource = new DevExpress.data.DataSource({
+                store: projectObjectActiveOperationsStore
+            })
+
 
             //</editor-fold>
 
@@ -77,6 +181,7 @@
                     {
                         itemType: "group",
                         caption: "Объект",
+                        height: "400px",
                         items: [
                             {
                                 dataField: "project_object_id",
@@ -101,21 +206,85 @@
                                         projectObject = e.value;
                                         updateProjectObjectDetailInfo(e.value);
                                         $("#gridContainer").dxDataGrid("instance").refresh();
+                                        materialSnapshotsDataSource.reload();
+                                        projectObjectActiveOperationsDataSource.reload();
                                         window.history.pushState("", "", "?project_object=" + projectObject)
                                     }
                                 }
                             },
                             {
-                                template: '<div id="projectObjectDetailInfo"></div>'
+                                label: {
+                                    visible: true,
+                                    text: "Полное наименование"
+                                },
+                                template: '<div id="projectObjectFullName"></div>'
+                            },
+                            {
+                                label: {
+                                    visible: true,
+                                    text: "Адрес"
+                                },
+                                template: '<div id="projectObjectAddress"></div>'
                             }
                         ]
                     },
                     {
                         itemType: "group",
                         caption: "Активные операции",
+                        cssClass: "some-css-class",
                         items: [{
                             editorType: "dxDataGrid",
-                            editorOptions: {}
+                            editorOptions: {
+                                dataSource: projectObjectActiveOperationsDataSource,
+                                focusedRowEnabled: false,
+                                hoverStateEnabled: true,
+                                columnAutoWidth: false,
+                                showBorders: true,
+                                showColumnLines: true,
+                                height: 183,
+                                columns: [
+                                    {
+                                        dataField: "id",
+                                        dataType: "number",
+                                        caption: "Операция",
+                                        showSpinButtons: true,
+                                        cellTemplate: function (container, options) {
+                                            let operationId = options.data.id;
+
+                                            $(`<div><a href={{route('materials.operations.transfer.view')}}/?operationId=${operationId}>Операция #${operationId}</a></div>`)
+                                                .appendTo(container);
+                                        }
+                                    },
+                                    {
+                                        dataField: "operation_route_id",
+                                        dataType: "number",
+                                        caption: "Тип операции",
+                                        lookup: {
+                                            dataSource: {
+                                                paginate: true,
+                                                pageSize: 25,
+                                                store: operationRoutesStore
+                                            },
+                                            displayExpr: "name",
+                                            valueExpr: "id"
+                                        }
+                                    },
+                                    {
+                                        dataField: "operation_route_stage_id",
+                                        dataType: "number",
+                                        caption: "Этап",
+                                        lookup: {
+                                            dataSource: {
+                                                paginate: true,
+                                                pageSize: 25,
+                                                store: operationRouteStagesStore
+                                            },
+                                            displayExpr: "name",
+                                            valueExpr: "id"
+                                        }
+                                    },
+                                ]
+                            }
                         }]
                     },
                     {
@@ -123,7 +292,51 @@
                         colSpan: 2,
                         caption: "История операций",
                         items: [{
-                            template: '<div id="snapshotsTimeline"></div>'
+                            editorType: "dxTileView",
+                            editorOptions: {
+                                height: 50,
+                                baseItemHeight: 40,
+                                baseItemWidth: 140,
+                                itemMargin: 10,
+                                direction: "horizontal",
+                                showScrollbar: true,
+                                dataSource: materialSnapshotsDataSource,
+                                onItemClick: function (e) {
+                                    snapshotId = e.itemData.id;
+                                    $("#gridContainer").dxDataGrid("instance").refresh();
+                                },
+                                itemTemplate: function (itemData, _, itemElement) {
+                                    let operationIcon;
+                                    let operationCaption;
+
+                                    switch (itemData.operation_route_id) {
+                                        case 1:
+                                            operationCaption = "Поставка";
+                                        case 2:
+                                            operationCaption = "Перемещение";
+                                    }
+
+                                    operationIcon = getOperationRouteIcon(itemData.operation_route_id, itemData.source_project_object_id, itemData.destination_project_object_id);
+
+                                    itemElement.append('<div class="snapshot-tile-icon">' +
+                                        '<i class="' + operationIcon + '"></i>' +
+                                        '</div>');
+
+                                    createdDate = new Intl.DateTimeFormat('ru-RU', {
+                                        dateStyle: 'short',
+                                        timeStyle: 'short'
+                                    }).format(new Date(itemData.created_at));
+
+                                    createdDate = createdDate.replaceAll(',', ' ');
+
+                                    itemElement.append('<div class="snapshot-tile-content">' +
+                                        createdDate +
+                                        '<br>' +
+                                        operationCaption +
+                                        '</div>');
+                                    console.log(itemData);
+                                }
+                            }
                         }]
                     }
                 ]
@@ -171,11 +384,13 @@
                 {
                     dataField: "amount",
                     dataType: "number",
-                    caption: "Количество (шт.)",
+                    caption: "Количество (шт)",
                     cellTemplate: function (container, options) {
                         let amount = options.data.amount;
-
-                        $(`<div>${amount} шт.</div>`)
+                        if (options.data.from_operation === 1) {
+                            amount = amount * options.data.amount_modifier;
+                        }
+                        $(`<div>${amount} шт</div>`)
                             .appendTo(container);
                     }
                 },
@@ -184,7 +399,12 @@
                     dataType: "number",
                     caption: "Вес",
                     calculateCellValue: function (rowData) {
-                        let weight = rowData.amount * rowData.quantity * rowData.weight;
+                        let amount = rowData.amount;
+                        if (rowData.from_operation === 1) {
+                            amount = amount * rowData.amount_modifier;
+                        }
+
+                        let weight = amount * rowData.quantity * rowData.weight;
                         console.log(rowData);
                         if (isNaN(weight)) {
                             weight = 0;
@@ -196,7 +416,7 @@
                         return weight;
                     },
                     cellTemplate: function (container, options) {
-                        let weight = options.data.weight;
+                        let weight = options.data.computed_weight;
 
                         $(`<div>${weight} т.</div>`)
                             .appendTo(container);
@@ -235,13 +455,26 @@
                     visible: false
                 },
                 selection: {
-                    allowSelectAll:true,
-                    deferred:false,
+                    allowSelectAll: true,
+                    deferred: false,
                     mode: "multiple",
                     selectAllMode: "allPages",
                     showCheckBoxesMode: "always"
                 },
                 columns: materialColumns,
+                onRowPrepared: function (e) {
+                    console.log("Row prepared");
+                    console.log(e);
+                    if (e.rowType === "data") {
+                        if (e.data.from_operation === 1) {
+                            e.rowElement.find(".dx-datagrid-group-closed")
+                                .replaceWith('<i class="fas fa-lock"><i>')
+                            e.rowElement.find(".dx-select-checkbox").remove();
+
+                            e.rowElement.css("color", "gray");
+                        }
+                    }
+                },
                 summary: {
                     groupItems: [{
                         column: "standard_id",
@@ -251,7 +484,7 @@
                         {
                             column: "amount",
                             summaryType: "sum",
-                            displayFormat: "Всего: {0} шт.",
+                            displayFormat: "Всего: {0} шт",
                             showInGroupFooter: false,
                             alignByColumn: true
                         },
@@ -288,36 +521,76 @@
                                 showBorders: true,
                                 columns: [
                                     {
+                                        dataField: "operation_route_id",
+                                        caption: "",
+                                        dataType: "number",
+                                        width: 24,
+                                        cellTemplate: function (container, options) {
+                                            let operationIcon = getOperationRouteIcon(options.data.operation_route_id, options.data.source_project_object_id, options.data.destination_project_object_id);
+
+                                            $(`<div><i class="${operationIcon}"></i></div>`)
+                                                .appendTo(container);
+                                        }
+                                    },
+                                    {
                                         dataField: "operation_date",
-                                        dataType: "date"
+                                        caption: "Дата",
+                                        dataType: "datetime",
+                                        cellTemplate: function (container, options) {
+                                            let operationDate = options.text.replaceAll(',', ' ');
+
+                                            $(`<div>${operationDate}</div>`)
+                                                .appendTo(container);
+                                        }
                                     },
                                     {
-                                        caption: "quantity",
-                                        dataType: "number"
+                                        dataField: "quantity",
+                                        caption: "Количество",
+                                        dataType: "number",
+                                        cellTemplate: function (container, options) {
+                                            let quantity = options.data.quantity;
+                                            let measureUnit = options.data.measure_unit_value;
+
+                                            $(`<div>${quantity} ${measureUnit}</div>`)
+                                                .appendTo(container);
+                                        }
                                     },
                                     {
-                                        caption: "amount",
-                                        dataType: "number"
+                                        dataField: "amount",
+                                        caption: "Количество (шт)",
+                                        dataType: "number",
+                                        cellTemplate: function (container, options) {
+                                            let amount = options.data.quantity;
+
+                                            $(`<div>${amount} шт</div>`)
+                                                .appendTo(container);
+                                        }
                                     }
                                 ],
                                 dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.ArrayStore({
+                                    store: new DevExpress.data.CustomStore({
                                         key: "id",
-                                        data: []
+                                        loadMode: "raw",
+                                        load: function (loadOptions) {
+                                            return $.getJSON("{{route('materials.standard-history.list')}}",
+                                                {
+                                                    projectObjectId: projectObject,
+                                                    materialStandardId: currentMaterialData.standard_id
+                                                });
+                                        },
                                     }),
-                                    filter: ["standard_id", "=", currentMaterialData.standard_id]
+
                                 })
                             }).appendTo(container);
                     }
                 },
-                onToolbarPreparing: function(e) {
+                onToolbarPreparing: function (e) {
                     e.toolbarOptions.items.unshift(
                         {
                             location: "after",
                             widget: "dxDropDownButton",
                             options: {
                                 text: "Операции",
-                                //icon: "save",
                                 dropDownOptions: {
                                     width: 230
                                 },
@@ -358,67 +631,35 @@
 
             function updateProjectObjectDetailInfo(projectObjectID) {
                 projectObjectsData.store().byKey(projectObjectID).done(function (dataItem) {
-                    console.log(dataItem);
-
                     let name = dataItem.name === undefined ? '<Не указано>' : dataItem.name;
                     let address = dataItem.address === undefined ? '<Не указан>' : dataItem.address;
 
-                    $('#projectObjectDetailInfo').html(`Полное наименование: ${name}<br>Адрес: ${address}`)
+                    $('#projectObjectFullName').html(`${name}`)
+                    $('#projectObjectAddress').html(`${address}`)
                 })
             }
 
             updateProjectObjectDetailInfo(projectObject);
 
-            function updateTimeline() {
-                $('#snapshotsTimeline')
-                    .append('<section id="snapshots-timeline" class="cd-h-timeline margin-bottom-md cd-h-timeline">' +
-                        '      <div class="cd-h-timeline__container container">' +
-                        '        <div class="cd-h-timeline__dates">' +
-                        '             <div class="cd-h-timeline__line">' +
-                        '                 <ol id="timelineItems">' +
-                        '                 </ol>' +
-                        '                 <span class="cd-h-timeline__filling-line" aria-hidden="true"></span>' +
-                        '             </div>' +
-                        '         </div>' +
-                        '         <ul>' +
-                        '             <li><a href="#" class="text-replace cd-h-timeline__navigation cd-h-timeline__navigation--prev cd-h-timeline__navigation--inactive">Предыдущие</a></li>' +
-                        '             <li><a href="#" class="text-replace cd-h-timeline__navigation cd-h-timeline__navigation--next">Следующие</a></li>' +
-                        '         </ul>' +
-                        '       </div>' +
-                        '       <div class="cd-h-timeline__events">' +
-                        '         <ol id="timelineEvents">' +
-                        '         </ol>' +
-                        '       </div>' +
-                        '     </section>')
+            function getOperationRouteIcon(operationRouteId, sourceProjectObjectId, destinationProjectObjectId) {
+                switch (operationRouteId) {
+                    case 1:
+                        return 'dx-icon-plus';
+                        break;
+                    case 2:
+                        if (projectObject === sourceProjectObjectId) {
+                            return 'fas fa-sign-out-alt'
+                        }
 
-                snapshotsData.forEach(function (item, i) {
-                    let className = "";
-                    snapshotsData.length - 1 !== i ? className = "cd-h-timeline__date" : className = "cd-h-timeline__date cd-h-timeline__date--selected"
+                        if (projectObject === destinationProjectObjectId) {
+                            return 'fas fa-sign-in-alt'
+                        }
 
-                    let $li = $(`<li><a href="#" class="${className}" data-date="${item.created_at}">$rjhjyfdbhec cnfnbcnbrf
-</a></li>`).appendTo($("#timelineItems"));
-
-                    $li.click(function () {
-                        snapshotId = item.id;
-                        $("#gridContainer").dxDataGrid("instance").refresh();
-                    });
-
-                    $(`<li class="cd-h-timeline__event text-component"></li>`).appendTo($("#timelineEvents"));
-                })
-
-                new HorizontalTimeline(document.getElementById('snapshots-timeline'));
-
+                        break;
+                }
             }
-
-            updateTimeline();
-
         });
 
 
     </script>
-
-    <script type="text/javascript" src="{{ asset('js/plugins/codyhouse-horizontal-timeline-2.0/util.js')}}"></script>
-    <script type="text/javascript"
-            src="{{ asset('js/plugins/codyhouse-horizontal-timeline-2.0/swipe-content.js')}}"></script>
-    <script type="text/javascript" src="{{ asset('js/plugins/codyhouse-horizontal-timeline-2.0/main.js')}}"></script>
 @endsection
