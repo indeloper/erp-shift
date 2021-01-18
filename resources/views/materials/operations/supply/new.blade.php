@@ -51,7 +51,7 @@
                 store: contractorsStore
             });
 
-            let materialsStandardsListStore = new DevExpress.data.CustomStore({
+            /*let materialsStandardsListStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "processed",
                 load: function (loadOptions) {
@@ -65,7 +65,15 @@
                 group: "material_type_name",
                 store: materialsStandardsListStore
             })
+                */
 
+            let materialsStandardsListDataSource = new DevExpress.data.DataSource({
+                group: "material_type_name",
+                store: new DevExpress.data.ArrayStore({
+                    key: "id",
+                    data: materialStandardsData
+                })
+            })
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
                 store: new DevExpress.data.ArrayStore({
