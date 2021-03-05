@@ -158,14 +158,8 @@ mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextre
 mix.copy('node_modules/devextreme/dist/js/dx.all.js', 'public/js/devextreme/dx.all.js');
 mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
 
-//Codyhouse horizontal timeline plugin
-mix.copy('resources/assets/css/plugins/codyhouse-horizontal-timeline-2.0/style.css', 'public/css/plugins/codyhouse-horizontal-timeline-2.0/style.css');
-
-mix.copy('resources/assets/js/plugins/codyhouse-horizontal-timeline-2.0/util.js', 'public/js/plugins/codyhouse-horizontal-timeline-2.0/util.js');
-mix.copy('resources/assets/js/plugins/codyhouse-horizontal-timeline-2.0/swipe-content.js', 'public/js/plugins/codyhouse-horizontal-timeline-2.0/swipe-content.js');
-mix.copy('resources/assets/js/plugins/codyhouse-horizontal-timeline-2.0/main.js', 'public/js/plugins/codyhouse-horizontal-timeline-2.0/main.js');
-
-mix.copy('resources/assets/img/plugins/codyhouse-horizontal-timeline-2.0/cd-arrow.svg', 'public/img/plugins/codyhouse-horizontal-timeline-2.0/cd-arrow.svg');
+//Q3W
+mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
 
 
 mix.version();

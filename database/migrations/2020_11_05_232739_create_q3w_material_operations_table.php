@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStageType;
 use App\models\q3wMaterial\operations\q3wOperationRoute;
@@ -137,6 +138,57 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->foreign('standard_id')->references('id')->on('q3w_material_standards');
             $table->foreign('material_operation_id')->references('id')->on('q3w_material_operations');
         });
+
+        Schema::create('q3w_operation_comments', function (Blueprint $table) {
+            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+            $table->bigInteger('material_operation_id')->unsigned()->comment('Идентификатор операции')->index();
+            $table->integer('operation_route_stage_id')->unsigned()->comment('Идентификатор этапа (статуса) операции')->index();
+            $table->text('comment')->comment('Комментарий пользователя');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('material_operation_id')->references('id')->on('q3w_material_operations');
+            $table->foreign('operation_route_stage_id')->references('id')->on('q3w_operation_route_stages');
+        });
+
+
+        Schema::create('q3w_operation_file_types', function (Blueprint $table) {
+            $table->integerIncrements('id')->comment('Уникальный идентификатор');
+            $table->string('name')->comment('Наименование');
+            $table->string('string_identifier')->unique()->comment('Строковый идентификатор');
+
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        $fileTypes = [['ТТН', 'consignment-note-photo'], ['Фото транспорта спереди', 'frontal-vehicle-photo'], ['Фото транспорта сзади', 'behind-vehicle-photo'], ['Фото материалов', 'materials-photo']];
+
+        foreach ($fileTypes as $fileTypeElement) {
+            $fileType = new q3wOperationFileType();
+            $fileType -> name = $fileTypeElement[0];
+            $fileType -> string_identifier = $fileTypeElement[1];
+            $fileType -> save();
+        }
+
+        Schema::create('q3w_operation_files', function (Blueprint $table) {
+            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+            $table->bigInteger('material_operation_id')->nullable()->unsigned()->comment('Идентификатор операции')->index();
+            $table->integer('operation_route_stage_id')->nullable()->unsigned()->comment('Идентификатор этапа (статуса) операции')->index();
+            $table->integer('upload_file_type')->unsigned()->comment('Идентификатор типа файла');
+            $table->string('file_name')->comment('Имя файла');
+            $table->string('file_path')->comment('Относительный путь к файлу');
+            $table->string('original_file_name')->comment('Оригинальное имя файла');
+            $table->integer('user_id')->unsigned()->comment('Имя пользователя, загрузившего файл')->index();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('material_operation_id')->references('id')->on('q3w_material_operations');
+            $table->foreign('operation_route_stage_id')->references('id')->on('q3w_operation_route_stages');
+            $table->foreign('upload_file_type')->references('id')->on('q3w_operation_file_types');
+            $table->foreign('user_id')->references('id')->on('users');
+        });
     }
 
     /**
@@ -146,6 +198,9 @@ class CreateQ3wMaterialOperationsTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('q3w_operation_files');
+        Schema::dropIfExists('q3w_operation_file_types');
+        Schema::dropIfExists('q3w_operation_comments');
         Schema::dropIfExists('q3w_operation_materials');
         Schema::dropIfExists('q3w_material_operations');
         Schema::dropIfExists('q3w_operation_route_stages');

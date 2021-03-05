@@ -7,6 +7,7 @@ use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -75,5 +76,13 @@ class q3wCommonController extends Controller
         $options = json_decode($request['data']);
 
         return (new q3wMaterialAccountingType())->dxLoadOptions($options)->get(['id', 'value'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function materialTypesLookupList(Request $request) {
+        $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
+
+        return (new q3wMaterialType())->dxLoadOptions($dxLoadOptions)
+            ->get()
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

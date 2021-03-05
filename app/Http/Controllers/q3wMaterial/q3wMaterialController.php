@@ -52,7 +52,11 @@ class q3wMaterialController extends Controller
         return q3wMaterialSnapshot::where('project_object_id', '=', $projectObjectId)
             ->leftJoin('q3w_material_operations', 'operation_id', 'q3w_material_operations.id')
             ->orderBy('q3w_material_snapshots.created_at', 'desc')
-            ->get()
+            ->get(['q3w_material_snapshots.id',
+                'q3w_material_snapshots.created_at',
+                'q3w_material_operations.operation_route_id',
+                'source_project_object_id',
+                'destination_project_object_id'])
             ->toJson(JSON_UNESCAPED_UNICODE);
     }
 
@@ -93,6 +97,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->where('a.snapshot_id', '=', $snapshotId)
             ->where('amount', '<>', 0)
+            ->where('quantity', '<>', 0)
             ->get(['a.*',
                 'b.name as standard_name',
                 'b.material_type',
@@ -113,6 +118,7 @@ class q3wMaterialController extends Controller
     {
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
+            $projectObjectId = $request->project_object;
         } else {
             $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
         }
@@ -126,6 +132,7 @@ class q3wMaterialController extends Controller
                 $query->where('f.source_project_object_id', $projectObjectId)
                     ->orWhere('f.destination_project_object_id', $projectObjectId);
             })
+            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereNotIn('f.operation_route_stage_id', [3, 11, 12])
             ->get(['a.id',
                 'a.standard_id',
@@ -147,6 +154,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->where('a.project_object', '=', $projectObjectId)
             ->where('amount', '<>', 0)
+            ->where('quantity', '<>', 0)
             ->get(['a.*',
                 'b.name as standard_name',
                 'b.material_type',
@@ -163,21 +171,33 @@ class q3wMaterialController extends Controller
     public function standardHistoryList(Request $request)
     {
         $materialStandard = q3wMaterialStandard::findOrFail($request->materialStandardId);
+        $materialType = q3wMaterialType::findOrFail($materialStandard->material_type);
+        $materialQuantity = $request->materialQuantity;
         $projectObject = ProjectObject::findOrFail($request->projectObjectId);
 
-        return q3wOperationMaterial::where('standard_id', $materialStandard->id)
-            ->leftJoin('q3w_material_operations as a', 'q3w_operation_materials.material_operation_id', '=', 'a.id')
+        return q3wOperationMaterial::leftJoin('q3w_material_operations as a', 'q3w_operation_materials.material_operation_id', '=', 'a.id')
             ->leftJoin('q3w_material_standards as b', 'q3w_operation_materials.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity) {
+                switch ($materialType->accounting_type) {
+                    case 2:
+                        $query->where('standard_id', $materialStandard->id)
+                            ->where('quantity', $materialQuantity);
+                        break;
+                    default:
+                        $query->where('standard_id', $materialStandard->id);
+                }
+            })
             ->where(function ($query) use ($projectObject) {
                 $query->where('a.source_project_object_id', $projectObject->id)
                     ->orWhere('a.destination_project_object_id', $projectObject->id);
             })
+            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereIn('a.operation_route_stage_id', [3, 11, 12])
             ->orderBy('a.created_at', 'desc')
             ->get(['q3w_operation_materials.*',
-                'a.id',
+                'a.id as operation_id',
                 'a.operation_route_id',
                 'a.source_project_object_id',
                 'a.destination_project_object_id',

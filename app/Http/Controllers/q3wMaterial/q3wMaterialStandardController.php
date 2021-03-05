@@ -153,11 +153,10 @@ class q3wMaterialStandardController extends Controller
     {
         $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
 
-        return (new q3wMaterialStandard())->dxLoadOptions($dxLoadOptions)
+        return $queryResultArray = (new q3wMaterialStandard())->dxLoadOptions($dxLoadOptions)
             ->leftJoin('q3w_material_types as b', 'q3w_material_standards.material_type', '=', 'b.id')
             ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
             ->get(['q3w_material_standards.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
-            //->groupBy('material_type_name')
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

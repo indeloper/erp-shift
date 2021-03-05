@@ -95,12 +95,20 @@
             });
             let materialTypesStore = new DevExpress.data.CustomStore({
                 key: "id",
-                loadMode: "processed",
+                loadMode: "raw",
                 load: function (loadOptions) {
-                    return $.getJSON("{{route('materials.types.list')}}",
+                    return $.getJSON("{{route('material.types.lookup-list')}}",
                         {data: JSON.stringify({dxLoadOptions: loadOptions})});
                 },
             });
+
+            let materialTypesDataSource = new DevExpress.data.DataSource({
+                key: "id",
+                store: materialTypesStore
+            })
+
+
+
             let materialStandardsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "processed",
@@ -121,11 +129,11 @@
             });
 
             let availableMaterialsDataSource = new DevExpress.data.DataSource({
-                group: "material_type_name",
+                key: "id",
                 store: availableMaterialsStore
             })
 
-            let selectedMaterialsDataSource = new DevExpress.data.DataSource({
+            let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
                 store: new DevExpress.data.ArrayStore({
                     key: "id",
                     data: []
@@ -164,61 +172,112 @@
             let materialsStandardsAddingForm = $("#materialsStandardsAddingForm").dxForm({
                 colCount: 2,
                 items: [{
-                    editorType: "dxList",
-                    name: "availableMaterialsList",
-                    editorOptions: {
-                        height: 400,
-                        width: 500,
-                        dataSource: availableMaterialsDataSource,
-                        showSelectionControls: true,
-                        selectionMode: "multiply",
-                        searchEnabled: true,
-                        searchExpr: "name",
-                        grouped: true,
-                        collapsibleGroups: true,
-                        itemTemplate: function (data) {
-                            switch (data.accounting_type) {
-                                case 2:
-                                    return $("<div>").text(data.standard_name +
-                                        ' (' +
-                                        data.quantity +
-                                        ' ' +
-                                        data.measure_unit_value +
-                                        '; ' +
-                                        data.amount +
-                                        ' шт)'
-                                    )
-                                default:
-                                    return $("<div>").text(data.standard_name +
-                                        ' (' +
-                                        data.quantity +
-                                        ' ' +
-                                        data.measure_unit_value +
-                                        ')')
+                    itemType: "group",
+                    colCount: 3,
+                    caption: "Эталоны",
+                    items: [{
+                        editorType: "dxDataGrid",
+                        name: "materialsStandardsList",
+                        editorOptions: {
+                            dataSource: availableMaterialsDataSource,
+                            height: 400,
+                            width: 500,
+                            showColumnHeaders: false,
+                            showRowLines: false,
+                            grouping: {
+                                autoExpandAll: true,
+                            },
+                            groupPanel: {
+                                visible: false
+                            },
+                            selection: {
+                                allowSelectAll: true,
+                                deferred: false,
+                                mode: "multiple",
+                                selectAllMode: "allPages",
+                                showCheckBoxesMode: "always"
+                            },
+                            paging: {
+                                enabled: true
+                            },
+                            searchPanel: {
+                                visible: true,
+                                searchVisibleColumnsOnly: true,
+                                width: 240,
+                                placeholder: "Поиск..."
+                            },
+                            columns: [{
+                                dataField: "standard_name",
+                                dataType: "string",
+                                caption: "Наименование",
+                                sortIndex: 0,
+                                sortOrder: "asc",
+                                calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
+                                    if (target === "search") {
+                                        let words = filterValue.split(" ");
+                                        let filter = [];
+                                        words.forEach(function (word) {
+                                            filter.push(["name", "contains", word]);
+                                            filter.push("and");
+                                        });
+                                        filter.pop();
+                                        return filter;
+                                    }
+                                    return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
+                                },
+                                cellTemplate: function (container, options) {
+                                    switch (options.data.accounting_type) {
+                                        case 2:
+                                            return $("<div>").text(options.data.standard_name +
+                                                ' (' +
+                                                options.data.quantity +
+                                                ' ' +
+                                                options.data.measure_unit_value +
+                                                '; ' +
+                                                options.data.amount +
+                                                ' шт)'
+                                            )
+                                        default:
+                                            return $("<div>").text(options.data.standard_name +
+                                                ' (' +
+                                                options.data.quantity +
+                                                ' ' +
+                                                options.data.measure_unit_value +
+                                                ')')
+                                    }
+                                }
+                            },
+                                {
+                                    dataField: "material_type",
+                                    dataType: "number",
+                                    caption: "Тип материала",
+                                    groupIndex: 0,
+                                    lookup: {
+                                        dataSource: {store: materialTypesStore},
+                                        displayExpr: "name",
+                                        valueExpr: "id"
+                                    }
+                                }],
+                            onSelectionChanged: function (e) {
+                                selectedMaterialStandardsListDataSource.store().clear();
+                                e.selectedRowsData.forEach(function (selectedRowItem) {
+                                    selectedMaterialStandardsListDataSource.store().insert(selectedRowItem)
+                                })
+
+                                selectedMaterialStandardsListDataSource.reload();
                             }
-                        },
-                        onSelectionChanged: function (data) {
-                            data.addedItems.forEach(function (addedItem) {
-                                selectedMaterialsDataSource.store().insert(addedItem)
-                            })
-
-                            data.removedItems.forEach(function (removedItem) {
-                                selectedMaterialsDataSource.store().remove(removedItem.id)
-                            })
-
-                            selectedMaterialsDataSource.reload();
-                        },
-
-
-                        /*,
-                        groupTemplate: function(data)*/
-                    }
+                        }
+                    }]
                 },
-                    {
+                {
+                        itemType: "group",
+                        colCount: 3,
+                        caption: "Выбранные материалы",
+                        items: [{
                         editorType: "dxList",
                         name: "selectedMaterialsList",
                         editorOptions: {
-                            dataSource: selectedMaterialsDataSource,
+                            dataSource: selectedMaterialStandardsListDataSource,
                             allowItemDeleting: true,
                             itemDeleteMode: "static",
                             height: 400,
@@ -245,29 +304,34 @@
                                 }
                             },
                             onItemDeleted: function (e) {
-                                let materialsStandardsList = materialsStandardsAddingForm.getEditor("availableMaterialsDataSource");
-                                let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsList");
+                                let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                                let selectedMaterialsList = materialsStandardsAddingForm.getEditor("selectedMaterialsList");
+                                let selectedRowsKeys = [];
+                                selectedMaterialsList.option("items").forEach(function (selectedItem) {
+                                    selectedRowsKeys.push(selectedItem.id);
+                                });
 
-                                materialsStandardsList.option("selectedItems", selectedMaterialsStandardsList.option("items"));
+                                materialsStandardsList.option("selectedRowKeys", selectedRowsKeys);
                             }
-                        }
-                    },
-                    {
-                        itemType: "button",
-                        colSpan: 2,
-                        horizontalAlignment: "right",
-                        buttonOptions: {
-                            text: "Добавить",
-                            type: "default",
-                            stylingMode: "text",
-                            useSubmitBehavior: false,
+                            }
+                    }]
+                },
+                {
+                    itemType: "button",
+                    colSpan: 2,
+                    horizontalAlignment: "right",
+                    buttonOptions: {
+                        text: "Добавить",
+                        type: "default",
+                        stylingMode: "text",
+                        useSubmitBehavior: false,
 
                             onClick: function () {
                                 let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
 
                                 selectedMaterialsData.forEach(function (material) {
                                     transferMaterialDataSource.store().insert({
-                                        //id: material.id,
+                                        id: new DevExpress.data.Guid().toString(),
                                         standard_id: material.standard_id,
                                         standard_name: material.standard_name,
                                         accounting_type: material.accounting_type,
@@ -345,6 +409,19 @@
                                     e.component.repaintRows(e.row.rowIndex);
                                 }
                             }
+                        },
+                        {
+                            hint: "Дублировать",
+                            icon: "copy",
+                            onClick: function (e) {
+                                let clonedItem = $.extend({}, e.row.data, {
+                                    id: new DevExpress.data.Guid().toString(),
+                                    edit_states: ["addedByRecipient"]
+                                });
+                                transferMaterialData.splice(e.row.rowIndex, 0, clonedItem);
+                                e.component.refresh(true);
+                                e.event.preventDefault();
+                            }
                         }
                         @endif
                     ]
@@ -354,6 +431,8 @@
                     dataType: "string",
                     allowEditing: false,
                     caption: "Наименование",
+                    sortIndex: 0,
+                    sortOrder: "asc",
                     lookup: {
                         dataSource: {store: materialStandardsStore},
                         displayExpr: "name",
@@ -401,6 +480,9 @@
                             if (quantity !== null) {
                                 $(`<div class="${initialQuantityContentStyle}">${initialQuantity} [${quantityDelta}]</div><div class="quantity-cell-content">${quantity} ${options.data.measure_unit_value}</div>`)
                                     .appendTo(container);
+                            } else {
+                                $(`<div class="measure-units-only">${options.data.measure_unit_value}</div>`)
+                                    .appendTo(container);
                             }
                         } else {
                             $(`<div class="quantity-cell-content">${quantity} ${options.data.measure_unit_value}</div>`)
@@ -441,9 +523,12 @@
                             if (amount !== null) {
                                 $(`<div class="${initialAmountContentStyle}">${initialAmount} [${amountDelta}]</div><div class="amount-cell-content">${amount} шт</div>`)
                                     .appendTo(container);
+                            } else {
+                                $(`<div class="measure-units-only">шт</div>`)
+                                    .appendTo(container);
                             }
                         } else {
-                            $(`<div class="amount-cell-content">${amount} .</div>`)
+                            $(`<div class="amount-cell-content">${amount} шт</div>`)
                                 .appendTo(container);
                         }
                     }
@@ -546,6 +631,13 @@
                         }
                     }]
                 },
+                onEditorPreparing: (e) => {
+                    if (e.dataField === "quantity" && e.parentType === "dataRow") {
+                        if (e.row.data.accounting_type === 2) {
+                            e.cancel = true;
+                        }
+                    }
+                },
                 @if($allowEditing)
                 onToolbarPreparing: (e) => {
                     let dataGrid = e.component;
@@ -557,6 +649,11 @@
                                 icon: "add",
                                 text: "Добавить",
                                 onClick: function (e) {
+                                    selectedMaterialStandardsListDataSource.store().clear();
+
+                                    let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                                    materialsStandardsList.option("selectedRowKeys", []);
+
                                     $("#popupContainer").dxPopup("show")
                                 }
                             }
@@ -587,7 +684,6 @@
             //<editor-fold desc="JS: Edit form configuration">
             let operationForm = $("#formContainer").dxForm({
                 formData: operationData,
-                readOnly: true,
                 colCount: 2,
                 items: [{
                     itemType: "group",
@@ -600,7 +696,9 @@
                             text: "Объект отправления"
                         },
                         editorType: "dxSelectBox",
+                        readOnly: true,
                         editorOptions: {
+                            readOnly: true,
                             dataSource: {
                                 store: projectObjectStore
                             },
@@ -611,11 +709,15 @@
                     },
                         {
                             dataField: "date_start",
+                            readOnly: true,
                             colSpan: 1,
                             label: {
                                 text: "Дата отправления"
                             },
-                            editorType: "dxDateBox"
+                            editorType: "dxDateBox",
+                            editorOptions: {
+                                readOnly: true,
+                            }
                         },
                         {
                             colSpan: 2,
@@ -625,6 +727,7 @@
                             },
                             editorType: "dxSelectBox",
                             editorOptions: {
+                                readOnly: true,
                                 dataSource: {
                                     store: usersStore
                                 },
@@ -645,6 +748,7 @@
                         },
                         editorType: "dxSelectBox",
                         editorOptions: {
+                            readOnly: true,
                             dataSource: {
                                 store: projectObjectStore
                             },
@@ -661,6 +765,7 @@
                             },
                             editorType: "dxSelectBox",
                             editorOptions: {
+                                readOnly: true,
                                 dataSource: {
                                     store: usersStore
                                 },
@@ -677,6 +782,7 @@
                             },
                             editorType: "dxNumberBox",
                             editorOptions: {
+                                readOnly: true,
                                 min: 0,
                                 format: "000000",
                                 showSpinButtons: false
@@ -696,7 +802,73 @@
                         ]
 
                     },
-                        @if($allowEditing)
+                    @if($allowEditing)
+                    {
+                        itemType: "group",
+                        caption: "Комментрий",
+                        colSpan: 2,
+                        items: [{
+                            dataField: "new_comment",
+                            label: {
+                                text: "Новый комментарий",
+                                visible: false
+                            },
+                            editorType: "dxTextArea"
+                        }
+                        ]
+                    },
+                    {
+                        itemType: "group",
+                        caption: "Файлы",
+                        colSpan: 2,
+                        colCount: 4,
+                        items: [{
+                            colSpan: 1,
+                            template:
+                                '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото ТТН</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-1" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="consignment-note-photo" index="1"></div>'
+                        },
+                        {
+                            colSpan: 1,
+                            template: '<div id="dropzone-external-2" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-2" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-2" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото машины спереди</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-2" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="frontal-vehicle-photo" index="2"></div>'
+                        },
+                        {
+                            colSpan: 1,
+                            template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото машины сзади</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-3" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
+                        },
+                        {
+                            colSpan: 1,
+                            template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото материалов</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-4" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
+                        }
+                        ]
+                    },
                     {
                         itemType: "button",
                         colSpan: 2,
@@ -707,14 +879,24 @@
                             stylingMode: "contained",
                             useSubmitBehavior: false,
 
-                            onClick: function () {
-                                let transferOperationData = {};
-                                transferOperationData.operationId = operationData.id;
-                                transferOperationData.materials = transferMaterialData;
-
-                                console.log(transferOperationData);
-                                //validateMaterialList(transferOperationData);
-                                postEditingData(transferOperationData);
+                            onClick: function (e) {
+                                let result = e.validationGroup.validate();
+                                if (!result.isValid) {
+                                    return;
+                                }
+                                let comment = operationForm.option("formData").new_comment;
+                                if (!comment) {
+                                    let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
+                                    confirmDialog.done(function (dialogResult) {
+                                        if (dialogResult) {
+                                            saveOperationData();
+                                        } else {
+                                            return;
+                                        }
+                                    })
+                                } else {
+                                    saveOperationData();
+                                }
                             }
                         }
                     }
@@ -726,6 +908,26 @@
 
             //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>
+
+            function saveOperationData() {
+                let transferOperationData = {};
+                transferOperationData.operationId = operationData.id;
+                transferOperationData.new_comment = operationForm.option("formData").new_comment;
+
+                let uploadedFiles = []
+                $(".file-uploader").each(function() {
+                    if ($(this).attr("uploaded-file-id") !== undefined) {
+                        uploadedFiles.push($(this).attr("uploaded-file-id"));
+                    }
+                });
+
+                transferOperationData.uploaded_files = uploadedFiles;
+                transferOperationData.materials = transferMaterialData;
+
+                console.log(transferOperationData);
+                //validateMaterialList(transferOperationData);
+                postEditingData(transferOperationData);
+            }
 
             function validateSingleMaterial(updateInfo) {
                 $.ajax({
@@ -789,18 +991,104 @@
                     },
 
                     success: function (data, textStatus, jqXHR) {
-                        if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
-                            //window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
+                        if (window.history.length != 0) {
+                            window.history.back()
+                        } else {
+                            window.history.go(0);
+                        }
+                        /*if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
+                            window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
                         }
                         if (transferOperationInitiator === "destination") {
-                            //window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
-                        }
+                            window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
+                        }*/
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
                     }
                 })
             }
+
+            $(".file-uploader").each(function() {
+                let uploaderIndex = $(this).attr('index');
+                $(this).dxFileUploader({
+                    dialogTrigger: "#dropzone-external-" + uploaderIndex,
+                    dropZone: "#dropzone-external-" + uploaderIndex,
+                    multiple: false,
+                    allowedFileExtensions: [".jpg", ".jpeg", ".gif", ".png"],
+                    uploadMode: "instantly",
+                    uploadHeaders: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    uploadUrl: "{{route('materials.operations.upload-file')}}",
+                    uploadCustomData: {uploadPurpose: $(this).attr('purpose')},
+                    visible: false,
+                    onDropZoneEnter: function (e) {
+                        if (e.dropZoneElement.id === "dropzone-external-" + uploaderIndex)
+                            toggleDropZoneActive(e.dropZoneElement, true);
+                    },
+                    onDropZoneLeave: function (e) {
+                        if (e.dropZoneElement.id === "dropzone-external-" + uploaderIndex)
+                            toggleDropZoneActive(e.dropZoneElement, false);
+                    },
+                    onUploaded: function (e) {
+                        const file = e.file;
+                        const dropZoneText = document.getElementById("dropzone-text-" + uploaderIndex);
+                        const fileReader = new FileReader();
+                        fileReader.onload = function () {
+                            toggleDropZoneActive(document.getElementById("dropzone-external-" + uploaderIndex), false);
+                            const dropZoneImage = document.getElementById("dropzone-image-" + uploaderIndex);
+                            dropZoneImage.src = fileReader.result;
+                        }
+                        fileReader.readAsDataURL(file);
+                        dropZoneText.style.display = "none";
+                        uploadProgressBar.option({
+                            visible: false,
+                            value: 0
+                        });
+
+                        let fileId = JSON.parse(e.request.response).id;
+                        e.element.attr('uploaded-file-id', fileId);
+                    },
+                    onProgress: function (e) {
+                        uploadProgressBar.option("value", e.bytesLoaded / e.bytesTotal * 100)
+
+                    },
+                    onUploadStarted: function () {
+                        toggleImageVisible(false);
+                        uploadProgressBar.option("visible", true);
+                    }
+                });
+
+                let uploadProgressBar = $("#upload-progress-" + uploaderIndex).dxProgressBar({
+                    min: 0,
+                    max: 100,
+                    width: "30%",
+                    showStatus: false,
+                    visible: false
+                }).dxProgressBar("instance");
+
+                function toggleDropZoneActive(dropZone, isActive) {
+                    if (isActive) {
+                        dropZone.classList.add("dx-theme-accent-as-border-color");
+                        dropZone.classList.remove("dx-theme-border-color");
+                        dropZone.classList.add("dropzone-active");
+                    } else {
+                        dropZone.classList.remove("dx-theme-accent-as-border-color");
+                        dropZone.classList.add("dx-theme-border-color");
+                        dropZone.classList.remove("dropzone-active");
+                    }
+                }
+
+                function toggleImageVisible(visible) {
+                    const dropZoneImage = document.getElementById("dropzone-image-" + uploaderIndex);
+                    dropZoneImage.hidden = !visible;
+                }
+
+                document.getElementById("dropzone-image-" + uploaderIndex).onload = function () {
+                    toggleImageVisible(true);
+                };
+            });
         });
     </script>
 @endsection

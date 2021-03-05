@@ -51,7 +51,7 @@
                 store: contractorsStore
             });
 
-            /*let materialsStandardsListStore = new DevExpress.data.CustomStore({
+            let materialsStandardsListStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "processed",
                 load: function (loadOptions) {
@@ -62,18 +62,17 @@
 
 
             let materialsStandardsListDataSource = new DevExpress.data.DataSource({
-                group: "material_type_name",
+                //group: "key",
                 store: materialsStandardsListStore
             })
-                */
 
-            let materialsStandardsListDataSource = new DevExpress.data.DataSource({
+            /*let materialsStandardsListDataSource = new DevExpress.data.DataSource({
                 group: "material_type_name",
                 store: new DevExpress.data.ArrayStore({
                     key: "id",
                     data: materialStandardsData
                 })
-            })
+            })*/
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
                 store: new DevExpress.data.ArrayStore({
@@ -119,64 +118,145 @@
             let materialsStandardsAddingForm = $("#materialsStandardsAddingForm").dxForm({
                 colCount: 2,
                 items: [{
-                    editorType: "dxList",
-                    name: "materialsStandardsList",
-                    editorOptions: {
-                        height: 400,
-                        width: 500,
-                        dataSource: materialsStandardsListDataSource,
-                        showSelectionControls: true,
-                        selectionMode: "multiply",
-                        searchEnabled: true,
-                        searchExpr: "name",
-                        grouped: true,
-                        collapsibleGroups: true,
-                        itemTemplate: function (data) {
-                            return $("<div>").text(data.name)
-                        },
-                        onSelectionChanged: function (data) {
-                            data.addedItems.forEach(function (addedItem) {
-                                console.log(addedItem);
-                                selectedMaterialStandardsListDataSource.store().insert({
-                                    id: addedItem.id,
-                                    name: addedItem.name,
-                                    accounting_type: addedItem.accounting_type,
-                                    material_type: addedItem.material_type,
-                                    measure_unit: addedItem.measure_unit,
-                                    measure_unit_value: addedItem.measure_unit_value,
-                                    weight: addedItem.weight
-                                })
-                            })
-
-                            data.removedItems.forEach(function (removedItem) {
-                                selectedMaterialStandardsListDataSource.store().remove(removedItem.id)
-                            })
-
-                            selectedMaterialStandardsListDataSource.reload();
-                        },
-                    }
-                },
-                    {
-                        editorType: "dxList",
-                        name: "selectedMaterialsStandardsList",
+                    itemType: "group",
+                    colCount: 3,
+                    caption: "Эталоны",
+                    items: [{
+                        editorType: "dxDataGrid",
+                        name: "materialsStandardsList",
                         editorOptions: {
-                            dataSource: selectedMaterialStandardsListDataSource,
-                            allowItemDeleting: true,
-                            itemDeleteMode: "static",
+                            dataSource: materialsStandardsListDataSource,
                             height: 400,
                             width: 500,
-                            itemTemplate: function (data) {
-                                return $("<div>").text(data.name)
+                            showColumnHeaders: false,
+                            showRowLines: false,
+                            grouping: {
+                                autoExpandAll: true,
                             },
+                            groupPanel: {
+                                visible: false
+                            },
+                            selection: {
+                                allowSelectAll: true,
+                                deferred: false,
+                                mode: "multiple",
+                                selectAllMode: "allPages",
+                                showCheckBoxesMode: "always"
+                            },
+                            paging: {
+                                enabled: true
+                            },
+                            searchPanel: {
+                                visible: true,
+                                searchVisibleColumnsOnly: true,
+                                width: 240,
+                                placeholder: "Поиск..."
+                            },
+                            columns: [{
+                                dataField: "name",
+                                dataType: "string",
+                                caption: "Наименование",
+                                sortIndex: 0,
+                                sortOrder: "asc",
+                                calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
+                                    if (target === "search") {
+                                        let words = filterValue.split(" ");
+                                        let filter = [];
+                                        words.forEach(function (word) {
+                                            filter.push(["name", "contains", word]);
+                                            filter.push("and");
+                                        });
+                                        filter.pop();
+                                        return filter;
+                                    }
+                                    return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
+                                },
+                                cellTemplate: function (container, options) {
+                                    let text = options.data.name;
+                                    let searchWords = options.component.option('searchPanel').text.split(" ");
+                                    let resElement = $('<span>')
+                                        .text(options.data.name);
+                                    searchWords.forEach(function (word) {
+                                        if (word.length) {
+                                            let startPos = text.toLowerCase().indexOf(word.toLowerCase()),
+                                                span = "<span class='highlight'>",
+                                                spanLength = span.length,
+                                                itemText = "";
+                                            if (startPos >= 0) {
+                                                itemText = [
+                                                    text.slice(0, startPos),
+                                                    span,
+                                                    text.slice(startPos, startPos + word.length),
+                                                    "</span>",
+                                                    text.slice(startPos + word.length)
+                                                ].join('');
+                                                resElement = $('<span>')
+                                                    .html(itemText);
+                                            }
+                                        }
+                                    });
+                                    return resElement;
+                                }
+                            },
+                                {
+                                    dataField: "material_type",
+                                    dataType: "number",
+                                    caption: "Тип материала",
+                                    groupIndex: 0,
+                                    lookup: {
+                                        dataSource: materialTypesData,
+                                        displayExpr: "name",
+                                        valueExpr: "id"
+                                    }
+                                }],
+                            onSelectionChanged: function (e) {
+                                selectedMaterialStandardsListDataSource.store().clear();
+                                e.selectedRowsData.forEach(function (selectedRowItem) {
+                                    selectedMaterialStandardsListDataSource.store().insert({
+                                        id: selectedRowItem.id,
+                                        name: selectedRowItem.name,
+                                        accounting_type: selectedRowItem.accounting_type,
+                                        material_type: selectedRowItem.material_type,
+                                        measure_unit: selectedRowItem.measure_unit,
+                                        measure_unit_value: selectedRowItem.measure_unit_value,
+                                        weight: selectedRowItem.weight
+                                    })
+                                })
 
-                            onItemDeleted: function (e) {
-                                console.log(e);
-                                let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
-                                let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList");
-
-                                materialsStandardsList.option("selectedItems", selectedMaterialsStandardsList.option("items"));
+                                selectedMaterialStandardsListDataSource.reload();
+                            }
                         }
-                    }
+                    }]
+                },
+                {
+                        itemType: "group",
+                        colCount: 3,
+                        caption: "Выбранные материалы",
+                        items: [{
+                        editorType: "dxList",
+                        name: "selectedMaterialsStandardsList",
+                            editorOptions: {
+                                dataSource: selectedMaterialStandardsListDataSource,
+                                allowItemDeleting: true,
+                                itemDeleteMode: "static",
+                                height: 400,
+                                width: 500,
+                                itemTemplate: function (data) {
+                                    return $("<div>").text(data.name)
+                                },
+
+                                onItemDeleted: function (e) {
+                                    let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                                    let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList");
+                                    let selectedRowsKeys = [];
+                                    selectedMaterialsStandardsList.option("items").forEach(function (selectedItem) {
+                                        selectedRowsKeys.push(selectedItem.id);
+                                    });
+
+                                    materialsStandardsList.option("selectedRowKeys", selectedRowsKeys);
+                                }
+                            }
+                    }]
                 },
                 {
                     itemType: "button",
@@ -206,7 +286,6 @@
                                 })
                             })
                             supplyMaterialDataSource.reload();
-                            console.log(supplyMaterialDataSource.store());
                             $("#popupContainer").dxPopup("hide")
                         }
                     }
@@ -229,7 +308,6 @@
                         icon: "copy",
                         onClick: function (e) {
                             let clonedItem = $.extend({}, e.row.data, {id: ++supplyMaterialTempID});
-                            console.log(supplyMaterialData);
                             supplyMaterialData.splice(e.row.rowIndex, 0, clonedItem);
                             e.component.refresh(true);
                             e.event.preventDefault();
@@ -241,6 +319,8 @@
                     dataType: "string",
                     allowEditing: false,
                     caption: "Наименование",
+                    sortIndex: 0,
+                    sortOrder: "asc",
                     lookup: {
                         dataSource: materialStandardsData,
                         displayExpr: "name",
@@ -268,13 +348,15 @@
                     },
                     cellTemplate: function (container, options) {
                         let quantity = options.data.quantity;
-                        console.log(options.data);
                         if (quantity !== null) {
                             $(`<div>${quantity} ${options.data.measure_unit_value}</div>`)
                                 .appendTo(container);
+                        } else {
+                            $(`<div class="measure-units-only">${options.data.measure_unit_value}</div>`)
+                                .appendTo(container);
                         }
                     },
-                    validationRules: [{type: "required"}]
+                    //validationRules: [{type: "required"}]
                 },
                 {
                     dataField: "amount",
@@ -289,9 +371,12 @@
                         if (amount !== null) {
                             $(`<div>${amount} шт</div>`)
                                 .appendTo(container);
+                        } else {
+                            $(`<div class="measure-units-only">шт</div>`)
+                                .appendTo(container);
                         }
                     },
-                    validationRules: [{type: "required"}]
+                    //validationRules: [{type: "required"}]
                 },
                 {
                     dataField: "computed_weight",
@@ -318,7 +403,6 @@
                                 .appendTo(container);
                         }
                     },
-
                 },
                 {
                     dataField: "material_type",
@@ -339,7 +423,7 @@
                 dataSource: supplyMaterialDataSource,
                 focusedRowEnabled: false,
                 hoverStateEnabled: true,
-                columnAutoWidth: false,
+                columnAutoWidth : false,
                 showBorders: true,
                 showColumnLines: true,
                 grouping: {
@@ -399,14 +483,16 @@
                                 icon: "add",
                                 text: "Добавить",
                                 onClick: function (e){
+                                    selectedMaterialStandardsListDataSource.store().clear();
+
+                                    let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                                    materialsStandardsList.option("selectedRowKeys", []);
+
                                     $("#popupContainer").dxPopup("show")
                                 }
                             }
                         }
                     );
-                },
-                onRowDblClick: function(e){
-                    console.log(e);
                 }
             };
             //</editor-fold>
@@ -513,7 +599,7 @@
                                 message: 'Поле "Номер ТТН" обязательно для заполнения'
                             }]
                         }]
-                },
+                    },
                     {
                         itemType: "group",
                         caption: "Материалы",
@@ -522,10 +608,79 @@
                             dataField: "",
                             editorType: "dxDataGrid",
                             editorOptions: supplyMaterialGridConfiguration
-                    }
-                    ]
-
-                },
+                        }
+                        ]
+                    },
+                    {
+                        itemType: "group",
+                        caption: "Комментрий",
+                        colSpan: 2,
+                        items: [{
+                            dataField: "new_comment",
+                            label: {
+                                text: "Новый комментарий",
+                                visible: false
+                            },
+                            editorType: "dxTextArea",
+                            /*validationRules: [{
+                                type: "required",
+                                message: 'Поле "Комментарий" обязательно для заполнения'
+                            }]*/
+                        }
+                        ]
+                    },
+                    {
+                        itemType: "group",
+                        caption: "Файлы",
+                        colSpan: 2,
+                        colCount: 4,
+                        items: [{
+                            colSpan: 1,
+                            template:
+                                '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото ТТН</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-1" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="consignment-note-photo" index="1"></div>'
+                        },
+                        {
+                            colSpan: 1,
+                            template: '<div id="dropzone-external-2" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-2" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-2" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото машины спереди</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-2" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="frontal-vehicle-photo" index="2"></div>'
+                        },
+                        {
+                            colSpan: 1,
+                            template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото машины сзади</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-3" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
+                        },
+                        {
+                            colSpan: 1,
+                            template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
+                                '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
+                                '<span class="dx-uploader-span">Фото материалов</span>' +
+                                '</div>' +
+                                '<div id="upload-progress-4" class="upload-progress"></div>' +
+                                '</div>' +
+                                '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
+                        }
+                        ]
+                    },
                     {
                         itemType: "button",
                         colSpan: 2,
@@ -537,27 +692,23 @@
                             useSubmitBehavior: false,
 
                             onClick: function (e) {
-                                let supplyOperationData = {};
-
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
                                 }
-
-                                supplyOperationData.project_object_id = operationForm.option("formData").project_object_id;
-                                //TODO Дата формаируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
-                                supplyOperationData.date_start = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
-                                supplyOperationData.destination_responsible_user_id = operationForm.option("formData").destination_responsible_user_id;
-                                supplyOperationData.contractor_id = operationForm.option("formData").contractor_id;
-                                supplyOperationData.contract_id = operationForm.option("formData").contract_id;
-                                supplyOperationData.consignment_note_number = operationForm.option("formData").consignment_note_number;
-
-                                supplyOperationData.materials = supplyMaterialData;
-
-                                console.log(operationForm.option("formData"));
-                                console.log(supplyOperationData);
-                                console.log(JSON.stringify(supplyOperationData));
-                                validateMaterialList(supplyOperationData, false);
+                                let comment = operationForm.option("formData").new_comment;
+                                if (!comment) {
+                                    let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
+                                    confirmDialog.done(function (dialogResult) {
+                                        if (dialogResult) {
+                                            saveOperationData();
+                                        } else {
+                                            return;
+                                        }
+                                    })
+                                } else {
+                                    saveOperationData();
+                                }
                             }
                         }
                     }]
@@ -567,6 +718,31 @@
 
             //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>
+
+            function saveOperationData() {
+                let supplyOperationData = {};
+
+                supplyOperationData.project_object_id = operationForm.option("formData").project_object_id;
+                //TODO Дата формируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
+                supplyOperationData.date_start = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
+                supplyOperationData.destination_responsible_user_id = operationForm.option("formData").destination_responsible_user_id;
+                supplyOperationData.contractor_id = operationForm.option("formData").contractor_id;
+                supplyOperationData.consignment_note_number = operationForm.option("formData").consignment_note_number;
+                supplyOperationData.new_comment = operationForm.option("formData").new_comment;
+
+                let uploadedFiles = []
+                $(".file-uploader").each(function () {
+                    if ($(this).attr("uploaded-file-id") !== undefined) {
+                        uploadedFiles.push($(this).attr("uploaded-file-id"));
+                    }
+                });
+
+                supplyOperationData.uploaded_files = uploadedFiles;
+                supplyOperationData.materials = supplyMaterialData;
+
+                console.log(supplyOperationData);
+                validateMaterialList(supplyOperationData, false);
+            }
 
             function validateMaterialList(supplyOperationData, forcePostData) {
                 $.ajax({
@@ -609,7 +785,86 @@
                     }
                 })
             }
-        });
 
+            $(".file-uploader").each(function() {
+                let uploaderIndex = $(this).attr('index');
+                $(this).dxFileUploader({
+                    dialogTrigger: "#dropzone-external-" + uploaderIndex,
+                    dropZone: "#dropzone-external-" + uploaderIndex,
+                    multiple: false,
+                    allowedFileExtensions: [".jpg", ".jpeg", ".gif", ".png"],
+                    uploadMode: "instantly",
+                    uploadHeaders: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    uploadUrl: "{{route('materials.operations.upload-file')}}",
+                    uploadCustomData: {uploadPurpose: $(this).attr('purpose')},
+                    visible: false,
+                    onDropZoneEnter: function (e) {
+                        if (e.dropZoneElement.id === "dropzone-external-" + uploaderIndex)
+                            toggleDropZoneActive(e.dropZoneElement, true);
+                    },
+                    onDropZoneLeave: function (e) {
+                        if (e.dropZoneElement.id === "dropzone-external-" + uploaderIndex)
+                            toggleDropZoneActive(e.dropZoneElement, false);
+                    },
+                    onUploaded: function (e) {
+                        const file = e.file;
+                        const dropZoneText = document.getElementById("dropzone-text-" + uploaderIndex);
+                        const fileReader = new FileReader();
+                        fileReader.onload = function () {
+                            toggleDropZoneActive(document.getElementById("dropzone-external-" + uploaderIndex), false);
+                            const dropZoneImage = document.getElementById("dropzone-image-" + uploaderIndex);
+                            dropZoneImage.src = fileReader.result;
+                        }
+                        fileReader.readAsDataURL(file);
+                        dropZoneText.style.display = "none";
+                        uploadProgressBar.option({
+                            visible: false,
+                            value: 0
+                        });
+
+                        let fileId = JSON.parse(e.request.response).id;
+                        e.element.attr('uploaded-file-id', fileId);
+                    },
+                    onProgress: function (e) {
+                        uploadProgressBar.option("value", e.bytesLoaded / e.bytesTotal * 100)
+                    },
+                    onUploadStarted: function () {
+                        toggleImageVisible(false);
+                        uploadProgressBar.option("visible", true);
+                    }
+                });
+
+                let uploadProgressBar = $("#upload-progress-" + uploaderIndex).dxProgressBar({
+                    min: 0,
+                    max: 100,
+                    width: "30%",
+                    showStatus: false,
+                    visible: false
+                }).dxProgressBar("instance");
+
+                function toggleDropZoneActive(dropZone, isActive) {
+                    if (isActive) {
+                        dropZone.classList.add("dx-theme-accent-as-border-color");
+                        dropZone.classList.remove("dx-theme-border-color");
+                        dropZone.classList.add("dropzone-active");
+                    } else {
+                        dropZone.classList.remove("dx-theme-accent-as-border-color");
+                        dropZone.classList.add("dx-theme-border-color");
+                        dropZone.classList.remove("dropzone-active");
+                    }
+                }
+
+                function toggleImageVisible(visible) {
+                    const dropZoneImage = document.getElementById("dropzone-image-" + uploaderIndex);
+                    dropZoneImage.hidden = !visible;
+                }
+
+                document.getElementById("dropzone-image-" + uploaderIndex).onload = function () {
+                    toggleImageVisible(true);
+                };
+            });
+        });
     </script>
 @endsection

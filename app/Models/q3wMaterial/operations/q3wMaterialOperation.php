@@ -4,6 +4,7 @@ namespace App\Models\q3wMaterial\operations;
 
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
@@ -13,9 +14,19 @@ class q3wMaterialOperation extends Model
 
     protected $guarded = array('id');
 
-    public function materials()
+    public function materials(): HasMany
     {
         return $this->hasMany(q3wOperationMaterial::class, 'material_operation_id', 'id');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(q3wOperationComment::class, 'material_operation_id', 'id');
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(q3wOperationFile::class, 'material_operation_id', 'id');
     }
 
     public function scopeOnlyActive($query)

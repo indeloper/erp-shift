@@ -188,6 +188,13 @@ return [
             'visibility' => 'private',
         ],
 
+        'material_operation_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/material_operation_files'),
+            'url' => env('APP_URL').'/material_operation_files',
+            'visibility' => 'private',
+        ],
+
         'ttns' => [
             'driver' => 'local',
             'root' => storage_path('app/public/docs/ttns'),

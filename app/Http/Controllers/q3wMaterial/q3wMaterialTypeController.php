@@ -73,6 +73,15 @@ class q3wMaterialTypeController extends Controller
                 ->get(),
             "totalCount" => (new q3wMaterialType)->dxLoadOptions($dxLoadOptions)->count()
         );
+
+        $response = array(
+            "data" => (new q3wMaterialType)
+                ->dxLoadOptions($dxLoadOptions)
+                ->get(),
+            "totalCount" => (new q3wMaterialType)->dxLoadOptions($dxLoadOptions)->count()
+        );
+
+
         return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 

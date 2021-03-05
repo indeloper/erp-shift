@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Models\FileEntry;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
+use App\Models\q3wMaterial\operations\q3wOperationFile;
+use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class q3wMaterialOperationController
@@ -118,5 +124,35 @@ class q3wMaterialOperationController extends Controller
     public function delete(Request $request)
     {
 
+    }
+
+    public function uploadAttachedFile(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $uploadedFile = $request->files->all()['files'][0];
+        if ($uploadedFile) {
+            $file = new q3wOperationFile();
+
+            $fileExtension = $uploadedFile->getClientOriginalExtension();
+            $fileName =  'file-' . uniqid() . '.' . $fileExtension;
+
+            Storage::disk('material_operation_files')->put($fileName, File::get($uploadedFile));
+
+            FileEntry::create([
+                'filename' => 'storage/docs/material_operation_files/' . $fileName,
+                'size' => $uploadedFile->getSize(),
+                'mime' => $uploadedFile->getClientMimeType(),
+                'original_filename' => $uploadedFile->getClientOriginalName(),
+                'user_id' => Auth::user()->id,
+            ]);
+
+            $file->file_name = $fileName;
+            $file->file_path = 'storage/docs/material_operation_files/';
+            $file->original_file_name = $uploadedFile->getClientOriginalName();
+            $file->user_id = Auth::user()->id;
+            $file->upload_file_type = q3wOperationFileType::where('string_identifier', '=', $request->uploadPurpose)->firstOrFail()->id;
+
+            $file->save();
+            return response()->json($file);
+        }
     }
 }

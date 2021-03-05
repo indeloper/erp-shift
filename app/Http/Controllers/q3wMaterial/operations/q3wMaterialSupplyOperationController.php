@@ -4,6 +4,8 @@ namespace App\Http\Controllers\q3wMaterial\operations;
 
 use App\Models\ProjectObject;
 use App\models\q3wMaterial\operations\q3wMaterialOperation;
+use App\Models\q3wMaterial\operations\q3wOperationComment;
+use App\Models\q3wMaterial\operations\q3wOperationFile;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
@@ -136,6 +138,14 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
         $materialOperation->save();
 
+        $materialOperationComment = new q3wOperationComment([
+            'material_operation_id' => $materialOperation->id,
+            'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
+            'comment' => $requestData['new_comment']
+        ]);
+
+        $materialOperationComment->save();
+
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
             $materialType = $materialStandard->materialType;
@@ -152,8 +162,6 @@ class q3wMaterialSupplyOperationController extends Controller
             ]);
 
             $operationMaterial->save();
-
-            //TODO - Сохранять материалы операции "Поступление", потом отображать операций по материалу
 
             if ($materialType->accounting_type == 2) {
                 $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
@@ -193,6 +201,13 @@ class q3wMaterialSupplyOperationController extends Controller
 
                 $material->save();
             }
+        }
+
+        foreach ($requestData['uploaded_files'] as $uploadedFileId) {
+            $uploadedFile = q3wOperationFile::find($uploadedFileId);
+            $uploadedFile->material_operation_id = $materialOperation->id;
+            $uploadedFile->operation_route_stage_id = $materialOperation->operation_route_stage_id;
+            $uploadedFile->save();
         }
 
         (new q3wMaterialSnapshot)->takeSnapshot($materialOperation, ProjectObject::find($requestData['project_object_id']));

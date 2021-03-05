@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Notification;
 use App\Models\ProjectObject;
+use App\Models\ProjectResponsibleUser;
 use App\models\q3wMaterial\operations\q3wMaterialOperation;
+use App\Models\q3wMaterial\operations\q3wOperationComment;
+use App\Models\q3wMaterial\operations\q3wOperationFile;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
@@ -56,7 +60,7 @@ class q3wMaterialTransferOperationController extends Controller
         }
 
         if (isset($request->materialsToTransfer)) {
-            $predefinedMaterialsArray = explode('+', $request->materialsToTransfer);
+            $predefinedMaterialsArray = explode('+', urldecode($request->materialsToTransfer));
 
             $predefinedMaterials = DB::table('q3w_materials as a')
                 ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
@@ -94,6 +98,10 @@ class q3wMaterialTransferOperationController extends Controller
         DB::beginTransaction();
 
         foreach ($operation->materials as $operationMaterial) {
+            if (in_array("deletedByRecipient", json_decode($operationMaterial->edit_states))) {
+                continue;
+            }
+
             switch ($operationMaterial->standard->materialType->accounting_type) {
                 case 2:
                     $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
@@ -149,11 +157,13 @@ class q3wMaterialTransferOperationController extends Controller
                     }
                     break;
                 default:
-                    $sourceProjectObjectMaterial->amount = $sourceProjectObjectMaterial->amount - $operationMaterial->amount * $operationMaterial->quantity;
+                    $sourceProjectObjectMaterial->quantity = ($sourceProjectObjectMaterial->amount * $sourceProjectObjectMaterial->quantity) - ($operationMaterial->amount * $operationMaterial->quantity);
+                    $sourceProjectObjectMaterial->amount = 1;
                     $sourceProjectObjectMaterial->save();
 
                     if (isset($destinationProjectObjectMaterial)) {
-                        $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->quantity + $operationMaterial->amount * $operationMaterial->quantity;
+                        $destinationProjectObjectMaterial->quantity = ($destinationProjectObjectMaterial->quantity * $destinationProjectObjectMaterial->amount) + ($operationMaterial->amount * $operationMaterial->quantity);
+                        $sourceProjectObjectMaterial->amount = 1;
                         $destinationProjectObjectMaterial->save();
                     } else {
                         $destinationProjectObjectMaterial = new q3wMaterial([
@@ -413,6 +423,14 @@ class q3wMaterialTransferOperationController extends Controller
 
         $materialOperation->save();
 
+        $materialOperationComment = new q3wOperationComment([
+            'material_operation_id' => $materialOperation->id,
+            'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
+            'comment' => $requestData['new_comment']
+        ]);
+
+        $materialOperationComment->save();
+
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
             $materialType = $materialStandard->materialType;
@@ -433,6 +451,13 @@ class q3wMaterialTransferOperationController extends Controller
             $operationMaterial->save();
         }
 
+        foreach ($requestData['uploaded_files'] as $uploadedFileId) {
+            $uploadedFile = q3wOperationFile::find($uploadedFileId);
+            $uploadedFile->material_operation_id = $materialOperation->id;
+            $uploadedFile->operation_route_stage_id = $materialOperation->operation_route_stage_id;
+            $uploadedFile->save();
+        }
+
         DB::commit();
 
         $this->moveOperationToNextStage($materialOperation->id);
@@ -448,10 +473,13 @@ class q3wMaterialTransferOperationController extends Controller
      *      1) Существует переданная в запросе заявка (operationId)
      *      2) Существует объект отправления (sourceProjectObjectId)
      *      3) На объекте сущесвует
-     *          3.1) Для шпунтового учета: Эталон + равное количество в единицах измерения (Пример: Шпунт VL 606A 14.5 м.п.)
-     *          3.2) Для учета по единицам измерения: Эталон
-     *      4) Количество материала на объекте отправления больше или равно, чем количество в заявке
-     *      5) Отстатки не будут конфликтовать по количеству с ранее созданными заявками (//TODO: Реализовать проверку на конфликт заявок)
+     *          3.1) Для шпунтоа: Эталон + равное количество в единицах измерения (Пример: Шпунт VL 606A 14.5 м.п.)
+     *          3.2) Для остального: Эталон
+     *      4) Количество материала (в сумме по эталону или эталону + ед. изм.) на объекте отправления больше или равно, чем количество в заявке
+     *      5) Отстатки не будут конфликтовать по количеству с ранее созданными заявками (Тут вопрос, нужно обсудить этот функционал) (//TODO: Реализовать проверку на конфликт заявок)
+     * Дополнительно информировать:
+     *      1) Если длина материала в ед. изм. >= 15 м.п. (Уточнить, как это должно работать для других единиц измерения)
+     *      2) Если общая масса отправки > 20 т.
      * @param Request $request
      *      Должен содержать следующие поля:
      *      operationId
@@ -645,21 +673,15 @@ class q3wMaterialTransferOperationController extends Controller
                 }
                 break;
             case 15:
-                if (Auth::id() == ProjectObject::findOrFail($operation->source_project_object_id)->resp_users->first()->user_id) {
+                if ($this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id)) {
                     $this->move($operation);
                 }
                 break;
             case 16:
-                if (Auth::id() == ProjectObject::findOrFail($operation->destination_project_object_id)->resp_users->first()->user_id) {
+                if ($this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id)) {
                     $this->move($operation);
                 }
                 break;
-        }
-
-        if ($moveToConflict) {
-            $this->createConflict($operation);
-        } else {
-            $this->move($operation);
         }
     }
 
@@ -669,39 +691,44 @@ class q3wMaterialTransferOperationController extends Controller
         switch ($operation->operation_route_stage_id) {
             case 7:
                 $projectObject = ProjectObject::findOrFail($operation->source_project_object_id);
-                $responsibleUser = $projectObject->resp_users->first();
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                $notification->update([
-                    'name' => 'Конфликт в операции',
-                    'user_id' => $responsibleUser->user_id,
-                    //'task_id' => $task->id,
-                    //'contractor_id' => $task->contractor_id,
-                    'object_id' => $operation->source_project_object_id,
-                    //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                    'created_at' => now(),
-                    'type' => 11
-                ]);
+                $responsibleUsers = $projectObject->resp_users;
+                foreach ($responsibleUsers as $responsibleUser){
+                    $notification = new Notification();
+                    $notification->save();
+                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
+                    $notification->update([
+                        'name' => 'Конфликт в операции',
+                        'user_id' => $responsibleUser->user_id,
+                        //'task_id' => $task->id,
+                        //'contractor_id' => $task->contractor_id,
+                        'object_id' => $operation->source_project_object_id,
+                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
+                        'created_at' => now(),
+                        'type' => 11
+                    ]);
+                }
                 $operation->operation_route_stage_id = 15;
                 $operation->save();
                 break;
             case 8:
+
                 $projectObject = ProjectObject::findOrFail($operation->destination_project_object_id);
-                $responsibleUser = $projectObject->resp_users->first();
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                $notification->update([
-                    'name' => 'Конфликт в операции',
-                    'user_id' => $responsibleUser->user_id,
-                    //'task_id' => $task->id,
-                    //'contractor_id' => $task->contractor_id,
-                    'object_id' => $operation->destination_project_object_id,
-                    //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                    'created_at' => now(),
-                    'type' => 11
-                ]);
+                $responsibleUsers = $projectObject->resp_users;
+                foreach ($responsibleUsers as $responsibleUser) {
+                    $notification = new Notification();
+                    $notification->save();
+                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
+                    $notification->update([
+                        'name' => 'Конфликт в операции',
+                        'user_id' => $responsibleUser->user_id,
+                        //'task_id' => $task->id,
+                        //'contractor_id' => $task->contractor_id,
+                        'object_id' => $operation->destination_project_object_id,
+                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
+                        'created_at' => now(),
+                        'type' => 11
+                    ]);
+                }
                 $operation->operation_route_stage_id = 16;
                 $operation->save();
                 break;
@@ -710,31 +737,32 @@ class q3wMaterialTransferOperationController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param q3wMaterialOperation $q3wMaterialOperation
-     * @return Response
+     * @param $projectObjectId
+     * @return bool
      */
-    public function destroy(q3wMaterialOperation $operation)
+    public function isUserResponsibleForMaterialAccounting(int $projectObjectId): bool
     {
-
+        return ObjectResponsibleUser::where('user_id', Auth::id())
+            ->where('object_id', $projectObjectId)->exists();
     }
 
     public function allowEditing(q3wMaterialOperation $operation)
     {
         switch ($operation->operation_route_stage_id) {
             case 7:
-                return Auth::id() == $operation->source_responsible_user_id;
+                return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 8:
-                return Auth::id() == $operation->destination_responsible_user_id;
+                return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 15:
-                return Auth::id() == ProjectObject::findOrFail($operation->source_project_object_id)->resp_users->first()->user_id;
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 16:
-                return Auth::id() == ProjectObject::findOrFail($operation->destination_project_object_id)->resp_users->first()->user_id;
+                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             default:
                 return false;
         }
     }
+
+
 
     //TODO - Сейчас, если указать много объектов с 1 стандартом и количеством, превышающее на объекте отправления - валидация это пропустит. Исправить :)
     public function validateNewMaterialList(Request $request)

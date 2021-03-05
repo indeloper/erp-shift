@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="{{ mix('css/index.css') }}">
     <link rel="stylesheet" href="{{ mix('css/emojione.css') }}">
     <link rel="stylesheet" href="{{ mix('css/emojionearea.min.css') }}">
-
+    <link rel="stylesheet" href="{{ mix('css/main.css') }}">
     <!-- editable table -->
     <link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.1.3/darkly/bootstrap.min.css"> -->

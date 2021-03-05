@@ -5,8 +5,6 @@
 @section('url', route('materials.index'))
 
 @section('css_top')
-    <link rel="stylesheet" href="{{asset('css/plugins/codyhouse-horizontal-timeline-2.0/style.css')}}">
-
     <style>
         td.dx-command-select {
             border-right: none !important;
@@ -204,10 +202,14 @@
                                     value: projectObject,
                                     onValueChanged: function (e) {
                                         projectObject = e.value;
+                                        snapshotId = null;
+
                                         updateProjectObjectDetailInfo(e.value);
+
                                         $("#gridContainer").dxDataGrid("instance").refresh();
                                         materialSnapshotsDataSource.reload();
                                         projectObjectActiveOperationsDataSource.reload();
+
                                         window.history.pushState("", "", "?project_object=" + projectObject)
                                     }
                                 }
@@ -242,6 +244,7 @@
                                 showBorders: true,
                                 showColumnLines: true,
                                 height: 183,
+                                noDataText: "Активные операции отсутствуют",
                                 columns: [
                                     {
                                         dataField: "id",
@@ -272,7 +275,7 @@
                                     {
                                         dataField: "operation_route_stage_id",
                                         dataType: "number",
-                                        caption: "Этап",
+                                        caption: "Статус",
                                         lookup: {
                                             dataSource: {
                                                 paginate: true,
@@ -312,8 +315,10 @@
                                     switch (itemData.operation_route_id) {
                                         case 1:
                                             operationCaption = "Поставка";
+                                            break;
                                         case 2:
                                             operationCaption = "Перемещение";
+                                            break;
                                     }
 
                                     operationIcon = getOperationRouteIcon(itemData.operation_route_id, itemData.source_project_object_id, itemData.destination_project_object_id);
@@ -334,7 +339,6 @@
                                         '<br>' +
                                         operationCaption +
                                         '</div>');
-                                    console.log(itemData);
                                 }
                             }
                         }]
@@ -351,6 +355,8 @@
                     dataType: "string",
                     caption: "Наименование",
                     width: 500,
+                    sortIndex: 0,
+                    sortOrder: "asc",
                     lookup: {
                         dataSource: materialStandardsData,
                         displayExpr: "name",
@@ -372,6 +378,8 @@
                     dataField: "quantity",
                     dataType: "number",
                     caption: "Количество",
+                    sortIndex: 1,
+                    sortOrder: "asc",
                     showSpinButtons: true,
                     cellTemplate: function (container, options) {
                         let quantity = options.data.quantity;
@@ -385,6 +393,8 @@
                     dataField: "amount",
                     dataType: "number",
                     caption: "Количество (шт)",
+                    sortIndex: 2,
+                    sortOrder: "asc",
                     cellTemplate: function (container, options) {
                         let amount = options.data.amount;
                         if (options.data.from_operation === 1) {
@@ -405,7 +415,7 @@
                         }
 
                         let weight = amount * rowData.quantity * rowData.weight;
-                        console.log(rowData);
+
                         if (isNaN(weight)) {
                             weight = 0;
                         } else {
@@ -461,10 +471,11 @@
                     selectAllMode: "allPages",
                     showCheckBoxesMode: "always"
                 },
+                paging: {
+                    enabled: false
+                },
                 columns: materialColumns,
                 onRowPrepared: function (e) {
-                    console.log("Row prepared");
-                    console.log(e);
                     if (e.rowType === "data") {
                         if (e.data.from_operation === 1) {
                             e.rowElement.find(".dx-datagrid-group-closed")
@@ -560,9 +571,22 @@
                                         caption: "Количество (шт)",
                                         dataType: "number",
                                         cellTemplate: function (container, options) {
-                                            let amount = options.data.quantity;
+                                            let amount = options.data.amount;
 
                                             $(`<div>${amount} шт</div>`)
+                                                .appendTo(container);
+                                        }
+                                    },
+                                    {
+                                        dataField: "operation_id",
+                                        dataType: "number",
+                                        caption: "Номер операции",
+                                        groupIndex: 0,
+                                        sortOrder: "desc",
+                                        groupCellTemplate: function (container, options) {
+                                            let operationId = options.text;
+
+                                            $(`<div>Операция #${operationId}</div>`)
                                                 .appendTo(container);
                                         }
                                     }
@@ -575,7 +599,8 @@
                                             return $.getJSON("{{route('materials.standard-history.list')}}",
                                                 {
                                                     projectObjectId: projectObject,
-                                                    materialStandardId: currentMaterialData.standard_id
+                                                    materialStandardId: currentMaterialData.standard_id,
+                                                    materialQuantity: currentMaterialData.quantity
                                                 });
                                         },
                                     }),
@@ -608,9 +633,6 @@
                             }
                         }
                     );
-                },
-                onRowDblClick: function (e) {
-                    console.log(e);
                 }
             }).dxDataGrid("instance");
             //</editor-fold>
