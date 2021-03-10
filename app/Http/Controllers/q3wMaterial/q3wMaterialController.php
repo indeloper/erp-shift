@@ -108,6 +108,32 @@ class q3wMaterialController extends Controller
             ->toJSON();
     }
 
+    public function actualProjectObjectMaterialsList(Request $request){
+        if (isset($request->project_object)) {
+            $projectObjectId = $request->project_object;
+        } else {
+            $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
+        }
+
+        return DB::table('q3w_materials as a')
+            ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
+            ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
+            ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->where('a.project_object', '=', $projectObjectId)
+            ->where('amount', '<>', 0)
+            ->where('quantity', '<>', 0)
+            ->get(['a.*',
+                'b.name as standard_name',
+                'b.material_type',
+                'b.weight',
+                'd.accounting_type',
+                'd.measure_unit',
+                'd.name as material_type_name',
+                'e.value as measure_unit_value'],
+                DB::RAW('0 as from_operation'))
+            ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+    }
+
     /**
      * Display the specified resource.
      *
@@ -117,7 +143,6 @@ class q3wMaterialController extends Controller
     public function show(Request $request)
     {
         if (isset($request->project_object)) {
-            $projectObjectId = $request->project_object;
             $projectObjectId = $request->project_object;
         } else {
             $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;

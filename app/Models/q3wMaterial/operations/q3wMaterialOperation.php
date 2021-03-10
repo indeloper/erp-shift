@@ -5,6 +5,7 @@ namespace App\Models\q3wMaterial\operations;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +18,11 @@ class q3wMaterialOperation extends Model
     public function materials(): HasMany
     {
         return $this->hasMany(q3wOperationMaterial::class, 'material_operation_id', 'id');
+    }
+
+    public function routeStages(): HasOne
+    {
+        return $this->hasOne(q3wOperationRouteStage::class, 'id', 'operation_route_stage_id');
     }
 
     public function comments(): HasMany

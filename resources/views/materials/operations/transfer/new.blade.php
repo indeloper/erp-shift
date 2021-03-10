@@ -68,15 +68,13 @@
             let sourceProjectObjectId = {{$sourceProjectObjectId}};
             let destinationProjectObjectId = {{$destinationProjectObjectId}};
             let transferOperationInitiator = "{{$transferOperationInitiator}}"; //one of "none", "source", "destination"
-            let transferMaterialTempID = 0;
-
 
             //<editor-fold desc="JS: DataSources">
             let availableMaterialsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
                 load: function (loadOptions) {
-                    return $.getJSON("{{route('materials.list')}}",
+                    return $.getJSON("{{route('materials.actual.list')}}",
                         {project_object: sourceProjectObjectId});
                 },
             });
@@ -284,6 +282,16 @@
 
                                 selectedMaterialsData.forEach(function (material) {
                                     console.log(material);
+                                    let quantity = null;
+
+                                    switch (material.accounting_type) {
+                                        case 2:
+                                            quantity = material.quantity;
+                                            break;
+                                        default:
+                                            quantity = null;
+                                    }
+
                                     transferMaterialDataSource.store().insert({
                                         id: new DevExpress.data.Guid().toString(),
                                         standard_id: material.standard_id,
@@ -293,8 +301,10 @@
                                         measure_unit: material.measure_unit,
                                         measure_unit_value: material.measure_unit_value,
                                         standard_weight: material.weight,
-                                        quantity: material.quantity,
-                                        amount: material.amount
+                                        quantity: quantity,
+                                        amount: null,
+                                        total_quantity: material.quantity,
+                                        total_amount: material.amount
                                     })
                                 })
                                 transferMaterialDataSource.reload();
@@ -338,7 +348,15 @@
                         dataSource: {store: materialStandardsStore},
                         displayExpr: "name",
                         valueExpr: "id"
-                    }
+                    },
+                    cellTemplate: function (container, options) {
+                        console.log(options);
+
+                        $(`<div class="standard-name">${options.text}</div><div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                            .appendTo(container);
+
+                        recalculateStandardsRemains(options.data.id);
+                    },
                 },
                 {
                     dataField: "measure_unit",
@@ -491,6 +509,9 @@
                             e.cancel = true;
                         }
                     }
+                },
+                onRowUpdated: (e) => {
+                    recalculateStandardsRemains(e.key);
                 },
                 onToolbarPreparing: function (e) {
                     let dataGrid = e.component;
@@ -886,6 +907,43 @@
                         DevExpress.ui.notify("При сохранении данных произошли ошибки - список ошибок", "error", 5000)
                     }
                 })
+            }
+
+            function recalculateStandardsRemains(editedRowKey){
+                transferMaterialStore.byKey(editedRowKey)
+                    .done(function (dataItem) {
+                        console.log(dataItem);
+
+                        let calculatedQuantity = dataItem.total_quantity * dataItem.total_amount;
+                        let calculatedAmount = dataItem.total_amount;
+
+                        transferMaterialData.forEach((item) => {
+                            if (item.standard_id === dataItem.standard_id) {
+                                switch (dataItem.accounting_type){
+                                    case 2:
+                                        if ( item.quantity === dataItem.quantity) {
+                                            calculatedAmount = calculatedAmount - item.amount;
+                                        }
+                                        break;
+                                    default:
+                                        calculatedQuantity = calculatedQuantity - item.quantity * item.amount;
+                                }
+                            }
+                        })
+
+                        switch (dataItem.accounting_type){
+                            case 2:
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}']`).each(function() {
+                                    $(this).text(calculatedAmount + ' шт.');
+                                });
+                                break;
+                            default:
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}']`).each(function() {
+                                    $(this).text(calculatedQuantity + ' ' + dataItem.measure_unit_value);
+                                });
+                        }
+
+                    })
             }
 
             $(".file-uploader").each(function() {

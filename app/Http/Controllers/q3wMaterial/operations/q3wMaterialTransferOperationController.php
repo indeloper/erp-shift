@@ -10,6 +10,7 @@ use App\models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;
 use App\Models\q3wMaterial\operations\q3wOperationFile;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
+use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
@@ -559,13 +560,33 @@ class q3wMaterialTransferOperationController extends Controller
      */
     public function show(Request $request)
     {
-
         $operation = q3wMaterialOperation::findOrFail($request->operationId);
+        $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
+        $transferOperationInitiator = "none";
+
+        if (isset($operation->source_project_object_id)) {
+            $sourceProjectObjectId = $operation->source_project_object_id;
+            $transferOperationInitiator = "source";
+        } else {
+            $sourceProjectObjectId = 0;
+        }
+
+        if (isset($operation->destination_project_object_id)) {
+            $destinationProjectObjectId = $operation->destination_project_object_id;
+            $transferOperationInitiator = "destination";
+        } else {
+            $destinationProjectObjectId = 0;
+        }
 
         $materials = DB::table('q3w_operation_materials as a')
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->leftJoin('q3w_material_operations as f', 'a.material_operation_id', '=', 'f.id')
+            ->leftJoin('q3w_materials as g', function($join){
+                $join->on('a.standard_id', '=', 'g.standard_id');
+                $join->on('f.source_project_object_id','=','g.project_object');
+            })
             ->where('a.material_operation_id', '=', $operation->id)
             ->get(['a.id',
                 'a.standard_id',
@@ -579,7 +600,9 @@ class q3wMaterialTransferOperationController extends Controller
                 'b.weight as standard_weight',
                 'd.accounting_type',
                 'd.measure_unit',
-                'e.value as measure_unit_value'])
+                'e.value as measure_unit_value',
+                'g.amount as total_amount',
+                'g.quantity as total_quantity'])
             ->toArray();
 
         foreach ($materials as $material) {
@@ -592,6 +615,10 @@ class q3wMaterialTransferOperationController extends Controller
 
         return view('materials.operations.transfer.view')->with([
             'operationData' => $operationData,
+            'operationRouteStage' => $operationRouteStage,
+            'sourceProjectObjectId' => $sourceProjectObjectId,
+            'destinationProjectObjectId' => $destinationProjectObjectId,
+            'transferOperationInitiator' => $transferOperationInitiator,
             'operationMaterials' => $materials,
             'currentUserId' => Auth::id(),
             'allowEditing' => $this->allowEditing($operation)

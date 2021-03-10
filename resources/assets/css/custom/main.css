@@ -43,3 +43,15 @@
 .measure-units-only{
     color: lightgrey;
 }
+
+.standard-remains{
+    width: 75px;
+    color: lightslategrey;
+    float: right;
+    text-align: right;
+}
+
+.standard-name{
+    min-width: calc(100% - 79px);
+    float: left
+}
