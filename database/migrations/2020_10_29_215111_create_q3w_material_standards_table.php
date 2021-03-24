@@ -1,10 +1,4 @@
 <?php
-
-use App\Models\Manual\ManualMaterialCategory;
-use App\Models\Manual\ManualReference;
-use App\Models\Manual\ManualReferenceParameter;
-use App\models\q3wMaterial\q3wMaterialStandard;
-use App\Models\q3wMaterial\q3wMaterialType;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -35,7 +29,8 @@ class CreateQ3wMaterialStandardsTable extends Migration
             $table->foreign('material_type')->references('id')->on('q3w_material_types');
         });
 
-        $materialReferences = ManualReference::all();
+        /*Импорт из эталонов старой версии материального учета*/
+        /*$materialReferences = ManualReference::all();
 
         foreach ($materialReferences as $materialReference) {
             $categoryWeightAttributesIds = array(2=>109, //Шпунт кг
@@ -99,7 +94,9 @@ class CreateQ3wMaterialStandardsTable extends Migration
 
                 $materialStandard->save();
             }
-        }
+        }*/
+
+        (new materialsSeeder)->run();
     }
 
 

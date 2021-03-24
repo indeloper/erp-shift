@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
-use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -69,7 +68,8 @@ class CreateQ3wMaterialTypesTable extends Migration
             $accountingType -> save();
         }
 
-        $materialCategories = App\Models\Manual\ManualMaterialCategory::all();
+        /*Импорт из типов старой версии материального учета*/
+        /*$materialCategories = App\Models\Manual\ManualMaterialCategory::all();
 
         foreach ($materialCategories as $materialCategory) {
             $materialType = new q3wMaterialType();
@@ -82,7 +82,9 @@ class CreateQ3wMaterialTypesTable extends Migration
                 $materialType->accounting_type = 1;
             }
             $materialType->save();
-        }
+        }*/
+
+        (new materialTypesSeeder)->run();
     }
 
     /**
