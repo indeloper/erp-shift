@@ -138,14 +138,15 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
         $materialOperation->save();
 
-        $materialOperationComment = new q3wOperationComment([
-            'material_operation_id' => $materialOperation->id,
-            'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
-            'comment' => $requestData['new_comment']
-        ]);
+        if (isset($requestData['new_comment'])) {
+            $materialOperationComment = new q3wOperationComment([
+                'material_operation_id' => $materialOperation->id,
+                'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
+                'comment' => $requestData['new_comment']
+            ]);
 
-        $materialOperationComment->save();
-
+            $materialOperationComment->save();
+        }
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
             $materialType = $materialStandard->materialType;

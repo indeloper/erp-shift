@@ -13,7 +13,7 @@ return [
     | https://core.telegram.org/bots#botfather
     |
     */
-    'bot_token' => env('TELEGRAM_BOT_TOKEN', '870110089:AAFR5XtfWTiKpn5FkhN_5I_BMj0P_lLHLVU'),
+    'bot_token' => env('TELEGRAM_BOT_TOKEN', '1679520681:AAEQa-7lEdxGpM2OtBcFJ97CP86LNzVMGKM'),
 
     /*
     |--------------------------------------------------------------------------

@@ -1,4 +1,6 @@
 <?php
+
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -96,7 +98,7 @@ class CreateQ3wMaterialStandardsTable extends Migration
             }
         }*/
 
-        (new materialsSeeder)->run();
+        Artisan::call('db:seed', array('--class' => 'materialsSeeder'));
     }
 
 

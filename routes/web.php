@@ -250,6 +250,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
     Route::get('/materials/list', 'q3wMaterial\q3wMaterialController@show')->name('materials.list');
     Route::get('/materials/actual/list', 'q3wMaterial\q3wMaterialController@actualProjectObjectMaterialsList')->name('materials.actual.list');
+    Route::get('/materials/all-with-actual-amount/list', 'q3wMaterial\q3wMaterialController@allProjectObjectMaterialsWithActualAmountList')->name('materials.all-with-actual-amount.list');
     Route::get('/materials/snapshots-materials/list', 'q3wMaterial\q3wMaterialController@snapshot')->name('materials.snapshots-materials.list');
     Route::get('/materials/snapshots/list/', 'q3wMaterial\q3wMaterialController@snapshotList')->name('materials.snapshots.list');
     Route::get('/materials/standard-history/list/', 'q3wMaterial\q3wMaterialController@standardHistoryList')->name('materials.standard-history.list');
@@ -287,12 +288,12 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@create')->name('materials.operations.transfer.new');
     Route::post('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@store')->name('materials.operations.transfer.new');
     Route::post('/materials/transfer/update', 'q3wMaterial\operations\q3wMaterialTransferOperationController@update')->name('materials.operations.transfer.update');
-    Route::post('/materials/transfer/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateNewMaterialList')->name('materials.operations.transfer.new.validate-material-list');
+    Route::post('/materials/transfer/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateMaterialList')->name('materials.operations.transfer.new.validate-material-list');
 
     Route::get('/materials/transfer/view', 'q3wMaterial\operations\q3wMaterialTransferOperationController@show')->name('materials.operations.transfer.view');
     Route::post('/materials/transfer/move', 'q3wMaterial\operations\q3wMaterialTransferOperationController@move')->name('materials.operations.transfer.move');
 
-    Route::get('/materials/transfer/validate-single-material', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateSingleMaterial')->name('materials.operations.transfer.validate-single-material');
+    Route::get('/materials/transfer/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateMaterialList')->name('materials.operations.transfer.validate-material-list');
 });
 
 

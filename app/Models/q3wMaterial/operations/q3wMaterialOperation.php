@@ -37,12 +37,12 @@ class q3wMaterialOperation extends Model
 
     public function scopeOnlyActive($query)
     {
-        $query->whereNotIn('operation_route_stage_id', [3, 11, 12]);
+        $query->whereNotIn('operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'));
     }
 
     public function scopeOnlyCompleted($query)
     {
-        $query->whereIn('operation_route_stage_id', [3, 11, 12]);
+        $query->whereIn('operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'));
     }
 
     public function scopeWithMaterialsSummary($query)

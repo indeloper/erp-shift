@@ -25,11 +25,21 @@
     <div id="popupContainer">
         <div id="materialsStandardsAddingForm"></div>
     </div>
+    <div id="validationPopoverContainer">
+        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }">
+
+        </div>
+    </div>
 @endsection
 
 @section('js_footer')
     <script>
         $(function () {
+            let sourceProjectObjectId = {{$sourceProjectObjectId}};
+            let destinationProjectObjectId = {{$destinationProjectObjectId}};
+            let transferOperationInitiator = "{{$transferOperationInitiator}}"; //one of "none", "source", "destination"
+            let materialErrorList = [];
+
             let measureUnitsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -53,8 +63,6 @@
                 store: materialTypesStore
             })
 
-
-
             let materialStandardsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -64,10 +72,10 @@
                 },
             });
 
-
-            let sourceProjectObjectId = {{$sourceProjectObjectId}};
-            let destinationProjectObjectId = {{$destinationProjectObjectId}};
-            let transferOperationInitiator = "{{$transferOperationInitiator}}"; //one of "none", "source", "destination"
+            let materialStandardsDataSource = new DevExpress.data.DataSource({
+                key: "id",
+                store: materialStandardsStore
+            });
 
             //<editor-fold desc="JS: DataSources">
             let availableMaterialsStore = new DevExpress.data.CustomStore({
@@ -82,6 +90,20 @@
             let availableMaterialsDataSource = new DevExpress.data.DataSource({
                 key: "id",
                 store: availableMaterialsStore
+            });
+
+            let allMaterialsWithActualAmountStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.all-with-actual-amount.list')}}",
+                        {project_object: sourceProjectObjectId});
+                },
+            });
+
+            let allMaterialsWithActualAmountDataSource = new DevExpress.data.DataSource({
+                key: "id",
+                store: allMaterialsWithActualAmountStore
             })
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
@@ -125,7 +147,7 @@
                 items: [{
                     itemType: "group",
                     colCount: 3,
-                    caption: "Эталоны",
+                    caption: "Материалы",
                     items: [{
                         editorType: "dxDataGrid",
                         name: "materialsStandardsList",
@@ -168,7 +190,7 @@
                                         let words = filterValue.split(" ");
                                         let filter = [];
                                         words.forEach(function (word) {
-                                            filter.push(["name", "contains", word]);
+                                            filter.push(["standard_name", "contains", word]);
                                             filter.push("and");
                                         });
                                         filter.pop();
@@ -177,21 +199,23 @@
                                     return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
                                 },
                                 cellTemplate: function (container, options) {
+                                    let quantity = options.data.quantity ? options.data.quantity + " " : "";
+                                    let amount = options.data.amount ? options.data.amount : "";
                                     switch (options.data.accounting_type) {
                                         case 2:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
-                                                options.data.quantity +
+                                                quantity +
                                                 ' ' +
                                                 options.data.measure_unit_value +
                                                 '; ' +
-                                                options.data.amount +
+                                                amount +
                                                 ' шт)'
                                             )
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
-                                                options.data.quantity +
+                                                quantity +
                                                 ' ' +
                                                 options.data.measure_unit_value +
                                                 ')')
@@ -216,6 +240,33 @@
                                 })
 
                                 selectedMaterialStandardsListDataSource.reload();
+                            },
+                            onToolbarPreparing: function(e) {
+                                let dataGrid = e.component;
+
+                                e.toolbarOptions.items.unshift(
+                                    {
+                                        location: "before",
+                                        template: function(){
+                                            return $("<div/>")
+                                                .dxCheckBox({
+                                                    value: false,
+                                                    width: "auto",
+                                                    text: "Показать все материалы",
+                                                    rtlEnabled: true,
+                                                    onValueChanged: (e) => {
+                                                        if (e.value) {
+                                                            dataGrid.option("dataSource", allMaterialsWithActualAmountDataSource)
+                                                            allMaterialsWithActualAmountDataSource.reload();
+                                                        } else {
+                                                            dataGrid.option("dataSource", availableMaterialsDataSource)
+                                                            availableMaterialsDataSource.reload();
+                                                        }
+                                                    }
+
+                                                });
+                                        }
+                                    });
                             }
                         }
                     }]
@@ -281,7 +332,6 @@
                                 let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
 
                                 selectedMaterialsData.forEach(function (material) {
-                                    console.log(material);
                                     let quantity = null;
 
                                     switch (material.accounting_type) {
@@ -308,7 +358,6 @@
                                     })
                                 })
                                 transferMaterialDataSource.reload();
-                                console.log(transferMaterialDataSource.store());
                                 $("#popupContainer").dxPopup("hide")
                             }
                         }
@@ -318,7 +367,8 @@
 
             let popupContainer = $("#popupContainer").dxPopup({
                 height: "auto",
-                width: "auto"
+                width: "auto",
+                title: "Выберите материалы для добавления"
             });
 
             //<editor-fold desc="JS: Columns definition">
@@ -326,13 +376,62 @@
                 {
                     type: "buttons",
                     width: 110,
-                    buttons: ["delete", {
+                    buttons: [
+                        {
+                            template: function(container, options) {
+                                let validationId = "0";
+                                let standardId = "";
+                                let quantity = "";
+
+                                if (options.data.quantity) {
+                                    quantity = options.data.quantity;
+                                }
+
+                                if (options.data.standard_id) {
+                                    standardId = options.data.standard_id;
+                                }
+
+                                switch (options.data.accounting_type) {
+                                    case 2:
+                                        validationId = standardId + "-" + quantity
+                                        break;
+                                    default:
+                                        validationId = standardId;
+                                }
+
+
+                                let exclamationTriangle = $("<a>")
+                                    .attr("href", "#")
+                                    .attr("validationId", validationId)
+                                    .attr("style", "display: none")
+                                    .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon");
+
+                                materialErrorList.forEach((errorElement) => {
+                                    if (errorElement.validationId === validationId) {
+                                        updateValidationExclamationTriangles(exclamationTriangle, errorElement);
+                                    }
+                                })
+
+                                return exclamationTriangle;
+                            }
+                        },
+                        {
+                            hint: "Удалить",
+                            icon: "trash",
+                            onClick: (e) => {
+                                e.component.deleteRow(e.row.rowIndex);
+                                e.component.refresh(true);
+                                validateMaterialList(e.row);
+                            }
+                        },
+                        {
                         hint: "Дублировать",
                         icon: "copy",
                         onClick: function (e) {
                             let clonedItem = $.extend({}, e.row.data, {id: new DevExpress.data.Guid().toString()});
                             transferMaterialData.splice(e.row.rowIndex, 0, clonedItem);
                             e.component.refresh(true);
+                            validateMaterialList(e.row);
                             e.event.preventDefault();
                         }
                     }]
@@ -341,6 +440,7 @@
                     dataField: "standard_id",
                     dataType: "string",
                     allowEditing: false,
+                    width: "30%",
                     caption: "Наименование",
                     sortIndex: 0,
                     sortOrder: "asc",
@@ -503,13 +603,13 @@
                         }
                     }]
                 },
-                onEditorPreparing: (e) => {
+                /*onEditorPreparing: (e) => {
                     if (e.dataField === "quantity" && e.parentType === "dataRow") {
                         if (e.row.data.accounting_type === 2) {
                             e.cancel = true;
                         }
                     }
-                },
+                },*/
                 onRowUpdated: (e) => {
                     recalculateStandardsRemains(e.key);
                 },
@@ -605,7 +705,7 @@
                             }]
                         },
                         {
-                            colSpan: 2,
+                            colSpan: transferOperationInitiator === "destination" ? 3 : 2,
                             dataField: "source_responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -667,7 +767,7 @@
                             }]
                         },
                         {
-                            colSpan: 2,
+                            colSpan: transferOperationInitiator === "destination" ? 1 : 2,
                             dataField: "destination_responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -857,30 +957,76 @@
                 console.log(operationForm.option("formData"));
                 console.log(transferOperationData);
                 console.log(JSON.stringify(transferOperationData));
-                validateMaterialList(transferOperationData, false);
+                postEditingData(transferOperationData);
+                //validateMaterialList(transferOperationData, false);
             }
 
-            function validateMaterialList(transferOperationData, forcePostData) {
+            function validateMaterialList(updateInfo) {
                 $.ajax({
-                    url: "{{route('materials.operations.transfer.new.validate-material-list')}}",
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+                    dataType: "json",
+                    url: "{{route('materials.operations.transfer.validate-material-list')}}",
                     data: {
-                        data: JSON.stringify(transferOperationData)
+                        sourceProjectObjectId: operationForm.option("formData").source_project_object_id,
+                        materials: transferMaterialData
                     },
-
-                    success: function (data, textStatus, jqXHR) {
-                        postEditingData(transferOperationData)
+                    success: (e) => {
+                        $('.fa-exclamation-triangle').attr('style', 'display:none');
                     },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        if (forcePostData) {
-                            postEditingData(transferOperationData)
+                    error: (e) => {
+                        if (e.responseJSON.result === 'error') {
+                            $('.fa-exclamation-triangle').attr('style', 'display:none');
+                            e.responseJSON.errors.forEach((errorElement) => {
+                                updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') +']'), errorElement);
+                            })
+                            materialErrorList = e.responseJSON.errors;
+                            /*updateInfo.data.errors = e.responseJSON.errors;
+                            updateInfo.component.repaintRows(updateInfo.component.getRowIndexByKey(updateInfo.key));*/
                         }
-                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
                     }
+                });
+            }
+
+            function updateValidationExclamationTriangles (element, errorElement){
+                let maxSeverity = 0;
+                let errorDescription = "";
+                let exclamationTriangleStyle = ""
+
+                errorElement.errorList.forEach((errorItem) => {
+                    if (errorItem.severity > maxSeverity) {
+                        maxSeverity = errorItem.severity;
+                    }
+
+                    errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
                 })
+
+                switch (maxSeverity){
+                    case 500:
+                        exclamationTriangleStyle = 'color: yellow';
+                        break;
+                    case 1000:
+                        exclamationTriangleStyle = 'color: red';
+                        break;
+                    default:
+                        exclamationTriangleStyle = "display: none";
+                }
+
+                element.attr('style', exclamationTriangleStyle);
+                element.attr('severity', maxSeverity);
+                element.click(function(e) {
+                    e.preventDefault();
+
+                    let validationDescription = $('#validationTemplate');
+
+                    validationDescription.dxPopover({
+                        position: "top",
+                        width: 300,
+                        contentTemplate: "<ul>" + errorDescription + "</ul>"
+                    })
+                        .dxPopover("instance")
+                        .show(e.target);
+
+                    return false;
+                });
             }
 
             function postEditingData(transferOperationData) {
@@ -934,7 +1080,7 @@
                         switch (dataItem.accounting_type){
                             case 2:
                                 $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}']`).each(function() {
-                                    $(this).text(calculatedAmount + ' шт.');
+                                    $(this).text(calculatedAmount + ' шт');
                                 });
                                 break;
                             default:
@@ -1026,6 +1172,8 @@
                     toggleImageVisible(true);
                 };
             });
+
+
         });
     </script>
 @endsection

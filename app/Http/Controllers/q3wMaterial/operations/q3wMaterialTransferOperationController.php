@@ -5,7 +5,6 @@ namespace App\Http\Controllers\q3wMaterial\operations;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Notification;
 use App\Models\ProjectObject;
-use App\Models\ProjectResponsibleUser;
 use App\models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;
 use App\Models\q3wMaterial\operations\q3wOperationFile;
@@ -14,7 +13,6 @@ use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
-use App\Models\q3wMaterial\q3wMaterialType;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
@@ -72,7 +70,10 @@ class q3wMaterialTransferOperationController extends Controller
                 ->get(['a.id',
                     'a.standard_id',
                     'a.amount',
+                    'a.amount',
+                    'a.amount as total_amount',
                     'a.quantity',
+                    'a.quantity as total_quantity',
                     'b.name as standard_name',
                     'b.material_type',
                     'b.weight as standard_weight',
@@ -181,187 +182,217 @@ class q3wMaterialTransferOperationController extends Controller
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->source_project_object_id));
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->destination_project_object_id));
 
-        $this->moveOperationToNextStage($operation->id);
-
         DB::commit();
     }
 
-    /*public function move(q3wMaterialOperation $operation)
+    public function moveOperationToNextStage($operationId, $moveToConflict)
     {
-        $requestData = json_decode($request["data"], JSON_OBJECT_AS_ARRAY);
-
-        if (isset($requestData['operationId'])) {
-            $operation = q3wMaterialOperation::findOrFail($requestData['operationId']);
-        }
-
-        foreach ($requestData['materials'] as $inputMaterial) {
-            $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
-
-            $materialType = $materialStandard->materialType;
-
-            $inputMaterialAmount = $inputMaterial['amount'];
-            $inputMaterialQuantity = $inputMaterial['quantity'];
-
-            // Изменение материалов у отправителя
-            if ($materialType->accounting_type == 2) {
-                $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
-                    ->where('standard_id', $materialStandard->id)
-                    ->where('quantity', $inputMaterialQuantity)
-                    ->first();
-            } else {
-                $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
-                    ->where('standard_id', $materialStandard->id)
-                    ->first();
-            }
-
-            if (isset($sourceProjectObjectMaterial)) {
-                if ($materialType->accounting_type == 2) {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->amount - $inputMaterialAmount;
-                    if ($materialAmountDelta >= 0) {
-                        $sourceProjectObjectMaterial->amount = $materialAmountDelta;
-                    } else {
-                        abort(400, 'Материала недостаточно на объекте отправления');
-                    }
-                } else {
-                    $materialQuantityDelta = $sourceProjectObjectMaterial->quantity - $inputMaterialQuantity * $inputMaterialAmount;
-                    if ($materialQuantityDelta >= 0) {
-                        $sourceProjectObjectMaterial->quantity = $materialQuantityDelta;
-                    } else {
-                        abort(400, 'Материала недостаточно на объекте отправления');
-                    }
-                }
-
-                $sourceProjectObjectMaterial->save();
-            } else {
-                abort(400, 'Материала не существует на объекте отправителя');
-            }
-
-            // Изменение материалов у получателя
-            if ($materialType->accounting_type == 1) {
-                $destinationProjectObjectMaterial = q3wMaterial::where('project_object', $operation->destination_project_object_id)
-                    ->where('standard_id', $materialStandard->id)
-                    ->where('quantity', $inputMaterialQuantity)
-                    ->first();
-            } else {
-                $destinationProjectObjectMaterial = q3wMaterial::where('project_object', $operation->destination_project_object_id)
-                    ->where('standard_id', $materialStandard->id)
-                    ->first();
-            }
-
-            if (isset($destinationProjectObjectMaterial)) {
-                if ($materialType->accounting_type == 2) {
-                    $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->amount + $inputMaterialAmount;
-                } else {
-                    $destinationProjectObjectMaterial->quantity = $destinationProjectObjectMaterial->quantity + $inputMaterialQuantity * $inputMaterialAmount;
-                }
-
-                $destinationProjectObjectMaterial->save();
-            } else {
-                $destinationProjectObjectMaterial = new q3wMaterial([
-                    'standard_id' => $materialStandard->id,
-                    'project_object' => $operation->destination_project_object_id,
-                    'amount' => $inputMaterialAmount,
-                    'quantity' => $inputMaterialQuantity
-                ]);
-
-                $destinationProjectObjectMaterial->save();
-            }
-        }
-
-
-        (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->source_project_object_id));
-        (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->destination_project_object_id));
-
-        $this->moveOperationToNextStage($operation->id);
-
-        DB::commit();
-
-        return response()->json([
-            'result' => 'ok'
-        ], 200);
-    }*/
-
-    public function moveOperationToNextStage($operationID)
-    {
-        $operation = q3wMaterialOperation::findOrFail($operationID);
+        $operation = q3wMaterialOperation::findOrFail($operationId);
 
         if (isset($operation)) {
             switch ($operation->operation_route_stage_id) {
-                case 5:
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                    $notification->update([
-                        'name' => 'Новое перемещение',
-                        'user_id' => $operation->source_responsible_user_id,
-                        //'task_id' => $task->id,
-                        //'contractor_id' => $task->contractor_id,
-                        'object_id' => $operation->destination_project_object_id,
-                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                        'created_at' => now(),
-                        'type' => 11
-                    ]);
-                    $operation->operation_route_stage_id = 7;
+                // Маршрут от отправителя
+
+                case 5: //Уведомление получателю
+                    $operation->operation_route_stage_id = 6;
                     $operation->save();
+                    $this->sendTransferNotification($operation, 'Новое перемещение', $operation->destination_responsible_user_id, $operation->source_project_object_id);
                     break;
-                case 6:
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                    $notification->update([
-                        'name' => 'Новое перемещение',
-                        'user_id' => $operation->destination_responsible_user_id,
-                        //'task_id' => $task->id,
-                        //'contractor_id' => $task->contractor_id,
-                        'object_id' => $operation->source_project_object_id,
-                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                        'created_at' => now(),
-                        'type' => 11
-                    ]);
-                    $operation->operation_route_stage_id = 8;
+                case 6: //Ожидание получателя
+                    if ($moveToConflict) {
+                        $operation->operation_route_stage_id = 9;
+                    } else {
+                        $this->move($operation);
+                        $operation->operation_route_stage_id = 7;
+                    }
                     $operation->save();
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 7:
-                case 15:
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                    $notification->update([
-                        'name' => 'Перемещение материалов завершено',
-                        'user_id' => $operation->source_responsible_user_id,
-                        //'task_id' => $task->id,
-                        //'contractor_id' => $task->contractor_id,
-                        'object_id' => $operation->destination_project_object_id,
-                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                        'created_at' => now(),
-                        'type' => 11
-                    ]);
-                    $operation->operation_route_stage_id = 9;
+                    $operation->operation_route_stage_id = 8;
                     $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено', $operation->source_responsible_user_id, $operation->destination_project_object_id);
                     break;
-                case 8:
-                case 16:
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                    $notification->update([
-                        'name' => 'Перемещение материалов завершено',
-                        'user_id' => $operation->source_responsible_user_id,
-                        //'task_id' => $task->id,
-                        //'contractor_id' => $task->contractor_id,
-                        'object_id' => $operation->destination_project_object_id,
-                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                        'created_at' => now(),
-                        'type' => 11
-                    ]);
-                    $operation->operation_route_stage_id = 12;
+                case 9:
+                    $operation->operation_route_stage_id = 10;
                     $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт в операции', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 10:
+                    $operation->operation_route_stage_id = 11;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Конфликт в операции', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    break;
+                case 11:
+                    if ($moveToConflict) {
+                        $operation->operation_route_stage_id = 16;
+                    } else {
+                        $this->move($operation);
+                        $operation->operation_route_stage_id = 12;
+                    }
+                    $operation->save();
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 12:
+                    $operation->operation_route_stage_id = 13;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено после конфликта. Отправитель подтверил корректность изменений.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    break;
+                case 13:
+                    $operation->operation_route_stage_id = 14;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено после конфликта. Отправитель подтверил корректность изменений.', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 14:
+                    $operation->operation_route_stage_id = 15;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено после конфликта. Отправитель подтверил корректность изменений.', $operation->destination_project_object_id);
+                    break;
+                case 16:
+                    $operation->operation_route_stage_id = 17;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 17:
+                    $operation->operation_route_stage_id = 18;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 18:
+                    $operation->operation_route_stage_id = 19;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->source_project_object_id);
+                    break;
+                case 19:
+                    $this->move($operation);
+                    $operation->operation_route_stage_id = 20;
+                    $operation->save();
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 20:
+                    $operation->operation_route_stage_id = 21;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем получателя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 21:
+                    $operation->operation_route_stage_id = 22;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено руководителем получателя.', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 22:
+                    $operation->operation_route_stage_id = 23;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем получателя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+
+                // Маршрут от получателя
+                case 24: //Уведомление отправителю
+                    $operation->operation_route_stage_id = 25;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Новое перемещение', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    break;
+                case 25: //Ожидание отправителя
+                    if ($moveToConflict) {
+                        $operation->operation_route_stage_id = 28;
+                    } else {
+                        $this->move($operation);
+                        $operation->operation_route_stage_id = 26;
+                    }
+                    $operation->save();
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 26:
+                    $operation->operation_route_stage_id = 27;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    break;
+                case 28:
+                    $operation->operation_route_stage_id = 29;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт в операции', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 29:
+                    $operation->operation_route_stage_id = 30;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Конфликт в операции', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    break;
+                case 30:
+                    if ($moveToConflict) {
+                        $operation->operation_route_stage_id = 35;
+                    } else {
+                        $this->move($operation);
+                        $operation->operation_route_stage_id = 31;
+                    }
+                    $operation->save();
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 31:
+                    $operation->operation_route_stage_id = 32;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено после конфликта. Получатель подтверил корректность изменений.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    break;
+                case 32:
+                    $operation->operation_route_stage_id = 33;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено после конфликта. Получатель подтверил корректность изменений.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 33:
+                    $operation->operation_route_stage_id = 35;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено после конфликта. Получатель подтверил корректность изменений.', $operation->source_project_object_id);
+                    break;
+                case 35:
+                    $operation->operation_route_stage_id = 36;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 36:
+                    $operation->operation_route_stage_id = 37;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 37:
+                    $operation->operation_route_stage_id = 38;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->destination_project_object_id);
+                    break;
+                case 38:
+                    $this->move($operation);
+                    $operation->operation_route_stage_id = 39;
+                    $operation->save();
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 39:
+                    $operation->operation_route_stage_id = 40;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 40:
+                    $operation->operation_route_stage_id = 41;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено руководителем отправителя.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 41:
+                    $operation->operation_route_stage_id = 42;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
             }
-
         }
-
-        //$this->moveOperationToNextStage($operation->id);
     }
 
     /**
@@ -378,11 +409,11 @@ class q3wMaterialTransferOperationController extends Controller
         $operationRouteStage = 4;
 
         if ($requestData['transfer_operation_initiator'] == 'none' || $requestData['transfer_operation_initiator'] == 'source') {
-            $operationRouteStage = 6;
+            $operationRouteStage = 5;
         }
 
         if ($requestData['transfer_operation_initiator'] == 'destination') {
-            $operationRouteStage = 5;
+            $operationRouteStage = 24;
         }
 
         //Нужно проверить, что материал существует
@@ -424,13 +455,15 @@ class q3wMaterialTransferOperationController extends Controller
 
         $materialOperation->save();
 
-        $materialOperationComment = new q3wOperationComment([
-            'material_operation_id' => $materialOperation->id,
-            'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
-            'comment' => $requestData['new_comment']
-        ]);
+        if (isset($requestData['new_comment'])) {
+            $materialOperationComment = new q3wOperationComment([
+                'material_operation_id' => $materialOperation->id,
+                'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
+                'comment' => $requestData['new_comment']
+            ]);
 
-        $materialOperationComment->save();
+            $materialOperationComment->save();
+        }
 
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
@@ -461,7 +494,7 @@ class q3wMaterialTransferOperationController extends Controller
 
         DB::commit();
 
-        $this->moveOperationToNextStage($materialOperation->id);
+        $this->moveOperationToNextStage($materialOperation->id, false);
 
         return response()->json([
             'result' => 'ok',
@@ -555,7 +588,7 @@ class q3wMaterialTransferOperationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param q3wMaterialOperation $q3wMaterialOperation
+     * @param Request $request
      * @return Application|Factory|Response|View
      */
     public function show(Request $request)
@@ -621,19 +654,9 @@ class q3wMaterialTransferOperationController extends Controller
             'transferOperationInitiator' => $transferOperationInitiator,
             'operationMaterials' => $materials,
             'currentUserId' => Auth::id(),
-            'allowEditing' => $this->allowEditing($operation)
+            'allowEditing' => $this->allowEditing($operation),
+            'routeStageId' => $operation->operation_route_stage_id
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param q3wMaterialOperation $q3wMaterialOperation
-     * @return Response
-     */
-    public function edit(q3wMaterialOperation $q3wMaterialOperation)
-    {
-        //
     }
 
     /**
@@ -646,11 +669,10 @@ class q3wMaterialTransferOperationController extends Controller
     {
         $requestData = json_decode($request["data"]);
 
-        if (isset($requestData->operationId)) {
-            $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
-        }
+        $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
 
         $moveToConflict = false;
+
         DB::beginTransaction();
         foreach ($requestData->materials as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial->standard_id);
@@ -690,77 +712,18 @@ class q3wMaterialTransferOperationController extends Controller
 
         DB::commit();
 
-        switch ($operation->operation_route_stage_id) {
-            case 7:
-            case 8:
-                if ($moveToConflict) {
-                    $this->createConflict($operation);
-                } else {
-                    $this->move($operation);
+        if (in_array($operation->operation_route_stage_id, [11, 19, 30, 38])) {
+            if (isset($requestData->userAction)) {
+                if ($requestData->userAction == "forceComplete") {
+                    $moveToConflict = false;
                 }
-                break;
-            case 15:
-                if ($this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id)) {
-                    $this->move($operation);
+                if ($requestData->userAction == "moveToResponsibilityUser") {
+                    $moveToConflict = true;
                 }
-                break;
-            case 16:
-                if ($this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id)) {
-                    $this->move($operation);
-                }
-                break;
-        }
-    }
-
-    public function createConflict($operation)
-    {
-
-        switch ($operation->operation_route_stage_id) {
-            case 7:
-                $projectObject = ProjectObject::findOrFail($operation->source_project_object_id);
-                $responsibleUsers = $projectObject->resp_users;
-                foreach ($responsibleUsers as $responsibleUser){
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                    $notification->update([
-                        'name' => 'Конфликт в операции',
-                        'user_id' => $responsibleUser->user_id,
-                        //'task_id' => $task->id,
-                        //'contractor_id' => $task->contractor_id,
-                        'object_id' => $operation->source_project_object_id,
-                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                        'created_at' => now(),
-                        'type' => 11
-                    ]);
-                }
-                $operation->operation_route_stage_id = 15;
-                $operation->save();
-                break;
-            case 8:
-
-                $projectObject = ProjectObject::findOrFail($operation->destination_project_object_id);
-                $responsibleUsers = $projectObject->resp_users;
-                foreach ($responsibleUsers as $responsibleUser) {
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на операцию: ' . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-                    $notification->update([
-                        'name' => 'Конфликт в операции',
-                        'user_id' => $responsibleUser->user_id,
-                        //'task_id' => $task->id,
-                        //'contractor_id' => $task->contractor_id,
-                        'object_id' => $operation->destination_project_object_id,
-                        //'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
-                        'created_at' => now(),
-                        'type' => 11
-                    ]);
-                }
-                $operation->operation_route_stage_id = 16;
-                $operation->save();
-                break;
+            }
         }
 
+        $this->moveOperationToNextStage($operation->id, $moveToConflict);
     }
 
     /**
@@ -776,74 +739,134 @@ class q3wMaterialTransferOperationController extends Controller
     public function allowEditing(q3wMaterialOperation $operation)
     {
         switch ($operation->operation_route_stage_id) {
-            case 7:
-                return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
-            case 8:
+            case 6:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
-            case 15:
-                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
-            case 16:
+            case 11:
+                return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+            case 19:
                 return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+            case 25:
+                return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+            case 30:
+                return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+            case 38:
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_responsible_user_id);
             default:
                 return false;
         }
     }
 
-
-
-    //TODO - Сейчас, если указать много объектов с 1 стандартом и количеством, превышающее на объекте отправления - валидация это пропустит. Исправить :)
-    public function validateNewMaterialList(Request $request)
+    public function validateMaterialList(Request $request)
     {
         $errors = [];
 
-        $requestData = json_decode($request['data']);
+        $materials = $request->materials;
 
-        $projectObject = ProjectObject::find($requestData->source_project_object_id);
+        $projectObject = ProjectObject::find($request->sourceProjectObjectId);
         if (!isset($projectObject)) {
             $errors['sourceProjectObjectNotFound'] = 'Объект отправления не найден';
         }
 
-        foreach ($requestData->materials as $material) {
-            if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
-                $errors['amountIsNull'][] = array('id' => $material->id, 'message' => 'Количество в штуках не указано');
-            }
+        $unitedMaterials = [];
 
-            if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
-                $errors['quantityIsNull'][] = array('id' => $material->id, 'message' => 'Количество не указано');
+        foreach ($materials as $material) {
+            $material = (object)$material;
+
+            if (in_array("deletedByRecipient", $material->edit_states)) {
+                continue;
             }
 
             $materialStandard = q3wMaterialStandard::find($material->standard_id);
 
             $accountingType = $materialStandard->materialType->accounting_type;
 
+            switch ($accountingType) {
+                case 2:
+                    $key = $material->standard_id.'-'.$material->quantity;
+                    if (array_key_exists($key, $unitedMaterials)){
+                        $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
+                    } else {
+                        $unitedMaterials[$key] = $material;
+                    }
+                    break;
+                default:
+                    $key = $material->standard_id;
+                    if (array_key_exists($key, $unitedMaterials)){
+                        $unitedMaterials[$key]->quantity = $unitedMaterials[$key]->quantity + $material->quantity;
+                        $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
+                    } else {
+                        $unitedMaterials[$key] = $material;
+                    }
+            }
+        }
+
+        $totalWeight = 0;
+
+        foreach ($unitedMaterials as $key => $unitedMaterial) {
+            if (!isset($unitedMaterial->amount) || $unitedMaterial->amount == null || $unitedMaterial->amount == 0 || $unitedMaterial->amount == '') {
+                $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'message' => 'Количество в штуках не указано'];
+            }
+
+            if (!isset($unitedMaterial->quantity) || $unitedMaterial->quantity == null || $unitedMaterial->quantity == 0 || $unitedMaterial->quantity == '') {
+                $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'message' => 'Количество в единицах измерения не указано'];
+            }
+
+            if (isset($errors[$key]) && count($errors[$key]) > 0){
+                continue;
+            }
+
+            $materialStandard = q3wMaterialStandard::find($unitedMaterial->standard_id);
+
+            $accountingType = $materialStandard->materialType->accounting_type;
+
             if ($accountingType == 2) {
                 $sourceProjectObjectMaterial = (new q3wMaterial)
                     ->where('project_object', $projectObject->id)
-                    ->where('standard_id', $material->standard_id)
-                    ->where('quantity', $material->quantity)
+                    ->where('standard_id', $unitedMaterial->standard_id)
+                    ->where('quantity', $unitedMaterial->quantity)
                     ->get()
                     ->first();
             } else {
                 $sourceProjectObjectMaterial = (new q3wMaterial)
                     ->where('project_object', $projectObject->id)
-                    ->where('standard_id', $material->standard_id)
+                    ->where('standard_id', $unitedMaterial->standard_id)
                     ->get()
                     ->first();
             }
 
+            if (!isset($errors[$key])) {
+                if ($materialStandard->materialType->measure_unit == 1) {
+                    if ($unitedMaterial->quantity > 15) {
+                        $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'message' => 'Длина материала превышает 15 м.п.'];
+                    }
+                }
+            }
+
             if (!isset($sourceProjectObjectMaterial)) {
-                $errors['materialNotFound'][] = array('id' => $material->id, 'message' => 'Этого материала не существует на объекте отправления');
+                $errors[$key][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'message' => 'Этого материала не существует на объекте отправления'];
             } else {
                 if ($accountingType == 2) {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->amount - $material->amount;
+                    $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount;
                 } else {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $material->quantity * $material->amount;
+                    $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity * $unitedMaterial->amount;
                 }
 
                 if ($materialAmountDelta < 0) {
-                    $errors['negativeMaterialQuantity'] = array('id' => $material->id, 'message' => 'Материала недостаточно на объекте отправления');
+                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'message' => 'Материала недостаточно на объекте отправления'];
                 }
             }
+
+            $totalWeight += $unitedMaterial->amount * $unitedMaterial->quantity * $materialStandard->weight;
+        }
+
+        if ($totalWeight > 20){
+            $errors['common'][] = (object)['severity' => 500, 'type' => 'totalWeightTooLarge', 'message' => 'Общая масса материалов превышает 20 т.'];
+        }
+
+        $errorResult = [];
+
+        foreach ($errors as $key => $error){
+            $errorResult[] = ['validationId' => $key, 'errorList' => $error];
         }
 
         if (count($errors) == 0) {
@@ -853,8 +876,29 @@ class q3wMaterialTransferOperationController extends Controller
         } else {
             return response()->json([
                 'result' => 'error',
-                'errors' => $errors
+                'errors' => $errorResult
             ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         }
+    }
+
+    public function sendTransferNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId) {
+        $responsibilityUsers = ObjectResponsibleUser::where('object_id', $projectObjectId)->get();
+
+        foreach ($responsibilityUsers as $responsibilityUser) {
+            $this->sendTransferNotification($operation, $notificationText, $responsibilityUser->id, $projectObjectId);
+        }
+    }
+
+    public function sendTransferNotification(q3wMaterialOperation $operation, string $notificationText, int $notifiedUserId, int $projectObjectId){
+        $notification = new Notification();
+        $notification->save();
+        $notification->additional_info = ' Ссылка на операцию: ' . PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
+        $notification->update([
+            'name' => $notificationText,
+            'user_id' => $notifiedUserId,
+            'object_id' => $projectObjectId,
+            'created_at' => now(),
+            'type' => 7
+        ]);
     }
 }

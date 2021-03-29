@@ -79,6 +79,7 @@
 @section('content')
     <div id="projectObjectForm"></div>
     <div id="gridContainer" style="height: 100%"></div>
+    <div id="supplyTypePopup"></div>
 @endsection
 
 @section('js_footer')
@@ -621,7 +622,46 @@
                                 },
                                 onItemClick: function(e) {
                                     if (e.itemData === "Поставка") {
-                                        document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
+                                        let popupWindow = $("#supplyTypePopup")
+                                            .dxPopup({
+                                                width: "auto",
+                                                height: "auto",
+                                                title: "Выберите тип поставки",
+                                                contentTemplate: function() {
+                                                    return $("<div>").dxForm({
+                                                        items: [
+                                                            {
+                                                                itemType: "button",
+                                                                horizontalAlignment: "center",
+                                                                buttonOptions: {
+                                                                    text: "Материал поставлен от поставщика",
+                                                                    type: "normal",
+                                                                    stylingMode: "outlined",
+                                                                    onClick: () => {
+                                                                        document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                itemType: "button",
+                                                                horizontalAlignment: "center",
+                                                                buttonOptions: {
+                                                                    text: "Мериал перемещен с другого объекта",
+                                                                    type: "normal",
+                                                                    stylingMode: "outlined",
+                                                                    onClick: () => {
+                                                                        document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?destinationProjectObjectId=" + projectObject;
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    });
+                                                }
+                                            })
+                                            .dxPopup("instance");
+
+                                        popupWindow.show();
+                                        //document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
                                     }
 
                                     if (e.itemData === "Перемещение") {

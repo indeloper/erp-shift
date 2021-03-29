@@ -135,14 +135,6 @@ class materialsSeeder extends Seeder
 
 
             DB::table("q3w_material_standards")->insert([
-                "name" => "Клиновидный шпунт PU 28-1",
-                "material_type" => 1,
-                "weight" => 0.14600,
-                "description" => "",
-            ]);
-
-
-            DB::table("q3w_material_standards")->insert([
                 "name" => "Обрезки клиновидного шпунта PU 28-1 с листом",
                 "material_type" => 1,
                 "weight" => 0.14600,

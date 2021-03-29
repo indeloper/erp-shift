@@ -10,5 +10,9 @@ class q3wOperationRouteStageType extends Model
     use SoftDeletes;
 
     protected $guarded = array('id');
+
+    public function routeStages() {
+        return $this->hasMany(q3wOperationRouteStage::class, 'operation_route_stage_type_id', 'id');
+    }
 }
 

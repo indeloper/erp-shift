@@ -77,16 +77,23 @@
     <div id="popupContainer">
         <div id="materialsStandardsAddingForm"></div>
     </div>
+    <div id="validationPopoverContainer">
+        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }">
+
+        </div>
+    </div>
 @endsection
 
 @section('js_footer')
     <script>
         $(function () {
+            //<editor-fold desc="JS: DataSources">
             let operationData = {!! $operationData !!};
 
             let sourceProjectObjectId = {{$sourceProjectObjectId}};
             let destinationProjectObjectId = {{$destinationProjectObjectId}};
             let transferOperationInitiator = "{{$transferOperationInitiator}}"; //one of "none", "source", "destination"
+            let materialErrorList = [];
 
             let measureUnitsStore = new DevExpress.data.CustomStore({
                 key: "id",
@@ -96,6 +103,7 @@
                         {data: JSON.stringify(loadOptions)});
                 },
             });
+
             let materialTypesStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -119,7 +127,7 @@
                 },
             });
 
-            //<editor-fold desc="JS: DataSources">
+
             let availableMaterialsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -132,6 +140,20 @@
             let availableMaterialsDataSource = new DevExpress.data.DataSource({
                 key: "id",
                 store: availableMaterialsStore
+            });
+
+            let allMaterialsWithActualAmountStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.all-with-actual-amount.list')}}",
+                        {project_object: sourceProjectObjectId});
+                },
+            });
+
+            let allMaterialsWithActualAmountDataSource = new DevExpress.data.DataSource({
+                key: "id",
+                store: allMaterialsWithActualAmountStore
             })
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
@@ -144,7 +166,8 @@
             let transferMaterialData = {!! $operationMaterials !!};
             let transferMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
-                data: transferMaterialData
+                data: transferMaterialData,
+                onLoaded: validateMaterialList(null)
             })
             let transferMaterialDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
@@ -169,13 +192,148 @@
                 },
             });
             //</editor-fold>
+            @if($allowEditing && $routeStageId == 6)
+            let applyDataButton = {
+                itemType: "button",
+                colSpan: 2,
+                horizontalAlignment: "right",
+                buttonOptions: {
+                    text: "Подтвердить",
+                    type: "default",
+                    stylingMode: "contained",
+                    useSubmitBehavior: false,
+
+                    onClick: function (e) {
+                        let result = e.validationGroup.validate();
+                        if (!result.isValid) {
+                            return;
+                        }
+                        let comment = operationForm.option("formData").new_comment;
+                        if (!comment) {
+                            let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
+                            confirmDialog.done(function (dialogResult) {
+                                if (dialogResult) {
+                                    saveOperationData("");
+                                } else {
+                                    return;
+                                }
+                            })
+                        } else {
+                            saveOperationData("");
+                        }
+                    }
+                }
+            };
+            @endIf
+
+            @if($allowEditing && $routeStageId == 11)
+            let applyConflictButtonGroup = {
+                itemType: "simpleItem",
+                colSpan: 2,
+                template: function (data, itemElement){
+                    $('<div>')
+                        .css('float', 'right')
+                        .dxButton({
+                                text: "Подтвердить изменения",
+                                type: "default",
+                                stylingMode: "contained",
+                                useSubmitBehavior: false,
+
+                                onClick: function (e) {
+                                    let result = e.validationGroup.validate();
+                                    if (!result.isValid) {
+                                        return;
+                                    }
+
+                                    let comment = operationForm.option("formData").new_comment;
+                                    if (!comment) {
+                                        let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
+                                        confirmDialog.done(function (dialogResult) {
+                                            if (dialogResult) {
+                                                saveOperationData("forceComplete");
+                                            }
+                                        })
+                                    } else {
+                                        saveOperationData("forceComplete");
+                                    }
+                                }
+
+                        })
+                        .appendTo(itemElement)
+                    $('<div>')
+                        .css('float', 'right')
+                        .css('margin-right', '8px')
+                        .dxButton({
+
+                            text: "Отправить руководителю",
+                            type: "default",
+                            stylingMode: "outlined",
+                            useSubmitBehavior: false,
+
+                            onClick: function (e) {
+                                let result = e.validationGroup.validate();
+                                if (!result.isValid) {
+                                    return;
+                                }
+
+                                let comment = operationForm.option("formData").new_comment;
+                                if (!comment) {
+                                    let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
+                                    confirmDialog.done(function (dialogResult) {
+                                        if (dialogResult) {
+                                            saveOperationData("moveToResponsibilityUser");
+                                        }
+                                    })
+                                } else {
+                                    saveOperationData("moveToResponsibilityUser");
+                                }
+                            }
+
+                        })
+                        .appendTo(itemElement)
+                }
+            }
+            @endif
+
+            @if($allowEditing && $routeStageId == 19)
+            let applyConflictByResponsibilityUserButtonGroup = {
+                itemType: "button",
+                colSpan: 2,
+                horizontalAlignment: "right",
+                buttonOptions: {
+                    text: "Подтвердить конфликтную операцию",
+                    type: "default",
+                    stylingMode: "contained",
+                    useSubmitBehavior: false,
+
+                    onClick: function (e) {
+                        let result = e.validationGroup.validate();
+                        if (!result.isValid) {
+                            return;
+                        }
+
+                        let comment = operationForm.option("formData").new_comment;
+                        if (!comment) {
+                            let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
+                            confirmDialog.done(function (dialogResult) {
+                                if (dialogResult) {
+                                    saveOperationData("forceComplete");
+                                }
+                            })
+                        } else {
+                            saveOperationData("forceComplete");
+                        }
+                    }
+                }
+            };
+            @endIf
 
             let materialsStandardsAddingForm = $("#materialsStandardsAddingForm").dxForm({
                 colCount: 2,
                 items: [{
                     itemType: "group",
                     colCount: 3,
-                    caption: "Эталоны",
+                    caption: "Материалы",
                     items: [{
                         editorType: "dxDataGrid",
                         name: "materialsStandardsList",
@@ -218,7 +376,7 @@
                                         let words = filterValue.split(" ");
                                         let filter = [];
                                         words.forEach(function (word) {
-                                            filter.push(["name", "contains", word]);
+                                            filter.push(["standard_name", "contains", word]);
                                             filter.push("and");
                                         });
                                         filter.pop();
@@ -227,21 +385,23 @@
                                     return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
                                 },
                                 cellTemplate: function (container, options) {
+                                    let quantity = options.data.quantity ? options.data.quantity + " " : "";
+                                    let amount = options.data.amount ? options.data.amount : "";
                                     switch (options.data.accounting_type) {
                                         case 2:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
-                                                options.data.quantity +
+                                                quantity +
                                                 ' ' +
                                                 options.data.measure_unit_value +
                                                 '; ' +
-                                                options.data.amount +
+                                                amount +
                                                 ' шт)'
                                             )
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
-                                                options.data.quantity +
+                                                quantity +
                                                 ' ' +
                                                 options.data.measure_unit_value +
                                                 ')')
@@ -266,6 +426,33 @@
                                 })
 
                                 selectedMaterialStandardsListDataSource.reload();
+                            },
+                            onToolbarPreparing: function(e) {
+                                let dataGrid = e.component;
+
+                                e.toolbarOptions.items.unshift(
+                                    {
+                                        location: "before",
+                                        template: function(){
+                                            return $("<div/>")
+                                                .dxCheckBox({
+                                                    value: false,
+                                                    width: "auto",
+                                                    text: "Показать все материалы",
+                                                    rtlEnabled: true,
+                                                    onValueChanged: (e) => {
+                                                        if (e.value) {
+                                                            dataGrid.option("dataSource", allMaterialsWithActualAmountDataSource)
+                                                            allMaterialsWithActualAmountDataSource.reload();
+                                                        } else {
+                                                            dataGrid.option("dataSource", availableMaterialsDataSource)
+                                                            availableMaterialsDataSource.reload();
+                                                        }
+                                                    }
+
+                                                });
+                                        }
+                                    });
                             }
                         }
                     }]
@@ -367,7 +554,8 @@
 
             let popupContainer = $("#popupContainer").dxPopup({
                 height: "auto",
-                width: "auto"
+                width: "auto",
+                title: "Выберите материалы для добавления"
             });
 
             //<editor-fold desc="JS: Columns definition">
@@ -377,21 +565,53 @@
                     width: 110,
                     buttons: [
                         {
-                            icon: "warning",
-                            cssStyle: "color: red",
-                            visible: (e) => {
-                                return typeof e.row.data.errors !== undefined
+                            template: function(container, options) {
+                                let validationId = "0";
+                                let standardId = "";
+                                let quantity = "";
+
+                                if (options.data.quantity) {
+                                    quantity = options.data.quantity;
+                                }
+
+                                if (options.data.standard_id) {
+                                    standardId = options.data.standard_id;
+                                }
+
+                                switch (options.data.accounting_type) {
+                                    case 2:
+                                        validationId = standardId + "-" + quantity
+                                        break;
+                                    default:
+                                        validationId = standardId;
+                                }
+
+
+                                let exclamationTriangle = $("<a>")
+                                    .attr("href", "#")
+                                    .attr("validationId", validationId)
+                                    .attr("style", "display: none")
+                                    .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon");
+
+                                    materialErrorList.forEach((errorElement) => {
+                                        if (errorElement.validationId === validationId) {
+                                            updateValidationExclamationTriangles(exclamationTriangle, errorElement);
+                                        }
+                                    })
+
+                                return exclamationTriangle;
                             }
                         },
                             @if ($allowEditing)
                         {
-                            icon: "add",
+                            icon: "fas fa-plus",
                             visible: (e) => {
                                 return e.row.data.edit_states.indexOf("addedByRecipient") !== -1
                             }
                         },
 
                         {
+                            hint: "Отменить удаление",
                             icon: "dx-icon-revert deleted",
                             visible: (e) => {
                                 if (e.row.data.edit_states.indexOf("deletedByRecipient") !== -1) {
@@ -406,9 +626,12 @@
                             onClick: (e) => {
                                 e.row.data.edit_states.splice(e.row.data.edit_states.indexOf("deletedByRecipient"), 1);
                                 e.component.repaintRows(e.row.rowIndex);
+                                e.component.refresh(true);
+                                validateMaterialList(e.row);
                             }
                         },
                         {
+                            hint: "Удалить",
                             icon: "trash",
                             visible: (e) => {
                                 return e.row.data.edit_states.indexOf("deletedByRecipient") === -1
@@ -419,7 +642,9 @@
                                 } else {
                                     e.row.data.edit_states.push("deletedByRecipient");
                                     e.component.repaintRows(e.row.rowIndex);
-                                }
+                                };
+                                e.component.refresh(true);
+                                validateMaterialList(e.row);
                             }
                         },
                         {
@@ -432,6 +657,7 @@
                                 });
                                 transferMaterialData.splice(e.row.rowIndex, 0, clonedItem);
                                 e.component.refresh(true);
+                                validateMaterialList(e.row);
                                 e.event.preventDefault();
                             }
                         }
@@ -442,6 +668,7 @@
                     dataField: "standard_id",
                     dataType: "string",
                     allowEditing: false,
+                    width: "30%",
                     caption: "Наименование",
                     sortIndex: 0,
                     sortOrder: "asc",
@@ -633,44 +860,79 @@
                 columns: transferMaterialColumns,
                 summary: {
                     groupItems: [{
-                        column: "standard_id",
-                        summaryType: "count",
-                        displayFormat: "Количество: {0}",
-                    },
+                            column: "standard_id",
+                            summaryType: "count",
+                            displayFormat: "Количество: {0}",
+                        },
                         {
-                            column: "amount",
-                            summaryType: "sum",
-                            customizeText: function (data) {
-                                return `Всего: ${data.value} шт`
-                            },
+                            name: "totalAmountGroupSummary",
+                            showInColumn: "amount",
+                            summaryType: "custom",
                             showInGroupFooter: false,
                             alignByColumn: true
                         },
                         {
-                            column: "computed_weight",
-                            summaryType: "sum",
-                            customizeText: function (data) {
-                                return `Всего: ${data.value.toFixed(3)} т.`
-                            },
+                            name: "totalWeightGroupSummary",
+                            showInColumn: "computed_weight",
+                            summaryType: "custom",
                             showInGroupFooter: false,
                             alignByColumn: true
-                        }],
-                    totalItems: [{
-                        column: "computed_weight",
-                        summaryType: "sum",
-                        //displayFormat: "Итого: {0} т.",
-                        customizeText: function (data) {
-                            return "Итого: " + data.value.toFixed(3) + " т."
                         }
-                    }]
+                    ],
+                    totalItems: [{
+                        name: "totalWeightSummary",
+                        showInColumn: "computed_weight",
+                        summaryType: "custom"
+                    }],
+                    calculateCustomSummary: function (options) {
+                        if (options.name === "totalWeightSummary" || options.name === "totalWeightGroupSummary") {
+                            if (options.summaryProcess === "start") {
+                                options.totalValue = 0;
+                            }
+
+                            if (options.summaryProcess === "calculate") {
+                                console.log(options.value);
+                                if (options.value.edit_states.indexOf("deletedByRecipient") === -1) {
+                                    options.totalValue = options.totalValue + (options.value.amount * options.value.quantity * options.value.standard_weight);
+                                }
+                            }
+
+                            if (options.summaryProcess === "finalize") {
+                                if (options.name === "totalWeightSummary") {
+                                    options.totalValue = "Итого: " + options.totalValue.toFixed(3) + " т."
+                                } else {
+                                    options.totalValue = "Всего: " + options.totalValue.toFixed(3) + " т."
+                                }
+
+
+                            }
+                        }
+
+                        if (options.name === "totalAmountGroupSummary") {
+                            if (options.summaryProcess === "start") {
+                                options.totalValue = 0;
+                            }
+
+                            if (options.summaryProcess === "calculate") {
+                                console.log(options.value);
+                                if (options.value.edit_states.indexOf("deletedByRecipient") === -1) {
+                                    options.totalValue = options.totalValue + options.value.amount;
+                                }
+                            }
+
+                            if (options.summaryProcess === "finalize") {
+                                options.totalValue = "Всего: " + options.totalValue + " шт"
+                            }
+                        }
+                    }
                 },
-                onEditorPreparing: (e) => {
+                /*onEditorPreparing: (e) => {
                     if (e.dataField === "quantity" && e.parentType === "dataRow") {
                         if (e.row.data.accounting_type === 2) {
                             e.cancel = true;
                         }
                     }
-                },
+                },*/
                 @if($allowEditing)
                 onToolbarPreparing: (e) => {
                     let dataGrid = e.component;
@@ -726,7 +988,7 @@
                 },
                 onRowUpdated: (e) => {
                     //recalculateStandardsRemains(e.key);
-                    validateSingleMaterial(e);
+                    validateMaterialList(e);
                 },
             };
             //</editor-fold>
@@ -770,7 +1032,14 @@
                             }
                         },
                         {
-                            colSpan: 2,
+                            colSpan: (e) => {
+                                if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
+                                    return 2
+                                }
+                                if (transferOperationInitiator === "destination") {
+                                    return 3
+                                }
+                            },
                             dataField: "source_responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -808,7 +1077,14 @@
                         }
                     },
                         {
-                            colSpan: 2,
+                            colSpan: (e) => {
+                                if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
+                                    return 2
+                                }
+                                if (transferOperationInitiator === "destination") {
+                                    return 1
+                                }
+                            },
                             dataField: "destination_responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -919,37 +1195,15 @@
                         }
                         ]
                     },
-                    {
-                        itemType: "button",
-                        colSpan: 2,
-                        horizontalAlignment: "right",
-                        buttonOptions: {
-                            text: "Подтвердить",
-                            type: "default",
-                            stylingMode: "contained",
-                            useSubmitBehavior: false,
-
-                            onClick: function (e) {
-                                let result = e.validationGroup.validate();
-                                if (!result.isValid) {
-                                    return;
-                                }
-                                let comment = operationForm.option("formData").new_comment;
-                                if (!comment) {
-                                    let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
-                                    confirmDialog.done(function (dialogResult) {
-                                        if (dialogResult) {
-                                            saveOperationData();
-                                        } else {
-                                            return;
-                                        }
-                                    })
-                                } else {
-                                    saveOperationData();
-                                }
-                            }
-                        }
-                    }
+                    @endif
+                    @if($allowEditing && $routeStageId == 6)
+                    applyDataButton,
+                    @endif
+                    @if($allowEditing && $routeStageId == 11)
+                    applyConflictButtonGroup,
+                    @endif
+                    @if($allowEditing && $routeStageId == 19)
+                    applyConflictByResponsibilityUserButtonGroup,
                     @endif
                 ]
 
@@ -959,10 +1213,14 @@
             //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>
 
-            function saveOperationData() {
+            function saveOperationData(userAction) {
                 let transferOperationData = {};
                 transferOperationData.operationId = operationData.id;
                 transferOperationData.new_comment = operationForm.option("formData").new_comment;
+
+                @if($allowEditing && ($routeStageId == 11 || $routeStageId == 19))
+                    transferOperationData.userAction = userAction;
+                @endif
 
                 let uploadedFiles = []
                 $(".file-uploader").each(function() {
@@ -979,53 +1237,73 @@
                 postEditingData(transferOperationData);
             }
 
-            function validateSingleMaterial(updateInfo) {
+            function validateMaterialList(updateInfo) {
                 $.ajax({
                     dataType: "json",
-                    url: "{{route('materials.operations.transfer.validate-single-material')}}",
+                    url: "{{route('materials.operations.transfer.validate-material-list')}}",
                     data: {
                         operationId: operationData.id,
                         sourceProjectObjectId: operationData.source_project_object_id,
-                        material: {
-                            standardID: updateInfo.data.standard_id,
-                            lengthQuantity: updateInfo.data.length_quantity,
-                            quantity: updateInfo.data.material_quantity
-                        }
+                        materials: transferMaterialData
                     },
                     success: (e) => {
-                        delete updateInfo.data.errors;
-                        updateInfo.component.repaintRows(updateInfo.component.getRowIndexByKey(updateInfo.key));
+                        $('.fa-exclamation-triangle').attr('style', 'display:none');
                     },
                     error: (e) => {
                         if (e.responseJSON.result === 'error') {
-                            updateInfo.data.errors = e.responseJSON.errors;
-                            updateInfo.component.repaintRows(updateInfo.component.getRowIndexByKey(updateInfo.key));
+                            $('.fa-exclamation-triangle').attr('style', 'display:none');
+                            e.responseJSON.errors.forEach((errorElement) => {
+                                updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') +']'), errorElement);
+                            })
+                            materialErrorList = e.responseJSON.errors;
+                            /*updateInfo.data.errors = e.responseJSON.errors;
+                            updateInfo.component.repaintRows(updateInfo.component.getRowIndexByKey(updateInfo.key));*/
                         }
                     }
                 });
             }
 
-            function validateMaterialList(transferOperationData, forcePostData) {
-                $.ajax({
-                    url: "{{route('materials.operations.transfer.new.validate-material-list')}}",
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        data: JSON.stringify(transferOperationData)
-                    },
+            function updateValidationExclamationTriangles (element, errorElement){
+                let maxSeverity = 0;
+                let errorDescription = "";
+                let exclamationTriangleStyle = ""
 
-                    success: function (data, textStatus, jqXHR) {
-                        postEditingData(transferOperationData)
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        if (forcePostData) {
-                            postEditingData(transferOperationData)
-                        }
-                        DevExpress.ui.notify("При сохранении данных произошла ошибка<br>Список ошибок", "error", 5000)
+                errorElement.errorList.forEach((errorItem) => {
+                    if (errorItem.severity > maxSeverity) {
+                        maxSeverity = errorItem.severity;
                     }
+
+                    errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
                 })
+
+                switch (maxSeverity){
+                    case 500:
+                        exclamationTriangleStyle = 'color: yellow';
+                        break;
+                    case 1000:
+                        exclamationTriangleStyle = 'color: red';
+                        break;
+                    default:
+                        exclamationTriangleStyle = "display: none";
+                }
+
+                element.attr('style', exclamationTriangleStyle);
+                element.attr('severity', maxSeverity);
+                element.click(function(e) {
+                        e.preventDefault();
+
+                        let validationDescription = $('#validationTemplate');
+
+                        validationDescription.dxPopover({
+                            position: "top",
+                            width: 300,
+                            contentTemplate: "<ul>" + errorDescription + "</ul>"
+                            })
+                        .dxPopover("instance")
+                        .show(e.target);
+
+                        return false;
+                    });
             }
 
             function postEditingData(transferOperationData) {
@@ -1042,10 +1320,10 @@
 
                     success: function (data, textStatus, jqXHR) {
                         if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
-                            window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
+                            window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
                         }
                         if (transferOperationInitiator === "destination") {
-                            window.location.href = '{{route('materials.index')}}/?project_object=' + sourceProjectObjectId
+                            window.location.href = '{{route('materials.index')}}/?project_object=' + destinationProjectObjectId
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
@@ -1077,7 +1355,7 @@
                         switch (dataItem.accounting_type){
                             case 2:
                                 $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}']`).each(function() {
-                                    $(this).text(calculatedAmount + ' шт.');
+                                    $(this).text(calculatedAmount + ' шт');
                                 });
                                 break;
                             default:
@@ -1170,5 +1448,6 @@
                 };
             });
         });
+
     </script>
 @endsection

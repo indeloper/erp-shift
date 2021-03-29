@@ -13,6 +13,6 @@ class q3wMaterialType extends Model
     protected $guarded = array('id');
 
     public function measureUnits() {
-        return $this->hasOne(q3wMeasureUnit::class, 'measureUnit', 'id');
+        return $this->belongsTo(q3wMeasureUnit::class, 'measure_unit', 'id');
     }
 }

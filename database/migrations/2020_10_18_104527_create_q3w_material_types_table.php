@@ -2,6 +2,7 @@
 
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -84,7 +85,7 @@ class CreateQ3wMaterialTypesTable extends Migration
             $materialType->save();
         }*/
 
-        (new materialTypesSeeder)->run();
+        Artisan::call('db:seed', array('--class' => 'materialTypesSeeder'));
     }
 
     /**

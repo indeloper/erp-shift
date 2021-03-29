@@ -78,7 +78,8 @@ class q3wMaterialStandardController extends Controller
     {
         return DB::table('q3w_material_standards as a')
             ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
-            ->get(['a.*', 'b.measure_unit'])
+            ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
+            ->get(['a.*', 'b.measure_unit', 'd.value as measure_unit_value'])
             ->toJSON();
     }
 

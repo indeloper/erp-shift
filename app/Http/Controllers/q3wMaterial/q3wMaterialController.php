@@ -4,6 +4,7 @@ namespace App\Http\Controllers\q3wMaterial;
 
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
+use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
@@ -24,7 +25,6 @@ class q3wMaterialController extends Controller
      */
     public function index(Request $request)
     {
-
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
         } else {
@@ -134,6 +134,35 @@ class q3wMaterialController extends Controller
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
+    public function allProjectObjectMaterialsWithActualAmountList(Request $request){
+        if (isset($request->project_object)) {
+            $projectObjectId = $request->project_object;
+        } else {
+            $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
+        }
+
+        return DB::table('q3w_material_standards as a')
+            ->leftJoin('q3w_materials as b', function($join) use ($projectObjectId) {
+                $join->on('a.id', '=', 'b.standard_id');
+                $join->on('b.project_object','=',   DB::RAW($projectObjectId));
+            })
+            ->leftJoin('q3w_material_types as d', 'a.material_type', '=', 'd.id')
+            ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->get(['a.id',
+                    'a.id as standard_id',
+                    'a.name as standard_name',
+                    'b.amount',
+                    'b.quantity',
+                    'a.material_type',
+                    'a.weight',
+                    'd.accounting_type',
+                    'd.measure_unit',
+                    'd.name as material_type_name',
+                    'e.value as measure_unit_value'],
+                DB::RAW('0 as from_operation'))
+            ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+    }
+
     /**
      * Display the specified resource.
      *
@@ -158,7 +187,7 @@ class q3wMaterialController extends Controller
                     ->orWhere('f.destination_project_object_id', $projectObjectId);
             })
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-            ->whereNotIn('f.operation_route_stage_id', [3, 11, 12])
+            ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->get(['a.id',
                 'a.standard_id',
                 'a.quantity',
@@ -219,7 +248,7 @@ class q3wMaterialController extends Controller
                     ->orWhere('a.destination_project_object_id', $projectObject->id);
             })
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-            ->whereIn('a.operation_route_stage_id', [3, 11, 12])
+            ->whereIn('a.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->orderBy('a.created_at', 'desc')
             ->get(['q3w_operation_materials.*',
                 'a.id as operation_id',
