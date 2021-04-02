@@ -41,6 +41,8 @@ class Kernel extends ConsoleKernel
         Commands\GenerateEmails::class,
         Commands\ExpiredTaskReminder::class,
 //        Commands\SendNotificationsNeedContract::class
+        // q3w custom commands
+        Commands\CheckOverdueMaterialAccountingOperation::class
     ];
 
     /**
@@ -52,7 +54,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 //        $schedule->command('check:ex-task')->everyTenMinutes();
-        $schedule->command('tasks:checkDelayed')->everyThirtyMinutes();
+
+/*     !!!Q3W   $schedule->command('tasks:checkDelayed')->everyThirtyMinutes();
         $schedule->command('users:check-vacations')->dailyAt('01:00');
         $schedule->command('contractors:check-contacts')->dailyAt('04:00');
         $schedule->command('contacts:check')->dailyAt('04:00');
@@ -65,8 +68,10 @@ class Kernel extends ConsoleKernel
         //material accounting
         $schedule->command('mat_acc:transfer_base')->dailyAt('03:15');
         $schedule->command('check:contractors')->dailyAt('01:00');
-        $schedule->command('certificatless-operations:notify')->cron('0 10 * * 1-5');
+        $schedule->command('certificatless-operations:notify')->cron('0 10 * * 1-5'); Q3W!!!*/
 //        $schedule->command('notification:need-contract')->cron('0 0 */3 * *');
+        //q3w material accounting
+        $schedule->command('materialOperation:checkOverdue')->everyThirtyMinutes();
     }
 
     /**

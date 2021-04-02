@@ -890,9 +890,14 @@ class q3wMaterialTransferOperationController extends Controller
     }
 
     public function sendTransferNotification(q3wMaterialOperation $operation, string $notificationText, int $notifiedUserId, int $projectObjectId){
+        $sourceProjectObject = ProjectObject::where('id', $operation->source_project_object_id)->first();
+        $destinationProjectObject = ProjectObject::where('id', $operation->destination_project_object_id)->first();
+
+        $notificationText = 'Операция #' . $operation->id . ' от [дата операции]' . PHP_EOL . PHP_EOL . $sourceProjectObject->short_name . ' ➡️ ' . $destinationProjectObject->short_name . PHP_EOL . PHP_EOL . $notificationText;
+
         $notification = new Notification();
         $notification->save();
-        $notification->additional_info = ' Ссылка на операцию: ' . PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
+        $notification->additional_info = PHP_EOL .'Ссылка на операцию: ' . PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
         $notification->update([
             'name' => $notificationText,
             'user_id' => $notifiedUserId,
