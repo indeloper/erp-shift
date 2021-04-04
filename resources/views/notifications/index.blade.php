@@ -98,8 +98,8 @@
                                                 <i class="fa fa-arrow-right" aria-hidden="true"></i>
                                             </a>
                                         @endif
-                                        @if(in_array($notify->status, [6, 7]) and \App\Models\MatAcc\MaterialAccountingOperation::find($notify->target_id))
-                                            <a href="{{ \App\Models\MatAcc\MaterialAccountingOperation::find($notify->target_id)->url }}" target="_blank" rel="tooltip"
+                                        @if(in_array($notify->status, [6, 7]) and \App\Models\q3wMaterial\operations\q3wMaterialOperation::find($notify->target_id))
+                                            <a href="{{ \App\Models\q3wMaterial\operations\q3wMaterialOperation::find($notify->target_id)->url() }}" target="_blank" rel="tooltip"
                                                class="btn-info btn-link" data-original-title="Перейти к операции">
                                                 <i class="fa fa-arrow-right" aria-hidden="true"></i>
                                             </a>

@@ -282,6 +282,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     //Material supply
     Route::get('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@create')->name('materials.operations.supply.new');
     Route::post('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@store')->name('materials.operations.supply.new');
+    Route::post('/materials/supply/view', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@show')->name('materials.operations.supply.view');
     Route::post('/materials/supply/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@validateMaterialList')->name('materials.operations.supply.new.validate-material-list');
 
     //Material transfer

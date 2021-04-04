@@ -75,4 +75,13 @@ class q3wMaterialOperation extends Model
             ->take(1)
         ]*/
     }
+
+    public function url(){
+        switch ($this->operation_route_id) {
+            case 1:
+                return route('materials.operations.supply.view') . '/?operationId=' . $this->id;
+            case 2:
+                return route('materials.operations.transfer.view') . '/?operationId=' . $this->id;
+        }
+    }
 }

@@ -893,17 +893,19 @@ class q3wMaterialTransferOperationController extends Controller
         $sourceProjectObject = ProjectObject::where('id', $operation->source_project_object_id)->first();
         $destinationProjectObject = ProjectObject::where('id', $operation->destination_project_object_id)->first();
 
-        $notificationText = 'Операция #' . $operation->id . ' от [дата операции]' . PHP_EOL . PHP_EOL . $sourceProjectObject->short_name . ' ➡️ ' . $destinationProjectObject->short_name . PHP_EOL . PHP_EOL . $notificationText;
+        $notificationText = 'Операция #' . $operation->id . ' от ' . $operation->created_at->format('d.m.Y') . PHP_EOL . PHP_EOL . $sourceProjectObject->short_name . ' ➡️ ' . $destinationProjectObject->short_name . PHP_EOL . PHP_EOL . $notificationText;
 
         $notification = new Notification();
         $notification->save();
         $notification->additional_info = PHP_EOL .'Ссылка на операцию: ' . PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
         $notification->update([
             'name' => $notificationText,
+            'target_id' => $operation->id,
             'user_id' => $notifiedUserId,
             'object_id' => $projectObjectId,
             'created_at' => now(),
-            'type' => 7
+            'type' => 7,
+            'status' => 7
         ]);
     }
 }
