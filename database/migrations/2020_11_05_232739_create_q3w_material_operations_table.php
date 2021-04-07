@@ -153,8 +153,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->integer('contractor_id')->unsigned()->nullable()->index()->comment('Идентификатор контрагента (поставщика)');
             $table->integer('consignment_note_number')->unsigned()->comment('Номер ТТН');
 
-            $table->timestamp('date_start')->comment('Дата начала');
-            $table->timestamp('date_end')->nullable()->comment('Дата окончания ');
+            $table->timestamp('operation_date')->comment('Дата начала');
 
             $table->integer('creator_user_id')->unsigned()->index()->comment('ID пользователя, создавшего операцию');
             $table->integer('source_responsible_user_id')->unsigned()->nullable()->index()->comment('ID ответственного пользователя со стороны объекта-отправителя');

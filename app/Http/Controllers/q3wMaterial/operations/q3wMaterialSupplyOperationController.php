@@ -130,7 +130,7 @@ class q3wMaterialSupplyOperationController extends Controller
             'operation_route_id' => 1,
             'operation_route_stage_id' => 3,
             'destination_project_object_id' => $requestData['project_object_id'],
-            'date_start' => $requestData['date_start'],
+            'operation_date' => $requestData['operation_date'],
             'creator_user_id' => Auth::id(),
             'destination_responsible_user_id' => $requestData['destination_responsible_user_id'],
             'contractor_id' => $requestData['contractor_id'],

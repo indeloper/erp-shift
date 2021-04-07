@@ -200,23 +200,21 @@
                                 },
                                 cellTemplate: function (container, options) {
                                     let quantity = options.data.quantity ? options.data.quantity + " " : "";
-                                    let amount = options.data.amount ? options.data.amount : "";
+                                    let amount = options.data.amount ? options.data.amount + " " : "";
                                     switch (options.data.accounting_type) {
                                         case 2:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
                                                 quantity +
-                                                ' ' +
                                                 options.data.measure_unit_value +
                                                 '; ' +
                                                 amount +
-                                                ' шт)'
+                                                'шт)'
                                             )
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
                                                 quantity +
-                                                ' ' +
                                                 options.data.measure_unit_value +
                                                 ')')
                                     }
@@ -250,6 +248,7 @@
                                         template: function(){
                                             return $("<div/>")
                                                 .dxCheckBox({
+                                                    visible: transferOperationInitiator === "destination",
                                                     value: false,
                                                     width: "auto",
                                                     text: "Показать все материалы",
@@ -285,22 +284,22 @@
                             height: 400,
                             width: 500,
                             itemTemplate: function (data) {
+                                let quantity = data.quantity ? data.quantity + " " : "";
+                                let amount = data.amount ? data.amount + " " : "";
                                 switch (data.accounting_type) {
                                     case 2:
                                         return $("<div>").text(data.standard_name +
                                             ' (' +
-                                            data.quantity +
-                                            ' ' +
+                                            quantity +
                                             data.measure_unit_value +
                                             '; ' +
-                                            data.amount +
-                                            ' шт)'
+                                            amount +
+                                            'шт)'
                                         )
                                     default:
                                         return $("<div>").text(data.standard_name +
                                             ' (' +
-                                            data.quantity +
-                                            ' ' +
+                                            quantity +
                                             data.measure_unit_value +
                                             ')')
                                 }
@@ -332,7 +331,7 @@
                                 let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
 
                                 selectedMaterialsData.forEach(function (material) {
-                                    let quantity = null;
+                                    let quantity;
 
                                     switch (material.accounting_type) {
                                         case 2:
@@ -359,6 +358,7 @@
                                 })
                                 transferMaterialDataSource.reload();
                                 $("#popupContainer").dxPopup("hide")
+                                validateMaterialList(null);
                             }
                         }
                     }
@@ -450,10 +450,13 @@
                         valueExpr: "id"
                     },
                     cellTemplate: function (container, options) {
-                        console.log(options);
-
-                        $(`<div class="standard-name">${options.text}</div><div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
-                            .appendTo(container);
+                        if (options.data.total_amount === null) {
+                            $(`<div>${options.text}</div>`)
+                                .appendTo(container);
+                        } else {
+                            $(`<div class="standard-name">${options.text}</div><div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                                .appendTo(container);
+                        }
 
                         recalculateStandardsRemains(options.data.id);
                     },
@@ -477,6 +480,7 @@
                     editorOptions: {
                         min: 0
                     },
+                    showSpinButtons: false,
                     cellTemplate: function (container, options) {
                         let quantity = options.data.quantity;
                         if (quantity !== null) {
@@ -612,6 +616,7 @@
                 },*/
                 onRowUpdated: (e) => {
                     recalculateStandardsRemains(e.key);
+                    validateMaterialList(e);
                 },
                 onToolbarPreparing: function (e) {
                     let dataGrid = e.component;
@@ -661,25 +666,16 @@
                             searchEnabled: true,
                             value: transferOperationInitiator === "source" ? sourceProjectObjectId : null,
                             onValueChanged: function (e) {
-                                if (operationForm.getEditor("transferMaterialGrid").option("dataSource").items().length > 0) {
+                                if (operationForm.getEditor("transferMaterialGrid").option("dataSource").items().length > 0 && e.previousValue !== null) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('При смене объекта отправления будут удалены введенные данные по материалам операции.<br>Продолжить?', 'Смена объекта отправления');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
                                             sourceProjectObjectId = e.value;
                                             transferMaterialStore.clear();
-                                            transferMaterialDataSource.reload();
+                                            //transferMaterialDataSource.reload();
                                             availableMaterialsDataSource.reload();
-                                        } else {
-                                            e.component.off("onValueChanged");
-                                            e.component.option("value", e.previousValue)
-                                            e.component.on("onValueChanged");
                                         }
                                     });
-                                } else {
-                                    sourceProjectObjectId = e.value;
-                                    transferMaterialData = [];
-                                    transferMaterialDataSource.reload();
-                                    availableMaterialsDataSource.reload();
                                 }
                             }
                         },
@@ -689,7 +685,7 @@
                         }]
                     },
                         {
-                            dataField: "date_start",
+                            dataField: "operation_date_start",
                             colSpan: 1,
                             visible: transferOperationInitiator !== "destination",
                             label: {
@@ -751,7 +747,7 @@
                         }]
                     },
                         {
-                            dataField: "date_end",
+                            dataField: "operation_date_end",
                             colSpan: 1,
                             visible: transferOperationInitiator === "destination",
                             label: {
@@ -930,13 +926,11 @@
                 transferOperationData.new_comment = operationForm.option("formData").new_comment;
                 //TODO Дата формаируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
                 if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
-                    transferOperationData.date_start = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
-                    transferOperationData.date_end = null;
+                    transferOperationData.operation_date = new Date(operationForm.option("formData").operation_date_start).toJSON().split("T")[0];
                 }
 
                 if (transferOperationInitiator === "destination") {
-                    transferOperationData.date_start = null;
-                    transferOperationData.date_end = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
+                    transferOperationData.operation_date = new Date(operationForm.option("formData").operation_date_end).toJSON().split("T")[0];
                 }
 
                 transferOperationData.source_responsible_user_id = operationForm.option("formData").source_responsible_user_id;
@@ -954,14 +948,12 @@
                 transferOperationData.uploaded_files = uploadedFiles;
                 transferOperationData.materials = transferMaterialData;
 
-                console.log(operationForm.option("formData"));
-                console.log(transferOperationData);
                 console.log(JSON.stringify(transferOperationData));
                 postEditingData(transferOperationData);
-                //validateMaterialList(transferOperationData, false);
             }
 
             function validateMaterialList(updateInfo) {
+                console.log(transferMaterialData);
                 $.ajax({
                     dataType: "json",
                     url: "{{route('materials.operations.transfer.validate-material-list')}}",
@@ -975,12 +967,11 @@
                     error: (e) => {
                         if (e.responseJSON.result === 'error') {
                             $('.fa-exclamation-triangle').attr('style', 'display:none');
+                            console.log( e.responseJSON.errors);
                             e.responseJSON.errors.forEach((errorElement) => {
                                 updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') +']'), errorElement);
                             })
                             materialErrorList = e.responseJSON.errors;
-                            /*updateInfo.data.errors = e.responseJSON.errors;
-                            updateInfo.component.repaintRows(updateInfo.component.getRowIndexByKey(updateInfo.key));*/
                         }
                     }
                 });

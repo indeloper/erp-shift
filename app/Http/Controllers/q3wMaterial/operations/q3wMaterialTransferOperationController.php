@@ -123,7 +123,7 @@ class q3wMaterialTransferOperationController extends Controller
                         ->where('standard_id', $operationMaterial->standard->id)
                         ->first();
             }
-
+            
             if (!isset($sourceProjectObjectMaterial)) {
                 abort(400, 'На объекте отправления материал не существует');
             }
@@ -416,37 +416,12 @@ class q3wMaterialTransferOperationController extends Controller
             $operationRouteStage = 24;
         }
 
-        //Нужно проверить, что материал существует
-        //Нужно проверить, что остаток будет большим, или равным нулю
-        foreach ($requestData['materials'] as $inputMaterial) {
-            if ($inputMaterial['accounting_type'] == 2) {
-                $sourceMaterial = q3wMaterial::where('project_object', $requestData['source_project_object_id'])
-                    ->where('standard_id', $inputMaterial['standard_id'])
-                    ->where('quantity', $inputMaterial['quantity'])
-                    ->firstOrFail();
-
-                if ($inputMaterial['amount'] > $sourceMaterial['amount']) {
-                    abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
-                }
-
-            } else {
-                $sourceMaterial = q3wMaterial::where('project_object', $requestData['source_project_object_id'])
-                    ->where('standard_id', $inputMaterial['standard_id'])
-                    ->firstOrFail();
-
-                if ($inputMaterial['amount'] > $sourceMaterial['quantity']) {
-                    abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
-                }
-            }
-        }
-
         $materialOperation = new q3wMaterialOperation([
             'operation_route_id' => 2,
             'operation_route_stage_id' => $operationRouteStage,
             'source_project_object_id' => $requestData['source_project_object_id'],
             'destination_project_object_id' => $requestData['destination_project_object_id'],
-            'date_start' => isset($requestData['date_start']) ? $requestData['date_start'] : null,
-            'date_end' => isset($requestData['date_end']) ? $requestData['date_end'] : null,
+            'operation_date' => isset($requestData['operation_date']) ? $requestData['operation_date'] : null,
             'creator_user_id' => Auth::id(),
             'source_responsible_user_id' => $requestData['source_responsible_user_id'],
             'destination_responsible_user_id' => $requestData['destination_responsible_user_id'],
@@ -467,7 +442,6 @@ class q3wMaterialTransferOperationController extends Controller
 
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
-            $materialType = $materialStandard->materialType;
 
             $inputMaterialAmount = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
@@ -499,90 +473,6 @@ class q3wMaterialTransferOperationController extends Controller
         return response()->json([
             'result' => 'ok',
         ], 200);
-    }
-
-    /**
-     * Валидирует одиночный материал для операции
-     * Материал считается валидным для перемещения если:
-     *      1) Существует переданная в запросе заявка (operationId)
-     *      2) Существует объект отправления (sourceProjectObjectId)
-     *      3) На объекте сущесвует
-     *          3.1) Для шпунтоа: Эталон + равное количество в единицах измерения (Пример: Шпунт VL 606A 14.5 м.п.)
-     *          3.2) Для остального: Эталон
-     *      4) Количество материала (в сумме по эталону или эталону + ед. изм.) на объекте отправления больше или равно, чем количество в заявке
-     *      5) Отстатки не будут конфликтовать по количеству с ранее созданными заявками (Тут вопрос, нужно обсудить этот функционал) (//TODO: Реализовать проверку на конфликт заявок)
-     * Дополнительно информировать:
-     *      1) Если длина материала в ед. изм. >= 15 м.п. (Уточнить, как это должно работать для других единиц измерения)
-     *      2) Если общая масса отправки > 20 т.
-     * @param Request $request
-     *      Должен содержать следующие поля:
-     *      operationId
-     *      sourceProjectObjectId
-     *      material:[
-     *          standardID
-     *          lengthQuantity
-     *          quantity
-     *      ]
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function validateSingleMaterial(Request $request)
-    {
-        $errors = [];
-
-        $operation = q3wMaterialOperation::find($request['operationId']);
-        if (!isset($operation)) {
-            $errors['operationNotFound'] = 'Операция не найдена';
-        }
-
-        $projectObject = ProjectObject::find($request['sourceProjectObjectId']);
-        if (!isset($projectObject)) {
-            $errors['sourceProjectObjectNotFound'] = 'Объект отправления не найден';
-        }
-
-        $materialStandard = q3wMaterialStandard::find($request['material']['standardID']);
-
-        $accountingType = $materialStandard->materialType->accounting_type;
-
-        if ($accountingType == 1) {
-            $sourceProjectObjectMaterial = (new q3wMaterial)
-                ->where('project_object', $projectObject->id)
-                ->where('standard_id', $request['material']['standardID'])
-                ->where('quantity', $request['material']['lengthQuantity'])
-                ->get()
-                ->first();
-        } else {
-            $sourceProjectObjectMaterial = (new q3wMaterial)
-                ->where('project_object', $projectObject->id)
-                ->where('standard_id', $request['material']['standardID'])
-                ->get()
-                ->first();
-        }
-
-        if (!isset($sourceProjectObjectMaterial)) {
-            $errors['materialNotFound'] = 'Этого материала не существует на объекте отправления';
-        } else {
-            if ($accountingType == 1) {
-                $materialAmountDelta = $sourceProjectObjectMaterial->amount - $request['material']['quantity'];
-            } else {
-                $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $request['material']['quantity'];
-            }
-
-            if ($materialAmountDelta < 0) {
-                $errors['negativeMaterialQuantity'] = 'Материала недостаточно на объекте отправления';
-            }
-        }
-
-        if (count($errors) == 0) {
-            return response()->json([
-                'result' => 'ok'
-            ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-        } else {
-            return response()->json([
-                'result' => 'error',
-                'errors' => $errors
-            ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-        }
-
     }
 
     /**
@@ -750,21 +640,42 @@ class q3wMaterialTransferOperationController extends Controller
             case 30:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 38:
-                return $this->isUserResponsibleForMaterialAccounting($operation->source_responsible_user_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             default:
                 return false;
         }
     }
 
+    /**
+     * Валидирует одиночный материал для операции
+     * Материал считается валидным для перемещения если:
+     *      1) Существует переданная в запросе заявка (operationId)
+     *      2) Существует объект отправления (sourceProjectObjectId)
+     *      3) На объекте сущесвует
+     *          3.1) Для шпунта: Эталон + равное количество в единицах измерения (Пример: Шпунт VL 606A 14.5 м.п.)
+     *          3.2) Для остального: Эталон
+     *      4) Количество материала (в сумме по эталону или эталону + ед. изм.) на объекте отправления больше или равно, чем количество в заявке
+     *      5) Отстатки не будут конфликтовать по количеству с ранее созданными заявками (Тут вопрос, нужно обсудить этот функционал) TODO: Реализовать проверку на конфликт заявок
+     * Дополнительно информировать:
+     *      1) Если длина материала в ед. изм. >= 15 м.п. (Только для м.п., для других единиц измерения это условие не нужно)
+     *      2) Если общая масса отправки > 20 т.
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function validateMaterialList(Request $request)
     {
         $errors = [];
-
         $materials = $request->materials;
+
+        if (!isset($materials)){
+            return response()->json([
+                'result' => 'ok'
+            ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+        }
 
         $projectObject = ProjectObject::find($request->sourceProjectObjectId);
         if (!isset($projectObject)) {
-            $errors['sourceProjectObjectNotFound'] = 'Объект отправления не найден';
+            $errors['common'][] = (object)['severity' => 1000, 'type' => 'sourceProjectObjectNotFound', 'message' => 'Объект отправления не найден'];
         }
 
         $unitedMaterials = [];
@@ -772,7 +683,7 @@ class q3wMaterialTransferOperationController extends Controller
         foreach ($materials as $material) {
             $material = (object)$material;
 
-            if (in_array("deletedByRecipient", $material->edit_states)) {
+            if (isset($material->edit_states) && in_array("deletedByRecipient", $material->edit_states)) {
                 continue;
             }
 

@@ -192,7 +192,7 @@
                 },
             });
             //</editor-fold>
-            @if($allowEditing && $routeStageId == 6)
+            @if($allowEditing && ($routeStageId == 6 || $routeStageId == 25))
             let applyDataButton = {
                 itemType: "button",
                 colSpan: 2,
@@ -226,7 +226,7 @@
             };
             @endIf
 
-            @if($allowEditing && $routeStageId == 11)
+            @if($allowEditing && ($routeStageId == 11 || $routeStageId == 30))
             let applyConflictButtonGroup = {
                 itemType: "simpleItem",
                 colSpan: 2,
@@ -295,7 +295,7 @@
             }
             @endif
 
-            @if($allowEditing && $routeStageId == 19)
+            @if($allowEditing && ($routeStageId == 19 || $routeStageId == 38))
             let applyConflictByResponsibilityUserButtonGroup = {
                 itemType: "button",
                 colSpan: 2,
@@ -386,23 +386,21 @@
                                 },
                                 cellTemplate: function (container, options) {
                                     let quantity = options.data.quantity ? options.data.quantity + " " : "";
-                                    let amount = options.data.amount ? options.data.amount : "";
+                                    let amount = options.data.amount ? options.data.amount + " " : "";
                                     switch (options.data.accounting_type) {
                                         case 2:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
                                                 quantity +
-                                                ' ' +
                                                 options.data.measure_unit_value +
                                                 '; ' +
                                                 amount +
-                                                ' шт)'
+                                                'шт)'
                                             )
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
                                                 quantity +
-                                                ' ' +
                                                 options.data.measure_unit_value +
                                                 ')')
                                     }
@@ -471,22 +469,22 @@
                             height: 400,
                             width: 500,
                             itemTemplate: function (data) {
+                                let quantity = data.quantity ? data.quantity + " " : "";
+                                let amount = data.amount ? data.amount + " " : "";
                                 switch (data.accounting_type) {
                                     case 2:
                                         return $("<div>").text(data.standard_name +
                                             ' (' +
-                                            data.quantity +
-                                            ' ' +
+                                            quantity +
                                             data.measure_unit_value +
                                             '; ' +
-                                            data.amount +
-                                            ' шт)'
+                                            amount +
+                                            'шт)'
                                         )
                                     default:
                                         return $("<div>").text(data.standard_name +
                                             ' (' +
-                                            data.quantity +
-                                            ' ' +
+                                            quantity +
                                             data.measure_unit_value +
                                             ')')
                                 }
@@ -518,7 +516,7 @@
                                 let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
 
                                 selectedMaterialsData.forEach(function (material) {
-                                    let quantity = null;
+                                    let quantity;
 
                                     switch (material.accounting_type) {
                                         case 2:
@@ -545,7 +543,8 @@
                                     })
                                 })
                                 transferMaterialDataSource.reload();
-                                $("#popupContainer").dxPopup("hide")
+                                $("#popupContainer").dxPopup("hide");
+                                validateMaterialList(null);
                             }
                         }
                     }
@@ -705,6 +704,9 @@
                     dataField: "quantity",
                     dataType: "number",
                     caption: "Количество",
+                    editorOptions: {
+                        min: 0
+                    },
                     showSpinButtons: false,
                     cellTemplate: function (container, options) {
                         let initialQuantity = options.data.initial_quantity;
@@ -1020,7 +1022,7 @@
                         }
                     },
                         {
-                            dataField: "date_start",
+                            dataField: "operation_date",
                             readOnly: true,
                             colSpan: 1,
                             label: {
@@ -1196,13 +1198,13 @@
                         ]
                     },
                     @endif
-                    @if($allowEditing && $routeStageId == 6)
+                    @if($allowEditing && ($routeStageId == 6 || $routeStageId == 25))
                     applyDataButton,
                     @endif
-                    @if($allowEditing && $routeStageId == 11)
+                    @if($allowEditing && ($routeStageId == 11 || $routeStageId == 30))
                     applyConflictButtonGroup,
                     @endif
-                    @if($allowEditing && $routeStageId == 19)
+                    @if($allowEditing && ($routeStageId == 19 || $routeStageId == 38))
                     applyConflictByResponsibilityUserButtonGroup,
                     @endif
                 ]
@@ -1218,7 +1220,7 @@
                 transferOperationData.operationId = operationData.id;
                 transferOperationData.new_comment = operationForm.option("formData").new_comment;
 
-                @if($allowEditing && ($routeStageId == 11 || $routeStageId == 19))
+                @if($allowEditing && ($routeStageId == 11 || $routeStageId == 19 || $routeStageId == 30 || $routeStageId == 38))
                     transferOperationData.userAction = userAction;
                 @endif
 

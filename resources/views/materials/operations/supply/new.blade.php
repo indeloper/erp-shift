@@ -528,7 +528,7 @@
                         }]
                     },
                         {
-                            dataField: "date_start",
+                            dataField: "operation_date",
                             colSpan: 1,
                             label: {
                                 text: "Дата поставки"
@@ -724,7 +724,7 @@
 
                 supplyOperationData.project_object_id = operationForm.option("formData").project_object_id;
                 //TODO Дата формируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
-                supplyOperationData.date_start = new Date(operationForm.option("formData").date_start).toJSON().split("T")[0];
+                supplyOperationData.operation_date = new Date(operationForm.option("formData").operation_date).toJSON().split("T")[0];
                 supplyOperationData.destination_responsible_user_id = operationForm.option("formData").destination_responsible_user_id;
                 supplyOperationData.contractor_id = operationForm.option("formData").contractor_id;
                 supplyOperationData.consignment_note_number = operationForm.option("formData").consignment_note_number;
