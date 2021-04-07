@@ -122,14 +122,9 @@
                     }
                 },
                 {
-                    dataField: "date_start",
+                    dataField: "operation_date",
                     dataType: "date",
-                    caption: "Дата создания"
-                },
-                {
-                    dataField: "date_end",
-                    dataType: "date",
-                    caption: "Дата завершения"
+                    caption: "Дата операции"
                 },
                 {
                     dataField: "operation_route_stage_name",
