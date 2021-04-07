@@ -328,18 +328,6 @@
                     }
                 },
                 {
-                    dataField: "measure_unit",
-                    dataType: "number",
-                    alignment: "right",
-                    allowEditing: false,
-                    caption: "Единица измерения",
-                    lookup: {
-                        dataSource: measureUnitData,
-                        displayExpr: "value",
-                        valueExpr: "id"
-                    }
-                },
-                {
                     dataField: "quantity",
                     dataType: "number",
                     caption: "Количество",

@@ -142,7 +142,8 @@ class q3wMaterialSupplyOperationController extends Controller
             $materialOperationComment = new q3wOperationComment([
                 'material_operation_id' => $materialOperation->id,
                 'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
-                'comment' => $requestData['new_comment']
+                'comment' => $requestData['new_comment'],
+                'user_id' => Auth::id()
             ]);
 
             $materialOperationComment->save();

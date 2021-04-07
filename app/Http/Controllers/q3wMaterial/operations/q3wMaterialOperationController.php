@@ -11,6 +11,7 @@ use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -48,7 +49,7 @@ class q3wMaterialOperationController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store(Request $request)
     {
@@ -108,7 +109,7 @@ class q3wMaterialOperationController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param q3wMaterialStandard $q3wMaterialStandard
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
     {
@@ -119,14 +120,14 @@ class q3wMaterialOperationController extends Controller
      * Remove the specified resource from storage.
      *
      * @param q3wMaterialStandard $q3wMaterialStandard
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function delete(Request $request)
     {
 
     }
 
-    public function uploadAttachedFile(Request $request): \Illuminate\Http\JsonResponse
+    public function uploadAttachedFile(Request $request): JsonResponse
     {
         $uploadedFile = $request->files->all()['files'][0];
         if ($uploadedFile) {

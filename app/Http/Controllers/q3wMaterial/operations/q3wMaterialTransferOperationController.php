@@ -185,7 +185,7 @@ class q3wMaterialTransferOperationController extends Controller
         DB::commit();
     }
 
-    public function moveOperationToNextStage($operationId, $moveToConflict)
+    public function moveOperationToNextStage($operationId, $moveToConflict, $cancelled = false)
     {
         $operation = q3wMaterialOperation::findOrFail($operationId);
 
@@ -199,11 +199,15 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotification($operation, 'Новое перемещение', $operation->destination_responsible_user_id, $operation->source_project_object_id);
                     break;
                 case 6: //Ожидание получателя
-                    if ($moveToConflict) {
-                        $operation->operation_route_stage_id = 9;
+                    if ($cancelled){
+                        $operation->operation_route_stage_id = 45;
                     } else {
-                        $this->move($operation);
-                        $operation->operation_route_stage_id = 7;
+                        if ($moveToConflict) {
+                            $operation->operation_route_stage_id = 9;
+                        } else {
+                            $this->move($operation);
+                            $operation->operation_route_stage_id = 7;
+                        }
                     }
                     $operation->save();
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
@@ -214,9 +218,15 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotification($operation, 'Перемещение завершено', $operation->source_responsible_user_id, $operation->destination_project_object_id);
                     break;
                 case 9:
-                    $operation->operation_route_stage_id = 10;
+                    $operation->operation_route_stage_id = 43;
                     $operation->save();
                     $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт в операции', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 43:
+                    $operation->operation_route_stage_id = 10;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт в операции', $operation->source_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 10:
@@ -225,11 +235,15 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotification($operation, 'Конфликт в операции', $operation->source_responsible_user_id, $operation->destination_project_object_id);
                     break;
                 case 11:
-                    if ($moveToConflict) {
-                        $operation->operation_route_stage_id = 16;
+                    if ($cancelled){
+                        $operation->operation_route_stage_id = 45;
                     } else {
-                        $this->move($operation);
-                        $operation->operation_route_stage_id = 12;
+                        if ($moveToConflict) {
+                            $operation->operation_route_stage_id = 16;
+                        } else {
+                            $this->move($operation);
+                            $operation->operation_route_stage_id = 12;
+                        }
                     }
                     $operation->save();
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
@@ -268,8 +282,12 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->source_project_object_id);
                     break;
                 case 19:
-                    $this->move($operation);
-                    $operation->operation_route_stage_id = 20;
+                    if ($cancelled){
+                        $operation->operation_route_stage_id = 45;
+                    } else {
+                        $this->move($operation);
+                        $operation->operation_route_stage_id = 20;
+                    }
                     $operation->save();
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
@@ -299,11 +317,15 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotification($operation, 'Новое перемещение', $operation->source_responsible_user_id, $operation->destination_project_object_id);
                     break;
                 case 25: //Ожидание отправителя
-                    if ($moveToConflict) {
-                        $operation->operation_route_stage_id = 28;
+                    if ($cancelled){
+                        $operation->operation_route_stage_id = 45;
                     } else {
-                        $this->move($operation);
-                        $operation->operation_route_stage_id = 26;
+                        if ($moveToConflict) {
+                            $operation->operation_route_stage_id = 28;
+                        } else {
+                            $this->move($operation);
+                            $operation->operation_route_stage_id = 26;
+                        }
                     }
                     $operation->save();
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
@@ -314,9 +336,15 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotification($operation, 'Перемещение завершено', $operation->destination_responsible_user_id, $operation->source_project_object_id);
                     break;
                 case 28:
-                    $operation->operation_route_stage_id = 29;
+                    $operation->operation_route_stage_id = 44;
                     $operation->save();
                     $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт в операции', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 44:
+                    $operation->operation_route_stage_id = 29;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт в операции', $operation->destination_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 29:
@@ -325,11 +353,15 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotification($operation, 'Конфликт в операции', $operation->destination_responsible_user_id, $operation->source_project_object_id);
                     break;
                 case 30:
-                    if ($moveToConflict) {
-                        $operation->operation_route_stage_id = 35;
+                    if ($cancelled){
+                        $operation->operation_route_stage_id = 45;
                     } else {
-                        $this->move($operation);
-                        $operation->operation_route_stage_id = 31;
+                        if ($moveToConflict) {
+                            $operation->operation_route_stage_id = 35;
+                        } else {
+                            $this->move($operation);
+                            $operation->operation_route_stage_id = 31;
+                        }
                     }
                     $operation->save();
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
@@ -368,8 +400,12 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->destination_project_object_id);
                     break;
                 case 38:
-                    $this->move($operation);
-                    $operation->operation_route_stage_id = 39;
+                    if ($cancelled){
+                        $operation->operation_route_stage_id = 45;
+                    } else {
+                        $this->move($operation);
+                        $operation->operation_route_stage_id = 39;
+                    }
                     $operation->save();
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
@@ -389,6 +425,127 @@ class q3wMaterialTransferOperationController extends Controller
                     $operation->operation_route_stage_id = 42;
                     $operation->save();
                     $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+
+                //Отмена заявки по ветке отправителя этап 6
+                case 45:
+                    $operation->operation_route_stage_id = 46;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 46:
+                    $operation->operation_route_stage_id = 47;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 47:
+                    $operation->operation_route_stage_id = 48;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                //Отмена заявки по ветке отправителя этап 11
+                case 49:
+                    $operation->operation_route_stage_id = 50;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->source_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 50:
+                    $operation->operation_route_stage_id = 51;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 51:
+                    $operation->operation_route_stage_id = 52;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                //Отмена заявки по ветке отправителя этап 19
+                case 53:
+                    $operation->operation_route_stage_id = 54;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 54:
+                    $operation->operation_route_stage_id = 55;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 55:
+                    $operation->operation_route_stage_id = 56;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+
+                //Отмена заявки по ветке получателя этап 25
+                case 57:
+                    $operation->operation_route_stage_id = 58;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 58:
+                    $operation->operation_route_stage_id = 59;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 59:
+                    $operation->operation_route_stage_id = 60;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                //Отмена заявки по ветке получателя этап 30
+                case 61:
+                    $operation->operation_route_stage_id = 62;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 62:
+                    $operation->operation_route_stage_id = 63;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->source_project_object_id);
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 63:
+                    $operation->operation_route_stage_id = 64;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                //Отмена заявки по ветке полкучателя этап 38
+                case 65:
+                    $operation->operation_route_stage_id = 66;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 66:
+                    $operation->operation_route_stage_id = 67;
+                    $operation->save();
+                    $this->sendTransferNotification($operation, 'Операция отменена.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
+                    break;
+                case 67:
+                    $operation->operation_route_stage_id = 68;
+                    $operation->save();
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Операция отменена.', $operation->source_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
             }
@@ -459,7 +616,8 @@ class q3wMaterialTransferOperationController extends Controller
             $materialOperationComment = new q3wOperationComment([
                 'material_operation_id' => $materialOperation->id,
                 'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
-                'comment' => $requestData['new_comment']
+                'comment' => $requestData['new_comment'],
+                'user_id' => Auth::id()
             ]);
 
             $materialOperationComment->save();
@@ -655,6 +813,7 @@ class q3wMaterialTransferOperationController extends Controller
             'operationMaterials' => $materials,
             'currentUserId' => Auth::id(),
             'allowEditing' => $this->allowEditing($operation),
+            'allowCancelling' => $this->allowCancelling($operation),
             'routeStageId' => $operation->operation_route_stage_id
         ]);
     }
@@ -710,6 +869,17 @@ class q3wMaterialTransferOperationController extends Controller
             }
         }
 
+        if (isset($requestData->new_comment)) {
+            $materialOperationComment = new q3wOperationComment([
+                'material_operation_id' => $operation->id,
+                'operation_route_stage_id' => $operation->operation_route_stage_id,
+                'comment' => $requestData->new_comment/*,
+                'user_id' => Auth::id()*/
+            ]);
+
+            $materialOperationComment->save();
+        }
+
         DB::commit();
 
         if (in_array($operation->operation_route_stage_id, [11, 19, 30, 38])) {
@@ -749,6 +919,28 @@ class q3wMaterialTransferOperationController extends Controller
                 return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 30:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+            case 38:
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_responsible_user_id);
+            default:
+                return false;
+        }
+    }
+
+    public function allowCancelling(q3wMaterialOperation $operation)
+    {
+        switch ($operation->operation_route_stage_id) {
+            case 6:
+                return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+            case 11:
+                //return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+                return true;
+            case 19:
+                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+            case 25:
+                return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+            case 30:
+                //return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+                return true;
             case 38:
                 return $this->isUserResponsibleForMaterialAccounting($operation->source_responsible_user_id);
             default:
@@ -878,6 +1070,30 @@ class q3wMaterialTransferOperationController extends Controller
                 'result' => 'error',
                 'errors' => $errorResult
             ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    public function cancelOperation(Request $request){
+        $requestData = json_decode($request["data"]);
+
+        $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
+        if ($this->allowCancelling($operation)){
+            DB::beginTransaction();
+
+            if (isset($requestData->new_comment)) {
+                $materialOperationComment = new q3wOperationComment([
+                    'material_operation_id' => $operation->id,
+                    'operation_route_stage_id' => $operation->operation_route_stage_id,
+                    'comment' => $requestData->new_comment,
+                    'user_id' => Auth::id()
+                ]);
+
+                $materialOperationComment->save();
+            }
+
+            DB::commit();
+
+            $this->moveOperationToNextStage($operation->id, false, true);
         }
     }
 

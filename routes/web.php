@@ -293,6 +293,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
     Route::get('/materials/transfer/view', 'q3wMaterial\operations\q3wMaterialTransferOperationController@show')->name('materials.operations.transfer.view');
     Route::post('/materials/transfer/move', 'q3wMaterial\operations\q3wMaterialTransferOperationController@move')->name('materials.operations.transfer.move');
+    Route::post('/materials/transfer/cancel', 'q3wMaterial\operations\q3wMaterialTransferOperationController@cancelOperation')->name('materials.operations.transfer.cancel');
 
     Route::get('/materials/transfer/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateMaterialList')->name('materials.operations.transfer.validate-material-list');
 });

@@ -459,18 +459,6 @@
                     },
                 },
                 {
-                    dataField: "measure_unit",
-                    dataType: "number",
-                    allowEditing: false,
-                    caption: "Единица измерения",
-                    alignment: "right",
-                    lookup: {
-                        dataSource: {store: measureUnitsStore},
-                        displayExpr: "value",
-                        valueExpr: "id"
-                    }
-                },
-                {
                     dataField: "quantity",
                     dataType: "number",
                     caption: "Количество",
