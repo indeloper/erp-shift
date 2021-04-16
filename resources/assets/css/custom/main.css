@@ -49,6 +49,10 @@
     color: lightslategrey;
     float: right;
     text-align: right;
+    font-style: italic;
+}
+.standard-remains.red{
+    color: #f15a5a;
 }
 
 .standard-name{

@@ -82,6 +82,11 @@
 
         </div>
     </div>
+
+    <div id="standardRemainsPopoverContainer">
+        <div id="standardRemainsTemplate" data-options="dxTemplate: { name: 'standardRemainsTemplate' }">
+        </div>
+    </div>
 @endsection
 
 @section('js_footer')
@@ -120,7 +125,7 @@
 
             let materialStandardsStore = new DevExpress.data.CustomStore({
                 key: "id",
-                loadMode: "processed",
+                loadMode: "raw",
                 load: function (loadOptions) {
                     return $.getJSON("{{route('materials.standards.list')}}"/*,
                         {data: JSON.stringify(loadOptions)}*/);
@@ -769,8 +774,27 @@
                             $(`<div>${options.text}</div>`)
                                 .appendTo(container);
                         } else {
-                            $(`<div class="standard-name">${options.text}</div><div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                            let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
                                 .appendTo(container);
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                                .appendTo(container);
+
+                            console.log(divStandardRemains);
+
+                            divStandardRemains.mouseenter(function () {
+                                console.log('mouseenter');
+                                let standardRemainsPopover = $('#standardRemainsTemplate');
+                                standardRemainsPopover.dxPopover({
+                                        position: "top",
+                                        width: 300,
+                                        contentTemplate: "Остаток материала на объекте отправления",
+                                        hideEvent: "mouseleave",
+                                    })
+                                .dxPopover("instance")
+                                .show($(this));
+
+                                return false;
+                            });
                         }
 
                         recalculateStandardsRemains(options.data.id);
@@ -1405,7 +1429,7 @@
 
                 element.attr('style', exclamationTriangleStyle);
                 element.attr('severity', maxSeverity);
-                element.click(function (e) {
+                element.mouseenter(function (e) {
                     e.preventDefault();
 
                     let validationDescription = $('#validationTemplate');

@@ -30,6 +30,11 @@
 
         </div>
     </div>
+
+    <div id="standardRemainsPopoverContainer">
+        <div id="standardRemainsTemplate" data-options="dxTemplate: { name: 'standardRemainsTemplate' }">
+        </div>
+    </div>
 @endsection
 
 @section('js_footer')
@@ -117,7 +122,11 @@
             let transferMaterialData = {!! $predefinedMaterials !!};
             let transferMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
-                data: transferMaterialData
+                data: transferMaterialData,
+                onLoaded: () => { if (transferOperationInitiator === "source") {
+                        validateMaterialList(null)
+                    }
+                }
             })
             let transferMaterialDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
@@ -371,7 +380,7 @@
                                     })
                                 })
                                 transferMaterialDataSource.reload();
-                                $("#popupContainer").dxPopup("hide")
+                                $("#popupContainer").dxPopup("hide");
                                 validateMaterialList(null);
                             }
                         }
@@ -468,8 +477,27 @@
                             $(`<div>${options.text}</div>`)
                                 .appendTo(container);
                         } else {
-                            $(`<div class="standard-name">${options.text}</div><div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                            let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
                                 .appendTo(container);
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                                .appendTo(container);
+
+                            console.log(divStandardRemains);
+
+                            divStandardRemains.mouseenter(function () {
+                                console.log('mouseenter');
+                                let standardRemainsPopover = $('#standardRemainsTemplate');
+                                standardRemainsPopover.dxPopover({
+                                        position: "top",
+                                        width: 300,
+                                        contentTemplate: "Остаток материала на объекте отправления",
+                                        hideEvent: "mouseleave",
+                                    })
+                                .dxPopover("instance")
+                                .show($(this));
+
+                                return false;
+                            });
                         }
 
                         recalculateStandardsRemains(options.data.id);
@@ -983,7 +1011,7 @@
                     dataType: "json",
                     url: "{{route('materials.operations.transfer.validate-material-list')}}",
                     data: {
-                        sourceProjectObjectId: operationForm.option("formData").source_project_object_id,
+                        sourceProjectObjectId: sourceProjectObjectId,
                         materials: transferMaterialDataSource.store().createQuery().toArray()
                     },
                     success: (e) => {
@@ -1094,14 +1122,19 @@
                             case 2:
                                 $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}']`).each(function () {
                                     $(this).text(calculatedAmount + ' шт');
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
                                 });
                                 break;
                             default:
                                 $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}']`).each(function () {
                                     $(this).text(calculatedQuantity + ' ' + dataItem.measure_unit_value);
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
                                 });
                         }
-
                     })
             }
 
