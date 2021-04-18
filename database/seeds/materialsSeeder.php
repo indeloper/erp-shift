@@ -2117,7 +2117,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 20Ш1",
                 "material_type" => 3,
-                "weight" => 0.00306,
+                "weight" => 0.03060,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2125,7 +2125,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 23Ш1",
                 "material_type" => 3,
-                "weight" => 0.00362,
+                "weight" => 0.03620,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2133,7 +2133,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 26Ш1",
                 "material_type" => 3,
-                "weight" => 0.00427,
+                "weight" => 0.04270,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2141,7 +2141,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 26Ш2",
                 "material_type" => 3,
-                "weight" => 0.00492,
+                "weight" => 0.04920,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2149,7 +2149,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 30Ш1",
                 "material_type" => 3,
-                "weight" => 0.00536,
+                "weight" => 0.05360,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2157,7 +2157,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 30Ш2",
                 "material_type" => 3,
-                "weight" => 0.00610,
+                "weight" => 0.06100,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2165,7 +2165,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 30Ш3",
                 "material_type" => 3,
-                "weight" => 0.00683,
+                "weight" => 0.06830,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2173,7 +2173,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 35Ш1",
                 "material_type" => 3,
-                "weight" => 0.00751,
+                "weight" => 0.07510,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2181,7 +2181,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 35Ш2",
                 "material_type" => 3,
-                "weight" => 0.00822,
+                "weight" => 0.08220,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2189,7 +2189,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 35Ш3",
                 "material_type" => 3,
-                "weight" => 0.00913,
+                "weight" => 0.09130,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2197,7 +2197,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 40Ш1",
                 "material_type" => 3,
-                "weight" => 0.00961,
+                "weight" => 0.09610,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2205,7 +2205,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 40Ш2",
                 "material_type" => 3,
-                "weight" => 0.01111,
+                "weight" => 0.11110,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2213,7 +2213,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 40Ш3",
                 "material_type" => 3,
-                "weight" => 0.01234,
+                "weight" => 0.12340,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2221,7 +2221,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 50Ш1",
                 "material_type" => 3,
-                "weight" => 0.01144,
+                "weight" => 0.11440,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2229,7 +2229,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 50Ш2",
                 "material_type" => 3,
-                "weight" => 0.01387,
+                "weight" => 0.13870,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2237,7 +2237,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 50Ш3",
                 "material_type" => 3,
-                "weight" => 0.01564,
+                "weight" => 0.15640,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2245,7 +2245,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 50Ш4",
                 "material_type" => 3,
-                "weight" => 0.01741,
+                "weight" => 0.17410,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2253,7 +2253,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 60Ш1",
                 "material_type" => 3,
-                "weight" => 0.01421,
+                "weight" => 0.14210,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2261,7 +2261,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 60Ш2",
                 "material_type" => 3,
-                "weight" => 0.01769,
+                "weight" => 0.17690,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2269,7 +2269,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 60Ш3",
                 "material_type" => 3,
-                "weight" => 0.02052,
+                "weight" => 0.20520,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2277,7 +2277,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 60Ш4",
                 "material_type" => 3,
-                "weight" => 0.02342,
+                "weight" => 0.23420,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2285,7 +2285,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 70Ш1",
                 "material_type" => 3,
-                "weight" => 0.01699,
+                "weight" => 0.16990,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2293,7 +2293,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 70Ш2",
                 "material_type" => 3,
-                "weight" => 0.01976,
+                "weight" => 0.19760,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2301,7 +2301,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 70Ш3",
                 "material_type" => 3,
-                "weight" => 0.02354,
+                "weight" => 0.23540,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2309,7 +2309,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 70Ш4",
                 "material_type" => 3,
-                "weight" => 0.02681,
+                "weight" => 0.26810,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
 
@@ -2317,7 +2317,7 @@ class materialsSeeder extends Seeder
             DB::table("q3w_material_standards")->insert([
                 "name" => "Двутавр 70Ш5",
                 "material_type" => 3,
-                "weight" => 0.03059,
+                "weight" => 0.30590,
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
         }

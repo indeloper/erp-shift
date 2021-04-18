@@ -171,8 +171,8 @@
             let transferMaterialData = {!! $operationMaterials !!};
             let transferMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
-                data: transferMaterialData,
-                onLoaded: validateMaterialList(null)
+                data: transferMaterialData/*,
+                onLoaded: validateMaterialList(null)*/
             })
             let transferMaterialDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
