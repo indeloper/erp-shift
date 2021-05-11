@@ -252,6 +252,7 @@ class q3wMaterialTransferOperationController extends Controller
                     $operation->operation_route_stage_id = 13;
                     $operation->save();
                     $this->sendTransferNotification($operation, 'Перемещение завершено после конфликта. Отправитель подтверил корректность изменений.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 13:
                     $operation->operation_route_stage_id = 14;
@@ -880,12 +881,18 @@ class q3wMaterialTransferOperationController extends Controller
     public function validateMaterialList(Request $request)
     {
         $errors = [];
-        $materials = $request->materials;
+        //dd($request->materials);
 
-        if (!isset($materials)){
-            return response()->json([
-                'result' => 'ok'
-            ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+        if (isset($request->userAction)) {
+            $userAction = $request->userAction;
+        } else {
+            $userAction = "";
+        }
+
+        if (isset($request->materials)) {
+            $materials = $request->materials;
+        } else {
+            $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Материалы не указаны'];
         }
 
         $projectObject = ProjectObject::find($request->sourceProjectObjectId);
@@ -893,100 +900,120 @@ class q3wMaterialTransferOperationController extends Controller
             $errors['common'][] = (object)['severity' => 1000, 'type' => 'sourceProjectObjectNotFound', 'message' => 'Объект отправления не найден'];
         }
 
-        $unitedMaterials = [];
+        $checkSourceObjectMaterialsCount = true;
 
-        foreach ($materials as $material) {
-            $material = (object)$material;
-
-            if (isset($material->edit_states) && in_array("deletedByRecipient", $material->edit_states)) {
-                continue;
-            }
-
-            $materialStandard = q3wMaterialStandard::find($material->standard_id);
-
-            $accountingType = $materialStandard->materialType->accounting_type;
-
-            switch ($accountingType) {
-                case 2:
-                    $key = $material->standard_id.'-'.$material->quantity;
-                    if (array_key_exists($key, $unitedMaterials)){
-                        $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
-                    } else {
-                        $unitedMaterials[$key] = $material;
-                    }
-                    break;
-                default:
-                    $key = $material->standard_id;
-                    if (array_key_exists($key, $unitedMaterials)){
-                        $unitedMaterials[$key]->quantity = $unitedMaterials[$key]->quantity + $material->quantity;
-                        $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
-                    } else {
-                        $unitedMaterials[$key] = $material;
-                    }
-            }
-        }
-
-        $totalWeight = 0;
-
-        foreach ($unitedMaterials as $key => $unitedMaterial) {
-            if (!isset($unitedMaterial->amount) || $unitedMaterial->amount == null || $unitedMaterial->amount == 0 || $unitedMaterial->amount == '') {
-                $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'message' => 'Количество в штуках не указано'];
-            }
-
-            if (!isset($unitedMaterial->quantity) || $unitedMaterial->quantity == null || $unitedMaterial->quantity == 0 || $unitedMaterial->quantity == '') {
-                $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'message' => 'Количество в единицах измерения не указано'];
-            }
-
-            if (isset($errors[$key]) && count($errors[$key]) > 0){
-                continue;
-            }
-
-            $materialStandard = q3wMaterialStandard::find($unitedMaterial->standard_id);
-
-            $accountingType = $materialStandard->materialType->accounting_type;
-
-            if ($accountingType == 2) {
-                $sourceProjectObjectMaterial = (new q3wMaterial)
-                    ->where('project_object', $projectObject->id)
-                    ->where('standard_id', $unitedMaterial->standard_id)
-                    ->where('quantity', $unitedMaterial->quantity)
-                    ->get()
-                    ->first();
-            } else {
-                $sourceProjectObjectMaterial = (new q3wMaterial)
-                    ->where('project_object', $projectObject->id)
-                    ->where('standard_id', $unitedMaterial->standard_id)
-                    ->get()
-                    ->first();
-            }
-
-            if (!isset($errors[$key])) {
-                if ($materialStandard->materialType->measure_unit == 1) {
-                    if ($unitedMaterial->quantity > 15) {
-                        $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'message' => 'Длина материала превышает 15 м.п.'];
-                    }
-                }
-            }
-
-            if (!isset($sourceProjectObjectMaterial)) {
-                $errors[$key][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'message' => 'Этого материала не существует на объекте отправления'];
-            } else {
-                if ($accountingType == 2) {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount;
+        if (isset($request->operationId)){
+            $operation = q3wMaterialOperation::find($request->operationId);
+            if (isset($operation)) {
+                if ($userAction == "moveToResponsibilityUser") {
+                    $checkSourceObjectMaterialsCount = false;
                 } else {
-                    $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity * $unitedMaterial->amount;
+                    $checkSourceObjectMaterialsCount = in_array($operation->operation_route_stage_id, [11, 19, 25, 38]);
+                }
+            }
+        }
+
+        if (isset($request->materials)) {
+            $unitedMaterials = [];
+
+            foreach ($materials as $material) {
+                $material = (object)$material;
+
+                if (isset($material->edit_states) && in_array("deletedByRecipient", $material->edit_states)) {
+                    continue;
                 }
 
-                if ($materialAmountDelta < 0) {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'message' => 'Материала недостаточно на объекте отправления'];
+                $materialStandard = q3wMaterialStandard::find($material->standard_id);
+
+                $accountingType = $materialStandard->materialType->accounting_type;
+
+                switch ($accountingType) {
+                    case 2:
+                        $key = $material->standard_id . '-' . $material->quantity;
+                        if (array_key_exists($key, $unitedMaterials)) {
+                            $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
+                        } else {
+                            $unitedMaterials[$key] = $material;
+                        }
+                        break;
+                    default:
+                        $key = $material->standard_id;
+                        if (array_key_exists($key, $unitedMaterials)) {
+                            $unitedMaterials[$key]->quantity = $unitedMaterials[$key]->quantity + $material->quantity;
+                            $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
+                        } else {
+                            $unitedMaterials[$key] = $material;
+                        }
                 }
             }
 
-            $totalWeight += $unitedMaterial->amount * $unitedMaterial->quantity * $materialStandard->weight;
-        }
+            $totalWeight = 0;
 
-        if ($totalWeight > 20){
-            $errors['common'][] = (object)['severity' => 500, 'type' => 'totalWeightTooLarge', 'message' => 'Общая масса материалов превышает 20 т.'];
+            foreach ($unitedMaterials as $key => $unitedMaterial) {
+                $materialStandard = q3wMaterialStandard::find($unitedMaterial->standard_id);
+
+                $accountingType = $materialStandard->materialType->accounting_type;
+
+                $materialName = $materialStandard->name;
+
+                if (!isset($unitedMaterial->amount) || $unitedMaterial->amount == null || $unitedMaterial->amount == 0 || $unitedMaterial->amount == '') {
+                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
+                }
+
+                if (!isset($unitedMaterial->quantity) || $unitedMaterial->quantity == null || $unitedMaterial->quantity == 0 || $unitedMaterial->quantity == '') {
+                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
+                }
+
+                if (isset($errors[$key]) && count($errors[$key]) > 0) {
+                    continue;
+                }
+
+                if ($accountingType == 2) {
+                    $sourceProjectObjectMaterial = (new q3wMaterial)
+                        ->where('project_object', $projectObject->id)
+                        ->where('standard_id', $unitedMaterial->standard_id)
+                        ->where('quantity', $unitedMaterial->quantity)
+                        ->get()
+                        ->first();
+                } else {
+                    $sourceProjectObjectMaterial = (new q3wMaterial)
+                        ->where('project_object', $projectObject->id)
+                        ->where('standard_id', $unitedMaterial->standard_id)
+                        ->get()
+                        ->first();
+                }
+
+                if (!isset($errors[$key])) {
+                    if ($materialStandard->materialType->measure_unit == 1) {
+                        if ($unitedMaterial->quantity > 15) {
+                            $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Длина материала превышает 15 м.п.'];
+                        }
+                    }
+                }
+
+
+                if ($checkSourceObjectMaterialsCount) {
+                    if (!isset($sourceProjectObjectMaterial)) {
+                        $errors[$key][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
+                    } else {
+                        if ($accountingType == 2) {
+                            $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount;
+                        } else {
+                            $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity * $unitedMaterial->amount;
+                        }
+
+                        if ($materialAmountDelta < 0) {
+                            $errors[$key][] = (object)['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'itemName' => $materialName, 'message' => 'На объекте отправления недостаточно материала'];
+                        }
+                    }
+                }
+
+                $totalWeight += $unitedMaterial->amount * $unitedMaterial->quantity * $materialStandard->weight;
+            }
+
+            if ($totalWeight > 20) {
+                $errors['common'][] = (object)['severity' => 500, 'type' => 'totalWeightTooLarge', 'message' => 'Общая масса материалов превышает 20 т.'];
+            }
         }
 
         $errorResult = [];

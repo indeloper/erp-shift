@@ -172,7 +172,7 @@
             let transferMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
                 data: transferMaterialData/*,
-                onLoaded: validateMaterialList(null)*/
+                onLoaded: validateMaterialList(false, false)*/
             })
             let transferMaterialDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
@@ -204,18 +204,25 @@
                     colSpan: 2,
                     template: function (data, itemElement) {
                         @if($allowCancelling)
-                        $('<div>')
+                        $('<div id="applyDataButtonGroupCancelOperationButton">')
                             .css('float', 'left')
                             .dxButton({
                                 text: "Отменить операцию",
                                 type: "danger",
                                 stylingMode: "contained",
                                 useSubmitBehavior: false,
-
+                                template: function(data, container) {
+                                    $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                    let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                        visible: false
+                                    }).dxLoadIndicator("instance");
+                                },
                                 onClick: function (e) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('Вы действительно хотите отменить операцию?', 'Отмена операции');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
+                                            setButtonIndicatorVisibleState("applyDataButtonGroupCancelOperationButton", true)
+                                            setElementsDisabledState(true);
                                             cancelOperation()
                                         } else {
                                             return;
@@ -226,7 +233,7 @@
                             .appendTo(itemElement)
                         @endIf
                         @if($allowEditing)
-                        $('<div>')
+                        $('<div id="applyDataButtonGroupApplyOperationButton">')
                             .css('float', 'right')
                             .css('margin-right', '8px')
                             .dxButton({
@@ -234,24 +241,34 @@
                                 type: "default",
                                 stylingMode: "contained",
                                 useSubmitBehavior: false,
-
+                                template: function(data, container) {
+                                    $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                    let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                        visible: false
+                                    }).dxLoadIndicator("instance");
+                                },
                                 onClick: function (e) {
                                     let result = e.validationGroup.validate();
                                     if (!result.isValid) {
                                         return;
                                     }
+                                    setButtonIndicatorVisibleState("applyDataButtonGroupApplyOperationButton", true)
+                                    setElementsDisabledState(true);
+
                                     let comment = operationForm.option("formData").new_comment;
                                     if (!comment) {
                                         let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
                                         confirmDialog.done(function (dialogResult) {
                                             if (dialogResult) {
-                                                saveOperationData("");
+                                                validateMaterialList(true, true, "")
                                             } else {
+                                                setButtonIndicatorVisibleState("applyDataButtonGroupApplyOperationButton", false)
+                                                setElementsDisabledState(false);
                                                 return;
                                             }
                                         })
                                     } else {
-                                        saveOperationData("");
+                                        validateMaterialList(true, true, "")
                                     }
                                 }
 
@@ -268,18 +285,25 @@
                 colSpan: 2,
                 template: function (data, itemElement) {
                     @if($allowCancelling)
-                    $('<div>')
+                    $('<div id="applyConflictButtonGroupCancelOperationButton">')
                         .css('float', 'left')
                         .dxButton({
                             text: "Отменить операцию",
                             type: "danger",
                             stylingMode: "contained",
                             useSubmitBehavior: false,
-
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
                             onClick: function (e) {
                                 let confirmDialog = DevExpress.ui.dialog.confirm('Вы действительно хотите отменить операцию?', 'Отмена операции');
                                 confirmDialog.done(function (dialogResult) {
                                     if (dialogResult) {
+                                        setButtonIndicatorVisibleState("applyConflictButtonGroupCancelOperationButton", true)
+                                        setElementsDisabledState(true);
                                         cancelOperation()
                                     } else {
                                         return;
@@ -290,36 +314,47 @@
                         .appendTo(itemElement)
                     @endIf
                     @if ($allowEditing)
-                    $('<div>')
+                    $('<div id="applyConflictButtonGroupApplyOperationButton">')
                         .css('float', 'right')
                         .dxButton({
                             text: "Подтвердить изменения",
                             type: "default",
                             stylingMode: "contained",
                             useSubmitBehavior: false,
-
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
                             onClick: function (e) {
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
                                 }
 
+                                setButtonIndicatorVisibleState("applyConflictButtonGroupApplyOperationButton", true)
+                                setElementsDisabledState(true)
+
                                 let comment = operationForm.option("formData").new_comment;
                                 if (!comment) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
-                                            saveOperationData("forceComplete");
+                                            validateMaterialList(true, true, "forceComplete")
+                                        } else {
+                                            setButtonIndicatorVisibleState("applyConflictButtonGroupApplyOperationButton", false)
+                                            setElementsDisabledState(false);
                                         }
                                     })
                                 } else {
-                                    saveOperationData("forceComplete");
+                                    validateMaterialList(true, true, "forceComplete")
                                 }
                             }
 
                         })
                         .appendTo(itemElement)
-                    $('<div>')
+                    $('<div id="applyConflictButtonGroupMoveToResponsibilityUserButton">')
                         .css('float', 'right')
                         .css('margin-right', '8px')
                         .dxButton({
@@ -328,23 +363,34 @@
                             type: "default",
                             stylingMode: "outlined",
                             useSubmitBehavior: false,
-
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
                             onClick: function (e) {
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
                                 }
 
+                                setButtonIndicatorVisibleState("applyConflictButtonGroupMoveToResponsibilityUserButton", true);
+                                setElementsDisabledState(true);
+
                                 let comment = operationForm.option("formData").new_comment;
                                 if (!comment) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
-                                            saveOperationData("moveToResponsibilityUser");
+                                            validateMaterialList(true, true, "moveToResponsibilityUser")
+                                        } else {
+                                            setButtonIndicatorVisibleState("applyConflictButtonGroupMoveToResponsibilityUserButton", false)
+                                            setElementsDisabledState(false);
                                         }
                                     })
                                 } else {
-                                    saveOperationData("moveToResponsibilityUser");
+                                    validateMaterialList(true, true, "moveToResponsibilityUser")
                                 }
                             }
 
@@ -361,18 +407,25 @@
                 colSpan: 2,
                 template: function (data, itemElement) {
                     @if($allowCancelling)
-                    $('<div>')
+                    $('<div id="applyConflictByResponsibilityUserButtonGroupCancelOperationButton">')
                         .css('float', 'left')
                         .dxButton({
                             text: "Отменить операцию",
                             type: "danger",
                             stylingMode: "contained",
                             useSubmitBehavior: false,
-
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
                             onClick: function (e) {
                                 let confirmDialog = DevExpress.ui.dialog.confirm('Вы действительно хотите отменить операцию?', 'Отмена операции');
                                 confirmDialog.done(function (dialogResult) {
                                     if (dialogResult) {
+                                        setButtonIndicatorVisibleState("applyConflictByResponsibilityUserButtonGroupCancelOperationButton", true);
+                                        setElementsDisabledState(true);
                                         cancelOperation()
                                     } else {
                                         return;
@@ -383,30 +436,41 @@
                         .appendTo(itemElement)
                     @endIf
                     @if ($allowEditing)
-                    $('<div>')
+                    $('<div id="applyConflictByResponsibilityUserButtonGroupApplyOperationButton">')
                         .css('float', 'right')
                         .dxButton({
                             text: "Подтвердить изменения",
                             type: "default",
                             stylingMode: "contained",
                             useSubmitBehavior: false,
-
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
                             onClick: function (e) {
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
                                 }
 
+                                setButtonIndicatorVisibleState("applyConflictByResponsibilityUserButtonGroupApplyOperationButton", true);
+                                setElementsDisabledState(true);
+
                                 let comment = operationForm.option("formData").new_comment;
                                 if (!comment) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
-                                            saveOperationData("forceComplete");
+                                            validateMaterialList(true, true, "forceComplete");
+                                        } else {
+                                            setButtonIndicatorVisibleState("applyConflictByResponsibilityUserButtonGroupApplyOperationButton", false)
+                                            setElementsDisabledState(false);
                                         }
                                     })
                                 } else {
-                                    saveOperationData("forceComplete");
+                                    validateMaterialList(true, true, "forceComplete");
                                 }
                             }
                         })
@@ -426,7 +490,9 @@
                         name: "materialsStandardsList",
                         editorOptions: {
                             dataSource: availableMaterialsDataSource,
-                            height: 400,
+                            height: () => {
+                                return 400;
+                            },
                             width: 500,
                             showColumnHeaders: false,
                             showRowLines: false,
@@ -558,7 +624,9 @@
                                 dataSource: selectedMaterialStandardsListDataSource,
                                 allowItemDeleting: true,
                                 itemDeleteMode: "static",
-                                height: 400,
+                                height: () => {
+                                    return 400;
+                                },
                                 width: 500,
                                 itemTemplate: function (data) {
                                     let quantity = data.quantity ? data.quantity + " " : "";
@@ -636,7 +704,7 @@
                                 })
                                 transferMaterialDataSource.reload();
                                 $("#popupContainer").dxPopup("hide");
-                                validateMaterialList(null);
+                                validateMaterialList(false, false, "");
                             }
                         }
                     }
@@ -718,7 +786,7 @@
                                 e.row.data.edit_states.splice(e.row.data.edit_states.indexOf("deletedByRecipient"), 1);
                                 e.component.repaintRows(e.row.rowIndex);
                                 e.component.refresh(true);
-                                validateMaterialList(e.row);
+                                validateMaterialList(false, false, "");
                             }
                         },
                         {
@@ -736,7 +804,7 @@
                                 }
                                 ;
                                 e.component.refresh(true);
-                                validateMaterialList(e.row);
+                                validateMaterialList(false, false, "");
                             }
                         },
                         {
@@ -749,7 +817,7 @@
                                 });
                                 transferMaterialDataSource.store().insert(clonedItem);
                                 e.component.refresh(true);
-                                validateMaterialList(e.row);
+                                validateMaterialList(false, false, "");
                                 e.event.preventDefault();
                             }
                         }
@@ -1090,7 +1158,7 @@
                 },
                 onRowUpdated: (e) => {
                     //recalculateStandardsRemains(e.key);
-                    validateMaterialList(e);
+                    validateMaterialList(false, false, "");
                 },
             };
             //</editor-fold>
@@ -1236,6 +1304,7 @@
                         caption: "Комментрий",
                         colSpan: 2,
                         items: [{
+                            name: "newCommentTextArea",
                             dataField: "new_comment",
                             label: {
                                 text: "Новый комментарий",
@@ -1377,28 +1446,51 @@
             }
             @endif
 
-            function validateMaterialList(updateInfo) {
+            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity, userAction) {
                 $.ajax({
                     dataType: "json",
                     url: "{{route('materials.operations.transfer.validate-material-list')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: {
                         operationId: operationData.id,
                         sourceProjectObjectId: operationData.source_project_object_id,
+                        userAction: userAction,
                         materials: transferMaterialDataSource.store().createQuery().toArray()
                     },
                     success: (e) => {
                         $('.fa-exclamation-triangle').attr('style', 'display:none');
+                        if (saveEditedData) {
+                            saveOperationData(userAction);
+                        }
                     },
                     error: (e) => {
                         if (e.responseJSON.result === 'error') {
+                            let needToShowErrorWindow = false;
+
                             $('.fa-exclamation-triangle').attr('style', 'display:none');
                             e.responseJSON.errors.forEach((errorElement) => {
                                 updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') + ']'), errorElement);
+                                errorElement.errorList.forEach((errorItem) => {
+                                    if (showErrorWindowOnHighSeverity) {
+                                        if (errorItem.severity > 500) {
+                                            needToShowErrorWindow = true;
+                                        }
+                                    }
+                                })
                             })
+
+                            if (needToShowErrorWindow) {
+                                showErrorWindow(e.responseJSON.errors);
+                            }
                             materialErrorList = e.responseJSON.errors;
-                            /*updateInfo.data.errors = e.responseJSON.errors;
-                            updateInfo.component.repaintRows(updateInfo.component.getRowIndexByKey(updateInfo.key));*/
+                        } else {
+                            DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
                         }
+                        setButtonIndicatorVisibleState("*", false)
+                        setElementsDisabledState(false);
                     }
                 });
             }
@@ -1429,7 +1521,7 @@
 
                 element.attr('style', exclamationTriangleStyle);
                 element.attr('severity', maxSeverity);
-                element.mouseenter(function (e) {
+                element.click(function (e) {
                     e.preventDefault();
 
                     let validationDescription = $('#validationTemplate');
@@ -1467,7 +1559,9 @@
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000);
+                        setButtonIndicatorVisibleState("createTransferOperation", false)
+                        setElementsDisabledState(false);
                     }
                 })
             }
@@ -1483,11 +1577,11 @@
                                 switch (dataItem.accounting_type) {
                                     case 2:
                                         if (item.quantity === dataItem.quantity) {
-                                            calculatedAmount = calculatedAmount - item.amount;
+                                            calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
                                         }
                                         break;
                                     default:
-                                        calculatedQuantity = calculatedQuantity - item.quantity * item.amount;
+                                        calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
                                 }
                             }
                         })
@@ -1496,14 +1590,19 @@
                             case 2:
                                 $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}']`).each(function () {
                                     $(this).text(calculatedAmount + ' шт');
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
                                 });
                                 break;
                             default:
                                 $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}']`).each(function () {
                                     $(this).text(calculatedQuantity + ' ' + dataItem.measure_unit_value);
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
                                 });
                         }
-
                     })
             }
 
@@ -1550,7 +1649,6 @@
                     },
                     onProgress: function (e) {
                         uploadProgressBar.option("value", e.bytesLoaded / e.bytesTotal * 100)
-
                     },
                     onUploadStarted: function () {
                         toggleImageVisible(false);
@@ -1587,7 +1685,86 @@
                     toggleImageVisible(true);
                 };
             });
-        });
 
+            function setElementsDisabledState(state){
+                @if(in_array($routeStageId, [6, 25]) && ($allowEditing || $allowCancelling))
+                    @if($allowCancelling)
+                        $('#applyDataButtonGroupCancelOperationButton').dxButton("instance").option("disabled", state);
+                    @endIf
+                    @if($allowEditing)
+                        $('#applyDataButtonGroupApplyOperationButton').dxButton("instance").option("disabled", state);
+                    @endIf
+                @endIf
+                @if(in_array($routeStageId, [11, 30]) && ($allowEditing || $allowCancelling))
+                    @if($allowCancelling)
+                        $('#applyConflictButtonGroupCancelOperationButton').dxButton("instance").option("disabled", state);
+                    @endIf
+                    @if($allowEditing)
+                        $('#applyConflictButtonGroupApplyOperationButton').dxButton("instance").option("disabled", state);
+                        $('#applyConflictButtonGroupMoveToResponsibilityUserButton').dxButton("instance").option("disabled", state);
+                    @endIf
+                @endIf
+
+                @if(in_array($routeStageId, [19, 38]) && ($allowEditing || $allowCancelling))
+                    @if($allowCancelling)
+                        $('#applyConflictByResponsibilityUserButtonGroupCancelOperationButton').dxButton("instance").option("disabled", state);
+                    @endIf
+                    @if ($allowEditing)
+                        $('#applyConflictByResponsibilityUserButtonGroupApplyOperationButton').dxButton("instance").option("disabled", state);
+                    @endIf
+                @endIf
+
+                operationForm.getEditor("transferMaterialGrid").option("disabled", state);
+                operationForm.getEditor("newCommentTextArea").option("disabled", state);
+            }
+
+            function setButtonIndicatorVisibleState(buttonId, state){
+                if (buttonId === "*"){
+                    $(".button-loading-indicator").each((index, element) =>{
+                        console.log(element);
+                         try {
+                            let loadingIndicator = $(element).dxLoadIndicator("instance");
+                            if (loadingIndicator) {
+                                loadingIndicator.option('visible', state);
+                            }
+                        }
+                        catch(err) {
+                            console.log(err)
+                        }
+                    })
+                } else {
+                    let loadingIndicator = $("#" + buttonId).find(".button-loading-indicator").dxLoadIndicator("instance");
+                    loadingIndicator.option('visible', state);
+                }
+            }
+
+            function showErrorWindow(errorList){
+                let htmlMessage = "";
+                errorList.forEach((errorElement) => {
+                    errorElement.errorList.forEach((errorItem) => {
+                        switch (errorItem.severity) {
+                            case 500:
+                                exclamationTriangleStyle = 'color: #ffd358';
+                                break;
+                            case 1000:
+                                exclamationTriangleStyle = 'color: #f15a5a';
+                                break;
+                            default:
+                                exclamationTriangleStyle = "gray";
+                        }
+
+                        htmlMessage += '<p><i class="fas fa-exclamation-triangle" style="' + exclamationTriangleStyle + '"></i>  ';
+                        if ( errorItem.itemName) {
+                            htmlMessage += errorItem.itemName + ': ' + errorItem.message;
+                        } else {
+                            htmlMessage += errorItem.message;
+                        }
+                        htmlMessage += '</p>'
+                    })
+                });
+
+                DevExpress.ui.dialog.alert(htmlMessage, "При сохранении операции обнаружены ошибки");
+            }
+        });
     </script>
 @endsection

@@ -126,7 +126,9 @@
                         name: "materialsStandardsList",
                         editorOptions: {
                             dataSource: materialsStandardsListDataSource,
-                            height: 400,
+                            height: () => {
+                                return 400;
+                            },
                             width: 500,
                             showColumnHeaders: false,
                             showRowLines: false,
@@ -239,7 +241,9 @@
                                 dataSource: selectedMaterialStandardsListDataSource,
                                 allowItemDeleting: true,
                                 itemDeleteMode: "static",
-                                height: 400,
+                                height: () => {
+                                    return 400/*$(document).height() - ($(document).height()/100*20)*/;
+                                },
                                 width: 500,
                                 itemTemplate: function (data) {
                                     return $("<div>").text(data.name)
@@ -295,7 +299,8 @@
 
             let popupContainer = $("#popupContainer").dxPopup({
                 height: "auto",
-                width: "auto"
+                width: "auto",
+                title: "Выберите материалы для добавления"
             });
 
             //<editor-fold desc="JS: Columns definition">
@@ -494,6 +499,7 @@
                     colCount: 3,
                     caption: "Поставка",
                     items: [{
+                        name: "projectObjectSelectBox",
                         colSpan: 3,
                         dataField: "project_object_id",
                         label: {
@@ -516,6 +522,7 @@
                         }]
                     },
                         {
+                            name: "operationDateDateBox",
                             dataField: "operation_date",
                             colSpan: 1,
                             label: {
@@ -531,6 +538,7 @@
                             }]
                         },
                         {
+                            name: "destinationResponsibleUserSelectBox",
                             colSpan: 2,
                             dataField: "destination_responsible_user_id",
                             label: {
@@ -554,6 +562,7 @@
                     itemType: "group",
                     caption: "Поставщик",
                     items: [{
+                        name: "contractorSelectBox",
                         dataField: "contractor_id",
                         label: {
                             text: "Поставщик"
@@ -571,6 +580,7 @@
                         }]
                     },
                         {
+                            name: "consignmentNoteNumberSelectBox",
                             dataField: "consignment_note_number",
                             label: {
                                 text: "Номер ТТН"
@@ -594,6 +604,7 @@
                         colSpan: 2,
                         items: [{
                             dataField: "",
+                            name: "supplyMaterialGrid",
                             editorType: "dxDataGrid",
                             editorOptions: supplyMaterialGridConfiguration
                         }
@@ -604,16 +615,13 @@
                         caption: "Комментрий",
                         colSpan: 2,
                         items: [{
+                            name: "newCommentTextArea",
                             dataField: "new_comment",
                             label: {
                                 text: "Новый комментарий",
                                 visible: false
                             },
                             editorType: "dxTextArea",
-                            /*validationRules: [{
-                                type: "required",
-                                message: 'Поле "Комментарий" обязательно для заполнения'
-                            }]*/
                         }
                         ]
                     },
@@ -671,6 +679,7 @@
                     },
                     {
                         itemType: "button",
+                        name: "createSupplyOperation",
                         colSpan: 2,
                         horizontalAlignment: "right",
                         buttonOptions: {
@@ -678,12 +687,21 @@
                             type: "default",
                             stylingMode: "contained",
                             useSubmitBehavior: false,
-
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
                             onClick: function (e) {
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
                                 }
+
+                                setButtonIndicatorVisibleState("createSupplyOperation", true)
+                                setElementsDisabledState(true);
+
                                 let comment = operationForm.option("formData").new_comment;
                                 if (!comment) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
@@ -691,6 +709,8 @@
                                         if (dialogResult) {
                                             saveOperationData();
                                         } else {
+                                            setButtonIndicatorVisibleState("createSupplyOperation", false)
+                                            setElementsDisabledState(false);
                                             return;
                                         }
                                     })
@@ -728,28 +748,43 @@
                 supplyOperationData.uploaded_files = uploadedFiles;
                 supplyOperationData.materials = supplyMaterialData;
 
-                console.log(supplyOperationData);
-                validateMaterialList(supplyOperationData, false);
+                validateMaterialList(supplyOperationData);
             }
 
-            function validateMaterialList(supplyOperationData, forcePostData) {
+            function validateMaterialList(supplyOperationData) {
                 $.ajax({
                     url: "{{route('materials.operations.supply.new.validate-material-list')}}",
                     method: "POST",
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
+                    dataType: "json",
                     data: {
-                        data: JSON.stringify(supplyOperationData)
+                       supplyOperationData
                     },
-                    success: function (data, textStatus, jqXHR) {
+                    success: function (e) {
                         postEditingData(supplyOperationData)
                     },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        if (forcePostData) {
-                            postEditingData(supplyOperationData)
+                    error: function (e) {
+                        if (e.responseJSON.result === 'error') {
+                            let needToShowErrorWindow = false;
+                            e.responseJSON.errors.forEach((errorElement) => {
+                                errorElement.errorList.forEach((errorItem) => {
+                                    if (errorItem.severity > 500) {
+                                        needToShowErrorWindow = true;
+                                    }
+                                })
+                            })
+
+                            if (needToShowErrorWindow) {
+                                showErrorWindow(e.responseJSON.errors);
+                            }
+                        } else {
+                            DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
                         }
-                        DevExpress.ui.notify("При сохранении данных произошла ошибка<br>Список ошибок", "error", 5000)
+
+                        setButtonIndicatorVisibleState("createSupplyOperation", false)
+                        setElementsDisabledState(false);
                     }
                 })
             }
@@ -769,7 +804,9 @@
                         window.location.href = '{{route('materials.index')}}/?project_object=' + projectObject
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000);
+                        setButtonIndicatorVisibleState("createSupplyOperation", false)
+                        setElementsDisabledState(false);
                     }
                 })
             }
@@ -853,6 +890,51 @@
                     toggleImageVisible(true);
                 };
             });
+
+            function setElementsDisabledState(state){
+                operationForm.getEditor("createSupplyOperation").option("disabled", state);
+                operationForm.getEditor("supplyMaterialGrid").option("disabled", state);
+                operationForm.getEditor("projectObjectSelectBox").option("disabled", state);
+                operationForm.getEditor("operationDateDateBox").option("disabled", state);
+                operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
+                operationForm.getEditor("contractorSelectBox").option("disabled", state);
+                operationForm.getEditor("consignmentNoteNumberSelectBox").option("disabled", state);
+                operationForm.getEditor("newCommentTextArea").option("disabled", state);
+            }
+
+            function setButtonIndicatorVisibleState(buttonName, state){
+                let loadingIndicator = operationForm.getEditor(buttonName).element()
+                    .find(".button-loading-indicator").dxLoadIndicator("instance");
+                loadingIndicator.option('visible', state);
+            }
+
+            function showErrorWindow(errorList){
+                let htmlMessage = "";
+                errorList.forEach((errorElement) => {
+                    errorElement.errorList.forEach((errorItem) => {
+                        switch (errorItem.severity) {
+                            case 500:
+                                exclamationTriangleStyle = 'color: #ffd358';
+                                break;
+                            case 1000:
+                                exclamationTriangleStyle = 'color: #f15a5a';
+                                break;
+                            default:
+                                exclamationTriangleStyle = "gray";
+                        }
+
+                        htmlMessage += '<p><i class="fas fa-exclamation-triangle" style="' + exclamationTriangleStyle + '"></i>  ';
+                        if ( errorItem.itemName) {
+                            htmlMessage += errorItem.itemName + ': ' + errorItem.message;
+                        } else {
+                            htmlMessage += errorItem.message;
+                        }
+                        htmlMessage += '</p>'
+                    })
+                });
+
+                DevExpress.ui.dialog.alert(htmlMessage, "При сохранении операции обнаружены ошибки");
+            }
         });
     </script>
 @endsection

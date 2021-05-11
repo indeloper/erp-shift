@@ -17,11 +17,13 @@ use App\Models\User;
 use http\Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 use Illuminate\View\View;
 
 class q3wMaterialSupplyOperationController extends Controller
@@ -67,40 +69,56 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
     }
 
-    public function validateMaterialTransfer(array $materials)
-    {
-        foreach ($materials as $material) {
-            $errors = [];
-            $materialStandard = q3wMaterialStandard::find($material->standard_id);
-            if (!isset($materialStandard)) {
-                //errors[] = array ('')
-                continue;
-            }
-
-            //$sourceMaterial = q3w
-        }
-    }
-
     public function validateMaterialList(Request $request)
     {
         $errors = [];
-
-        $requestData = json_decode($request['data']);
-
-        $projectObject = ProjectObject::find($requestData->project_object_id);
-
-        if (!isset($projectObject)) {
-            $errors['destinationProjectObjectNotFound'] = 'Объект получения не найден';
+        if (isset($request->supplyOperationData['materials'])) {
+            $materials = $request->supplyOperationData['materials'];
+        } else {
+            $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Материалы не указаны'];
         }
 
-        foreach ($requestData->materials as $material) {
-            if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
-                $errors['amountIsNull'][] = array('id' => $material->id, 'message' => 'Количество в штуках не указано');
-            }
+        $projectObject = ProjectObject::find($request->supplyOperationData['project_object_id']);
+        if (!isset($projectObject)) {
+            $errors['common'][] = (object)['severity' => 1000, 'type' => 'destinationProjectObjectNotFound', 'message' => 'Объект назначения не найден'];
+        }
 
-            if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
-                $errors['quantityIsNull'][] = array('id' => $material->id, 'message' => 'Количество не указано');
+        if (isset($request->supplyOperationData['materials'])) {
+            foreach ($materials as $material) {
+                $material = (object)$material;
+                $materialStandard = q3wMaterialStandard::find($material->standard_id);
+
+                if (!isset($materialStandard)) {
+                    $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "' . $material->standard_id . '" не существует'];
+                    continue;
+                }
+
+                $accountingType = $materialStandard->materialType->accounting_type;
+
+                switch ($accountingType) {
+                    case 2:
+                        $key = $material->standard_id . '-' . $material->quantity;
+                        break;
+                    default:
+                        $key = $material->standard_id;
+                }
+
+                $materialName = $materialStandard->name;
+
+                if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
+                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
+                }
+
+                if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
+                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
+                }
             }
+        }
+
+        $errorResult = [];
+
+        foreach ($errors as $key => $error){
+            $errorResult[] = ['validationId' => $key, 'errorList' => $error];
         }
 
         if (count($errors) == 0) {
@@ -110,7 +128,7 @@ class q3wMaterialSupplyOperationController extends Controller
         } else {
             return response()->json([
                 'result' => 'error',
-                'errors' => $errors
+                'errors' => $errorResult
             ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         }
     }

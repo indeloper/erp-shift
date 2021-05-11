@@ -59,3 +59,14 @@
     min-width: calc(100% - 79px);
     float: left
 }
+
+.dx-loadindicator.button-loading-indicator {
+    height: 1.2em;
+    width: 1.2em;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#materialsStandardsAddingForm {
+    height: 100%;
+}

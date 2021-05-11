@@ -124,7 +124,7 @@
                 key: "id",
                 data: transferMaterialData,
                 onLoaded: () => { if (transferOperationInitiator === "source") {
-                        validateMaterialList(null)
+                        validateMaterialList(false, false)
                     }
                 }
             })
@@ -160,6 +160,7 @@
                     caption: "Материалы",
                     items: [{
                         editorType: "dxDataGrid",
+
                         name: "materialsStandardsList",
                         editorOptions: {
                             @if ($transferOperationInitiator == 'destination')
@@ -167,7 +168,9 @@
                             @else
                             dataSource: availableMaterialsDataSource,
                             @endif
-                            height: 400,
+                            height: () => {
+                                return 400;
+                            },
                             width: 500,
                             showColumnHeaders: false,
                             showRowLines: false,
@@ -304,7 +307,9 @@
                                 dataSource: selectedMaterialStandardsListDataSource,
                                 allowItemDeleting: true,
                                 itemDeleteMode: "static",
-                                height: 400,
+                                height: () => {
+                                    return 400;
+                                },
                                 width: 500,
                                 itemTemplate: function (data) {
                                     let quantity = data.quantity ? data.quantity + " " : "";
@@ -381,7 +386,7 @@
                                 })
                                 transferMaterialDataSource.reload();
                                 $("#popupContainer").dxPopup("hide");
-                                validateMaterialList(null);
+                                validateMaterialList(false, false);
                             }
                         }
                     }
@@ -444,7 +449,7 @@
                             onClick: (e) => {
                                 e.component.deleteRow(e.row.rowIndex);
                                 e.component.refresh(true);
-                                validateMaterialList(e.row);
+                                validateMaterialList(false, false);
                             }
                         },
                         {
@@ -454,7 +459,7 @@
                                 let clonedItem = $.extend({}, e.row.data, {id: new DevExpress.data.Guid().toString()});
                                 transferMaterialDataSource.store().insert(clonedItem);
                                 e.component.refresh(true);
-                                validateMaterialList(e.row);
+                                validateMaterialList(false, false);
                                 e.event.preventDefault();
                             }
                         }]
@@ -647,7 +652,7 @@
                 },*/
                 onRowUpdated: (e) => {
                     recalculateStandardsRemains(e.key);
-                    validateMaterialList(e);
+                    validateMaterialList(false, false);
                 },
                 onToolbarPreparing: function (e) {
                     let dataGrid = e.component;
@@ -682,6 +687,7 @@
                     colCount: 3,
                     caption: "Отправление",
                     items: [{
+                        name: "sourceProjectObjectSelectBox",
                         colSpan: 3,
                         dataField: "source_project_object_id",
                         label: {
@@ -733,6 +739,7 @@
                         }]
                     },
                         {
+                            name: "operationDateStartDateBox",
                             dataField: "operation_date_start",
                             colSpan: 1,
                             visible: transferOperationInitiator !== "destination",
@@ -749,6 +756,7 @@
                             }]
                         },
                         {
+                            name: "sourceResponsibleUserSelectBox",
                             colSpan: transferOperationInitiator === "destination" ? 3 : 2,
                             dataField: "source_responsible_user_id",
                             label: {
@@ -774,6 +782,7 @@
                     colCount: 3,
                     caption: "Получение",
                     items: [{
+                        name: "destinationProjectObjectSelectBox",
                         colSpan: 3,
                         dataField: "destination_project_object_id",
                         label: {
@@ -795,6 +804,7 @@
                         }]
                     },
                         {
+                            name: "operationDateEndDateBox",
                             dataField: "operation_date_end",
                             colSpan: 1,
                             visible: transferOperationInitiator === "destination",
@@ -811,6 +821,7 @@
                             }]
                         },
                         {
+                            name: "destinationResponsibleUserSelectBox",
                             colSpan: transferOperationInitiator === "destination" ? 1 : 2,
                             dataField: "destination_responsible_user_id",
                             label: {
@@ -832,6 +843,7 @@
                             }]
                         },
                         {
+                            name: "consignmentNoteNumberNumberBox",
                             dataField: "consignment_note_number",
                             label: {
                                 text: "Номер ТТН"
@@ -866,6 +878,7 @@
                         caption: "Комментрий",
                         colSpan: 2,
                         items: [{
+                            name: "newCommentTextArea",
                             dataField: "new_comment",
                             label: {
                                 text: "Новый комментарий",
@@ -929,6 +942,7 @@
                     },
                     {
                         itemType: "button",
+                        name: "createTransferOperation",
                         colSpan: 2,
                         horizontalAlignment: "right",
                         buttonOptions: {
@@ -936,24 +950,35 @@
                             type: "default",
                             stylingMode: "contained",
                             useSubmitBehavior: false,
-
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
                             onClick: function (e) {
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
                                 }
+
+                                setButtonIndicatorVisibleState("createTransferOperation", true)
+                                setElementsDisabledState(true);
+
                                 let comment = operationForm.option("formData").new_comment;
                                 if (!comment) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
-                                            saveOperationData();
+                                            validateMaterialList(true, true);
                                         } else {
+                                            setButtonIndicatorVisibleState("createTransferOperation", false)
+                                            setElementsDisabledState(false);
                                             return;
                                         }
                                     })
                                 } else {
-                                    saveOperationData();
+                                    validateMaterialList(true, true);
                                 }
                             }
                         }
@@ -996,19 +1021,16 @@
                 transferOperationData.uploaded_files = uploadedFiles;
                 transferOperationData.materials = transferMaterialDataSource.store().createQuery().toArray();
 
-                console.log(JSON.stringify(transferOperationData));
                 postEditingData(transferOperationData);
             }
 
-            function validateMaterialList(updateInfo) {
-                /*console.log("transferMaterialData");
-                console.log(transferMaterialData);
-                console.log("transferMaterialDataSource.store()");
-                console.log(transferMaterialDataSource.store());
-                console.log("transferMaterialDataSource.store().createQuery().toArray()");
-                console.log(transferMaterialDataSource.store().createQuery().toArray());*/
+            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity) {
                 $.ajax({
                     dataType: "json",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     url: "{{route('materials.operations.transfer.validate-material-list')}}",
                     data: {
                         sourceProjectObjectId: sourceProjectObjectId,
@@ -1016,15 +1038,35 @@
                     },
                     success: (e) => {
                         $('.fa-exclamation-triangle').attr('style', 'display:none');
+                        if (saveEditedData) {
+                            saveOperationData();
+                        }
                     },
                     error: (e) => {
                         if (e.responseJSON.result === 'error') {
+                            let needToShowErrorWindow = false;
+
                             $('.fa-exclamation-triangle').attr('style', 'display:none');
                             e.responseJSON.errors.forEach((errorElement) => {
                                 updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') + ']'), errorElement);
+                                errorElement.errorList.forEach((errorItem) => {
+                                    if (showErrorWindowOnHighSeverity) {
+                                        if (errorItem.severity > 500) {
+                                            needToShowErrorWindow = true;
+                                        }
+                                    }
+                                })
                             })
+
+                            if (needToShowErrorWindow) {
+                                showErrorWindow(e.responseJSON.errors);
+                            }
                             materialErrorList = e.responseJSON.errors;
+                        } else {
+                            DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
                         }
+                        setButtonIndicatorVisibleState("createTransferOperation", false)
+                        setElementsDisabledState(false);
                     }
                 });
             }
@@ -1093,7 +1135,9 @@
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        DevExpress.ui.notify("При сохранении данных произошли ошибки - список ошибок", "error", 5000)
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000);
+                        setButtonIndicatorVisibleState("createTransferOperation", false)
+                        setElementsDisabledState(false);
                     }
                 })
             }
@@ -1109,11 +1153,11 @@
                                 switch (dataItem.accounting_type) {
                                     case 2:
                                         if (item.quantity === dataItem.quantity) {
-                                            calculatedAmount = calculatedAmount - item.amount;
+                                            calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
                                         }
                                         break;
                                     default:
-                                        calculatedQuantity = calculatedQuantity - item.quantity * item.amount;
+                                        calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
                                 }
                             }
                         })
@@ -1181,7 +1225,6 @@
                     },
                     onProgress: function (e) {
                         uploadProgressBar.option("value", e.bytesLoaded / e.bytesTotal * 100)
-
                     },
                     onUploadStarted: function () {
                         toggleImageVisible(false);
@@ -1219,7 +1262,52 @@
                 };
             });
 
+            function setElementsDisabledState(state){
+                operationForm.getEditor("createTransferOperation").option("disabled", state);
+                operationForm.getEditor("transferMaterialGrid").option("disabled", state);
+                operationForm.getEditor("sourceProjectObjectSelectBox").option("disabled", state);
+                operationForm.getEditor("operationDateStartDateBox").option("disabled", state);
+                operationForm.getEditor("sourceResponsibleUserSelectBox").option("disabled", state);
+                operationForm.getEditor("destinationProjectObjectSelectBox").option("disabled", state);
+                //operationForm.getEditor("operationDateEndDateBox").option("disabled", state);
+                operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
+                operationForm.getEditor("consignmentNoteNumberNumberBox").option("disabled", state);
+                operationForm.getEditor("newCommentTextArea").option("disabled", state);
+            }
 
+            function setButtonIndicatorVisibleState(buttonName, state){
+                let loadingIndicator = operationForm.getEditor(buttonName).element()
+                    .find(".button-loading-indicator").dxLoadIndicator("instance");
+                loadingIndicator.option('visible', state);
+            }
+
+            function showErrorWindow(errorList){
+                let htmlMessage = "";
+                errorList.forEach((errorElement) => {
+                    errorElement.errorList.forEach((errorItem) => {
+                        switch (errorItem.severity) {
+                            case 500:
+                                exclamationTriangleStyle = 'color: #ffd358';
+                                break;
+                            case 1000:
+                                exclamationTriangleStyle = 'color: #f15a5a';
+                                break;
+                            default:
+                                exclamationTriangleStyle = "gray";
+                        }
+
+                        htmlMessage += '<p><i class="fas fa-exclamation-triangle" style="' + exclamationTriangleStyle + '"></i>  ';
+                        if ( errorItem.itemName) {
+                            htmlMessage += errorItem.itemName + ': ' + errorItem.message;
+                        } else {
+                            htmlMessage += errorItem.message;
+                        }
+                        htmlMessage += '</p>'
+                    })
+                });
+
+                DevExpress.ui.dialog.alert(htmlMessage, "При сохранении операции обнаружены ошибки");
+            }
         });
     </script>
 @endsection
