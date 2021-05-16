@@ -15,6 +15,12 @@ class q3wMaterialOperation extends Model
 
     protected $guarded = array('id');
 
+    protected $appends = ['have_conflict'];
+
+    public function getHaveConflictAttribute() {
+        return in_array($this->operation_route_stage_id, [11, 19, 30, 38]);
+    }
+
     public function materials(): HasMany
     {
         return $this->hasMany(q3wOperationMaterial::class, 'material_operation_id', 'id');

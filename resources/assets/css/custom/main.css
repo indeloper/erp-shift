@@ -70,3 +70,8 @@
 #materialsStandardsAddingForm {
     height: 100%;
 }
+
+.dx-row.row-conflict-operation {
+    background: #ffc7ce;
+    color: #9c0006;
+}

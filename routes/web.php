@@ -250,6 +250,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
     Route::get('/materials/list', 'q3wMaterial\q3wMaterialController@show')->name('materials.list');
     Route::get('/materials/actual/list', 'q3wMaterial\q3wMaterialController@actualProjectObjectMaterialsList')->name('materials.actual.list');
+    Route::get('/materials/reserved/list/', 'q3wMaterial\q3wMaterialController@reservedMaterialsList')->name('materials.reserved.list');
     Route::get('/materials/all-with-actual-amount/list', 'q3wMaterial\q3wMaterialController@allProjectObjectMaterialsWithActualAmountList')->name('materials.all-with-actual-amount.list');
     Route::get('/materials/snapshots-materials/list', 'q3wMaterial\q3wMaterialController@snapshot')->name('materials.snapshots-materials.list');
     Route::get('/materials/snapshots/list/', 'q3wMaterial\q3wMaterialController@snapshotList')->name('materials.snapshots.list');
