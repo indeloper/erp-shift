@@ -11,7 +11,7 @@ class ObjectRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -24,7 +24,7 @@ class ObjectRequest extends FormRequest
      * @return array
      */
 
-     public function messages()
+     public function messages(): array
      {
          return [
              'name.required' => 'Поле обязательно для заполнения',
@@ -35,15 +35,18 @@ class ObjectRequest extends FormRequest
 
              'cadastral_number.max' => 'Максимальное число символов : 19',
              'cadastral_number.regex' => 'Кадастровый номер не соотвутствует стандарту',
+
+             'material_accounting_type.required' => 'Поле обязательно для заполнения',
          ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => 'required|max:150',
             'address' => 'required|max:250',
             'cadastral_number' => 'nullable|max:19|regex:/[0-9]{2}:[0-9]{2}:[0-9]{6,7}:[0-9]{1,5}/',
+            'material_accounting_type' => 'required'
         ];
     }
 }

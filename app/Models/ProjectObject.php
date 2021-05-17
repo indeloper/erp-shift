@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ class ProjectObject extends Model
 {
     use DevExtremeDataSourceLoadable;
 
-    protected $fillable = ['name', 'address', 'cadastral_number', 'short_name'];
+    protected $fillable = ['name', 'address', 'cadastral_number', 'short_name', 'material_accounting_type'];
 
     protected $appends = ['location', 'name_tag'];
 
@@ -39,6 +40,11 @@ class ProjectObject extends Model
     public function resp_users()
     {
         return $this->hasMany(ObjectResponsibleUser::class, 'object_id', 'id');
+    }
+
+    public function material_accounting_type()
+    {
+        return $this->hasOne(q3wProjectObjectMaterialAccountingType::class, 'id', 'material_accounting_type');
     }
 
     public function getCreatedAtAttribute($date)

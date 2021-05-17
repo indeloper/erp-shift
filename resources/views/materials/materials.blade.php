@@ -186,16 +186,31 @@
             //<editor-fold desc="JS: Columns definition">
             let materialColumns = [
                 {
-                    dataField: "standard_id",
+                    dataField: "standard_name",
                     dataType: "string",
                     caption: "Наименование",
                     width: 500,
                     sortIndex: 0,
                     sortOrder: "asc",
-                    lookup: {
+                    /*lookup: {
                         dataSource: materialStandardsData,
                         displayExpr: "name",
                         valueExpr: "id"
+                    },*/
+                    calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
+                        if (["contains", "notcontains"].indexOf(selectedFilterOperation) !== -1) {
+
+                            let words = filterValue.split(" ");
+                            let filter = [];
+                            words.forEach(function (word) {
+                                filter.push(["standard_name", selectedFilterOperation, word]);
+                                filter.push("and");
+                            });
+                            console.log(filter);
+                            filter.pop();
+                            return filter;
+                        }
+                        return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
                     }
                 },
                 {

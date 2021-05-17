@@ -255,6 +255,15 @@
                                     </div>
                                </div>
                            </div>
+                           <div class="form-group">
+                               <div class="row">
+                                   <label class="col-sm-3 col-form-label">Тип объекта<star class="star">*</star></label>
+                                   <div class="col-sm-9">
+                                       <select id="material_accounting_type" name="material_accounting_type" style="width:100%;">
+                                       </select>
+                                   </div>
+                               </div>
+                           </div>
                            @if(Auth::user()->isProjectManager() or Auth::user()->isInGroup(43)/*8*/)
                            <div class="form-group" id="">
                                <div class="row">
@@ -315,10 +324,14 @@
     }
 
     $('#resp_users_role_one').select2();
+    $('#material_accounting_type').select2();
 
     function edit_object(data) {
         $('#resp_users_role_one').select2('destroy');
         $('#resp_users_role_one').find('option').remove();
+
+        $('#material_accounting_type').select2('destroy');
+        $('#material_accounting_type').find('option').remove();
 
         $('#update_object_id').val(data.id);
         $('#update_name').val(data.name);
@@ -339,6 +352,19 @@
             var user = $("<option selected='selected'></option>").val(resp_user.user.id).text(resp_user.user.full_name);
             $('#resp_users_role_one').append(user).trigger('change');
         });
+
+        $('#material_accounting_type').select2({
+            language: "ru",
+            ajax: {
+                url: '{{ route('material.material-accounting-types.lookup-list') }}',
+                dataType: 'json',
+                delay: 250,
+            },
+            minimumResultsForSearch: Infinity
+        });
+
+        var material_accounting_type = $("<option selected='selected'></option>").val(data.material_accounting_type.id).text(data.material_accounting_type.name);
+        $('#material_accounting_type').append(material_accounting_type).trigger('change');
     }
 
     if (window.location.href.indexOf('set_short_name') !== -1) {

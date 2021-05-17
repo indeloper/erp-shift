@@ -19,7 +19,9 @@ class ObjectController extends Controller
 {
     public function index(Request $request)
     {
-        $objects = ProjectObject::with('resp_users.user')->orderBy('id', 'desc');
+        $objects = ProjectObject::with('resp_users.user')
+            ->with('material_accounting_type')
+            ->orderBy('id', 'desc');
 
         if(Auth::user()->hasLimitMode(0)) {
             $objects->whereHas('resp_users', function ($users) {
@@ -74,6 +76,7 @@ class ObjectController extends Controller
         $object->address = $request->address;
         $object->cadastral_number = $request->cadastral_number;
         $object->short_name = $request->short_name;
+        $object->material_accounting_type = $request->material_accounting_type;
 
         $object->save();
 

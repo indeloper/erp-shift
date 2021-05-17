@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -28,6 +29,30 @@ class CreateQ3wMaterialsTable extends Migration
             $table->foreign('standard_id')->references('id')->on('q3w_material_standards');
             $table->foreign('project_object')->references('id')->on('project_objects');
         });
+
+        Schema::create('q3w_project_object_material_accounting_types', function (Blueprint $table) {
+            $table->integerIncrements('id')->comment('Уникальный идентификатор');
+            $table->string('name')->comment('Наименование');
+
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        $projectObjectMaterialAccountingTypeNames = ['Производство', 'Склад'];
+
+        foreach ($projectObjectMaterialAccountingTypeNames as $projectObjectMaterialAccountingTypeName) {
+            $projectObjectMaterialAccountingType = new q3wProjectObjectMaterialAccountingType();
+            $projectObjectMaterialAccountingType -> name = $projectObjectMaterialAccountingTypeName;
+            $projectObjectMaterialAccountingType -> save();
+        }
+
+        Schema::table('project_objects', function (Blueprint $table) {
+            $table->integer('material_accounting_type')->unsigned()->default(1)->comment('Идентификатор типа материального учета объекта')->index();
+        });
+
+        Schema::table('project_objects', function($table) {
+            $table->foreign('material_accounting_type')->references('id')->on('q3w_project_object_material_accounting_types');
+        });
     }
 
     /**
@@ -37,6 +62,16 @@ class CreateQ3wMaterialsTable extends Migration
      */
     public function down()
     {
+        if (Schema::hasColumn('project_objects', 'material_accounting_type'))
+        {
+            Schema::table('project_objects', function($table)
+            {
+                $table->dropColumn('material_accounting_type');
+            });
+        }
+
+
+        Schema::dropIfExists('q3w_project_object_material_accounting_types');
         Schema::dropIfExists('q3w_materials');
     }
 }

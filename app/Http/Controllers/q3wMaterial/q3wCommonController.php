@@ -9,7 +9,9 @@ use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -84,5 +86,20 @@ class q3wCommonController extends Controller
         return (new q3wMaterialType())->dxLoadOptions($dxLoadOptions)
             ->get()
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function projectObjectMaterialAccountingTypesLookupList(Request $request) {
+        $types = (new q3wProjectObjectMaterialAccountingType())->get();
+
+        $results = [];
+
+        foreach ($types as $type) {
+            $results[] = [
+                'id' => $type->id,
+                'text' => $type->name,
+            ];
+        }
+
+        return ['results' => $results];
     }
 }
