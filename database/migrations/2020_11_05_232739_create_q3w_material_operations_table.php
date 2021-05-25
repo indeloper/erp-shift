@@ -43,7 +43,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
             $table->softDeletes();
         });
 
-        $routeStageTypeNames = ['Инициализация', 'Завершение', 'Уведомление', 'Согласование', 'Ожидание', 'Конфликт'];
+        $routeStageTypeNames = ['Инициализация', 'Завершение', 'Согласование', 'Уведомление', 'Ожидание', 'Конфликт'];
 
         foreach ($routeStageTypeNames as $routeStageTypeName) {
             $routeStageType = new q3wOperationRouteStageType();

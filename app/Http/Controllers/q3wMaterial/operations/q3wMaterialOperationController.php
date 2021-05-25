@@ -65,7 +65,6 @@ class q3wMaterialOperationController extends Controller
     public function show(Request $request)
     {
         $options = json_decode($request['data']);
-
         $response = array(
             "data" => (new q3wMaterialOperation)
                 ->dxLoadOptions($options)
@@ -73,7 +72,11 @@ class q3wMaterialOperationController extends Controller
                 ->addSelect('q3w_material_operations.*', 'q3w_operation_route_stages.name as operation_route_stage_name')
                 ->withMaterialsSummary()
                 ->get(),
-            "totalCount" => (new q3wMaterialOperation)->dxLoadOptions($options)->count()
+            "totalCount" => (new q3wMaterialOperation)
+                ->dxLoadOptions($options)
+                ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
+                ->addSelect('q3w_material_operations.*', 'q3w_operation_route_stages.name as operation_route_stage_name')
+                ->count()
         );
 
         return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);

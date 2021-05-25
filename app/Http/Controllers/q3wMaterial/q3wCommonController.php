@@ -65,6 +65,18 @@ class q3wCommonController extends Controller
 
         return (new q3wOperationRouteStage())->dxLoadOptions($options)->get(['id', 'name'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
+    public function operationRouteStagesWithoutNotificationsList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new q3wOperationRouteStage())->dxLoadOptions($options)
+            ->select(['name'])
+            ->where('operation_route_stage_type_id', '<>', 4)
+            ->distinct()
+            ->orderBy('name')
+            ->get(['name'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
 
     public function measureUnitsList(Request $request)
     {

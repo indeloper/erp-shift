@@ -73,6 +73,11 @@
             padding-left: 0px !important;
         }
 
+        .dx-master-detail-cell {
+            padding: 0 !important;
+            padding-left: 60px !important;
+        }
+
     </style>
 @endsection
 
@@ -554,17 +559,25 @@
                                         masterDetail: {
                                             enabled: true,
                                             template: function(container, options) {
-                                                var currentMaterialData = options.data;
+                                                let currentMaterialData = options.data;
 
-                                                $("<div>")
+                                                /*$("<div>")
                                                     .addClass("master-detail-caption")
                                                     .text("История материала")
-                                                    .appendTo(container);
+                                                    .appendTo(container);*/
 
                                                 $("<div>")
                                                     .dxDataGrid({
                                                         columnAutoWidth: true,
                                                         showBorders: true,
+                                                        showColumnHeaders: false,
+                                                        selection: {
+                                                            allowSelectAll: false,
+                                                            deferred: false,
+                                                            mode: "multiple",
+                                                            selectAllMode: "allPages",
+                                                            showCheckBoxesMode: "always"
+                                                        },
                                                         columns: [
                                                             {
                                                                 dataField: "operation_route_id",
@@ -582,10 +595,22 @@
                                                                 dataField: "operation_date",
                                                                 caption: "Дата",
                                                                 dataType: "datetime",
+                                                                width: 416,
                                                                 cellTemplate: function (container, options) {
                                                                     let operationDate = options.text.replaceAll(',', ' ');
 
                                                                     $(`<div>${operationDate}</div>`)
+                                                                        .appendTo(container);
+                                                                }
+                                                            },
+                                                            {
+                                                                dataField: "quantity",
+                                                                caption: "quantity",
+                                                                dataType: "number",
+                                                                cellTemplate: function (container, options) {
+                                                                    let amount = options.data.amount;
+
+                                                                    $(`<div>. </div>`)
                                                                         .appendTo(container);
                                                                 }
                                                             },
@@ -609,6 +634,17 @@
                                                                     let amount = options.data.amount;
 
                                                                     $(`<div>${amount} шт</div>`)
+                                                                        .appendTo(container);
+                                                                }
+                                                            },
+                                                            {
+                                                                dataField: "quantity",
+                                                                caption: "quantity",
+                                                                dataType: "number",
+                                                                cellTemplate: function (container, options) {
+                                                                    let amount = options.data.amount;
+
+                                                                    $(`<div>. </div>`)
                                                                         .appendTo(container);
                                                                 }
                                                             },
@@ -640,7 +676,10 @@
                                                                 },
                                                             }),
 
-                                                        })
+                                                        }),
+                                                        onRowPrepared: (e) => {
+                                                            e.rowElement.addClass("material-history-detail-row")
+                                                        }
                                                     }).appendTo(container);
                                             }
                                         },
@@ -775,236 +814,6 @@
                 ]
 
             }).dxForm("instance")
-            //</editor-fold>
-
-            //<editor-fold desc="JS: Grid configuration">
-            /*let materialsDataGrid = $("#gridContainer").dxDataGrid({
-                dataSource: materialStandardsDataSource,
-                focusedRowEnabled: false,
-                hoverStateEnabled: true,
-                columnAutoWidth: false,
-                showBorders: true,
-                showColumnLines: true,
-                filterRow: {
-                    visible: true,
-                    applyFilter: "auto"
-                },
-                grouping: {
-                    autoExpandAll: true,
-                },
-                groupPanel: {
-                    visible: false
-                },
-                selection: {
-                    allowSelectAll: true,
-                    deferred: false,
-                    mode: "multiple",
-                    selectAllMode: "allPages",
-                    showCheckBoxesMode: "always"
-                },
-                paging: {
-                    enabled: false
-                },
-                columns: materialColumns,
-                onRowPrepared: function (e) {
-                    if (e.rowType === "data") {
-                        if (e.data.from_operation === 1) {
-                            e.rowElement.find(".dx-datagrid-group-closed")
-                                .replaceWith('<i class="fas fa-lock"><i>')
-                            e.rowElement.find(".dx-select-checkbox").remove();
-
-                            e.rowElement.css("color", "gray");
-                        }
-                    }
-                },
-                summary: {
-                    groupItems: [{
-                        column: "standard_id",
-                        summaryType: "count",
-                        displayFormat: "Количество: {0}",
-                    },
-                        {
-                            column: "amount",
-                            summaryType: "sum",
-                            displayFormat: "Всего: {0} шт",
-                            showInGroupFooter: false,
-                            alignByColumn: true
-                        },
-                        {
-                            column: "computed_weight",
-                            summaryType: "sum",
-                            customizeText: function (data) {
-                                return "Всего: " + data.value.toFixed(3) + " т."
-                            },
-                            showInGroupFooter: false,
-                        alignByColumn: true
-                    }],
-                    totalItems: [{
-                        column: "computed_weight",
-                        summaryType: "sum",
-                        customizeText: function (data) {
-                            return "Итого: " + data.value.toFixed(3) + " т."
-                        }
-                    }]
-                },
-                masterDetail: {
-                    enabled: true,
-                    template: function(container, options) {
-                        var currentMaterialData = options.data;
-
-                        $("<div>")
-                            .addClass("master-detail-caption")
-                            .text("История материала")
-                            .appendTo(container);
-
-                        $("<div>")
-                            .dxDataGrid({
-                                columnAutoWidth: true,
-                                showBorders: true,
-                                columns: [
-                                    {
-                                        dataField: "operation_route_id",
-                                        caption: "",
-                                        dataType: "number",
-                                        width: 24,
-                                        cellTemplate: function (container, options) {
-                                            let operationIcon = getOperationRouteIcon(options.data.operation_route_id, options.data.source_project_object_id, options.data.destination_project_object_id);
-
-                                            $(`<div><i class="${operationIcon}"></i></div>`)
-                                                .appendTo(container);
-                                        }
-                                    },
-                                    {
-                                        dataField: "operation_date",
-                                        caption: "Дата",
-                                        dataType: "datetime",
-                                        cellTemplate: function (container, options) {
-                                            let operationDate = options.text.replaceAll(',', ' ');
-
-                                            $(`<div>${operationDate}</div>`)
-                                                .appendTo(container);
-                                        }
-                                    },
-                                    {
-                                        dataField: "quantity",
-                                        caption: "Количество",
-                                        dataType: "number",
-                                        cellTemplate: function (container, options) {
-                                            let quantity = options.data.quantity;
-                                            let measureUnit = options.data.measure_unit_value;
-
-                                            $(`<div>${quantity} ${measureUnit}</div>`)
-                                                .appendTo(container);
-                                        }
-                                    },
-                                    {
-                                        dataField: "amount",
-                                        caption: "Количество (шт)",
-                                        dataType: "number",
-                                        cellTemplate: function (container, options) {
-                                            let amount = options.data.amount;
-
-                                            $(`<div>${amount} шт</div>`)
-                                                .appendTo(container);
-                                        }
-                                    },
-                                    {
-                                        dataField: "operation_id",
-                                        dataType: "number",
-                                        caption: "Номер операции",
-                                        groupIndex: 0,
-                                        sortOrder: "desc",
-                                        groupCellTemplate: function (container, options) {
-                                            let operationId = options.text;
-
-                                            $(`<div>Операция #${operationId}</div>`)
-                                                .appendTo(container);
-                                        }
-                                    }
-                                ],
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.CustomStore({
-                                        key: "id",
-                                        loadMode: "raw",
-                                        load: function (loadOptions) {
-                                            return $.getJSON{{route('materials.standard-history.list')}}",
-                                                {
-                                                    projectObjectId: projectObject,
-                                                    materialStandardId: currentMaterialData.standard_id,
-                                                    materialQuantity: currentMaterialData.quantity
-                                                });
-                                        },
-                                    }),
-
-                                })
-                            }).appendTo(container);
-                    }
-                },
-                onToolbarPreparing: function (e) {
-                    e.toolbarOptions.items.unshift(
-                        {
-                            location: "after",
-                            widget: "dxDropDownButton",
-                            options: {
-                                text: "Операции",
-                                dropDownOptions: {
-                                    width: 230
-                                },
-                                onItemClick: function(e) {
-                                    if (e.itemData === "Поставка") {
-                                        let popupWindow = $("#supplyTypePopup")
-                                            .dxPopup({
-                                                width: "auto",
-                                                height: "auto",
-                                                title: "Выберите тип поставки",
-                                                contentTemplate: function() {
-                                                    return $("<div>").dxForm({
-                                                        items: [
-                                                            {
-                                                                itemType: "button",
-                                                                horizontalAlignment: "center",
-                                                                buttonOptions: {
-                                                                    text: "Материал поставлен от поставщика",
-                                                                    type: "normal",
-                                                                    stylingMode: "outlined",
-                                                                    onClick: () => {
-                                                                        document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
-                                                                    }
-                                                                }
-                                                            },
-                                                            {
-                                                                itemType: "button",
-                                                                horizontalAlignment: "center",
-                                                                buttonOptions: {
-                                                                    text: "Мериал перемещен с другого объекта",
-                                                                    type: "normal",
-                                                                    stylingMode: "outlined",
-                                                                    onClick: () => {
-                                                                        document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?destinationProjectObjectId=" + projectObject;
-                                                                    }
-                                                                }
-                                                            }
-                                                        ]
-                                                    });
-                                                }
-                                            })
-                                            .dxPopup("instance");
-
-                                        popupWindow.show();
-                                        //document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
-                                    }
-
-                                    if (e.itemData === "Перемещение") {
-                                        transferMaterials();
-                                    }
-                                },
-
-                                items: ["Поставка", "Перемещение", "Производство", "Списание"]
-                            }
-                        }
-                    );
-                }
-            }).dxDataGrid("instance");*/
             //</editor-fold>
 
             //<editor-fold desc="JS: Toolbar configuration">

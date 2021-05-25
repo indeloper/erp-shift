@@ -75,3 +75,14 @@
     background: #ffc7ce;
     color: #9c0006;
 }
+
+.material-history-detail-row {
+    background: #f5f5f5 !important;
+}
+
+.selected-filter-operations {
+    display: inline-block;
+}
+.filter-operation-box {
+    float: left;
+}

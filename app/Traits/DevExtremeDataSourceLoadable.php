@@ -143,7 +143,7 @@ trait DevExtremeDataSourceLoadable
             }
         }
 
-        if (isset($loadOption->filter)) {
+        if (isset($loadOption->filter) && count($loadOption->filter) != 0) {
             $this->appendFilter($result, $loadOption->filter);
         }
 

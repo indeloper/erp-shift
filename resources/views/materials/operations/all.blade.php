@@ -6,16 +6,68 @@
 
 @section('css_top')
     <style>
+        .dx-form-group {
+            background-color: #fff;
+            border: 1px solid #cfcfcf;
+            border-radius: 1px;
+            box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
 
+        .dx-layout-manager .dx-field-item:not(.dx-first-col) {
+            padding-left: 0px !important;
+        }
+
+        .dx-form-group.dx-group-no-border {
+            border: 0;
+            border-radius: 0;
+        }
     </style>
 @endsection
 
 @section('content')
+    <div id="formContainer"></div>
     <div id="gridContainer"></div>
 @endsection
 
 @section('js_footer')
     <script>
+
+        let filterOptions = [
+            {
+                name: "Объект",
+                filterType: "lookup",
+                groupName: "projectObjectFilterGroup"
+            },
+            {
+                name: "Тип операции",
+                filterType: "lookup",
+                groupName: "operationTypeFilterGroup"
+            },
+            {
+                name: "Статус",
+                filterType: "lookup",
+                groupName: "operationStageFilterGroup"
+            },
+            {
+                name: "Автор",
+                filterType: "lookup",
+                groupName: "operationAuthorFilterGroup"
+            },
+            {
+                name: "Наличие конфликта",
+                filterType: "lookup",
+                groupName: "haveConflictFilterGroup"
+            },
+            {
+                name: "Эталон",
+                filterType: "range",
+                groupName: "standardFilterGroup"
+            },
+        ]
+
+        let filterList = [];
+
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
         });
@@ -26,10 +78,9 @@
                 key: "id",
                 loadMode: "processed",
                 load: function (loadOptions) {
-                    console.log(loadOptions);
                     return $.getJSON("{{route('project-objects.list')}}",
                         {data: JSON.stringify(loadOptions)});
-                },
+                }
             });
 
             let operationRoutesStore = new DevExpress.data.CustomStore({
@@ -37,7 +88,6 @@
                 loadMode: "processed",
                 useDefaultSearch: true,
                 load: function (loadOptions) {
-                    console.log(loadOptions);
                     return $.getJSON("{{route('material.operation.routes.list')}}",
                         {data: JSON.stringify(loadOptions)});
                 },
@@ -48,8 +98,12 @@
                 store: new DevExpress.data.CustomStore({
                     key: "id",
                     load: function (loadOptions) {
+                        loadOptions.filter = getLoadOptionsFilterArray();
+
+                        console.log(loadOptions);
+
                         return $.getJSON("{{route('materials.operations.list')}}",
-                            {data: JSON.stringify({filterOptions: loadOptions})});
+                            {data: JSON.stringify(loadOptions)});
                     },
                 })
             });
@@ -96,28 +150,28 @@
                 {
                     dataField: "source_project_object_id",
                     dataType: "number",
-                    caption: "Объект отправления(?)",
+                    caption: "Объект отправления",
                     lookup: {
                         dataSource: {
                             paginate: true,
                             pageSize: 25,
                             store: projectObjectsStore
                         },
-                        displayExpr: "name",
+                        displayExpr: "short_name",
                         valueExpr: "id"
                     }
                 },
                 {
                     dataField: "destination_project_object_id",
                     dataType: "number",
-                    caption: "Объект назначения(?)",
+                    caption: "Объект назначения",
                     lookup: {
                         dataSource: {
                             paginate: true,
                             pageSize: 25,
                             store: projectObjectsStore
                         },
-                        displayExpr: "name",
+                        displayExpr: "short_name",
                         valueExpr: "id"
                     }
                 },
@@ -135,7 +189,7 @@
             //</editor-fold>
 
             //<editor-fold desc="JS: Grid configuration">
-            $("#gridContainer").dxDataGrid({
+            let operationsGridOptions = {
                 dataSource: operationsDataSource,
                 remoteOperations: true,
                 scrolling: {
@@ -167,15 +221,466 @@
                 groupPanel: {
                     visible: false
                 },
-                columns: materialTypesColumns
-            });
+                columns: materialTypesColumns,
+                onRowPrepared: (e) => {
+                    if (e.rowType === "data") {
+                        if (e.data.have_conflict) {
+                            e.rowElement.addClass("row-conflict-operation")
+                        }
+                    }
+                }
+            };
             //</editor-fold>
+
+            let operationGridForm = $("#formContainer").dxForm({
+                formData: {
+                    currentSelectedFilterGroup: null
+                },
+                items: [
+                    {
+                        itemType: "group",
+                        caption: "Фильтрация",
+                        name: "filterGroup",
+                        items: [
+                            {
+                                dataField: "currentSelectedFilterGroup",
+                                name: "fieldSelectorLookup",
+                                editorType: "dxLookup",
+                                editorOptions: {
+                                    dataSource: filterOptions,
+                                    displayExpr: "name",
+                                    valueExpr: "groupName",
+                                    onValueChanged: (e) => {
+                                        changeFilterGroupVisibility("filterGroup." + e.value);
+                                    }
+                                },
+                            },
+                            {
+                                itemType: "group",
+                                name: "projectObjectFilterGroup",
+                                colCount: 2,
+                                visible: false,
+                                cssClass: "dx-group-no-border",
+                                items: [
+                                    {
+                                        name: "projectObjectFilterLookup",
+                                        editorType: "dxLookup",
+                                        editorOptions: {
+                                            dataSource: new DevExpress.data.DataSource({
+                                                store: new DevExpress.data.CustomStore({
+                                                    key: "id",
+                                                    loadMode: "raw",
+                                                    load: function (loadOptions) {
+                                                        return $.getJSON("{{route('project-objects.list')}}",
+                                                            {data: JSON.stringify(loadOptions)});
+                                                    },
+                                                })
+                                            }),
+                                            displayExpr: "short_name",
+                                            valueExpr: "id"
+                                        },
+                                    },
+                                    {
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                let filterElement = operationGridForm.getEditor("projectObjectFilterLookup");
+                                                if (filterElement.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "project_object_id",
+                                                            operation: "=",
+                                                            value: filterElement.option("value"),
+                                                            text: 'Объект: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                operationsDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                itemType: "group",
+                                name: "operationTypeFilterGroup",
+                                colCount: 2,
+                                visible: false,
+                                cssClass: "dx-group-no-border",
+                                items: [
+                                    {
+                                        name: "operationTypeFilterLookup",
+                                        editorType: "dxLookup",
+                                        editorOptions: {
+                                            dataSource: new DevExpress.data.DataSource({
+                                                store: new DevExpress.data.CustomStore({
+                                                    key: "id",
+                                                    loadMode: "raw",
+                                                    load: function (loadOptions) {
+                                                        return $.getJSON("{{route('material.operation.routes.list')}}",
+                                                            {data: JSON.stringify(loadOptions)});
+                                                    },
+                                                })
+                                            }),
+                                            displayExpr: "name",
+                                            valueExpr: "id"
+                                        },
+                                    },
+                                    {
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                let filterElement = operationGridForm.getEditor("operationTypeFilterLookup");
+                                                if (filterElement.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "q3w_material_operations.operation_route_id",
+                                                            operation: "=",
+                                                            value: filterElement.option("value"),
+                                                            text: 'Тип операции: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                operationsDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                itemType: "group",
+                                name: "operationStageFilterGroup",
+                                colCount: 2,
+                                visible: false,
+                                cssClass: "dx-group-no-border",
+                                items: [
+                                    {
+                                        name: "operationStageFilterLookup",
+                                        editorType: "dxLookup",
+                                        editorOptions: {
+                                            dataSource: new DevExpress.data.DataSource({
+                                                store: new DevExpress.data.CustomStore({
+                                                    key: "id",
+                                                    loadMode: "raw",
+                                                    load: function (loadOptions) {
+                                                        return $.getJSON("{{route('material.operation.route-stages-without-notifications.list')}}",
+                                                            {data: JSON.stringify(loadOptions)});
+                                                    },
+                                                })
+                                            }),
+                                            displayExpr: "name",
+                                            valueExpr: "name"
+                                        },
+                                    },
+                                    {
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                let filterElement = operationGridForm.getEditor("operationStageFilterLookup");
+                                                if (filterElement.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "q3w_operation_route_stages.name",
+                                                            operation: "=",
+                                                            value: filterElement.option("value"),
+                                                            text: 'Статус: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                operationsDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                itemType: "group",
+                                name: "operationAuthorFilterGroup",
+                                colCount: 2,
+                                visible: false,
+                                cssClass: "dx-group-no-border",
+                                items: [
+                                    {
+                                        name: "operationAuthorFilterLookup",
+                                        editorType: "dxLookup",
+                                        editorOptions: {
+                                            dataSource: new DevExpress.data.DataSource({
+                                                store: new DevExpress.data.CustomStore({
+                                                    key: "id",
+                                                    loadMode: "raw",
+                                                    load: function (loadOptions) {
+                                                        return $.getJSON("{{route('users.list')}}",
+                                                            {data: JSON.stringify(loadOptions)});
+                                                    },
+                                                })
+                                            }),
+                                            displayExpr: "full_name",
+                                            valueExpr: "id"
+                                        },
+                                    },
+                                    {
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                let filterElement = operationGridForm.getEditor("operationAuthorFilterLookup");
+                                                if (filterElement.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "q3w_material_operations.creator_user_id",
+                                                            operation: "=",
+                                                            value: filterElement.option("value"),
+                                                            text: 'Автор: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                operationsDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                itemType: "group",
+                                name: "haveConflictFilterGroup",
+                                colCount: 2,
+                                visible: false,
+                                cssClass: "dx-group-no-border",
+                                items: [
+                                    {
+                                        name: "haveConflictFilterLookup",
+                                        editorType: "dxLookup",
+                                        editorOptions: {
+                                            dataSource: [{id: 1, name: "Да"}, {id: 0, name: "Нет"}],
+                                            displayExpr: "name",
+                                            valueExpr: "id"
+                                        },
+                                    },
+                                    {
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                let filterElement = operationGridForm.getEditor("haveConflictFilterLookup");
+                                                if (filterElement.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "have_conflict",
+                                                            operation: "=",
+                                                            value: filterElement.option("value"),
+                                                            text: 'Наличие конфликта: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                operationsDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                itemType: "group",
+                                name: "standardFilterGroup",
+                                colCount: 2,
+                                visible: false,
+                                cssClass: "dx-group-no-border",
+                                items: [
+                                    {
+                                        name: "standardFilterLookup",
+                                        editorType: "dxLookup",
+                                        editorOptions: {
+                                            dataSource: [{id: 1, name: "Да"}, {id: 0, name: "Нет"}],
+                                            displayExpr: "name",
+                                            valueExpr: "id"
+                                        },
+                                    },
+                                    {
+                                        name: "standardFilterRangeSlider",
+                                        editorType: "dxRangeSlider",
+                                        editorOptions: {
+                                            min: 0,
+                                            max: 100,
+                                            start: 0,
+                                            end: 65,
+                                            tooltip: {
+                                                enabled: true,
+                                                format: function (value) {
+                                                    return value + "...";
+                                                },
+                                                showMode: "always",
+                                                position: "bottom"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                let filterElement = operationGridForm.getEditor("haveConflictFilterLookup");
+                                                if (filterElement.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "have_conflict",
+                                                            operation: "=",
+                                                            value: filterElement.option("value"),
+                                                            text: 'Наличие конфликта: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                operationsDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                itemType: "empty",
+                                name: "selectedFilterOperations",
+                                cssClass: "selected-filter-operations"
+                            }
+                        ]
+                    },
+                    {
+                        itemType: "group",
+                        caption: "Список операций",
+                        items: [
+                            {
+                                editorType: "dxDataGrid",
+                                name: "operationsGrid",
+                                editorOptions: operationsGridOptions
+                            }
+                        ]
+                    }
+                ]
+            }).dxForm("instance");
 
             //<editor-fold desc="JS: Toolbar configuration">
             //</editor-fold>
 
+            function repaintFilterTagBox() {
+                let selectedFilterOperationsDiv = $(".selected-filter-operations");
+                selectedFilterOperationsDiv.empty();
+                selectedFilterOperationsDiv.append(getFilterTagBoxTemplate());
 
+                $( ".dx-tag-remove-button" ).click(function() {
+                    let filterId = $(this).parent().parent().attr("filter-id");
+                    let filterItemIndex = null;
+                    filterList.forEach((item, index) => {
+                        if (item.id === filterId) {
+                            filterItemIndex = index;
+                        }
+                    });
+
+                    if (filterItemIndex !== null){
+                        filterList.splice(filterItemIndex, 1);
+                        $(this).parent().parent().remove();
+                        operationsDataSource.reload();
+                    }
+                });
+            }
+
+            function getFilterTagBoxTemplate() {
+                let result = "";
+
+                filterList.forEach((item) => {
+                    //result = result + '<div class="filter-operation-box">' + item.text + '</div>'
+                    result = result + '<div class="dx-tag" filter-id="' + item.id + '">' +
+                                        '<div class="dx-tag-content">' +
+                                            '<span>' + item.text + '</span>' +
+                                            '<div class="dx-tag-remove-button">' +
+                                            '</div>' +
+                                        '</div>' +
+                                      '</div>'
+                })
+
+                return result;
+            }
+
+            function getLoadOptionsFilterArray() {
+                let filterArray = [];
+                filterList.forEach((item, index) => {
+
+                    if (item.fieldName === "project_object_id") {
+                        let projectObjectFilterArray = [];
+                        projectObjectFilterArray.push(['source_project_object_id', item.operation, item.value]);
+                        projectObjectFilterArray.push('or');
+                        projectObjectFilterArray.push(['destination_project_object_id', item.operation, item.value]);
+                        filterArray.push(projectObjectFilterArray);
+                    } else
+                    if (item.fieldName === "have_conflict") {
+                        let haveConflictFilterArray = [];
+                        let operation = "<>";
+                        if  (item.value) {
+                            operation = "=";
+                        }
+
+                        haveConflictFilterArray.push(['q3w_operation_route_stages.id', operation, 11]);
+                        haveConflictFilterArray.push('or');
+                        haveConflictFilterArray.push(['q3w_operation_route_stages.id', operation, 19]);
+                        haveConflictFilterArray.push('or');
+                        haveConflictFilterArray.push(['q3w_operation_route_stages.id', operation, 30]);
+                        haveConflictFilterArray.push('or');
+                        haveConflictFilterArray.push(['q3w_operation_route_stages.id', operation, 38]);
+
+                        filterArray.push(haveConflictFilterArray);
+                    } else {
+                        filterArray.push([item.fieldName, item.operation, item.value]);
+                    }
+
+                    if (filterList.length - 1 !== index) {
+                        filterArray.push('and');
+                    }
+                })
+                console.log(filterArray);
+                return filterArray;
+            }
+
+            function changeFilterGroupVisibility(visibleFilterGroupName) {
+                operationGridForm.itemOption("filterGroup.projectObjectFilterGroup", "visible", false);
+                operationGridForm.itemOption("filterGroup.operationTypeFilterGroup", "visible", false);
+                operationGridForm.itemOption("filterGroup.operationStageFilterGroup", "visible", false);
+                operationGridForm.itemOption("filterGroup.operationAuthorFilterGroup", "visible", false);
+                operationGridForm.itemOption("filterGroup.haveConflictFilterGroup", "visible", false);
+                operationGridForm.itemOption("filterGroup.standardFilterGroup", "visible", false);
+
+                operationGridForm.itemOption(visibleFilterGroupName, "visible", true);
+
+                repaintFilterTagBox();
+            }
         });
-
     </script>
 @endsection

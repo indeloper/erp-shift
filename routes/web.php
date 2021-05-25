@@ -245,6 +245,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/material/accounting-types/list', 'q3wMaterial\q3wCommonController@materialAccountingTypesList')->name('material.accounting-types.list');
     Route::get('/material/operations/routes/list', 'q3wMaterial\q3wCommonController@operationRoutesList')->name('material.operation.routes.list');
     Route::get('/material/operations/route-stages/list', 'q3wMaterial\q3wCommonController@operationRouteStagesList')->name('material.operation.route-stages.list');
+    Route::get('/material/operations/route-stages-without-notifications/list', 'q3wMaterial\q3wCommonController@operationRouteStagesWithoutNotificationsList')->name('material.operation.route-stages-without-notifications.list');
     Route::get('/material/types/lookup-list', 'q3wMaterial\q3wCommonController@materialTypesLookupList')->name('material.types.lookup-list');
 
     //Materials
