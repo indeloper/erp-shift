@@ -112,6 +112,14 @@ class q3wMaterialSupplyOperationController extends Controller
                 if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
                     $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
                 }
+
+                if (!isset($errors[$key])) {
+                    if ($materialStandard->materialType->measure_unit == 1) {
+                        if ($material->quantity > 15) {
+                            $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Длина материала превышает 15 м.п.'];
+                        }
+                    }
+                }
             }
         }
 

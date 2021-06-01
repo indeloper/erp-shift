@@ -25,6 +25,11 @@
     <div id="popupContainer">
         <div id="materialsStandardsAddingForm"></div>
     </div>
+    <div id="validationPopoverContainer">
+        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }">
+
+        </div>
+    </div>
 @endsection
 
 @section('js_footer')
@@ -34,7 +39,7 @@
             let projectObject = {{$projectObjectId}};
             let materialStandardsData = {!!$materialStandards!!};
             let materialTypesData = {!!$materialTypes!!};
-
+            let materialErrorList = [];
             let supplyMaterialTempID = 0;
 
             //<editor-fold desc="JS: DataSources">
@@ -291,6 +296,7 @@
                             })
                             supplyMaterialDataSource.reload();
                             $("#popupContainer").dxPopup("hide")
+                            validateMaterialList(false, false);
                         }
                     }
                 }
@@ -308,13 +314,62 @@
                 {
                     type: "buttons",
                     width: 110,
-                    buttons: ["delete", {
+                    buttons: [
+                        {
+                            template: function (container, options) {
+                                let validationId = "0";
+                                let standardId = "";
+                                let quantity = "";
+
+                                if (options.data.quantity) {
+                                    quantity = options.data.quantity;
+                                }
+
+                                if (options.data.standard_id) {
+                                    standardId = options.data.standard_id;
+                                }
+
+                                switch (options.data.accounting_type) {
+                                    case 2:
+                                        validationId = standardId + "-" + quantity
+                                        break;
+                                    default:
+                                        validationId = standardId;
+                                }
+
+
+                                let exclamationTriangle = $("<a>")
+                                    .attr("href", "#")
+                                    .attr("validationId", validationId)
+                                    .attr("style", "display: none")
+                                    .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon");
+
+                                materialErrorList.forEach((errorElement) => {
+                                    if (errorElement.validationId === validationId) {
+                                        updateValidationExclamationTriangles(exclamationTriangle, errorElement);
+                                    }
+                                })
+
+                                return exclamationTriangle;
+                            }
+                        },
+                        {
+                            hint: "Удалить",
+                            icon: "trash",
+                            onClick: (e) => {
+                                e.component.deleteRow(e.row.rowIndex);
+                                e.component.refresh(true);
+                                validateMaterialList(false, false);
+                            }
+                        },
+                        {
                         hint: "Дублировать",
                         icon: "copy",
                         onClick: function (e) {
                             let clonedItem = $.extend({}, e.row.data, {id: ++supplyMaterialTempID});
                             supplyMaterialData.splice(e.row.rowIndex, 0, clonedItem);
                             e.component.refresh(true);
+                            validateMaterialList(false, false);
                             e.event.preventDefault();
                         }
                     }]
@@ -465,7 +520,9 @@
                         }
                     }]
                 },
-
+                onRowUpdated: (e) => {
+                    validateMaterialList(false, false);
+                },
                 onToolbarPreparing: function (e) {
                     let dataGrid = e.component;
                     e.toolbarOptions.items.unshift(
@@ -707,7 +764,7 @@
                                     let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
-                                            saveOperationData();
+                                            validateMaterialList(true, true);
                                         } else {
                                             setButtonIndicatorVisibleState("createSupplyOperation", false)
                                             setElementsDisabledState(false);
@@ -715,7 +772,7 @@
                                         }
                                     })
                                 } else {
-                                    saveOperationData();
+                                    validateMaterialList(true, true);
                                 }
                             }
                         }
@@ -748,10 +805,14 @@
                 supplyOperationData.uploaded_files = uploadedFiles;
                 supplyOperationData.materials = supplyMaterialData;
 
-                validateMaterialList(supplyOperationData);
+                postEditingData(supplyOperationData);
             }
 
-            function validateMaterialList(supplyOperationData) {
+            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity) {
+                let supplyOperationData = {
+                    materials: supplyMaterialData,
+                    project_object_id: operationForm.option("formData").project_object_id
+                };
                 $.ajax({
                     url: "{{route('materials.operations.supply.new.validate-material-list')}}",
                     method: "POST",
@@ -760,18 +821,26 @@
                     },
                     dataType: "json",
                     data: {
-                       supplyOperationData
+                        supplyOperationData
                     },
                     success: function (e) {
-                        postEditingData(supplyOperationData)
+                        $('.fa-exclamation-triangle').attr('style', 'display:none');
+                        if (saveEditedData) {
+                            saveOperationData();
+                        }
                     },
                     error: function (e) {
                         if (e.responseJSON.result === 'error') {
                             let needToShowErrorWindow = false;
+
+                            $('.fa-exclamation-triangle').attr('style', 'display:none');
                             e.responseJSON.errors.forEach((errorElement) => {
+                                updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') + ']'), errorElement);
                                 errorElement.errorList.forEach((errorItem) => {
-                                    if (errorItem.severity > 500) {
-                                        needToShowErrorWindow = true;
+                                    if (showErrorWindowOnHighSeverity) {
+                                        if (errorItem.severity > 500) {
+                                            needToShowErrorWindow = true;
+                                        }
                                     }
                                 })
                             })
@@ -779,14 +848,57 @@
                             if (needToShowErrorWindow) {
                                 showErrorWindow(e.responseJSON.errors);
                             }
+                            materialErrorList = e.responseJSON.errors;
                         } else {
                             DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
                         }
-
                         setButtonIndicatorVisibleState("createSupplyOperation", false)
                         setElementsDisabledState(false);
                     }
+                });
+            }
+
+            function updateValidationExclamationTriangles(element, errorElement) {
+                let maxSeverity = 0;
+                let errorDescription = "";
+                let exclamationTriangleStyle = ""
+
+                errorElement.errorList.forEach((errorItem) => {
+                    if (errorItem.severity > maxSeverity) {
+                        maxSeverity = errorItem.severity;
+                    }
+
+                    errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
                 })
+
+                switch (maxSeverity) {
+                    case 500:
+                        exclamationTriangleStyle = 'color: #ffd358';
+                        break;
+                    case 1000:
+                        exclamationTriangleStyle = 'color: #f15a5a';
+                        break;
+                    default:
+                        exclamationTriangleStyle = "display: none";
+                }
+
+                element.attr('style', exclamationTriangleStyle);
+                element.attr('severity', maxSeverity);
+                element.click(function (e) {
+                    e.preventDefault();
+
+                    let validationDescription = $('#validationTemplate');
+
+                    validationDescription.dxPopover({
+                        position: "top",
+                        width: 300,
+                        contentTemplate: "<ul>" + errorDescription + "</ul>"
+                    })
+                        .dxPopover("instance")
+                        .show(e.target);
+
+                    return false;
+                });
             }
 
             function postEditingData(supplyOperationData) {
