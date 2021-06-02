@@ -19,5 +19,9 @@ class q3wOperationRouteStage extends Model
     public function scopeCompleted($query) {
         return $query->where('operation_route_stage_type_id', 2);
     }
+
+    public function scopeCancelled($query) {
+        return $query->where('operation_route_stage_type_id', 7);
+    }
 }
 

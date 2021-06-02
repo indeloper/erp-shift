@@ -17,8 +17,10 @@ class CreateQ3wMaterialStandardsTable extends Migration
         Schema::create('q3w_material_standards', function (Blueprint $table) {
             $table->increments('id')->comment('Уникальный идентификатор');
             $table->string('name')->index()->unique()->comment('Наименование эталона');
+            $table->string('short_name')->index()->unique()->comment('Краткое наименование эталона');
             $table->integer('material_type')->unsigned()->comment('Тип материала');
             $table->double('weight')->unsigned()->comment('Вес за 1 единицу измерения');
+            $table->boolean('participates_in_search')->default(false)->comment('Участвует в поиске по эталонам в операциях');
             $table->text('description')->nullable()->comment('Описание');
 
             $table->timestamps();

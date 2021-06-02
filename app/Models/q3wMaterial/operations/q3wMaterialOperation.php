@@ -43,12 +43,14 @@ class q3wMaterialOperation extends Model
 
     public function scopeOnlyActive($query)
     {
-        $query->whereNotIn('operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'));
+        $query->whereNotIn('operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+            ->whereNotIn('operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'));
     }
 
     public function scopeOnlyCompleted($query)
     {
-        $query->whereIn('operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'));
+        $query->whereIn('operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+            ->whereIn('operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'));
     }
 
     public function scopeWithMaterialsSummary($query)

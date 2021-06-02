@@ -881,7 +881,6 @@ class q3wMaterialTransferOperationController extends Controller
     public function validateMaterialList(Request $request)
     {
         $errors = [];
-        //dd($request->materials);
 
         if (isset($request->userAction)) {
             $userAction = $request->userAction;
@@ -990,7 +989,6 @@ class q3wMaterialTransferOperationController extends Controller
                         }
                     }
                 }
-
 
                 if ($checkSourceObjectMaterialsCount) {
                     if (!isset($sourceProjectObjectMaterial)) {

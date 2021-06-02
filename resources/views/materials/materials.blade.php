@@ -92,11 +92,10 @@
         $(function () {
             //<editor-fold desc="JS: DataSources">
             let measureUnitsData = {!!$measureUnits!!};
-            let accountingTypesData = {!!$accountingTypes!!};
             let materialTypesData = {!!$materialTypes!!};
-            let materialStandardsData = {!!$materialStandards!!};
             let projectObject = {{$projectObjectId}};
             let snapshotId = null;
+            let isStore = null;
 
             let operationRoutesStore = new DevExpress.data.CustomStore({
                 key: "id",
@@ -326,6 +325,8 @@
                                     onValueChanged: function (e) {
                                         projectObject = e.value;
                                         snapshotId = null;
+
+                                        console.log(e);
 
                                         updateProjectObjectDetailInfo(e.value);
 
@@ -574,6 +575,13 @@
                                                         selection: {
                                                             allowSelectAll: false,
                                                             deferred: false,
+                                                            /*mode: (e) => {
+                                                                if (isStore) {
+                                                                    return "multiple"
+                                                                } else {
+                                                                    return "none"
+                                                                }
+                                                            },*/
                                                             mode: "multiple",
                                                             selectAllMode: "allPages",
                                                             showCheckBoxesMode: "always"
@@ -605,17 +613,6 @@
                                                             },
                                                             {
                                                                 dataField: "quantity",
-                                                                caption: "quantity",
-                                                                dataType: "number",
-                                                                cellTemplate: function (container, options) {
-                                                                    let amount = options.data.amount;
-
-                                                                    $(`<div>. </div>`)
-                                                                        .appendTo(container);
-                                                                }
-                                                            },
-                                                            {
-                                                                dataField: "quantity",
                                                                 caption: "Количество",
                                                                 dataType: "number",
                                                                 cellTemplate: function (container, options) {
@@ -634,17 +631,6 @@
                                                                     let amount = options.data.amount;
 
                                                                     $(`<div>${amount} шт</div>`)
-                                                                        .appendTo(container);
-                                                                }
-                                                            },
-                                                            {
-                                                                dataField: "quantity",
-                                                                caption: "quantity",
-                                                                dataType: "number",
-                                                                cellTemplate: function (container, options) {
-                                                                    let amount = options.data.amount;
-
-                                                                    $(`<div>. </div>`)
                                                                         .appendTo(container);
                                                                 }
                                                             },
@@ -832,6 +818,8 @@
 
             function updateProjectObjectDetailInfo(projectObjectID) {
                 projectObjectsData.store().byKey(projectObjectID).done(function (dataItem) {
+                    isStore = dataItem.material_accounting_type === 2;
+
                     let name = dataItem.name === undefined ? '<Не указано>' : dataItem.name;
                     let address = dataItem.address === undefined ? '<Не указан>' : dataItem.address;
 

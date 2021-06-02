@@ -223,6 +223,14 @@
                                     </li>
                                 @endif
                                 @if(Auth::user()->can('manual_materials'))
+                                    <li class="nav-item @if (Request::is('/materials/table') || Request::is('/materials/table/*')) active @endif">
+                                        <a class="nav-link" href="{{ route('materials.table') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Табель учета</span>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if(Auth::user()->can('manual_materials'))
                                     <li class="nav-item @if (Request::is('materials/material-standard') || Request::is('materials/material-standard/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.standards.index') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-diamond pe-7s-mini"></i></span>

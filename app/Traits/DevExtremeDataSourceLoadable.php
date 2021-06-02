@@ -77,7 +77,7 @@ trait DevExtremeDataSourceLoadable
      * @param string $logicalOperator
      * @return mixed
      */
-    protected function appendFilter($query, $filterArray, $logicalOperator = '')
+    protected function appendFilter($query, $filterArray, string $logicalOperator = '')
     {
         $result = $query;
 

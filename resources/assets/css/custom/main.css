@@ -86,3 +86,15 @@
 .filter-operation-box {
     float: left;
 }
+
+.dx-form-group-caption-span-with-buttons {
+    line-height: 38px;
+}
+
+.dx-form-group-caption-buttons {
+    float: right;
+}
+
+.dx-form-group-caption-button {
+    margin-left: 16px;
+}

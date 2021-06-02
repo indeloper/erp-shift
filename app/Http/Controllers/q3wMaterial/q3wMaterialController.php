@@ -5,12 +5,13 @@ namespace App\Http\Controllers\q3wMaterial;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
-use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
+use App\models\q3wMaterial\q3wMaterialSnapshotMaterial;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,17 @@ class q3wMaterialController extends Controller
             'projectObjects' => ProjectObject::all('id', 'name', 'short_name', 'address')->toJson(JSON_UNESCAPED_UNICODE),
             'projectObjectId' => $projectObjectId
         ]);
+    }
+
+    public function table(Request $request)
+    {
+        return view('materials.material-table')->with([
+            'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
+            'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
+            'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
+            'materialStandards' => q3wMaterialStandard::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
+            'projectObjects' => ProjectObject::all('id', 'name', 'short_name', 'address')->toJson(JSON_UNESCAPED_UNICODE)
+            ]);
     }
 
     /**
@@ -188,6 +200,7 @@ class q3wMaterialController extends Controller
             })
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+            ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
             ->get(['a.id',
                 'a.standard_id',
                 'a.quantity',
@@ -203,7 +216,7 @@ class q3wMaterialController extends Controller
                 DB::RAW('1 as from_operation')])
             ->toArray();
 
-        $materials =  DB::table('q3w_materials as a')
+        $materials = DB::table('q3w_materials as a')
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
@@ -234,7 +247,7 @@ class q3wMaterialController extends Controller
                     default:
                         if ($operationMaterial->standard_id == $material->standard_id) {
                             if ($operationMaterial->amount_modifier < 0) {
-                                $material->amount += $operationMaterial->amount * $operationMaterial->quantity * $operationMaterial->amount_modifier;
+                                $material->quantity += $operationMaterial->quantity * $operationMaterial->amount * $operationMaterial->amount_modifier;
                             }
                         }
                 }
@@ -299,6 +312,7 @@ class q3wMaterialController extends Controller
             ->where('f.source_project_object_id', $projectObjectId)
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+            ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
             ->get(['a.id',
                 'a.standard_id',
                 'a.quantity',
@@ -312,5 +326,79 @@ class q3wMaterialController extends Controller
                 'e.value as measure_unit_value',
                 DB::RAW('1 as from_operation')])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function materialsTableList(Request $request): string
+    {
+        $options = json_decode($request['data']);
+
+        $materialsList = (new q3wMaterialSnapshotMaterial)->dxLoadOptions($options)
+            ->leftJoin('q3w_material_snapshots', 'q3w_material_snapshot_materials.snapshot_id', '=', 'q3w_material_snapshots.id')
+            ->leftJoin('q3w_material_standards', 'q3w_material_snapshot_materials.standard_id', '=', 'q3w_material_standards.id')
+            ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
+            ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
+            ->leftJoin('project_objects', 'q3w_material_snapshots.project_object_id', '=', 'project_objects.id')
+            ->select(['q3w_material_snapshot_materials.id',
+                'q3w_material_snapshot_materials.standard_id',
+                'q3w_material_snapshot_materials.quantity',
+                'q3w_material_snapshot_materials.amount',
+                'q3w_material_snapshots.created_at as snapshot_date',
+                DB::raw('MAX(`q3w_material_snapshots`.`created_at`) OVER (PARTITION BY `project_objects`.`id`) as `max_snapshot_date`'),
+                'q3w_material_standards.name as standard_name',
+                'q3w_material_standards.material_type',
+                'q3w_material_standards.weight',
+                'q3w_material_types.accounting_type',
+                'q3w_material_types.measure_unit',
+                'q3w_material_types.name as material_type_name',
+                'q3w_measure_units.value as measure_unit_value',
+                'project_objects.short_name as project_object_short_name']);
+
+        return DB::table(DB::raw('('.$materialsList->toSql().') as TEMP'))
+            ->where('snapshot_date', '=', DB::raw('`max_snapshot_date`'))
+            ->where('quantity', '<>', 0)
+            ->where('amount', '<>', 0)
+            ->get(['*'])
+            ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function printMaterialsTable(Request $request) {
+        $materialsList = (new q3wMaterialSnapshotMaterial)->dxLoadOptions([])
+            ->leftJoin('q3w_material_snapshots', 'q3w_material_snapshot_materials.snapshot_id', '=', 'q3w_material_snapshots.id')
+            ->leftJoin('q3w_material_standards', 'q3w_material_snapshot_materials.standard_id', '=', 'q3w_material_standards.id')
+            ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
+            ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
+            ->leftJoin('project_objects', 'q3w_material_snapshots.project_object_id', '=', 'project_objects.id')
+            ->select(['q3w_material_snapshot_materials.id',
+                'q3w_material_snapshot_materials.standard_id',
+                'q3w_material_snapshot_materials.quantity',
+                'q3w_material_snapshot_materials.amount',
+                'q3w_material_snapshots.created_at as snapshot_date',
+                DB::raw('MAX(`q3w_material_snapshots`.`created_at`) OVER (PARTITION BY `project_objects`.`id`) as `max_snapshot_date`'),
+                'q3w_material_standards.name as standard_name',
+                'q3w_material_standards.material_type',
+                'q3w_material_standards.weight',
+                'q3w_material_types.accounting_type',
+                'q3w_material_types.measure_unit',
+                'q3w_material_types.name as material_type_name',
+                'q3w_measure_units.value as measure_unit_value',
+                'project_objects.short_name as project_object_short_name',
+                'project_objects.address as project_object_address']);
+
+        $groupedMaterials = DB::table(DB::raw('('.$materialsList->toSql().') as TEMP'))
+            ->where('snapshot_date', '=', DB::raw('`max_snapshot_date`'))
+            ->where('quantity', '<>', 0)
+            ->where('amount', '<>', 0)
+            ->orderBy('standard_name')
+            ->orderBy('quantity')
+            ->orderBy('amount')
+            ->get(['*'])
+            ->groupBy(['project_object_short_name'])
+            ->toArray();
+
+        return view('materials.print-material-table')
+            ->with([
+                'materials' => $groupedMaterials,
+                'projectObjectIterator' => 1
+            ]);
     }
 }

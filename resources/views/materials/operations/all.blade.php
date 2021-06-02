@@ -59,11 +59,11 @@
                 filterType: "lookup",
                 groupName: "haveConflictFilterGroup"
             },
-            {
+            /*{
                 name: "Эталон",
                 filterType: "range",
                 groupName: "standardFilterGroup"
-            },
+            },*/
         ]
 
         let filterList = [];
@@ -245,6 +245,7 @@
                             {
                                 dataField: "currentSelectedFilterGroup",
                                 name: "fieldSelectorLookup",
+                                label: {visible: false},
                                 editorType: "dxLookup",
                                 editorOptions: {
                                     dataSource: filterOptions,
@@ -528,17 +529,18 @@
                                         editorOptions: {
                                             min: 0,
                                             max: 100,
-                                            start: 0,
+                                            start: 15,
                                             end: 65,
                                             tooltip: {
                                                 enabled: true,
                                                 format: function (value) {
-                                                    return value + "...";
+                                                    return value + "м.п.";
                                                 },
                                                 showMode: "always",
                                                 position: "bottom"
                                             }
                                         }
+
                                     },
                                     {
                                         editorType: "dxButton",

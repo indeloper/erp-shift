@@ -27,7 +27,7 @@ class q3wCommonController extends Controller
 
         return (new ProjectObject)->dxLoadOptions($options)
             ->whereNotNull('short_name')
-            ->get(['id', 'name', 'short_name'])
+            ->get(['id', 'name', 'short_name', 'material_accounting_type'])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
