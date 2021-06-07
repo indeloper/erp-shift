@@ -652,6 +652,13 @@
                             validationRules: [{
                                 type: "required",
                                 message: 'Поле "Номер ТТН" обязательно для заполнения'
+                            },
+                            {
+                                type: "async",
+                                message: 'Поле "Номер ТТН" должно быть уникальным',
+                                validationCallback: function(params) {
+                                    return validateConsignmentNumberUnique(params.value);
+                                }
                             }]
                         }]
                     },
@@ -1046,6 +1053,15 @@
                 });
 
                 DevExpress.ui.dialog.alert(htmlMessage, "При сохранении операции обнаружены ошибки");
+            }
+
+            function validateConsignmentNumberUnique(value){
+                return $.ajax({
+                    url: "{{route('material.consignment-number.validate')}}",
+                    data: {
+                        consignmentNumber: value,
+                    }
+                })
             }
         });
     </script>

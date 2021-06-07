@@ -4,6 +4,7 @@ namespace App\Http\Controllers\q3wMaterial;
 
 use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
+use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
@@ -11,7 +12,7 @@ use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -113,5 +114,15 @@ class q3wCommonController extends Controller
         }
 
         return ['results' => $results];
+    }
+
+    public function isConsignmentNumberUnique(Request $request) {
+        $consignmentNumber = $request['consignmentNumber'];
+
+        if (!(q3wMaterialOperation::where('consignment_note_number', '=', $consignmentNumber)->exists())) {
+            return Response('ok');
+        } else {
+            return Response('error', 400);
+        }
     }
 }
