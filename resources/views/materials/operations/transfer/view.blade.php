@@ -138,7 +138,8 @@
                 loadMode: "raw",
                 load: function (loadOptions) {
                     return $.getJSON("{{route('materials.actual.list')}}",
-                        {project_object: sourceProjectObjectId});
+                        {project_object: sourceProjectObjectId,
+                        operationId: operationData.id});
                 },
             });
 
@@ -171,12 +172,12 @@
             let transferMaterialData = {!! $operationMaterials !!};
             let transferMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
-                data: transferMaterialData/*,
-                onLoaded: validateMaterialList(false, false)*/
+                data: transferMaterialData,
             })
             let transferMaterialDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
-                store: transferMaterialStore
+                store: transferMaterialStore,
+                onChanged: (e) => {validateMaterialList(false, false)}
             })
 
             let projectObjectStore = new DevExpress.data.CustomStore({
