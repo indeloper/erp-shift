@@ -28,6 +28,8 @@ use Illuminate\View\View;
 
 class q3wMaterialSupplyOperationController extends Controller
 {
+    const EMPTY_COMMENT_TEXT = "Комментарий не указан";
+
     /**
      * Display a listing of the resource.
      *
@@ -164,16 +166,21 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
         $materialOperation->save();
 
-        if (isset($requestData['new_comment'])) {
-            $materialOperationComment = new q3wOperationComment([
-                'material_operation_id' => $materialOperation->id,
-                'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
-                'comment' => $requestData['new_comment'],
-                'user_id' => Auth::id()
-            ]);
-
-            $materialOperationComment->save();
+        if (isset($requestData['new_comment'])){
+            $newComment = $requestData['new_comment'];
+        } else {
+            $newComment = self::EMPTY_COMMENT_TEXT;
         }
+
+        $materialOperationComment = new q3wOperationComment([
+            'material_operation_id' => $materialOperation->id,
+            'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
+            'comment' => $newComment,
+            'user_id' => Auth::id()
+        ]);
+
+        $materialOperationComment->save();
+
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
             $materialType = $materialStandard->materialType;

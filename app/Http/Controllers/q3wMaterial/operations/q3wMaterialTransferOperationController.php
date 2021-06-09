@@ -15,6 +15,8 @@ use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
@@ -24,6 +26,7 @@ use Illuminate\View\View;
 
 class q3wMaterialTransferOperationController extends Controller
 {
+    const EMPTY_COMMENT_TEXT = "Комментарий не указан";
     /**
      * Display a listing of the resource.
      *
@@ -80,11 +83,35 @@ class q3wMaterialTransferOperationController extends Controller
                     'd.accounting_type',
                     'd.measure_unit',
                     'e.value as measure_unit_value'])
-                ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+                ->toArray();
+
+            foreach ($predefinedMaterials as $material) {
+                switch ($material->accounting_type) {
+                    case 2:
+                        $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
+                            ->where('quantity', $material->quantity)
+                            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+                            ->leftJoin('q3w_material_operations', 'q3w_operation_materials.id', 'material_operation_id')
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                            ->get();
+
+                        $material->total_amount -= $activeOperationMaterialAmount->sum('amount');
+                        break;
+                    default:
+                        $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
+                            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+                            ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_i d')
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                            ->get(DB::raw('sum(`quantity`) as quantity'))
+                            ->first();
+                        $material->total_quantity = $material->total_quantity - $activeOperationMaterialAmount->quantity;
+                }
+            }
         } else {
             $predefinedMaterials = json_encode([]);
         }
-
 
         return view('materials.operations.transfer.new')->with([
             'sourceProjectObjectId' => $sourceProjectObjectId,
@@ -612,16 +639,20 @@ class q3wMaterialTransferOperationController extends Controller
 
         $materialOperation->save();
 
-        if (isset($requestData['new_comment'])) {
-            $materialOperationComment = new q3wOperationComment([
-                'material_operation_id' => $materialOperation->id,
-                'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
-                'comment' => $requestData['new_comment'],
-                'user_id' => Auth::id()
-            ]);
-
-            $materialOperationComment->save();
+        if (isset($requestData['new_comment'])){
+            $newComment = $requestData['new_comment'];
+        } else {
+            $newComment = self::EMPTY_COMMENT_TEXT;
         }
+
+        $materialOperationComment = new q3wOperationComment([
+            'material_operation_id' => $materialOperation->id,
+            'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
+            'comment' => $newComment,
+            'user_id' => Auth::id()
+        ]);
+
+        $materialOperationComment->save();
 
         foreach ($requestData['materials'] as $inputMaterial) {
             $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
@@ -713,6 +744,30 @@ class q3wMaterialTransferOperationController extends Controller
 
         foreach ($materials as $material) {
             $material->edit_states = json_decode($material->edit_states);
+            switch ($material->accounting_type) {
+                case 2:
+                    $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
+                        ->where('quantity', $material->quantity)
+                        ->where('material_operation_id', '<>', $operation->id)
+                        ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+                        ->leftJoin('q3w_material_operations', 'q3w_operation_materials.id', 'material_operation_id')
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->get();
+
+                    $material->total_amount -= $activeOperationMaterialAmount->sum('amount');
+                    break;
+                default:
+                    $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
+                        ->where('material_operation_id', '<>', $operation->id)
+                        ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+                        ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->get(DB::raw('sum(`quantity`) as quantity'))
+                        ->first();
+                    $material->total_quantity = $material->total_quantity - $activeOperationMaterialAmount->quantity;
+            }
         }
 
         $materials = json_encode($materials, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
@@ -784,16 +839,20 @@ class q3wMaterialTransferOperationController extends Controller
             }
         }
 
-        if (isset($requestData->new_comment)) {
-            $materialOperationComment = new q3wOperationComment([
-                'material_operation_id' => $operation->id,
-                'operation_route_stage_id' => $operation->operation_route_stage_id,
-                'comment' => $requestData->new_comment,
-                'user_id' => Auth::id()
-            ]);
-
-            $materialOperationComment->save();
+        if (isset($requestData->new_comment)){
+            $newComment = $requestData->new_comment;
+        } else {
+            $newComment = self::EMPTY_COMMENT_TEXT;
         }
+
+        $materialOperationComment = new q3wOperationComment([
+            'material_operation_id' => $operation->id,
+            'operation_route_stage_id' => $operation->operation_route_stage_id,
+            'comment' => $newComment,
+            'user_id' => Auth::id()
+        ]);
+
+        $materialOperationComment->save();
 
         DB::commit();
 
@@ -881,6 +940,12 @@ class q3wMaterialTransferOperationController extends Controller
     public function validateMaterialList(Request $request)
     {
         $errors = [];
+
+        if (isset($request->operationId)) {
+            $operationId = $request->operationId;
+        } else {
+            $operationId = 0;
+        }
 
         if (isset($request->userAction)) {
             $userAction = $request->userAction;
@@ -974,12 +1039,38 @@ class q3wMaterialTransferOperationController extends Controller
                         ->where('quantity', $unitedMaterial->quantity)
                         ->get()
                         ->first();
+
+                    $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $unitedMaterial->standard_id)
+                        ->where('quantity', $unitedMaterial->quantity)
+                        ->where('material_operation_id', '<>', $operationId)
+                        ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+                        ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
+                        ->get(DB::raw('sum(`amount`) as amount'))
+                        ->first();;
+
+                        $operationAmount = $activeOperationMaterialAmount->amount;
                 } else {
                     $sourceProjectObjectMaterial = (new q3wMaterial)
                         ->where('project_object', $projectObject->id)
                         ->where('standard_id', $unitedMaterial->standard_id)
                         ->get()
                         ->first();
+
+                    $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $unitedMaterial->standard_id)
+                        ->where('material_operation_id', '<>', $operationId)
+                        ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+                        ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
+                        ->get(DB::raw('sum(`amount`) as amount, sum(`quantity`) as quantity'))
+                        ->first();;
+
+                    $operationAmount = $activeOperationMaterialAmount->amount;
+                    $operationQuantity = $activeOperationMaterialAmount->quantity;
                 }
 
                 if (!isset($errors[$key])) {
@@ -995,9 +1086,9 @@ class q3wMaterialTransferOperationController extends Controller
                         $errors[$key][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
                     } else {
                         if ($accountingType == 2) {
-                            $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount;
+                            $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount;
                         } else {
-                            $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity * $unitedMaterial->amount;
+                            $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity * $unitedMaterial->amount - $operationQuantity * $operationAmount;
                         }
 
                         if ($materialAmountDelta < 0) {

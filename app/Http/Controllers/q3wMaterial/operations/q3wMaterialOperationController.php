@@ -5,12 +5,14 @@ namespace App\Http\Controllers\q3wMaterial\operations;
 use App\Models\FileEntry;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
+use App\Models\q3wMaterial\operations\q3wOperationComment;
 use App\Models\q3wMaterial\operations\q3wOperationFile;
 use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use function MongoDB\BSON\toJSON;
 
 /**
  * Class q3wMaterialOperationController
@@ -65,6 +68,8 @@ class q3wMaterialOperationController extends Controller
     public function show(Request $request)
     {
         $options = json_decode($request['data']);
+
+        //dd($options);
         $response = array(
             "data" => (new q3wMaterialOperation)
                 ->dxLoadOptions($options)
@@ -158,5 +163,50 @@ class q3wMaterialOperationController extends Controller
             $file->save();
             return response()->json($file);
         }
+    }
+
+    public function print(Request $request) {
+        $filterOptions = json_decode($request->input('filterOptions'));
+        $filterList = json_decode($request->input('filterList'));
+        //dd($filterOptions);
+
+        $operations = (new q3wMaterialOperation)
+            ->dxLoadOptions($filterOptions)
+            ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
+            ->leftJoin('q3w_operation_routes', 'q3w_material_operations.operation_route_id', '=', 'q3w_operation_routes.id')
+            ->addSelect('q3w_material_operations.*',
+                'q3w_operation_route_stages.name as operation_route_stage_name',
+                'q3w_operation_routes.name as operation_route_name'
+            )
+            ->withMaterialsSummary()
+            ->get()
+            ->toArray();
+
+        //dd($operations);
+
+        return view('materials.operations.print-all-operations')
+            ->with([
+                'operations' => $operations,
+                'filterList' => $filterList
+            ]);
+    }
+
+    public function commentHistoryList(Request $request) {
+        $operationId = $request['operationId'];
+
+        q3wMaterialOperation::findOrFail($operationId);
+
+        return q3wOperationComment::where('material_operation_id', '=', $operationId)
+            ->leftJoin('users', 'q3w_operation_comments.user_id', '=', 'users.id')
+            ->leftJoin('q3w_operation_route_stages', 'q3w_operation_comments.operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
+            ->get([
+                'q3w_operation_comments.*',
+                'q3w_operation_route_stages.name as route_stage_name',
+                'users.first_name',
+                'users.last_name',
+                'users.patronymic',
+                'users.image'
+            ])
+            ->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

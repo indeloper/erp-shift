@@ -98,3 +98,24 @@
 .dx-form-group-caption-button {
     margin-left: 16px;
 }
+
+.comment-user-photo {
+    float: left;
+    position: relative;
+    border: 1px solid #E0E0E0;
+    width: 46px;
+    height: 46px;
+    border-radius: 90px;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.comment-user-name {
+    padding-left: 10px;
+    line-height: 23px;
+}
+
+.comment-date {
+    line-height: 23px;
+    padding-left: 10px;
+}
