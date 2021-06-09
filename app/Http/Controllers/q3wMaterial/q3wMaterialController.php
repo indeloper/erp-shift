@@ -127,7 +127,36 @@ class q3wMaterialController extends Controller
             $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
         }
 
-        return DB::table('q3w_materials as a')
+        if (isset($request->operationId)) {
+            $operationId = $request->operationId;
+        } else {
+            $operationId = 0;
+        }
+
+        $activeOperationMaterials = DB::table('q3w_operation_materials as a')
+            ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
+            ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
+            ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->leftJoin('q3w_material_operations as f', 'a.material_operation_id', '=', 'f.id')
+            ->where('f.source_project_object_id', $projectObjectId)
+            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+            ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+            ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+            ->where('a.material_operation_id', '<>', $operationId)
+            ->get(['a.id',
+                'a.standard_id',
+                'a.quantity',
+                'a.amount',
+                'b.name as standard_name',
+                'b.material_type',
+                'b.weight',
+                'd.accounting_type',
+                'd.measure_unit',
+                'd.name as material_type_name',
+                'e.value as measure_unit_value'])
+            ->toArray();
+
+        $materials = DB::table('q3w_materials as a')
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
@@ -141,9 +170,26 @@ class q3wMaterialController extends Controller
                 'd.accounting_type',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value'],
-                DB::RAW('0 as from_operation'))
-            ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+                'e.value as measure_unit_value'])
+            ->toArray();
+
+        foreach ($activeOperationMaterials as $operationMaterial){
+            foreach ($materials as $material){
+                switch ($operationMaterial->accounting_type) {
+                    case 2:
+                        if (($operationMaterial->standard_id == $material->standard_id) && ($operationMaterial->quantity == $material->quantity)) {
+                            $material->amount -= $operationMaterial->amount;
+                        }
+                        break;
+                    default:
+                        if ($operationMaterial->standard_id == $material->standard_id) {
+                            $material->quantity -= $operationMaterial->quantity * $operationMaterial->amount;
+                        }
+                }
+            }
+        }
+
+        return json_encode($materials, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
     public function allProjectObjectMaterialsWithActualAmountList(Request $request){
@@ -170,8 +216,8 @@ class q3wMaterialController extends Controller
                     'd.accounting_type',
                     'd.measure_unit',
                     'd.name as material_type_name',
-                    'e.value as measure_unit_value'],
-                DB::RAW('0 as from_operation'))
+                    'e.value as measure_unit_value',
+                DB::RAW('0 as from_operation')])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
@@ -230,8 +276,8 @@ class q3wMaterialController extends Controller
                 'd.accounting_type',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value'],
-                DB::RAW('0 as from_operation'))
+                'e.value as measure_unit_value',
+                DB::RAW('0 as from_operation')])
             ->toArray();
 
         foreach ($activeOperationMaterials as $operationMaterial){
@@ -397,8 +443,7 @@ class q3wMaterialController extends Controller
 
         return view('materials.print-material-table')
             ->with([
-                'materials' => $groupedMaterials,
-                'projectObjectIterator' => 1
+                'materials' => $groupedMaterials
             ]);
     }
 }
