@@ -168,21 +168,17 @@ class q3wMaterialOperationController extends Controller
     public function print(Request $request) {
         $filterOptions = json_decode($request->input('filterOptions'));
         $filterList = json_decode($request->input('filterList'));
-        //dd($filterOptions);
 
         $operations = (new q3wMaterialOperation)
             ->dxLoadOptions($filterOptions)
             ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
             ->leftJoin('q3w_operation_routes', 'q3w_material_operations.operation_route_id', '=', 'q3w_operation_routes.id')
-            //->withMaterialsSummary()
-            ->select(['q3w_material_operations.*',
+            ->withMaterialsSummary()
+            ->addSelect(['q3w_material_operations.*',
                 'q3w_operation_route_stages.name as operation_route_stage_name',
-                'q3w_operation_routes.name as operation_route_name',
-                'q3w_material_operations.id as material_types_info'])
+                'q3w_operation_routes.name as operation_route_name'])
             ->get()
             ->toArray();
-//        dd($request->input('filterOptions'));
-//        dd($operations);
 
         return view('materials.operations.print-all-operations')
             ->with([
