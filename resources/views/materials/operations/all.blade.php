@@ -28,6 +28,11 @@
 @section('content')
     <div id="formContainer"></div>
     <div id="gridContainer"></div>
+    <form id="printAllOperations" target="_blank" multisumit="true" method="post" action="{{route('materials.operations.print')}}">
+        @csrf
+        <input id="filterOptions" type="hidden" name="filterOptions">
+        <input id="filterList" type="hidden" name="filterList">
+    </form>
 @endsection
 
 @section('js_footer')
@@ -68,6 +73,8 @@
 
         let filterList = [];
 
+        let dataSourceLoadOptions = {};
+
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
         });
@@ -99,7 +106,7 @@
                     key: "id",
                     load: function (loadOptions) {
                         loadOptions.filter = getLoadOptionsFilterArray();
-
+                        dataSourceLoadOptions = loadOptions;
                         console.log(loadOptions);
 
                         return $.getJSON("{{route('materials.operations.list')}}",
@@ -579,6 +586,7 @@
                     {
                         itemType: "group",
                         caption: "Список операций",
+                        cssClass: "all-operations-grid",
                         items: [
                             {
                                 editorType: "dxDataGrid",
@@ -683,6 +691,32 @@
 
                 repaintFilterTagBox();
             }
+
+            function createGridReportButtons(){
+                let groupCaption = $('.all-operations-grid').find('.dx-form-group-with-caption');
+                $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
+                groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
+                let groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
+
+                $('<div>')
+                    .dxButton({
+                        text: "Печать",
+                        icon: "fa fa-print",
+                        onClick: (e) => {
+                            delete dataSourceLoadOptions.skip;
+                            delete dataSourceLoadOptions.take;
+
+                            $('#filterList').val(JSON.stringify(filterList));
+                            $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
+                            console.log(dataSourceLoadOptions);
+                            $('#printAllOperations').submit();
+                        }
+                    })
+                    .addClass('dx-form-group-caption-button')
+                    .prependTo(groupCaptionButtonsDiv)
+            }
+
+            createGridReportButtons();
         });
     </script>
 @endsection

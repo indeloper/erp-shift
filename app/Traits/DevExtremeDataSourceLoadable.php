@@ -96,7 +96,6 @@ trait DevExtremeDataSourceLoadable
             );
         } else {
             foreach ($filterArray as $filterItem) {
-
                 if (is_array($filterItem)) {
                     switch ($logicalOperator) {
                         case 'and':
@@ -142,6 +141,8 @@ trait DevExtremeDataSourceLoadable
                 $result = $result->orderBy($sortElement->selector, $sortElement->desc ? 'desc' : 'asc');
             }
         }
+
+        //dd($loadOption->filter);
 
         if (isset($loadOption->filter) && count($loadOption->filter) != 0) {
             $this->appendFilter($result, $loadOption->filter);

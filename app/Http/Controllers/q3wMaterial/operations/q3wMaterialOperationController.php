@@ -174,15 +174,15 @@ class q3wMaterialOperationController extends Controller
             ->dxLoadOptions($filterOptions)
             ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
             ->leftJoin('q3w_operation_routes', 'q3w_material_operations.operation_route_id', '=', 'q3w_operation_routes.id')
-            ->addSelect('q3w_material_operations.*',
+            //->withMaterialsSummary()
+            ->select(['q3w_material_operations.*',
                 'q3w_operation_route_stages.name as operation_route_stage_name',
-                'q3w_operation_routes.name as operation_route_name'
-            )
-            ->withMaterialsSummary()
+                'q3w_operation_routes.name as operation_route_name',
+                'q3w_material_operations.id as material_types_info'])
             ->get()
             ->toArray();
-
-        //dd($operations);
+//        dd($request->input('filterOptions'));
+//        dd($operations);
 
         return view('materials.operations.print-all-operations')
             ->with([
