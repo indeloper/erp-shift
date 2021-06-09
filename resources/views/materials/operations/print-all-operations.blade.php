@@ -56,8 +56,8 @@
                             <span>{{$filterItem->text}}</span>
                         </div>
                     @endforeach
-                @endif
                 </div>
+                @endif
                 <table class="report-table">
                     <thead>
                         <tr>

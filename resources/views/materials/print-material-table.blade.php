@@ -48,6 +48,16 @@
                         от «{{ \Carbon\Carbon::now()->format('d.m.Y') }}»
                     </h1>
                 </div>
+                @if(isset($filterList) && count($filterList) > 0)
+                    <div style="font-size:16px">
+                        <h3 style="font-size:17px; text-decoration:underline"><b>Фильтры:</b></h3>
+                        @foreach($filterList as $filterItem)
+                            <div style="margin:3px 0">
+                                <span>{{$filterItem->text}}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
                 <table class="report-table">
                     <thead>
                         <tr>

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class q3wMaterialController extends Controller
 {
@@ -399,7 +400,7 @@ class q3wMaterialController extends Controller
                 'q3w_measure_units.value as measure_unit_value',
                 'project_objects.short_name as project_object_short_name']);
 
-        return DB::table(DB::raw('('.$materialsList->toSql().') as TEMP'))
+        return DB::table(DB::raw('('.Str::replaceArray('?', $materialsList->getBindings(), $materialsList->toSql()).') as TEMP'))
             ->where('snapshot_date', '=', DB::raw('`max_snapshot_date`'))
             ->where('quantity', '<>', 0)
             ->where('amount', '<>', 0)
@@ -408,7 +409,11 @@ class q3wMaterialController extends Controller
     }
 
     public function printMaterialsTable(Request $request) {
-        $materialsList = (new q3wMaterialSnapshotMaterial)->dxLoadOptions([])
+        $filterOptions = json_decode($request->input('filterOptions'));
+        $filterList = json_decode($request->input('filterList'));
+
+        $materialsList = (new q3wMaterialSnapshotMaterial)
+            ->dxLoadOptions($filterOptions)
             ->leftJoin('q3w_material_snapshots', 'q3w_material_snapshot_materials.snapshot_id', '=', 'q3w_material_snapshots.id')
             ->leftJoin('q3w_material_standards', 'q3w_material_snapshot_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
@@ -430,7 +435,7 @@ class q3wMaterialController extends Controller
                 'project_objects.short_name as project_object_short_name',
                 'project_objects.address as project_object_address']);
 
-        $groupedMaterials = DB::table(DB::raw('('.$materialsList->toSql().') as TEMP'))
+        $groupedMaterials = DB::table(DB::raw('('.Str::replaceArray('?', $materialsList->getBindings(), $materialsList->toSql()).') as TEMP'))
             ->where('snapshot_date', '=', DB::raw('`max_snapshot_date`'))
             ->where('quantity', '<>', 0)
             ->where('amount', '<>', 0)
@@ -443,7 +448,8 @@ class q3wMaterialController extends Controller
 
         return view('materials.print-material-table')
             ->with([
-                'materials' => $groupedMaterials
+                'materials' => $groupedMaterials,
+                'filterList' => $filterList
             ]);
     }
 }

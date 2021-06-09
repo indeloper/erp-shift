@@ -30,7 +30,8 @@
     <div id="gridContainer"></div>
     <form id="printMaterialsTable" target="_blank" multisumit="true" method="post" action="{{route('materials.table.print')}}">
         @csrf
-        <input id="filterOptions" type="hidden" name="results">
+        <input id="filterOptions" type="hidden" name="filterOptions">
+        <input id="filterList" type="hidden" name="filterList">
     </form>
 @endsection
 
@@ -55,6 +56,8 @@
 
         let filterList = [];
 
+        let dataSourceLoadOptions = {};
+
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
         });
@@ -76,8 +79,7 @@
                     key: "id",
                     load: function (loadOptions) {
                         loadOptions.filter = getLoadOptionsFilterArray();
-
-                        console.log(loadOptions);
+                        dataSourceLoadOptions = loadOptions;
 
                         return $.getJSON("{{route('materials.table.list')}}",
                             {data: JSON.stringify(loadOptions)});
@@ -123,7 +125,7 @@
                                             dataSource: new DevExpress.data.DataSource({
                                                 store: new DevExpress.data.CustomStore({
                                                     key: "id",
-                                                    loadMode: "raw",
+                                                    //loadMode: "raw",
                                                     load: function (loadOptions) {
                                                         return $.getJSON("{{route('project-objects.list')}}",
                                                             {data: JSON.stringify(loadOptions)});
@@ -131,7 +133,9 @@
                                                 })
                                             }),
                                             displayExpr: "short_name",
-                                            valueExpr: "id"
+                                            valueExpr: "id",
+                                            searchEnabled: true,
+                                            searchExpr: "short_name",
                                         },
                                     },
                                     {
@@ -432,7 +436,6 @@
                         filterArray.push('and');
                     }
                 })
-                console.log(filterArray);
                 return filterArray;
             }
 
@@ -464,6 +467,11 @@
                         text: "Печать",
                         icon: "fa fa-print",
                         onClick: (e) => {
+                            delete dataSourceLoadOptions.skip;
+                            delete dataSourceLoadOptions.take;
+
+                            $('#filterList').val(JSON.stringify(filterList));
+                            $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
                             $('#printMaterialsTable').submit();
                         }
                     })

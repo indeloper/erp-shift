@@ -130,7 +130,7 @@ trait DevExtremeDataSourceLoadable
      */
     public function dxLoadOptions($loadOption)
     {
-        $result = $this;
+        $result = $this::query();
 
         if (isset($loadOption->skip) && isset($loadOption->take)) {
             $result = $result->skip($loadOption->skip)->take($loadOption->take);
@@ -142,12 +142,10 @@ trait DevExtremeDataSourceLoadable
             }
         }
 
-        //dd($loadOption->filter);
-
         if (isset($loadOption->filter) && count($loadOption->filter) != 0) {
             $this->appendFilter($result, $loadOption->filter);
-        }
 
+        }
         return $result;
     }
 }
