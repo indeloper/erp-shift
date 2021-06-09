@@ -197,6 +197,20 @@
                         {data: JSON.stringify(loadOptions)});
                 },
             });
+            let operationHistoryStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.operations.comment-history.list')}}",
+                        {operationId: operationData.id});
+                },
+            });
+
+            let operationHistoryDataSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: operationHistoryStore
+            })
+
             //</editor-fold>
             @if(in_array($routeStageId, [6, 25]) && ($allowEditing || $allowCancelling))
             let applyDataButtonGroup =
@@ -257,6 +271,7 @@
                                     setElementsDisabledState(true);
 
                                     let comment = operationForm.option("formData").new_comment;
+
                                     if (!comment) {
                                         let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
                                         confirmDialog.done(function (dialogResult) {
@@ -1299,12 +1314,14 @@
                         ]
 
                     },
-                        @if($allowEditing)
+
                     {
                         itemType: "group",
-                        caption: "Комментрий",
+                        caption: "Комментрии",
                         colSpan: 2,
-                        items: [{
+                        items: [
+                            @if($allowEditing)
+                            {
                             name: "newCommentTextArea",
                             dataField: "new_comment",
                             label: {
@@ -1318,9 +1335,73 @@
                                 message: 'Поле "Комментарий" обязательно для заполнения'
                             }]
                             @endif
-                        }
-                        ]
+                        },
+                        @endif
+                        {
+                            name: "commentHistoryGrid",
+                            editorType: "dxDataGrid",
+                            editorOptions: {
+                                dataSource: operationHistoryDataSource,
+                                wordWrapEnabled: true,
+                                showColumnHeaders: false,
+                                columns: [
+                                    {
+                                        dataField: "user_id",
+                                        dataType: "string",
+                                        width: 240,
+                                        cellTemplate: (container, options) => {
+                                            let photoUrl = "";
+
+                                            if (options.data.photo) {
+                                                photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.photo;
+                                            } else {
+                                                photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
+                                            }
+
+                                            let authorName = options.data.last_name +
+                                                ' ' +
+                                                options.data.first_name.substr(0, 1) +
+                                                '. ' +
+                                                options.data.patronymic.substr(0, 1) +
+                                                '.';
+
+                                            let commentDate = new Intl.DateTimeFormat('ru-RU', {
+                                                dateStyle: 'short',
+                                                timeStyle: 'short'
+                                            }).format(new Date(options.data.created_at)).replaceAll(',', '');
+
+                                            $(`<div class="comment-user-photo">` +
+                                                  `<img src="` + photoUrl + `" class="photo">` +
+                                              `</div>`)
+                                            .appendTo(container);
+
+                                            $(`<span class="comment-date">` +
+                                                commentDate +
+                                                `</span>` +
+                                                `<br><span class="comment-user-name">` +
+                                                authorName +
+                                                `</span>`)
+                                                .appendTo(container);
+                                        }
+                                    },
+                                    {
+                                        dataField: "comment",
+                                        cellTemplate: (container, options) => {
+                                            $(`<span class="comment">` +
+                                                options.data.comment +
+                                                `</span>`)
+                                                .appendTo(container);
+                                        }
+                                    },
+                                    {
+                                        dataField: "route_stage_name",
+                                        width: 220
+                                    }
+                                ]
+                            }
+                        }]
                     },
+                    @if($allowEditing)
                     {
                         itemType: "group",
                         caption: "Файлы",
@@ -1374,13 +1455,13 @@
                         ]
                     },
                     @endif
-                        @if(in_array($routeStageId, [6, 25]) && ($allowEditing || $allowCancelling))
+                    @if(in_array($routeStageId, [6, 25]) && ($allowEditing || $allowCancelling))
                         applyDataButtonGroup,
                     @endif
-                        @if(in_array($routeStageId, [11, 30]) && ($allowEditing || $allowCancelling))
+                    @if(in_array($routeStageId, [11, 30]) && ($allowEditing || $allowCancelling))
                         applyConflictButtonGroup,
                     @endif
-                        @if(in_array($routeStageId, [19, 38]) && ($allowEditing || $allowCancelling))
+                    @if(in_array($routeStageId, [19, 38]) && ($allowEditing || $allowCancelling))
                         applyConflictByResponsibilityUserButtonGroup,
                     @endif
                 ]
