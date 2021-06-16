@@ -64,11 +64,40 @@ trait DevExtremeDataSourceLoadable
         }
     }
 
+    /**
+     * Формирует массив для фильтрации основываясь на поиске
+     * @param $query
+     * @param string $searchOperation
+     * @param string $searchValue
+     * @param $searchExpr
+     * @return Expression
+     */
+    protected function appendSearchOperation($query, string $searchOperation, string $searchValue, $searchExpr) {
+        $filter = [];
+
+        $searchValues = explode(' ', $searchValue);
+
+        $valuesCounter = count($searchValues) - 1;
+        foreach ($searchValues as $valueKey => $value) {
+            $filterOperation = [];
+            $filterOperation[] = $searchExpr;
+            $filterOperation[] = $searchOperation;
+            $filterOperation[] = $value;
+
+            $filter[] = $filterOperation;
+
+            if (!($valuesCounter == $valueKey)){
+                $filter[] = 'and';
+            }
+        }
+
+        return $this->appendFilter($query, $filter);
+    }
 
     /**
      * Танслирует полученный массив filter, добаляя их к запросу.
      * Получаемый массив может быть нескольких типов:
-     *   С одним условием: "filter":["id","<>",35]
+     *   С одним условием: "filter":[["id","<>",35]]
      *   С несколькоми: "filter":[["id","<>",35],"and",["operation_route_id","=",2]]
      *   Со вложенными условиями: "filter":[["id","<>",35],"and",[["date_start",">=","2020/11/03 00:00:00"],"and",["date_start","<","2020/11/04 00:00:00"]]]
      *
@@ -131,6 +160,10 @@ trait DevExtremeDataSourceLoadable
     public function dxLoadOptions($loadOption)
     {
         $result = $this::query();
+
+        if (isset($loadOption->searchOperation) && ($loadOption->searchValue != null)) {
+            $this->appendSearchOperation($result, $loadOption->searchOperation, $loadOption->searchValue, $loadOption->searchExpr);
+        }
 
         if (isset($loadOption->skip) && isset($loadOption->take)) {
             $result = $result->skip($loadOption->skip)->take($loadOption->take);
