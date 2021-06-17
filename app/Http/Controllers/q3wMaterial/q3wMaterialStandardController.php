@@ -71,15 +71,19 @@ class q3wMaterialStandardController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param Request $request
      * @return string
      */
-    public function show(q3wMaterialStandard $q3wMaterialStandard)
+    public function show(Request $request): string
     {
-        return DB::table('q3w_material_standards as a')
-            ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
+        $options = json_decode($request['data']);
+
+        return (new q3wMaterialStandard())
+            ->dxLoadOptions($options)
+            ->leftJoin('q3w_material_types as b', 'q3w_material_standards.material_type', '=', 'b.id')
             ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
-            ->get(['a.*', 'b.measure_unit', 'd.value as measure_unit_value'])
+            ->select(['q3w_material_standards.*', 'b.measure_unit', 'd.value as measure_unit_value'])
+            ->get()
             ->toJSON();
     }
 

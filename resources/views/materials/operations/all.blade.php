@@ -143,7 +143,7 @@
                             store: operationRoutesStore
                         },
                         displayExpr: "name",
-                        valueExpr: "id"
+                        valueExpr: "id",
                     }
                 },
                 {
@@ -277,7 +277,7 @@
                                             dataSource: new DevExpress.data.DataSource({
                                                 store: new DevExpress.data.CustomStore({
                                                     key: "id",
-                                                    loadMode: "raw",
+                                                    loadMode: "processed",
                                                     load: function (loadOptions) {
                                                         return $.getJSON("{{route('project-objects.list')}}",
                                                             {data: JSON.stringify(loadOptions)});
@@ -285,7 +285,9 @@
                                                 })
                                             }),
                                             displayExpr: "short_name",
-                                            valueExpr: "id"
+                                            valueExpr: "id",
+                                            searchEnabled: true,
+                                            searchExpr: "short_name",
                                         },
                                     },
                                     {
@@ -329,7 +331,7 @@
                                             dataSource: new DevExpress.data.DataSource({
                                                 store: new DevExpress.data.CustomStore({
                                                     key: "id",
-                                                    loadMode: "raw",
+                                                    loadMode: "processed",
                                                     load: function (loadOptions) {
                                                         return $.getJSON("{{route('material.operation.routes.list')}}",
                                                             {data: JSON.stringify(loadOptions)});
@@ -337,7 +339,9 @@
                                                 })
                                             }),
                                             displayExpr: "name",
-                                            valueExpr: "id"
+                                            valueExpr: "id",
+                                            searchEnabled: true,
+                                            searchExpr: "name",
                                         },
                                     },
                                     {
@@ -381,7 +385,7 @@
                                             dataSource: new DevExpress.data.DataSource({
                                                 store: new DevExpress.data.CustomStore({
                                                     key: "id",
-                                                    loadMode: "raw",
+                                                    loadMode: "processed",
                                                     load: function (loadOptions) {
                                                         return $.getJSON("{{route('material.operation.route-stages-without-notifications.list')}}",
                                                             {data: JSON.stringify(loadOptions)});
@@ -389,7 +393,9 @@
                                                 })
                                             }),
                                             displayExpr: "name",
-                                            valueExpr: "name"
+                                            valueExpr: "name",
+                                            searchEnabled: true,
+                                            searchExpr: "name",
                                         },
                                     },
                                     {
@@ -433,7 +439,7 @@
                                             dataSource: new DevExpress.data.DataSource({
                                                 store: new DevExpress.data.CustomStore({
                                                     key: "id",
-                                                    loadMode: "raw",
+                                                    loadMode: "processed",
                                                     load: function (loadOptions) {
                                                         return $.getJSON("{{route('users.list')}}",
                                                             {data: JSON.stringify(loadOptions)});
@@ -441,7 +447,9 @@
                                                 })
                                             }),
                                             displayExpr: "full_name",
-                                            valueExpr: "id"
+                                            valueExpr: "id",
+                                            searchEnabled: true,
+                                            searchExpr: "last_name",
                                         },
                                     },
                                     {
@@ -527,7 +535,9 @@
                                         editorOptions: {
                                             dataSource: [{id: 1, name: "Да"}, {id: 0, name: "Нет"}],
                                             displayExpr: "name",
-                                            valueExpr: "id"
+                                            valueExpr: "id",
+                                            searchEnabled: true,
+                                            searchExpr: "name",
                                         },
                                     },
                                     {

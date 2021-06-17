@@ -176,12 +176,23 @@
                                         name: "standardFilterLookup",
                                         editorType: "dxLookup",
                                         editorOptions: {
-                                            dataSource: [{id: 1, name: "Да"}, {id: 0, name: "Нет"}],
+                                            dataSource: new DevExpress.data.DataSource({
+                                                store: new DevExpress.data.CustomStore({
+                                                    key: "id",
+                                                    //loadMode: "raw",
+                                                    load: function (loadOptions) {
+                                                        return $.getJSON("{{route('materials.standards.list')}}",
+                                                            {data: JSON.stringify(loadOptions)});
+                                                    },
+                                                })
+                                            }),
                                             displayExpr: "name",
-                                            valueExpr: "id"
+                                            valueExpr: "id",
+                                            searchEnabled: true,
+                                            searchExpr: "q3w_material_standards`.`name",
                                         },
                                     },
-                                    {
+                                    /*{
                                         name: "standardFilterRangeSlider",
                                         editorType: "dxRangeSlider",
                                         editorOptions: {
@@ -198,7 +209,7 @@
                                                 position: "bottom"
                                             }
                                         }
-                                    },
+                                    },*/
                                     {
                                         editorType: "dxButton",
                                         editorOptions: {
@@ -207,15 +218,15 @@
                                             type:"default",
                                             height: 40,
                                             onClick: (e) => {
-                                                let filterElement = materialGridForm.getEditor("haveConflictFilterLookup");
+                                                let filterElement = materialGridForm.getEditor("standardFilterLookup");
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
                                                             id: new DevExpress.data.Guid().toString(),
-                                                            fieldName: "have_conflict",
+                                                            fieldName: "standard_id",
                                                             operation: "=",
                                                             value: filterElement.option("value"),
-                                                            text: 'Наличие конфликта: ' + filterElement.option("text")
+                                                            text: 'Эталон: ' + filterElement.option("text")
                                                         }
                                                     )
                                                 }
@@ -454,13 +465,13 @@
                 groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
                 let groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
 
-                $('<div>')
+                /*$('<div>')
                     .dxButton({
                         text: "Отчет",
                         icon: "fa fa-download"
                     })
                     .addClass('dx-form-group-caption-button')
-                    .prependTo(groupCaptionButtonsDiv)
+                    .prependTo(groupCaptionButtonsDiv)*/
 
                 $('<div>')
                     .dxButton({

@@ -153,7 +153,8 @@
                 loadMode: "raw",
                 load: function (loadOptions) {
                     return $.getJSON("{{route('materials.all-with-actual-amount.list')}}",
-                        {project_object: sourceProjectObjectId});
+                        {project_object: sourceProjectObjectId,
+                        operationId: operationData.id});
                 },
             });
 
@@ -287,7 +288,6 @@
                                         validateMaterialList(true, true, "")
                                     }
                                 }
-
                             })
                             .appendTo(itemElement)
                         @endIf
@@ -1653,7 +1653,7 @@
                     .done(function (dataItem) {
                         let calculatedQuantity = dataItem.total_quantity * dataItem.total_amount;
                         let calculatedAmount = dataItem.total_amount;
-
+                        console.log(dataItem);
                         transferMaterialDataSource.store().createQuery().toArray().forEach((item) => {
                             if (item.standard_id === dataItem.standard_id && item.edit_states.indexOf("deletedByRecipient") === -1) {
                                 switch (dataItem.accounting_type) {
