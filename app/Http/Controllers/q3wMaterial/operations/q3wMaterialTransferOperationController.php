@@ -613,7 +613,6 @@ class q3wMaterialTransferOperationController extends Controller
                 if ($inputMaterial['amount'] > $sourceMaterial['amount']) {
                     abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
                 }
-
             } else {
                 $sourceMaterial = q3wMaterial::where('project_object', $requestData['source_project_object_id'])
                     ->where('standard_id', $inputMaterial['standard_id'])
@@ -723,8 +722,10 @@ class q3wMaterialTransferOperationController extends Controller
             ->leftJoin('q3w_materials as g', function($join){
                 $join->on('a.standard_id', '=', 'g.standard_id');
                 $join->on('f.source_project_object_id','=','g.project_object');
+                $join->on(DB::raw('IF( `d`.`accounting_type` = 2,`a`.`quantity` = `g`.`quantity`, 1'), '=', DB::raw('1)'));
             })
             ->where('a.material_operation_id', '=', $operation->id)
+            ->distinct()
             ->get(['a.id',
                 'a.standard_id',
                 'a.amount',
@@ -750,12 +751,12 @@ class q3wMaterialTransferOperationController extends Controller
                         ->where('quantity', $material->quantity)
                         ->where('material_operation_id', '<>', $operation->id)
                         ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-                        ->leftJoin('q3w_material_operations', 'q3w_operation_materials.id', 'material_operation_id')
+                        ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
                         ->get();
 
-                    $material->total_amount -= $activeOperationMaterialAmount->sum('amount');
+                    $material->total_amount = $material->total_amount - $activeOperationMaterialAmount->sum('amount');
                     break;
                 default:
                     $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
