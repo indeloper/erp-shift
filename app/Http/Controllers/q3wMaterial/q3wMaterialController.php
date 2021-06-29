@@ -11,6 +11,7 @@ use App\models\q3wMaterial\q3wMaterialSnapshotMaterial;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -443,13 +444,17 @@ class q3wMaterialController extends Controller
             ->orderBy('quantity')
             ->orderBy('amount')
             ->get(['*'])
-            ->groupBy(['project_object_short_name'])
+            ->groupBy(['project_object_short_name', 'material_type_name', 'standard_name'])
             ->toArray();
 
-        return view('materials.print-material-table')
+
+
+        return (new MaterialTableXLSXReport($groupedMaterials, $filterList))->export();
+
+        /*return view('materials.print-material-table')
             ->with([
                 'materials' => $groupedMaterials,
                 'filterList' => $filterList
-            ]);
+            ]);*/
     }
 }
