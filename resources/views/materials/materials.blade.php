@@ -42,6 +42,10 @@
             font-size: large;
         }
 
+        .snapshot-tile-icon > i.fa-random {
+            font-size: large;
+        }
+
         i.dx-icon-plus {
             color: green;
         }
@@ -52,6 +56,10 @@
 
         i.fas.fa-sign-in-alt {
             color: green;
+        }
+
+        i.fas.fa-random {
+            color: #6767ec
         }
 
         .snapshot-tile-content {
@@ -119,6 +127,7 @@
                 reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
                     key: "id",
+                    loadMode: "processed",
                     loadMode: "raw",
                     load: function (loadOptions) {
                         return $.getJSON("{{route('project-objects.list')}}",
@@ -452,6 +461,9 @@
                                         case 2:
                                             operationCaption = "Перемещение";
                                             break;
+                                        case 3:
+                                            operationCaption = "Преобразование";
+                                            break;
                                     }
 
                                     operationIcon = getOperationRouteIcon(itemData.operation_route_id, itemData.source_project_object_id, itemData.destination_project_object_id);
@@ -726,9 +738,13 @@
                                                             if (e.itemData === "Перемещение") {
                                                                 transferMaterials();
                                                             }
+
+                                                            if (e.itemData === "Преобразование") {
+                                                                transformMaterials();
+                                                            }
                                                         },
 
-                                                        items: ["Поставка", "Перемещение", "Производство", "Списание"]
+                                                        items: ["Поставка", "Перемещение", "Преобразование", "Списание"]
                                                     }
                                                 }
                                             );
@@ -816,6 +832,17 @@
                 document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?" + transferParams;
             }
 
+            function transformMaterials() {
+                let materialsToTransformArray = projectObjectInfoForm.getEditor("materialDataGrid").getSelectedRowKeys();
+                let transformParams = "projectObjectId=" + projectObject;
+
+                if (materialsToTransformArray.length !== 0) {
+                    transformParams = transformParams + "&materialsToTransform=" + encodeURIComponent(materialsToTransformArray.join('+'));
+                }
+
+                document.location.href = "{{route('materials.operations.transformation.new')}}" + "/?" + transformParams;
+            }
+
             function updateProjectObjectDetailInfo(projectObjectID) {
                 projectObjectsData.store().byKey(projectObjectID).done(function (dataItem) {
                     isStore = dataItem.material_accounting_type === 2;
@@ -844,6 +871,9 @@
                             return 'fas fa-sign-in-alt'
                         }
 
+                        break;
+                    case 3:
+                        return 'fas fa-random';
                         break;
                 }
             }

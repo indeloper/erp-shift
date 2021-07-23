@@ -1004,11 +1004,20 @@ class q3wMaterialTransferOperationController extends Controller
                     default:
                         $key = $material->standard_id;
                         if (array_key_exists($key, $unitedMaterials)) {
-                            $unitedMaterials[$key]->quantity = $unitedMaterials[$key]->quantity + $material->quantity;
+                            $unitedMaterials[$key]->quantity = $unitedMaterials[$key]->quantity + $material->quantity * $material->amount;
                             $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
                         } else {
                             $unitedMaterials[$key] = $material;
+                            $unitedMaterials[$key]->quantity = $material->quantity * $material->amount;
                         }
+                }
+
+                if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
+                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в штуках не указано'];
+                }
+
+                if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
+                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в единицах измерения не указано'];
                 }
             }
 
@@ -1020,14 +1029,6 @@ class q3wMaterialTransferOperationController extends Controller
                 $accountingType = $materialStandard->materialType->accounting_type;
 
                 $materialName = $materialStandard->name;
-
-                if (!isset($unitedMaterial->amount) || $unitedMaterial->amount == null || $unitedMaterial->amount == 0 || $unitedMaterial->amount == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
-                }
-
-                if (!isset($unitedMaterial->quantity) || $unitedMaterial->quantity == null || $unitedMaterial->quantity == 0 || $unitedMaterial->quantity == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
-                }
 
                 if (isset($errors[$key]) && count($errors[$key]) > 0) {
                     continue;
@@ -1050,7 +1051,7 @@ class q3wMaterialTransferOperationController extends Controller
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
                         ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
                         ->get(DB::raw('sum(`amount`) as amount'))
-                        ->first();;
+                        ->first();
 
                         $operationAmount = $activeOperationMaterialAmount->amount;
                 } else {
@@ -1068,7 +1069,7 @@ class q3wMaterialTransferOperationController extends Controller
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
                         ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
                         ->get(DB::raw('sum(`amount`) as amount, sum(`quantity`) as quantity'))
-                        ->first();;
+                        ->first();
 
                     $operationAmount = $activeOperationMaterialAmount->amount;
                     $operationQuantity = $activeOperationMaterialAmount->quantity;
@@ -1089,7 +1090,8 @@ class q3wMaterialTransferOperationController extends Controller
                         if ($accountingType == 2) {
                             $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount;
                         } else {
-                            $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity * $unitedMaterial->amount - $operationQuantity * $operationAmount;
+                            $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity * $operationAmount;
+                            //dd($unitedMaterial);
                         }
 
                         if ($materialAmountDelta < 0) {

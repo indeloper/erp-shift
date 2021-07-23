@@ -28,7 +28,7 @@
 @section('content')
     <div id="formContainer"></div>
     <div id="gridContainer"></div>
-    <form id="printMaterialsTable" target="_blank" multisumit="true" method="post" action="{{route('materials.table.print')}}">
+    <form id="printMaterialsTable" target="_blank" method="post" action="{{route('materials.table.print')}}">
         @csrf
         <input id="filterOptions" type="hidden" name="filterOptions">
         <input id="filterList" type="hidden" name="filterList">
@@ -42,6 +42,12 @@
         let materialTypesData = {!!$materialTypes!!};
 
         let filterOptions = [
+            {
+                name: "Дата",
+                filterType: "dateBox",
+                groupName: "snapshotDateFilterGroup",
+                required: true
+            },
             {
                 name: "Объект",
                 filterType: "lookup",
@@ -110,6 +116,46 @@
                                         changeFilterGroupVisibility("filterGroup." + e.value);
                                     }
                                 },
+                            },//snapshotDateFilterGroup
+                            {
+                                itemType: "group",
+                                name: "snapshotDateFilterGroup",
+                                colCount: 2,
+                                visible: false,
+                                cssClass: "dx-group-no-border",
+                                items: [
+                                    {
+                                        name: "snapshotDateDateBox",
+                                        editorType: "dxDateBox",
+                                        editorOptions: {
+                                        },
+                                    },
+                                    {
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                let filterElement = materialGridForm.getEditor("projectObjectFilterLookup");
+                                                if (filterElement.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "project_object_id",
+                                                            operation: "=",
+                                                            value: filterElement.option("value"),
+                                                            text: 'Объект: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                materialsTableDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 itemType: "group",

@@ -706,8 +706,6 @@
                                 function updateComponentsDataSources(sourceProjectObjectIdValue) {
                                     sourceProjectObjectId = sourceProjectObjectIdValue;
                                     transferMaterialStore.clear();
-                                    /*availableMaterialsDataSource.reload();
-                                    operationForm.getEditor("transferMaterialGrid").refresh();*/
                                 }
 
                                 if (suspendSourceObjectLookupValueChanged) {
