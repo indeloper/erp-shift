@@ -129,7 +129,11 @@
                     dataType: "number",
                     width: 70,
                     cellTemplate: function (container, options) {
-                        container.html('<a href="{{route('materials.operations.transfer.view')}}/?operationId=' + options.displayValue + '">' + options.displayValue + '</a>');
+                        let operationId = options.data.id;
+                        let operationUrl = options.data.url;
+
+                        $(`<div><a href="${operationUrl}">${operationId}</a></div>`)
+                            .appendTo(container);
                     }
                 },
                 {

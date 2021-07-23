@@ -387,8 +387,9 @@
                                         showSpinButtons: true,
                                         cellTemplate: function (container, options) {
                                             let operationId = options.data.id;
+                                            let operationUrl = options.data.url;
 
-                                            $(`<div><a href={{route('materials.operations.transfer.view')}}/?operationId=${operationId}>Операция #${operationId}</a></div>`)
+                                            $(`<div><a href="${operationUrl}">Операция #${operationId}</a></div>`)
                                                 .appendTo(container);
                                         }
                                     },
