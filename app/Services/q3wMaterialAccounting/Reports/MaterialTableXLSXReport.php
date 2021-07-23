@@ -158,12 +158,12 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     '',
                                     '',
                                     $number . '.' . $subNumber . '.' . $materialTypeNumber . '.' . $materialNumber . '. ' . $materialValue->standard_name,
-                                    $materialStandardValue[0]->quantity,
+                                    $materialValue->quantity,
                                     '',
                                     '',
-                                    $materialStandardValue[0]->amount,
-                                    $materialStandardValue[0]->amount * $materialStandardValue[0]->quantity,
-                                    $materialStandardValue[0]->quantity * $materialStandardValue[0]->amount * $materialStandardValue[0]->weight
+                                    $materialValue->amount,
+                                    $materialValue->amount * $materialValue->quantity,
+                                    $materialValue->quantity * $materialValue->amount * $materialValue->weight
                                 ]);
 
                                 $this->styleRulesArray[] = ['styleName'=>'materialData', 'lineNumber'=>$lineNumber, 'accountingType'=>$materialStandardValue[0]->accounting_type];
@@ -295,7 +295,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                $event->sheet->setAutoFilter('C11:K11');
+                //$event->sheet->setAutoFilter('C11:K11');
 
                 //Main header styles
                 $event->sheet->getDelegate()->mergeCells('C1:G3'); //image logo
@@ -458,7 +458,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     ],
                                     'fill' => [
                                         'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'CCDAE5'),
+                                        'color' => array('rgb' => 'D8E4BC'),
                                     ]
                                 ]);
 
@@ -525,7 +525,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     ],
                                     'fill' => [
                                         'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'CCDAE5'),
+                                        'color' => array('rgb' => 'D8E4BC'),
                                     ]
                                 ]);
 
@@ -647,7 +647,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     ],
                                     'fill' => [
                                         'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'CCDAE5'),
+                                        'color' => array('rgb' => 'D8E4BC'),
                                     ]
                                 ]);
                             $event->sheet->horizontalAlign('E'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_LEFT);
@@ -727,7 +727,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     ],
                                     'fill' => [
                                         'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'CCDAE5'),
+                                        'color' => array('rgb' => 'D8E4BC'),
                                     ]
                                 ]);
                             $event->sheet->horizontalAlign('E'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_RIGHT);
@@ -788,7 +788,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     ],
                                     'fill' => [
                                         'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'CCDAE5'),
+                                        'color' => array('rgb' => 'D8E4BC'),
                                     ]
                                 ]);
 
