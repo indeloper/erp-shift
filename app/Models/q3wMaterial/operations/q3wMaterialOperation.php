@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Routing\Annotation\Route;
 
 class q3wMaterialOperation extends Model
 {
@@ -15,9 +16,10 @@ class q3wMaterialOperation extends Model
 
     protected $guarded = array('id');
 
-    protected $appends = ['have_conflict'];
+    protected $appends = ['have_conflict', 'url'];
 
-    public function getHaveConflictAttribute() {
+    public function getHaveConflictAttribute(): bool
+    {
         return in_array($this->operation_route_stage_id, [11, 19, 30, 38]);
     }
 
@@ -26,7 +28,7 @@ class q3wMaterialOperation extends Model
         return $this->hasMany(q3wOperationMaterial::class, 'material_operation_id', 'id');
     }
 
-    public function routeStages(): HasOne
+    public function routeStage(): HasOne
     {
         return $this->hasOne(q3wOperationRouteStage::class, 'id', 'operation_route_stage_id');
     }
@@ -84,12 +86,43 @@ class q3wMaterialOperation extends Model
         ]*/
     }
 
-    public function url(){
+    public function getUrlAttribute(){
+        $routeName = "";
+        $routeStageName = "";
+
         switch ($this->operation_route_id) {
             case 1:
-                return route('materials.operations.supply.view') . '/?operationId=' . $this->id;
+                $routeName = "supply";
+                break;
             case 2:
-                return route('materials.operations.transfer.view') . '/?operationId=' . $this->id;
+                $routeName = "transfer";
+                break;
+            case 3:
+                $routeName = "transformation";
+                break;
+            case 4:
+                $routeName = "write-off";
+                break;
+            default:
+                $routeName = "#";
         }
+
+        switch ($this->routeStage->operation_route_stage_type_id) {
+            case 2:
+            case 7:
+                //$routeStageName = "completed";
+                $routeStageName = "view";
+                break;
+            case 3:
+            case 5:
+            case 6:
+                $routeStageName = "view";
+                break;
+            default:
+                $routeStageName = "#";
+        }
+        $routeName = 'materials.operations.' . $routeName . '.' . $routeStageName;
+
+        return route($routeName).'/?operationId=' . $this->id;
     }
 }
