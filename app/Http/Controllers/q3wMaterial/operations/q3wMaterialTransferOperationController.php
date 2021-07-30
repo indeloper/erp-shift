@@ -881,7 +881,7 @@ class q3wMaterialTransferOperationController extends Controller
             ->where('object_id', $projectObjectId)->exists();
     }
 
-    public function allowEditing(q3wMaterialOperation $operation)
+    public function allowEditing(q3wMaterialOperation $operation): bool
     {
         switch ($operation->operation_route_stage_id) {
             case 6:
@@ -900,7 +900,7 @@ class q3wMaterialTransferOperationController extends Controller
                 return false;
         }
     }
-    public function allowCancelling(q3wMaterialOperation $operation)
+    public function allowCancelling(q3wMaterialOperation $operation): bool
     {
         switch ($operation->operation_route_stage_id) {
             case 6:

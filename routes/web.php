@@ -308,8 +308,11 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
     //Material transformation
     Route::get('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new');
+    Route::get('/materials/transformation/view', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@view')->name('materials.operations.transformation.view');
     Route::post('/materials/transformation/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@validateMaterialList')->name('materials.operations.transformation.new.validate-material-list');
     Route::post('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@store')->name('materials.operations.transformation.new');
+    Route::post('/materials/transformation/cancel', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@cancelOperation')->name('materials.operations.transformation.cancel');
+    Route::post('/materials/transformation/move', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@confirmOperation')->name('materials.operations.transformation.move');
 });
 
 

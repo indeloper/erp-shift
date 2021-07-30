@@ -119,7 +119,7 @@ class q3wMaterialOperation extends Model
                 $routeStageName = "view";
                 break;
             default:
-                $routeStageName = "#";
+                $routeStageName = "view";
         }
         $routeName = 'materials.operations.' . $routeName . '.' . $routeStageName;
 

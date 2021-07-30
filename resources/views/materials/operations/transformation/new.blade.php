@@ -1158,7 +1158,7 @@
                     let isCreateTransfomationButtonDisabled = materialsRemains.length === 0 || $(".allocation-pending").length !== 0;
                     if (materialsRemains.length > 0) {
                         layer.append($('<div class="createTransformationOperationButton transform-wizard-button" >').dxButton({
-                            text: "Завершить преобразование",
+                            text: "Отправить на согласование",
                             type: "default",
                             stylingMode: "contained",
                             useSubmitBehavior: false,

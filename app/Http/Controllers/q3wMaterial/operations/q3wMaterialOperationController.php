@@ -24,10 +24,13 @@ use function MongoDB\BSON\toJSON;
 
 /**
  * Class q3wMaterialOperationController
+ * @property  operation_route_id
  * @package App\Http\Controllers\q3wMaterial\operations
  */
 class q3wMaterialOperationController extends Controller
 {
+    protected $appends = ['operation_hyperlink'];
+
     /**
      * Display a listing of the resource.
      *

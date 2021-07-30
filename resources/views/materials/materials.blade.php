@@ -62,6 +62,14 @@
             color: #6767ec
         }
 
+        i.fas.fa-random.plus {
+            color: green
+        }
+
+        i.fas.fa-random.minus {
+            color: indianred
+        }
+
         .snapshot-tile-content {
             width: 80%;
             height: 100%;
@@ -467,7 +475,11 @@
                                             break;
                                     }
 
-                                    operationIcon = getOperationRouteIcon(itemData.operation_route_id, itemData.source_project_object_id, itemData.destination_project_object_id);
+                                    operationIcon = getOperationRouteIcon(itemData.operation_route_id,
+                                        itemData.source_project_object_id,
+                                        itemData.destination_project_object_id,
+                                        null
+                                    );
 
                                     itemElement.append('<div class="snapshot-tile-icon">' +
                                         '<i class="' + operationIcon + '"></i>' +
@@ -606,7 +618,11 @@
                                                                 dataType: "number",
                                                                 width: 24,
                                                                 cellTemplate: function (container, options) {
-                                                                    let operationIcon = getOperationRouteIcon(options.data.operation_route_id, options.data.source_project_object_id, options.data.destination_project_object_id);
+                                                                    let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
+                                                                        options.data.source_project_object_id,
+                                                                        options.data.destination_project_object_id,
+                                                                        options.data.transfer_operation_stage_id
+                                                                    );
 
                                                                     $(`<div><i class="${operationIcon}"></i></div>`)
                                                                         .appendTo(container);
@@ -858,7 +874,7 @@
 
             updateProjectObjectDetailInfo(projectObject);
 
-            function getOperationRouteIcon(operationRouteId, sourceProjectObjectId, destinationProjectObjectId) {
+            function getOperationRouteIcon(operationRouteId, sourceProjectObjectId, destinationProjectObjectId, transferStageId) {
                 switch (operationRouteId) {
                     case 1:
                         return 'dx-icon-plus';
@@ -874,8 +890,17 @@
 
                         break;
                     case 3:
-                        return 'fas fa-random';
-                        break;
+                        console.log(transferStageId);
+                        switch (transferStageId) {
+                            case 1:
+                                return 'fas fa-random minus';
+                            case 2:
+                            case 3:
+                                return 'fas fa-random plus';
+                            default:
+                                return 'fas fa-random';
+                        }
+
                 }
             }
         });

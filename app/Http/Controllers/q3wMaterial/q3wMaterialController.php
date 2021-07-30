@@ -359,6 +359,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_operations as f', 'a.material_operation_id', '=', 'f.id')
             ->where('f.source_project_object_id', $projectObjectId)
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+            ->whereNotIn('transfer_operation_stage_id', [2, 3])
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
             ->get(['a.id',
