@@ -66,7 +66,7 @@
             color: green
         }
 
-        i.fas.fa-random.minus {
+        i.fas.fa-random.minus, i.fas.fa-minus {
             color: indianred
         }
 
@@ -77,12 +77,16 @@
             text-align: right;
         }
 
-        .dx-form-group {
+        .dx-form-group, .dx-tabpanel {
             background-color: #fff;
             border: 1px solid #cfcfcf;
             border-radius: 1px;
             box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
             padding: 20px;
+        }
+
+        .dx-tabpanel {
+            padding: 0px;
         }
 
         .dx-layout-manager .dx-field-item:not(.dx-first-col) {
@@ -94,6 +98,12 @@
             padding-left: 60px !important;
         }
 
+        .tab-wrapper-button {
+            float: right;
+            margin-top: 4px;
+            margin-right: 4px;
+            background: white;
+        }
     </style>
 @endsection
 
@@ -317,8 +327,9 @@
                 items: [
                     {
                         itemType: "group",
+                        name: "projectObjectGroup",
                         caption: "Объект",
-                        height: "400px",
+                        height: 400,
                         items: [
                             {
                                 dataField: "project_object_id",
@@ -376,6 +387,7 @@
                     {
                         itemType: "group",
                         caption: "Активные операции",
+                        name: "activeOperationGroup",
                         items: [{
                             editorType: "dxDataGrid",
                             editorOptions: {
@@ -385,7 +397,7 @@
                                 columnAutoWidth: false,
                                 showBorders: true,
                                 showColumnLines: true,
-                                height: 183,
+                                height: 166,
                                 noDataText: "Активные операции отсутствуют",
                                 columns: [
                                     {
@@ -506,6 +518,7 @@
                         tabPanelOptions: {
                             deferRendering: false
                         },
+                        cssClass: "actual-materials-grid",
                         colSpan: 2,
                         tabs:[
                             {
@@ -698,74 +711,6 @@
                                                     }).appendTo(container);
                                             }
                                         },
-                                        onToolbarPreparing: function (e) {
-                                            e.toolbarOptions.items.unshift(
-                                                {
-                                                    location: "after",
-                                                    widget: "dxDropDownButton",
-                                                    options: {
-                                                        text: "Операции",
-                                                        dropDownOptions: {
-                                                            width: 230
-                                                        },
-                                                        onItemClick: function(e) {
-                                                            if (e.itemData === "Поставка") {
-                                                                let popupWindow = $("#supplyTypePopup")
-                                                                    .dxPopup({
-                                                                        width: "auto",
-                                                                        height: "auto",
-                                                                        title: "Выберите тип поставки",
-                                                                        contentTemplate: function() {
-                                                                            return $("<div>").dxForm({
-                                                                                items: [
-                                                                                    {
-                                                                                        itemType: "button",
-                                                                                        horizontalAlignment: "center",
-                                                                                        buttonOptions: {
-                                                                                            text: "Материал от поставщика",
-                                                                                            type: "normal",
-                                                                                            stylingMode: "outlined",
-                                                                                            onClick: () => {
-                                                                                                document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
-                                                                                            }
-                                                                                        }
-                                                                                    },
-                                                                                    {
-                                                                                        itemType: "button",
-                                                                                        horizontalAlignment: "center",
-                                                                                        buttonOptions: {
-                                                                                            text: "Материал с другого объекта",
-                                                                                            type: "normal",
-                                                                                            stylingMode: "outlined",
-                                                                                            onClick: () => {
-                                                                                                document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?destinationProjectObjectId=" + projectObject;
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                ]
-                                                                            });
-                                                                        }
-                                                                    })
-                                                                    .dxPopup("instance");
-
-                                                                popupWindow.show();
-                                                                //document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
-                                                            }
-
-                                                            if (e.itemData === "Перемещение") {
-                                                                transferMaterials();
-                                                            }
-
-                                                            if (e.itemData === "Преобразование") {
-                                                                transformMaterials();
-                                                            }
-                                                        },
-
-                                                        items: ["Поставка", "Перемещение", "Преобразование", "Списание"]
-                                                    }
-                                                }
-                                            );
-                                        }
                                     }
                                 }]
                             },
@@ -878,7 +823,6 @@
                 switch (operationRouteId) {
                     case 1:
                         return 'dx-icon-plus';
-                        break;
                     case 2:
                         if (projectObject === sourceProjectObjectId) {
                             return 'fas fa-sign-out-alt'
@@ -900,11 +844,95 @@
                             default:
                                 return 'fas fa-random';
                         }
-
+                    case 4:
+                        return 'fas fa-minus';
                 }
             }
-        });
 
+            function recalculateGUISizes() {
+                //console.log($(".dx-field-item-content.dx-field-item-content-location-bottom.dx-field-item-has-group").first().height());
+                /*console.log(projectObjectInfoForm.itemOption("projectObjectGroup").height);
+                console.log(projectObjectInfoForm.itemOption("activeOperationGroup").height)
+                let objectGroupHeight = projectObjectInfoForm.itemOption("projectObjectGroup").height
+                projectObjectInfoForm.itemOption("activeOperationGroup", "height", objectGroupHeight);
+                projectObjectInfoForm.updateDimensions();*/
+            }
+
+            function createOperationButtons(){
+                let groupTabs = $('.actual-materials-grid').find('.dx-tabpanel-tabs');
+                $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupTabs);
+                groupTabs.find('.dx-tabs-wrapper').addClass('dx-form-tabs-wrapper-span-with-buttons');
+                let groupTabWrapperButtonsDiv = groupTabs.find('.dx-form-tabs-wrapper-span-with-buttons');
+
+                $('<div class="tab-wrapper-button">')
+                    .dxDropDownButton({
+                        text: "Операции",
+                        dropDownOptions: {
+                            width: 230
+                        },
+                        onItemClick: function(e) {
+                    if (e.itemData === "Поставка") {
+                        let popupWindow = $("#supplyTypePopup")
+                            .dxPopup({
+                                width: "auto",
+                                height: "auto",
+                                title: "Выберите тип поставки",
+                                contentTemplate: function() {
+                                    return $("<div>").dxForm({
+                                        items: [
+                                            {
+                                                itemType: "button",
+                                                horizontalAlignment: "center",
+                                                buttonOptions: {
+                                                    text: "Материал от поставщика",
+                                                    type: "normal",
+                                                    stylingMode: "outlined",
+                                                    onClick: () => {
+                                                        document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                itemType: "button",
+                                                horizontalAlignment: "center",
+                                                buttonOptions: {
+                                                    text: "Материал с другого объекта",
+                                                    type: "normal",
+                                                    stylingMode: "outlined",
+                                                    onClick: () => {
+                                                        document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?destinationProjectObjectId=" + projectObject;
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    });
+                                }
+                            })
+                            .dxPopup("instance");
+
+                        popupWindow.show();
+                        //document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
+                    }
+
+                    if (e.itemData === "Перемещение") {
+                        transferMaterials();
+                    }
+
+                    if (e.itemData === "Преобразование") {
+                        transformMaterials();
+                    }
+                },
+
+                        items: ["Поставка", "Перемещение", "Преобразование", "Списание"]
+                    })
+                    .prependTo(groupTabWrapperButtonsDiv)
+
+            }
+
+
+            createOperationButtons();
+            recalculateGUISizes();
+        });
 
     </script>
 @endsection

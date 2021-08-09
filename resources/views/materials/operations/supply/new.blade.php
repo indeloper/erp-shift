@@ -151,7 +151,7 @@
                                 showCheckBoxesMode: "always"
                             },
                             paging: {
-                                enabled: true
+                                enabled: false
                             },
                             searchPanel: {
                                 visible: true,
@@ -318,23 +318,23 @@
                         {
                             template: function (container, options) {
                                 let validationId = "0";
-                                let standardId = "";
+                                let id = "";
                                 let quantity = "";
 
                                 if (options.data.quantity) {
                                     quantity = options.data.quantity;
                                 }
 
-                                if (options.data.standard_id) {
-                                    standardId = options.data.standard_id;
+                                if (options.data.id) {
+                                    id = options.data.id;
                                 }
 
                                 switch (options.data.accounting_type) {
                                     case 2:
-                                        validationId = standardId + "-" + quantity
+                                        validationId = id + "-" + quantity
                                         break;
                                     default:
-                                        validationId = standardId;
+                                        validationId = id;
                                 }
 
 
@@ -480,6 +480,9 @@
                 groupPanel: {
                     visible: false
                 },
+                paging: {
+                    enabled: false
+                },
                 editing: {
                     mode: "cell",
                     allowUpdating: true,
@@ -522,27 +525,6 @@
                 },
                 onRowUpdated: (e) => {
                     validateMaterialList(false, false);
-                },
-                onToolbarPreparing: function (e) {
-                    let dataGrid = e.component;
-                    e.toolbarOptions.items.unshift(
-                        {
-                            location: "before",
-                            widget: "dxButton",
-                            options: {
-                                icon: "add",
-                                text: "Добавить",
-                                onClick: function (e){
-                                    selectedMaterialStandardsListDataSource.store().clear();
-
-                                    let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
-                                    materialsStandardsList.option("selectedRowKeys", []);
-
-                                    $("#popupContainer").dxPopup("show")
-                                }
-                            }
-                        }
-                    );
                 }
             };
             //</editor-fold>
@@ -665,6 +647,7 @@
                     {
                         itemType: "group",
                         caption: "Материалы",
+                        cssClass: "materials-grid",
                         colSpan: 2,
                         items: [{
                             dataField: "",
@@ -676,7 +659,7 @@
                     },
                     {
                         itemType: "group",
-                        caption: "Комментрий",
+                        caption: "Комментарий",
                         colSpan: 2,
                         items: [{
                             name: "newCommentTextArea",
@@ -856,6 +839,12 @@
                                 showErrorWindow(e.responseJSON.errors);
                             }
                             materialErrorList = e.responseJSON.errors;
+
+                            if (!needToShowErrorWindow){
+                                if (saveEditedData) {
+                                    saveOperationData();
+                                }
+                            }
                         } else {
                             DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
                         }
@@ -1063,6 +1052,31 @@
                     }
                 })
             }
+
+            function createAddMaterialsButton(){
+                let groupCaption = $('.materials-grid').find('.dx-form-group-with-caption');
+                $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
+                groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
+                let groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
+
+                $('<div>')
+                    .dxButton({
+                        text: "Добавить",
+                        icon: "fas fa-plus",
+                        onClick: (e) => {
+                            selectedMaterialStandardsListDataSource.store().clear();
+
+                            let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                            materialsStandardsList.option("selectedRowKeys", []);
+
+                            $("#popupContainer").dxPopup("show");
+                        }
+                    })
+                    .addClass('dx-form-group-caption-button')
+                    .prependTo(groupCaptionButtonsDiv)
+            }
+
+            createAddMaterialsButton();
         });
     </script>
 @endsection

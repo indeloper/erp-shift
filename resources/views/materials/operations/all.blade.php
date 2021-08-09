@@ -600,7 +600,7 @@
                     {
                         itemType: "group",
                         caption: "Список операций",
-                        cssClass: "all-operations-grid",
+
                         items: [
                             {
                                 editorType: "dxDataGrid",

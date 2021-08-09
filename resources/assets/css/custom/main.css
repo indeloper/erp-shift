@@ -119,3 +119,7 @@
     line-height: 23px;
     padding-left: 10px;
 }
+
+div.dx-datagrid-header-panel{
+    padding: 0 0 8px 0;
+}

@@ -1,7 +1,12 @@
 <?php
 
 use App\Models\Permission;
+use App\Models\q3wMaterial\operations\q3wMaterialOperation;
+use App\Models\q3wMaterial\operations\q3wOperationComment;
+use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
+use App\Models\q3wMaterial\q3wMaterialSnapshot;
+use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -48,6 +53,19 @@ class AddWriteOfRouteAndRole extends Migration
      */
     public function down()
     {
-        //
+        $operations = q3wMaterialOperation::where("operation_route_id", 3);
+        $snapshots = q3wMaterialSnapshot::whereIn("operation_id", $operations->pluck("id")->all());
+
+        q3wMaterialSnapshotMaterial::whereIn("snapshot_id", $snapshots->pluck("id")->all())->forceDelete();
+        q3wOperationComment::whereIn("material_operation_id", $operations->pluck("id")->all())->forceDelete();
+        q3wOperationMaterial::whereIn("material_operation_id", $operations->pluck("id")->all())->forceDelete();
+
+        $snapshots->forceDelete();
+        $operations->forceDelete();
+
+
+        q3wOperationRouteStage::where("operation_route_id", 3)->forceDelete();
+
+        Schema::dropIfExists('q3w_transfer_operation_stages');
     }
 }

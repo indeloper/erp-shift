@@ -73,7 +73,7 @@ class AddTransformationOperationRoute extends Migration
      */
     public function down()
     {
-        $operations = q3wMaterialOperation::where("operation_route_id", 3);
+        /*$operations = q3wMaterialOperation::where("operation_route_id", 3);
         $snapshots = q3wMaterialSnapshot::whereIn("operation_id", $operations->pluck("id")->all());
 
         q3wMaterialSnapshotMaterial::whereIn("snapshot_id", $snapshots->pluck("id")->all())->forceDelete();
@@ -91,6 +91,6 @@ class AddTransformationOperationRoute extends Migration
             $table->dropColumn('transfer_operation_stage');
         });
 
-        Schema::dropIfExists('q3w_transfer_operation_stages');
+        Schema::dropIfExists('q3w_transfer_operation_stages');*/
     }
 }

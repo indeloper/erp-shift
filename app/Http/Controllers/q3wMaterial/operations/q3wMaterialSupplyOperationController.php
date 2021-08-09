@@ -99,10 +99,10 @@ class q3wMaterialSupplyOperationController extends Controller
 
                 switch ($accountingType) {
                     case 2:
-                        $key = $material->standard_id . '-' . $material->quantity;
+                        $key = $material->id . '-' . $material->quantity;
                         break;
                     default:
-                        $key = $material->standard_id;
+                        $key = $material->id;
                 }
 
                 $materialName = $materialStandard->name;
