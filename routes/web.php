@@ -313,6 +313,14 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::post('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@store')->name('materials.operations.transformation.new');
     Route::post('/materials/transformation/cancel', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@cancelOperation')->name('materials.operations.transformation.cancel');
     Route::post('/materials/transformation/move', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@confirmOperation')->name('materials.operations.transformation.move');
+
+    //Material write-off
+    Route::get('/materials/write-off/new', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@create')->name('materials.operations.write-off.new');
+    Route::get('/materials/write-off/view', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@view')->name('materials.operations.write-off.view');
+    Route::post('/materials/write-off/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@validateMaterialList')->name('materials.operations.write-off.new.validate-material-list');
+    Route::post('/materials/write-off/new', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@store')->name('materials.operations.write-off.new');
+    Route::post('/materials/write-off/cancel', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@cancelOperation')->name('materials.operations.write-off.cancel');
+    Route::post('/materials/write-off/move', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@confirmOperation')->name('materials.operations.write-off.move');
 });
 
 

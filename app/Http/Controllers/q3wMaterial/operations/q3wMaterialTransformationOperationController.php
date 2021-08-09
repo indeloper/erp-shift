@@ -466,7 +466,16 @@ class q3wMaterialTransformationOperationController extends Controller
     public function sendTransformationNotification(q3wMaterialOperation $operation, string $notificationText, int $notifiedUserId, int $projectObjectId){
         $sourceProjectObject = ProjectObject::where('id', $operation->source_project_object_id)->first();
 
-        $notificationText = 'Операция #' . $operation->id . ' от ' . $operation->created_at->format('d.m.Y') . PHP_EOL . PHP_EOL . $sourceProjectObject->short_name . PHP_EOL . PHP_EOL . $notificationText;
+        $notificationText = 'Операция #' .
+            $operation->id .
+            ' от ' .
+            $operation->created_at->format('d.m.Y') .
+            PHP_EOL .
+            PHP_EOL .
+            $sourceProjectObject->short_name .
+            PHP_EOL .
+            PHP_EOL .
+            $notificationText;
 
         $notification = new Notification();
         $notification->save();
