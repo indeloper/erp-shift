@@ -810,7 +810,7 @@
 
             function writeOffMaterials() {
                 let materialsToWriteOffArray = projectObjectInfoForm.getEditor("materialDataGrid").getSelectedRowKeys();
-                let writeOffParams = "projectObjectId=" + projectObject;
+                let writeOffParams = "project_object=" + projectObject;
 
                 if (materialsToWriteOffArray.length !== 0) {
                     writeOffParams = writeOffParams + "&materialsToWriteOff=" + encodeURIComponent(materialsToWriteOffArray.join('+'));

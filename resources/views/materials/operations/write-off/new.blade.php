@@ -207,7 +207,9 @@
                                         measure_unit_value: selectedRowItem.measure_unit_value,
                                         weight: selectedRowItem.weight,
                                         quantity: selectedRowItem.quantity,
-                                        amount: selectedRowItem.amount
+                                        amount: selectedRowItem.amount,
+                                        total_quantity: selectedRowItem.quantity,
+                                        total_amount: selectedRowItem.amount
                                     })
                                 })
 
@@ -290,7 +292,9 @@
                                     measure_unit_value: materialStandard.measure_unit_value,
                                     standard_weight: materialStandard.weight,
                                     quantity: materialStandard.quantity,
-                                    amount: materialStandard.amount
+                                    amount: materialStandard.amount,
+                                    total_quantity: materialStandard.quantity,
+                                    total_amount: materialStandard.amount
                                 })
                             })
                             writeOffMaterialDataSource.reload();
@@ -373,7 +377,37 @@
                         dataSource: materialStandardsData,
                         displayExpr: "name",
                         valueExpr: "id"
-                    }
+                    },
+                    cellTemplate: function (container, options) {
+                        if (options.data.total_amount === null) {
+                            $(`<div>${options.text}</div>`)
+                                .appendTo(container);
+                        } else {
+                            let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
+                                .appendTo(container);
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                                .appendTo(container);
+
+                            console.log(divStandardRemains);
+
+                            divStandardRemains.mouseenter(function () {
+                                console.log('mouseenter');
+                                let standardRemainsPopover = $('#standardRemainsTemplate');
+                                standardRemainsPopover.dxPopover({
+                                        position: "top",
+                                        width: 300,
+                                        contentTemplate: "Остаток материала на объекте отправления",
+                                        hideEvent: "mouseleave",
+                                    })
+                                .dxPopover("instance")
+                                .show($(this));
+
+                                return false;
+                            });
+                        }
+
+                        recalculateStandardsRemains(options.data.id);
+                    },
                 },
                 {
                     dataField: "quantity",
@@ -880,7 +914,47 @@
                 })
             }
 
-            $(".file-uploader").each(function() {
+            function recalculateStandardsRemains(editedRowKey) {
+                writeOffMaterialStore.byKey(editedRowKey)
+                    .done(function (dataItem) {
+                        let calculatedQuantity = dataItem.total_quantity * dataItem.total_amount;
+                        let calculatedAmount = dataItem.total_amount;
+
+                        writeOffMaterialData.forEach((item) => {
+                            if (item.standard_id === dataItem.standard_id) {
+                                switch (dataItem.accounting_type) {
+                                    case 2:
+                                        if (item.quantity === dataItem.quantity) {
+                                            calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
+                                        }
+                                        break;
+                                    default:
+                                        calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
+                                }
+                            }
+                        })
+
+                        switch (dataItem.accounting_type) {
+                            case 2:
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}']`).each(function () {
+                                    $(this).text(calculatedAmount + ' шт');
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
+                                });
+                                break;
+                            default:
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}']`).each(function () {
+                                    $(this).text(calculatedQuantity + ' ' + dataItem.measure_unit_value);
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
+                                });
+                        }
+                    })
+            }
+
+            $(".file-uploader").each(function () {
                 let uploaderIndex = $(this).attr('index');
                 $(this).dxFileUploader({
                     dialogTrigger: "#dropzone-external-" + uploaderIndex,

@@ -391,7 +391,8 @@ class q3wMaterialWriteOffOperationController extends Controller
     public function move(q3wMaterialOperation $operation)
     {
         $materialsToWriteOff = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
-            ->where('transfer_operation_stage_id', '=', 1)->get()->toArray();
+            ->get()
+            ->toArray();
 
         foreach ($materialsToWriteOff as $materialToWriteOff) {
             $materialStandard = q3wMaterialStandard::findOrFail($materialToWriteOff['standard_id']);
