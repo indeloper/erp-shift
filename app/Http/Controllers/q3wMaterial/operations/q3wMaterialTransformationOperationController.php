@@ -479,7 +479,7 @@ class q3wMaterialTransformationOperationController extends Controller
 
         $notification = new Notification();
         $notification->save();
-        $notification->additional_info = PHP_EOL .'Ссылка на операцию: ' . PHP_EOL . $operation->url;
+        $notification->additional_info = PHP_EOL . $operation->url;
         $notification->update([
             'name' => $notificationText,
             'target_id' => $operation->id,

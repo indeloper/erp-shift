@@ -15,8 +15,6 @@ use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
@@ -61,8 +59,10 @@ class q3wMaterialTransferOperationController extends Controller
             $destinationProjectObjectId = 0;
         }
 
+
+
         if (isset($request->materialsToTransfer)) {
-            $predefinedMaterialsArray = explode('+', urldecode($request->materialsToTransfer));
+            $predefinedMaterialsArray = explode('+', $request->materialsToTransfer);
 
             $predefinedMaterials = DB::table('q3w_materials as a')
                 ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
@@ -94,6 +94,7 @@ class q3wMaterialTransferOperationController extends Controller
                             ->leftJoin('q3w_material_operations', 'q3w_operation_materials.id', 'material_operation_id')
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                            ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                             ->get();
 
                         $material->total_amount -= $activeOperationMaterialAmount->sum('amount');
@@ -101,16 +102,17 @@ class q3wMaterialTransferOperationController extends Controller
                     default:
                         $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
                             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-                            ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_i d')
+                            ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                            ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                             ->get(DB::raw('sum(`quantity`) as quantity'))
                             ->first();
                         $material->total_quantity = $material->total_quantity - $activeOperationMaterialAmount->quantity;
                 }
             }
         } else {
-            $predefinedMaterials = json_encode([]);
+            $predefinedMaterials = [];
         }
 
         return view('materials.operations.transfer.new')->with([
@@ -118,7 +120,7 @@ class q3wMaterialTransferOperationController extends Controller
             'destinationProjectObjectId' => $destinationProjectObjectId,
             'transferOperationInitiator' => $transferOperationInitiator,
             'currentUserId' => Auth::id(),
-            'predefinedMaterials' => $predefinedMaterials
+            'predefinedMaterials' => json_encode($predefinedMaterials)
         ]);
     }
 
@@ -1166,7 +1168,7 @@ class q3wMaterialTransferOperationController extends Controller
 
         $notification = new Notification();
         $notification->save();
-        $notification->additional_info = PHP_EOL .'Ссылка на операцию: ' . PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
+        $notification->additional_info = PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
         $notification->update([
             'name' => $notificationText,
             'target_id' => $operation->id,
