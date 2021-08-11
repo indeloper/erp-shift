@@ -485,6 +485,9 @@
                                         case 3:
                                             operationCaption = "Преобразование";
                                             break;
+                                        case 4:
+                                            operationCaption = "Списание";
+                                            break;
                                     }
 
                                     operationIcon = getOperationRouteIcon(itemData.operation_route_id,
@@ -805,6 +808,17 @@
                 document.location.href = "{{route('materials.operations.transformation.new')}}" + "/?" + transformParams;
             }
 
+            function writeOffMaterials() {
+                let materialsToWriteOffArray = projectObjectInfoForm.getEditor("materialDataGrid").getSelectedRowKeys();
+                let writeOffParams = "projectObjectId=" + projectObject;
+
+                if (materialsToWriteOffArray.length !== 0) {
+                    writeOffParams = writeOffParams + "&materialsToWriteOff=" + encodeURIComponent(materialsToWriteOffArray.join('+'));
+                }
+
+                document.location.href = "{{route('materials.operations.write-off.new')}}" + "/?" + writeOffParams;
+            }
+
             function updateProjectObjectDetailInfo(projectObjectID) {
                 projectObjectsData.store().byKey(projectObjectID).done(function (dataItem) {
                     isStore = dataItem.material_accounting_type === 2;
@@ -920,6 +934,10 @@
 
                     if (e.itemData === "Преобразование") {
                         transformMaterials();
+                    }
+
+                    if (e.itemData === "Списание") {
+                        writeOffMaterials();
                     }
                 },
 
