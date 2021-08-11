@@ -183,7 +183,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                 if (!isset($errors[$key])) {
                     if ($materialStandard->materialType->measure_unit == 1) {
                         if ($unitedMaterial->quantity > 15) {
-                            $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Длина материала превышает 15 м.п.'];
+                            $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Габарит груза превышает 15 м.п.'];
                         }
                     }
                 }
