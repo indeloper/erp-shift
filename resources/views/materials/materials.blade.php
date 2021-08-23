@@ -104,7 +104,24 @@
             margin-right: 4px;
             background: white;
         }
-    </style>
+
+        .standard-name-cell-with-comment {
+            display: flex;
+            text-align: left;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-items: flex-start;
+            margin: 0 -1px -1px 0;
+        }
+
+        .material-comment {
+            color: darkgray;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: 100%;
+            white-space: nowrap;
+            }
+</style>
 @endsection
 
 @section('content')
@@ -223,11 +240,31 @@
                     width: 500,
                     sortIndex: 0,
                     sortOrder: "asc",
-                    /*lookup: {
-                        dataSource: materialStandardsData,
-                        displayExpr: "name",
-                        valueExpr: "id"
-                    },*/
+                    cellTemplate: function (container, options) {
+                        let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
+                            .appendTo(container);
+
+                        if (options.data.comment) {
+                            let divMaterialComment = $(`<div class="material-comment">${options.data.comment}</div>`)
+                                .appendTo(container);
+
+                            container.addClass("standard-name-cell-with-comment");
+                        }
+
+                        /*divMaterialComment.mouseenter(function () {
+                            let standardRemainsPopover = $('#standardRemainsTemplate');
+                            standardRemainsPopover.dxPopover({
+                                position: "top",
+                                width: 300,
+                                contentTemplate: "Остаток материала на объекте отправления",
+                                hideEvent: "mouseleave",
+                            })
+                                .dxPopover("instance")
+                                .show($(this));
+
+                            return false;
+                        });*/
+                    },
                     calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                         if (["contains", "notcontains"].indexOf(selectedFilterOperation) !== -1) {
 
