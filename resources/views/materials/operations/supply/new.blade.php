@@ -30,6 +30,10 @@
 
         </div>
     </div>
+
+    <div id="commentPopupContainer">
+        <div id="commentEditForm"></div>
+    </div>
 @endsection
 
 @section('js_footer')
@@ -41,6 +45,7 @@
             let materialTypesData = {!!$materialTypes!!};
             let materialErrorList = [];
             let supplyMaterialTempID = 0;
+            let commentData = null;
 
             //<editor-fold desc="JS: DataSources">
             let contractorsStore = new DevExpress.data.CustomStore({
@@ -119,6 +124,32 @@
                 })
             });
             //</editor-fold>
+
+            let materialCommentEditForm = $("#commentEditForm").dxForm({
+                colCount: 1,
+                items: [{
+                    editorType: "dxTextArea",
+                    name: "materialCommentTextArea",
+                    editorOptions: {
+                        width: 600,
+                        height: 200
+                    }
+                },
+                {
+                    itemType: "button",
+                    buttonOptions: {
+                        text: "Добавить",
+                        type: "default",
+                        stylingMode: "text",
+                        useSubmitBehavior: false,
+                        onClick: (e) => {
+                            commentData.comment = materialCommentEditForm.getEditor("materialCommentTextArea").option("value");
+                            $("#commentPopupContainer").dxPopup("hide");
+                            operationForm.getEditor("supplyMaterialGrid").refresh();
+                        }
+                    }
+                }]
+            }).dxForm("instance");
 
             let materialsStandardsAddingForm = $("#materialsStandardsAddingForm").dxForm({
                 colCount: 2,
@@ -309,6 +340,12 @@
                 title: "Выберите материалы для добавления"
             });
 
+            let materialCommentPopupContainer = $("#commentPopupContainer").dxPopup({
+                height: "auto",
+                width: "auto",
+                title: "Введите комментарий"
+            });
+
             //<editor-fold desc="JS: Columns definition">
             let supplyMaterialColumns = [
                 {
@@ -336,7 +373,6 @@
                                     default:
                                         validationId = id;
                                 }
-
 
                                 let exclamationTriangle = $("<a>")
                                     .attr("href", "#")
@@ -372,7 +408,44 @@
                             validateMaterialList(false, false);
                             e.event.preventDefault();
                         }
-                    }]
+                    },
+                        {
+                            hint: "Комментарии",
+                            icon: "fas fa-message",
+
+                            template: (container, options) => {
+                                let accountingType;
+
+                                if (options.data.accounting_type) {
+                                    accountingType = options.data.accounting_type;
+                                }
+
+                                let commentIconClass = !options.data.comment ? "far fa-comment" : "fas fa-comment";
+
+                                let commentLink;
+
+                                switch (accountingType) {
+                                    case 2:
+                                        commentLink = $("<a>")
+                                            .attr("href", "#")
+                                            .attr("title", "Комментарий")
+                                            .addClass("dx-link dx-icon " + commentIconClass + " dx-link-icon")
+                                        .click(() => {
+                                            commentData = options.data;
+                                            if (commentData.comment) {
+                                                materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.comment);
+                                            } else {
+                                                materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                            }
+                                            $("#commentPopupContainer").dxPopup("show");
+                                        });
+                                        break;
+                                    default:
+                                        return;
+                                }
+                                return commentLink;
+                            }
+                        }]
                 },
                 {
                     dataField: "standard_id",
@@ -471,7 +544,7 @@
                 dataSource: supplyMaterialDataSource,
                 focusedRowEnabled: false,
                 hoverStateEnabled: true,
-                columnAutoWidth : false,
+                columnAutoWidth: false,
                 showBorders: true,
                 showColumnLines: true,
                 grouping: {
