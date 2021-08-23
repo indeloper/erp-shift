@@ -188,6 +188,7 @@ class q3wMaterialSupplyOperationController extends Controller
             $inputMaterialAmount = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
 
+            $materialComment = $inputMaterial['comment'] ?? null;
 
             $operationMaterial = new q3wOperationMaterial([
                 'material_operation_id' => $materialOperation->id,
@@ -202,10 +203,12 @@ class q3wMaterialSupplyOperationController extends Controller
                 $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $inputMaterialQuantity)
+                    ->where('comment', $materialComment)
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
                     ->where('standard_id', $materialStandard->id)
+                    ->where('comment', $materialComment)
                     ->first();
             }
 
@@ -223,7 +226,8 @@ class q3wMaterialSupplyOperationController extends Controller
                     'standard_id' => $materialStandard->id,
                     'project_object' => $requestData['project_object_id'],
                     'amount' => $inputMaterialAmount,
-                    'quantity' => $inputMaterialQuantity
+                    'quantity' => $inputMaterialQuantity,
+                    'comment' => $materialComment
                 ]);
 
                 if ($materialType->accounting_type == 2) {
@@ -250,8 +254,7 @@ class q3wMaterialSupplyOperationController extends Controller
         DB::commit();
 
         return response()->json([
-            'result' => 'ok',
-            'key' => $materialStandard->id
+            'result' => 'ok'
         ], 200);
     }
 
