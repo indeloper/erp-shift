@@ -194,7 +194,8 @@ class q3wMaterialSupplyOperationController extends Controller
                 'material_operation_id' => $materialOperation->id,
                 'standard_id' => $materialStandard->id,
                 'amount' => $inputMaterialAmount,
-                'quantity' => $inputMaterialQuantity
+                'quantity' => $inputMaterialQuantity,
+                'comment' => $materialComment
             ]);
 
             $operationMaterial->save();

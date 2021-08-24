@@ -5,6 +5,7 @@ namespace App\Http\Controllers\q3wMaterial;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
+use App\Models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialSnapshotMaterial;
@@ -311,12 +312,21 @@ class q3wMaterialController extends Controller
         $materialType = q3wMaterialType::findOrFail($materialStandard->material_type);
         $materialQuantity = $request->materialQuantity;
         $projectObject = ProjectObject::findOrFail($request->projectObjectId);
+        $materialId = $request->materialId;
+
 
         return q3wOperationMaterial::leftJoin('q3w_material_operations as a', 'q3w_operation_materials.material_operation_id', '=', 'a.id')
             ->leftJoin('q3w_material_standards as b', 'q3w_operation_materials.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
-            ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity) {
+            ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity, $materialId) {
+                if (isset($materialId)) {//If material Id passed we need to check material's comment field
+                    $comment = q3wMaterial::findOrFail($materialId)->comment;
+                    $query->where('comment', '=', $comment);
+                } else {
+                    $query->whereNull('comment');
+                }
+
                 switch ($materialType->accounting_type) {
                     case 2:
                         $query->where('standard_id', $materialStandard->id)

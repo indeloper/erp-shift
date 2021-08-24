@@ -640,11 +640,6 @@
                                             template: function(container, options) {
                                                 let currentMaterialData = options.data;
 
-                                                /*$("<div>")
-                                                    .addClass("master-detail-caption")
-                                                    .text("История материала")
-                                                    .appendTo(container);*/
-
                                                 $("<div>")
                                                     .dxDataGrid({
                                                         columnAutoWidth: true,
@@ -735,15 +730,19 @@
                                                                 key: "id",
                                                                 loadMode: "raw",
                                                                 load: function (loadOptions) {
+                                                                    let loadParameters = {
+                                                                        projectObjectId: projectObject,
+                                                                        materialStandardId: currentMaterialData.standard_id,
+                                                                        materialQuantity: currentMaterialData.quantity
+                                                                    }
+
+                                                                    if (currentMaterialData.comment) {
+                                                                        loadParameters.materialId = currentMaterialData.id;
+                                                                    }
                                                                     return $.getJSON("{{route('materials.standard-history.list')}}",
-                                                                        {
-                                                                            projectObjectId: projectObject,
-                                                                            materialStandardId: currentMaterialData.standard_id,
-                                                                            materialQuantity: currentMaterialData.quantity
-                                                                        });
+                                                                        loadParameters);
                                                                 },
                                                             }),
-
                                                         }),
                                                         onRowPrepared: (e) => {
                                                             e.rowElement.addClass("material-history-detail-row")
