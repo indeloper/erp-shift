@@ -30,7 +30,11 @@
 
         </div>
     </div>
+    <div id="materialCommentPopoverContainer">
+        <div id="materialCommentTemplate" data-options="dxTemplate: { name: 'materialCommentTemplate' }">
 
+        </div>
+    </div>
     <div id="commentPopupContainer">
         <div id="commentEditForm"></div>
     </div>
@@ -138,7 +142,7 @@
                 {
                     itemType: "button",
                     buttonOptions: {
-                        text: "Добавить",
+                        text: "ОК",
                         type: "default",
                         stylingMode: "text",
                         useSubmitBehavior: false,
@@ -438,6 +442,21 @@
                                                 materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
                                             }
                                             $("#commentPopupContainer").dxPopup("show");
+                                        })
+                                        .mouseenter(function () {
+                                            if (!options.data.comment) {
+                                                return;
+                                            }
+
+                                            let materialCommentPopover = $('#materialCommentTemplate');
+                                            materialCommentPopover.dxPopover({
+                                                position: "top",
+                                                width: 300,
+                                                contentTemplate: options.data.comment,
+                                                hideEvent: "mouseleave",
+                                            })
+                                                .dxPopover("instance")
+                                                .show($(this));
                                         });
                                         break;
                                     default:
@@ -953,20 +972,21 @@
 
                 element.attr('style', exclamationTriangleStyle);
                 element.attr('severity', maxSeverity);
-                element.click(function (e) {
-                    e.preventDefault();
+                element.mouseenter(function () {
+                    if (!errorDescription) {
+                        return;
+                    }
 
                     let validationDescription = $('#validationTemplate');
 
                     validationDescription.dxPopover({
                         position: "top",
                         width: 300,
-                        contentTemplate: "<ul>" + errorDescription + "</ul>"
+                        contentTemplate: "<ul>" + errorDescription + "</ul>",
+                        hideEvent: "mouseleave",
                     })
                         .dxPopover("instance")
-                        .show(e.target);
-
-                    return false;
+                        .show($(this));
                 });
             }
 
