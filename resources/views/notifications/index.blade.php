@@ -99,7 +99,7 @@
                                             </a>
                                         @endif
                                         @if(in_array($notify->status, [6, 7]) and \App\Models\q3wMaterial\operations\q3wMaterialOperation::find($notify->target_id))
-                                            <a href="{{ \App\Models\q3wMaterial\operations\q3wMaterialOperation::find($notify->target_id)->url() }}" target="_blank" rel="tooltip"
+                                            <a href="{{ \App\Models\q3wMaterial\operations\q3wMaterialOperation::find($notify->target_id)->getUrlAttribute() }}" target="_blank" rel="tooltip"
                                                class="btn-info btn-link" data-original-title="Перейти к операции">
                                                 <i class="fa fa-arrow-right" aria-hidden="true"></i>
                                             </a>
@@ -242,7 +242,7 @@
 @section('js_footer')
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <script type="text/javascript">
-        function ban_notification(e, id) {
+        function ban_notification() {
             swal({
                 title: 'Вы уверены?',
                 text: "Все уведомления будут отключены!",
@@ -291,7 +291,7 @@
                     notify_id: notify_id,
                 },
                 dataType: 'JSON',
-                success: function (data) {
+                success: function () {
                     $(e).closest('.notify').remove();
                     $('.tooltip').tooltip('hide');
                     notify_length = $('.notify').length;
@@ -315,7 +315,7 @@
                     notify_id: notify_id,
                 },
                 dataType: 'JSON',
-                success: function (data) {
+                success: function () {
                     $(e).closest('.notify').appendTo('.notify_place');
                     $(e).closest('.notify').addClass('bg-color-snow');
                     $(e).hide();
@@ -363,7 +363,7 @@
             } else {
                 return false;
             }
-        };
+        }
 
         $(document).ready(function(){
             if(screen.width<=769){
