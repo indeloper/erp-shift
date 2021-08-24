@@ -24,7 +24,8 @@ class q3wMaterialSnapshot extends Model
                 'snapshot_id' => $this->id,
                 'standard_id' => $actualMaterial->standard_id,
                 'amount' => $actualMaterial->amount,
-                'quantity' => $actualMaterial->quantity
+                'quantity' => $actualMaterial->quantity,
+                'comment' => $actualMaterial->comment,
             ]);
 
             $snapshotMaterial->save();
