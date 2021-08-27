@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class q3wMaterialComment extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable;
+
+    protected $guarded = array('id');
 }

@@ -75,28 +75,7 @@ class q3wMaterialController extends Controller
             ->toJson(JSON_UNESCAPED_UNICODE);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
+     /**
      * Display the specified resource snapshot.
      *
      * @param Request $request
@@ -150,6 +129,7 @@ class q3wMaterialController extends Controller
                 'a.standard_id',
                 'a.quantity',
                 'a.amount',
+                'a.comment',
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight',
@@ -180,8 +160,13 @@ class q3wMaterialController extends Controller
             foreach ($materials as $material){
                 switch ($operationMaterial->accounting_type) {
                     case 2:
-                        if (($operationMaterial->standard_id == $material->standard_id) && ($operationMaterial->quantity == $material->quantity)) {
+                        if (($operationMaterial->standard_id == $material->standard_id)
+                            && ($operationMaterial->quantity == $material->quantity)
+                            && ($operationMaterial->comment == $material->comment)) {
                             $material->amount -= $operationMaterial->amount;
+                            if ($material->amount <= 0) {
+                                unset($material);
+                            }
                         }
                         break;
                     default:
