@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddWriteOfRouteAndRole extends Migration
+class AddWriteOffRouteAndRole extends Migration
 {
     /**
      * Run the migrations.
@@ -65,6 +65,11 @@ class AddWriteOfRouteAndRole extends Migration
 
 
         q3wOperationRouteStage::where("operation_route_id", 3)->forceDelete();
+
+        Schema::table('q3w_operation_materials', function(Blueprint $table) {
+            $table->dropForeign(['transfer_operation_stage_id']);
+            $table->dropColumn(['transfer_operation_stage_id']);
+        });
 
         Schema::dropIfExists('q3w_transfer_operation_stages');
     }

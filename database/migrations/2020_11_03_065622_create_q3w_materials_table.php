@@ -66,6 +66,7 @@ class CreateQ3wMaterialsTable extends Migration
         {
             Schema::table('project_objects', function($table)
             {
+                $table->dropForeign('project_objects_material_accounting_type_foreign');
                 $table->dropColumn('material_accounting_type');
             });
         }
