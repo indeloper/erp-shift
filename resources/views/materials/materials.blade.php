@@ -300,7 +300,7 @@
                     sortOrder: "asc",
                     showSpinButtons: true,
                     cellTemplate: function (container, options) {
-                        let quantity = options.data.quantity;
+                        let quantity = Math.round(options.data.quantity * 100) / 100;
                         let measureUnit = options.data.measure_unit_value;
 
                         $(`<div>${quantity} ${measureUnit}</div>`)
@@ -330,7 +330,7 @@
                         if (isNaN(weight)) {
                             weight = 0;
                         } else {
-                            weight = weight.toFixed(3)
+                            weight = Math.round(weight * 1000) / 1000;
                         }
 
                         rowData.computed_weight = weight;
@@ -339,7 +339,7 @@
                     cellTemplate: function (container, options) {
                         let weight = options.data.computed_weight;
 
-                        $(`<div>${weight} т.</div>`)
+                        $(`<div>${weight} т</div>`)
                             .appendTo(container);
                     }
                 },
@@ -622,7 +622,7 @@
                                                     column: "computed_weight",
                                                     summaryType: "sum",
                                                     customizeText: function (data) {
-                                                        return "Всего: " + data.value.toFixed(3) + " т."
+                                                        return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
                                                     },
                                                     showInGroupFooter: false,
                                                     alignByColumn: true
@@ -631,7 +631,7 @@
                                                 column: "computed_weight",
                                                 summaryType: "sum",
                                                 customizeText: function (data) {
-                                                    return "Итого: " + data.value.toFixed(3) + " т."
+                                                    return "Итого: " + Math.round(data.value * 1000) / 1000 + " т"
                                                 }
                                             }]
                                         },
@@ -796,7 +796,7 @@
                                                     column: "computed_weight",
                                                     summaryType: "sum",
                                                     customizeText: function (data) {
-                                                        return "Всего: " + data.value.toFixed(3) + " т."
+                                                        return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
                                                     },
                                                     showInGroupFooter: false,
                                                     alignByColumn: true
@@ -805,7 +805,7 @@
                                                 column: "computed_weight",
                                                 summaryType: "sum",
                                                 customizeText: function (data) {
-                                                    return "Итого: " + data.value.toFixed(3) + " т."
+                                                    return "Итого: " + Math.round(data.value * 1000) / 1000 + " т"
                                                 }
                                             }]
                                         },
