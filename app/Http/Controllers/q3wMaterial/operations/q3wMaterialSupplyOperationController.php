@@ -9,10 +9,12 @@ use App\Models\q3wMaterial\operations\q3wOperationFile;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialComment;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Models\User;
 use http\Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -29,16 +31,6 @@ use Illuminate\View\View;
 class q3wMaterialSupplyOperationController extends Controller
 {
     const EMPTY_COMMENT_TEXT = "Комментарий не указан";
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        //
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -188,14 +180,23 @@ class q3wMaterialSupplyOperationController extends Controller
             $inputMaterialAmount = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
 
-            $materialComment = $inputMaterial['comment'] ?? null;
+            if (isset($inputMaterial['comment'])) {
+                $materialComment = new q3wOperationMaterialComment([
+                    'comment' => $inputMaterial['comment'],
+                    'author_id' => Auth::id()
+                ]);
+                $materialComment->save();
+                $materialCommentId = $materialComment->id;
+            } else {
+                $materialCommentId = null;
+            }
 
             $operationMaterial = new q3wOperationMaterial([
                 'material_operation_id' => $materialOperation->id,
                 'standard_id' => $materialStandard->id,
                 'amount' => $inputMaterialAmount,
                 'quantity' => $inputMaterialQuantity,
-                'comment' => $materialComment
+                'comment_id' => $materialCommentId
             ]);
 
             $operationMaterial->save();
@@ -204,12 +205,12 @@ class q3wMaterialSupplyOperationController extends Controller
                 $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $inputMaterialQuantity)
-                    ->where('comment', $materialComment)
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
+                    ->where('comment', $inputMaterial['comment'] ?? null)
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
                     ->where('standard_id', $materialStandard->id)
-                    ->where('comment', $materialComment)
                     ->first();
             }
 
@@ -223,12 +224,23 @@ class q3wMaterialSupplyOperationController extends Controller
 
                 $material -> save();
             } else {
+                if (isset($inputMaterial['comment'])) {
+                    $materialComment = new q3wMaterialComment([
+                        'comment' => $inputMaterial['comment'],
+                        'author_id' => Auth::id()
+                    ]);
+                    $materialComment->save();
+                    $materialCommentId = $materialComment->id;
+                } else {
+                    $materialCommentId = null;
+                }
+
                 $material = new q3wMaterial([
                     'standard_id' => $materialStandard->id,
                     'project_object' => $requestData['project_object_id'],
                     'amount' => $inputMaterialAmount,
                     'quantity' => $inputMaterialQuantity,
-                    'comment' => $materialComment
+                    'comment_id' => $materialCommentId
                 ]);
 
                 if ($materialType->accounting_type == 2) {
@@ -260,17 +272,6 @@ class q3wMaterialSupplyOperationController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param q3wMaterialOperation $q3wMaterialOperation
-     * @return Response
-     */
-    public function show(q3wMaterialOperation $q3wMaterialOperation)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param Request $request
@@ -282,16 +283,5 @@ class q3wMaterialSupplyOperationController extends Controller
         $requestData = json_decode($request["data"]);
 
         dd($requestData->materials);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param q3wMaterialOperation $q3wMaterialOperation
-     * @return Response
-     */
-    public function destroy(q3wMaterialOperation $q3wMaterialOperation)
-    {
-        //
     }
 }
