@@ -19,6 +19,7 @@ class AddOperationCommentsTables extends Migration
 
         Schema::table('q3w_operation_materials', function(Blueprint $table) {
             $table->text('comment')->nullable()->comment('Комментарий');
+            $table->text('initial_comment')->nullable()->comment('Начальный комментарий материала при создании операции');
         });
 
         Schema::table('q3w_material_snapshot_materials', function(Blueprint $table) {
