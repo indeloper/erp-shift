@@ -737,7 +737,7 @@
                                                                     }
 
                                                                     if (currentMaterialData.comment) {
-                                                                        loadParameters.materialId = currentMaterialData.id;
+                                                                        loadParameters.commentId = currentMaterialData.comment_id;
                                                                     }
                                                                     return $.getJSON("{{route('materials.standard-history.list')}}",
                                                                         loadParameters);

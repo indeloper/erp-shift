@@ -7,6 +7,7 @@ use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialComment;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialSnapshotMaterial;
 use App\models\q3wMaterial\q3wMaterialStandard;
@@ -120,6 +121,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->leftJoin('q3w_material_operations as f', 'a.material_operation_id', '=', 'f.id')
+            ->leftJoin('q3w_operation_material_comments as g', 'a.comment_id', '=', 'g.id')
             ->where('f.source_project_object_id', $projectObjectId)
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
@@ -129,7 +131,8 @@ class q3wMaterialController extends Controller
                 'a.standard_id',
                 'a.quantity',
                 'a.amount',
-                'a.comment',
+                'a.comment_id',
+                'g.comment',
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight',
@@ -143,17 +146,19 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->leftJoin('q3w_material_comments as f', 'a.comment_id', '=', 'f.id')
             ->where('a.project_object', '=', $projectObjectId)
             ->where('amount', '<>', 0)
             ->where('quantity', '<>', 0)
             ->get(['a.*',
+                'f.comment',
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight',
                 'd.accounting_type',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value'])
+                'e.value as measure_unit_value',])
             ->toArray();
 
         foreach ($activeOperationMaterials as $operationMaterial){
@@ -254,6 +259,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->leftJoin('q3w_material_comments as f', 'a.comment_id', '=', 'f.id')
             ->where('a.project_object', '=', $projectObjectId)
             ->where('amount', '<>', 0)
             ->where('quantity', '<>', 0)
@@ -265,6 +271,7 @@ class q3wMaterialController extends Controller
                 'd.measure_unit',
                 'd.name as material_type_name',
                 'e.value as measure_unit_value',
+                'f.comment',
                 DB::RAW('0 as from_operation')])
             ->toArray();
 
@@ -297,19 +304,20 @@ class q3wMaterialController extends Controller
         $materialType = q3wMaterialType::findOrFail($materialStandard->material_type);
         $materialQuantity = $request->materialQuantity;
         $projectObject = ProjectObject::findOrFail($request->projectObjectId);
-        $materialId = $request->materialId;
+        $commentId = $request->commentId;
 
 
         return q3wOperationMaterial::leftJoin('q3w_material_operations as a', 'q3w_operation_materials.material_operation_id', '=', 'a.id')
             ->leftJoin('q3w_material_standards as b', 'q3w_operation_materials.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
-            ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity, $materialId) {
-                if (isset($materialId)) {//If material Id passed we need to check material's comment field
-                    $comment = q3wMaterial::findOrFail($materialId)->comment;
-                    $query->where('comment', '=', $comment);
+            ->leftJoin('q3w_operation_material_comments as f', 'comment_id', '=', 'f.id')
+            ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity, $commentId) {
+                if (isset($commentId)) {//If comment Id passed we need to check material's comment field
+                    $comment = q3wMaterialComment::findOrFail($commentId)->comment;
+                    $query->where('f.comment', '=', $comment);
                 } else {
-                    $query->whereNull('comment');
+                    $query->whereNull('comment_id');
                 }
 
                 switch ($materialType->accounting_type) {
