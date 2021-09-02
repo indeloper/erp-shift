@@ -32,7 +32,6 @@
     </div>
     <div id="materialCommentPopoverContainer">
         <div id="materialCommentTemplate" data-options="dxTemplate: { name: 'materialCommentTemplate' }">
-
         </div>
     </div>
     <div id="commentPopupContainer">
@@ -79,14 +78,6 @@
                 //group: "key",
                 store: materialsStandardsListStore
             })
-
-            /*let materialsStandardsListDataSource = new DevExpress.data.DataSource({
-                group: "material_type_name",
-                store: new DevExpress.data.ArrayStore({
-                    key: "id",
-                    data: materialStandardsData
-                })
-            })*/
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
                 store: new DevExpress.data.ArrayStore({
@@ -149,7 +140,7 @@
                         onClick: (e) => {
                             commentData.comment = materialCommentEditForm.getEditor("materialCommentTextArea").option("value");
                             $("#commentPopupContainer").dxPopup("hide");
-                            operationForm.getEditor("supplyMaterialGrid").refresh();
+                            getSupplyMaterialGrid().refresh();
                         }
                     }
                 }]
@@ -316,6 +307,7 @@
                             let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList").option("items");
 
                             selectedMaterialsData.forEach(function (materialStandard) {
+                                let validationUid = getValidationUid();
                                 supplyMaterialDataSource.store().insert({
                                     id: ++supplyMaterialTempID,
                                     standard_id: materialStandard.id,
@@ -326,12 +318,16 @@
                                     measure_unit_value: materialStandard.measure_unit_value,
                                     standard_weight: materialStandard.weight,
                                     quantity: null,
-                                    amount: null
+                                    amount: null,
+                                    validationUid: validationUid,
+                                    validationState: "unvalidated",
+                                    validationResult: "none"
                                 })
+
+                                validateMaterialList(false, false, validationUid);
                             })
                             supplyMaterialDataSource.reload();
                             $("#popupContainer").dxPopup("hide")
-                            validateMaterialList(false, false);
                         }
                     }
                 }
@@ -358,37 +354,79 @@
                     buttons: [
                         {
                             template: function (container, options) {
-                                let validationId = "0";
-                                let id = "";
-                                let quantity = "";
-
-                                if (options.data.quantity) {
-                                    quantity = options.data.quantity;
-                                }
-
-                                if (options.data.id) {
-                                    id = options.data.id;
-                                }
-
-                                switch (options.data.accounting_type) {
-                                    case 2:
-                                        validationId = id + "-" + quantity
-                                        break;
-                                    default:
-                                        validationId = id;
-                                }
+                                let validationUid = options.data.validationUid;
 
                                 let exclamationTriangle = $("<a>")
                                     .attr("href", "#")
-                                    .attr("validationId", validationId)
+                                    .attr("validationUid", validationUid)
                                     .attr("style", "display: none")
                                     .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon");
 
-                                materialErrorList.forEach((errorElement) => {
-                                    if (errorElement.validationId === validationId) {
-                                        updateValidationExclamationTriangles(exclamationTriangle, errorElement);
-                                    }
-                                })
+                                switch (options.data.validationState) {
+                                    case "inProcess":
+                                        let indicatorDiv = $('<div class="cell-validation-loading-indicator">');
+                                        indicatorDiv.dxLoadIndicator({
+                                            visible: true,
+                                            width: 16,
+                                            height: 16
+                                        })
+                                        return indicatorDiv
+                                    case "validated":
+                                        if (options.data.validationResult === "valid"){
+                                            return;
+                                        } else {
+                                            let errorList = materialErrorList[options.data.validationUid].errorList;
+                                            let maxSeverity = 0;
+                                            let errorDescription = "";
+                                            let exclamationTriangleStyle = "";
+
+                                            errorList.forEach((errorItem) => {
+                                                if (errorItem.severity > maxSeverity) {
+                                                    maxSeverity = errorItem.severity;
+                                                }
+
+                                                errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
+                                            })
+
+                                            switch (maxSeverity) {
+                                                case 500:
+                                                    exclamationTriangleStyle = 'color: #ffd358';
+                                                    break;
+                                                case 1000:
+                                                    exclamationTriangleStyle = 'color: #f15a5a';
+                                                    break;
+                                                default:
+                                                    exclamationTriangleStyle = "display: none";
+                                            }
+
+                                            exclamationTriangle.attr('style', exclamationTriangleStyle);
+                                            exclamationTriangle.attr('severity', maxSeverity);
+                                            exclamationTriangle.click((e) => {
+                                                e.preventDefault();
+                                            });
+                                            exclamationTriangle.mouseenter(function () {
+                                                if (!errorDescription) {
+                                                    return;
+                                                }
+
+                                                let validationDescription = $('#validationTemplate');
+
+                                                validationDescription.dxPopover({
+                                                    position: "top",
+                                                    width: 300,
+                                                    contentTemplate: "<ul>" + errorDescription + "</ul>",
+                                                    hideEvent: "mouseleave",
+                                                })
+                                                    .dxPopover("instance")
+                                                    .show($(this));
+                                            });
+
+                                            return exclamationTriangle;
+                                        }
+                                        break;
+                                    default:
+                                        exclamationTriangle.hide();
+                                }
 
                                 return exclamationTriangle;
                             }
@@ -413,63 +451,64 @@
                             e.event.preventDefault();
                         }
                     },
-                        {
-                            hint: "Комментарии",
-                            icon: "fas fa-message",
+                    {
+                        hint: "Комментарии",
+                        icon: "fas fa-message",
 
-                            template: (container, options) => {
-                                let accountingType;
+                        template: (container, options) => {
+                            let accountingType;
 
-                                if (options.data.accounting_type) {
-                                    accountingType = options.data.accounting_type;
-                                }
-
-                                let commentIconClass = !options.data.comment ? "far fa-comment" : "fas fa-comment";
-
-                                let commentLink;
-
-                                switch (accountingType) {
-                                    case 2:
-                                        commentLink = $("<a>")
-                                            .attr("href", "#")
-                                            .attr("title", "Комментарий")
-                                            .addClass("dx-link dx-icon " + commentIconClass + " dx-link-icon")
-                                        .click(() => {
-                                            commentData = options.data;
-                                            if (commentData.comment) {
-                                                materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.comment);
-                                            } else {
-                                                materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
-                                            }
-                                            $("#commentPopupContainer").dxPopup("show");
-                                        })
-                                        .mouseenter(function () {
-                                            if (!options.data.comment) {
-                                                return;
-                                            }
-
-                                            let materialCommentPopover = $('#materialCommentTemplate');
-                                            materialCommentPopover.dxPopover({
-                                                position: "top",
-                                                width: 300,
-                                                contentTemplate: options.data.comment,
-                                                hideEvent: "mouseleave",
-                                            })
-                                                .dxPopover("instance")
-                                                .show($(this));
-                                        });
-                                        break;
-                                    default:
-                                        return;
-                                }
-                                return commentLink;
+                            if (options.data.accounting_type) {
+                                accountingType = options.data.accounting_type;
                             }
-                        }]
+
+                            let commentIconClass = !options.data.comment ? "far fa-comment" : "fas fa-comment";
+
+                            let commentLink;
+
+                            switch (accountingType) {
+                                case 2:
+                                    commentLink = $("<a>")
+                                        .attr("href", "#")
+                                        .attr("title", "Комментарий")
+                                        .addClass("dx-link dx-icon " + commentIconClass + " dx-link-icon")
+                                    .click(() => {
+                                        commentData = options.data;
+                                        if (commentData.comment) {
+                                            materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.comment);
+                                        } else {
+                                            materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                        }
+                                        $("#commentPopupContainer").dxPopup("show");
+                                    })
+                                    .mouseenter(function () {
+                                        if (!options.data.comment) {
+                                            return;
+                                        }
+
+                                        let materialCommentPopover = $('#materialCommentTemplate');
+                                        materialCommentPopover.dxPopover({
+                                            position: "top",
+                                            width: 300,
+                                            contentTemplate: options.data.comment,
+                                            hideEvent: "mouseleave",
+                                        })
+                                            .dxPopover("instance")
+                                            .show($(this));
+                                    });
+                                    break;
+                                default:
+                                    return;
+                            }
+                            return commentLink;
+                        }
+                    }]
                 },
                 {
                     dataField: "standard_id",
                     dataType: "string",
                     allowEditing: false,
+                    width: "30%",
                     caption: "Наименование",
                     sortIndex: 0,
                     sortOrder: "asc",
@@ -616,7 +655,7 @@
                     }]
                 },
                 onRowUpdated: (e) => {
-                    validateMaterialList(false, false);
+                    validateMaterialList(false, false, e.data.validationUid);
                 }
             };
             //</editor-fold>
@@ -890,10 +929,23 @@
                 postEditingData(supplyOperationData);
             }
 
-            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity) {
+            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity, validationUid) {
+                let validationData;
+                if (validationUid && !(saveEditedData)) {
+                    validationData = supplyMaterialDataSource.store().createQuery()
+                                .filter(['validationUid', '=', validationUid])
+                                .toArray();
+                } else {
+                    validationData = supplyMaterialDataSource.store().createQuery()
+                        .toArray();
+                }
+
+                updateRowsValidationState(validationData, "inProcess", "none")
+
                 let supplyOperationData = {
-                    materials: supplyMaterialData,
-                    project_object_id: operationForm.option("formData").project_object_id
+                    materials: validationData,
+                    project_object_id: operationForm.option("formData").project_object_id,
+                    timestamp: new Date()
                 };
                 $.ajax({
                     url: "{{route('materials.operations.supply.new.validate-material-list')}}",
@@ -901,93 +953,83 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
+                    contentType: "json",
                     dataType: "json",
-                    data: {
-                        supplyOperationData
-                    },
+                    data: JSON.stringify(supplyOperationData),
                     success: function (e) {
-                        $('.fa-exclamation-triangle').attr('style', 'display:none');
-                        if (saveEditedData) {
-                            saveOperationData();
-                        }
-                    },
-                    error: function (e) {
-                        if (e.responseJSON.result === 'error') {
-                            let needToShowErrorWindow = false;
+                        let needToShowErrorWindow = false;
+                        delete(materialErrorList["common"]);
+                        e.validationResult.forEach((validationElement) => {
+                            if (materialErrorList[validationElement.validationUid]) {
+                                let materialListTimestamp = new Date(materialErrorList[validationElement.validationUid].timestamp);
+                                let currentResponseTimestamp = new Date(e.timestamp);
 
-                            $('.fa-exclamation-triangle').attr('style', 'display:none');
-                            e.responseJSON.errors.forEach((errorElement) => {
-                                updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') + ']'), errorElement);
-                                errorElement.errorList.forEach((errorItem) => {
+                                if (materialListTimestamp < currentResponseTimestamp) {
+                                    delete (materialErrorList[validationElement.validationUid]);
+                                } else {
+                                    return;
+                                }
+                            }
+
+                            let validatedData = supplyMaterialDataSource.store().createQuery()
+                                .filter(['validationUid', '=', validationElement.validationUid])
+                                .toArray();
+
+                            if (validationElement.isValid) {
+                                updateRowsValidationState(validatedData, "validated", "valid");
+                            } else {
+                                materialErrorList[validationElement.validationUid] = {};
+                                materialErrorList[validationElement.validationUid].errorList = validationElement.errorList;
+                                materialErrorList[validationElement.validationUid].timestamp = e.timestamp;
+                                updateRowsValidationState(validatedData, "validated", "invalid");
+                            }
+
+                            if (!validationElement.isValid) {
+                                validationElement.errorList.forEach((errorItem) => {
                                     if (showErrorWindowOnHighSeverity) {
                                         if (errorItem.severity > 500) {
                                             needToShowErrorWindow = true;
                                         }
                                     }
                                 })
-                            })
-
-                            if (needToShowErrorWindow) {
-                                showErrorWindow(e.responseJSON.errors);
                             }
-                            materialErrorList = e.responseJSON.errors;
+                        })
 
-                            if (!needToShowErrorWindow){
-                                if (saveEditedData) {
-                                    saveOperationData();
-                                }
-                            }
-                        } else {
-                            DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
+                        if (needToShowErrorWindow) {
+                            showErrorWindow(materialErrorList);
                         }
+
+                        if (!needToShowErrorWindow){
+                            if (saveEditedData) {
+                                saveOperationData();
+                            }
+                        }
+
+                        setButtonIndicatorVisibleState("createSupplyOperation", false)
+                        setElementsDisabledState(false);
+                    },
+                    error: function (e) {
+                        DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
                         setButtonIndicatorVisibleState("createSupplyOperation", false)
                         setElementsDisabledState(false);
                     }
                 });
             }
 
-            function updateValidationExclamationTriangles(element, errorElement) {
-                let maxSeverity = 0;
-                let errorDescription = "";
-                let exclamationTriangleStyle = ""
+            function getValidationUid(){
+                return new DevExpress.data.Guid().toString();
+            }
 
-                errorElement.errorList.forEach((errorItem) => {
-                    if (errorItem.severity > maxSeverity) {
-                        maxSeverity = errorItem.severity;
-                    }
-
-                    errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
+            function updateRowsValidationState(data, validationState, validationResult){
+                data.forEach((element) => {
+                    supplyMaterialDataSource.store()
+                        .update(element.id, {validationState: validationState, validationResult: validationResult})
+                        .done((dataObj, key) => {
+                            let supplyMaterialGrid = getSupplyMaterialGrid();
+                            let rowIndex = supplyMaterialGrid.getRowIndexByKey(key);
+                            supplyMaterialGrid.repaintRows(rowIndex);
+                        });
                 })
-
-                switch (maxSeverity) {
-                    case 500:
-                        exclamationTriangleStyle = 'color: #ffd358';
-                        break;
-                    case 1000:
-                        exclamationTriangleStyle = 'color: #f15a5a';
-                        break;
-                    default:
-                        exclamationTriangleStyle = "display: none";
-                }
-
-                element.attr('style', exclamationTriangleStyle);
-                element.attr('severity', maxSeverity);
-                element.mouseenter(function () {
-                    if (!errorDescription) {
-                        return;
-                    }
-
-                    let validationDescription = $('#validationTemplate');
-
-                    validationDescription.dxPopover({
-                        position: "top",
-                        width: 300,
-                        contentTemplate: "<ul>" + errorDescription + "</ul>",
-                        hideEvent: "mouseleave",
-                    })
-                        .dxPopover("instance")
-                        .show($(this));
-                });
             }
 
             function postEditingData(supplyOperationData) {
@@ -1111,8 +1153,8 @@
 
             function showErrorWindow(errorList){
                 let htmlMessage = "";
-                errorList.forEach((errorElement) => {
-                    errorElement.errorList.forEach((errorItem) => {
+                for (key in errorList) {
+                    errorList[key].errorList.forEach((errorItem) => {
                         switch (errorItem.severity) {
                             case 500:
                                 exclamationTriangleStyle = 'color: #ffd358';
@@ -1125,16 +1167,16 @@
                         }
 
                         htmlMessage += '<p><i class="fas fa-exclamation-triangle" style="' + exclamationTriangleStyle + '"></i>  ';
-                        if ( errorItem.itemName) {
+                        if (errorItem.itemName) {
                             htmlMessage += errorItem.itemName + ': ' + errorItem.message;
                         } else {
                             htmlMessage += errorItem.message;
                         }
                         htmlMessage += '</p>'
                     })
-                });
+                }
 
-                DevExpress.ui.dialog.alert(htmlMessage, "При сохранении операции обнаружены ошибки");
+                DevExpress.ui.dialog.alert(htmlMessage, "Обнаружены ошибки");
             }
 
             function validateConsignmentNumberUnique(value){
@@ -1169,7 +1211,13 @@
                     .prependTo(groupCaptionButtonsDiv)
             }
 
+            function getSupplyMaterialGrid () {
+                return operationForm.getEditor("supplyMaterialGrid");
+            }
+
             createAddMaterialsButton();
+
+
         });
     </script>
 @endsection

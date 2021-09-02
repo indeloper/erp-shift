@@ -16,6 +16,7 @@ use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Models\User;
+use Carbon\Carbon;
 use http\Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -66,53 +67,57 @@ class q3wMaterialSupplyOperationController extends Controller
     public function validateMaterialList(Request $request)
     {
         $errors = [];
-        if (isset($request->supplyOperationData['materials'])) {
-            $materials = $request->supplyOperationData['materials'];
+
+        $validationData = json_decode($request->getContent(), false);
+
+        if (empty($validationData->materials)) {
+            $errors['common']['errorList'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Материалы не указаны'];
         } else {
-            $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Материалы не указаны'];
+            $materials = $validationData->materials;
         }
 
-        $projectObject = ProjectObject::find($request->supplyOperationData['project_object_id']);
-        if (!isset($projectObject)) {
-            $errors['common'][] = (object)['severity' => 1000, 'type' => 'destinationProjectObjectNotFound', 'message' => 'Объект назначения не найден'];
+        $projectObject = ProjectObject::find($validationData->project_object_id);
+        if (empty($projectObject)) {
+            $errors['common']['errorList'][] = (object)['severity' => 1000, 'type' => 'destinationProjectObjectNotFound', 'message' => 'Объект назначения не найден'];
         }
 
-        if (isset($request->supplyOperationData['materials'])) {
+        if (!empty($validationData->materials)) {
             foreach ($materials as $material) {
-                $material = (object)$material;
                 $materialStandard = q3wMaterialStandard::find($material->standard_id);
 
-                if (!isset($materialStandard)) {
-                    $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "' . $material->standard_id . '" не существует'];
+                if (empty($materialStandard)) {
+                    $errors['common']['errorList'][] = (object)['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "' . $material->standard_id . '" не существует'];
                     continue;
                 }
 
-                $accountingType = $materialStandard->materialType->accounting_type;
-
-                switch ($accountingType) {
-                    case 2:
-                        $key = $material->id . '-' . $material->quantity;
-                        break;
-                    default:
-                        $key = $material->id;
-                }
+                $key = $material->validationUid;
 
                 $materialName = $materialStandard->name;
 
-                if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
+                if ($materialStandard->accounting_type == 2 && !empty($material->quantity)) {
+                    $materialName .= ' ('.$material->quantity.' м.п)';
                 }
 
-                if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
+                if (empty($material->amount)) {
+                    $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
                 }
 
-                if (!isset($errors[$key])) {
+                if (empty($material->quantity)) {
+                    $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
+                }
+
+                if (!empty($material->quantity)) {
                     if ($materialStandard->materialType->measure_unit == 1) {
                         if ($material->quantity > 15) {
-                            $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Габарит груза превышает 15 м.п.'];
+                            $errors[$key]['errorList'][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Габарит груза превышает 15 м.п.'];
                         }
                     }
+                }
+
+                if (isset($errors[$key]['errorList'])) {
+                    $errors[$key]['isValid'] = false;
+                } else {
+                    $errors[$key]['isValid'] = true;
                 }
             }
         }
@@ -120,19 +125,22 @@ class q3wMaterialSupplyOperationController extends Controller
         $errorResult = [];
 
         foreach ($errors as $key => $error){
-            $errorResult[] = ['validationId' => $key, 'errorList' => $error];
+            if ($key != "common") {
+                if ($error['isValid']) {
+                    $errorResult[] = ['validationUid' => $key, 'isValid' => $error['isValid']];
+                } else {
+                    $errorResult[] = ['validationUid' => $key, 'isValid' => $error['isValid'], 'errorList' => $error['errorList']];
+                }
+            } else {
+                $errorResult[] = ['validationUid' => $key, 'isValid' => false, 'errorList' => $error['errorList']];
+            }
+
         }
 
-        if (count($errors) == 0) {
-            return response()->json([
-                'result' => 'ok'
-            ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-        } else {
-            return response()->json([
-                'result' => 'error',
-                'errors' => $errorResult
-            ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-        }
+        return response()->json([
+            'validationResult' => $errorResult,
+            'timestamp' => $validationData->timestamp
+        ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -179,10 +187,19 @@ class q3wMaterialSupplyOperationController extends Controller
 
             $inputMaterialAmount = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
-
             if (isset($inputMaterial['comment'])) {
+                if ($inputMaterial['comment'] != "") {
+                    $inputMaterialComment = $inputMaterial['comment'];
+                } else {
+                    $inputMaterialComment = null;
+                }
+            } else {
+                $inputMaterialComment = null;
+            }
+
+            if (isset($inputMaterialComment)) {
                 $materialComment = new q3wOperationMaterialComment([
-                    'comment' => $inputMaterial['comment'],
+                    'comment' => $inputMaterialComment,
                     'author_id' => Auth::id()
                 ]);
                 $materialComment->save();
@@ -203,10 +220,18 @@ class q3wMaterialSupplyOperationController extends Controller
 
             if ($materialType->accounting_type == 2) {
                 $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $inputMaterialQuantity)
-                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
-                    ->where('comment', $inputMaterial['comment'] ?? null)
+                    ->where(function ($query) use ($inputMaterialComment) {
+                        if (isset($inputMaterialComment)) {
+                            $query->where('comment', '=', $inputMaterialComment);
+                        } else {
+                            $query->whereNull('comment_id');
+                        }
+                    })
+                    ->get(['q3w_materials.*',
+                            'q3w_material_comments.comment'])
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
@@ -224,9 +249,9 @@ class q3wMaterialSupplyOperationController extends Controller
 
                 $material -> save();
             } else {
-                if (isset($inputMaterial['comment'])) {
+                if (isset($inputMaterialComment)) {
                     $materialComment = new q3wMaterialComment([
-                        'comment' => $inputMaterial['comment'],
+                        'comment' => $inputMaterialComment,
                         'author_id' => Auth::id()
                     ]);
                     $materialComment->save();
