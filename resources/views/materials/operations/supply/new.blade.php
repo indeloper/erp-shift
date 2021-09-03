@@ -111,12 +111,13 @@
 
             });
 
-            let usersData = new DevExpress.data.DataSource({
-                reshapeOnPush: true,
-                store: new DevExpress.data.ArrayStore({
-                    key: "id",
-                    data: {!!$users!!}
-                })
+            let usersStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('users.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
             });
             //</editor-fold>
 
@@ -355,99 +356,38 @@
                         {
                             template: function (container, options) {
                                 let validationUid = options.data.validationUid;
+                                console.log("template div added");
+                                let validationDiv = $('<div class="row-validation-indicator"/>')
+                                    .attr("validation-uid", validationUid)
 
-                                let exclamationTriangle = $("<a>")
-                                    .attr("href", "#")
-                                    .attr("validationUid", validationUid)
-                                    .attr("style", "display: none")
-                                    .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon");
-
-                                switch (options.data.validationState) {
-                                    case "inProcess":
-                                        let indicatorDiv = $('<div class="cell-validation-loading-indicator">');
-                                        indicatorDiv.dxLoadIndicator({
-                                            visible: true,
-                                            width: 16,
-                                            height: 16
-                                        })
-                                        return indicatorDiv
-                                    case "validated":
-                                        if (options.data.validationResult === "valid"){
-                                            return;
-                                        } else {
-                                            let errorList = materialErrorList[options.data.validationUid].errorList;
-                                            let maxSeverity = 0;
-                                            let errorDescription = "";
-                                            let exclamationTriangleStyle = "";
-
-                                            errorList.forEach((errorItem) => {
-                                                if (errorItem.severity > maxSeverity) {
-                                                    maxSeverity = errorItem.severity;
-                                                }
-
-                                                errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
-                                            })
-
-                                            switch (maxSeverity) {
-                                                case 500:
-                                                    exclamationTriangleStyle = 'color: #ffd358';
-                                                    break;
-                                                case 1000:
-                                                    exclamationTriangleStyle = 'color: #f15a5a';
-                                                    break;
-                                                default:
-                                                    exclamationTriangleStyle = "display: none";
-                                            }
-
-                                            exclamationTriangle.attr('style', exclamationTriangleStyle);
-                                            exclamationTriangle.attr('severity', maxSeverity);
-                                            exclamationTriangle.click((e) => {
-                                                e.preventDefault();
-                                            });
-                                            exclamationTriangle.mouseenter(function () {
-                                                if (!errorDescription) {
-                                                    return;
-                                                }
-
-                                                let validationDescription = $('#validationTemplate');
-
-                                                validationDescription.dxPopover({
-                                                    position: "top",
-                                                    width: 300,
-                                                    contentTemplate: "<ul>" + errorDescription + "</ul>",
-                                                    hideEvent: "mouseleave",
-                                                })
-                                                    .dxPopover("instance")
-                                                    .show($(this));
-                                            });
-
-                                            return exclamationTriangle;
-                                        }
-                                        break;
-                                    default:
-                                        exclamationTriangle.hide();
-                                }
-
-                                return exclamationTriangle;
+                                updateRowsValidationState([options.data], options.data.validationState, options.data.validationResult, validationDiv);
+                                return validationDiv;
                             }
                         },
                         {
                             hint: "Удалить",
                             icon: "trash",
                             onClick: (e) => {
+                                console.log("detetion: ", e);
                                 e.component.deleteRow(e.row.rowIndex);
                                 e.component.refresh(true);
-                                validateMaterialList(false, false);
                             }
                         },
                         {
                         hint: "Дублировать",
                         icon: "copy",
                         onClick: function (e) {
-                            let clonedItem = $.extend({}, e.row.data, {id: ++supplyMaterialTempID});
+                            let clonedItem = $.extend({}, e.row.data, {id: ++supplyMaterialTempID,
+                                                                        validationUid: getValidationUid(),
+                                                                        validationState: "unvalidated",
+                                                                        validationResult: "none"
+                                                                        });
                             supplyMaterialData.splice(e.row.rowIndex, 0, clonedItem);
                             e.component.refresh(true);
-                            validateMaterialList(false, false);
+                            e.component.repaint();
+                            // let rowIndex = e.component.getRowIndexByKey(key);
+                            // e.component.repaintRows(rowIndex);
+                            validateMaterialList(false, false, clonedItem.validationUid);
                             e.event.preventDefault();
                         }
                     },
@@ -700,7 +640,8 @@
                             },
                             editorType: "dxDateBox",
                             editorOptions: {
-                                value: Date.now()
+                                value: Date.now(),
+                                disabled: true
                             },
                             validationRules: [{
                                 type: "required",
@@ -716,7 +657,9 @@
                             },
                             editorType: "dxSelectBox",
                             editorOptions: {
-                                dataSource: usersData,
+                                dataSource: {
+                                    store: usersStore
+                                },
                                 displayExpr: "full_name",
                                 valueExpr: "id",
                                 searchEnabled: true,
@@ -1004,9 +947,6 @@
                                 saveOperationData();
                             }
                         }
-
-                        setButtonIndicatorVisibleState("createSupplyOperation", false)
-                        setElementsDisabledState(false);
                     },
                     error: function (e) {
                         DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
@@ -1020,14 +960,91 @@
                 return new DevExpress.data.Guid().toString();
             }
 
-            function updateRowsValidationState(data, validationState, validationResult){
+            function updateRowsValidationState(data, validationState, validationResult, validationDiv){
                 data.forEach((element) => {
                     supplyMaterialDataSource.store()
                         .update(element.id, {validationState: validationState, validationResult: validationResult})
                         .done((dataObj, key) => {
-                            let supplyMaterialGrid = getSupplyMaterialGrid();
-                            let rowIndex = supplyMaterialGrid.getRowIndexByKey(key);
-                            supplyMaterialGrid.repaintRows(rowIndex);
+                            let validationIndicatorDiv;
+                            if (validationDiv) {
+                                validationIndicatorDiv = validationDiv;
+                            } else {
+                                validationIndicatorDiv = $('[validation-uid=' + dataObj.validationUid + ']');
+                            }
+                            console.log(dataObj.validationUid, validationState, validationResult)
+                            validationIndicatorDiv.empty();
+
+                            switch (dataObj.validationState) {
+                                case "inProcess":
+                                    let indicatorDiv = $('<div class="cell-validation-loading-indicator">');
+                                    indicatorDiv.dxLoadIndicator({
+                                        visible: true,
+                                        width: 16,
+                                        height: 16
+                                    }).appendTo(validationIndicatorDiv);
+                                    break;
+                                case "validated":
+                                    if (validationResult === "valid"){
+                                        let checkIcon = $("<i/>")
+                                            .addClass("dx-link dx-icon fas fa-check-circle dx-link-icon")
+                                            .attr("style", "color: #8bc34a")
+                                            .appendTo(validationIndicatorDiv);
+                                        return;
+                                    } else {
+                                        let exclamationTriangle = $("<a>")
+                                            .attr("href", "#")
+                                            .attr("style", "display: none")
+                                            .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon")
+                                            .appendTo(validationIndicatorDiv);
+
+                                        let errorList = materialErrorList[element.validationUid].errorList;
+                                        let maxSeverity = 0;
+                                        let errorDescription = "";
+                                        let exclamationTriangleStyle = "";
+
+                                        errorList.forEach((errorItem) => {
+                                            if (errorItem.severity > maxSeverity) {
+                                                maxSeverity = errorItem.severity;
+                                            }
+
+                                            errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
+                                        })
+
+                                        switch (maxSeverity) {
+                                            case 500:
+                                                exclamationTriangleStyle = 'color: #ffd358';
+                                                break;
+                                            case 1000:
+                                                exclamationTriangleStyle = 'color: #f15a5a';
+                                                break;
+                                            default:
+                                                exclamationTriangleStyle = "display: none";
+                                        }
+
+                                        exclamationTriangle.attr('style', exclamationTriangleStyle);
+                                        exclamationTriangle.attr('severity', maxSeverity);
+                                        exclamationTriangle.click((e) => {
+                                            e.preventDefault();
+                                        });
+                                        exclamationTriangle.mouseenter(function () {
+                                            if (!errorDescription) {
+                                                return;
+                                            }
+
+                                            let validationDescription = $('#validationTemplate');
+
+                                            validationDescription.dxPopover({
+                                                    position: "top",
+                                                    width: 300,
+                                                    contentTemplate: "<ul>" + errorDescription + "</ul>",
+                                                    hideEvent: "mouseleave",
+                                                })
+                                                .dxPopover("instance")
+                                                .show($(this));
+                                        });
+                                    }
+                                    break;
+                            }
                         });
                 })
             }

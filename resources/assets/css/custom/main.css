@@ -131,3 +131,7 @@ div.dx-datagrid-header-panel{
     margin: 0 2px;
     vertical-align: middle;
 }
+
+.row-validation-indicator {
+    float: left;
+}

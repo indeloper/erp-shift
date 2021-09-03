@@ -59,8 +59,7 @@ class q3wMaterialSupplyOperationController extends Controller
                 ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
                 ->get(['a.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
                 ->toJSON(),
-            'projectObjects' => ProjectObject::all('id', 'name', 'short_name')->toJson(JSON_UNESCAPED_UNICODE),
-            'users' => User::getAllUsers()->where('status', 1)->get()->toJson(JSON_UNESCAPED_UNICODE)
+            'projectObjects' => ProjectObject::all('id', 'name', 'short_name')->toJson(JSON_UNESCAPED_UNICODE)
         ]);
     }
 
@@ -166,7 +165,7 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
         $materialOperation->save();
 
-        if (isset($requestData['new_comment'])){
+        if (!empty($requestData['new_comment'])){
             $newComment = $requestData['new_comment'];
         } else {
             $newComment = self::EMPTY_COMMENT_TEXT;
@@ -187,14 +186,10 @@ class q3wMaterialSupplyOperationController extends Controller
 
             $inputMaterialAmount = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
-            if (isset($inputMaterial['comment'])) {
-                if ($inputMaterial['comment'] != "") {
-                    $inputMaterialComment = $inputMaterial['comment'];
-                } else {
-                    $inputMaterialComment = null;
-                }
-            } else {
+            if (empty($inputMaterial['comment'])) {
                 $inputMaterialComment = null;
+            } else {
+                $inputMaterialComment = $inputMaterial['comment'];
             }
 
             if (isset($inputMaterialComment)) {
@@ -224,7 +219,7 @@ class q3wMaterialSupplyOperationController extends Controller
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $inputMaterialQuantity)
                     ->where(function ($query) use ($inputMaterialComment) {
-                        if (isset($inputMaterialComment)) {
+                        if (!empty($inputMaterialComment)) {
                             $query->where('comment', '=', $inputMaterialComment);
                         } else {
                             $query->whereNull('comment_id');
@@ -249,7 +244,7 @@ class q3wMaterialSupplyOperationController extends Controller
 
                 $material -> save();
             } else {
-                if (isset($inputMaterialComment)) {
+                if (!empty($inputMaterialComment)) {
                     $materialComment = new q3wMaterialComment([
                         'comment' => $inputMaterialComment,
                         'author_id' => Auth::id()
