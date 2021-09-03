@@ -38,6 +38,7 @@ class q3wCommonController extends Controller
         $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
 
         return (new Contractor)->dxLoadOptions($dxLoadOptions)
+            ->orderBy('short_name')
             ->get(['id', 'short_name'])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
@@ -47,6 +48,8 @@ class q3wCommonController extends Controller
         $options = json_decode($request['data']);
 
         return (new User)->dxLoadOptions($options)
+            ->where('is_deleted', 0)
+            ->where('status', 1)
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->orderBy('patronymic')
