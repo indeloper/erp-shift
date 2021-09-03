@@ -589,6 +589,7 @@
                     totalItems: [{
                         column: "computed_weight",
                         summaryType: "sum",
+                        cssClass: "computed-weight-total-summary",
                         customizeText: function (data) {
                             return `Итого: ${data.value.toFixed(3)} т.`
                         }
@@ -927,6 +928,8 @@
                                 updateRowsValidationState(validatedData, "validated", "invalid");
                             }
 
+                            updateCommonValidationState();
+
                             if (!validationElement.isValid) {
                                 validationElement.errorList.forEach((errorItem) => {
                                     if (showErrorWindowOnHighSeverity) {
@@ -958,6 +961,40 @@
 
             function getValidationUid(){
                 return new DevExpress.data.Guid().toString();
+            }
+
+            function updateCommonValidationState() {
+                console.log("common material error list:", materialErrorList["common"]);
+                if (materialErrorList["common"]) {
+                    materialErrorList["common"].errorList.forEach((item) => {
+                        if (item.type === "totalWeightIsTooLarge"){
+                            let summary = $(".computed-weight-total-summary");
+                            $('<i/>').addClass("dx-link fas fa-exclamation-triangle")
+                                .attr("style", "color: #ffd358; margin-right: 4px;")
+                                .attr('severity', item.severity)
+                                .click((e) => {
+                                    e.preventDefault();
+                                })
+                                .mouseenter(function () {
+                                    if (!item.message) {
+                                        return;
+                                    }
+
+                                    let validationDescription = $('#validationTemplate');
+
+                                    validationDescription.dxPopover({
+                                        position: "top",
+                                        width: 300,
+                                        contentTemplate: "<ul>" + item.message + "</ul>",
+                                        hideEvent: "mouseleave",
+                                    })
+                                    .dxPopover("instance")
+                                    .show($(this));
+                                })
+                            .prependTo(summary);
+                        }
+                    })
+                }
             }
 
             function updateRowsValidationState(data, validationState, validationResult, validationDiv){

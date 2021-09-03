@@ -80,6 +80,8 @@ class q3wMaterialSupplyOperationController extends Controller
             $errors['common']['errorList'][] = (object)['severity' => 1000, 'type' => 'destinationProjectObjectNotFound', 'message' => 'Объект назначения не найден'];
         }
 
+        $totalWeight = 0;
+
         if (!empty($validationData->materials)) {
             foreach ($materials as $material) {
                 $materialStandard = q3wMaterialStandard::find($material->standard_id);
@@ -113,12 +115,20 @@ class q3wMaterialSupplyOperationController extends Controller
                     }
                 }
 
+                if (!empty($material->amount) && !empty($material->quantity)){
+                    $totalWeight = $material->amount * $material->quantity * $materialStandard->weight;
+                }
+
                 if (isset($errors[$key]['errorList'])) {
                     $errors[$key]['isValid'] = false;
                 } else {
                     $errors[$key]['isValid'] = true;
                 }
             }
+        }
+
+        if ($totalWeight > 20) {
+            $errors['common']['errorList'][] = (object)['severity' => 500, 'type' => 'totalWeightIsTooLarge', 'message' => 'Общий вес груза превышает 20 т'];
         }
 
         $errorResult = [];
