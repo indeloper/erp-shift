@@ -143,7 +143,6 @@ class q3wMaterialSupplyOperationController extends Controller
             } else {
                 $errorResult[] = ['validationUid' => $key, 'isValid' => false, 'errorList' => $error['errorList']];
             }
-
         }
 
         return response()->json([

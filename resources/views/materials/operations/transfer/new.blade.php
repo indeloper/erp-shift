@@ -30,7 +30,13 @@
 
         </div>
     </div>
-
+    <div id="materialCommentPopoverContainer">
+        <div id="materialCommentTemplate" data-options="dxTemplate: { name: 'materialCommentTemplate' }">
+        </div>
+    </div>
+    <div id="commentPopupContainer">
+        <div id="commentEditForm"></div>
+    </div>
     <div id="standardRemainsPopoverContainer">
         <div id="standardRemainsTemplate" data-options="dxTemplate: { name: 'standardRemainsTemplate' }">
         </div>
@@ -45,6 +51,8 @@
             let transferOperationInitiator = "{{$transferOperationInitiator}}"; //one of "none", "source", "destination"
             let materialErrorList = [];
             let suspendSourceObjectLookupValueChanged = false;
+            let isTransferMaterialStoreBeenAlreadyLoaded = false;
+            let commentData = null;
 
             let measureUnitsStore = new DevExpress.data.CustomStore({
                 key: "id",
@@ -119,15 +127,18 @@
                 })
             })
 
-            let transferMaterialData = {!! $predefinedMaterials !!};
+            let transferMaterialData = {!!$predefinedMaterials !!};
             let transferMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
                 data: transferMaterialData,
-                onLoaded: () => { if (transferOperationInitiator === "source") {
-                        validateMaterialList(false, false)
+                onLoaded: () => {
+                    if (!isTransferMaterialStoreBeenAlreadyLoaded) {
+                        validateMaterialList(false, false);
+                        isTransferMaterialStoreBeenAlreadyLoaded = true;
                     }
                 }
             })
+
             let transferMaterialDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
                 store: transferMaterialStore
@@ -151,6 +162,32 @@
                 },
             });
             //</editor-fold>
+
+            let materialCommentEditForm = $("#commentEditForm").dxForm({
+                colCount: 1,
+                items: [{
+                    editorType: "dxTextArea",
+                    name: "materialCommentTextArea",
+                    editorOptions: {
+                        width: 600,
+                        height: 200
+                    }
+                },
+                {
+                    itemType: "button",
+                    buttonOptions: {
+                        text: "ОК",
+                        type: "default",
+                        stylingMode: "text",
+                        useSubmitBehavior: false,
+                        onClick: (e) => {
+                            commentData.comment = materialCommentEditForm.getEditor("materialCommentTextArea").option("value");
+                            $("#commentPopupContainer").dxPopup("hide");
+                            getTransferMaterialGrid().refresh();
+                        }
+                    }
+                }]
+            }).dxForm("instance");
 
             let materialsStandardsAddingForm = $("#materialsStandardsAddingForm").dxForm({
                 colCount: 2,
@@ -188,7 +225,7 @@
                                 showCheckBoxesMode: "always"
                             },
                             paging: {
-                                enabled: true
+                                enabled: false
                             },
                             searchPanel: {
                                 visible: true,
@@ -219,13 +256,16 @@
 
                                     let quantity;
                                     let amount;
+                                    let comment;
 
                                     if (transferOperationInitiator === "destination") {
                                         quantity = "";
                                         amount = "";
+                                        comment = "";
                                     } else {
                                         quantity = options.data.quantity ? options.data.quantity + " " : "";
                                         amount = options.data.amount ? options.data.amount + " " : "";
+                                        comment = options.data.comment ? '; ' + options.data.comment + ')' : ")";
                                     }
                                     switch (options.data.accounting_type) {
                                         case 2:
@@ -235,7 +275,9 @@
                                                 options.data.measure_unit_value +
                                                 '; ' +
                                                 amount +
-                                                'шт)'
+                                                'шт; ' +
+                                                comment +
+                                                ')'
                                             )
                                         default:
                                             return $("<div>").text(options.data.standard_name +
@@ -360,6 +402,7 @@
 
                                 selectedMaterialsData.forEach(function (material) {
                                     let quantity;
+                                    let amount = null;
 
                                     switch (material.accounting_type) {
                                         case 2:
@@ -368,6 +411,8 @@
                                         default:
                                             quantity = null;
                                     }
+
+                                    let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.comment_id);
 
                                     transferMaterialDataSource.store().insert({
                                         id: new DevExpress.data.Guid().toString(),
@@ -379,14 +424,22 @@
                                         measure_unit_value: material.measure_unit_value,
                                         standard_weight: material.weight,
                                         quantity: quantity,
-                                        amount: null,
+                                        amount: amount,
+                                        comment: material.comment,
+                                        initial_comment_id: material.comment_id,
+                                        initial_comment: material.comment,
                                         total_quantity: material.quantity,
-                                        total_amount: material.amount
+                                        total_amount: material.amount,
+                                        validationUid: validationUid,
+                                        validationState: "unvalidated",
+                                        validationResult: "none"
                                     })
-                                })
+
+                                    validateMaterialList(false, false, validationUid);
+                                });
+
                                 transferMaterialDataSource.reload();
                                 $("#popupContainer").dxPopup("hide");
-                                validateMaterialList(false, false);
                             }
                         }
                     }
@@ -399,6 +452,12 @@
                 title: "Выберите материалы для добавления"
             });
 
+            let materialCommentPopupContainer = $("#commentPopupContainer").dxPopup({
+                height: "auto",
+                width: "auto",
+                title: "Введите комментарий"
+            });
+
             //<editor-fold desc="JS: Columns definition">
             let transferMaterialColumns = [
                 {
@@ -407,40 +466,12 @@
                     buttons: [
                         {
                             template: function (container, options) {
-                                let validationId = "0";
-                                let standardId = "";
-                                let quantity = "";
+                                let validationUid = options.data.validationUid;
+                                let validationDiv = $('<div class="row-validation-indicator"/>')
+                                    .attr("validation-uid", validationUid)
 
-                                if (options.data.quantity) {
-                                    quantity = options.data.quantity;
-                                }
-
-                                if (options.data.standard_id) {
-                                    standardId = options.data.standard_id;
-                                }
-
-                                switch (options.data.accounting_type) {
-                                    case 2:
-                                        validationId = standardId + "-" + quantity
-                                        break;
-                                    default:
-                                        validationId = standardId;
-                                }
-
-
-                                let exclamationTriangle = $("<a>")
-                                    .attr("href", "#")
-                                    .attr("validationId", validationId)
-                                    .attr("style", "display: none")
-                                    .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon");
-
-                                materialErrorList.forEach((errorElement) => {
-                                    if (errorElement.validationId === validationId) {
-                                        updateValidationExclamationTriangles(exclamationTriangle, errorElement);
-                                    }
-                                })
-
-                                return exclamationTriangle;
+                                updateRowsValidationState([options.data], options.data.validationState, options.data.validationResult, validationDiv);
+                                return validationDiv;
                             }
                         },
                         {
@@ -448,19 +479,80 @@
                             icon: "trash",
                             onClick: (e) => {
                                 e.component.deleteRow(e.row.rowIndex);
-                                e.component.refresh(true);
-                                validateMaterialList(false, false);
                             }
                         },
                         {
                             hint: "Дублировать",
                             icon: "copy",
                             onClick: function (e) {
-                                let clonedItem = $.extend({}, e.row.data, {id: new DevExpress.data.Guid().toString()});
-                                transferMaterialDataSource.store().insert(clonedItem);
-                                e.component.refresh(true);
-                                validateMaterialList(false, false);
+                                let clonedItemId = new DevExpress.data.Guid().toString();
+
+                                let clonedItem = $.extend({},
+                                    e.row.data, {
+                                        id: clonedItemId,
+                                        validationUid: getValidationUid(e.row.data.standard_id, e.row.data.accounting_type, e.row.data.quantity, e.row.data.amount, e.row.data.initial_comment_id)
+                                    }
+                                );
+
+                                transferMaterialDataSource.store().insert(clonedItem).done(() => {
+                                    transferMaterialDataSource.reload();
+                                    validateMaterialList(false, false, clonedItem.validationUid);
+
+                                });
+
                                 e.event.preventDefault();
+                            }
+                        },
+                        {
+                            hint: "Комментарии",
+                            icon: "fas fa-message",
+
+                            template: (container, options) => {
+                                let accountingType;
+
+                                if (options.data.accounting_type) {
+                                    accountingType = options.data.accounting_type;
+                                }
+
+                                let commentIconClass = !options.data.initial_comment_id ? "far fa-comment" : "fas fa-comment";
+
+                                let commentLink;
+
+                                switch (accountingType) {
+                                    case 2:
+                                        commentLink = $("<a>")
+                                            .attr("href", "#")
+                                            .attr("title", "Комментарий")
+                                            .addClass("dx-link dx-icon " + commentIconClass + " dx-link-icon")
+                                            .click(() => {
+                                                commentData = options.data;
+                                                if (commentData.comment) {
+                                                    materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.comment);
+                                                } else {
+                                                    materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                                }
+                                                $("#commentPopupContainer").dxPopup("show");
+                                            })
+                                            .mouseenter(function () {
+                                                if (!options.data.comment) {
+                                                    return;
+                                                }
+
+                                                let materialCommentPopover = $('#materialCommentTemplate');
+                                                materialCommentPopover.dxPopover({
+                                                    position: "top",
+                                                    width: 300,
+                                                    contentTemplate: options.data.comment,
+                                                    hideEvent: "mouseleave",
+                                                })
+                                                    .dxPopover("instance")
+                                                    .show($(this));
+                                            });
+                                        break;
+                                    default:
+                                        return;
+                                }
+                                return commentLink;
                             }
                         }]
                 },
@@ -484,13 +576,10 @@
                         } else {
                             let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
                                 .appendTo(container);
-                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}"></div>`)
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
-                            console.log(divStandardRemains);
-
                             divStandardRemains.mouseenter(function () {
-                                console.log('mouseenter');
                                 let standardRemainsPopover = $('#standardRemainsTemplate');
                                 standardRemainsPopover.dxPopover({
                                         position: "top",
@@ -571,7 +660,6 @@
                                 .appendTo(container);
                         }
                     },
-
                 },
                 {
                     dataField: "material_type",
@@ -600,6 +688,9 @@
                 },
                 groupPanel: {
                     visible: false
+                },
+                paging: {
+                    enabled: false
                 },
                 editing: {
                     mode: "cell",
@@ -636,44 +727,32 @@
                     totalItems: [{
                         column: "computed_weight",
                         summaryType: "sum",
-                        //displayFormat: "Итого: {0} т.",
+                        cssClass: "computed-weight-total-summary",
                         customizeText: function (data) {
                             return `Итого: ${data.value.toFixed(3)} т.`
                         }
                     }]
                 },
 
-                /*onEditorPreparing: (e) => {
-                    if (e.dataField === "quantity" && e.parentType === "dataRow") {
+                onEditorPreparing: (e) => {
+                    if (e.dataField === "quantity" && e.parentType === "dataRow" && transferOperationInitiator === "source") {
                         if (e.row.data.accounting_type === 2) {
                             e.cancel = true;
+                            e.editorElement.append($(`<div>${e.row.data.quantity} ${e.row.data.measure_unit_value}</div>`))
                         }
                     }
-                },*/
+                },
+                onRowUpdating: (e) => {
+                    e.newData.validationUid = getValidationUid(e.oldData.standard_id, e.oldData.accounting_type, e.oldData.quantity, e.newData.amount, e.oldData.initial_comment_id);
+                    e.newData.validationState = "unvalidated";
+                    e.newData.validationResult = "none";
+                },
                 onRowUpdated: (e) => {
                     recalculateStandardsRemains(e.key);
-                    validateMaterialList(false, false);
+                    validateMaterialList(false, false, e.data.validationUid);
                 },
-                onToolbarPreparing: function (e) {
-                    let dataGrid = e.component;
-                    e.toolbarOptions.items.unshift(
-                        {
-                            location: "before",
-                            widget: "dxButton",
-                            options: {
-                                icon: "add",
-                                text: "Добавить",
-                                onClick: function (e) {
-                                    selectedMaterialStandardsListDataSource.store().clear();
-
-                                    let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
-                                    materialsStandardsList.option("selectedRowKeys", []);
-
-                                    $("#popupContainer").dxPopup("show")
-                                }
-                            }
-                        }
-                    );
+                onRowRemoved: (e) => {
+                    validateMaterialList(false, false, e.data.validationUid);
                 }
             };
             //</editor-fold>
@@ -706,6 +785,13 @@
                                 function updateComponentsDataSources(sourceProjectObjectIdValue) {
                                     sourceProjectObjectId = sourceProjectObjectIdValue;
                                     transferMaterialStore.clear();
+                                    transferMaterialDataSource.reload();
+                                    reloadMaterialsStandardsListDataSource();
+                                }
+
+                                function reloadMaterialsStandardsListDataSource () {
+                                    let dataGrid = materialsStandardsAddingForm.getEditor("materialsStandardsList")
+                                    dataGrid.option("dataSource").reload();
                                 }
 
                                 if (suspendSourceObjectLookupValueChanged) {
@@ -716,7 +802,7 @@
                                 let oldValue = e.previousValue;
                                 let currentValue = e.value;
 
-                                if (operationForm.getEditor("transferMaterialGrid").option("dataSource").items().length > 0 && e.previousValue !== null) {
+                                if (getTransferMaterialGrid().getDataSource().items().length > 0 && e.previousValue !== null) {
                                     let confirmDialog = DevExpress.ui.dialog.confirm('При смене объекта отправления будут удалены введенные данные по материалам операции.<br>Продолжить?', 'Смена объекта отправления');
                                     confirmDialog.done(function (dialogResult) {
                                         if (dialogResult) {
@@ -869,6 +955,7 @@
                     {
                         itemType: "group",
                         caption: "Материалы",
+                        cssClass: "materials-grid",
                         colSpan: 2,
                         items: [{
                             dataField: "",
@@ -880,7 +967,7 @@
                     },
                     {
                         itemType: "group",
-                        caption: "Комментрий",
+                        caption: "Комментарий",
                         colSpan: 2,
                         items: [{
                             name: "newCommentTextArea",
@@ -1029,94 +1116,255 @@
                 postEditingData(transferOperationData);
             }
 
-            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity) {
+            function getValidationUid(standardId, accountingType, quantity, amount, initialCommentId){
+                let filterConditions;
+
+                switch (accountingType){
+                    case 2:
+                        if (!quantity || !amount) {
+                            return new DevExpress.data.Guid().toString();
+                        } else {
+                            filterConditions = [["standard_id", "=", standardId],
+                                "and",
+                                ["quantity", "=", quantity],
+                                "and",
+                                ["amount", ">", 0],
+                                "and",
+                                ["initial_comment_id", "=", initialCommentId]];
+                        }
+                        break;
+                    default:
+                        filterConditions = ["standard_id", "=", standardId];
+                }
+
+                let filteredData = getTransferMaterialGrid().getDataSource().store().createQuery()
+                    .filter(filterConditions)
+                    .toArray();
+
+                if (filteredData.length > 0) {
+                    return filteredData[0].validationUid
+                } else {
+                    return new DevExpress.data.Guid().toString();
+                }
+            }
+
+            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity, validationUid) {
+                let validationData;
+                if (validationUid && !(saveEditedData)) {
+                    validationData = transferMaterialDataSource.store().createQuery()
+                        .filter(['validationUid', '=', validationUid])
+                        .toArray();
+                } else {
+                    validationData = transferMaterialDataSource.store().createQuery()
+                        .toArray();
+                }
+
+                updateRowsValidationState(validationData, "inProcess", "none")
+
+                let transferOperationData = {
+                    materials: validationData,
+                    sourceProjectObjectId: sourceProjectObjectId,
+                    timestamp: new Date()
+                };
                 $.ajax({
-                    dataType: "json",
+                    url: "{{route('materials.operations.transfer.validate-material-list')}}",
                     method: "POST",
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    url: "{{route('materials.operations.transfer.validate-material-list')}}",
-                    data: {
-                        sourceProjectObjectId: sourceProjectObjectId,
-                        materials: transferMaterialDataSource.store().createQuery().toArray()
-                    },
-                    success: (e) => {
-                        $('.fa-exclamation-triangle').attr('style', 'display:none');
-                        if (saveEditedData) {
-                            saveOperationData();
-                        }
-                    },
-                    error: (e) => {
-                        if (e.responseJSON.result === 'error') {
-                            let needToShowErrorWindow = false;
+                    contentType: "json",
+                    dataType: "json",
+                    data: JSON.stringify(transferOperationData),
+                    success: function (e) {
+                        let needToShowErrorWindow = false;
 
-                            $('.fa-exclamation-triangle').attr('style', 'display:none');
-                            e.responseJSON.errors.forEach((errorElement) => {
-                                updateValidationExclamationTriangles($('[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') + ']'), errorElement);
-                                errorElement.errorList.forEach((errorItem) => {
+                        if (!validationUid) {
+                            materialErrorList = [];
+                        } else {
+                            delete (materialErrorList["common"]);
+                        }
+                        e.validationResult.forEach((validationElement) => {
+                            if (materialErrorList[validationElement.validationUid]) {
+                                let materialListTimestamp = new Date(materialErrorList[validationElement.validationUid].timestamp);
+                                let currentResponseTimestamp = new Date(e.timestamp);
+
+                                if (materialListTimestamp < currentResponseTimestamp) {
+                                    delete(materialErrorList[validationElement.validationUid]);
+                                } else {
+                                    return;
+                                }
+                            }
+
+                            let validatedData = transferMaterialDataSource.store().createQuery()
+                                .filter(['validationUid', '=', validationElement.validationUid])
+                                .toArray();
+
+                            if (validationElement.isValid) {
+                                updateRowsValidationState(validatedData, "validated", "valid");
+                            } else {
+                                materialErrorList[validationElement.validationUid] = {};
+                                materialErrorList[validationElement.validationUid].errorList = validationElement.errorList;
+                                materialErrorList[validationElement.validationUid].timestamp = e.timestamp;
+                                updateRowsValidationState(validatedData, "validated", "invalid");
+                            }
+
+                            updateCommonValidationState();
+
+                            if (!validationElement.isValid) {
+                                validationElement.errorList.forEach((errorItem) => {
                                     if (showErrorWindowOnHighSeverity) {
                                         if (errorItem.severity > 500) {
                                             needToShowErrorWindow = true;
                                         }
                                     }
                                 })
-                            })
-
-                            if (needToShowErrorWindow) {
-                                showErrorWindow(e.responseJSON.errors);
                             }
-                            materialErrorList = e.responseJSON.errors;
-                        } else {
-                            DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
+                        })
+
+                        if (needToShowErrorWindow) {
+                            showErrorWindow(materialErrorList);
+                            setButtonIndicatorVisibleState("createTransferOperation", false)
+                            setElementsDisabledState(false);
                         }
+
+                        if (!needToShowErrorWindow){
+                            if (saveEditedData) {
+                                saveOperationData();
+                            }
+                        }
+                    },
+                    error: function (e) {
+                        DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
                         setButtonIndicatorVisibleState("createTransferOperation", false)
                         setElementsDisabledState(false);
                     }
                 });
             }
 
-            function updateValidationExclamationTriangles(element, errorElement) {
-                let maxSeverity = 0;
-                let errorDescription = "";
-                let exclamationTriangleStyle = ""
+            function updateCommonValidationState() {
+                if (materialErrorList["common"]) {
+                    materialErrorList["common"].errorList.forEach((item) => {
+                        if (item.type === "totalWeightIsTooLarge"){
+                            let summary = $(".computed-weight-total-summary");
+                            $('<i/>').addClass("dx-link fas fa-exclamation-triangle")
+                                .attr("style", "color: #ffd358; margin-right: 4px;")
+                                .attr('severity', item.severity)
+                                .click((e) => {
+                                    e.preventDefault();
+                                })
+                                .mouseenter(function () {
+                                    if (!item.message) {
+                                        return;
+                                    }
 
-                errorElement.errorList.forEach((errorItem) => {
-                    if (errorItem.severity > maxSeverity) {
-                        maxSeverity = errorItem.severity;
-                    }
+                                    let validationDescription = $('#validationTemplate');
 
-                    errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
-                })
-
-                switch (maxSeverity) {
-                    case 500:
-                        exclamationTriangleStyle = 'color: #ffd358';
-                        break;
-                    case 1000:
-                        exclamationTriangleStyle = 'color: #f15a5a';
-                        break;
-                    default:
-                        exclamationTriangleStyle = "display: none";
-                }
-
-                element.attr('style', exclamationTriangleStyle);
-                element.attr('severity', maxSeverity);
-                element.click(function (e) {
-                    e.preventDefault();
-
-                    let validationDescription = $('#validationTemplate');
-
-                    validationDescription.dxPopover({
-                        position: "top",
-                        width: 300,
-                        contentTemplate: "<ul>" + errorDescription + "</ul>"
+                                    validationDescription.dxPopover({
+                                        position: "top",
+                                        width: 300,
+                                        contentTemplate: "<ul>" + item.message + "</ul>",
+                                        hideEvent: "mouseleave",
+                                    })
+                                        .dxPopover("instance")
+                                        .show($(this));
+                                })
+                                .prependTo(summary);
+                        }
                     })
-                        .dxPopover("instance")
-                        .show(e.target);
+                }
+            }
 
-                    return false;
-                });
+            function updateRowsValidationState(data, validationState, validationResult, validationDiv){
+                data.forEach((element) => {
+                    transferMaterialDataSource.store()
+                        .update(element.id, {validationState: validationState, validationResult: validationResult})
+                        .done((dataObj, key) => {
+                            let validationIndicatorDiv;
+                            if (validationDiv) {
+                                validationIndicatorDiv = validationDiv;
+                            } else {
+                                validationIndicatorDiv = $('[validation-uid=' + dataObj.validationUid + ']');
+                            }
+
+                            validationIndicatorDiv.empty();
+
+                            switch (dataObj.validationState) {
+                                case "inProcess":
+                                    let indicatorDiv = $('<div class="cell-validation-loading-indicator">');
+                                    indicatorDiv.dxLoadIndicator({
+                                        visible: true,
+                                        width: 16,
+                                        height: 16
+                                    }).appendTo(validationIndicatorDiv);
+                                    break;
+                                case "validated":
+                                    if (validationResult === "valid"){
+                                        let checkIcon = $("<i/>")
+                                            .addClass("dx-link dx-icon fas fa-check-circle dx-link-icon")
+                                            .attr("style", "color: #8bc34a")
+                                            .appendTo(validationIndicatorDiv);
+                                        return;
+                                    } else {
+                                        let exclamationTriangle = $("<a>")
+                                            .attr("href", "#")
+                                            .attr("style", "display: none")
+                                            .addClass("dx-link dx-icon fas fa-exclamation-triangle dx-link-icon")
+                                            .appendTo(validationIndicatorDiv);
+
+                                        if (!materialErrorList[element.validationUid].errorList){
+                                            return;
+                                        }
+
+                                        let errorList = materialErrorList[element.validationUid].errorList;
+                                        let maxSeverity = 0;
+                                        let errorDescription = "";
+                                        let exclamationTriangleStyle = "";
+
+                                        errorList.forEach((errorItem) => {
+                                            if (errorItem.severity > maxSeverity) {
+                                                maxSeverity = errorItem.severity;
+                                            }
+
+                                            errorDescription = errorDescription + "<li>" + errorItem.message + "</li>"
+                                        })
+
+                                        switch (maxSeverity) {
+                                            case 500:
+                                                exclamationTriangleStyle = 'color: #ffd358';
+                                                break;
+                                            case 1000:
+                                                exclamationTriangleStyle = 'color: #f15a5a';
+                                                break;
+                                            default:
+                                                exclamationTriangleStyle = "display: none";
+                                        }
+
+                                        exclamationTriangle.attr('style', exclamationTriangleStyle);
+                                        exclamationTriangle.attr('severity', maxSeverity);
+                                        exclamationTriangle.click((e) => {
+                                            e.preventDefault();
+                                        });
+                                        exclamationTriangle.mouseenter(function () {
+                                            if (!errorDescription) {
+                                                return;
+                                            }
+
+                                            let validationDescription = $('#validationTemplate');
+
+                                            validationDescription.dxPopover({
+                                                position: "top",
+                                                width: 300,
+                                                contentTemplate: "<ul>" + errorDescription + "</ul>",
+                                                hideEvent: "mouseleave",
+                                            })
+                                                .dxPopover("instance")
+                                                .show($(this));
+                                        });
+                                    }
+                                    break;
+                            }
+                        });
+                })
             }
 
             function postEditingData(transferOperationData) {
@@ -1152,12 +1400,14 @@
                     .done(function (dataItem) {
                         let calculatedQuantity = dataItem.total_quantity * dataItem.total_amount;
                         let calculatedAmount = dataItem.total_amount;
+                        let initialCommentId = dataItem.initial_comment_id ? dataItem.initial_comment_id : null;
 
-                        transferMaterialData.forEach((item) => {
+                        transferMaterialDataSource.store().createQuery().toArray().forEach((item) => {
                             if (item.standard_id === dataItem.standard_id) {
                                 switch (dataItem.accounting_type) {
                                     case 2:
-                                        if (item.quantity === dataItem.quantity) {
+                                        let itemComment = item.initial_comment_id ? item.initial_comment_id : null;
+                                        if (item.quantity === dataItem.quantity && itemComment === initialCommentId) {
                                             calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
                                         }
                                         break;
@@ -1169,7 +1419,7 @@
 
                         switch (dataItem.accounting_type) {
                             case 2:
-                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}']`).each(function () {
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}'][initial-comment-id='${dataItem.initial_comment_id}']`).each(function () {
                                     $(this).text(calculatedAmount + ' шт');
                                     if (calculatedAmount < 0){
                                         $(this).addClass("red")
@@ -1269,7 +1519,7 @@
 
             function setElementsDisabledState(state){
                 operationForm.getEditor("createTransferOperation").option("disabled", state);
-                operationForm.getEditor("transferMaterialGrid").option("disabled", state);
+                getTransferMaterialGrid().option("disabled", state);
                 operationForm.getEditor("sourceProjectObjectSelectBox").option("disabled", state);
                 operationForm.getEditor("operationDateStartDateBox").option("disabled", state);
                 operationForm.getEditor("sourceResponsibleUserSelectBox").option("disabled", state);
@@ -1288,8 +1538,8 @@
 
             function showErrorWindow(errorList){
                 let htmlMessage = "";
-                errorList.forEach((errorElement) => {
-                    errorElement.errorList.forEach((errorItem) => {
+                for (key in errorList) {
+                    errorList[key].errorList.forEach((errorItem) => {
                         switch (errorItem.severity) {
                             case 500:
                                 exclamationTriangleStyle = 'color: #ffd358';
@@ -1302,16 +1552,16 @@
                         }
 
                         htmlMessage += '<p><i class="fas fa-exclamation-triangle" style="' + exclamationTriangleStyle + '"></i>  ';
-                        if ( errorItem.itemName) {
+                        if (errorItem.itemName) {
                             htmlMessage += errorItem.itemName + ': ' + errorItem.message;
                         } else {
                             htmlMessage += errorItem.message;
                         }
                         htmlMessage += '</p>'
                     })
-                });
+                }
 
-                DevExpress.ui.dialog.alert(htmlMessage, "При сохранении операции обнаружены ошибки");
+                DevExpress.ui.dialog.alert(htmlMessage, "Обнаружены ошибки");
             }
 
             function validateConsignmentNumberUnique(value){
@@ -1322,6 +1572,35 @@
                     }
                 })
             }
+
+            function createAddMaterialsButton(){
+                let groupCaption = $('.materials-grid').find('.dx-form-group-with-caption');
+                $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
+                groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
+                let groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
+
+                $('<div>')
+                    .dxButton({
+                        text: "Добавить",
+                        icon: "fas fa-plus",
+                        onClick: (e) => {
+                            selectedMaterialStandardsListDataSource.store().clear();
+
+                            let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                            materialsStandardsList.option("selectedRowKeys", []);
+
+                            $("#popupContainer").dxPopup("show");
+                        }
+                    })
+                    .addClass('dx-form-group-caption-button')
+                    .prependTo(groupCaptionButtonsDiv)
+            }
+
+            function getTransferMaterialGrid() {
+                return operationForm.getEditor("transferMaterialGrid");
+            }
+
+            createAddMaterialsButton();
         });
     </script>
 @endsection

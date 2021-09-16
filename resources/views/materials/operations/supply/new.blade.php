@@ -309,6 +309,7 @@
 
                             selectedMaterialsData.forEach(function (materialStandard) {
                                 let validationUid = getValidationUid();
+
                                 supplyMaterialDataSource.store().insert({
                                     id: ++supplyMaterialTempID,
                                     standard_id: materialStandard.id,
@@ -356,7 +357,6 @@
                         {
                             template: function (container, options) {
                                 let validationUid = options.data.validationUid;
-                                console.log("template div added");
                                 let validationDiv = $('<div class="row-validation-indicator"/>')
                                     .attr("validation-uid", validationUid)
 
@@ -909,7 +909,7 @@
                                 let currentResponseTimestamp = new Date(e.timestamp);
 
                                 if (materialListTimestamp < currentResponseTimestamp) {
-                                    delete (materialErrorList[validationElement.validationUid]);
+                                    delete(materialErrorList[validationElement.validationUid]);
                                 } else {
                                     return;
                                 }
