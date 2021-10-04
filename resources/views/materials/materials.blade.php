@@ -104,23 +104,6 @@
             margin-right: 4px;
             background: white;
         }
-
-        .standard-name-cell-with-comment {
-            display: flex;
-            text-align: left;
-            flex-direction: column;
-            flex-wrap: nowrap;
-            align-items: flex-start;
-            margin: 0 -1px -1px 0;
-        }
-
-        .material-comment {
-            color: darkgray;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            width: 100%;
-            white-space: nowrap;
-            }
 </style>
 @endsection
 
