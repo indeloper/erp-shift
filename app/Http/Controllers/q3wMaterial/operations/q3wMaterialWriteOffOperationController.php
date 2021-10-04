@@ -53,12 +53,12 @@ class q3wMaterialWriteOffOperationController extends Controller
      */
     public function create(Request $request)
     {
+
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
         } else {
             $projectObjectId = 0;
         }
-
 
         return view('materials.operations.write-off.new')->with([
             'projectObjectId' => $projectObjectId,
@@ -80,57 +80,73 @@ class q3wMaterialWriteOffOperationController extends Controller
     {
         $errors = [];
 
-        if (isset($request->materials)) {
-            $materials = $request->materials;
+        $validationData = json_decode($request->getContent(), false);
+
+        if (empty($validationData->operationId)) {
+            $operationId = 0;
         } else {
-            $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Материалы не указаны'];
+            $operationId = $validationData->operationId;
         }
 
-        $projectObject = ProjectObject::find($request->project_object_id);
-        if (!isset($projectObject)) {
-            $errors['common'][] = (object)['severity' => 1000, 'type' => 'sourceProjectObjectNotFound', 'message' => 'Объект не найден'];
+        if (empty($validationData->materials)) {
+            $errors['common']['errorList'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Материалы не указаны'];
+        } else {
+            $materials = $validationData->materials;
         }
 
+        $projectObject = ProjectObject::find($validationData->projectObjectId);
+        if (empty($projectObject)) {
+            $errors['common']['errorList'][] = (object)['severity' => 1000, 'type' => 'sourceProjectObjectNotFound', 'message' => 'Объект отправления не найден'];
+        }
 
-
-        if (isset($request->materials)) {
+        if (!empty($materials)) {
             $unitedMaterials = [];
 
             foreach ($materials as $material) {
-                $material = (object)$material;
+                if (isset($material->edit_states) && in_array("deletedByRecipient", $material->edit_states)) {
+                    continue;
+                }
 
                 $materialStandard = q3wMaterialStandard::find($material->standard_id);
 
                 $accountingType = $materialStandard->materialType->accounting_type;
 
+                $key = $material->validationUid;
+
                 switch ($accountingType) {
                     case 2:
-                        $key = $material->standard_id . '-' . $material->quantity;
                         if (array_key_exists($key, $unitedMaterials)) {
                             $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
                         } else {
                             $unitedMaterials[$key] = $material;
+                            $unitedMaterials[$key]->max_quantity = $material->quantity;
                         }
                         break;
                     default:
-                        $key = $material->standard_id;
                         if (array_key_exists($key, $unitedMaterials)) {
+                            if ($unitedMaterials[$key]->max_quantity < $material->quantity){
+                                $unitedMaterials[$key]->max_quantity = $material->quantity;
+                            }
                             $unitedMaterials[$key]->quantity = $unitedMaterials[$key]->quantity + $material->quantity * $material->amount;
-                            $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
+                            $unitedMaterials[$key]->amount = 1;
                         } else {
                             $unitedMaterials[$key] = $material;
+                            $unitedMaterials[$key]->max_quantity = $material->quantity;
                             $unitedMaterials[$key]->quantity = $material->quantity * $material->amount;
+                            $unitedMaterials[$key]->amount = 1;
                         }
                 }
 
                 if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в штуках не указано'];
+                    $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в штуках не указано'];
                 }
 
                 if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в единицах измерения не указано'];
+                    $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в единицах измерения не указано'];
                 }
             }
+
+            $totalWeight = 0;
 
             foreach ($unitedMaterials as $key => $unitedMaterial) {
                 $materialStandard = q3wMaterialStandard::find($unitedMaterial->standard_id);
@@ -140,6 +156,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                 $materialName = $materialStandard->name;
 
                 if (isset($errors[$key]) && count($errors[$key]) > 0) {
+                    $errors[$key]['isValid'] = false;
                     continue;
                 }
 
@@ -148,11 +165,21 @@ class q3wMaterialWriteOffOperationController extends Controller
                         ->where('project_object', $projectObject->id)
                         ->where('standard_id', $unitedMaterial->standard_id)
                         ->where('quantity', $unitedMaterial->quantity)
+                        ->where(function ($query) use ($unitedMaterial) {
+                            if (empty($unitedMaterial->initial_comment_id)){
+                                $query->whereNull('comment_id');
+                            } else {
+                                $query->where('comment_id', $unitedMaterial->initial_comment_id);
+                            }
+                        })
                         ->get()
                         ->first();
 
                     $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $unitedMaterial->standard_id)
                         ->where('quantity', $unitedMaterial->quantity)
+                        ->where('material_operation_id', '<>', $operationId)
+                        ->where('initial_comment_id', $unitedMaterial->initial_comment_id)
+                        ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
@@ -169,6 +196,8 @@ class q3wMaterialWriteOffOperationController extends Controller
                         ->first();
 
                     $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $unitedMaterial->standard_id)
+                        ->where('material_operation_id', '<>', $operationId)
+                        ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
@@ -182,46 +211,58 @@ class q3wMaterialWriteOffOperationController extends Controller
 
                 if (!isset($errors[$key])) {
                     if ($materialStandard->materialType->measure_unit == 1) {
-                        if ($unitedMaterial->quantity > 15) {
-                            $errors[$key][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Габарит груза превышает 15 м.п.'];
+                        if ($unitedMaterial->max_quantity > 15) {
+                            $errors[$key]['errorList'][] = (object)['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Габарит груза превышает 15 м.п.'];
                         }
                     }
                 }
 
                 if (!isset($sourceProjectObjectMaterial)) {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
+                    $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
                 } else {
                     if ($accountingType == 2) {
                         $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount;
                     } else {
                         $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity * $operationAmount;
-                        //dd($unitedMaterial);
                     }
 
                     if ($materialAmountDelta < 0) {
-                        $errors[$key][] = (object)['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'itemName' => $materialName, 'message' => 'На объекте отправления недостаточно материала'];
+                        $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'itemName' => $materialName, 'message' => 'На объекте отправления недостаточно материала'];
                     }
                 }
+
+                if (isset($errors[$key]['errorList'])) {
+                    $errors[$key]['isValid'] = false;
+                } else {
+                    $errors[$key]['isValid'] = true;
+                }
+
+                $totalWeight += $unitedMaterial->amount * $unitedMaterial->quantity * $materialStandard->weight;
             }
 
+            if ($totalWeight > 20) {
+                $errors['common']['errorList'][] = (object)['severity' => 500, 'type' => 'totalWeightTooLarge', 'message' => 'Общая масса материалов превышает 20 т.'];
+            }
         }
 
         $errorResult = [];
 
         foreach ($errors as $key => $error){
-            $errorResult[] = ['validationId' => $key, 'errorList' => $error];
+            if ($key != "common") {
+                if ($error['isValid']) {
+                    $errorResult[] = ['validationUid' => $key, 'isValid' => $error['isValid']];
+                } else {
+                    $errorResult[] = ['validationUid' => $key, 'isValid' => $error['isValid'], 'errorList' => $error['errorList']];
+                }
+            } else {
+                $errorResult[] = ['validationUid' => $key, 'isValid' => false, 'errorList' => $error['errorList']];
+            }
         }
 
-        if (count($errors) == 0) {
-            return response()->json([
-                'result' => 'ok'
-            ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-        } else {
-            return response()->json([
-                'result' => 'error',
-                'errors' => $errorResult
-            ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-        }
+        return response()->json([
+            'validationResult' => $errorResult,
+            'timestamp' => $validationData->timestamp
+        ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
     /**

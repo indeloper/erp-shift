@@ -197,7 +197,6 @@
                     caption: "Материалы",
                     items: [{
                         editorType: "dxDataGrid",
-
                         name: "materialsStandardsList",
                         editorOptions: {
                             @if ($transferOperationInitiator == 'destination')
@@ -275,9 +274,8 @@
                                                 options.data.measure_unit_value +
                                                 '; ' +
                                                 amount +
-                                                'шт; ' +
-                                                comment +
-                                                ')'
+                                                'шт;' +
+                                                comment
                                             )
                                         default:
                                             return $("<div>").text(options.data.standard_name +

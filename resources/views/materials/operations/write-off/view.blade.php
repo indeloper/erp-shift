@@ -37,6 +37,8 @@
             let materialStandardsData = {!!$materialStandards!!};
             let materialTypesData = {!!$materialTypes!!};
             let materialErrorList = [];
+            let suspendSourceObjectLookupValueChanged = false;
+            let commentData = null;
 
             //<editor-fold desc="JS: DataSources">
             let materialsListStore = new DevExpress.data.CustomStore({
@@ -94,6 +96,31 @@
                 })
             });
             //</editor-fold>
+            let materialCommentEditForm = $("#commentEditForm").dxForm({
+                colCount: 1,
+                items: [{
+                    editorType: "dxTextArea",
+                    name: "materialCommentTextArea",
+                    editorOptions: {
+                        width: 600,
+                        height: 200
+                    }
+                },
+                    {
+                        itemType: "button",
+                        buttonOptions: {
+                            text: "ОК",
+                            type: "default",
+                            stylingMode: "text",
+                            useSubmitBehavior: false,
+                            onClick: (e) => {
+                                commentData.comment = materialCommentEditForm.getEditor("materialCommentTextArea").option("value");
+                                $("#commentPopupContainer").dxPopup("hide");
+                                getWriteOffMaterialGrid().refresh();
+                            }
+                        }
+                    }]
+            }).dxForm("instance");
 
             @if(in_array($routeStageId, [77]) && ($allowEditing || $allowCancelling))
             let applyOperationButtonGroup = {
@@ -187,7 +214,37 @@
                         dataSource: materialStandardsData,
                         displayExpr: "name",
                         valueExpr: "id"
-                    }
+                    },
+                    cellTemplate: function (container, options) {
+                        if (options.data.total_amount === null) {
+                            $(`<div>${options.text}</div>`)
+                                .appendTo(container);
+                        } else {
+                            let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
+                                .appendTo(container);
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
+                                .appendTo(container);
+
+                            console.log(divStandardRemains);
+
+                            divStandardRemains.mouseenter(function () {
+                                console.log('mouseenter');
+                                let standardRemainsPopover = $('#standardRemainsTemplate');
+                                standardRemainsPopover.dxPopover({
+                                        position: "top",
+                                        width: 300,
+                                        contentTemplate: "Остаток материала на объекте отправления",
+                                        hideEvent: "mouseleave",
+                                    })
+                                .dxPopover("instance")
+                                .show($(this));
+
+                                return false;
+                            });
+                        }
+
+                        recalculateStandardsRemains(options.data.id);
+                    },
                 },
                 {
                     dataField: "quantity",
@@ -196,6 +253,7 @@
                     editorOptions: {
                         min: 0
                     },
+                    showSpinButtons: false,
                     cellTemplate: function (container, options) {
                         let quantity = options.data.quantity;
                         if (quantity !== null) {
@@ -206,7 +264,6 @@
                                 .appendTo(container);
                         }
                     },
-                    //validationRules: [{type: "required"}]
                 },
                 {
                     dataField: "amount",
@@ -225,8 +282,7 @@
                             $(`<div class="measure-units-only">шт</div>`)
                                 .appendTo(container);
                         }
-                    },
-                    //validationRules: [{type: "required"}]
+                    }
                 },
                 {
                     dataField: "computed_weight",
@@ -273,7 +329,7 @@
                 dataSource: writeOffMaterialDataSource,
                 focusedRowEnabled: false,
                 hoverStateEnabled: true,
-                columnAutoWidth : false,
+                columnAutoWidth: false,
                 showBorders: true,
                 showColumnLines: true,
                 grouping: {
@@ -281,6 +337,9 @@
                 },
                 groupPanel: {
                     visible: false
+                },
+                paging: {
+                    enabled: false
                 },
                 editing: {
                     mode: "cell",
@@ -317,6 +376,7 @@
                     totalItems: [{
                         column: "computed_weight",
                         summaryType: "sum",
+                        cssClass: "computed-weight-total-summary",
                         customizeText: function (data) {
                             return `Итого: ${data.value.toFixed(3)} т.`
                         }
@@ -327,7 +387,7 @@
                     if (e.dataField === "quantity" && e.parentType === "dataRow") {
                         if (e.row.data.accounting_type === 2) {
                             e.cancel = true;
-                            e.editorElement.append($("<div>" + e.row.data.quantity + " " + e.row.data.measure_unit_value + "</div>"))
+                            e.editorElement.append($(`<div>${e.row.data.quantity} ${e.row.data.measure_unit_value}</div>`))
                         }
                         console.log(e);
                     }
@@ -475,6 +535,46 @@
                         setElementsDisabledState(false);
                     }
                 })
+            }
+
+            function recalculateStandardsRemains(editedRowKey) {
+                writeOffMaterialStore.byKey(editedRowKey)
+                    .done(function (dataItem) {
+                        let calculatedQuantity = dataItem.total_quantity * dataItem.total_amount;
+                        let calculatedAmount = dataItem.total_amount;
+
+                        writeOffMaterialData.forEach((item) => {
+                            if (item.standard_id === dataItem.standard_id) {
+                                switch (dataItem.accounting_type) {
+                                    case 2:
+                                        if (item.quantity === dataItem.quantity) {
+                                            calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
+                                        }
+                                        break;
+                                    default:
+                                        calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
+                                }
+                            }
+                        })
+
+                        switch (dataItem.accounting_type) {
+                            case 2:
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][standard-quantity='${dataItem.quantity}'][initial-comment-id='${dataItem.initial_comment_id}']`).each(function () {
+                                    $(this).text(calculatedAmount + ' шт');
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
+                                });
+                                break;
+                            default:
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}']`).each(function () {
+                                    $(this).text(calculatedQuantity + ' ' + dataItem.measure_unit_value);
+                                    if (calculatedAmount < 0){
+                                        $(this).addClass("red")
+                                    }
+                                });
+                        }
+                    })
             }
 
             function setElementsDisabledState(state){
