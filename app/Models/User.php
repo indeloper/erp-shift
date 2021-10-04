@@ -226,7 +226,9 @@ class User extends Authenticatable
      */
     public function scopeWhoHaveBirthdayToday(Builder $query)
     {
-        return $query->where('birthday','like', '%' . now()->format('d.m') . '%');
+        return $query->where('birthday','like', '%' . now()->format('d.m') . '%')
+            ->where('status', '=', 1)
+            ->where('is_deleted', '=', 0);
     }
 
     /**
@@ -236,9 +238,10 @@ class User extends Authenticatable
      */
     public function scopeWhoHaveBirthdayNextWeek(Builder $query)
     {
-        return $query->where('birthday','like', '%' . now()->addWeek()->format('d.m') . '%');
+        return $query->where('birthday','like', '%' . now()->addWeek()->format('d.m') . '%')
+            ->where('status', '=', 1)
+            ->where('is_deleted', '=', 0);
     }
-
 
     public function hasLimitMode($mode = 0)
     {
@@ -343,7 +346,7 @@ class User extends Authenticatable
     public function technic_tickets()
     {
         return $this->belongsToMany(OurTechnicTicket::class, 'our_technic_ticket_user', 'user_id', 'tic_id')
-            ->groupBy('id')
+            ->groupBy(['id'])
             ->withPivot(['type', 'deactivated_at'])
             ->as('ticket_responsible')
             ->withTimestamps();
