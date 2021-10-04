@@ -42,7 +42,7 @@ class NotificationCreatedListener
 
         $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);
         try {
-            if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type)) {
+            if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and userIsActive($user)) {
                 Telegram::sendMessage([
                     'chat_id' => $userChatId,
                     'text' => $text
@@ -57,16 +57,16 @@ class NotificationCreatedListener
                         $text = $this->createErrorMessage($e);
                     }
 
-                    /*Telegram::sendMessage([
-                        'chat_id' => config('app.env') == 'production' ? '-1001481434440' : '-1001245014814',
+                    Telegram::sendMessage([
+                        'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
                         'text' => $text
-                    ]);*/
+                    ]);
                 }
             } catch (\Throwable $e) {
-                /*Telegram::sendMessage([
-                    'chat_id' => '-1001481434440',
+                Telegram::sendMessage([
+                    'chat_id' => '-1001505547789',
                     'text' => $userChatId
-                ]);*/
+                ]);
             }
         }
     }
@@ -79,6 +79,12 @@ class NotificationCreatedListener
     public function userHasChatIdAndAllowThisNotification(User $user, int $type): bool
     {
         return $user->chat_id and $user->checkIfNotifyNotDisabledInTelegram($type);
+    }
+
+    public function userIsActive(User $user): bool
+    {
+        return $user->status == 1 and
+            $user->is_deleted == 0;
     }
 
     public function reportValidationErrors(ValidationException $exception)
