@@ -1221,6 +1221,10 @@ $( ".review-tr,.review-li" ).click(function() {
         $('.make_review').removeClass('d-none');
     @endif
     function make_review(){
+        if (!$('#review_text').val()) { // В БД review - обязательнное поле. Если не заполнено, не сохраняем. Потому что в другом случае - надо валидировать.
+            return;
+        }
+
         $.ajax({
             url:"{{ route('projects::store_review', $commercial_offer->id) }}", //SET URL
             type: 'GET', //CHECK ACTION
