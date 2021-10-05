@@ -161,7 +161,17 @@ class q3wMaterialStandardController extends Controller
         return $queryResultArray = (new q3wMaterialStandard())->dxLoadOptions($dxLoadOptions)
             ->leftJoin('q3w_material_types as b', 'q3w_material_standards.material_type', '=', 'b.id')
             ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
-            ->get(['q3w_material_standards.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
+            ->get(['q3w_material_standards.id',
+                'q3w_material_standards.id as standard_id',
+                'q3w_material_standards.name as standard_name',
+                'q3w_material_standards.weight',
+                'q3w_material_standards.material_type',
+                'q3w_material_standards.participates_in_search',
+                'q3w_material_standards.name',
+                'b.name as material_type_name',
+                'b.measure_unit',
+                'b.accounting_type',
+                'd.value as measure_unit_value'])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }
