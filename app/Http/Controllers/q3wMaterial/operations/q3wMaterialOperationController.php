@@ -198,6 +198,7 @@ class q3wMaterialOperationController extends Controller
         return q3wOperationComment::where('material_operation_id', '=', $operationId)
             ->leftJoin('users', 'q3w_operation_comments.user_id', '=', 'users.id')
             ->leftJoin('q3w_operation_route_stages', 'q3w_operation_comments.operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
+            ->orderBy('q3w_operation_comments.created_at', 'desc')
             ->get([
                 'q3w_operation_comments.*',
                 'q3w_operation_route_stages.name as route_stage_name',
