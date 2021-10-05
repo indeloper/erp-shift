@@ -110,8 +110,8 @@ class q3wMaterialOperation extends Model
         switch ($this->routeStage->operation_route_stage_type_id) {
             case 2:
             case 7:
-                //$routeStageName = "completed";
-                $routeStageName = "view";
+                $routeStageName = "completed";
+                //$routeStageName = "view";
                 break;
             case 3:
             case 5:
