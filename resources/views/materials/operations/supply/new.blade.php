@@ -187,7 +187,7 @@
                                 placeholder: "Поиск..."
                             },
                             columns: [{
-                                dataField: "name",
+                                dataField: "standard_name",
                                 dataType: "string",
                                 caption: "Наименование",
                                 sortIndex: 0,
@@ -197,7 +197,7 @@
                                         let words = filterValue.split(" ");
                                         let filter = [];
                                         words.forEach(function (word) {
-                                            filter.push(["name", "contains", word]);
+                                            filter.push(["standard_name", "contains", word]);
                                             filter.push("and");
                                         });
                                         filter.pop();
@@ -206,10 +206,10 @@
                                     return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
                                 },
                                 cellTemplate: function (container, options) {
-                                    let text = options.data.name;
+                                    let text = options.data.standard_name;
                                     let searchWords = options.component.option('searchPanel').text.split(" ");
                                     let resElement = $('<span>')
-                                        .text(options.data.name);
+                                        .text(options.data.standard_name);
                                     searchWords.forEach(function (word) {
                                         if (word.length) {
                                             let startPos = text.toLowerCase().indexOf(word.toLowerCase()),
