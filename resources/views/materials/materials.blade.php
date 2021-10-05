@@ -224,29 +224,15 @@
                     sortIndex: 0,
                     sortOrder: "asc",
                     cellTemplate: function (container, options) {
-                        let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
+                        $(`<div class="standard-name">${options.text}</div>`)
                             .appendTo(container);
 
                         if (options.data.comment) {
-                            let divMaterialComment = $(`<div class="material-comment">${options.data.comment}</div>`)
+                             $(`<div class="material-comment">${options.data.comment}</div>`)
                                 .appendTo(container);
 
                             container.addClass("standard-name-cell-with-comment");
                         }
-
-                        /*divMaterialComment.mouseenter(function () {
-                            let standardRemainsPopover = $('#standardRemainsTemplate');
-                            standardRemainsPopover.dxPopover({
-                                position: "top",
-                                width: 300,
-                                contentTemplate: "Остаток материала на объекте отправления",
-                                hideEvent: "mouseleave",
-                            })
-                                .dxPopover("instance")
-                                .show($(this));
-
-                            return false;
-                        });*/
                     },
                     calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                         if (["contains", "notcontains"].indexOf(selectedFilterOperation) !== -1) {
