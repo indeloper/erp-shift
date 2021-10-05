@@ -9045,5 +9045,232 @@ class materialsSeeder extends Seeder
                 "description" => "Импортировано из ПО \"Металлопрокат\"",
             ]);
         }
+
+        if ("Угловой элемент" == "Угловой элемент"){
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент E22",
+                "material_type" => 6,
+                "weight" => 0.00102,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент LV22",
+                "material_type" => 6,
+                "weight" => 0.00080,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент C9",
+                "material_type" => 6,
+                "weight" => 0.00093,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент E20",
+                "material_type" => 6,
+                "weight" => 0.00154,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент LV8",
+                "material_type" => 6,
+                "weight" => 0.00085,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент С14",
+                "material_type" => 6,
+                "weight" => 0.00144,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент DELTA 13",
+                "material_type" => 6,
+                "weight" => 0.00131,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент LV20n",
+                "material_type" => 6,
+                "weight" => 0.00138,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент LV-Omega",
+                "material_type" => 6,
+                "weight" => 0.00138,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент Omega 18",
+                "material_type" => 6,
+                "weight" => 0.00180,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Угловой элемент Omega 17",
+                "material_type" => 6,
+                "weight" => 0.00173,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Замок-обойма ОБ",
+                "material_type" => 6,
+                "weight" => 0.00001,
+                "description" => "",
+            ]);
+        }
+
+        if ("Лист гк" == "Лист гк"){
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 8",
+                "material_type" => 7,
+                "weight" => 0.00628,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 10",
+                "material_type" => 7,
+                "weight" => 0.00785,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 12",
+                "material_type" => 7,
+                "weight" => 0.00942,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 14",
+                "material_type" => 7,
+                "weight" => 0.01099,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 16",
+                "material_type" => 7,
+                "weight" => 0.01256,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 20",
+                "material_type" => 7,
+                "weight" => 0.01570,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 22",
+                "material_type" => 7,
+                "weight" => 0.01727,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 30",
+                "material_type" => 7,
+                "weight" => 0.02355,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 50",
+                "material_type" => 7,
+                "weight" => 0.03925,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 28",
+                "material_type" => 7,
+                "weight" => 0.02198,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 25",
+                "material_type" => 7,
+                "weight" => 0.01963,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 32",
+                "material_type" => 7,
+                "weight" => 0.02512,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "лист г/к 100",
+                "material_type" => 7,
+                "weight" => 0.07850,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 24",
+                "material_type" => 7,
+                "weight" => 0.01884,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 5",
+                "material_type" => 7,
+                "weight" => 0.00393,
+                "description" => "",
+            ]);
+
+
+            DB::table("q3w_material_standards")->insert([
+                "name" => "Лист г/к 6",
+                "material_type" => 7,
+                "weight" => 0.00471,
+                "description" => "",
+            ]);
+        }
     }
+
 }

@@ -46,5 +46,19 @@ class materialTypesSeeder extends Seeder
             "accounting_type" => 1,
             "description" => "Швеллеры с параллельными гранями полок по ГОСТ 8240-89, швеллеры с углоном полок по ГОСТ 8240-89",
         ]);
+
+        DB::table("q3w_material_types")->insert([
+            "name" => "Угловой элемент",
+            "measure_unit" => 1,
+            "accounting_type" => 1,
+            "description" => "",
+        ]);
+
+        DB::table("q3w_material_types")->insert([
+            "name" => "Лист г/к",
+            "measure_unit" => 2,
+            "accounting_type" => 1,
+            "description" => "",
+        ]);
     }
 }
