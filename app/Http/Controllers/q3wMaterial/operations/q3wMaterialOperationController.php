@@ -209,4 +209,39 @@ class q3wMaterialOperationController extends Controller
             ])
             ->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
+
+    public function filesHistoryList(Request $request) {
+        $operationId = $request['operationId'];
+
+        q3wMaterialOperation::findOrFail($operationId);
+
+        $operationFiles = q3wOperationFile::where('material_operation_id', '=', $operationId)
+            ->leftJoin('users', 'q3w_operation_files.user_id', '=', 'users.id')
+            ->leftJoin('q3w_operation_route_stages', 'q3w_operation_files.operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
+            ->leftJoin('q3w_operation_file_types', 'q3w_operation_files.upload_file_type', '=', 'q3w_operation_file_types.id')
+            ->orderBy('q3w_operation_files.operation_route_stage_id', 'desc')
+            ->get([
+                'q3w_operation_files.*',
+                'q3w_operation_route_stages.name as route_stage_name',
+                'q3w_operation_file_types.name as file_type_name',
+                'users.first_name',
+                'users.last_name',
+                'users.patronymic',
+                'users.image'
+            ])
+            ->groupBy('operation_route_stage_id')
+            ->toArray();
+            //->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+
+            $resultArray = [];
+
+            foreach ($operationFiles as $operationRouteStageId=>$operationFile) {
+                $resultElement['operationRouteStageId'] = $operationRouteStageId;
+                $resultElement['data'] = $operationFile;
+
+                $resultArray[] = $resultElement;
+            }
+
+            return json_encode($resultArray, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
 }

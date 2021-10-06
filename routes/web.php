@@ -283,10 +283,10 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/operations/all', 'q3wMaterial\operations\q3wMaterialOperationController@index')->name('materials.operations.index');
     Route::get('/materials/operations/all/list', 'q3wMaterial\operations\q3wMaterialOperationController@show')->name('materials.operations.list');
     Route::get('/materials/operations/comment-history/list', 'q3wMaterial\operations\q3wMaterialOperationController@commentHistoryList')->name('materials.operations.comment-history.list');
+    Route::get('/materials/operations/file-history/list', 'q3wMaterial\operations\q3wMaterialOperationController@filesHistoryList')->name('materials.operations.file-history.list');
     Route::post('/materials/operations/all/print', 'q3wMaterial\operations\q3wMaterialOperationController@print')->name('materials.operations.print');
     Route::get('/materials/operations/all/list/active-in-project-object', 'q3wMaterial\operations\q3wMaterialOperationController@projectObjectActiveOperations')->name('materials.operations.list.project-object.active');
     Route::post('/materials/operations/upload-file', 'q3wMaterial\operations\q3wMaterialOperationController@uploadAttachedFile')->name('materials.operations.upload-file');
-
 
     //Material supply
     Route::get('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@create')->name('materials.operations.supply.new');
