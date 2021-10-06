@@ -74,22 +74,22 @@ class AddOperationCommentsTables extends Migration
             $table->dropColumn(['comment_id']);
         });
 
-        Schema::dropIfExists('q3w_material_comments');
-
         Schema::table('q3w_operation_materials', function(Blueprint $table) {
             $table->dropForeign(['comment_id']);
             $table->dropColumn(['comment_id']);
+
             $table->dropForeign(['initial_comment_id']);
             $table->dropColumn(['initial_comment_id']);
         });
-
-        Schema::dropIfExists('q3w_operation_material_comments');
 
         Schema::table('q3w_material_snapshot_materials', function(Blueprint $table) {
             $table->dropForeign(['comment_id']);
             $table->dropColumn(['comment_id']);
         });
 
+        Schema::dropIfExists('q3w_material_comments');
+        Schema::dropIfExists('q3w_operation_material_comments');
         Schema::dropIfExists('q3w_material_snapshot_material_comments');
+
     }
 }
