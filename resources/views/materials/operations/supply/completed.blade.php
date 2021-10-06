@@ -70,6 +70,20 @@
                 store: operationHistoryStore
             });
 
+            let operationFileHistoryStore = new DevExpress.data.CustomStore({
+                key: "operation_route_stage_id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.operations.file-history.list')}}",
+                        {operationId: operationData.id});
+                },
+            });
+
+            let operationFileHistoryDataSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: operationFileHistoryStore
+            });
+
             //</editor-fold>
 
             //<editor-fold desc="JS: Columns definition">
@@ -92,7 +106,7 @@
 
                             container.addClass("standard-name-cell-with-comment");
                         }
-                    },
+                    }
                 },
                 {
                     dataField: "quantity",
@@ -391,8 +405,70 @@
                         itemType: "group",
                         caption: "Файлы",
                         colSpan: 2,
-                        colCount: 4,
-                        items: [{},
+                        items: [ {
+                            name: "fileHistoryGrid",
+                            editorType: "dxDataGrid",
+                            editorOptions: {
+                                dataSource: operationFileHistoryDataSource,
+                                wordWrapEnabled: true,
+                                showColumnHeaders: false,
+                                columns: [
+                                    {
+                                        dataField: "data[0].user_id",
+                                        dataType: "string",
+                                        width: 240,
+                                        cellTemplate: (container, options) => {
+                                            console.log('fileHistoryGrid options', options);
+                                            let photoUrl = "";
+
+                                            if (options.data.data[0].photo) {
+                                                photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.data[0].photo;
+                                            } else {
+                                                photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
+                                            }
+
+                                            let authorName = options.data.data[0].last_name +
+                                                ' ' +
+                                                options.data.data[0].first_name.substr(0, 1) +
+                                                '. ' +
+                                                options.data.data[0].patronymic.substr(0, 1) +
+                                                '.';
+
+                                            let commentDate = new Intl.DateTimeFormat('ru-RU', {
+                                                dateStyle: 'short',
+                                                timeStyle: 'short'
+                                            }).format(new Date(options.data.data[0].created_at)).replaceAll(',', '');
+
+                                            $(`<div class="comment-user-photo">` +
+                                                `<img src="` + photoUrl + `" class="photo">` +
+                                                `</div>`)
+                                                .appendTo(container);
+
+                                            $(`<span class="comment-date">` +
+                                                commentDate +
+                                                `</span>` +
+                                                `<br><span class="comment-user-name">` +
+                                                authorName +
+                                                `</span>`)
+                                                .appendTo(container);
+                                        }
+                                    },
+                                    {
+                                        cellTemplate: (container, options) => {
+                                            options.data.data.forEach((item) => {
+                                                let imageUrl = '{{ URL::to('/') }}' + '/' + item.file_path + item.file_name;
+
+                                                $(`<div><a href="${imageUrl}" target="_blank">${item.file_type_name}</a></div>`).appendTo(container);
+                                            })
+                                        }
+                                    },
+                                    {
+                                        dataField: "data[0].route_stage_name",
+                                        width: 220
+                                    }
+                                ]
+                            }
+                        }
                         ]
                     }
                 ]
