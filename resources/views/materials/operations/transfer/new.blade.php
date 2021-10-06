@@ -268,15 +268,26 @@
                                     }
                                     switch (options.data.accounting_type) {
                                         case 2:
-                                            return $("<div>").text(options.data.standard_name +
+                                            let standardNameText = options.data.standard_name +
                                                 ' (' +
                                                 quantity +
                                                 options.data.measure_unit_value +
-                                                '; ' +
+                                                '/' +
                                                 amount +
-                                                'шт;' +
-                                                comment
-                                            )
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(container);
+
+                                            if (options.data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${options.data.comment}</div>`)
+                                                    .appendTo(container);
+
+                                            }
+
+                                            container.addClass("standard-name-cell-with-comment");
+
+                                            break;
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
@@ -356,14 +367,25 @@
                                     let amount = data.amount ? data.amount + " " : "";
                                     switch (data.accounting_type) {
                                         case 2:
-                                            return $("<div>").text(data.standard_name +
+                                            let standardItem = $("<div>")
+                                            let standardNameText = data.standard_name +
                                                 ' (' +
                                                 quantity +
                                                 data.measure_unit_value +
-                                                '; ' +
+                                                '/' +
                                                 amount +
-                                                'шт)'
-                                            )
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(standardItem);
+
+                                            if (data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${data.comment}</div>`)
+                                                    .appendTo(standardItem);
+
+                                            }
+
+                                            return standardItem;
                                         default:
                                             return $("<div>").text(data.standard_name +
                                                 ' (' +
@@ -423,7 +445,7 @@
                                         standard_weight: material.weight,
                                         quantity: quantity,
                                         amount: amount,
-                                        comment: material.comment,
+                                        comment: null,
                                         initial_comment_id: material.comment_id,
                                         initial_comment: material.comment,
                                         total_quantity: material.quantity,
@@ -512,7 +534,7 @@
                                     accountingType = options.data.accounting_type;
                                 }
 
-                                let commentIconClass = !options.data.initial_comment_id ? "far fa-comment" : "fas fa-comment";
+                                let commentIconClass = !options.data.comment ? "far fa-comment" : "fas fa-comment";
 
                                 let commentLink;
 
@@ -527,7 +549,11 @@
                                                 if (commentData.comment) {
                                                     materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.comment);
                                                 } else {
-                                                    materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                                    if (commentData.initial_comment) {
+                                                        materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.initial_comment);
+                                                    } else {
+                                                        materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                                    }
                                                 }
                                                 $("#commentPopupContainer").dxPopup("show");
                                             })
@@ -572,8 +598,19 @@
                             $(`<div>${options.text}</div>`)
                                 .appendTo(container);
                         } else {
-                            let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
+                            let divStandardName = $(`<div class="standard-name"></div>`)
                                 .appendTo(container);
+
+                            let divStandardText = $(`<div>${options.text}</div>`)
+                                .appendTo(divStandardName);
+
+                            if (options.data.initial_comment) {
+                                $(`<div class="material-comment">${options.data.initial_comment}</div>`)
+                                    .appendTo(divStandardName);
+
+                                divStandardName.addClass("standard-name-cell-with-comment");
+                            }
+
                             let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 

@@ -142,6 +142,9 @@ class q3wMaterialTransferOperationController extends Controller
                 continue;
             }
 
+            $operationMaterialComment = q3wOperationMaterialComment::find($operationMaterial->comment_id);
+            $operationMaterialInitialComment = q3wMaterialComment::find($operationMaterial->initial_comment_id);
+
             switch ($operationMaterial->standard->materialType->accounting_type) {
                 case 2:
                     $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
@@ -156,18 +159,22 @@ class q3wMaterialTransferOperationController extends Controller
                         })
                         ->first();
 
-                    $destinationProjectObjectMaterial = q3wMaterial::leftJoin('q3w_operation_material_comments', 'comment_id', '=', 'q3w_operation_material_comments.id')
+                    $destinationProjectObjectMaterial = q3wMaterial::leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                         ->where('project_object', $operation->destination_project_object_id)
                         ->where('standard_id', $operationMaterial->standard->id)
                         ->where('quantity', $operationMaterial->quantity)
-                        ->where(function ($query) use ($operationMaterial) {
-                            if (empty($operationMaterial->comment)) {
-                                $query->whereNull('comment_id');
+                        ->where(function ($query) use ($operationMaterial, $operationMaterialComment, $operationMaterialInitialComment) {
+                            if (empty($operationMaterialComment->comment)) {
+                                if (empty($operationMaterial->initial_comment_id)) {
+                                    $query->whereNull('comment_id');
+                                } else {
+                                    $query->where('comment', 'like', $operationMaterialInitialComment->comment);
+                                }
                             } else {
-                                $query->where('comment', 'like',$operationMaterial->comment);
+                                $query->where('comment', 'like', $operationMaterialComment->comment);
                             }
                         })
-                        ->get(['q3w_materials.*', 'q3w_operation_material_comments.comment'])
+                        ->get(['q3w_materials.*', 'q3w_material_comments.comment'])
                         ->first();
                     break;
                 default:
@@ -189,7 +196,7 @@ class q3wMaterialTransferOperationController extends Controller
                     $sourceProjectObjectMaterialDelta = $sourceProjectObjectMaterial->amount - $operationMaterial->amount;
                     break;
                 default:
-                    $sourceProjectObjectMaterialDelta = $sourceProjectObjectMaterial->quantity - $operationMaterial->amount * $operationMaterial->quantity;
+                    $sourceProjectObjectMaterialDelta = round($sourceProjectObjectMaterial->quantity - $operationMaterial->amount * $operationMaterial->quantity, 2);
             }
 
             if ($sourceProjectObjectMaterialDelta < 0) {
@@ -206,11 +213,11 @@ class q3wMaterialTransferOperationController extends Controller
                         $destinationProjectObjectMaterial->amount = $destinationProjectObjectMaterial->amount + $operationMaterial->amount;
                         $destinationProjectObjectMaterial->save();
                     } else {
-                        if (empty($operationMaterial->comment)) {
+                        if (empty($operationMaterialComment->comment)) {
                             $materialCommentId = null;
                         } else {
                             $materialComment = new q3wMaterialComment([
-                                'comment' => $operationMaterial->comment,
+                                'comment' => $operationMaterialComment->comment,
                                 'author_id' => Auth::id()
                             ]);
                             $materialComment->save();
@@ -823,7 +830,7 @@ class q3wMaterialTransferOperationController extends Controller
                     case 2:
                         if ($material->standard_id == $materialToCheckValidationUid->standard_id and
                         $material->quantity == $materialToCheckValidationUid->quantity and
-                        $material->initial_comment_id = $materialToCheckValidationUid->initial_comment_id) {
+                        $material->initial_comment_id == $materialToCheckValidationUid->initial_comment_id) {
                             if (!empty($materialToCheckValidationUid->validationUid)) {
                                 $material->validationUid = $materialToCheckValidationUid->validationUid;
                             } else {
@@ -831,6 +838,7 @@ class q3wMaterialTransferOperationController extends Controller
                             }
                             break 2;
                         }
+                        break;
                     default:
                         if ($material->standard_id == $materialToCheckValidationUid->standard_id) {
                             if (!empty($materialToCheckValidationUid->validationUid)) {
