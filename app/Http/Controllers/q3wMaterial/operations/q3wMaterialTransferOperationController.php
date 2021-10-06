@@ -14,6 +14,7 @@ use App\models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialComment;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
+use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -1378,6 +1379,60 @@ class q3wMaterialTransferOperationController extends Controller
             'created_at' => now(),
             'type' => 7,
             'status' => 7
+        ]);
+    }
+
+    public function completed(Request $request)
+    {
+        $operation = q3wMaterialOperation::leftJoin('project_objects as source_project_objects', 'source_project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
+            ->leftJoin('project_objects as destination_project_objects', 'destination_project_objects.id', '=', 'q3w_material_operations.destination_project_object_id')
+            ->leftJoin('users as destination_users', 'destination_users.id', '=', 'q3w_material_operations.destination_responsible_user_id')
+            ->leftJoin('users as source_users', 'source_users.id', '=', 'q3w_material_operations.source_responsible_user_id')
+            ->get(['q3w_material_operations.*',
+                'source_project_objects.short_name as source_project_object_name',
+                'destination_project_objects.short_name as destination_project_object_name',
+                DB::Raw('CONCAT(`destination_users`.`last_name`, " ", UPPER(SUBSTRING(`destination_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`destination_users`.`patronymic`, 1, 1)), ".") as destination_responsible_user_name'),
+                DB::Raw('CONCAT(`source_users`.`last_name`, " ", UPPER(SUBSTRING(`source_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`source_users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name')
+            ])
+            ->where('id', '=', $request->operationId)
+            ->first();
+
+        if (!isset($operation)) {
+            abort(404, 'Операция не найдена');
+        }
+
+        $operationData = $operation->toJSON(JSON_OBJECT_AS_ARRAY);
+        $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
+
+        $materials = DB::table('q3w_operation_materials as a')
+            ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
+            ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
+            ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->leftJoin('q3w_material_operations as f', 'a.material_operation_id', '=', 'f.id')
+            ->leftJoin('q3w_materials as g', 'a.standard_id', '=', 'g.standard_id')
+            ->leftJoin('q3w_operation_material_comments as j', 'a.comment_id', '=', 'j.id')
+            ->where('a.material_operation_id', '=', $operation->id)
+            ->distinct()
+            ->get(['a.id',
+                'a.standard_id',
+                'a.amount',
+                'a.quantity',
+                'a.edit_states',
+                'b.name as standard_name',
+                'b.material_type',
+                'b.weight as standard_weight',
+                'd.accounting_type',
+                'd.measure_unit',
+                'e.value as measure_unit_value',
+                'j.comment'
+            ])
+            ->toJson(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+
+        return view('materials.operations.transfer.completed')->with([
+            'operationData' => $operationData,
+            'operationMaterials' => $materials,
+            'operationRouteStage' => $operationRouteStage,
+            'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE)
         ]);
     }
 }

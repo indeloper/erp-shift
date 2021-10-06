@@ -228,6 +228,20 @@
                 store: operationHistoryStore
             });
 
+            let operationFileHistoryStore = new DevExpress.data.CustomStore({
+                key: "operation_route_stage_id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.operations.file-history.list')}}",
+                        {operationId: operationData.id});
+                },
+            });
+
+            let operationFileHistoryDataSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: operationFileHistoryStore
+            });
+
             //</editor-fold>
         @if($allowEditing)
             let materialCommentEditForm = $("#commentEditForm").dxForm({
@@ -615,16 +629,26 @@
                                     }
                                     switch (options.data.accounting_type) {
                                         case 2:
-                                            return $("<div>").text(options.data.standard_name +
+                                            let standardNameText = options.data.standard_name +
                                                 ' (' +
                                                 quantity +
                                                 options.data.measure_unit_value +
-                                                '; ' +
+                                                '/' +
                                                 amount +
-                                                'шт; ' +
-                                                comment +
-                                                ')'
-                                            )
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(container);
+
+                                            if (options.data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${options.data.comment}</div>`)
+                                                    .appendTo(container);
+
+                                            }
+
+                                            container.addClass("standard-name-cell-with-comment");
+
+                                            break;
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
@@ -719,6 +743,41 @@
                                                 ')')
                                     }
                                 },
+                                itemTemplate: function (data) {
+                                    let quantity = data.quantity ? data.quantity + " " : "";
+                                    let amount = data.amount ? data.amount + " " : "";
+                                    let container = $('<div class="standard-name-cell-with-comment"></div>')
+
+                                    switch (data.accounting_type) {
+                                        case 2:
+                                            let standardNameText = data.standard_name +
+                                                ' (' +
+                                                quantity +
+                                                data.measure_unit_value +
+                                                '/' +
+                                                amount +
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(container);
+
+                                            if (data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${data.comment}</div>`)
+                                                    .appendTo(container);
+
+                                            }
+
+                                            return container;
+
+                                            break;
+                                        default:
+                                            return $("<div>").text(data.standard_name +
+                                                ' (' +
+                                                quantity +
+                                                data.measure_unit_value +
+                                                ')')
+                                    }
+                                },
                                 onItemDeleted: function (e) {
                                     let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
                                     let selectedMaterialsList = materialsStandardsAddingForm.getEditor("selectedMaterialsList");
@@ -772,7 +831,7 @@
                                         amount: amount,
                                         comment: material.comment,
                                         initial_comment_id: material.comment_id,
-                                        initial_comment: material.comment,
+                                        initial_comment: material.initial_comment,
                                         total_quantity: material.quantity,
                                         total_amount: material.amount,
                                         validationUid: validationUid,
@@ -902,7 +961,7 @@
                                     accountingType = options.data.accounting_type;
                                 }
 
-                                let commentIconClass = !options.data.initial_comment_id ? "far fa-comment" : "fas fa-comment";
+                                let commentIconClass = !options.data.comment ? "far fa-comment" : "fas fa-comment";
 
                                 let commentLink;
 
@@ -917,7 +976,11 @@
                                                 if (commentData.comment) {
                                                     materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.comment);
                                                 } else {
-                                                    materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                                    if (commentData.initial_comment) {
+                                                        materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.initial_comment);
+                                                    } else {
+                                                        materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                                    }
                                                 }
                                                 $("#commentPopupContainer").dxPopup("show");
                                             })
@@ -964,8 +1027,19 @@
                             $(`<div>${options.text}</div>`)
                                 .appendTo(container);
                         } else {
-                            let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
+                            let divStandardName = $(`<div class="standard-name"></div>`)
                                 .appendTo(container);
+
+                            let divStandardText = $(`<div>${options.text}</div>`)
+                                .appendTo(divStandardName);
+
+                            if (options.data.initial_comment) {
+                                $(`<div class="material-comment">${options.data.initial_comment}</div>`)
+                                    .appendTo(divStandardName);
+
+                                divStandardName.addClass("standard-name-cell-with-comment");
+                            }
+
                             let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
@@ -1396,7 +1470,6 @@
                         ]
 
                     },
-
                     {
                         itemType: "group",
                         caption: "Комментарии",
@@ -1483,60 +1556,130 @@
                             }
                         }]
                     },
-                    @if($allowEditing)
                     {
                         itemType: "group",
                         caption: "Файлы",
                         colSpan: 2,
-                        colCount: 4,
-                        items: [{
-                            colSpan: 1,
-                            template:
-                                '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
-                                '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
-                                '<span class="dx-uploader-span">Фото ТТН</span>' +
-                                '</div>' +
-                                '<div id="upload-progress-1" class="upload-progress"></div>' +
-                                '</div>' +
-                                '<div class="file-uploader" purpose="consignment-note-photo" index="1"></div>'
-                        },
+                        items: [
+                            @if($allowEditing)
                             {
-                                colSpan: 1,
-                                template: '<div id="dropzone-external-2" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                    '<img id="dropzone-image-2" class="dropzone-image" src="#" hidden alt="" />' +
-                                    '<div id="dropzone-text-2" class="dx-uploader-flex-box dropzone-text">' +
-                                    '<span class="dx-uploader-span">Фото машины спереди</span>' +
-                                    '</div>' +
-                                    '<div id="upload-progress-2" class="upload-progress"></div>' +
-                                    '</div>' +
-                                    '<div class="file-uploader" purpose="frontal-vehicle-photo" index="2"></div>'
+                                colSpan: 2,
+                                colCount: 4,
+                                items: [{
+                                    colSpan: 1,
+                                    template:
+                                        '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                        '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
+                                        '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
+                                        '<span class="dx-uploader-span">Фото ТТН</span>' +
+                                        '</div>' +
+                                        '<div id="upload-progress-1" class="upload-progress"></div>' +
+                                        '</div>' +
+                                        '<div class="file-uploader" purpose="consignment-note-photo" index="1"></div>'
+                                    },
+                                    {
+                                        colSpan: 1,
+                                        template: '<div id="dropzone-external-2" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                            '<img id="dropzone-image-2" class="dropzone-image" src="#" hidden alt="" />' +
+                                            '<div id="dropzone-text-2" class="dx-uploader-flex-box dropzone-text">' +
+                                            '<span class="dx-uploader-span">Фото машины спереди</span>' +
+                                            '</div>' +
+                                            '<div id="upload-progress-2" class="upload-progress"></div>' +
+                                            '</div>' +
+                                            '<div class="file-uploader" purpose="frontal-vehicle-photo" index="2"></div>'
+                                    },
+                                    {
+                                        colSpan: 1,
+                                        template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                            '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
+                                            '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
+                                            '<span class="dx-uploader-span">Фото машины сзади</span>' +
+                                            '</div>' +
+                                            '<div id="upload-progress-3" class="upload-progress"></div>' +
+                                            '</div>' +
+                                            '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
+                                    },
+                                    {
+                                        colSpan: 1,
+                                        template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                            '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
+                                            '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
+                                            '<span class="dx-uploader-span">Фото материалов</span>' +
+                                            '</div>' +
+                                            '<div id="upload-progress-4" class="upload-progress"></div>' +
+                                            '</div>' +
+                                            '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
+                                    }
+                                ]
                             },
+                        @endif
                             {
-                                colSpan: 1,
-                                template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                    '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
-                                    '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
-                                    '<span class="dx-uploader-span">Фото машины сзади</span>' +
-                                    '</div>' +
-                                    '<div id="upload-progress-3" class="upload-progress"></div>' +
-                                    '</div>' +
-                                    '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
-                            },
-                            {
-                                colSpan: 1,
-                                template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                    '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
-                                    '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
-                                    '<span class="dx-uploader-span">Фото материалов</span>' +
-                                    '</div>' +
-                                    '<div id="upload-progress-4" class="upload-progress"></div>' +
-                                    '</div>' +
-                                    '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
+                                name: "fileHistoryGrid",
+                                editorType: "dxDataGrid",
+                                editorOptions: {
+                                    dataSource: operationFileHistoryDataSource,
+                                    wordWrapEnabled: true,
+                                    showColumnHeaders: false,
+                                    columns: [
+                                        {
+                                            dataField: "data[0].user_id",
+                                            dataType: "string",
+                                            width: 240,
+                                            cellTemplate: (container, options) => {
+                                                console.log('fileHistoryGrid options', options);
+                                                let photoUrl = "";
+
+                                                if (options.data.data[0].photo) {
+                                                    photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.data[0].photo;
+                                                } else {
+                                                    photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
+                                                }
+
+                                                let authorName = options.data.data[0].last_name +
+                                                    ' ' +
+                                                    options.data.data[0].first_name.substr(0, 1) +
+                                                    '. ' +
+                                                    options.data.data[0].patronymic.substr(0, 1) +
+                                                    '.';
+
+                                                let commentDate = new Intl.DateTimeFormat('ru-RU', {
+                                                    dateStyle: 'short',
+                                                    timeStyle: 'short'
+                                                }).format(new Date(options.data.data[0].created_at)).replaceAll(',', '');
+
+                                                $(`<div class="comment-user-photo">` +
+                                                    `<img src="` + photoUrl + `" class="photo">` +
+                                                    `</div>`)
+                                                    .appendTo(container);
+
+                                                $(`<span class="comment-date">` +
+                                                    commentDate +
+                                                    `</span>` +
+                                                    `<br><span class="comment-user-name">` +
+                                                    authorName +
+                                                    `</span>`)
+                                                    .appendTo(container);
+                                            }
+                                        },
+                                        {
+                                            cellTemplate: (container, options) => {
+                                                options.data.data.forEach((item) => {
+                                                    let imageUrl = '{{ URL::to('/') }}' + '/' + item.file_path + item.file_name;
+
+                                                    $(`<div><a href="${imageUrl}" target="_blank">${item.file_type_name}</a></div>`).appendTo(container);
+                                                })
+                                            }
+                                        },
+                                        {
+                                            dataField: "data[0].route_stage_name",
+                                            width: 220
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
-                    @endif
+
                     @if(in_array($routeStageId, [6, 25]) && ($allowMoving || $allowCancelling))
                         applyDataButtonGroup,
                     @endif
