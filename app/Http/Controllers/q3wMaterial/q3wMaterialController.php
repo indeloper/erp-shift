@@ -166,8 +166,8 @@ class q3wMaterialController extends Controller
                 switch ($operationMaterial->accounting_type) {
                     case 2:
                         if (($operationMaterial->standard_id == $material->standard_id)
-                            && ($operationMaterial->quantity == $material->quantity)
-                            && ($operationMaterial->comment == $material->comment)) {
+                            and ($operationMaterial->quantity == $material->quantity)
+                            and ($operationMaterial->comment == $material->comment)) {
                             $material->amount -= $operationMaterial->amount;
                             if ($material->amount <= 0) {
                                 unset($material);
@@ -244,6 +244,7 @@ class q3wMaterialController extends Controller
                 'a.standard_id',
                 'a.quantity',
                 'a.amount',
+                'a.initial_comment_id',
                 DB::RAW('IF (f.source_project_object_id = ' . $projectObjectId . ', -1, 1) as amount_modifier'),
                 'b.name as standard_name',
                 'b.material_type',
@@ -279,7 +280,9 @@ class q3wMaterialController extends Controller
             foreach ($materials as $material){
                 switch ($operationMaterial->accounting_type) {
                     case 2:
-                        if (($operationMaterial->standard_id == $material->standard_id) && ($operationMaterial->quantity == $material->quantity)) {
+                        if (($operationMaterial->standard_id == $material->standard_id)
+                            and ($operationMaterial->quantity == $material->quantity)
+                            and $operationMaterial->initial_comment_id == $material->comment_id) {
                             if ($operationMaterial->amount_modifier < 0) {
                                 $material->amount += $operationMaterial->amount * $operationMaterial->amount_modifier;
                             }
@@ -360,6 +363,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->leftJoin('q3w_material_operations as f', 'a.material_operation_id', '=', 'f.id')
+            ->leftJoin('q3w_material_comments as g', 'a.initial_comment_id', '=', 'g.id')
             ->where('f.source_project_object_id', $projectObjectId)
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereRaw('IFNULL(`transfer_operation_stage_id`, 0) NOT IN (2, 3) ')
@@ -369,6 +373,7 @@ class q3wMaterialController extends Controller
                 'a.standard_id',
                 'a.quantity',
                 'a.amount',
+                'g.comment',
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight',
