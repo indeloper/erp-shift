@@ -53,6 +53,7 @@
             let materialErrorList = [];
             let suspendSourceObjectLookupValueChanged = false;
             let commentData = null;
+            let isTWriteOffMaterialStoreBeenAlreadyLoaded = false;
 
             //<editor-fold desc="JS: DataSources">
             let materialsListStore = new DevExpress.data.CustomStore({
@@ -77,11 +78,17 @@
                 })
             })
 
-            let writeOffMaterialData = [];
+            let writeOffMaterialData = {!! $predefinedMaterials !!};
 
             let writeOffMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
-                data: writeOffMaterialData
+                data: writeOffMaterialData,
+                onLoaded: () => {
+                    if (!isTWriteOffMaterialStoreBeenAlreadyLoaded) {
+                        validateMaterialList(false, false);
+                        isTWriteOffMaterialStoreBeenAlreadyLoaded = true;
+                    }
+                }
             })
 
             let writeOffMaterialDataSource = new DevExpress.data.DataSource({
@@ -201,21 +208,33 @@
                                     let amount;
                                     let comment;
 
+
                                     quantity = options.data.quantity ? options.data.quantity + " " : "";
                                     amount = options.data.amount ? options.data.amount + " " : "";
-                                    comment = options.data.comment ? '; ' + options.data.comment + ')' : ")";
+
 
                                     switch (options.data.accounting_type) {
                                         case 2:
-                                            return $("<div>").text(options.data.standard_name +
+                                            let standardNameText = options.data.standard_name +
                                                 ' (' +
                                                 quantity +
                                                 options.data.measure_unit_value +
-                                                '; ' +
+                                                '/' +
                                                 amount +
-                                                'шт' +
-                                                comment
-                                            )
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(container);
+
+                                            if (options.data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${options.data.comment}</div>`)
+                                                    .appendTo(container);
+
+                                            }
+
+                                            container.addClass("standard-name-cell-with-comment");
+
+                                            break;
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
@@ -252,8 +271,8 @@
                         colCount: 3,
                         caption: "Выбранные материалы",
                         items: [{
-                        editorType: "dxList",
-                        name: "selectedMaterialsList",
+                            editorType: "dxList",
+                            name: "selectedMaterialsList",
                             editorOptions: {
                                 dataSource: selectedMaterialStandardsListDataSource,
                                 allowItemDeleting: true,
@@ -268,14 +287,25 @@
 
                                     switch (data.accounting_type) {
                                         case 2:
-                                            return $("<div>").text(data.standard_name +
+                                            let standardItem = $("<div>")
+                                            let standardNameText = data.standard_name +
                                                 ' (' +
                                                 quantity +
                                                 data.measure_unit_value +
-                                                '; ' +
+                                                '/' +
                                                 amount +
-                                                'шт)'
-                                            )
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(standardItem);
+
+                                            if (data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${data.comment}</div>`)
+                                                    .appendTo(standardItem);
+
+                                            }
+
+                                            return standardItem;
                                         default:
                                             return $("<div>").text(data.standard_name +
                                                 ' (' +
@@ -334,7 +364,7 @@
                                     standard_weight: material.weight,
                                     quantity: material.quantity,
                                     amount: material.amount,
-                                    comment: material.comment,
+                                    comment: null,
                                     initial_comment_id: material.comment_id,
                                     initial_comment: material.comment,
                                     total_quantity: material.quantity,
@@ -400,7 +430,7 @@
                                     accountingType = options.data.accounting_type;
                                 }
 
-                                let commentIconClass = !options.data.initial_comment_id ? "far fa-comment" : "fas fa-comment";
+                                let commentIconClass = !options.data.comment ? "far fa-comment" : "fas fa-comment";
 
                                 let commentLink;
 
@@ -415,7 +445,11 @@
                                                 if (commentData.comment) {
                                                     materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.comment);
                                                 } else {
-                                                    materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                                    if (commentData.initial_comment) {
+                                                        materialCommentEditForm.getEditor("materialCommentTextArea").option("value", commentData.initial_comment);
+                                                    } else {
+                                                        materialCommentEditForm.getEditor("materialCommentTextArea").option("value", "");
+                                                    }
                                                 }
                                                 $("#commentPopupContainer").dxPopup("show");
                                             })
@@ -443,31 +477,35 @@
                         }]
                 },
                 {
-                    dataField: "standard_id",
+                    dataField: "standard_name",
                     dataType: "string",
                     allowEditing: false,
+                    width: "30%",
                     caption: "Наименование",
                     sortIndex: 0,
                     sortOrder: "asc",
-                    lookup: {
-                        dataSource: materialStandardsData,
-                        displayExpr: "name",
-                        valueExpr: "id"
-                    },
                     cellTemplate: function (container, options) {
                         if (options.data.total_amount === null) {
                             $(`<div>${options.text}</div>`)
                                 .appendTo(container);
                         } else {
-                            let divStandardName = $(`<div class="standard-name">${options.text}</div>`)
+                            let divStandardName = $(`<div class="standard-name"></div>`)
                                 .appendTo(container);
+
+                            let divStandardText = $(`<div>${options.text}</div>`)
+                                .appendTo(divStandardName);
+
+                            if (options.data.initial_comment) {
+                                $(`<div class="material-comment">${options.data.initial_comment}</div>`)
+                                    .appendTo(divStandardName);
+
+                                divStandardName.addClass("standard-name-cell-with-comment");
+                            }
+
                             let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
-                            console.log(divStandardRemains);
-
                             divStandardRemains.mouseenter(function () {
-                                console.log('mouseenter');
                                 let standardRemainsPopover = $('#standardRemainsTemplate');
                                 standardRemainsPopover.dxPopover({
                                         position: "top",
@@ -1180,12 +1218,14 @@
                     .done(function (dataItem) {
                         let calculatedQuantity = dataItem.total_quantity * dataItem.total_amount;
                         let calculatedAmount = dataItem.total_amount;
+                        let initialCommentId = dataItem.initial_comment_id ? dataItem.initial_comment_id : null;
 
-                        writeOffMaterialData.forEach((item) => {
+                        writeOffMaterialDataSource.store().createQuery().toArray().forEach((item) => {
                             if (item.standard_id === dataItem.standard_id) {
                                 switch (dataItem.accounting_type) {
                                     case 2:
-                                        if (item.quantity === dataItem.quantity) {
+                                        let itemComment = item.initial_comment_id ? item.initial_comment_id : null;
+                                        if (item.quantity === dataItem.quantity && itemComment === initialCommentId) {
                                             calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
                                         }
                                         break;
