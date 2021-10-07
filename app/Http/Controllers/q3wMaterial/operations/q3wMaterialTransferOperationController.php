@@ -63,8 +63,6 @@ class q3wMaterialTransferOperationController extends Controller
             $destinationProjectObjectId = 0;
         }
 
-
-
         if (isset($request->materialsToTransfer)) {
             $predefinedMaterialsArray = explode('+', $request->materialsToTransfer);
 
