@@ -1366,7 +1366,7 @@ class q3wMaterialTransferOperationController extends Controller
         $responsibilityUsers = ObjectResponsibleUser::where('object_id', $projectObjectId)->get();
 
         foreach ($responsibilityUsers as $responsibilityUser) {
-            $this->sendTransferNotification($operation, $notificationText, $responsibilityUser->id, $projectObjectId);
+            $this->sendTransferNotification($operation, $notificationText, $responsibilityUser->user_id, $projectObjectId);
         }
     }
 
