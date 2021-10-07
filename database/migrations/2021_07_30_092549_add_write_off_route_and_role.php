@@ -7,6 +7,7 @@ use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\q3wMaterialSnapshot;
 use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
+use App\Models\UserPermission;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -55,6 +56,13 @@ class AddWriteOffRouteAndRole extends Migration
      */
     public function down()
     {
+        $confirmToWriteOffPermission = Permission::where('codename', 'material_accounting_write_off_confirmation');
+
+        UserPermission::where('permission_id', $confirmToWriteOffPermission->id)->forceDelete();
+
+        $confirmToWriteOffPermission->forceDelete();
+
+
         $operations = q3wMaterialOperation::where("operation_route_id", 3);
         $snapshots = q3wMaterialSnapshot::whereIn("operation_id", $operations->pluck("id")->all());
 
