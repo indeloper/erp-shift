@@ -260,11 +260,9 @@
                                     if (transferOperationInitiator === "destination") {
                                         quantity = "";
                                         amount = "";
-                                        comment = "";
                                     } else {
                                         quantity = options.data.quantity ? options.data.quantity + " " : "";
                                         amount = options.data.amount ? options.data.amount + " " : "";
-                                        comment = options.data.comment ? '; ' + options.data.comment + ')' : ")";
                                     }
                                     switch (options.data.accounting_type) {
                                         case 2:
@@ -347,7 +345,7 @@
                         }
                     }]
                 },
-                    {
+                {
                         itemType: "group",
                         colCount: 3,
                         caption: "Выбранные материалы",
@@ -365,6 +363,7 @@
                                 itemTemplate: function (data) {
                                     let quantity = data.quantity ? data.quantity + " " : "";
                                     let amount = data.amount ? data.amount + " " : "";
+
                                     switch (data.accounting_type) {
                                         case 2:
                                             let standardItem = $("<div>")
@@ -581,18 +580,13 @@
                         }]
                 },
                 {
-                    dataField: "standard_id",
+                    dataField: "standard_name",
                     dataType: "string",
                     allowEditing: false,
                     width: "30%",
                     caption: "Наименование",
                     sortIndex: 0,
                     sortOrder: "asc",
-                    lookup: {
-                        dataSource: {store: materialStandardsStore},
-                        displayExpr: "name",
-                        valueExpr: "id"
-                    },
                     cellTemplate: function (container, options) {
                         if (options.data.total_amount === null) {
                             $(`<div>${options.text}</div>`)
