@@ -98,6 +98,14 @@ class q3wMaterialTransferOperationController extends Controller
                     case 2:
                         $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
                             ->where('quantity', $material->quantity)
+                            ->where(function ($query) use ($material) {
+                                if (empty($material->comment_id)) {
+                                    $query->whereNull('initial_comment_id');
+                                } else {
+                                    $query->where('initial_comment_id', $material->comment_id);
+                                }
+                            }
+                            )
                             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
                             ->leftJoin('q3w_material_operations', 'q3w_operation_materials.id', 'material_operation_id')
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
@@ -116,7 +124,7 @@ class q3wMaterialTransferOperationController extends Controller
                             ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                             ->get(DB::raw('sum(`quantity`) as quantity'))
                             ->first();
-                        $material->total_quantity = $material->total_quantity - $activeOperationMaterialAmount->quantity;
+                        $material->total_quantity = round($material->total_quantity - $activeOperationMaterialAmount->quantity, 2);
                 }
 
                 $material->validationUid = Str::uuid();
