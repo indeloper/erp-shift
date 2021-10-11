@@ -105,13 +105,14 @@ class q3wMaterialTransferOperationController extends Controller
                             }
                             )
                             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-                            ->leftJoin('q3w_material_operations', 'q3w_operation_materials.id', 'material_operation_id')
+                            ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
                             ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
-                            ->get();
+                            ->get(DB::raw('sum(`amount`) as amount'))
+                            ->first();
 
-                        $material->total_amount -= $activeOperationMaterialAmount->sum('amount');
+                        $material->total_amount -= $activeOperationMaterialAmount->amount;
                         break;
                     default:
                         $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
