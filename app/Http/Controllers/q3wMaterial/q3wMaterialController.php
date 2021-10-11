@@ -429,6 +429,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
             ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
             ->leftJoin('project_objects', 'q3w_material_snapshots.project_object_id', '=', 'project_objects.id')
+            ->leftJoin('q3w_material_snapshot_material_comments', 'q3w_material_snapshot_materials.comment_id', '=', 'q3w_material_snapshot_material_comments.id')
             ->select(['q3w_material_snapshot_materials.id',
                 'q3w_material_snapshot_materials.standard_id',
                 'q3w_material_snapshot_materials.quantity',
@@ -443,7 +444,9 @@ class q3wMaterialController extends Controller
                 'q3w_material_types.name as material_type_name',
                 'q3w_measure_units.value as measure_unit_value',
                 'project_objects.short_name as project_object_short_name',
-                'project_objects.address as project_object_address']);
+                'project_objects.address as project_object_address',
+                'q3w_material_snapshot_material_comments.comment'
+                ]);
 
         $groupedMaterials = DB::table(DB::raw('('.Str::replaceArray('?', $materialsList->getBindings(), $materialsList->toSql()).') as TEMP'))
             ->where('snapshot_date', '=', DB::raw('`max_snapshot_date`'))

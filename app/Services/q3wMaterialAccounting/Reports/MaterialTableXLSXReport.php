@@ -163,7 +163,8 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     '',
                                     $materialValue->amount,
                                     $materialValue->amount * $materialValue->quantity,
-                                    $materialValue->quantity * $materialValue->amount * $materialValue->weight
+                                    $materialValue->quantity * $materialValue->amount * $materialValue->weight,
+                                    $materialValue->comment
                                 ]);
 
                                 $this->styleRulesArray[] = ['styleName'=>'materialData', 'lineNumber'=>$lineNumber, 'accountingType'=>$materialStandardValue[0]->accounting_type];
