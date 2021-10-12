@@ -46,7 +46,7 @@
             font-size: large;
         }
 
-        i.dx-icon-plus {
+        i.fa-plus {
             color: green;
         }
 
@@ -841,7 +841,7 @@
             function getOperationRouteIcon(operationRouteId, sourceProjectObjectId, destinationProjectObjectId, transferStageId) {
                 switch (operationRouteId) {
                     case 1:
-                        return 'dx-icon-plus';
+                        return 'fas fa-plus';
                     case 2:
                         if (projectObject === sourceProjectObjectId) {
                             return 'fas fa-sign-out-alt'
