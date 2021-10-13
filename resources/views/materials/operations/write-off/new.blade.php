@@ -55,6 +55,13 @@
             let commentData = null;
             let isTWriteOffMaterialStoreBeenAlreadyLoaded = false;
 
+            let files = [
+                {
+                    colSpan: 1,
+                    dropzoneRole: "addNewFileUploader"
+                }
+            ];
+
             //<editor-fold desc="JS: DataSources">
             let materialsListStore = new DevExpress.data.CustomStore({
                 key: "id",
@@ -209,7 +216,7 @@
                                     let comment;
 
 
-                                    quantity = options.data.quantity ? options.data.quantity + " " : "";
+                                    quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
                                     amount = options.data.amount ? options.data.amount + " " : "";
 
 
@@ -282,7 +289,7 @@
                                 },
                                 width: 500,
                                 itemTemplate: function (data) {
-                                    let quantity = data.quantity ? data.quantity + " " : "";
+                                    let quantity = data.quantity ? Math.round(data.quantity * 100) / 100 + " " : "";
                                     let amount = data.amount ? data.amount + " " : "";
 
                                     switch (data.accounting_type) {
@@ -356,13 +363,13 @@
                                 writeOffMaterialDataSource.store().insert({
                                     id: new DevExpress.data.Guid().toString(),
                                     standard_id: material.standard_id,
-                                    standard_name: material.name,
+                                    standard_name: material.standard_name,
                                     accounting_type: material.accounting_type,
                                     material_type: material.material_type,
                                     measure_unit: material.measure_unit,
                                     measure_unit_value: material.measure_unit_value,
                                     standard_weight: material.weight,
-                                    quantity: material.quantity,
+                                    quantity: Math.round(material.quantity * 100) / 100,
                                     amount: material.amount,
                                     comment: null,
                                     initial_comment_id: material.comment_id,
@@ -489,6 +496,7 @@
                             $(`<div>${options.text}</div>`)
                                 .appendTo(container);
                         } else {
+                            console.log('standard_name', options.text);
                             let divStandardName = $(`<div class="standard-name"></div>`)
                                 .appendTo(container);
 
@@ -502,7 +510,7 @@
                                 divStandardName.addClass("standard-name-cell-with-comment");
                             }
 
-                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${Math.round(options.data.quantity * 100) / 100}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
                             divStandardRemains.mouseenter(function () {
@@ -532,8 +540,8 @@
                     },
                     showSpinButtons: false,
                     cellTemplate: function (container, options) {
-                        let quantity = options.data.quantity;
-                        if (quantity !== null) {
+                        let quantity = Math.round(options.data.quantity * 100) / 100;
+                        if (quantity) {
                             $(`<div>${quantity} ${options.data.measure_unit_value}</div>`)
                                 .appendTo(container);
                         } else {
@@ -819,54 +827,10 @@
                     {
                         itemType: "group",
                         caption: "Файлы",
+                        name: "fileUploaderGroup",
                         colSpan: 2,
                         colCount: 4,
-                        items: [{
-                            colSpan: 1,
-                            template:
-                                '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
-                                '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
-                                '<span class="dx-uploader-span">Фото ТТН</span>' +
-                                '</div>' +
-                                '<div id="upload-progress-1" class="upload-progress"></div>' +
-                                '</div>' +
-                                '<div class="file-uploader" purpose="consignment-note-photo" index="1"></div>'
-                        },
-                        {
-                            colSpan: 1,
-                            template: '<div id="dropzone-external-2" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                '<img id="dropzone-image-2" class="dropzone-image" src="#" hidden alt="" />' +
-                                '<div id="dropzone-text-2" class="dx-uploader-flex-box dropzone-text">' +
-                                '<span class="dx-uploader-span">Фото машины спереди</span>' +
-                                '</div>' +
-                                '<div id="upload-progress-2" class="upload-progress"></div>' +
-                                '</div>' +
-                                '<div class="file-uploader" purpose="frontal-vehicle-photo" index="2"></div>'
-                        },
-                        {
-                            colSpan: 1,
-                            template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
-                                '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
-                                '<span class="dx-uploader-span">Фото машины сзади</span>' +
-                                '</div>' +
-                                '<div id="upload-progress-3" class="upload-progress"></div>' +
-                                '</div>' +
-                                '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
-                        },
-                        {
-                            colSpan: 1,
-                            template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
-                                '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
-                                '<span class="dx-uploader-span">Фото материалов</span>' +
-                                '</div>' +
-                                '<div id="upload-progress-4" class="upload-progress"></div>' +
-                                '</div>' +
-                                '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
-                        }
-                        ]
+                        items: getFileOptions()
                     },
                     {
                         itemType: "button",
@@ -928,11 +892,12 @@
                 writeOffOperationData.new_comment = operationForm.option("formData").new_comment;
 
                 let uploadedFiles = []
-                $(".file-uploader").each(function () {
-                    if ($(this).attr("uploaded-file-id") !== undefined) {
-                        uploadedFiles.push($(this).attr("uploaded-file-id"));
+
+                files.forEach((item) => {
+                    if (item.uploadedFileId) {
+                        uploadedFiles.push(item.uploadedFileId);
                     }
-                });
+                })
 
                 writeOffOperationData.uploaded_files = uploadedFiles;
                 writeOffOperationData.materials = writeOffMaterialData;
@@ -1255,89 +1220,10 @@
                     })
             }
 
-            $(".file-uploader").each(function () {
-                let uploaderIndex = $(this).attr('index');
-                $(this).dxFileUploader({
-                    dialogTrigger: "#dropzone-external-" + uploaderIndex,
-                    dropZone: "#dropzone-external-" + uploaderIndex,
-                    multiple: false,
-                    allowedFileExtensions: [".jpg", ".jpeg", ".gif", ".png"],
-                    uploadMode: "instantly",
-                    uploadHeaders: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    uploadUrl: "{{route('materials.operations.upload-file')}}",
-                    uploadCustomData: {uploadPurpose: $(this).attr('purpose')},
-                    visible: false,
-                    onDropZoneEnter: function (e) {
-                        if (e.dropZoneElement.id === "dropzone-external-" + uploaderIndex)
-                            toggleDropZoneActive(e.dropZoneElement, true);
-                    },
-                    onDropZoneLeave: function (e) {
-                        if (e.dropZoneElement.id === "dropzone-external-" + uploaderIndex)
-                            toggleDropZoneActive(e.dropZoneElement, false);
-                    },
-                    onUploaded: function (e) {
-                        const file = e.file;
-                        const dropZoneText = document.getElementById("dropzone-text-" + uploaderIndex);
-                        const fileReader = new FileReader();
-                        fileReader.onload = function () {
-                            toggleDropZoneActive(document.getElementById("dropzone-external-" + uploaderIndex), false);
-                            const dropZoneImage = document.getElementById("dropzone-image-" + uploaderIndex);
-                            dropZoneImage.src = fileReader.result;
-                        }
-                        fileReader.readAsDataURL(file);
-                        dropZoneText.style.display = "none";
-                        uploadProgressBar.option({
-                            visible: false,
-                            value: 0
-                        });
-
-                        let fileId = JSON.parse(e.request.response).id;
-                        e.element.attr('uploaded-file-id', fileId);
-                    },
-                    onProgress: function (e) {
-                        uploadProgressBar.option("value", e.bytesLoaded / e.bytesTotal * 100)
-                    },
-                    onUploadStarted: function () {
-                        toggleImageVisible(false);
-                        uploadProgressBar.option("visible", true);
-                    }
-                });
-
-                let uploadProgressBar = $("#upload-progress-" + uploaderIndex).dxProgressBar({
-                    min: 0,
-                    max: 100,
-                    width: "30%",
-                    showStatus: false,
-                    visible: false
-                }).dxProgressBar("instance");
-
-                function toggleDropZoneActive(dropZone, isActive) {
-                    if (isActive) {
-                        dropZone.classList.add("dx-theme-accent-as-border-color");
-                        dropZone.classList.remove("dx-theme-border-color");
-                        dropZone.classList.add("dropzone-active");
-                    } else {
-                        dropZone.classList.remove("dx-theme-accent-as-border-color");
-                        dropZone.classList.add("dx-theme-border-color");
-                        dropZone.classList.remove("dropzone-active");
-                    }
-                }
-
-                function toggleImageVisible(visible) {
-                    const dropZoneImage = document.getElementById("dropzone-image-" + uploaderIndex);
-                    dropZoneImage.hidden = !visible;
-                }
-
-                document.getElementById("dropzone-image-" + uploaderIndex).onload = function () {
-                    toggleImageVisible(true);
-                };
-            });
-
             function setElementsDisabledState(state){
                 operationForm.getEditor("createWriteOffOperation").option("disabled", state);
                 operationForm.getEditor("writeOffMaterialGrid").option("disabled", state);
+                operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
                 operationForm.getEditor("projectObjectSelectBox").option("disabled", state);
                 operationForm.getEditor("operationDateDateBox").option("disabled", state);
                 operationForm.getEditor("newCommentTextArea").option("disabled", state);
@@ -1404,7 +1290,148 @@
                 return operationForm.getEditor("writeOffMaterialGrid");
             }
 
+            function getFileOptions() {
+                let options = [];
+                files.forEach((item) => {
+                    let optionElement = {}
+                    optionElement.colSpan = 1;
+                    optionElement.template = (() => {
+
+                        if (item.dropzoneRole === "addNewFileUploader") {
+                            let addDropzoneDiv = $('<div id="dropzone-external-add" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
+                                '<div id="dropzone-text-add" class="dx-uploader-flex-box dropzone-text">' +
+                                '<i class="fas fa-plus dx-uploader-icon"></i>' +
+                                '</div>' +
+                                '</div>');
+                            addDropzoneDiv.click(() => {
+                                createFileUploaderElement();
+                            })
+                            return addDropzoneDiv;
+                        } else {
+                            let imageContainerSrc = item.src ? item.src : "#";
+                            let dropzoneContainer = $('<div/>');
+                            let dropzoneExternalContainer = $(`<div id="dropzone-external-${item.itemIndex}" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">`)
+                                .appendTo(dropzoneContainer);
+
+                            let dropzoneImageContainer = $(`<img id="dropzone-image-${item.itemIndex}" class="dropzone-image" src="${imageContainerSrc}" alt="" style="display:none"/>`)
+                                .appendTo(dropzoneExternalContainer);
+
+                            toggleImageVisible(imageContainerSrc !== '#')
+
+                            let dropzoneTextContainer = $(`<div id="dropzone-text-${item.itemIndex}" class="dx-uploader-flex-box dropzone-text">` +
+                                                     `<span class="dx-uploader-span">Выберите файл для загрузки</span>` +
+                                                 `</div>`)
+                                .appendTo(dropzoneExternalContainer);
+
+                            if (imageContainerSrc !== "#") {
+                                dropzoneTextContainer.attr('style', 'display:none')
+                            }
+
+                            let uploadProgressBarContainer = $(`<div id="upload-progress-${item.itemIndex}" class="upload-progress"/>`)
+                                .appendTo(dropzoneExternalContainer)
+
+                            let fileUploader = $(`<div class="file-uploader" purpose="custom" index="${item.itemIndex}">` +
+                                `</div>`).appendTo(dropzoneContainer);
+
+                            fileUploader.dxFileUploader({
+                                dialogTrigger: dropzoneExternalContainer,
+                                dropZone: dropzoneExternalContainer,
+                                multiple: false,
+                                allowedFileExtensions: [".jpg", ".jpeg", ".gif", ".png"],
+                                uploadMode: "instantly",
+                                uploadHeaders: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                uploadUrl: "{{route('materials.operations.upload-file')}}",
+                                uploadCustomData: {uploadPurpose: fileUploader.attr('purpose')},
+                                visible: false,
+                                onDropZoneEnter: function (e) {
+                                    if (e.dropZoneElement.id === "dropzone-external-" + item.itemIndex)
+                                        toggleDropZoneActive(e.dropZoneElement, true);
+                                },
+                                onDropZoneLeave: function (e) {
+                                    if (e.dropZoneElement.id === "dropzone-external-" + item.itemIndex)
+                                        toggleDropZoneActive(e.dropZoneElement, false);
+                                },
+                                onUploaded: function (e) {
+                                    const file = e.file;
+                                    const dropZoneText = dropzoneTextContainer;
+                                    const fileReader = new FileReader();
+                                    fileReader.onload = function () {
+                                        toggleDropZoneActive(document.getElementById("dropzone-external-" + item.itemIndex), false);
+                                        const dropZoneImage = document.getElementById("dropzone-image-" + item.itemIndex);
+                                        dropZoneImage.src = fileReader.result;
+                                        files[item.itemIndex].src = dropZoneImage.src;
+                                    }
+                                    fileReader.readAsDataURL(file);
+                                    dropZoneText.attr("style", "display:none")
+                                    uploadProgressBar.option({
+                                        visible: false,
+                                        value: 0
+                                    });
+
+                                    let fileId = JSON.parse(e.request.response).id;
+                                    e.element.attr('uploaded-file-id', fileId);
+                                    files[item.itemIndex].uploadedFileId = fileId;
+                                    toggleImageVisible("true");
+                                },
+                                onProgress: function (e) {
+                                    uploadProgressBar.option("value", e.bytesLoaded / e.bytesTotal * 100)
+                                },
+                                onUploadStarted: function () {
+                                    toggleImageVisible(false);
+                                    uploadProgressBar.option("visible", true);
+                                }
+                            });
+
+                            let uploadProgressBar = uploadProgressBarContainer.dxProgressBar({
+                                min: 0,
+                                max: 100,
+                                width: "30%",
+                                showStatus: false,
+                                visible: false
+                            }).dxProgressBar("instance");
+
+                            function toggleDropZoneActive(dropZone, isActive) {
+                                if (isActive) {
+                                    dropZone.classList.add("dx-theme-accent-as-border-color");
+                                    dropZone.classList.remove("dx-theme-border-color");
+                                    dropZone.classList.add("dropzone-active");
+                                } else {
+                                    dropZone.classList.remove("dx-theme-accent-as-border-color");
+                                    dropZone.classList.add("dx-theme-border-color");
+                                    dropZone.classList.remove("dropzone-active");
+                                }
+                            }
+
+                            function toggleImageVisible(visible) {
+                                if (visible) {
+                                    dropzoneImageContainer.show();
+                                } else {
+                                    dropzoneImageContainer.hide()
+                                }
+                            }
+
+                            return dropzoneContainer;
+                        }
+                    })
+
+                    options.push(optionElement)
+                })
+                return options;
+            }
+
+            function createFileUploaderElement() {
+                let fileIndex = files.length - 1;
+                let fileUploader = {};
+                fileUploader.itemIndex = fileIndex;
+
+                files.splice(fileIndex, 0, fileUploader);
+                operationForm.itemOption("fileUploaderGroup", "items", getFileOptions());
+            }
+
             createAddMaterialsButton();
+            createFileUploaderElement();
         });
     </script>
 @endsection
