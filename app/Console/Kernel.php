@@ -36,7 +36,6 @@ class Kernel extends ConsoleKernel
         Commands\CreateUsageReportTask::class,
         Commands\MoveManualRodTo7Category::class,
         Commands\fixOperationOn23Jan::class,
-        Commands\CertificatelessOperationsNotify::class,
         Commands\RefactorSplitsDB::class,
         Commands\GenerateEmails::class,
         Commands\ExpiredTaskReminder::class,
@@ -67,8 +66,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('ticket:auto_confirm')->everyFiveMinutes();
         //material accounting
         $schedule->command('mat_acc:transfer_base')->dailyAt('03:15');
-        $schedule->command('check:contractors')->dailyAt('01:00');
-        $schedule->command('certificatless-operations:notify')->cron('0 10 * * 1-5'); Q3W!!!*/
+        $schedule->command('check:contractors')->dailyAt('01:00'); Q3W!!!*/
 //        $schedule->command('notification:need-contract')->cron('0 0 */3 * *');
         //q3w material accounting
         $schedule->command('materialOperation:checkOverdue')->everyThirtyMinutes();
