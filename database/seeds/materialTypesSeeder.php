@@ -44,13 +44,13 @@ class materialTypesSeeder extends Seeder
             "name" => "Швеллер",
             "measure_unit" => 1,
             "accounting_type" => 1,
-            "description" => "Швеллеры с параллельными гранями полок по ГОСТ 8240-89, швеллеры с углоном полок по ГОСТ 8240-89",
+            "description" => "Швеллеры с параллельными гранями полок по ГОСТ 8240-89, швеллеры с уклоном полок по ГОСТ 8240-89",
         ]);
 
         DB::table("q3w_material_types")->insert([
             "name" => "Угловой элемент",
             "measure_unit" => 1,
-            "accounting_type" => 1,
+            "accounting_type" => 2,
             "description" => "",
         ]);
 
