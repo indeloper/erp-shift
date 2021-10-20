@@ -56,7 +56,7 @@ class AddWriteOffRouteAndRole extends Migration
      */
     public function down()
     {
-        $confirmToWriteOffPermission = Permission::where('codename', 'material_accounting_write_off_confirmation');
+        $confirmToWriteOffPermission = Permission::where('codename', 'material_accounting_write_off_confirmation')->first();
 
         UserPermission::where('permission_id', $confirmToWriteOffPermission->id)->forceDelete();
 

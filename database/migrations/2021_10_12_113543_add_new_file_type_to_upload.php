@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\q3wMaterial\operations\q3wOperationFile;
 use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -31,6 +32,8 @@ class addNewFileTypeToUpload extends Migration
      */
     public function down()
     {
-        q3wOperationFileType::where('string_identifier', 'custom')->forceDelete();
+        $customFileType = q3wOperationFileType::where('string_identifier', 'custom')->first();
+        q3wOperationFile::where('upload_file_type', '=', $customFileType->id)->forceDelete();
+        $customFileType->forceDelete();
     }
 }
