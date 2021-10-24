@@ -1513,16 +1513,27 @@ class ProjectCommercialOfferController extends Controller
 
 
         if ($project->respUsers()->where('role', ($offer->is_tongue ? 6 : 5))->count() > 0) {
-            $main_engineer = Group::find(8)->getUsers()->first();
+            $mainEngineerOfTonguePostId = 8;
+            $mainEngineerOfPilesPostId = 58;
+
+            if ($offer->is_tongue) {
+                $mainEngineer = Group::find($mainEngineerOfTonguePostId)->getUsers()->first();
+                $taskNameSuffix = '(шпунт)';
+                $taskStatus = 25;
+            } else {
+                $mainEngineer = Group::find($mainEngineerOfPilesPostId)->getUsers()->first();
+                $taskNameSuffix = '(сваи)';
+                $taskStatus = 24;
+            }
 
             $add_RP_task = Task::create([
                 'project_id' => $project->id,
-                'name' => 'Назначение ответственного руководителя проектов' . ($offer->is_tongue ? ' (сваи)'  : ' (шпунт)'),
-                'responsible_user_id' => $main_engineer ? $main_engineer->user_id : 6,
+                'name' => 'Назначение ответственного руководителя проектов ' . $taskNameSuffix,
+                'responsible_user_id' => $mainEngineer ? $mainEngineer->user_id : 6,
                 'contractor_id' => $project->contractor_id,
                 'target_id' => $offer->id,
                 'prev_task_id' => $task ? $task->id : null,
-                'status' => $offer->is_tongue ? 25 : 24,
+                'status' => $taskStatus,
                 'expired_at' => $this->addHours(11)
             ]);
 
@@ -1534,7 +1545,7 @@ class ProjectCommercialOfferController extends Controller
                 'task_id' => $add_RP_task->id,
                 'user_id' => $add_RP_task->responsible_user_id,
                 'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
-                'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,
+                'project_id' => $add_RP_task->project_id ?: null,
                 'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
                 'type' => 63
             ]);
@@ -2002,15 +2013,26 @@ class ProjectCommercialOfferController extends Controller
             $offer->status = 4; //or end this com offer
 
             if ($project->respUsers()->where('role', ($offer->is_tongue ? 6 : 5))->count() > 0) {
-                $main_engineer = Group::find(8)->getUsers()->first();
+                $mainEngineerOfTonguePostId = 8;
+                $mainEngineerOfPilesPostId = 58;
+
+                if ($offer->is_tongue) {
+                    $mainEngineer = Group::find($mainEngineerOfTonguePostId)->getUsers()->first();
+                    $taskNameSuffix = '(шпунт)';
+                    $taskStatus = 25;
+                } else {
+                    $mainEngineer = Group::find($mainEngineerOfPilesPostId)->getUsers()->first();
+                    $taskNameSuffix = '(сваи)';
+                    $taskStatus = 24;
+                }
 
                 $add_RP_task = Task::create([
                     'project_id' => $project->id,
-                    'name' => 'Назначение ответственного руководителя проектов' . ($offer->is_tongue ? ' (сваи)' :' (шпунт)' ),
-                    'responsible_user_id' => $main_engineer ? $main_engineer->user_id : 6,
+                    'name' => 'Назначение ответственного руководителя проектов ' . $taskNameSuffix,
+                    'responsible_user_id' => $mainEngineer ? $mainEngineer->user_id : 6,
                     'contractor_id' => $project->contractor_id,
                     'target_id' => $offer->id,
-                    'status' => $offer->is_tongue ? 25 : 24,
+                    'status' => $taskStatus,
                     'expired_at' => $this->addHours(11)
                 ]);
 
