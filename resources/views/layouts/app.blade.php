@@ -246,34 +246,6 @@
                                         </a>
                                     </li>
                                 @endif
-                                <!--TUCKI Menu Items-->
-                                @if(Auth::user()->can('manual_materials'))
-                                <hr>
-                                <li class="nav-item @if (Request::is('building/materials') || Request::is('building/materials/*')) active @endif">
-                                    <a class="nav-link" href="{{ route('building::materials::index') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-diamond pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Материалы</span>
-                                    </a>
-                                </li>
-                                @endif
-                                @if(Auth::user()->can('manual_works'))
-                                <li class="nav-item @if (Request::is('building/works') || Request::is('building/works/*') || Request::is('building/work_groups/*') || Request::is('building/work_groups'))  active @endif">
-                                    <a class="nav-link" href="{{ route('building::works::index') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-config pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Работы</span>
-                                    </a>
-                                </li>
-                                @endif
-                                @if(Gate::check('mat_acc_report_card') || Gate::check('mat_acc_operation_log'))
-                                <li class="nav-item @if (Request::is('building/mat_acc') || Request::is('building/mat_acc/*')) active @endif">
-                                    <a class="nav-link" href="{{ route('building::mat_acc::report_card') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Материальный учёт</span>
-                                    </a>
-                                </li>
-                                <hr>
-                                @endif
-
                             </ul>
                         </div>
                     </li>
