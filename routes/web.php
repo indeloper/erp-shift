@@ -247,6 +247,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/material/operations/route-stages/list', 'q3wMaterial\q3wCommonController@operationRouteStagesList')->name('material.operation.route-stages.list');
     Route::get('/material/operations/route-stages-without-notifications/list', 'q3wMaterial\q3wCommonController@operationRouteStagesWithoutNotificationsList')->name('material.operation.route-stages-without-notifications.list');
     Route::get('/material/types/lookup-list', 'q3wMaterial\q3wCommonController@materialTypesLookupList')->name('material.types.lookup-list');
+    Route::get('/material/transformation-types/lookup-list', 'q3wMaterial\q3wCommonController@materialTransformationTypesLookupList')->name('material.transformation-types.lookup-list');
     Route::get('/material/consignment-number/validate', 'q3wMaterial\q3wCommonController@isConsignmentNumberUnique')->name('material.consignment-number.validate');
 
     //Materials
@@ -309,7 +310,8 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/transfer/completed', 'q3wMaterial\operations\q3wMaterialTransferOperationController@completed')->name('materials.operations.transfer.completed');
 
     //Material transformation
-    Route::get('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new');
+    //Route::get('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new');
+    Route::get('/materials/transformation/new2', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new2'); //Small fix to develop on remote dev
     Route::get('/materials/transformation/view', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@view')->name('materials.operations.transformation.view');
     Route::post('/materials/transformation/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@validateMaterialList')->name('materials.operations.transformation.new.validate-material-list');
     Route::post('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@store')->name('materials.operations.transformation.new');
