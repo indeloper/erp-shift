@@ -28,9 +28,9 @@ trait DevExtremeDataSourceLoadable
      * Форматирует значение согласно логике оператора сравнения
      * @param $value
      * @param $conditionOperator
-     * @return Expression
+     * @return string
      */
-    protected function formatValue($value, $conditionOperator)
+    protected function formatValue($value, $conditionOperator): string
     {
         switch ($conditionOperator) {
             case 'startswith':
@@ -46,12 +46,12 @@ trait DevExtremeDataSourceLoadable
     }
 
     /**
-     * Форматирует наименоваение поля согласно логике оператора сравнения
+     * Форматирует наименование поля согласно логике оператора сравнения
      * @param $fieldName
      * @param $conditionOperator
-     * @return Expression
+     * @return string
      */
-    protected function formatField($fieldName, $conditionOperator)
+    protected function formatField($fieldName, $conditionOperator): string
     {
         switch ($conditionOperator) {
             case 'startswith':
@@ -72,7 +72,8 @@ trait DevExtremeDataSourceLoadable
      * @param $searchExpr
      * @return Expression
      */
-    protected function appendSearchOperation($query, string $searchOperation, string $searchValue, $searchExpr) {
+    protected function appendSearchOperation($query, string $searchOperation, string $searchValue, $searchExpr): Expression
+    {
         $filter = [];
 
         $searchValues = explode(' ', $searchValue);
@@ -95,11 +96,11 @@ trait DevExtremeDataSourceLoadable
     }
 
     /**
-     * Танслирует полученный массив filter, добаляя их к запросу.
+     * Транслирует полученный массив filter, добавляя их к запросу.
      * Получаемый массив может быть нескольких типов:
      *   С одним условием: "filter":[["id","<>",35]]
-     *   С несколькоми: "filter":[["id","<>",35],"and",["operation_route_id","=",2]]
-     *   Со вложенными условиями: "filter":[["id","<>",35],"and",[["date_start",">=","2020/11/03 00:00:00"],"and",["date_start","<","2020/11/04 00:00:00"]]]
+     *   С группой условий: "filter":[["id","<>",35],"and",["operation_route_id","=",2]]
+     *   Со вложенными условиями: "filter":[["id","<>",35],"and",[["date_start",">=","2020/11/03 00:00:00"],"and",["date_start","<=","2020/11/04 00:00:00"]]]
      *
      * @param $query
      * @param $filterArray
