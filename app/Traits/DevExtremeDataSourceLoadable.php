@@ -5,7 +5,7 @@ namespace App\Traits;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Facades\DB;
-//TODO Пока не тестирвоал для работы с датами. Нужно проверить и, скорее всего, допилить.
+
 trait DevExtremeDataSourceLoadable
 {
     protected $logicalOperators = ['and' => 'and',
