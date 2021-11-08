@@ -2,6 +2,10 @@
 /**  * @mixin ..\Eloquent  */
 namespace App\Models\q3wMaterial\operations;
 
+use App\Models\Building\ObjectResponsibleUser;
+use App\Models\Permission;
+use App\Models\User;
+use App\Models\UserPermission;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,7 +20,7 @@ class q3wMaterialOperation extends Model
 
     protected $guarded = array('id');
 
-    protected $appends = ['have_conflict', 'url'];
+    protected $appends = ['have_conflict', 'url', 'expected_users_names'];
 
     public function getHaveConflictAttribute(): bool
     {
@@ -55,6 +59,8 @@ class q3wMaterialOperation extends Model
             ->whereIn('operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'));
     }
 
+
+
     public function scopeWithMaterialsSummary($query)
     {
         $materialRawQuery = DB::raw("(SELECT
@@ -75,15 +81,9 @@ class q3wMaterialOperation extends Model
                                                        q3w_material_types.name
                                               ORDER BY q3w_material_types.name) AS SUMMARY
                                             GROUP BY SUMMARY.id) AS material_summary");
-        //Laravel 5 dont have addSubSelect method :( Using RAW instead
+        //Laravel 5 don't have addSubSelect method :( Using RAW instead
         $query->leftJoin($materialRawQuery, 'q3w_material_operations.id', '=', 'material_operation_id')
             ->addSelect('material_types_info');
-
-        /*['last_login_at' => Login::select('created_at')
-            ->whereColumn('user_id', 'users.id')
-            ->latest()
-            ->take(1)
-        ]*/
     }
 
     public function getUrlAttribute(){
@@ -124,5 +124,31 @@ class q3wMaterialOperation extends Model
         $routeName = 'materials.operations.' . $routeName . '.' . $routeStageName;
 
         return route($routeName).'/?operationId=' . $this->id;
+    }
+
+    public function getExpectedUsersNamesAttribute() {
+        $routeStageId = $this->operation_route_stage_id;
+        switch ($routeStageId) {
+            case 11:
+            case 25:
+                return User::find($this->source_responsible_user_id)->get()->ful_name;
+            case 6:
+            case 30:
+                return User::find($this->destination_responsible_user_id)->get()->ful_name;
+            case 37:
+            case 71:
+            case 77:
+                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->source_project_object_id)->get()->pluck('id');
+                return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
+            case 19:
+                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->destination_project_object_id)->get()->pluck('id');
+                return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
+            case 79:
+                $permissionId = Permission::where('codename', 'material_accounting_write_off_confirmation')->first()->id;
+                $userIds = UserPermission::where('permission_id', $permissionId)->pluck('user_id');
+                return User::whereIn('id', $userIds)->get()->pluck('full_name')->join(';');
+            default:
+                return null;
+        }
     }
 }

@@ -18,9 +18,13 @@
             padding-left: 0px !important;
         }
 
-        .dx-form-group.dx-group-no-border {
+        .dx-form-group .dx-group-no-border {
             border: 0;
             border-radius: 0;
+        }
+
+        .dx-item-content {
+            justify-content: flex-end;
         }
     </style>
 @endsection
@@ -43,6 +47,12 @@
                 name: "Объект",
                 filterType: "lookup",
                 groupName: "projectObjectFilterGroup"
+            },
+            {
+                name: "Дата",
+                filterType: "dateRange",
+                groupName: "operationDateFilterGroup",
+                data: {}
             },
             {
                 name: "Тип операции",
@@ -125,14 +135,16 @@
             let materialTypesColumns = [
                 {
                     dataField: "id",
-                    caption: "Номер",
+                    caption: "Операция",
                     dataType: "number",
-                    width: 70,
+                    width: 140,
+                    sortOrder: "desc",
+                    sortIndex: 1,
                     cellTemplate: function (container, options) {
                         let operationId = options.data.id;
                         let operationUrl = options.data.url;
 
-                        $(`<div><a href="${operationUrl}">${operationId}</a></div>`)
+                        $(`<div><a class="dx-link dx-link-icon" href="${operationUrl}">Операция №${operationId}</a></div>`)
                             .appendTo(container);
                     }
                 },
@@ -192,9 +204,19 @@
                     caption: "Дата операции"
                 },
                 {
-                    dataField: "operation_route_stage_name",
+                    dataField: "route_stage_type_sort_order",
                     dataType: "string",
-                    caption: "Статус"
+                    caption: "Статус",
+                    sortOrder: "asc",
+                    sortIndex: 0,
+                    cellTemplate: function (container, options) {
+                        let data = options.data.operation_route_stage_name;
+
+                        if (options.data.expected_users_names) {
+                            data = data + "<br>" + options.data.expected_users_names;
+                        }
+                        container.html(data);
+                    }
                 }
             ];
             //</editor-fold>
@@ -218,14 +240,10 @@
                     return $("div.content").height()
                 },
                 showColumnLines: true,
-                focusedRowEnabled: true,
+                focusedRowEnabled: false,
                 hoverStateEnabled: true,
                 columnAutoWidth: false,
                 showBorders: true,
-                filterRow: {
-                    visible: true,
-                    applyFilter: "auto"
-                },
                 grouping: {
                     autoExpandAll: true,
                 },
@@ -245,7 +263,8 @@
 
             let operationGridForm = $("#formContainer").dxForm({
                 formData: {
-                    currentSelectedFilterGroup: null
+                    currentSelectedFilterGroup: null,
+                    currentSelectedFilterGroupData: null
                 },
                 items: [
                     {
@@ -311,6 +330,106 @@
                                                             operation: "=",
                                                             value: filterElement.option("value"),
                                                             text: 'Объект: ' + filterElement.option("text")
+                                                        }
+                                                    )
+                                                }
+                                                repaintFilterTagBox();
+                                                operationsDataSource.reload();
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                itemType: "group",
+                                name: "operationDateFilterGroup",
+                                colCount: 4,
+                                visible: false,
+                                cssClass: "dx-group-no-border filter-group-with-labels",
+                                items: [
+                                    {
+                                        dataField: "dateRangeConditionsLookupData",
+                                        name: "dateRangeConditionsLookup",
+                                        label: {text: "Выберите условие"},
+                                        editorType: "dxLookup",
+                                        editorOptions: {
+                                            dataSource: [{id: "=", name: "Равно"},
+                                                {id: ">=", name: "Больше или равно"},
+                                                {id: "<=", name: "Меньше или равно"},
+                                                {id: "..", name: "Диапазон"},
+                                            ],
+                                            displayExpr: "name",
+                                            valueExpr: "id",
+                                            onValueChanged: (e) => {
+                                                let newValue = e.value;
+                                                operationGridForm.itemOption("filterGroup.operationDateFilterGroup.dateRangeConditionsDateBoxEnd", 'visible', e.value === "..")
+                                                e.value = newValue;
+                                            }
+                                        },
+                                    },
+                                    {
+                                        name: "dateRangeConditionsDateBoxStart",
+                                        dataField: "dateRangeConditionsDateBoxStartData",
+                                        editorType: "dxDateBox",
+                                        label: {text: "Выберите дату"},
+                                        editorOptions: {
+
+                                        },
+                                    },
+                                    {
+                                        name: "dateRangeConditionsDateBoxEnd",
+                                        dataField: "dateRangeConditionsDateBoxEndData",
+                                        label: {text: "Выберите дату окончания диапазона"},
+                                        editorType: "dxDateBox",
+                                        visible: false,
+                                        editorOptions: {
+
+                                        },
+                                    },
+                                    {
+                                        cssStyle: "apply-filter-button",
+                                        editorType: "dxButton",
+                                        editorOptions: {
+                                            text: "Добавить",
+                                            icon:"check",
+                                            type:"default",
+                                            height: 40,
+                                            onClick: (e) => {
+                                                console.log(operationGridForm.option("formData"));
+                                                if (!Date.prototype.toISODate) {
+                                                    Date.prototype.toISODate = function() {
+                                                        return this.getFullYear() + '-' +
+                                                            ('0'+ (this.getMonth()+1)).slice(-2) + '-' +
+                                                            ('0'+ this.getDate()).slice(-2);
+                                                    }
+                                                }
+
+                                                let filterElementCondition = operationGridForm.getEditor("dateRangeConditionsLookup");
+                                                let filterElementStart = operationGridForm.getEditor("dateRangeConditionsDateBoxStart");
+                                                let filterElementEnd = operationGridForm.getEditor("dateRangeConditionsDateBoxEnd");
+
+                                                let filterTextString;
+                                                let dateStartISOString;
+                                                let dateEndISOString;
+
+                                                if (filterElementCondition.option("value") === ".."){
+                                                    filterTextString = `Дата: с ${filterElementStart.option('value').toLocaleString("ru", {year: 'numeric', month: 'numeric', day: 'numeric'})} по ${filterElementEnd.option('value').toLocaleString("ru", {year: 'numeric', month: 'numeric', day: 'numeric'})}`;
+                                                    dateStartISOString = filterElementStart.option("value").toISODate();
+                                                    dateEndISOString = filterElementEnd.option("value").toISODate();
+                                                } else {
+                                                    filterTextString = `Дата: ${filterElementCondition.option("text").toLowerCase()} ${filterElementStart.option('value').toLocaleString("ru", {year: 'numeric', month: 'numeric', day: 'numeric'})}`;
+                                                    dateStartISOString = filterElementStart.option("value").toISODate();
+                                                }
+
+                                                if (filterElementCondition.option("value")) {
+                                                    filterList.push(
+                                                        {
+                                                            id: new DevExpress.data.Guid().toString(),
+                                                            fieldName: "operation_date",
+                                                            operation: filterElementCondition.option("value"),
+                                                            value: dateStartISOString,
+                                                            value2: dateEndISOString,
+                                                            text: filterTextString
                                                         }
                                                     )
                                                 }
@@ -681,7 +800,22 @@
                         haveConflictFilterArray.push(['q3w_operation_route_stages.id', operation, 38]);
 
                         filterArray.push(haveConflictFilterArray);
-                    } else {
+                    } else
+                    if (item.fieldName === "operation_date") {
+
+                        if (item.operation === "..") {
+                            let operationDateFilterArray = [];
+
+                            operationDateFilterArray.push(['operation_date', ">=", item.value]);
+                            operationDateFilterArray.push('and');
+                            operationDateFilterArray.push(['operation_date', '<=', item.value2]);
+
+                            filterArray.push(operationDateFilterArray);
+                        } else {
+                            filterArray.push([item.fieldName, item.operation, item.value]);
+                        }
+                    } else
+                    {
                         filterArray.push([item.fieldName, item.operation, item.value]);
                     }
 
@@ -696,6 +830,7 @@
             function changeFilterGroupVisibility(visibleFilterGroupName) {
                 operationGridForm.itemOption("filterGroup.projectObjectFilterGroup", "visible", false);
                 operationGridForm.itemOption("filterGroup.operationTypeFilterGroup", "visible", false);
+                operationGridForm.itemOption("filterGroup.operationDateFilterGroup", "visible", false);
                 operationGridForm.itemOption("filterGroup.operationStageFilterGroup", "visible", false);
                 operationGridForm.itemOption("filterGroup.operationAuthorFilterGroup", "visible", false);
                 operationGridForm.itemOption("filterGroup.haveConflictFilterGroup", "visible", false);

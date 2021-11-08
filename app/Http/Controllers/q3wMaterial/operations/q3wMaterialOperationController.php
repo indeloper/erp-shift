@@ -29,8 +29,6 @@ use function MongoDB\BSON\toJSON;
  */
 class q3wMaterialOperationController extends Controller
 {
-    protected $appends = ['operation_hyperlink'];
-
     /**
      * Display a listing of the resource.
      *
@@ -72,12 +70,14 @@ class q3wMaterialOperationController extends Controller
     {
         $options = json_decode($request['data']);
 
-        //dd($options);
         $response = array(
             "data" => (new q3wMaterialOperation)
                 ->dxLoadOptions($options)
                 ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
-                ->addSelect('q3w_material_operations.*', 'q3w_operation_route_stages.name as operation_route_stage_name')
+                ->addSelect(['q3w_material_operations.*',
+                    'q3w_operation_route_stages.name as operation_route_stage_name',
+                    DB::raw('CASE WHEN `q3w_operation_route_stages`.`operation_route_stage_type_id` in (3, 5, 6) THEN 0 ELSE 1 END as route_stage_type_sort_order')
+                ])
                 ->withMaterialsSummary()
                 ->get(),
             "totalCount" => (new q3wMaterialOperation)
@@ -166,6 +166,7 @@ class q3wMaterialOperationController extends Controller
             $file->save();
             return response()->json($file);
         }
+        return response()->json(null);
     }
 
     public function print(Request $request) {
