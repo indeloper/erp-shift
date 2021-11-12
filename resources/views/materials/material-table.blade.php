@@ -138,15 +138,26 @@
                                             type:"default",
                                             height: 40,
                                             onClick: (e) => {
-                                                let filterElement = materialGridForm.getEditor("projectObjectFilterLookup");
+                                                if (!Date.prototype.toISODate) {
+                                                    Date.prototype.toISODate = function() {
+                                                        return this.getFullYear() + '-' +
+                                                            ('0'+ (this.getMonth()+1)).slice(-2) + '-' +
+                                                            ('0'+ this.getDate()).slice(-2);
+                                                    }
+                                                }
+
+                                                let filterElement = materialGridForm.getEditor("snapshotDateDateBox");
+
+                                                let dateISOString = filterElement.option("value").toISODate();
+
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
                                                             id: new DevExpress.data.Guid().toString(),
-                                                            fieldName: "project_object_id",
-                                                            operation: "=",
-                                                            value: filterElement.option("value"),
-                                                            text: 'Объект: ' + filterElement.option("text")
+                                                            fieldName: "q3w_material_snapshots.created_at",
+                                                            operation: "<=",
+                                                            value: "'" + dateISOString + "T23:59:59'",
+                                                            text: 'Дата: ' + filterElement.option("text")
                                                         }
                                                     )
                                                 }
@@ -333,7 +344,18 @@
                                         caption: "Наименование",
                                         width: 500,
                                         sortIndex: 0,
-                                        sortOrder: "asc"
+                                        sortOrder: "asc",
+                                        cellTemplate: (container, options) => {
+                                            $(`<div class="standard-name">${options.text}</div>`)
+                                                .appendTo(container);
+
+                                            if (options.data.comment) {
+                                                $(`<div class="material-comment">${options.data.comment}</div>`)
+                                                    .appendTo(container);
+
+                                                container.addClass("standard-name-cell-with-comment");
+                                            }
+                                        }
                                     },
                                     {
                                         dataField: "measure_unit",
@@ -499,6 +521,7 @@
             function changeFilterGroupVisibility(visibleFilterGroupName) {
                 materialGridForm.itemOption("filterGroup.projectObjectFilterGroup", "visible", false);
                 materialGridForm.itemOption("filterGroup.standardFilterGroup", "visible", false);
+                materialGridForm.itemOption("filterGroup.snapshotDateFilterGroup", "visible", false);
 
                 materialGridForm.itemOption(visibleFilterGroupName, "visible", true);
 
