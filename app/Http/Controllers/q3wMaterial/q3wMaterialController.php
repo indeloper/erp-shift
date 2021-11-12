@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\q3wMaterial;
 
 use App\Models\ProjectObject;
+use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\q3wMaterial;
@@ -65,10 +66,10 @@ class q3wMaterialController extends Controller
     public function snapshotList(Request $request)
     {
         $projectObjectId = $request["projectObjectId"];
-        return q3wMaterialSnapshot::where('project_object_id', '=', $projectObjectId)
-            ->leftJoin('q3w_material_operations', 'operation_id', 'q3w_material_operations.id')
+        return q3wMaterialOperation::join('q3w_material_snapshots', 'q3w_material_snapshots.operation_id', 'q3w_material_operations.id')
+            ->where('q3w_material_snapshots.project_object_id', '=', $projectObjectId)
             ->orderBy('q3w_material_snapshots.created_at', 'desc')
-            ->get(['q3w_material_snapshots.id',
+            ->get(['q3w_material_operations.id',
                 'q3w_material_snapshots.created_at',
                 'q3w_material_operations.operation_route_id',
                 'source_project_object_id',
@@ -395,6 +396,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
             ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
             ->leftJoin('project_objects', 'q3w_material_snapshots.project_object_id', '=', 'project_objects.id')
+            ->leftJoin('q3w_material_snapshot_material_comments', 'q3w_material_snapshot_materials.comment_id', '=', 'q3w_material_snapshot_material_comments.id')
             ->select(['q3w_material_snapshot_materials.id',
                 'q3w_material_snapshot_materials.standard_id',
                 'q3w_material_snapshot_materials.quantity',
@@ -408,7 +410,8 @@ class q3wMaterialController extends Controller
                 'q3w_material_types.measure_unit',
                 'q3w_material_types.name as material_type_name',
                 'q3w_measure_units.value as measure_unit_value',
-                'project_objects.short_name as project_object_short_name']);
+                'project_objects.short_name as project_object_short_name',
+                'q3w_material_snapshot_material_comments.comment']);
 
         return DB::table(DB::raw('('.Str::replaceArray('?', $materialsList->getBindings(), $materialsList->toSql()).') as TEMP'))
             ->where('snapshot_date', '=', DB::raw('`max_snapshot_date`'))
