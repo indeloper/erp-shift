@@ -117,7 +117,6 @@
                     load: function (loadOptions) {
                         loadOptions.filter = getLoadOptionsFilterArray();
                         dataSourceLoadOptions = loadOptions;
-                        console.log(loadOptions);
 
                         return $.getJSON("{{route('materials.operations.list')}}",
                             {data: JSON.stringify(loadOptions)});
@@ -395,7 +394,6 @@
                                             type:"default",
                                             height: 40,
                                             onClick: (e) => {
-                                                console.log(operationGridForm.option("formData"));
                                                 if (!Date.prototype.toISODate) {
                                                     Date.prototype.toISODate = function() {
                                                         return this.getFullYear() + '-' +
@@ -823,7 +821,6 @@
                         filterArray.push('and');
                     }
                 })
-                console.log(filterArray);
                 return filterArray;
             }
 
@@ -857,7 +854,6 @@
 
                             $('#filterList').val(JSON.stringify(filterList));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
-                            console.log(dataSourceLoadOptions);
                             $('#printAllOperations').submit();
                         }
                     })
