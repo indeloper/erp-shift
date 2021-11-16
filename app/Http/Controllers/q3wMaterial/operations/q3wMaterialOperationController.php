@@ -100,7 +100,7 @@ class q3wMaterialOperationController extends Controller
         })
             ->onlyActive()
             ->orderBy('created_at', 'desc')
-            ->get(['id', 'operation_route_id', 'operation_route_stage_id'])
+            ->get(['id', 'operation_route_id', 'operation_route_stage_id', 'source_responsible_user_id', 'destination_responsible_user_id', 'source_project_object_id', 'destination_project_object_id'])
             ->toJson(JSON_UNESCAPED_UNICODE);
     }
 

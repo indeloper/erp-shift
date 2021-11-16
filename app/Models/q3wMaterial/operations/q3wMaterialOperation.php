@@ -131,10 +131,10 @@ class q3wMaterialOperation extends Model
         switch ($routeStageId) {
             case 11:
             case 25:
-                return User::find($this->source_responsible_user_id)->get()->ful_name;
+                return User::find($this->source_responsible_user_id)->full_name;
             case 6:
             case 30:
-                return User::find($this->destination_responsible_user_id)->get()->ful_name;
+                return User::find($this->destination_responsible_user_id)->full_name;
             case 37:
             case 71:
             case 77:
