@@ -444,6 +444,10 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     ]
                                 ]);
                             $event->sheet->horizontalAlign('C'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'], Alignment::HORIZONTAL_RIGHT);
+
+                            $event->sheet->getStyle('L'.$styleRule['lineNumber'])->getNumberFormat()
+                                ->setFormatCode('0.000');
+
                             break;
                         case 'materialTypeGroup':
                             $event->sheet->getStyle('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
@@ -575,6 +579,10 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                 ]);
 
                             $event->sheet->horizontalAlign('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_RIGHT);
+
+                            $event->sheet->getStyle('L'.$styleRule['lineNumber'])->getNumberFormat()
+                                ->setFormatCode('0.000');
+
                             break;
                         case 'materialstandardGroup':
                             $event->sheet->getStyle('E'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
@@ -732,6 +740,10 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                                     ]
                                 ]);
                             $event->sheet->horizontalAlign('E'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_RIGHT);
+
+                            $event->sheet->getStyle('L'.$styleRule['lineNumber'])->getNumberFormat()
+                                ->setFormatCode('0.000');
+
                             break;
                         case 'materialData':
                             $event->sheet->getStyle('F'.$styleRule
