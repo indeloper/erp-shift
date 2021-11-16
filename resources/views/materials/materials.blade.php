@@ -473,9 +473,11 @@
                                 showScrollbar: true,
                                 dataSource: materialSnapshotsDataSource,
                                 onItemClick: function (e) {
-                                    snapshotId = e.itemData.id;
+                                    //Раньше загружался снапшот операции. Теперь - идем в карточку завершенной операции
+                                    /*snapshotId = e.itemData.id;
                                     actualMaterialsDataSource.reload();
-                                    projectObjectInfoForm.getEditor("materialDataGrid").refresh();
+                                    projectObjectInfoForm.getEditor("materialDataGrid").refresh();*/
+                                    window.open(e.itemData.url, '_blank');
                                 },
                                 itemTemplate: function (itemData, _, itemElement) {
                                     let operationIcon;
