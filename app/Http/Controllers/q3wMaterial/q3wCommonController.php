@@ -8,11 +8,11 @@ use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialTransformationType;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
-use http\Env\Response;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -118,6 +118,13 @@ class q3wCommonController extends Controller
         }
 
         return ['results' => $results];
+    }
+
+    public function materialTransformationTypesLookupList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new q3wMaterialTransformationType())->dxLoadOptions($options)->get(['id', 'value'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function isConsignmentNumberUnique(Request $request) {
