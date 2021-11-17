@@ -28,9 +28,8 @@ trait DevExtremeDataSourceLoadable
      * Форматирует значение согласно логике оператора сравнения
      * @param $value
      * @param $conditionOperator
-     * @return string
      */
-    protected function formatValue($value, $conditionOperator): string
+    protected function formatValue($value, $conditionOperator)
     {
         switch ($conditionOperator) {
             case 'startswith':
@@ -49,9 +48,8 @@ trait DevExtremeDataSourceLoadable
      * Форматирует наименование поля согласно логике оператора сравнения
      * @param $fieldName
      * @param $conditionOperator
-     * @return string
      */
-    protected function formatField($fieldName, $conditionOperator): string
+    protected function formatField($fieldName, $conditionOperator)
     {
         switch ($conditionOperator) {
             case 'startswith':
@@ -70,9 +68,8 @@ trait DevExtremeDataSourceLoadable
      * @param string $searchOperation
      * @param string $searchValue
      * @param $searchExpr
-     * @return Expression
      */
-    protected function appendSearchOperation($query, string $searchOperation, string $searchValue, $searchExpr): Expression
+    protected function appendSearchOperation($query, string $searchOperation, string $searchValue, $searchExpr)
     {
         $filter = [];
 
