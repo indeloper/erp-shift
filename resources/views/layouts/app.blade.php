@@ -192,9 +192,13 @@
                         </div>
                     </li>
                     @endif
-                    @if(Gate::check('manual_materials') || Gate::check('manual_works') || Gate::check('mat_acc_report_card') || Gate::check('mat_acc_operation_log'))
-                    <li class="nav-item @if((Request::is('building') || Request::is('building/*')) && !Request::is('*fuel_tank*') && !Request::is('*our_technic_tickets*') && !Request::is('*defects*') && !Request::is('*tech_acc*') && !Request::is('*vehicles*')) active @endif">
-                        <a class="nav-link" data-toggle="collapse" href="#building">
+                    @if(Gate::check('material_accounting_materials_types_editing') ||
+                        Gate::check('material_accounting_materials_standards_editing') ||
+                        Gate::check('material_accounting_material_table_access') ||
+                        Gate::check('material_accounting_operation_list_access') ||
+                        Gate::check('material_accounting_material_list_access'))
+                    <li class="nav-item @if((Request::is('materials') || Request::is('materials/*')) && !Request::is('*fuel_tank*') && !Request::is('*our_technic_tickets*') && !Request::is('*defects*') && !Request::is('*tech_acc*') && !Request::is('*vehicles*')) active @endif">
+                        <a class="nav-link" data-toggle="collapse" href="#materials">
                             <i class="pe-7s-plugin"></i>
                             <p>Строительство
                                 <b class="caret"></b>
@@ -202,11 +206,11 @@
                         </a>
 
                         <div
-                            class="collapse @if((Request::is('building') || Request::is('building/*')) && !Request::is('*fuel_tank*') && !Request::is('*our_technic_tickets*') && !Request::is('*defects*') && !Request::is('*tech_acc*') && !Request::is('*vehicles*')) show @endif"
-                            id="building">
+                            class="collapse @if((Request::is('materials') || Request::is('materials/*')) && !Request::is('*fuel_tank*') && !Request::is('*our_technic_tickets*') && !Request::is('*defects*') && !Request::is('*tech_acc*') && !Request::is('*vehicles*')) show @endif"
+                            id="materials">
                             <ul class="nav">
                                 <!--Q3W Menu Items-->
-                                @if(Auth::user()->can('manual_materials'))
+                                @if(Auth::user()->can('material_accounting_operation_list_access'))
                                     <li class="nav-item @if (Request::is('/materials/operations/all') || Request::is('/materials/operations/all/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.operations.index') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
@@ -214,7 +218,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(Auth::user()->can('manual_materials'))
+                                @if(Auth::user()->can('material_accounting_material_list_access'))
                                     <li class="nav-item @if (Request::is('materials/material') || Request::is('materials/material/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.index') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
@@ -222,7 +226,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(Auth::user()->can('manual_materials'))
+                                @if(Auth::user()->can('material_accounting_material_table_access'))
                                     <li class="nav-item @if (Request::is('/materials/table') || Request::is('/materials/table/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.table') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
@@ -230,7 +234,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(Auth::user()->can('manual_materials'))
+                                @if(Auth::user()->can('material_accounting_materials_standards_editing'))
                                     <li class="nav-item @if (Request::is('materials/material-standard') || Request::is('materials/material-standard/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.standards.index') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-diamond pe-7s-mini"></i></span>
@@ -238,7 +242,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(Auth::user()->can('manual_materials'))
+                                @if(Auth::user()->can('material_accounting_materials_types_editing'))
                                     <li class="nav-item @if (Request::is('materials/material-type') || Request::is('materials/material-type/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.types.index') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-menu pe-7s-mini"></i></span>
