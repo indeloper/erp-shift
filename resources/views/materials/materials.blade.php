@@ -445,6 +445,14 @@
                                             },
                                             displayExpr: "name",
                                             valueExpr: "id"
+                                        },
+                                        cellTemplate: (container, options) => {
+                                            console.log('options', options);
+                                            if (options.data.expected_users_names) {
+                                                return $(`<div class="cell-end-ellipses">${options.displayValue} (${options.data.expected_users_names})</div>`)
+                                            } else {
+                                                return $(`<div class="cell-end-ellipses">${options.displayValue}</div>`)
+                                            }
                                         }
                                     },
                                 ],
