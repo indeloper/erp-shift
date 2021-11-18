@@ -410,6 +410,7 @@
                                         dataField: "id",
                                         dataType: "number",
                                         caption: "Операция",
+                                        width: "20%",
                                         showSpinButtons: true,
                                         cellTemplate: function (container, options) {
                                             let operationId = options.data.id;
@@ -423,6 +424,7 @@
                                         dataField: "operation_route_id",
                                         dataType: "number",
                                         caption: "Тип операции",
+                                        width: "20%",
                                         lookup: {
                                             dataSource: {
                                                 paginate: true,
@@ -437,6 +439,7 @@
                                         dataField: "operation_route_stage_id",
                                         dataType: "number",
                                         caption: "Статус",
+                                        width: "60%",
                                         lookup: {
                                             dataSource: {
                                                 paginate: true,
