@@ -128,6 +128,7 @@
             })
 
             let transferMaterialData = {!!$predefinedMaterials !!};
+
             let transferMaterialStore = new DevExpress.data.ArrayStore({
                 key: "id",
                 data: transferMaterialData,
@@ -261,7 +262,7 @@
                                         quantity = "";
                                         amount = "";
                                     } else {
-                                        quantity = options.data.quantity ? options.data.quantity + " " : "";
+                                        quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
                                         amount = options.data.amount ? options.data.amount + " " : "";
                                     }
                                     switch (options.data.accounting_type) {
@@ -605,7 +606,7 @@
                                 divStandardName.addClass("standard-name-cell-with-comment");
                             }
 
-                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${Math.round(options.data.quantity * 100) / 100}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
                             divStandardRemains.mouseenter(function () {
@@ -635,7 +636,7 @@
                     },
                     showSpinButtons: false,
                     cellTemplate: function (container, options) {
-                        let quantity = options.data.quantity;
+                        let quantity = Math.round(options.data.quantity * 100) / 100;
                         if (quantity !== null) {
                             $(`<div>${quantity} ${options.data.measure_unit_value}</div>`)
                                 .appendTo(container);

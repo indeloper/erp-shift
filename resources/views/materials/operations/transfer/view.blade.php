@@ -623,7 +623,7 @@
                                         amount = "";
                                         comment = "";
                                     } else {
-                                        quantity = options.data.quantity ? options.data.quantity + " " : "";
+                                        quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
                                         amount = options.data.amount ? options.data.amount + " " : "";
                                         comment = options.data.comment ? '; ' + options.data.comment + ')' : ")";
                                     }
@@ -1040,7 +1040,7 @@
                                 divStandardName.addClass("standard-name-cell-with-comment");
                             }
 
-                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${options.data.quantity}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
+                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${Math.round(options.data.quantity * 100) / 100}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
                             divStandardRemains.mouseenter(function () {
@@ -1071,7 +1071,7 @@
                     showSpinButtons: false,
                     cellTemplate: function (container, options) {
                         let initialQuantity = options.data.initial_quantity;
-                        let quantity = options.data.quantity;
+                        let quantity = Math.round(options.data.quantity * 100) / 100;
                         if (options.data.edit_states.indexOf("addedByInitiator") !== -1 && options.data.accounting_type !== 2) {
                             let quantityDelta = Math.round((quantity - initialQuantity) * 100) / 100;
                             let initialQuantityContentStyle = "initial-content";
