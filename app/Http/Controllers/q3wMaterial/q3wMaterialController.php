@@ -70,6 +70,7 @@ class q3wMaterialController extends Controller
             ->where('q3w_material_snapshots.project_object_id', '=', $projectObjectId)
             ->orderBy('q3w_material_snapshots.created_at', 'desc')
             ->get(['q3w_material_operations.id',
+                'q3w_material_operations.operation_route_stage_id',
                 'q3w_material_snapshots.created_at',
                 'q3w_material_operations.operation_route_id',
                 'source_project_object_id',
