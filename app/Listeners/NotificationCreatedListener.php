@@ -42,7 +42,7 @@ class NotificationCreatedListener
 
         $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);
         try {
-            if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and userIsActive($user)) {
+            if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
                 Telegram::sendMessage([
                     'chat_id' => $userChatId,
                     'text' => $text
@@ -64,7 +64,7 @@ class NotificationCreatedListener
                 }
             } catch (\Throwable $e) {
                 Telegram::sendMessage([
-                    'chat_id' => '-1001505547789',
+                    'chat_id' => '-1001558926749',
                     'text' => $userChatId
                 ]);
             }
