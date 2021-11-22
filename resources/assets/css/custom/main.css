@@ -39,6 +39,11 @@
     align-items: center;
 }
 
+.dx-uploader-icon {
+    font-size: xx-large;
+    color: #929292;
+}
+
 /*Operations*/
 .measure-units-only{
     color: lightgrey;
@@ -151,4 +156,9 @@ div.dx-datagrid-header-panel{
     overflow: hidden;
     width: 100%;
     white-space: nowrap;
+}
+
+.cell-end-ellipses {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
