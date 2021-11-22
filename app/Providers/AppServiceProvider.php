@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\ServiceProvider;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +19,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if (config('app.env') != 'production') {
+            DB::listen(function ($query) {
+                File::append(
+                    storage_path('/logs/query.log'),
+                    $query->sql . ' [' . implode(', ', $query->bindings) . ']' . PHP_EOL
+                );
+            });
+        }
+
         setlocale(LC_TIME, 'ru_RU.UTF-8');
         Carbon::setLocale('ru');
 
