@@ -27,11 +27,19 @@
             font-size: larger;
         }
 
-        .transform-element>.transformation-number-box {
+        .transform-element>.transformation-number-box, .transform-element>.transformation-comment-box {
             display: inline-block;
             margin: 8px;
-            width: 80px;
+            max-width: 6%;
+            min-width: 60px;
         }
+
+
+        .transform-element>.transformation-comment-box {
+            max-width: 20%;
+            min-width: 200px;
+        }
+
 
         .transform-wizard-button {
             margin: 8px 8px 8px 0;
@@ -62,6 +70,10 @@
             display: flex;
             flex-direction: column;
         }
+
+        .transformation-standard-name-cell {
+            min-width: 20%;
+        }
     </style>
 @endsection
 
@@ -80,7 +92,7 @@
 @section('js_footer')
     <script>
         $(function () {
-            let measureUnitData = {!!$measureUnits ?? '[]'!!};
+            let measureUnitData = {!!$measureUnits1 ?? '[]'!!};
             let projectObject = {{$projectObjectId}};
             let materialTypesData = {!!$materialTypes!!};
             let materialErrorList = [];
@@ -111,18 +123,18 @@
                 filter: [ "accounting_type", "=", "2" ]
             });
 
-            let allMaterialsWithActualAmountStore = new DevExpress.data.CustomStore({
+            let materialStandardsListStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
                 load: function (loadOptions) {
-                    return $.getJSON("{{route('materials.all-with-actual-amount.list')}}",
-                        {project_object: projectObjectId});
+                    return $.getJSON("{{route('materials.standards.listex')}}",
+                        {data: JSON.stringify({dxLoadOptions: loadOptions})});
                 },
             });
 
-            let allMaterialsWithActualAmountDataSource = new DevExpress.data.DataSource({
+            let materialStandardsListDataSource = new DevExpress.data.DataSource({
                 key: "id",
-                store: allMaterialsWithActualAmountStore,
+                store: materialStandardsListStore,
                 filter: [ "accounting_type", "=", "2" ]
             })
 
@@ -155,7 +167,18 @@
                             {data: JSON.stringify(loadOptions)});
                     }
                 })
+            });
 
+            let materialTransformationTypesDataSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: new DevExpress.data.CustomStore({
+                    key: "id",
+                    loadMode: "raw",
+                    load: function (loadOptions) {
+                        return $.getJSON("{{route('material.transformation-types.lookup-list')}}",
+                            {data: JSON.stringify(loadOptions)});
+                    }
+                })
             });
 
             let usersData = new DevExpress.data.DataSource({
@@ -198,7 +221,7 @@
                                 showCheckBoxesMode: "always"
                             },
                             paging: {
-                                enabled: true
+                                enabled: false
                             },
                             searchPanel: {
                                 visible: true,
@@ -229,20 +252,35 @@
 
                                     let quantity;
                                     let amount;
+                                    let comment;
 
                                     quantity = options.data.quantity ? options.data.quantity + " " : "";
                                     amount = options.data.amount ? options.data.amount + " " : "";
 
+
+
                                     switch (options.data.accounting_type) {
                                         case 2:
-                                            return $("<div>").text(options.data.standard_name +
+                                            let standardNameText = options.data.standard_name +
                                                 ' (' +
                                                 quantity +
                                                 options.data.measure_unit_value +
-                                                '; ' +
+                                                '/' +
                                                 amount +
-                                                'шт)'
-                                            )
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(container);
+
+                                            if (options.data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${options.data.comment}</div>`)
+                                                    .appendTo(container);
+
+                                            }
+
+                                            container.addClass("standard-name-cell-with-comment");
+
+                                            break;
                                         default:
                                             return $("<div>").text(options.data.standard_name +
                                                 ' (' +
@@ -274,13 +312,13 @@
                         }
                     }]
                 },
-                {
+                    {
                         itemType: "group",
                         colCount: 3,
                         caption: "Выбранные материалы",
                         items: [{
-                        editorType: "dxList",
-                        name: "selectedMaterialsList",
+                            editorType: "dxList",
+                            name: "selectedMaterialsList",
                             editorOptions: {
                                 dataSource: selectedMaterialStandardsListDataSource,
                                 allowItemDeleting: true,
@@ -292,16 +330,30 @@
                                 itemTemplate: function (data) {
                                     let quantity = data.quantity ? data.quantity + " " : "";
                                     let amount = data.amount ? data.amount + " " : "";
+                                    let container = $('<div class="standard-name-cell-with-comment"></div>')
+
                                     switch (data.accounting_type) {
                                         case 2:
-                                            return $("<div>").text(data.standard_name +
+                                            let standardNameText = data.standard_name +
                                                 ' (' +
                                                 quantity +
                                                 data.measure_unit_value +
-                                                '; ' +
+                                                '/' +
                                                 amount +
-                                                'шт)'
-                                            )
+                                                'шт)';
+
+                                            let divStandardName = $(`<div class="standard-name">${standardNameText}</div>`)
+                                                .appendTo(container);
+
+                                            if (data.comment) {
+                                                let divMaterialComment = $(`<div class="material-comment">${data.comment}</div>`)
+                                                    .appendTo(container);
+
+                                            }
+
+                                            return container;
+
+                                            break;
                                         default:
                                             return $("<div>").text(data.standard_name +
                                                 ' (' +
@@ -313,86 +365,92 @@
 
                                 onItemDeleted: function (e) {
                                     let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
-                                    let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList");
+                                    let selectedMaterialsList = materialsStandardsAddingForm.getEditor("selectedMaterialsList");
                                     let selectedRowsKeys = [];
-                                    selectedMaterialsStandardsList.option("items").forEach(function (selectedItem) {
+                                    selectedMaterialsList.option("items").forEach(function (selectedItem) {
                                         selectedRowsKeys.push(selectedItem.id);
                                     });
 
                                     materialsStandardsList.option("selectedRowKeys", selectedRowsKeys);
                                 }
                             }
-                    }]
-                },
-                {
-                    itemType: "button",
-                    colSpan: 2,
-                    horizontalAlignment: "right",
-                    buttonOptions: {
-                        text: "Добавить",
-                        type: "default",
-                        stylingMode: "text",
-                        useSubmitBehavior: false,
+                        }]
+                    },
+                    {
+                        itemType: "button",
+                        colSpan: 2,
+                        horizontalAlignment: "right",
+                        buttonOptions: {
+                            text: "Добавить",
+                            type: "default",
+                            stylingMode: "text",
+                            useSubmitBehavior: false,
 
-                        onClick: function () {
-                            let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
+                            onClick: function () {
+                                let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
 
-                            selectedMaterialsData.forEach(function (material) {
+                                selectedMaterialsData.forEach(function (material) {
+                                    switch(currentTransformationStage) {
+                                        case "fillingMaterialsToTransform":
+                                            materialsToTransform.push({
+                                                id: new DevExpress.data.Guid().toString(),
+                                                material_id: material.id,
+                                                standard_id: material.standard_id,
+                                                standard_name: material.standard_name,
+                                                accounting_type: material.accounting_type,
+                                                material_type: material.material_type,
+                                                measure_unit: material.measure_unit,
+                                                measure_unit_value: material.measure_unit_value,
+                                                standard_weight: material.weight,
+                                                quantity: material.quantity,
+                                                amount: material.amount,
+                                                comment: material.comment,
+                                                initial_comment_id: material.comment_id,
+                                                initial_comment: material.comment,
+                                                total_quantity: material.quantity,
+                                                total_amount: material.amount
+                                            });
+                                            break;
+                                        case "fillingMaterialsAfterTransform":
+                                            materialsAfterTransform.push({
+                                                id: new DevExpress.data.Guid().toString(),
+                                                standard_id: material.standard_id,
+                                                standard_name: material.standard_name,
+                                                accounting_type: material.accounting_type,
+                                                material_type: material.material_type,
+                                                measure_unit: material.measure_unit,
+                                                measure_unit_value: material.measure_unit_value,
+                                                standard_weight: material.weight,
+                                                quantity: null,
+                                                amount: null,
+                                                comment: material.comment,
+                                                initial_comment_id: material.comment_id,
+                                                initial_comment: material.comment,
+                                                total_quantity: material.quantity,
+                                                total_amount: material.amount
+                                            });
+                                            break;
+                                        case "fillingMaterialsRemains":
+                                            break;
+                                    }
+                                })
+
+
                                 switch(currentTransformationStage) {
                                     case "fillingMaterialsToTransform":
-                                        materialsToTransform.push({
-                                            id: new DevExpress.data.Guid().toString(),
-                                            material_id: material.id,
-                                            standard_id: material.standard_id,
-                                            standard_name: material.standard_name,
-                                            accounting_type: material.accounting_type,
-                                            material_type: material.material_type,
-                                            measure_unit: material.measure_unit,
-                                            measure_unit_value: material.measure_unit_value,
-                                            standard_weight: material.weight,
-                                            quantity: material.quantity,
-                                            amount: material.amount,
-                                            total_quantity: material.quantity,
-                                            total_amount: material.amount
-                                        });
+                                        repaintMaterialsToTransformLayer();
                                         break;
                                     case "fillingMaterialsAfterTransform":
-                                        materialsAfterTransform.push({
-                                            id: new DevExpress.data.Guid().toString(),
-                                            standard_id: material.standard_id,
-                                            standard_name: material.standard_name,
-                                            accounting_type: material.accounting_type,
-                                            material_type: material.material_type,
-                                            measure_unit: material.measure_unit,
-                                            measure_unit_value: material.measure_unit_value,
-                                            standard_weight: material.weight,
-                                            quantity: null,
-                                            amount: null,
-                                            total_quantity: material.quantity,
-                                            total_amount: material.amount
-                                        });
+                                        repaintMaterialsAfterTransformLayer();
                                         break;
                                     case "fillingMaterialsRemains":
                                         break;
                                 }
-                            })
-
-
-                            switch(currentTransformationStage) {
-                                case "fillingMaterialsToTransform":
-                                    repaintMaterialsToTransformLayer();
-                                    break;
-                                case "fillingMaterialsAfterTransform":
-                                    repaintMaterialsAfterTransformLayer();
-                                    break;
-                                case "fillingMaterialsRemains":
-                                    break;
+                                $("#popupContainer").dxPopup("hide");
+                                validateMaterialList(false, false);
                             }
-                            $("#popupContainer").dxPopup("hide");
-                            validateMaterialList(false, false);
                         }
                     }
-                }
                 ]
             }).dxForm("instance");
 
@@ -448,7 +506,7 @@
                                 //         }
                                 //     });
                                 // } else {
-                                    updateComponentsDataSources(currentValue);
+                                updateComponentsDataSources(currentValue);
                                 //}
                             }
                         },
@@ -475,7 +533,7 @@
                         },
                         {
                             name: "destinationResponsibleUserSelectBox",
-                            colSpan: 2,
+                            colSpan: 1,
                             dataField: "responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -493,27 +551,51 @@
                                 message: 'Поле "Ответственный" обязательно для заполнения'
                             }]
 
+                        },
+                        {
+                            name: "transformationTypeSelectBox",
+                            colSpan: 1,
+                            dataField: "transformation_type_id",
+                            label: {
+                                text: "Тип преобразования"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: materialTransformationTypesDataSource,
+                                displayExpr: "value",
+                                valueExpr: "id",
+                                searchEnabled: true,
+                                value: null,
+                                onValueChanged: () => {
+                                    repaintMaterialRemains();
+                                }
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Тип преобразования" обязательно для заполнения'
+                            }]
+
                         }]
                 },
-                {
-                    itemType: "group",
-                    caption: "Комментарий",
-                    items: [{
-                        name: "newCommentTextArea",
-                        dataField: "new_comment",
-                        label: {
-                            visible: false
-                        },
-                        editorType: "dxTextArea",
-                        editorOptions: {
-                            height: 160,
-                        },
-                        validationRules: [{
-                            type: "required",
-                            message: 'Поле "Комментарий" обязательно для заполнения'
+                    {
+                        itemType: "group",
+                        caption: "Комментарий",
+                        items: [{
+                            name: "newCommentTextArea",
+                            dataField: "new_comment",
+                            label: {
+                                visible: false
+                            },
+                            editorType: "dxTextArea",
+                            editorOptions: {
+                                height: 160,
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Комментарий" обязательно для заполнения'
+                            }]
                         }]
-                    }]
-                },
+                    },
                     {
                         itemType: "group",
                         caption: "Материалы",
@@ -546,6 +628,7 @@
                 transformationOperationData.operation_date = new Date(operationForm.option("formData").operation_date).toJSON().split("T")[0];
                 transformationOperationData.responsible_user_id = operationForm.option("formData").responsible_user_id;
                 transformationOperationData.new_comment = operationForm.option("formData").new_comment;
+                transformationOperationData.transformation_type_id = operationForm.option("formData").transformation_type_id;
 
                 transformationOperationData.materialsToTransform = materialsToTransform;
                 transformationOperationData.materialsAfterTransform = materialsAfterTransform;
@@ -814,7 +897,15 @@
                             return false;
                         });
                     }
-                    element.append($('<span>' + material.standard_name + '</span>'));
+                    let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                    element.append(standardNameElement);
+
+                    standardNameElement.append($(`<div class="standard-name">${material.standard_name}</div>`));
+
+                    if (material.initial_comment) {
+                        standardNameElement.append($(`<div class="material-comment">${material.initial_comment}</div>`));
+                    }
+
                     element.append($('<div class="transformation-number-box transformation-quantity" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
                         .dxNumberBox({
                             min: 0,
@@ -842,8 +933,8 @@
                     }
 
                     element.append($('<div class="transformation-validator" uid="' + material.id + '" material-id = "' + material.material_id + '">' +
-                            '<div class="validator-icon"></div>' +
-                            '<div class="validator-description"></div>' +
+                        '<div class="validator-icon"></div>' +
+                        '<div class="validator-description"></div>' +
                         '</div>'))
                 });
 
@@ -991,13 +1082,18 @@
                         });
                     }
 
-                    element.append($('<span>' + material.standard_name + '</span>'));
+                    let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                    element.append(standardNameElement);
+
+                    standardNameElement.append($(`<div class="standard-name">${material.standard_name}</div>`));
+
                     element.append($('<div class="transformation-number-box transformation-quantity" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
                         .dxNumberBox({
                             min: 0,
                             value: material.quantity,
                             format: "#0.## " + material.measure_unit_value,
                             disabled: isQuantityControlDisabled,
+                            placeholder: material.measure_unit_value,
                             onValueChanged: (e) => {
                                 material.quantity = e.value;
                                 repaintMaterialsAfterTransformLayer();
@@ -1009,13 +1105,24 @@
                         element.append($('<div class="transformation-number-box transformation-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
                             .dxNumberBox({
                                 min: 0,
-                                format: "#0 шт.",
+                                format: "#0 шт",
                                 value: material.amount,
                                 disabled: isAmountControlDisabled,
+                                placeholder: "шт",
                                 onValueChanged: (e) => {
                                     material.amount = e.value;
                                     repaintMaterialsAfterTransformLayer();
                                     validateMaterialList(false, false);
+                                }
+                            }))
+
+                        element.append($('<div class="transformation-comment-box transformation-comment" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                            .dxTextEditor({
+                                value: material.comment,
+                                disabled: isAmountControlDisabled,
+                                placeholder: "Введите комментарий...",
+                                onValueChanged: (e) => {
+                                    material.comment = e.value;
                                 }
                             }))
                     }
@@ -1034,8 +1141,8 @@
                             stylingMode: "outlined",
                             onClick: (e) => {
                                 let materialsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
-                                materialsList.option("dataSource", allMaterialsWithActualAmountDataSource);
-                                allMaterialsWithActualAmountDataSource.reload();
+                                materialsList.option("dataSource", materialStandardsListDataSource);
+                                materialStandardsListDataSource.reload();
                                 materialsList.option("selectedRowKeys", []);
 
                                 $("#popupContainer").dxPopup("show")
@@ -1123,7 +1230,11 @@
                         }
                     }
 
-                    element.append($('<span>' + material.standard_name + '</span>'));
+                    let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                    element.append(standardNameElement);
+
+                    standardNameElement.append($(`<div class="standard-name">${material.standard_name}</div>`));
+
                     element.append($('<div class="transformation-number-box transformation-quantity" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
                         .dxNumberBox({
                             min: 0,
@@ -1152,10 +1263,31 @@
                             }))
                     }
 
+                    element.append($('<div class="transformation-comment-box transformation-comment" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxTextEditor({
+                            value: material.comment,
+                            placeholder: "Введите комментарий...",
+                            onValueChanged: (e) => {
+                                material.comment = e.value;
+                            }
+                        }))
+
                     element.append($('<span class="calculation-summary" standard-id="' + material.standard_id + '">' + getCalculationSummaryText(remainsSummary.delta, remainsSummary.total, remainsSummary.transform_total) + '</span>'));
                 });
                 if (currentTransformationStage === "fillingMaterialsRemains") {
-                    let isCreateTransfomationButtonDisabled = materialsRemains.length === 0 || $(".allocation-pending").length !== 0;
+                    let isCreateTransfomationButtonDisabled = true;
+                    if (materialsRemains.length === 0) {
+                        isCreateTransfomationButtonDisabled = true;
+                    } else {
+                        if ($(".allocation-pending").length !== 0) {
+                            if (getTransformationType() === "corningManufacturing") {
+                                isCreateTransfomationButtonDisabled = false;
+                            }
+                        } else {
+                            isCreateTransfomationButtonDisabled = false;
+                        }
+                    }
+
                     if (materialsRemains.length > 0) {
                         layer.append($('<div class="createTransformationOperationButton transform-wizard-button" >').dxButton({
                             text: "Отправить на согласование",
@@ -1200,6 +1332,7 @@
             }
 
             function calculateRemains(standardId) {
+                let transformationType = getTransformationType();
                 let result = {
                     standard_id: standardId,
                     amount: 0,
@@ -1218,35 +1351,78 @@
 
                 materialsToTransform.forEach((material) => {
                     if (standardId === material.standard_id) {
-                        result.amount = result.amount + material.amount;
-                        result.quantity = result.quantity + material.quantity;
-                        result.total = result.total + material.amount * material.quantity
+                        result.amount = Math.round((result.amount + material.amount) * 100) / 100;
+                        result.quantity = Math.round((result.quantity + material.quantity) * 100) / 100;
+                        result.total = Math.round((result.total + material.amount * material.quantity) * 100) / 100
                     }
                 })
 
                 materialsAfterTransform.forEach((material) => {
-                    result.transform_amount = result.transform_amount + material.amount;
-                    result.transform_quantity = result.transform_quantity + material.quantity;
-                    result.transform_total = result.transform_total + material.amount * material.quantity
+                    result.transform_amount = Math.round((result.transform_amount + material.amount) * 100) / 100;
+                    result.transform_quantity = Math.round((result.transform_quantity + material.quantity) * 100) / 100;
+                    result.transform_total = Math.round((result.transform_total + material.amount * material.quantity) * 100) / 100
                 })
 
                 materialsRemains.forEach((material) => {
                     if (standardId === material.standard_id) {
-                        result.remain_amount = result.remain_amount + material.amount;
-                        result.remain_quantity = result.remain_quantity + material.quantity;
-                        result.remain_total = result.remain_total + material.amount * material.quantity
+                        result.remain_amount = Math.round((result.remain_amount + material.amount) * 100) / 100;
+                        result.remain_quantity = Math.round((result.remain_quantity + material.quantity) * 100) / 100;
+                        result.remain_total = Math.round((result.remain_total + material.amount * material.quantity) * 100) / 100
                     }
                 })
 
-                result.delta = Math.abs(Math.abs(result.total - result.transform_total) - result.remain_total);
+                switch (transformationType) {
+                    case "cutting":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        break;
+                    case "lengthDocking":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        break;
+                    case "corningManufacturing":
+                        let uniqueStandards = [];
+
+                        materialsToTransform.forEach((material) => {
+                            if (!uniqueStandards.includes(material.standard_id)) {
+                                uniqueStandards.push(material.standard_id);
+                            }
+                        })
+
+                        if (uniqueStandards.length === 1) {
+                            result.delta = Math.round((result.total - result.transform_total * 2 - result.remain_total) * 100) / 100;
+                        } else {
+                            result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        }
+                        break;
+                }
                 return result;
             }
 
             function getCalculationSummaryText(delta, sourceSum, transformSum) {
+                if (getTransformationType() === "none"){
+                    return '<i class="allocation-pending fas fa-exclamation-triangle" style="color: #f15a5a"></i>' + "Невозможно рассчитать остатки - выберите тип преобразования";
+                }
+
                 if (delta === 0){
                     return '<i class = "fas fa-check-circle"></i>' + "Остатки распределены";
                 } else {
-                    return '<i class = "allocation-pending"></i>Осталось распределить ' + delta + ' м.п. (Исходное количество: ' + sourceSum + ' м.п.; Преобразованное количество: ' + transformSum + ' м.п.)';
+                    if (delta < 0){
+                        return '<i class = "allocation-pending"></i>Количество остатков превышено на ' + Math.abs(delta) + ' м.п. (Исходное количество: ' + sourceSum + ' м.п.; Преобразованное количество: ' + transformSum + ' м.п.)';
+                    } else {
+                        return '<i class = "allocation-pending"></i>Осталось распределить ' + Math.abs(delta) + ' м.п. (Исходное количество: ' + sourceSum + ' м.п.; Преобразованное количество: ' + transformSum + ' м.п.)';
+                    }
+                }
+            }
+
+            function getTransformationType() {
+                switch(operationForm.getEditor("transformationTypeSelectBox").option("value")) {
+                    case 1:
+                        return "cutting"
+                    case 2:
+                        return "lengthDocking";
+                    case 3:
+                        return "corningManufacturing";
+                    default:
+                        return "none"
                 }
             }
         });

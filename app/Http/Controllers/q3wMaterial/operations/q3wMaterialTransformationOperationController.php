@@ -12,10 +12,12 @@ use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\models\q3wMaterial\q3wMaterial;
 use App\models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialComment;
 use App\models\q3wMaterial\q3wMaterialSnapshot;
 use App\models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Models\User;
 use http\Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -104,12 +106,18 @@ class q3wMaterialTransformationOperationController extends Controller
                 ->leftJoin('q3w_material_standards as b', 'q3w_operation_materials.standard_id', '=', 'b.id')
                 ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
                 ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+                ->leftJoin('q3w_material_comments as f', 'q3w_operation_materials.initial_comment_id', '=', 'f.id')
+                ->leftJoin('q3w_operation_material_comments as g', 'q3w_operation_materials.comment_id', '=', 'g.id')
                 ->get(['q3w_operation_materials.*',
                     'b.name as standard_name',
                     'd.measure_unit',
                     'd.name as material_type_name',
                     'd.accounting_type',
-                    'e.value as measure_unit_value'])
+                    'e.value as measure_unit_value',
+                    'q3w_operation_materials.comment_id',
+                    'q3w_operation_materials.initial_comment_id',
+                    'g.comment',
+                    'f.comment as initial_comment'])
                 ->toJson(JSON_UNESCAPED_UNICODE),
             'allowEditing' => $this->allowEditing($operation),
             'allowCancelling' => $this->allowCancelling($operation),
@@ -363,7 +371,8 @@ class q3wMaterialTransformationOperationController extends Controller
             'source_project_object_id' => $requestData['project_object_id'],
             'operation_date' => $requestData['operation_date'],
             'creator_user_id' => Auth::id(),
-            'source_responsible_user_id' => $requestData['responsible_user_id']
+            'source_responsible_user_id' => $requestData['responsible_user_id'],
+            'transformation_type_id' => $requestData['transformation_type_id']
         ]);
         $materialOperation->save();
 
@@ -396,7 +405,8 @@ class q3wMaterialTransformationOperationController extends Controller
                 'quantity' => $materialQuantity,
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
-                'transfer_operation_stage_id' => 1
+                'transfer_operation_stage_id' => 1,
+                'initial_comment_id' => $material['initial_comment_id']
             ]);
 
             $operationMaterial->save();
@@ -408,6 +418,23 @@ class q3wMaterialTransformationOperationController extends Controller
             $materialAmount = $material['amount'];
             $materialQuantity = $material['quantity'];
 
+            if (empty($material['comment'])) {
+                $inputMaterialComment = null;
+            } else {
+                $inputMaterialComment = $material['comment'];
+            }
+
+            if (!empty($inputMaterialComment)) {
+                $materialComment = new q3wOperationMaterialComment([
+                    'comment' => $inputMaterialComment,
+                    'author_id' => Auth::id()
+                ]);
+                $materialComment->save();
+                $materialCommentId = $materialComment->id;
+            } else {
+                $materialCommentId = null;
+            }
+
             $operationMaterial = new q3wOperationMaterial([
                 'material_operation_id' => $materialOperation->id,
                 'standard_id' => $materialStandard->id,
@@ -415,7 +442,8 @@ class q3wMaterialTransformationOperationController extends Controller
                 'quantity' => $materialQuantity,
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
-                'transfer_operation_stage_id' => 2
+                'transfer_operation_stage_id' => 2,
+                'comment_id' => $materialCommentId
             ]);
 
             $operationMaterial->save();
@@ -427,6 +455,23 @@ class q3wMaterialTransformationOperationController extends Controller
             $materialAmount = $material['amount'];
             $materialQuantity = $material['quantity'];
 
+            if (empty($material['comment'])) {
+                $inputMaterialComment = null;
+            } else {
+                $inputMaterialComment = $material['comment'];
+            }
+
+            if (!empty($inputMaterialComment)) {
+                $materialComment = new q3wOperationMaterialComment([
+                    'comment' => $inputMaterialComment,
+                    'author_id' => Auth::id()
+                ]);
+                $materialComment->save();
+                $materialCommentId = $materialComment->id;
+            } else {
+                $materialCommentId = null;
+            }
+
             $operationMaterial = new q3wOperationMaterial([
                 'material_operation_id' => $materialOperation->id,
                 'standard_id' => $materialStandard->id,
@@ -434,7 +479,8 @@ class q3wMaterialTransformationOperationController extends Controller
                 'quantity' => $materialQuantity,
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
-                'transfer_operation_stage_id' => 3
+                'transfer_operation_stage_id' => 3,
+                'comment_id' => $materialCommentId
             ]);
 
             $operationMaterial->save();
@@ -459,7 +505,7 @@ class q3wMaterialTransformationOperationController extends Controller
         $responsibilityUsers = ObjectResponsibleUser::where('object_id', $projectObjectId)->get();
 
         foreach ($responsibilityUsers as $responsibilityUser) {
-            $this->sendTransformationNotification($operation, $notificationText, $responsibilityUser->id, $projectObjectId);
+            $this->sendTransformationNotification($operation, $notificationText, $responsibilityUser->user_id, $projectObjectId);
         }
     }
 
@@ -507,6 +553,13 @@ class q3wMaterialTransformationOperationController extends Controller
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $materialQuantity)
+                    ->where(function ($query) use ($materialToTransfer) {
+                        if (empty($materialToTransfer['initial_comment_id'])) {
+                            $query->whereNull('comment_id');
+                        } else {
+                            $query->where('comment_id', $materialToTransfer['initial_comment_id']);
+                        }
+                    })
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
@@ -530,7 +583,7 @@ class q3wMaterialTransformationOperationController extends Controller
             }
 
             if ( $material->quantity < 0){
-                abort(400, 'Negative quantity amount after transformation');
+                abort(400, 'Negative quantity quantity after transformation');
             }
 
             $material->save();
@@ -546,10 +599,24 @@ class q3wMaterialTransformationOperationController extends Controller
             $materialAmount = $materialAfterTransfer['amount'];
             $materialQuantity = $materialAfterTransfer['quantity'];
 
+            if (empty($materialAfterTransfer['comment_id'])) {
+                $materialAfterTransferComment = null;
+            } else {
+                $materialAfterTransferComment = q3wOperationMaterialComment::find($materialAfterTransfer['comment_id'])->comment;
+            }
+
             if ($materialType->accounting_type == 2) {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $materialQuantity)
+                    ->where(function ($query) use ($materialAfterTransferComment) {
+                        if (!empty($materialAfterTransferComment)) {
+                            $query->where('comment', '=', $materialAfterTransferComment);
+                        } else {
+                            $query->whereNull('comment_id');
+                        }
+                    })
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
@@ -567,11 +634,23 @@ class q3wMaterialTransformationOperationController extends Controller
 
                 $material -> save();
             } else {
+                if (!empty($materialAfterTransferComment)) {
+                    $materialComment = new q3wMaterialComment([
+                        'comment' => $materialAfterTransferComment,
+                        'author_id' => Auth::id()
+                    ]);
+                    $materialComment->save();
+                    $materialCommentId = $materialComment->id;
+                } else {
+                    $materialCommentId = null;
+                };
+
                 $material = new q3wMaterial([
                     'standard_id' => $materialStandard->id,
                     'project_object' => $operation->source_project_object_id,
                     'amount' => $materialAmount,
-                    'quantity' => $materialQuantity
+                    'quantity' => $materialQuantity,
+                    'comment_id' => $materialCommentId
                 ]);
 
                 if ($materialType->accounting_type == 2) {
@@ -596,10 +675,24 @@ class q3wMaterialTransformationOperationController extends Controller
             $materialAmount = $materialRemains['amount'];
             $materialQuantity = $materialRemains['quantity'];
 
+            if (empty($materialRemains['comment_id'])) {
+                $materialRemainsComment = null;
+            } else {
+                $materialRemainsComment = q3wOperationMaterialComment::find($materialRemains['comment_id'])->comment;
+            }
+
             if ($materialType->accounting_type == 2) {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $materialQuantity)
+                    ->where(function ($query) use ($materialRemainsComment) {
+                        if (!empty($materialRemainsComment)) {
+                            $query->where('comment', '=', $materialRemainsComment);
+                        } else {
+                            $query->whereNull('comment_id');
+                        }
+                    })
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
@@ -617,11 +710,23 @@ class q3wMaterialTransformationOperationController extends Controller
 
                 $material -> save();
             } else {
+                if (!empty($materialRemainsComment)) {
+                    $materialComment = new q3wMaterialComment([
+                        'comment' => $materialRemainsComment,
+                        'author_id' => Auth::id()
+                    ]);
+                    $materialComment->save();
+                    $materialCommentId = $materialComment->id;
+                } else {
+                    $materialCommentId = null;
+                };
+
                 $material = new q3wMaterial([
                     'standard_id' => $materialStandard->id,
                     'project_object' => $operation->source_project_object_id,
                     'amount' => $materialAmount,
-                    'quantity' => $materialQuantity
+                    'quantity' => $materialQuantity,
+                    'comment_id' => $materialCommentId
                 ]);
 
                 if ($materialType->accounting_type == 2) {
@@ -712,6 +817,49 @@ class q3wMaterialTransformationOperationController extends Controller
 
             DB::commit();
         }
+    }
+
+    public function completed(Request $request)
+    {
+        $operation = q3wMaterialOperation::leftJoin('project_objects', 'project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
+            ->leftJoin('users', 'users.id', '=', 'q3w_material_operations.source_responsible_user_id')
+            ->leftJoin('q3w_material_transformation_types', 'q3w_material_transformation_types.id', '=', 'q3w_material_operations.transformation_type_id')
+            ->get(['q3w_material_operations.*',
+                'project_objects.short_name as source_project_object_name',
+                'q3w_material_transformation_types.value as transformation_type_value',
+                DB::Raw('CONCAT(`users`.`last_name`, " ", UPPER(SUBSTRING(`users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name')
+            ])
+            ->where('id', '=', $request->operationId)
+            ->first();
+
+        if (!isset($operation)) {
+            abort(404, 'Операция не найдена');
+        }
+
+        $operationData = $operation->toJSON(JSON_OBJECT_AS_ARRAY);
+        $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
+
+        return view('materials.operations.transformation.completed')->with([
+            'operationData' => $operationData,
+            'operationRouteStage' => $operationRouteStage,
+            'operationMaterials' => q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
+                ->leftJoin('q3w_material_standards as b', 'q3w_operation_materials.standard_id', '=', 'b.id')
+                ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
+                ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+                ->leftJoin('q3w_material_comments as f', 'q3w_operation_materials.initial_comment_id', '=', 'f.id')
+                ->leftJoin('q3w_operation_material_comments as g', 'q3w_operation_materials.comment_id', '=', 'g.id')
+                ->get(['q3w_operation_materials.*',
+                    'b.name as standard_name',
+                    'd.measure_unit',
+                    'd.name as material_type_name',
+                    'd.accounting_type',
+                    'e.value as measure_unit_value',
+                    'q3w_operation_materials.comment_id',
+                    'q3w_operation_materials.initial_comment_id',
+                    'g.comment',
+                    'f.comment as initial_comment'])
+                ->toJson(JSON_UNESCAPED_UNICODE)
+        ]);
     }
 
     public function isUserResponsibleForMaterialAccounting(int $projectObjectId): bool

@@ -62,6 +62,7 @@
             let materialErrorList = [];
 
             let operationData = {!! $operationData !!};
+            console.log('operationData', operationData);
             let projectObjectId = operationData.source_project_object_id;
 
             let operationMaterials = {!! $operationMaterials !!};
@@ -86,6 +87,18 @@
                 store: new DevExpress.data.ArrayStore({
                     key: "id",
                     data: {!!$users!!}
+                })
+            });
+
+            let materialTransformationTypesDataSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: new DevExpress.data.CustomStore({
+                    key: "id",
+                    loadMode: "raw",
+                    load: function (loadOptions) {
+                        return $.getJSON("{{route('material.transformation-types.lookup-list')}}",
+                            {data: JSON.stringify(loadOptions)});
+                    }
                 })
             });
             //</editor-fold>
@@ -214,7 +227,7 @@
                         },
                         {
                             name: "sourceResponsibleUserSelectBox",
-                            colSpan: 2,
+                            colSpan: 1,
                             dataField: "source_responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -230,11 +243,37 @@
                             validationRules: [{
                                 type: "required",
                                 message: 'Поле "Ответственный" обязательно для заполнения'
-                            }]
+                            }
+                            ]
 
-                        }]
+                        },
+                        {
+                            name: "transformationTypeSelectBox",
+                            colSpan: 1,
+                            dataField: "transformation_type_id",
+                            label: {
+                                text: "Тип преобразования"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: materialTransformationTypesDataSource,
+                                displayExpr: "value",
+                                valueExpr: "id",
+                                searchEnabled: true,
+                                disabled: true,
+                                onValueChanged: () => {
+                                    repaintMaterialRemains();
+                                }
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Тип преобразования" обязательно для заполнения'
+                            }]
+                        }
+
+                    ]
                 },
-                {
+                    {
                     itemType: "group",
                     caption: "Комментарий",
                     items: [{
@@ -399,6 +438,10 @@
                         elements.append($('<div class="transform-element"></div>'));
 
                         let element = layer.find('.transform-element').last();
+
+                        let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                        element.append(standardNameElement);
+
                         let materialName;
                         switch (material.accounting_type) {
                             case 2:
@@ -407,7 +450,7 @@
                                     material.quantity +
                                     ' ' +
                                     material.measure_unit_value +
-                                    '; '
+                                    '/'
                                     + material.amount +
                                     ' шт)'
                                 break;
@@ -420,9 +463,11 @@
                                     ')'
                                 break;
                         }
+                        standardNameElement.append($(`<div class="standard-name">${materialName}</div>`));
 
-
-                        element.append($('<span>' + materialName + '</span>'));
+                        if (material.initial_comment) {
+                            standardNameElement.append($(`<div class="material-comment">${material.initial_comment}</div>`));
+                        }
                 }
                 });
             }
@@ -447,6 +492,9 @@
                         elements.append($('<div class="transform-element"></div>'));
 
                         let element = layer.find('.transform-element').last();
+                        let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                        element.append(standardNameElement);
+
                         let materialName;
                         switch (material.accounting_type) {
                             case 2:
@@ -455,7 +503,7 @@
                                     material.quantity +
                                     ' ' +
                                     material.measure_unit_value +
-                                    '; '
+                                    '/'
                                     + material.amount +
                                     ' шт)'
                                 break;
@@ -468,9 +516,11 @@
                                     ')'
                                 break;
                         }
+                        standardNameElement.append($(`<div class="standard-name">${materialName}</div>`));
 
-
-                        element.append($('<span>' + materialName + '</span>'));
+                        if (material.comment) {
+                            standardNameElement.append($(`<div class="material-comment">${material.comment}</div>`));
+                        }
                     }
                 });
             }
@@ -495,6 +545,9 @@
                         elements.append($('<div class="transform-element"></div>'));
 
                         let element = layer.find('.transform-element').last();
+                        let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                        element.append(standardNameElement);
+
                         let materialName;
                         switch (material.accounting_type) {
                             case 2:
@@ -503,7 +556,7 @@
                                     material.quantity +
                                     ' ' +
                                     material.measure_unit_value +
-                                    '; '
+                                    '/'
                                     + material.amount +
                                     ' шт)'
                                 break;
@@ -516,9 +569,11 @@
                                     ')'
                                 break;
                         }
+                        standardNameElement.append($(`<div class="standard-name">${materialName}</div>`));
 
-
-                        element.append($('<span>' + materialName + '</span>'));
+                        if (material.comment) {
+                            standardNameElement.append($(`<div class="material-comment">${material.comment}</div>`));
+                        }
                     }
                 });
             }
