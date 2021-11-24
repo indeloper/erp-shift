@@ -223,26 +223,26 @@ class q3wMaterialSupplyOperationController extends Controller
 
             $operationMaterial->save();
 
-            if ($materialType->accounting_type == 2) {
-                $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
-                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
-                    ->where('standard_id', $materialStandard->id)
-                    ->where('quantity', $inputMaterialQuantity)
-                    ->where(function ($query) use ($inputMaterialComment) {
-                        if (!empty($inputMaterialComment)) {
-                            $query->where('comment', '=', $inputMaterialComment);
-                        } else {
-                            $query->whereNull('comment_id');
-                        }
-                    })
-                    ->get(['q3w_materials.*',
-                            'q3w_material_comments.comment'])
-                    ->first();
-            } else {
-                $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
-                    ->where('standard_id', $materialStandard->id)
-                    ->first();
-            }
+            $material = q3wMaterial::where('project_object', $requestData['project_object_id'])
+                ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
+                ->where('standard_id', $materialStandard->id)
+                ->where(function ($query) use ($materialType, $inputMaterialQuantity) {
+                    switch ($materialType->accounting_type) {
+                        case 2:
+                            $query->where('quantity', '=',  $inputMaterialQuantity);
+                            break;
+                    }
+                })
+                ->where(function ($query) use ($inputMaterialComment) {
+                    if (!empty($inputMaterialComment)) {
+                        $query->where('comment', '=', $inputMaterialComment);
+                    } else {
+                        $query->whereNull('comment_id');
+                    }
+                })
+                ->get(['q3w_materials.*',
+                    'q3w_material_comments.comment'])
+                ->first();
 
             if (isset($material)) {
                 if ($materialType->accounting_type == 2) {

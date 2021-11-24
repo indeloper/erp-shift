@@ -158,9 +158,7 @@
                         name: "materialsStandardsList",
                         editorOptions: {
                             dataSource: materialsStandardsListDataSource,
-                            height: () => {
-                                return 400;
-                            },
+                            height: 400,
                             width: 500,
                             showColumnHeaders: false,
                             showRowLines: false,
@@ -273,14 +271,11 @@
                                 dataSource: selectedMaterialStandardsListDataSource,
                                 allowItemDeleting: true,
                                 itemDeleteMode: "static",
-                                height: () => {
-                                    return 400/*$(document).height() - ($(document).height()/100*20)*/;
-                                },
+                                height: 400,
                                 width: 500,
                                 itemTemplate: function (data) {
                                     return $("<div>").text(data.name)
                                 },
-
                                 onItemDeleted: function (e) {
                                     let materialsStandardsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
                                     let selectedMaterialsStandardsList = materialsStandardsAddingForm.getEditor("selectedMaterialsStandardsList");
@@ -407,6 +402,7 @@
                             let commentLink;
 
                             switch (accountingType) {
+                                case 1:
                                 case 2:
                                     commentLink = $("<a>")
                                         .attr("href", "#")
@@ -445,17 +441,26 @@
                     }]
                 },
                 {
-                    dataField: "standard_id",
+                    dataField: "standard_name",
                     dataType: "string",
                     allowEditing: false,
                     width: "30%",
                     caption: "Наименование",
                     sortIndex: 0,
                     sortOrder: "asc",
-                    lookup: {
-                        dataSource: materialStandardsData,
-                        displayExpr: "name",
-                        valueExpr: "id"
+                    cellTemplate: function (container, options) {
+                        let divStandardName = $(`<div class="standard-name"></div>`)
+                            .appendTo(container);
+
+                        let divStandardText = $(`<div>${options.text}</div>`)
+                            .appendTo(divStandardName);
+
+                        if (options.data.comment) {
+                            $(`<div class="material-comment">${options.data.comment}</div>`)
+                                .appendTo(divStandardName);
+
+                            divStandardName.addClass("standard-name-cell-with-comment");
+                        }
                     }
                 },
                 {
@@ -642,7 +647,7 @@
                             editorType: "dxDateBox",
                             editorOptions: {
                                 value: Date.now(),
-                                disabled: true
+                                readOnly: true
                             },
                             validationRules: [{
                                 type: "required",
