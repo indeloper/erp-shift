@@ -434,7 +434,7 @@
                 let elements = layer.find('#materialsToTransformElements');
 
                 operationMaterials.forEach(function (material) {
-                    if (material.transfer_operation_stage_id === 1) {
+                    if (material.transform_operation_stage_id === 1) {
                         elements.append($('<div class="transform-element"></div>'));
 
                         let element = layer.find('.transform-element').last();
@@ -488,7 +488,7 @@
                 let elements = layer.find('#materialsAfterTransformElements');
 
                 operationMaterials.forEach(function (material) {
-                    if (material.transfer_operation_stage_id === 2) {
+                    if (material.transform_operation_stage_id === 2) {
                         elements.append($('<div class="transform-element"></div>'));
 
                         let element = layer.find('.transform-element').last();
@@ -541,7 +541,7 @@
                 let elements = layer.find('#materialsRemainsTransformElements');
 
                 operationMaterials.forEach(function (material) {
-                    if (material.transfer_operation_stage_id === 3) {
+                    if (material.transform_operation_stage_id === 3) {
                         elements.append($('<div class="transform-element"></div>'));
 
                         let element = layer.find('.transform-element').last();

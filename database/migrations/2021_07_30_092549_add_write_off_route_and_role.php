@@ -63,7 +63,7 @@ class AddWriteOffRouteAndRole extends Migration
         $confirmToWriteOffPermission->forceDelete();
 
 
-        $operations = q3wMaterialOperation::where("operation_route_id", 3);
+        $operations = q3wMaterialOperation::where("operation_route_id", 4);
         $snapshots = q3wMaterialSnapshot::whereIn("operation_id", $operations->pluck("id")->all());
 
         q3wMaterialSnapshotMaterial::whereIn("snapshot_id", $snapshots->pluck("id")->all())->forceDelete();
@@ -74,13 +74,6 @@ class AddWriteOffRouteAndRole extends Migration
         $operations->forceDelete();
 
 
-        q3wOperationRouteStage::where("operation_route_id", 3)->forceDelete();
-
-        Schema::table('q3w_operation_materials', function(Blueprint $table) {
-            $table->dropForeign(['transfer_operation_stage_id']);
-            $table->dropColumn(['transfer_operation_stage_id']);
-        });
-
-        Schema::dropIfExists('q3w_transfer_operation_stages');
+        q3wOperationRouteStage::where("operation_route_id", 4)->forceDelete();
     }
 }

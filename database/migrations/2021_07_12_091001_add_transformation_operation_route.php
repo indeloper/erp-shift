@@ -4,7 +4,7 @@ use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
-use App\Models\q3wMaterial\operations\q3wTransferOperationStage;
+use App\Models\q3wMaterial\operations\q3wTransformOperationStage;
 use App\Models\q3wMaterial\q3wMaterialSnapshot;
 use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
 use Illuminate\Support\Facades\Schema;
@@ -39,7 +39,7 @@ class AddTransformationOperationRoute extends Migration
             $routeStage->save();
         }
 
-        Schema::create('q3w_transfer_operation_stages', function (Blueprint $table) {
+        Schema::create('q3w_transform_operation_stages', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
             $table->string('name')->comment('Наименование');
 
@@ -48,21 +48,21 @@ class AddTransformationOperationRoute extends Migration
         });
 
         Schema::table('q3w_operation_materials', function(Blueprint $table) {
-            $table->bigInteger('transfer_operation_stage_id')->unsigned()->nullable()->index()->comment('Этап преобразования материала');
+            $table->bigInteger('transform_operation_stage_id')->unsigned()->nullable()->index()->comment('Этап преобразования материала');
 
-            $table->foreign('transfer_operation_stage_id')->references('id')->on('q3w_transfer_operation_stages');
+            $table->foreign('transform_operation_stage_id')->references('id')->on('q3w_transform_operation_stages');
         });
 
-        $transferStageNames = [
+        $transformStageNames = [
             'Материал до преобразования',
             'Материал после преобразования',
             'Остатки исходного материала'
         ];
 
-        foreach ($transferStageNames as $transferStageName) {
-            $transferStage = new q3wTransferOperationStage();
-            $transferStage->name = $transferStageName;
-            $transferStage->save();
+        foreach ($transformStageNames as $transformStageName) {
+            $transformStage = new q3wTransformOperationStage();
+            $transformStage->name = $transformStageName;
+            $transformStage->save();
         }
     }
 
@@ -73,7 +73,7 @@ class AddTransformationOperationRoute extends Migration
      */
     public function down()
     {
-        /*$operations = q3wMaterialOperation::where("operation_route_id", 3);
+        $operations = q3wMaterialOperation::where("operation_route_id", 3);
         $snapshots = q3wMaterialSnapshot::whereIn("operation_id", $operations->pluck("id")->all());
 
         q3wMaterialSnapshotMaterial::whereIn("snapshot_id", $snapshots->pluck("id")->all())->forceDelete();
@@ -87,10 +87,10 @@ class AddTransformationOperationRoute extends Migration
         q3wOperationRouteStage::where("operation_route_id", 3)->forceDelete();
 
         Schema::table('q3w_operation_materials', function(Blueprint $table) {
-            $table->dropForeign(['transfer_operation_stage']);
-            $table->dropColumn('transfer_operation_stage');
+            $table->dropForeign(['transform_operation_stage_id']);
+            $table->dropColumn('transform_operation_stage_id');
         });
 
-        Schema::dropIfExists('q3w_transfer_operation_stages');*/
+        Schema::dropIfExists('q3w_transform_operation_stages');
     }
 }

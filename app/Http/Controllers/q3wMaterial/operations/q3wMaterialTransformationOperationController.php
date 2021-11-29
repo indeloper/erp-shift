@@ -405,7 +405,7 @@ class q3wMaterialTransformationOperationController extends Controller
                 'quantity' => $materialQuantity,
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
-                'transfer_operation_stage_id' => 1,
+                'transform_operation_stage_id' => 1,
                 'initial_comment_id' => $material['initial_comment_id']
             ]);
 
@@ -442,7 +442,7 @@ class q3wMaterialTransformationOperationController extends Controller
                 'quantity' => $materialQuantity,
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
-                'transfer_operation_stage_id' => 2,
+                'transform_operation_stage_id' => 2,
                 'comment_id' => $materialCommentId
             ]);
 
@@ -479,7 +479,7 @@ class q3wMaterialTransformationOperationController extends Controller
                 'quantity' => $materialQuantity,
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
-                'transfer_operation_stage_id' => 3,
+                'transform_operation_stage_id' => 3,
                 'comment_id' => $materialCommentId
             ]);
 
@@ -540,7 +540,7 @@ class q3wMaterialTransformationOperationController extends Controller
     public function move(q3wMaterialOperation $operation)
     {
         $materialsToTransfer = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
-            ->where('transfer_operation_stage_id', '=', 1)->get()->toArray();
+            ->where('transform_operation_stage_id', '=', 1)->get()->toArray();
 
         foreach ($materialsToTransfer as $materialToTransfer) {
             $materialStandard = q3wMaterialStandard::findOrFail($materialToTransfer['standard_id']);
@@ -590,7 +590,7 @@ class q3wMaterialTransformationOperationController extends Controller
         }
 
         $materialsAfterTransfer = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
-            ->where('transfer_operation_stage_id', '=', 2)->get()->toArray();
+            ->where('transform_operation_stage_id', '=', 2)->get()->toArray();
 
         foreach($materialsAfterTransfer as $materialAfterTransfer) {
             $materialStandard = q3wMaterialStandard::findOrFail($materialAfterTransfer['standard_id']);
@@ -666,7 +666,7 @@ class q3wMaterialTransformationOperationController extends Controller
         }
 
         $materialsRemains = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
-            ->where('transfer_operation_stage_id', '=', 3)->get()->toArray();
+            ->where('transform_operation_stage_id', '=', 3)->get()->toArray();
 
         foreach($materialsRemains as $materialRemains) {
             $materialStandard = q3wMaterialStandard::findOrFail($materialRemains['standard_id']);

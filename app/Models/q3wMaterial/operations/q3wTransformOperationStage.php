@@ -6,7 +6,7 @@ use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class q3wTransferOperationStage extends Model
+class q3wTransformOperationStage extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable;
 
