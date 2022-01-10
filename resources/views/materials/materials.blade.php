@@ -111,6 +111,7 @@
     <div id="projectObjectForm"></div>
     <div id="gridContainer" style="height: 100%"></div>
     <div id="supplyTypePopup"></div>
+    <div id="commentPopup"></div>
 @endsection
 
 @section('js_footer')
@@ -897,68 +898,182 @@
                 let groupTabWrapperButtonsDiv = groupTabs.find('.dx-form-tabs-wrapper-span-with-buttons');
 
                 $('<div class="tab-wrapper-button">')
+                    .dxButton(
+                        {
+                            text: "Комментировать",
+                            stylingMode: 'outlined',
+                            onClick: (e) => {
+                                let popupWindow = $("#commentPopup")
+                                    .dxPopup(
+                                        {
+                                            width: 900,
+                                            height: 400,
+                                            title: "Комментарии материалов",
+                                            contentTemplate: () => {
+                                                let selectedData = projectObjectInfoForm.getEditor("materialDataGrid").getSelectedRowsData();
+                                                let container = $("<div>");
+                                                let scrollView = $("<div>").appendTo(container);
+
+                                                let dataGrid = $("<div>").dxDataGrid(
+                                                    {
+                                                        dataSource: {
+                                                            store: new DevExpress.data.ArrayStore(
+                                                                {
+                                                                    key: "id",
+                                                                    data: selectedData
+                                                                }
+                                                            )
+                                                        },
+                                                        focusedRowEnabled: false,
+                                                        hoverStateEnabled: true,
+                                                        columnAutoWidth: false,
+                                                        showBorders: true,
+                                                        showColumnLines: true,
+                                                        filterRow: {
+                                                            visible: false,
+                                                            applyFilter: "auto"
+                                                        },
+                                                        grouping: {
+                                                            autoExpandAll: true,
+                                                        },
+                                                        groupPanel: {
+                                                            visible: false
+                                                        },
+                                                        paging: {
+                                                            enabled: false
+                                                        },
+                                                        columns: materialColumns,
+                                                        masterDetail: {
+                                                            enabled: true,
+                                                            template: function(container, options) {
+                                                                let currentMaterialData = options.data;
+                                                                let materialCommentArray = [];
+
+                                                                for (let i = 0; i < currentMaterialData.amount; i++) {
+                                                                    materialCommentArray.push(
+                                                                        {
+                                                                            id: i + 1,
+                                                                            comment: currentMaterialData.comment
+                                                                        }
+                                                                    );
+                                                                }
+
+                                                                $("<div>")
+                                                                    .dxDataGrid({
+                                                                        columnAutoWidth: true,
+                                                                        showBorders: true,
+                                                                        showColumnHeaders: false,
+                                                                        editing: {
+                                                                            allowUpdating: true,
+                                                                            mode: "cell"
+                                                                        },
+                                                                        columns: [
+                                                                            {
+                                                                                dataField: "id",
+                                                                                caption: "Номер",
+                                                                                dataType: "number",
+                                                                                width: 34,
+                                                                                allowEditing: false
+                                                                            },
+                                                                            {
+                                                                                dataField: "comment",
+                                                                                caption: "Комментарий",
+                                                                                dataType: "string",
+                                                                            }
+                                                                        ],
+                                                                        dataSource: new DevExpress.data.DataSource({
+                                                                            store: new DevExpress.data.ArrayStore({
+                                                                                key: "id",
+                                                                                data: materialCommentArray
+                                                                            }),
+                                                                        }),
+                                                                    }).appendTo(container);
+                                                            }
+                                                        },
+                                                    }
+                                                )
+
+                                                scrollView.append(dataGrid);
+
+                                                scrollView.dxScrollView({
+                                                    width: '100%',
+                                                    height: '100%',
+                                                });
+
+                                                return scrollView;
+
+                                            }
+                                        }
+                                    ).dxPopup("instance");
+
+                                popupWindow.show();
+                            }
+                        }
+                    )
+                    .prependTo(groupTabWrapperButtonsDiv);
+
+                $('<div class="tab-wrapper-button">')
                     .dxDropDownButton({
                         text: "Операции",
                         dropDownOptions: {
                             width: 230
                         },
                         onItemClick: function(e) {
-                    if (e.itemData === "Поставка") {
-                        let popupWindow = $("#supplyTypePopup")
-                            .dxPopup({
-                                width: "auto",
-                                height: "auto",
-                                title: "Выберите тип поставки",
-                                contentTemplate: function() {
-                                    return $("<div>").dxForm({
-                                        items: [
-                                            {
-                                                itemType: "button",
-                                                horizontalAlignment: "center",
-                                                buttonOptions: {
-                                                    text: "Материал от поставщика",
-                                                    type: "normal",
-                                                    stylingMode: "outlined",
-                                                    onClick: () => {
-                                                        document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
+                            if (e.itemData === "Поставка") {
+                                let popupWindow = $("#supplyTypePopup")
+                                    .dxPopup({
+                                        width: "auto",
+                                        height: "auto",
+                                        title: "Выберите тип поставки",
+                                        contentTemplate: function() {
+                                            return $("<div>").dxForm({
+                                                items: [
+                                                    {
+                                                        itemType: "button",
+                                                        horizontalAlignment: "center",
+                                                        buttonOptions: {
+                                                            text: "Материал от поставщика",
+                                                            type: "normal",
+                                                            stylingMode: "outlined",
+                                                            onClick: () => {
+                                                                document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        itemType: "button",
+                                                        horizontalAlignment: "center",
+                                                        buttonOptions: {
+                                                            text: "Материал с другого объекта",
+                                                            type: "normal",
+                                                            stylingMode: "outlined",
+                                                            onClick: () => {
+                                                                document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?destinationProjectObjectId=" + projectObject;
+                                                            }
+                                                        }
                                                     }
-                                                }
-                                            },
-                                            {
-                                                itemType: "button",
-                                                horizontalAlignment: "center",
-                                                buttonOptions: {
-                                                    text: "Материал с другого объекта",
-                                                    type: "normal",
-                                                    stylingMode: "outlined",
-                                                    onClick: () => {
-                                                        document.location.href = "{{route('materials.operations.transfer.new')}}" + "/?destinationProjectObjectId=" + projectObject;
-                                                    }
-                                                }
-                                            }
-                                        ]
-                                    });
-                                }
-                            })
-                            .dxPopup("instance");
+                                                ]
+                                            });
+                                        }
+                                    })
+                                    .dxPopup("instance");
 
-                        popupWindow.show();
-                        //document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
-                    }
+                                popupWindow.show();
+                                //document.location.href = "{{route('materials.operations.supply.new')}}" + "/?project_object=" + projectObject;
+                            }
 
-                    if (e.itemData === "Перемещение") {
-                        transferMaterials();
-                    }
+                            if (e.itemData === "Перемещение") {
+                                transferMaterials();
+                            }
 
-                    if (e.itemData === "Преобразование") {
-                        transformMaterials();
-                    }
+                            if (e.itemData === "Преобразование") {
+                                transformMaterials();
+                            }
 
-                    if (e.itemData === "Списание") {
-                        writeOffMaterials();
-                    }
-                },
-
+                            if (e.itemData === "Списание") {
+                                writeOffMaterials();
+                            }
+                        },
                         items: ["Поставка", "Перемещение", "Преобразование", "Списание"]
                     })
                     .prependTo(groupTabWrapperButtonsDiv)

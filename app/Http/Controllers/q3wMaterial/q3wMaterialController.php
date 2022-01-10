@@ -201,6 +201,7 @@ class q3wMaterialController extends Controller
             })
             ->leftJoin('q3w_material_types as d', 'a.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
+            ->leftJoin('q3w_material_comments as f', 'b.comment_id', '=', 'f.id')
             ->get(['a.id',
                     'a.id as standard_id',
                     'a.name as standard_name',
@@ -212,6 +213,10 @@ class q3wMaterialController extends Controller
                     'd.measure_unit',
                     'd.name as material_type_name',
                     'e.value as measure_unit_value',
+                    'b.comment_id as initial_comment_id',
+                    'b.null as comment_id',
+                    'f.comment as initial_comment',
+                    'f.comment as comment',
                 DB::RAW('0 as from_operation')])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }

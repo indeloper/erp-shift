@@ -188,9 +188,30 @@ class q3wMaterialTransferOperationController extends Controller
                 default:
                     $sourceProjectObjectMaterial = q3wMaterial::where('project_object', $operation->source_project_object_id)
                         ->where('standard_id', $operationMaterial->standard->id)
+                        ->where(function ($query) use ($operationMaterial) {
+                            if (empty($operationMaterial->initial_comment_id)) {
+                                $query->whereNull('comment_id');
+                            } else {
+                                $query->where('comment_id', $operationMaterial->initial_comment_id);
+                            }
+                        })
                         ->first();
-                    $destinationProjectObjectMaterial = q3wMaterial::where('project_object', $operation->destination_project_object_id)
+
+                    $destinationProjectObjectMaterial = q3wMaterial::leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
+                        ->where('project_object', $operation->destination_project_object_id)
                         ->where('standard_id', $operationMaterial->standard->id)
+                        ->where(function ($query) use ($operationMaterial, $operationMaterialComment, $operationMaterialInitialComment) {
+                            if (empty($operationMaterialComment->comment)) {
+                                if (empty($operationMaterial->initial_comment_id)) {
+                                    $query->whereNull('comment_id');
+                                } else {
+                                    $query->where('comment', 'like', $operationMaterialInitialComment->comment);
+                                }
+                            } else {
+                                $query->where('comment', 'like', $operationMaterialComment->comment);
+                            }
+                        })
+                        ->get(['q3w_materials.*', 'q3w_material_comments.comment'])
                         ->first();
             }
 
@@ -253,11 +274,23 @@ class q3wMaterialTransferOperationController extends Controller
                         $sourceProjectObjectMaterial->amount = 1;
                         $destinationProjectObjectMaterial->save();
                     } else {
+                        if (empty($operationMaterialComment->comment)) {
+                            $materialCommentId = null;
+                        } else {
+                            $materialComment = new q3wMaterialComment([
+                                'comment' => $operationMaterialComment->comment,
+                                'author_id' => Auth::id()
+                            ]);
+                            $materialComment->save();
+                            $materialCommentId = $materialComment->id;
+                        }
+
                         $destinationProjectObjectMaterial = new q3wMaterial([
                             'standard_id' => $operationMaterial->standard->id,
                             'project_object' => $operation->destination_project_object_id,
                             'amount' => 1,
-                            'quantity' => $operationMaterial->amount * $operationMaterial->quantity
+                            'quantity' => $operationMaterial->amount * $operationMaterial->quantity,
+                            'comment_id' => $materialCommentId
                         ]);
                         $destinationProjectObjectMaterial->save();
                     }

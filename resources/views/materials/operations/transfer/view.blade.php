@@ -616,18 +616,16 @@
 
                                     let quantity;
                                     let amount;
-                                    let comment;
 
                                     if (transferOperationInitiator === "destination") {
                                         quantity = "";
                                         amount = "";
-                                        comment = "";
                                     } else {
                                         quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
                                         amount = options.data.amount ? options.data.amount + " " : "";
-                                        comment = options.data.comment ? '; ' + options.data.comment + ')' : ")";
                                     }
                                     switch (options.data.accounting_type) {
+                                        case 1:
                                         case 2:
                                             let standardNameText = options.data.standard_name +
                                                 ' (' +
@@ -672,6 +670,7 @@
                             onSelectionChanged: function (e) {
                                 selectedMaterialStandardsListDataSource.store().clear();
                                 e.selectedRowsData.forEach(function (selectedRowItem) {
+                                    console.log("selectedRowItem", selectedRowItem);
                                     selectedMaterialStandardsListDataSource.store().insert(selectedRowItem)
                                 })
 
@@ -707,7 +706,7 @@
                         }
                     }]
                 },
-                    {
+                {
                         itemType: "group",
                         colCount: 3,
                         caption: "Выбранные материалы",
@@ -725,30 +724,10 @@
                                 itemTemplate: function (data) {
                                     let quantity = data.quantity ? data.quantity + " " : "";
                                     let amount = data.amount ? data.amount + " " : "";
-                                    switch (data.accounting_type) {
-                                        case 2:
-                                            return $("<div>").text(data.standard_name +
-                                                ' (' +
-                                                quantity +
-                                                data.measure_unit_value +
-                                                '; ' +
-                                                amount +
-                                                'шт)'
-                                            )
-                                        default:
-                                            return $("<div>").text(data.standard_name +
-                                                ' (' +
-                                                quantity +
-                                                data.measure_unit_value +
-                                                ')')
-                                    }
-                                },
-                                itemTemplate: function (data) {
-                                    let quantity = data.quantity ? data.quantity + " " : "";
-                                    let amount = data.amount ? data.amount + " " : "";
                                     let container = $('<div class="standard-name-cell-with-comment"></div>')
 
                                     switch (data.accounting_type) {
+                                        case 1:
                                         case 2:
                                             let standardNameText = data.standard_name +
                                                 ' (' +
@@ -764,12 +743,9 @@
                                             if (data.comment) {
                                                 let divMaterialComment = $(`<div class="material-comment">${data.comment}</div>`)
                                                     .appendTo(container);
-
                                             }
 
                                             return container;
-
-                                            break;
                                         default:
                                             return $("<div>").text(data.standard_name +
                                                 ' (' +
@@ -805,6 +781,7 @@
                                 let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
 
                                 selectedMaterialsData.forEach(function (material) {
+                                    console.log("material", material);
                                     let quantity;
                                     let amount = null;
 
@@ -816,7 +793,7 @@
                                             quantity = null;
                                     }
 
-                                    let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.comment_id);
+                                    let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.initial_comment_id);
 
                                     transferMaterialDataSource.store().insert({
                                         id: new DevExpress.data.Guid().toString(),
@@ -867,7 +844,7 @@
             let transferMaterialColumns = [
                 {
                     type: "buttons",
-                    width: 110,
+                    width: 130,
                     buttons: [
                         {
                             template: function (container, options) {
@@ -966,6 +943,7 @@
                                 let commentLink;
 
                                 switch (accountingType) {
+                                    case 1:
                                     case 2:
                                         commentLink = $("<a>")
                                             .attr("href", "#")
@@ -985,15 +963,31 @@
                                                 $("#commentPopupContainer").dxPopup("show");
                                             })
                                             .mouseenter(function () {
-                                                if (!options.data.comment) {
+                                                let comment = "";
+                                                if (!options.data.comment && !options.data.initial_comment) {
                                                     return;
+                                                }
+
+                                                if (options.data.initial_comment) {
+                                                    comment += `<b>Исходный комментарий:</b><br>${options.data.initial_comment}`
+                                                }
+
+                                                if (options.data.comment) {
+                                                    if (options.data.initial_comment !== options.data.comment) {
+                                                        if (options.data.initial_comment) {
+                                                            comment += `<br><br>`;
+                                                        }
+                                                        if (options.data.comment) {
+                                                        }
+                                                        comment += `<b>Измененный комментарий:</b><br>${options.data.comment}`
+                                                    }
                                                 }
 
                                                 let materialCommentPopover = $('#materialCommentTemplate');
                                                 materialCommentPopover.dxPopover({
                                                     position: "top",
                                                     width: 300,
-                                                    contentTemplate: options.data.comment,
+                                                    contentTemplate: comment,
                                                     hideEvent: "mouseleave",
                                                 })
                                                     .dxPopover("instance")
@@ -1033,8 +1027,8 @@
                             let divStandardText = $(`<div>${options.text}</div>`)
                                 .appendTo(divStandardName);
 
-                            if (options.data.initial_comment) {
-                                $(`<div class="material-comment">${options.data.initial_comment}</div>`)
+                            if (options.data.comment) {
+                                $(`<div class="material-comment">${options.data.comment}</div>`)
                                     .appendTo(divStandardName);
 
                                 divStandardName.addClass("standard-name-cell-with-comment");
@@ -1293,7 +1287,8 @@
                 },
                 onEditorPreparing: (e) => {
                     if (e.dataField === "quantity" && e.parentType === "dataRow") {
-                        if (e.row.data.accounting_type === 2) {
+                        console.log(e);
+                        if (e.row.data.accounting_type === 2 && e.row.data.edit_states.indexOf("addedByRecipient") === -1) {
                             e.cancel = true;
                             e.editorElement.append($(`<div>${e.row.data.quantity} ${e.row.data.measure_unit_value}</div>`))
                         }
@@ -1739,7 +1734,19 @@
                         }
                         break;
                     default:
-                        filterConditions = ["standard_id", "=", standardId];
+                        filterConditions = [["standard_id", "=", standardId],
+                            "and",
+                            ["initial_comment_id", "=", initialCommentId]];
+                }
+
+                let filteredData = getTransferMaterialGrid().getDataSource().store().createQuery()
+                    .filter(filterConditions)
+                    .toArray();
+
+                if (filteredData.length > 0) {
+                    return filteredData[0].validationUid
+                } else {
+                    return new DevExpress.data.Guid().toString();
                 }
             }
 
@@ -1785,6 +1792,8 @@
                     validationData = transferMaterialDataSource.store().createQuery()
                         .toArray();
                 }
+
+                console.log(validationData);
 
                 updateRowsValidationState(validationData, "inProcess", "none")
 
@@ -2032,16 +2041,19 @@
                         let initialCommentId = dataItem.initial_comment_id ? dataItem.initial_comment_id : null;
 
                         transferMaterialDataSource.store().createQuery().toArray().forEach((item) => {
+                            let itemCommentId = item.initial_comment_id ? item.initial_comment_id : null;
                             if (item.standard_id === dataItem.standard_id && item.edit_states.indexOf("deletedByRecipient") === -1) {
                                 switch (dataItem.accounting_type) {
                                     case 2:
-                                        let itemComment = item.initial_comment_id ? item.initial_comment_id : null;
-                                        if (item.quantity === dataItem.quantity && itemComment === initialCommentId) {
+
+                                        if (item.quantity === dataItem.quantity && itemCommentId === initialCommentId) {
                                             calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
                                         }
                                         break;
                                     default:
-                                        calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
+                                        if (itemCommentId === initialCommentId) {
+                                            calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
+                                        }
                                 }
                             }
                         })
@@ -2056,9 +2068,9 @@
                                 });
                                 break;
                             default:
-                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}']`).each(function () {
+                                $(`[accounting-type='${dataItem.accounting_type}'][standard-id='${dataItem.standard_id}'][initial-comment-id='${dataItem.initial_comment_id}']`).each(function () {
                                     $(this).text(calculatedQuantity + ' ' + dataItem.measure_unit_value);
-                                    if (calculatedAmount < 0){
+                                    if (calculatedQuantity < 0){
                                         $(this).addClass("red")
                                     }
                                 });
