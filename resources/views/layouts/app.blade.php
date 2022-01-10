@@ -16,6 +16,7 @@
     <link href="{{ mix('css/pe-icon-7-stroke.css') }}" rel="stylesheet" />
     <!-- CSS Files -->
     <link href="{{ mix('css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link href="{{ mix('css/balloon.css') }}" rel="stylesheet" />
     <link href="{{ mix('css/light-bootstrap-dashboard.css') }}" rel="stylesheet" />
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
@@ -32,10 +33,6 @@
     <!-- editable table -->
     <link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.1.3/darkly/bootstrap.min.css"> -->
-
-
-
-
 
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 
@@ -374,11 +371,65 @@
                         </div>
                     </li>
                     @endif
+{{--                    @canany(['human_resources_job_categories_view', 'human_resources_report_groups_view', 'human_resources_timecards_view'])--}}
+{{--                        <li class="nav-item @if(Request::is('human_resources') || Request::is('human_resources/*')) active @endif">--}}
+{{--                            <a class="nav-link" data-toggle="collapse" href="#humanResources">--}}
+{{--                                <i class="pe-7s-users"></i>--}}
+{{--                                <p>Человеческие ресурсы--}}
+{{--                                    <b class="caret"></b>--}}
+{{--                                </p>--}}
+{{--                            </a>--}}
+{{--                            <div class="collapse @if(Request::is('human_resources') || Request::is('human_resources/*')) show @endif" id="humanResources">--}}
+{{--                                <ul class="nav">--}}
+{{--                                    @can('human_resources_job_categories_view')--}}
+{{--                                        <li class="nav-item @if (Request::is('human_resources/job_category') || Request::is('human_resources/job_category/*')) active @endif">--}}
+{{--                                            <a class="nav-link" href="{{ route('human_resources.job_category.index') }}">--}}
+{{--                                                <span class="sidebar-mini">ДК</span>--}}
+{{--                                                <span class="sidebar-normal">Должностные категории</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                    @endcan--}}
+{{--                                    @can('human_resources_report_group_view')--}}
+{{--                                        <li class="nav-item @if (Request::is('human_resources/report_group') || Request::is('human_resources/report_group/*')) active @endif">--}}
+{{--                                            <a class="nav-link" href="{{ route('human_resources.report_group.index') }}">--}}
+{{--                                                <span class="sidebar-mini">ОГ</span>--}}
+{{--                                                <span class="sidebar-normal">Отчётные группы</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                    @endcan--}}
+{{--                                    @can('human_resources_brigade_view')--}}
+{{--                                        <li class="nav-item @if (Request::is('human_resources/brigade') || Request::is('human_resources/brigade/*')) active @endif">--}}
+{{--                                            <a class="nav-link" href="{{ route('human_resources.brigade.index') }}">--}}
+{{--                                                <span class="sidebar-mini">БР</span>--}}
+{{--                                                <span class="sidebar-normal">Бригады</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                    @endcan--}}
+{{--                                    @can('human_resources_pay_and_hold_see')--}}
+{{--                                        <li class="nav-item @if (Request::is('human_resources/payment') || Request::is('human_resources/payment/*')) active @endif">--}}
+{{--                                            <a class="nav-link" href="{{ route('human_resources.payment.index') }}">--}}
+{{--                                                <span class="sidebar-mini">ВУ</span>--}}
+{{--                                                <span class="sidebar-normal">Выплаты и удержания</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                    @endcan--}}
+{{--                                    @can('human_resources_timecards_view')--}}
+{{--                                        <li class="nav-item @if (Request::is('human_resources/report') || Request::is('human_resources/report/*')) active @endif">--}}
+{{--                                            <a class="nav-link" href="{{ route('human_resources.report.detailed_report') }}">--}}
+{{--                                                <span class="sidebar-mini"><i class="pe-7s-display2 pe-7s-mini"></i></span>--}}
+{{--                                                <span class="sidebar-normal">Табели</span>--}}
+{{--                                            </a>--}}
+{{--                                        </li>--}}
+{{--                                    @endcan--}}
+{{--                                </ul>--}}
+{{--                            </div>--}}
+{{--                        </li>--}}
+{{--                    @endcanany--}}
                     @can('users')
                     <li class="nav-item @if (Request::is('users') || Request::is('users/*')) active @endif">
                         <a class="nav-link" href="{{ route('users::index') }}">
                             <i class="pe-7s-id"></i>
-                            <p>Cотрудники</p>
+                            <p>Сотрудники</p>
                         </a>
                     </li>
                     @endcan
@@ -504,6 +555,7 @@
 <script src="{{ mix('js/plugins/jquery-jvectormap.js') }}" type="text/javascript"></script>
 <!--  Plugin for Date Time Picker and Full Calendar Plugin-->
 <script src="{{ mix('js/plugins/moment.min.js') }}"></script>
+<script>moment.locale('ru');</script>
 <!--  DatetimePicker   -->
 <script src="{{ mix('js/plugins/bootstrap-datetimepicker.js') }}"></script>
 <!--  Sweet Alert  -->

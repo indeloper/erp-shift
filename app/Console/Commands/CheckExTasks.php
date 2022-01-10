@@ -45,7 +45,7 @@ class CheckExTasks extends Command
      */
     public function handle()
     {
-        $tasks = Task::where('is_solved', 0)->with('project.object')->get();
+        $tasks = Task::whereNotIn('status', [40, 41])->where('is_solved', 0)->with('project.object')->get();
 
         DB::beginTransaction();
 

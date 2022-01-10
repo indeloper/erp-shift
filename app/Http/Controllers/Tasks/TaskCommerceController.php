@@ -212,7 +212,7 @@ class TaskCommerceController extends Controller
 
         return view('tasks.common_task', [
             'task' => $task,
-            'target' => $target,
+            'target' => $target ?? '',
             'contract' => $contract,
             'work_volumes' => $work_volumes,
             'com_offers' => $com_offers,

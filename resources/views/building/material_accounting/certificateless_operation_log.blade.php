@@ -202,9 +202,9 @@
                         <p class="el-mobile-table"><span class="table-stroke__label">Адрес:</span> <span class="table-stroke__content">@{{ props.row.address_text }}</span></p>
                         <p class="el-mobile-table"><span class="table-stroke__label">Договор:</span> <span class="table-stroke__content">@{{ props.row.contract.name_for_humans }}</span></p>
                         <p class="el-mobile-table"><span class="table-stroke__label">Автор:</span> <span class="table-stroke__content">@{{ props.row.author.full_name }}</span></p>
-                        <p class="el-mobile-table"><span class="table-stroke__label">Дата создания:</span> <span class="table-stroke__content">@{{ props.row.created_date }}</span></p>
-                        <p class="el-mobile-table"><span class="table-stroke__label">Дата начала:</span> <span class="table-stroke__content">@{{ props.row.actual_date_from }}</span></p>
-                        <p class="el-mobile-table"><span class="table-stroke__label">Дата закрытия:</span> <span class="table-stroke__content">@{{ props.row.closed_date }}</span></p>
+                        <p class="el-mobile-table"><span class="table-stroke__label">Дата создания:</span> <span :class="isWeekendDay(props.row.created_date, 'DD.MM.YYYY') ? 'weekend-day table-stroke__content' : 'table-stroke__content'">@{{ isValidDate(props.row.created_date, 'DD.MM.YYYY') ? weekdayDate(props.row.created_date, 'DD.MM.YYYY') : '-' }}</span></p>
+                        <p class="el-mobile-table"><span class="table-stroke__label">Дата начала:</span> <span :class="isWeekendDay(props.row.actual_date_from, 'DD.MM.YYYY') ? 'weekend-day table-stroke__content' : 'table-stroke__content'">@{{ isValidDate(props.row.actual_date_from, 'DD.MM.YYYY') ? weekdayDate(props.row.actual_date_from, 'DD.MM.YYYY') : '-' }}</span></p>
+                        <p class="el-mobile-table"><span class="table-stroke__label">Дата закрытия:</span> <span :class="isWeekendDay(props.row.closed_date, 'DD.MM.YYYY') ? 'weekend-day table-stroke__content' : 'table-stroke__content'">@{{ isValidDate(props.row.closed_date, 'DD.MM.YYYY') ? weekdayDate(props.row.closed_date, 'DD.MM.YYYY') : '-' }}</span></p>
                         <p class="el-mobile-table"><span class="table-stroke__label">Статус:</span> <span class="table-stroke__content">@{{ props.row.status_name }}</span></p>
                           <p class="el-mobile-table text-right" style="margin-top: 20px">
                                   <a :href="props.row.url">Перейти в операцию →</a>
@@ -267,21 +267,33 @@
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
-                      prop="created_date"
                       label="Дата создания"
                       min-width="80">
+                        <template slot-scope="scope">
+                            <span :class="isWeekendDay(scope.row.created_date, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                @{{ isValidDate(scope.row.created_date, 'DD.MM.YYYY') ? weekdayDate(scope.row.created_date, 'DD.MM.YYYY') : '-' }}
+                            </span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
-                      prop="actual_date_from"
                       label="Дата начала"
                       min-width="80">
+                        <template slot-scope="scope">
+                            <span :class="isWeekendDay(scope.row.actual_date_from, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                @{{ isValidDate(scope.row.actual_date_from, 'DD.MM.YYYY') ? weekdayDate(scope.row.actual_date_from, 'DD.MM.YYYY') : '-' }}
+                            </span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
-                      prop="closed_date"
                       label="Дата закрытия"
                       min-width="80">
+                        <template slot-scope="scope">
+                            <span :class="isWeekendDay(scope.row.closed_date, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                @{{ isValidDate(scope.row.closed_date, 'DD.MM.YYYY') ? weekdayDate(scope.row.closed_date, 'DD.MM.YYYY') : '-' }}
+                            </span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
@@ -792,6 +804,15 @@ var operations = new Vue({
                 return 'd-none';
             }
         },
+        isValidDate(date, format) {
+            return moment(date, format).isValid();
+        },
+        weekdayDate(date, inputFormat, outputFormat) {
+            return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+        },
+        isWeekendDay(date, format) {
+            return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+        },
         {{--
         print_rep() {
 
@@ -811,7 +832,6 @@ var operations = new Vue({
 
             $('#print_operations').submit();
         },
-
         updateResults() {
             axios.post('{{ route('building::mat_acc::report_card::filter') }}', {
                 date: operations.search_date,

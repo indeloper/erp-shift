@@ -99,7 +99,7 @@
                                                         Система
                                                     @endif
                                                 </td>
-                                                <td data-label="Дата">{{ $contract_request->updated_at }}</td>
+                                                <td data-label="Дата" class="prerendered-date-time">{{ $contract_request->updated_at }}</td>
                                                 <td data-label="" class="text-right actions">
                                                     <button  rel="tooltip" type="button" class="btn btn-info btn-link btn-xs padding-actions mn-0" data-toggle="modal" data-target="#view-contract-request-{{ $contract_request->id }}" data-original-title="Просмотр">
                                                         <i class="fa fa-eye"></i>
@@ -158,7 +158,7 @@
                                         <td data-label="Тип" data-target=".collapseKeyDates{{ $contract->contract_id}}" data-toggle="collapse" class="collapsed tr-pointer" aria-expanded="false">
                                             {{ $contract->name }}
                                         </td>
-                                        <td data-label="Дата добавления" data-target=".collapseKeyDates{{ $contract->contract_id}}" data-toggle="collapse" class="collapsed tr-pointer" aria-expanded="false">{{$contract->updated_at}}</td>
+                                        <td data-label="Дата добавления" data-target=".collapseKeyDates{{ $contract->contract_id}}" data-toggle="collapse" class="collapsed tr-pointer prerendered-date-time" aria-expanded="false">{{$contract->updated_at}}</td>
                                         <td data-label="Версия" class="text-center" data-target=".collapseKeyDates{{ $contract->contract_id}}" data-toggle="collapse" class="collapsed tr-pointer" aria-expanded="false">
                                             {{ $contract->version }}
                                         </td>
@@ -182,8 +182,8 @@
                                             <td data-label="#">{{ $key + 1 }}</td>
                                             <td data-label="Наименование" >{{ $key_date->name }}</td>
                                             <td data-label="Сумма">{{ $key_date->sum ? round($key_date->sum, 2) : '' }}</td>
-                                            <td data-label="Дата с">{{ $key_date->date_from ? $key_date->date_from->format('d.m.Y') : '' }}</td>
-                                            <td data-label="Дата по">{{ $key_date->date_to ? $key_date->date_to->format('d.m.Y') : '' }}</td>
+                                            <td data-label="Дата с" class="prerendered-date">{{ $key_date->date_from ? $key_date->date_from->format('d.m.Y') : '' }}</td>
+                                            <td data-label="Дата по" class="prerendered-date">{{ $key_date->date_to ? $key_date->date_to->format('d.m.Y') : '' }}</td>
                                             <td data-label="Примечание">{{ $key_date->note }}</td>
                                         </tr>
                                         @if ($key_date->related_key_dates->count())
@@ -192,8 +192,8 @@
                                                     <td data-label="#">{{ ($key + 1) . '.' . ($skey + 1) }}</td>
                                                     <td data-label="Наименование">{{ $related_key_date->name }}</td>
                                                     <td data-label="Сумма">{{ $related_key_date->sum ? round($related_key_date->sum, 2) : '' }}</td>
-                                                    <td data-label="Дата с">{{ $related_key_date->date_from ? $related_key_date->date_from->format('d.m.Y') : '' }}</td>
-                                                    <td data-label="Дата по">{{ $related_key_date->date_to ? $related_key_date->date_to->format('d.m.Y') : '' }}</td>
+                                                    <td data-label="Дата с" class="prerendered-date">{{ $related_key_date->date_from ? $related_key_date->date_from->format('d.m.Y') : '' }}</td>
+                                                    <td data-label="Дата по" class="prerendered-date">{{ $related_key_date->date_to ? $related_key_date->date_to->format('d.m.Y') : '' }}</td>
                                                     <td data-label="Примечание">{{ $related_key_date->note }}</td>
                                                 </tr>
                                             @endforeach

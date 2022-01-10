@@ -19,4 +19,12 @@ class MaterialAccountingBaseObserver
             $materialAccountingBase->unit = $materialAccountingBase->material->category_unit;
         }
     }
+
+    public function created(MaterialAccountingBase $base)
+    {
+        if ($base->ancestor_base_id == null) {
+            $base->ancestor_base_id = $base->id;
+            $base->save();
+        }
+    }
 }

@@ -39,7 +39,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row" id="base">
     <div class="col-md-12">
         <div class="card">
             <div class="fixed-table-toolbar toolbar-for-btn">
@@ -79,7 +79,7 @@
                                 <td data-label="Название" data-target=".collapse{{$document->id}}" data-toggle="collapse" class="collapsed tr-pointer" aria-expanded="false">
                                     {{ $document->name }}
                                 </td>
-                                <td data-label="Дата добавления" class="text-center">{{ $document->updated_at }}</td>
+                                <td data-label="Дата добавления" class="text-center prerendered-date">{{ $document->updated_at }}</td>
                                 <td data-label="Автор"><a @if(!$document->user_full_name) @else href="{{ route('users::card', $document->user_id) }} @endif" class="table-link">{{ $document->user_full_name ? $document->user_full_name : 'Опросный лист' }}</a></td>
                                 <td data-label="Версия" class="text-center">{{ $document->version }}</td>
                                 <td data-label="" class="td-actions text-right actions">
@@ -219,5 +219,33 @@
     function updateDocId(id) {
         $('#project_document_id').val(id);
     }
+</script>
+<script type="text/javascript">
+    var vm = new Vue ({
+        el: '#base',
+        mounted() {
+            const that = this;
+            $('.prerendered-date').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            })
+        },
+        methods: {
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+        }
+    })
 </script>
 @endsection

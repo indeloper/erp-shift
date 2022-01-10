@@ -34,7 +34,11 @@
     :data-toggle="rowTypeCondition(contract) ? 'collapse' : ''" :class="rowTypeCondition(contract) ? 'collapsed tr-pointer' : ''" :aria-expanded="rowTypeCondition(contract) ? 'false' : ''">
     @{{ contract.name }}
 </td>
-<td data-label="Дата добавления"  class="wrapword-xl">@{{ contract.created_at }}</td>
+<td data-label="Дата добавления"  class="wrapword-xl">
+    <span :class="isWeekendDay(contract.created_at, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
+        @{{ isValidDate(contract.created_at, 'DD.MM.YYYY HH:mm:ss') ? weekdayDate(contract.created_at, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
+    </span>
+</td>
 <td data-label="Версия" class="wrapword-xl text-center">@{{ contract.version }}</td>
 <td data-label="Статус"  class="wrapword-xl">@{{ statuses[contract.status] }}</td>
 <td data-label="Юр. Лицо"  class="wrapword-xl">@{{ entities[contract.project_entity] }}</td>

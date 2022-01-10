@@ -17,6 +17,9 @@ class UserObserver
     {
         if ($this->isDeleted($user))
             return $this->notificationAfterUserRemove($user);
+        if (in_array('job_category_id', array_keys($user->getChanges())) or in_array('brigade_id', array_keys($user->getChanges()))) {
+            $user->generateAction('update');
+        }
     }
 
     public function notificationAfterUserRemove($user)

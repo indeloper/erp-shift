@@ -33,6 +33,7 @@ use App\Models\Contract\ContractCommercialOfferRelation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 use PDF;
@@ -316,13 +317,11 @@ class ProjectContractController extends Controller
     public function update(Request $request, $contract_id)
     {
         DB::beginTransaction();
-
         $contract = Contract::findOrFail($contract_id);
 
         if($request->contract_file) {
             $mime = $request->contract_file->getClientOriginalExtension();
             $file_name =  'project-' . $contract->project_id .'contract-' . uniqid() . '.' . $mime;
-
             Storage::disk('contracts')->put($file_name, File::get($request->contract_file));
 
             FileEntry::create([
@@ -332,6 +331,7 @@ class ProjectContractController extends Controller
                 'original_filename' => $request->contract_file->getClientOriginalName(),
                 'user_id' => Auth::user()->id,
             ]);
+
 
             $contract->file_name = $file_name;
         }

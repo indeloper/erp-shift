@@ -2,7 +2,8 @@ const { extend, setInteractionMode } = VeeValidate;
 
 const isNullOrUndefined = (value) => value === null || value === undefined;
 const isEmptyArray = (arr) => Array.isArray(arr) && arr.length === 0;
-const numericMask = /^[0-9]+$/;
+const numericMask = /^[0-9]+\.?[0-9]*$/;
+const naturalMask = /^[0-9]+$/;
 const vehRegNumberMask = /^[ABEKMHOPCTYXАВЕКМНОРСТУХabekmhopctyxавекмнорстух][0-9][0-9][0-9][ABEKMHOPCTYXАВЕКМНОРСТУХabekmhopctyxавекмнорстух][ABEKMHOPCTYXАВЕКМНОРСТУХabekmhopctyxавекмнорстух][0-9][0-9][0-9]?$/i;
 
 setInteractionMode('lazy');
@@ -38,6 +39,21 @@ extend('max', {
     message: 'Длина поля не должна превышать {length} символов',
 });
 
+extend('min', {
+    validate(value, args) {
+        const testValue = (val) => String(val).length >= args.length;
+        if (isNullOrUndefined(value)) {
+            return args.length === 0;
+        }
+        if (Array.isArray(value)) {
+            return value.every(testValue);
+        }
+        return testValue(value);
+    },
+    params: ['length'],
+    message: 'Длина поля не должна быть меньше {length} символов',
+});
+
 extend('positive', {
     validate(value) {
         const testValue = (val) => value > 0;
@@ -57,7 +73,33 @@ extend('numeric', {
         }
         return testValue(value);
     },
-    message: 'Поле должно быть числовым',
+    message: 'Значение должно быть числовым',
+});
+
+extend('natural', {
+    validate(value) {
+        const testValue = (val) => naturalMask.test(String(val));
+        if (Array.isArray(value)) {
+            return value.every(testValue);
+        }
+        return testValue(value);
+    },
+    message: 'Значение должно быть натуральным числом',
+});
+
+extend('max_value', {
+    validate(value, args) {
+        if (isNullOrUndefined(value) || value === '') {
+            return false;
+        }
+        const testValue = (val) => Number(value) <= args.max;
+        if (Array.isArray(value)) {
+            return value.every(testValue);
+        }
+        return testValue(value);
+    },
+    params: ['max'],
+    message: 'Максимальное значение: {max}',
 });
 
 extend('veh_reg_number', {

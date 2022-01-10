@@ -36,8 +36,7 @@ class ManualMaterial extends Model
     {
         return $this->hasMany(ManualMaterialParameter::class, 'mat_id', 'id')
             ->leftJoin('manual_material_category_attributes', 'manual_material_category_attributes.id','=', 'attr_id')
-            ->select('manual_material_parameters.*', 'manual_material_category_attributes.name', 'manual_material_category_attributes.unit', 'manual_material_category_attributes.is_preset')
-            ->withTrashed();
+            ->select('manual_material_parameters.*', 'manual_material_category_attributes.name', 'manual_material_category_attributes.unit', 'manual_material_category_attributes.is_preset');
     }
 
     public function reference()
@@ -126,6 +125,19 @@ class ManualMaterial extends Model
             }
 
             return $convert_params ?? collect();
+        }
+    }
+
+    public function getConvertValueFromTo($from_unit, $to_unit)
+    {
+        if ($from_unit === $to_unit) {
+            return 1;
+        }
+        $convert_param = $this->convert_from($from_unit)->where('unit', $to_unit)->first();
+        if ($convert_param) {
+            return $convert_param->value;
+        } else {
+            return 0;
         }
     }
 
@@ -327,15 +339,18 @@ class ManualMaterial extends Model
         $material = ManualMaterial::where('category_id', $category_id);
         $collection_parameters = array_merge($attributes, $reference_attrs);
         foreach ($attributes as $attr_key => $item) {
-            if ($item['unit'] == 'м' || $item['name'] == 'Длина') {
-                $item['value'] = str_replace(',','.', $item['value']);
-                $attributes[$attr_key]['value'] = str_replace(',','.', $item['value']);
-            }
-
             if (!is_null($item['value'])) {
+                if ($item['name'] == 'Длина') {
+                    $item['value'] = str_replace(',','.', $item['value']);
+                    $attributes[$attr_key]['value'] = str_replace(',','.', $item['value']);
+                }
                 $material->whereHas('parameters', function($q) use ($item) {
                     $q->where('attr_id', $item['id']);
                     $q->where('value', $item['value']);
+                });
+            } else {
+                $material->whereDoesntHave('parameters', function($q) use ($item) {
+                    $q->where('attr_id', $item['id']);
                 });
             }
         }

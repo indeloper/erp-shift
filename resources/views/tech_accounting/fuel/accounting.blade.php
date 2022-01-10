@@ -3,7 +3,6 @@
 @section('title', 'Учет топлива')
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <link rel="stylesheet" href="{{ asset('css/video-js.css') }}">
     <style>
         th.text-truncate {
@@ -99,7 +98,7 @@
                                 ></el-option>
                             </el-select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mt-10__mobile">
                             <label for="count">Значение</label>
 
                             <el-select v-if="filter_attribute === 'contractor'"
@@ -299,7 +298,9 @@
                             </tr>
                             <tr v-else v-for="record in records">
                                 <td data-label="Дата записи">
-                                    @{{convertDateFormat(record.updated_at)}}
+                                    <span :class="isWeekendDay(convertDateFormat(record.updated_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(convertDateFormat(record.updated_at), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.updated_at), 'DD.MM.YYYY') : '-' }}
+                                    </span>
                                 </td>
                                 {{--<td data-label="#">
                                     @{{record.id}}
@@ -320,7 +321,9 @@
                                     @{{record.contractor ? record.contractor.full_name : '-'}}
                                 </td>
                                 <td data-label="Дата операции">
-                                    @{{convertDateFormat(   record.operation_date)}}
+                                    <span :class="isWeekendDay(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') : '-' }}
+                                    </span>
                                 </td>
                                 <td data-label="Автор записи">
                                     @{{record.author.full_name}}
@@ -695,7 +698,9 @@
                                             Дата @{{ record.type == 3 ? 'ручного изменения' : (record.contractor ? 'поставки' : 'заправки') }}
                                         </span>
                                         <span class="task-info__body-title">
-                                            @{{ record.operation_date ? convertDateFormat(record.operation_date) : '' }}
+                                            <span :class="isWeekendDay(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                @{{ isValidDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') : '-' }}
+                                            </span>
                                         </span>
                                     </div>
                                     <div class="task-info__text-unit">
@@ -746,7 +751,9 @@
                                             Дата записи в журнале
                                         </span>
                                         <span class="task-info__body-title">
-                                            @{{ record.created_at ? convertDateFormat(record.created_at) : '' }}
+                                            <span :class="isWeekendDay(convertDateFormat(record.created_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                @{{ isValidDate(convertDateFormat(record.created_at), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.created_at), 'DD.MM.YYYY') : '-' }}
+                                            </span>
                                         </span>
                                     </div>
                                     <div class="task-info__text-unit">
@@ -862,12 +869,13 @@
                               v-if="window_width > 769"
                     >
                         <el-table-column
-                                prop="created_at"
                                 label="Дата"
                                 width="175"
                         >
                             <template slot-scope="scope">
-                                @{{  convertDateFormat(scope.row.created_at, true)  }}
+                                <span :class="isWeekendDay(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
+                                    @{{ isValidDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? weekdayDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
+                                </span>
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -880,13 +888,15 @@
                                 label="Изменения"
                         >
                             <template slot-scope="scope">
-                                <div class="d-flex justify-content-between hoverable-row"
-                                     v-for="(field, i) in Object.keys(scope.row.changed_fields_parsed.old_values)"
-                                     :style="i > 0 ? 'border-top: 1px solid #EBEEF5;' : ''"
-                                >
-                                    <div style="padding-right: 10px;">@{{ getFieldLabel(field) }}</div>
-                                    <div style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey" v-if="field !== 'date'">@{{ scope.row.changed_fields_parsed.old_values[field] }} → @{{ scope.row.changed_fields_parsed.new_values[field] }}</div>
-                                    <div style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey" v-else>@{{ convertDateFormat(scope.row.changed_fields_parsed.old_values[field]) }} → @{{ convertDateFormat(scope.row.changed_fields_parsed.new_values[field]) }}</div>
+                                <div v-if="scope.row.changed_fields_parsed.old_values">
+                                    <div class="d-flex justify-content-between hoverable-row"
+                                        v-for="(field, i) in Object.keys(scope.row.changed_fields_parsed.old_values)"
+                                        :style="i > 0 ? 'border-top: 1px solid #EBEEF5;' : ''"
+                                    >
+                                        <div style="padding-right: 10px;">@{{ getFieldLabel(field) }}</div>
+                                        <div style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey" v-if="field !== 'date'">@{{ scope.row.changed_fields_parsed.old_values[field] }} → @{{ scope.row.changed_fields_parsed.new_values[field] }}</div>
+                                        <div style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey" v-else>@{{ convertDateFormat(scope.row.changed_fields_parsed.old_values[field]) }} → @{{ convertDateFormat(scope.row.changed_fields_parsed.new_values[field]) }}</div>
+                                    </div>
                                 </div>
                             </template>
                         </el-table-column>
@@ -900,7 +910,11 @@
                                 label="История изменений"
                         >
                             <template slot-scope="scope">
-                                <div class="font-weight-bold">@{{  convertDateFormat(scope.row.created_at, true)  }}</div>
+                                <div class="font-weight-bold">
+                                    <span :class="isWeekendDay(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? weekdayDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
+                                    </span>
+                                </div>
                                 <div class="font-weight-bold">@{{  scope.row.user.full_name  }}</div>
                                 <div v-for="(field, i) in Object.keys(scope.row.changed_fields_parsed.old_values)"
                                      style="border-top: 1px solid #EBEEF5;"
@@ -1610,6 +1624,15 @@
                     return full ? moment(dateString, 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY HH:mm:ss') :
                         moment(dateString, 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY');
                 },
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+                },
                 promisedSearchTechs(query) {
                     return new Promise((resolve, reject) => {
                         if (query) {
@@ -1939,6 +1962,15 @@
                     $('#form_record').modal('show');
                     $('.modal').css('overflow-y', 'auto');
                     $('#form_record').focus();
+                },
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
                 },
                 changePage(page) {
                     this.currentPage = page;

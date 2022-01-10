@@ -30,7 +30,6 @@ Route::get('get_all_technics', 'OurTechnicController@get_all_technics')->name('g
 Route::post('get_technics_paginated/{our_technic_category_id}', 'OurTechnicController@getTechnicsPaginated')->name('get_technics_paginated');
 Route::post('get_trashed_technics_paginated/{our_technic_category_id}', 'OurTechnicController@getTrashedTechnicsPaginated')->name('get_trashed_technics_paginated');
 
-Route::resource('requests', 'TechRequestsController');
 Route::resource('defects', 'DefectsController')->except([
     'create',
     'update',

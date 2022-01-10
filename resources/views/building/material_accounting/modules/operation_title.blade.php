@@ -30,14 +30,14 @@
                             <label class="col-sm-3 col-md-2 operation-label">Дата операции</label>
                             <div class="col-sm-9 col-md-10 mnt-5">
                                 @if($operation->planned_date_from and $operation->planned_date_to)
-                                    <span>{{ $operation->planned_date_from . ' - ' . $operation->planned_date_to }}</span> <br>
+                                    <span>{{ weekdayDate($operation->planned_date_from) . ' - ' . weekdayDate($operation->planned_date_to) }}</span> <br>
                                 @elseif ($operation->planned_date_from or $operation->planned_date_to)
-                                    <span>{{ ($operation->planned_date_from ?? "") . ($operation->planned_date_to ?? "") }}</span> <br>
+                                    <span>{{ weekdayDate($operation->planned_date_from ?? "") . ' ' . weekdayDate($operation->planned_date_to ?? "") }}</span> <br>
                                 @endif
                                 @if($operation->actual_date_from and $operation->actual_date_to)
-                                    <span  style="color:#0000c2;">{{ $operation->actual_date_from . ' - ' . $operation->actual_date_to }}</span> <br>
+                                    <span  style="color:#0000c2;">{{ weekdayDate($operation->actual_date_from) . ' - ' . weekdayDate($operation->actual_date_to) }}</span> <br>
                                 @elseif ($operation->actual_date_from or $operation->actual_date_to)
-                                    <span  style="color:#0000c2;">{{ ($operation->actual_date_from ?? "") . ($operation->actual_date_to ?? "") }}</span> <br>
+                                    <span  style="color:#0000c2;">{{ weekdayDate($operation->actual_date_from ?? "") . ' ' . weekdayDate($operation->actual_date_to ?? "") }}</span> <br>
                                 @endif
                             </div>
                         </div>

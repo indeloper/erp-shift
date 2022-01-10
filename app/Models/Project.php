@@ -5,6 +5,10 @@ namespace App\Models;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
+use App\Models\HumanResources\Appointment;
+use App\Models\HumanResources\Brigade;
+use App\Traits\Logable;
+use App\Traits\Taskable;
 use App\Models\WorkVolume\WorkVolume;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +18,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Logable, Taskable;
 
-    protected $fillable = ['contractor_id', 'name', 'object_address', 'description', 'user_id', 'status', 'entity', 'is_important'];
+    protected $fillable = [
+        'contractor_id', 'name', 'object_address',
+        'description', 'user_id', 'status', 'entity',
+        'is_important', 'time_responsible_user_id'
+    ];
 
 
     public $project_status = [
@@ -60,6 +68,29 @@ class Project extends Model
 //        static::updated(function($item) { //we might need it in future
 //            Event::fire('item.updated', $item);
 //        });
+    }
+
+    /**
+     * Return projects that have contracts in status 5 or 6,
+     * what equals to Contracts work start
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeContractsStarted(Builder $query)
+    {
+        return $query->has('ready_contracts');
+    }
+
+    /**
+     * Return projects that have brigades or users
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeHasWorkers(Builder $query)
+    {
+        return $query->has('users')->orHas('brigades');
     }
 
     public function getTongueStatusesAttribute()
@@ -305,6 +336,16 @@ class Project extends Model
     }
 
     /**
+     * Function generate project name with object name tag
+     * @return string
+     */
+    public function getNameWithObjectAttribute(): string
+    {
+        $objectName = $this->object ? $this->object->name_tag : '';
+        return "{$this->name} - {$objectName}";
+    }
+
+    /**
      * @return Builder
      */
     static function getAllProjects()
@@ -344,6 +385,59 @@ class Project extends Model
     public function disableImportance()
     {
         $this->is_important = 0;
+    }
+
+    /**
+     * Relation for time responsible user
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function timeResponsible()
+    {
+        return $this->belongsTo(User::class, 'time_responsible_user_id', 'id');
+    }
+
+    /**
+     * Relation for users on project
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function users()
+    {
+        return $this->morphedByMany(User::class, 'appointmentable', 'appointments')->whereNull('appointments.deleted_at')->withTimestamps();
+    }
+
+    /**
+     * Relation for appointments on project
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * Relation for brigades on object
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function brigades()
+    {
+        return $this->morphedByMany(Brigade::class, 'appointmentable', 'appointments')->whereNull('appointments.deleted_at')->withTimestamps();
+    }
+
+    public function allUsers()
+    {
+        if (! $this->all_users_cache) {
+            $users = collect([]);
+            $appointedUsers = $this->users;
+            $appointedBrigades = $this->brigades;
+            $appointedBrigadeUsers = collect([]);
+            foreach ($appointedBrigades as $brigade) {
+                $appointedBrigadeUsers = $appointedBrigadeUsers->merge($brigade->users);
+            }
+            $users = $users->merge($appointedUsers)->merge($appointedBrigadeUsers);
+            $this->all_users_cache = $users;
+        }
+
+        return $this->all_users_cache ?? collect([]);
     }
 
     public function work_volumes()

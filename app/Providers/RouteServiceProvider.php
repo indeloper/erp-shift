@@ -56,9 +56,9 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::middleware(['web','activeuser', 'auth'])->namespace($this->namespace)->group(function() {
 
-                Route::prefix('contractors')->as('contractors::')->namespace('Commerce')->group( function () {
-                        require base_path('routes/modules/contractors.php');
-                    });
+                Route::prefix('contractors')->as('contractors::')->namespace('Commerce')->group(function () {
+                    require base_path('routes/modules/contractors.php');
+                });
 
                 Route::prefix('building')->as('building::')->namespace('Building')->group(function() {
                     Route::prefix('mat_acc')->as('mat_acc::')->namespace('MaterialAccounting')->group(function() {
@@ -87,12 +87,16 @@ class RouteServiceProvider extends ServiceProvider
                     });
                 });
 
-                Route::namespace('Commerce')->prefix('projects')->as('projects::')->group( function() {
+                Route::namespace('Commerce')->prefix('projects')->as('projects::')->group(function() {
                     require base_path('routes/modules/projects.php');
                 });
 
-                Route::namespace('System')->prefix('messages')->as('messages::')->group( function() {
+                Route::namespace('System')->prefix('messages')->as('messages::')->group(function() {
                     require base_path('routes/modules/messages.php');
+                });
+
+                Route::namespace('HumanResources')->prefix('human_resources')->as('human_resources.')->group(function() {
+                    require base_path('routes/modules/human_resources.php');
                 });
             });
     }

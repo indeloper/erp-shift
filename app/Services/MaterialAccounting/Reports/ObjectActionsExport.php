@@ -25,7 +25,7 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
     public function __construct($object, $operations)
     {
         $this->object = $object;
-        $this->operations = $operations->get();
+        $this->operations = $operations;
     }
 
     public function title(): string
@@ -124,7 +124,7 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 $push[3] = '';
 
                 if($item->manual->category_unit == 'шт' && $item->units_name[$item->unit] != 'шт') {
-                    $new_count_weith = round($item->manual->convert_from($item->units_name[$item->unit])->first()->value * $item->count, 3);
+                    $new_count_weith = round($item->manual->getConvertValueFromTo($item->units_name[$item->unit], 'шт') * $item->count, 3);
                     $push[4] = $new_count_weith;
                 } elseif ($item->units_name[$item->unit] == 'шт') {
                     $new_count_weith = round($item->count, 3);

@@ -13,7 +13,7 @@ class Comment extends Model
     use Documentable;
     use RussianShortDates;
 
-    protected $fillable = ['commentable_id', 'commentable_type', 'comment', 'author_id', 'system'];
+    protected $fillable = ['commentable_id', 'commentable_type', 'comment', 'author_id', 'system', 'count'];
 
     protected $with = ['files', 'author'];
 

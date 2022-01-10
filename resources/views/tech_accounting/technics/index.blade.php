@@ -3,7 +3,6 @@
 @section('title', 'Учет техники')
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style>
         [data-balloon],
         [data-balloon]:before,

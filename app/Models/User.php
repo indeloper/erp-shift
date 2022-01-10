@@ -2,28 +2,25 @@
 
 namespace App\Models;
 
+use App\Models\HumanResources\{Appointment, Brigade, JobCategory, ReportGroup, Timecard};
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\Notifications\NotificationsForUsers;
-use App\Models\Notifications\NotificationTypes;
-use App\Models\Notifications\UserDisabledNotifications;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use App\Models\Notifications\{NotificationsForUsers, NotificationTypes, UserDisabledNotifications};
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\Vacation\{
     ProjectResponsibleUserRedirectHistory,
     VacationsHistory
 };
-use App\Traits\{DevExtremeDataSourceLoadable, Messagable, Reviewable, TicketResponsibleUser};
+use App\Traits\{DevExtremeDataSourceLoadable, Appointmentable, Logable, Messagable, Reviewable, TicketResponsibleUser};
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 class User extends Authenticatable
 {
-    use Notifiable;
-    use Reviewable;
-    use Messagable;
-    use TicketResponsibleUser;
-    use DevExtremeDataSourceLoadable;
+    use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, Appointmentable, DevExtremeDataSourceLoadable;
 
     /**
      * The attributes that are mass assignable.
@@ -31,7 +28,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'group_id', 'department_id', 'company', 'is_deleted', 'status'
+        'name', 'email', 'password', 'group_id', 'department_id', 'company', 'is_deleted', 'status', 'job_category_id',
+        'brigade_id'
     ];
 
     protected $table = 'users';
@@ -79,7 +77,12 @@ class User extends Authenticatable
     protected $appends = [
         'full_name',
         'long_full_name',
-        'card_route'
+        'card_route',
+        'group_name',
+        'company_name',
+        'job_category_name',
+        'report_group_name',
+        'brigade_name',
     ];
 
     public static $companies = [
@@ -107,6 +110,19 @@ class User extends Authenticatable
         'mainPTO' => 22
     ];
 
+    const FILTERS = [
+        'name' => 'name', // ФИО
+        'birthday' => 'birthday', // День рождения
+        'email' => 'email', // Почта
+        'person_phone' => 'person_phone', // Личный телефон
+        'work_phone' => 'work_phone', // Рабочий телефон
+        'department_id' => 'department_id', // Департамент
+        'group_id' => 'group_id', // Должность
+        'company' => 'company', // Компания
+        'job_category_id' => 'job_category_id', // Должностная категория
+        'project_object_id' => 'project_object_id', // Объект
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -114,6 +130,55 @@ class User extends Authenticatable
         static::addGlobalScope('email', function (Builder $builder) {
             $builder->whereNotNull('email');
         });
+    }
+
+    /**
+     * Return users for given filter.
+     *
+     * @param Builder $query
+     * @param Request $request
+     * @return Builder
+     */
+    public function scopeFilter(Builder $query, Request $request)
+    {
+        $filters = $request->filters ?? [];
+        $values = $request->values ?? [];
+
+        foreach ($filters as $key => $filter) {
+            if (in_array($filter, self::FILTERS)) {
+                if ($filter == self::FILTERS['birthday']) {
+                    $explodedDate = explode('|', $values[$key]);
+                    $from = $explodedDate[0];
+                    $to = $explodedDate[1];
+                    if ($from) {
+                        $query->orWhere('birthday', '>=', $from);
+                    }
+                    if ($to) {
+                        $query->orWhere('birthday', '<=', $to);
+                    }
+                } else if ($filter == 'name') {
+                    $names = (array) $values[$key];
+                    foreach ($names as $name) {
+                        $query->orWhere('last_name', 'like', '%' . $name . '%')
+                            ->orWhere('first_name', 'like', '%' . $name . '%')
+                            ->orWhere('patronymic', 'like', '%' . $name . '%');
+                    }
+                } else if (in_array($filter, [self::FILTERS['person_phone'], self::FILTERS['work_phone']])) {
+                    $phones = (array) $values[$key];
+                    foreach ($phones as $phone) {
+                        $query->orWhere($filter, 'like', '%' . $phone . '%');
+                    }
+                } else if ($filter === self::FILTERS['project_object_id']) {
+                    $objectAppointmentUsers = Appointment::where('appointmentable_type', User::class)
+                        ->whereIn($filter, (array) $values[$key])->pluck('appointmentable_id')->toArray();
+                    $query->whereIn('id', $objectAppointmentUsers);
+                } else {
+                    $query->whereIn($filter,(array) $values[$key]);
+                }
+            }
+        }
+
+        return $query;
     }
 
     public function scopeForTechTickets(Builder $query, ?string $q, ?array $group_ids)
@@ -164,7 +229,12 @@ class User extends Authenticatable
         $query->whereIn('id', $user_ids);
 
         if ($q) {
-            $query->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $q . '%');
+            $query->where(function ($subquery) use ($q) {
+                $subquery->orWhere('last_name', 'like', '%' . $q . '%')
+                ->orWhere('first_name', 'like', '%' . $q . '%')
+                ->orWhere('patronymic', 'like', '%' . $q . '%')
+                ->orWhere(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $q . '%');
+            });
         }
 
         return $query;
@@ -193,8 +263,7 @@ class User extends Authenticatable
 
     static function getAllUsers()
     {
-        return User::where('users.is_deleted', 0)->select('users.id', 'users.first_name', 'users.last_name', 'users.patronymic', 'users.birthday', 'users.department_id as dep_id', 'users.group_id',
-            'users.company', 'users.email', 'users.person_phone', 'users.work_phone', 'users.status', 'users.is_deleted', 'departments.name as dep_name', 'groups.name as group_name', 'groups.id as group_id')
+        return User::where('users.is_deleted', 0)->select('users.*', 'users.department_id as dep_id', 'departments.name as dep_name', 'groups.name as group_name', 'groups.id as group_id')
             ->leftJoin('departments', 'departments.id', '=', 'users.department_id')
             ->leftJoin('groups', 'groups.id', '=', 'users.group_id');
     }
@@ -284,13 +353,51 @@ class User extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return trim($this->last_name . ' ' . mb_substr($this->first_name,0,1,'UTF-8').'.' . " " . mb_substr($this->patronymic,0,1,'UTF-8').'.');
+        return trim($this->last_name . ' ' . mb_substr($this->first_name,0,1,'UTF-8') . '.' . ($this->patronymic ? " " . mb_substr($this->patronymic,0,1,'UTF-8') . '.' : ''));
     }
 
 
     public function getLongFullNameAttribute()
     {
-        return trim($this->last_name . ' ' . $this->first_name . ' ' . $this->patronymic);
+        return trim($this->last_name . ' ' . $this->first_name . ($this->patronymic ? ' ' . $this->patronymic : ''));
+    }
+
+
+    public function getGroupNameAttribute()
+    {
+        return $this->group->name ?? 'Не указана';
+    }
+
+
+    public function getReportGroupNameAttribute()
+    {
+        return $this->jobCategory->reportGroup->name ?? 'Не указана';
+    }
+
+
+    public function getCompanyNameAttribute()
+    {
+        return self::$companies[$this->company] ?? 'Не указана';
+    }
+
+
+    /**
+     * Getter for job category name
+     * @return string
+     */
+    public function getJobCategoryNameAttribute()
+    {
+        return $this->jobCategory->name ?? 'Не указана';
+    }
+
+
+    /**
+     * Getter for brigade name
+     * @return string
+     */
+    public function getBrigadeNameAttribute()
+    {
+        return $this->brigade->name ?? 'Не указана';
     }
 
 
@@ -346,7 +453,7 @@ class User extends Authenticatable
     public function technic_tickets()
     {
         return $this->belongsToMany(OurTechnicTicket::class, 'our_technic_ticket_user', 'user_id', 'tic_id')
-            ->groupBy(['id'])
+            ->groupBy('id')
             ->withPivot(['type', 'deactivated_at'])
             ->as('ticket_responsible')
             ->withTimestamps();
@@ -376,6 +483,36 @@ class User extends Authenticatable
     }
 
 
+    /**
+     * Relation to user brigade
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function brigade()
+    {
+        return $this->belongsTo(Brigade::class, 'brigade_id', 'id');
+    }
+
+
+    /**
+     * Relation to user brigades where user is foreman
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function brigades()
+    {
+        return $this->hasMany(Brigade::class, 'foreman_id', 'id');
+    }
+
+
+    public function timeResponsibleProjects()
+    {
+        return $this->hasMany(Project::class, 'time_responsible_user_id', 'id');
+    }
+
+    public function timecards()
+    {
+        return $this->hasMany(Timecard::class);
+    }
+
     public function last_vacation()
     {
         if ($this->in_vacation) {
@@ -385,6 +522,33 @@ class User extends Authenticatable
 
         return $this->hasOne(VacationsHistory::class, 'vacation_user_id', 'id')->where('id', 0);
 
+    }
+
+    /**
+     * Relation to user job category
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function jobCategory()
+    {
+        return $this->hasOne(JobCategory::class, 'id', 'job_category_id');
+    }
+
+    /**
+     * Relation to user job category report group
+     * @return HasOneThrough
+     */
+    public function reportGroup(): HasOneThrough
+    {
+        return $this->hasOneThrough(ReportGroup::class, JobCategory::class, 'id', 'id', 'job_category_id', 'report_group_id');
+    }
+
+    /**
+     * Relation to user project roles
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function projectRoles()
+    {
+        return $this->hasMany(ProjectResponsibleUser::class, 'user_id', 'id');
     }
 
 
@@ -624,5 +788,24 @@ class User extends Authenticatable
         }
 
         return array_unique($notifications_cache);
+    }
+
+    /**
+     * Check if user is time responsible user on project
+     * or project responsible RP
+     * @param int $projectId
+     * @return bool
+     */
+    public function isProjectTimeResponsibleOrProjectResponsibleRP(int $projectId)
+    {
+        $project = Project::find($projectId);
+
+        if (($project->timeResponsible ? $project->timeResponsible->id : 0) === $this->id) {
+            return true;
+        } else if (ProjectResponsibleUser::where('project_id', $project ? $project->id : 0)->whereIn('role', [8, 9])->exists()) {
+            return true;
+        }
+
+        return false;
     }
 }

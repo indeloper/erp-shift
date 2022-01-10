@@ -135,9 +135,9 @@ class ManualMaterialController extends Controller
             $material->manual_reference_id = $request->manual_reference_id;
         }
 
+        if ($request->attrs) {
         $material->parametersClear()->whereIn('attr_id', array_keys($request->attrs))->forceDelete();
 
-        if ($request->attrs) {
             foreach ($request->attrs as $attr_id => $value) {
 
                 if ($value) {
@@ -197,12 +197,14 @@ class ManualMaterialController extends Controller
         $material->category_id = $id;
         $material->save();
 
-        foreach ($request->attrs as $attr_id => $value) {
-            if ($value) {
-                $material->parameters()->create([
-                    'attr_id' => $attr_id,
-                    'value' => $value
-                ]);
+        if ($request->attrs){
+            foreach ($request->attrs as $attr_id => $value) {
+                if ($value) {
+                    $material->parameters()->create([
+                        'attr_id' => $attr_id,
+                        'value' => $value
+                    ]);
+                }
             }
         }
 

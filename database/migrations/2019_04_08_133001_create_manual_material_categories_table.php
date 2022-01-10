@@ -19,7 +19,6 @@ class CreateManualMaterialCategoriesTable extends Migration
             $table->string('description')->nullable();
             $table->string('category_unit');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

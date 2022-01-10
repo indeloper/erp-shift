@@ -29,13 +29,17 @@ class CommentController extends Controller
         //update ticket
         $comment->update($request->all());
 
-        //detach old files
-        FileEntry::whereIn('id', $request->deleted_file_ids)->delete();
+        if ($request->deleted_file_ids) {
+            //detach old files
+            FileEntry::whereIn('id', $request->deleted_file_ids)->delete();
+        }
+        if ($request->file_ids) {
+            //attach new files
+            $documents = FileEntry::find($request->file_ids);
+            $comment->documents()->saveMany($documents);
+            $comment->refresh();
+        }
 
-        //attach new files
-        $documents = FileEntry::find($request->file_ids);
-        $comment->documents()->saveMany($documents);
-        $comment->refresh();
 
         DB::commit();
 

@@ -2,9 +2,19 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Models\HumanResources\Brigade;
+use App\Services\HumanResources\AppointmentService;
+use App\Services\HumanResources\TimecardService;
+use App\Http\Requests\ProjectRequest\{
+    BrigadeProjectAppointRequest,
+    BrigadeProjectDetachRequest,
+    ProjectTimeResponsibleUserRequest,
+    SelectResponsibleUserRequest,
+    UserProjectAppointRequest,
+    UserProjectDetachRequest,
+    ProjectRequest};
 use App\Events\ContractApproved;
 use App\Events\NotificationCreated;
-use App\Http\Requests\ProjectRequest\SelectResponsibleUserRequest;
 use App\Models\Contract\Contract;
 use App\Models\Contract\ContractRequest;
 use App\Models\Contractors\{Contractor, ContractorContactPhone, ContractorContact};
@@ -13,7 +23,6 @@ use App\Models\ProjectContractors;
 use App\Models\ProjectContractorsChangeHistory;
 use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\WorkVolume\WorkVolumeRequest;
-use App\Models\WorkVolume\WorkVolumeRequestFile;
 use App\Traits\TimeCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -27,7 +36,6 @@ use App\Models\Project;
 use App\Models\ExtraDocument;
 use App\Models\ProjectContact;
 use App\Models\ProjectDocument;
-use App\Models\ExtraCommercialOffer;
 use App\Models\ProjectResponsibleUser;
 use App\Models\Task;
 use App\Models\TaskFile;
@@ -39,7 +47,6 @@ use App\Models\CommercialOffer\CommercialOfferRequest;
 
 use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 
-use App\Http\Requests\ProjectRequest\ProjectRequest;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
 use Illuminate\Support\Facades\Session;
 use App\Traits\UserSearchByGroup;
@@ -173,6 +180,21 @@ class ProjectController extends Controller
         return redirect()->route('projects::card', $project->id);
     }
 
+    public function users(Project $project)
+    {
+        $projectTimeResp = $project->timeResponsible->id ?? -1;
+        $isTimeResponsible = auth()->id() == $projectTimeResp;
+        return view('human_resources.users_wrapper', [
+            'data' => [
+                'can_add_user' => $isTimeResponsible,
+                'project' => $project,
+                'project_users' => array_reverse($project->allUsers()->toArray()),
+                'project_brigades' => array_reverse($project->brigades->toArray()),
+                'directions' => Brigade::DIRECTIONS,
+                'source' => 'project',
+            ]
+        ]);
+    }
 
     public function card(Request $request, $id)
     {
@@ -579,14 +601,14 @@ class ProjectController extends Controller
                     array_unique(array_merge(['53'/*'16'*/, '52'/*'9'*/, '54'], $usersFromGroup))
                 );
             } else if ($role == 5) {
-                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([8, 19, 13]);
+                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([8, 19, 13, 58]);
 
                 if (in_array(Auth::user()->group_id, [13, 19])) {
                     $users->where('users.id', Auth::user()->id);
                 }
 
                 $users->whereIn('users.group_id',
-                    array_unique(array_merge(['8'/*'5'*/, '19'/*'33'*/, '13'], $usersFromGroup))
+                    array_unique(array_merge(['8'/*'5'*/, '19'/*'33'*/, '13', '58'], $usersFromGroup))
                 );
             } else if ($role == 6) {
                 $usersFromGroup = $this->findAllUsersAndReturnGroupIds([8, 27, 13]);
@@ -1386,5 +1408,135 @@ class ProjectController extends Controller
         return $projects->limit(20)->get()->map(function ($project) {
             return ['code' => $project->id . '', 'label' => $project->name];
         });
+    }
+
+    public function updateTimeResponsibleUser(ProjectTimeResponsibleUserRequest $request)
+    {
+        DB::beginTransaction();
+
+        if ($request->task_id) {
+            Task::find($request->task_id)->solve_n_notify();
+        }
+        $project = Project::findOrFail($request->project_id);
+        $project->update(['time_responsible_user_id' => $request->time_responsible_user_id]);
+
+        DB::commit();
+
+        if ($request->task_id) {
+            return redirect()->route('tasks::index');
+        }
+        return response()->json(true);
+    }
+
+    public function appointUser(UserProjectAppointRequest $request, Project $project)
+    {
+        DB::beginTransaction();
+
+        $user = User::findOrFail($request->user_id);
+
+        $project->users()->attach($user->id);
+        (new TimecardService())->fixUserTimecard($user);
+        $project->appointments()->get()->last()->generatePastAction();
+
+        DB::commit();
+
+        return [
+            'users' => array_reverse($project->allUsers()->toArray()),
+        ];
+    }
+
+
+    public function appointBrigade(BrigadeProjectAppointRequest $request, Project $project)
+    {
+        DB::beginTransaction();
+
+        $project->brigades()->attach($request->brigade_id);
+        $project->appointments()->get()->last()->generatePastAction();
+
+        DB::commit();
+
+        return [
+            'brigade' => Brigade::find($request->brigade_id)->load('users'),
+        ];
+    }
+
+
+    public function detachUser(UserProjectDetachRequest $request, Project $project)
+    {
+        DB::beginTransaction();
+
+        $appointment = $project->appointments()->where('appointmentable_id', $request->user_id)->where('appointmentable_type', User::class)->get()->last();
+        if ($appointment) {
+            $appointment->delete();
+        }
+
+        DB::commit();
+
+        return response()->json(true);
+    }
+
+    public function detachBrigade(BrigadeProjectDetachRequest $request, Project $project)
+    {
+        DB::beginTransaction();
+
+        $appointment = $project->appointments()->where('appointmentable_id', $request->brigade_id)->where('appointmentable_type', Brigade::class)->get()->last();
+        if ($appointment) {
+            $appointment->delete();
+        }
+
+        DB::commit();
+
+        return response()->json(true);
+    }
+
+
+    public function getProjectUsers(Request $request)
+    {
+        $project = Project::findOrFail($request->project_id)->load('users.jobCategory');
+
+        return ['project' => $project, 'users' => array_reverse($project->allUsers()->take(10)->toArray())];
+    }
+
+
+    /**
+     * Function return projects for given filter with special
+     * label that contains project name ond object name_tag property.
+     * Filter by project name and object address or name
+     * @param Request $request
+     * @return array
+     */
+    public function getProjectsForHumanAccounting(Request $request): array
+    {
+        $projects = Project::query();
+
+        if ($request->q) {
+            $projects = $projects->where(function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->q}%")
+                    ->orWhere('id', $request->q)
+                    ->orWhereHas('object', function ($object) use ($request) {
+                        $object->where('short_name', 'like', "%{$request->q}%")
+                            ->orWhere('name', 'like', "%{$request->q}%")
+                            ->orWhere('address', 'like', "%{$request->q}%");
+                    });
+            });
+        }
+        if ($request->daily === true) {
+            $projects->where('time_responsible_user_id', auth()->id());
+        }
+
+        $projects = $projects->take(10)->get();
+
+        if ($request->has('selected')) {
+            // If we need to get some special project
+            $project = Project::find($request->get('selected'));
+            if ($project) {
+                // Add it to the beginning
+                $projects->prepend($project);
+            }
+        }
+
+        return $projects->map(function ($project) {
+            return ['code' => $project->id . '', 'label' => $project->id . ') ' .$project->name_with_object];
+        })->toArray();
     }
 }

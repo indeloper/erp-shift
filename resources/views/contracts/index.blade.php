@@ -5,7 +5,6 @@
 @section('url', route('contracts::index'))
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style>
         @media (min-width: 4000px)  {
             .tooltip {
@@ -568,6 +567,15 @@
                         this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
                     }
                     this.resetCurrentPage();
+                },
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
                 },
                 clear_search_queries() {
                     this.search_queries.splice(0, this.search_queries.length);

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\{Comment,
     Manual\ManualMaterial,
     MatAcc\MaterialAccountingMaterialFile,
+    Project,
     Notification,
     Task,
     TechAcc\FuelTank\FuelTankOperation,
@@ -14,31 +15,42 @@ use App\Models\TechAcc\Vehicles\{
     VehicleCategories,
     VehicleCategoryCharacteristics
 };
+use App\Models\TechAcc\FuelTank\{FuelTank};
 use App\Models\TechAcc\OurTechnicTicketReport;
-use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\Defects\Defects;
-use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\{MaterialAccountingOperation, MaterialAccountingBase};
 use App\Models\Vacation\VacationsHistory;
-use App\Models\CommercialOffer\CommercialOffer;
-use App\Models\Manual\ManualNodeMaterials;
-use App\Models\Manual\ManualMaterialCategory;
+use App\Models\Manual\{ManualNodeMaterials, ManualMaterialCategory, ManualReference};
+use App\Models\WorkVolume\{WorkVolumeMaterial, WorkVolumeWork};
+use App\Models\CommercialOffer\{CommercialOffer, CommercialOfferMaterialSplit, CommercialOfferWork};
+use App\Models\HumanResources\{Appointment,
+    Brigade,
+    JobCategory,
+    JobCategoryTariff,
+    ReportGroup,
+    Timecard,
+    TimecardAddition,
+    TimecardDay,
+    TimecardRecord};
 
-use App\Models\WorkVolume\WorkVolumeMaterial;
-use App\Models\WorkVolume\WorkVolumeWork;
-
-use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
-use App\Models\CommercialOffer\CommercialOfferWork;
-
-use App\Models\MatAcc\MaterialAccountingBase;
-
-use App\Observers\{CommentObserver,
+use App\Observers\MaterialAccounting\MaterialAccountingBaseObserver;
+use App\Observers\{AppointmentObserver,
+    BrigadeObserver,
+    CommentObserver,
     DefectObserver,
+    JobCategoryObserver,
+    JobCategoryTariffObserver,
     Manual\ManualMaterialObserver,
     MaterialAccountingMaterialFileObserver,
     NotificationObserver,
     OurVehicleObserver,
+    ProjectObserver,
+    ReportGroupObserver,
     TaskObserver,
-    TechAcc\FuelTank\FuelTankOperationObserver,
+    TimecardAdditionObserver,
+    TimecardDayObserver,
+    TimecardObserver,
+    TimecardRecordObserver,
     UserObserver,
     VacationsHistoryObserver,
     VehicleCategoryCharacteristicObserver,
@@ -46,19 +58,11 @@ use App\Observers\{CommentObserver,
     CommercialOffersObserver,
     MaterialAccountingOperationObserver};
 
-use App\Observers\TechAcc\FuelTank\FuelTankObserver;
+use App\Observers\TechAcc\FuelTank\{FuelTankOperationObserver, FuelTankObserver};
+use App\Observers\Manual\{ManualNodeMaterialsObserver, ManualMaterialCategoryObserver, ManualReferenceObserver};
+use App\Observers\WorkVolumes\{WorkVolumeMaterialObserver, WorkVolumeWorkObserver};
+use App\Observers\CommercialOffers\{CommercialOfferMaterialSplitObserver, CommercialOfferWorkObserver};
 use App\Observers\TechAcc\OurTechnicTicketReportObserver;
-
-use App\Observers\Manual\ManualNodeMaterialsObserver;
-use App\Observers\Manual\ManualMaterialCategoryObserver;
-
-use App\Observers\WorkVolumes\WorkVolumeMaterialObserver;
-use App\Observers\WorkVolumes\WorkVolumeWorkObserver;
-
-use App\Observers\CommercialOffers\CommercialOfferMaterialSplitObserver;
-use App\Observers\CommercialOffers\CommercialOfferWorkObserver;
-
-use App\Observers\MaterialAccounting\MaterialAccountingBaseObserver;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -89,25 +93,39 @@ class ObserversServiceProvider extends ServiceProvider
 
         ManualNodeMaterials::observe(ManualNodeMaterialsObserver::class);
         ManualMaterialCategory::observe(ManualMaterialCategoryObserver::class);
+        ManualReference::observe(ManualReferenceObserver::class);
 
         WorkVolumeMaterial::observe(WorkVolumeMaterialObserver::class);
         WorkVolumeWork::observe(WorkVolumeWorkObserver::class);
 
+        CommercialOffer::observe(CommercialOffersObserver::class);
         CommercialOfferMaterialSplit::observe(CommercialOfferMaterialSplitObserver::class);
         CommercialOfferWork::observe(CommercialOfferWorkObserver::class);
 
-
         MaterialAccountingBase::observe(MaterialAccountingBaseObserver::class);
+        MaterialAccountingOperation::observe(MaterialAccountingOperationObserver::class);
+
         VehicleCategories::observe(VehicleCategoryObserver::class);
         VehicleCategoryCharacteristics::observe(VehicleCategoryCharacteristicObserver::class);
         OurVehicles::observe(OurVehicleObserver::class);
-        CommercialOffer::observe(CommercialOffersObserver::class);
+
+        FuelTank::observe(FuelTankObserver::class);
+        FuelTankOperation::observe(FuelTankOperationObserver::class);
+
         Defects::observe(DefectObserver::class);
         Comment::observe(CommentObserver::class);
         OurTechnicTicketReport::observe(OurTechnicTicketReportObserver::class);
-        FuelTank::observe(FuelTankObserver::class);
-        FuelTankOperation::observe(FuelTankOperationObserver::class);
-        MaterialAccountingOperation::observe(MaterialAccountingOperationObserver::class);
+
+        JobCategory::observe(JobCategoryObserver::class);
+        JobCategoryTariff::observe(JobCategoryTariffObserver::class);
+        ReportGroup::observe(ReportGroupObserver::class);
+        Project::observe(ProjectObserver::class);
+        Appointment::observe(AppointmentObserver::class);
+        Brigade::observe(BrigadeObserver::class);
+        Timecard::observe(TimecardObserver::class);
+        TimecardAddition::observe(TimecardAdditionObserver::class);
+        TimecardDay::observe(TimecardDayObserver::class);
+        TimecardRecord::observe(TimecardRecordObserver::class);
         MaterialAccountingMaterialFile::observe(MaterialAccountingMaterialFileObserver::class);
         ManualMaterial::observe(ManualMaterialObserver::class);
     }

@@ -78,6 +78,8 @@
                             </div>
                         </div>
                     </div>
+
+                @endif
                     <div class="card tasks-sidebar__item">
                     <div class="card-body">
                         <div class="accordions" id="links-accordion">
@@ -92,14 +94,13 @@
                                 </div>
                                 <div id="collapse1" class="card-collapse collapse">
                                     <div class="card-body tasks-sidebar__body-links">
-                                        <a class="tasks-sidebar__help-link" target="_blank" href="{{ route('contractors::tasks', $task->contractor_id) }}">История контрагента</a><br>
+                                        <a class="tasks-sidebar__help-link" target="_blank" href="{{ $operation_url ?? '' }}">Операция</a><br>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                @endif
             </div>
             <div class="col-md-8">
                 <div class="card">

@@ -3,7 +3,6 @@
 @section('title', 'Учет техники')
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style>
         #th-select, .th-option  {
             color: #9A9A9A;
@@ -93,7 +92,7 @@
                             ></el-option>
                         </el-select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-10__mobile">
                         <label for="count">Значение</label>
                         <el-select v-if="filter_attribute === 'start_location_id'"
                                    v-model="filter_value"

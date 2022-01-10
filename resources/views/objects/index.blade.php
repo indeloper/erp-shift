@@ -5,7 +5,6 @@
 @section('url', route('objects::index'))
 
  @section('css_top')
-     <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
      <style>
          [data-balloon],
          [data-balloon]:before,
@@ -37,7 +36,7 @@
                             <th>Адрес</th>
                             <th>Сокращенное наименование</th>
                             <th>Кадастровый номер</th>
-                            <th class="text-right">Действия</th>
+                            <th class="text-right"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,8 +44,8 @@
                         <tr style="cursor:default">
                             <td  data-label="ID">{{ $object->id }}</td>
                             <td  data-label="Название">{{ $object->name }}</td>
-                            <td  data-label="Адрес">{{ $object->address }}</td>
-                            <td  data-label="Сокращенное наименование">
+                            <td data-label="Адрес">{{ $object->address }}</td>
+                            <td data-label="Сокращенное наименование">
                                 @if($object->short_name)
                                     {{ $object->short_name }}
                                 @else
@@ -56,23 +55,23 @@
                                     </button>
                                 @endif
                             </td>
-                            <td  data-label="Кадастровый номер">{{ $object->cadastral_number }}</td>
-                            <td  data-label="" class="td-actions text-right actions">
+                            <td data-label="Кадастровый номер">{{ $object->cadastral_number }}</td>
+                            <td data-label="" class="td-actions text-right actions text-nowrap">
                                 @can('objects_edit')
-                                <button class="btn-success btn-link btn-xs padding-actions mn-0 btn edit-button" onclick="edit_object({{ $object }})"
-                                        data-toggle="modal" data-target="#edit-object"
-                                        data-balloon-pos="up" aria-label="Редактировать"
-                                >
-                                    <i class="fa fa-edit"></i>
+                                <button class="btn-success btn-link btn-xs padding-actions mn-0 btn edit-button"
+                                        onclick="edit_object({{ $object }})" data-toggle="modal"
+                                        data-target="#edit-object" data-balloon-pos="up" aria-label="Редактировать"
+
+                                ><i class="fa fa-edit"></i>
                                 </button>
                                 @endcan
                                 @if(!Auth()->user()->hasLimitMode(0))
-                                    <button class="btn-info btn-link btn-xs padding-actions mn-0 btn"
-                                            data-toggle="modal" data-target="#view-object{{ $object->id }}"
-                                            data-balloon-pos="up" aria-label="Просмотр"
-                                    >
-                                        <i class="fa fa-eye"></i>
-                                    </button>
+                                <button  class="btn-info btn-link btn-xs padding-actions mn-0 btn"
+                                        data-toggle="modal" data-target="#view-object{{ $object->id }}"
+                                        data-balloon-pos="up" aria-label="Просмотр"
+
+                                ><i class="fa fa-eye"></i>
+                                </button>
                                 @endif
                             </td>
                         </tr>
@@ -201,7 +200,7 @@
 
 <!--Модалка редактировать-->
 @can('objects_edit')
-<div class="modal fade bd-example-modal-lg show" id="edit-object" tabindex="-1" role="dialog" aria-labelledby="modal-search" aria-hidden="true">
+<div class="modal fade bd-example-modal-lg show" id="edit-object" role="dialog" aria-labelledby="modal-search" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
        <div class="modal-content">
            <div class="modal-header">
@@ -249,31 +248,22 @@
                            </div>
                            <div class="form-group">
                                <div class="row">
-                                    <label class="col-sm-3 col-form-label">Кадастровый номер</label>
-                                    <div class="col-sm-9">
-                                        <input class="form-control cadastral_number" pattern="[0-9]{2}:[0-9]{2}:[0-9]{6,7}:[0-9]{1,5}" id="update_cadastral_number" type="text" name="cadastral_number" minlength="14" maxlength="19">
-                                    </div>
-                               </div>
-                           </div>
-                           <div class="form-group">
-                               <div class="row">
-                                   <label class="col-sm-3 col-form-label">Тип объекта<star class="star">*</star></label>
+                                   <label class="col-sm-3 col-form-label">Кадастровый номер</label>
                                    <div class="col-sm-9">
-                                       <select id="material_accounting_type" name="material_accounting_type" style="width:100%;">
-                                       </select>
+                                       <input class="form-control cadastral_number" pattern="[0-9]{2}:[0-9]{2}:[0-9]{6,7}:[0-9]{1,5}" id="update_cadastral_number" type="text" name="cadastral_number" minlength="14" maxlength="19">
                                    </div>
                                </div>
                            </div>
                            @if(Auth::user()->isProjectManager() or Auth::user()->isInGroup(43)/*8*/)
-                           <div class="form-group" id="">
-                               <div class="row">
-                                   <label class="col-sm-3 col-form-label">Отв. за мат. учет<star class="star">*</star></label>
-                                   <div class="col-sm-9">
-                                       <select id="resp_users_role_one" name="resp_user_role_one[]" multiple style="width:100%;">
-                                       </select>
+                               <div class="form-group" id="">
+                                   <div class="row">
+                                       <label class="col-sm-3 col-form-label">Отв. за мат. учет<star class="star">*</star></label>
+                                       <div class="col-sm-9">
+                                           <select id="resp_users_role_one" name="resp_user_role_one[]" multiple style="width:100%;">
+                                           </select>
+                                       </div>
                                    </div>
                                </div>
-                           </div>
                            @endif
                          </form>
                      </div>
@@ -287,13 +277,11 @@
     </div>
 </div>
 @endcan
-<!--Модалка просмотра-->
-
 @endsection
 
 @section('js_footer')
 <script src="//api-maps.yandex.ru/2.1/?lang=ru_RU&load=SuggestView&onload=onLoad"></script>
-<script type='text/javascript' src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script>
+{{--<script type='text/javascript' src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script>--}}
 <script>
     // $('.cadastral_number').inputmask('Regex', {
     //     regex: "[0-9]{2}:[0-9]{2}:[0-9]{6,7}:[0-9]{1,5}"

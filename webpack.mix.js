@@ -83,6 +83,7 @@ mix.sass('resources/assets/css/custom/projects.scss', 'public/css');
 mix.copy('resources/assets/js/video.js', 'public/js/video.js');
 mix.copy('resources/assets/js/validation-rules.js', 'public/js');
 mix.copy('resources/assets/js/common.js', 'public/js/common.js');
+mix.copy('resources/assets/js/velocity.min.js', 'public/js/velocity.min.js');
 mix.copy('resources/assets/js/plugins/jquery-nicescroll.min.js', 'public/js/plugins/jquery-nicescroll.min.js');
 mix.copy('resources/assets/js/plugins/jquery.steps.min.js', 'public/js/plugins/jquery.steps.min.js');
 mix.copy('resources/assets/js/plugins/jquery-ui.min.js', 'public/js/plugins/jquery-ui.min.js');
@@ -149,17 +150,14 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('resources/assets/js/plugins/emojione.js', 'public/js/plugins/');
  mix.copy('resources/assets/css/emojione.css', 'public/css/');
 
-//Devextreme
-mix.copy('node_modules/devextreme/dist/css/dx.common.css', 'public/css/devextreme/dx.common.css');
-mix.copy('node_modules/devextreme/dist/css/dx.material.blue.light.compact.css', 'public/css/devextreme/dx.material.blue.light.compact.css');
-mix.copyDirectory('node_modules/devextreme/dist/css/fonts', 'public/css/devextreme/fonts');
-mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextreme/icons');
+ //Devextreme
+ mix.copy('node_modules/devextreme/dist/css/dx.common.css', 'public/css/devextreme/dx.common.css');
+ mix.copy('node_modules/devextreme/dist/css/dx.material.blue.light.compact.css', 'public/css/devextreme/dx.material.blue.light.compact.css');
+ mix.copyDirectory('node_modules/devextreme/dist/css/fonts', 'public/css/devextreme/fonts');
+ mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextreme/icons');
+ mix.copy('node_modules/devextreme/dist/js/dx.all.js', 'public/js/devextreme/dx.all.js');
+ mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
+  //Q3W
+ mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
 
-mix.copy('node_modules/devextreme/dist/js/dx.all.js', 'public/js/devextreme/dx.all.js');
-mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
-
-//Q3W
-mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
-
-
-mix.version();
+ mix.version();

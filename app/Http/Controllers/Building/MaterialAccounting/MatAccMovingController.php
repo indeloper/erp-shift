@@ -10,6 +10,7 @@ use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
 use App\Models\ProjectObject;
 use App\Models\User;
 use App\Models\Notification;
+use App\Services\MaterialAccounting\MaterialAccountingService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -74,8 +75,8 @@ class MatAccMovingController extends Controller
 
         $conflicts = false;
 
-        foreach ($operation->materials->groupBy('manual_material_id') as $material_group) {
-            $conflicts = $material_group->where('type', 2)->sum('count') != $material_group->where('type', 1)->sum('count');
+        foreach ($operation->allMaterials->whereIn('type', [3, 7]) as $plan_mat) {
+            $conflicts = $plan_mat->sameMaterials()->where('type', 2)->sum('count') != $plan_mat->sameMaterials()->where('type', 1)->sum('count');
         }
 
         return view('building.material_accounting.moving.confirm', [
@@ -128,7 +129,7 @@ class MatAccMovingController extends Controller
             'operation' => $operation,
             'units' => MaterialAccountingOperationMaterials::$main_units,
             // operation author can't do anything in controlled operation
-            'edit_restrict' => (Auth::id() == $operation->author_id || Auth::id() == $operation->responsible_RP) ? false : ($operation->status == 8) ? true : false,
+            'edit_restrict' => in_array(Auth::id(), [$operation->responsible_RP, $operation->author_id]) ? false : $operation->status == 8,
         ]);
     }
 
@@ -252,7 +253,13 @@ class MatAccMovingController extends Controller
 
         $from_responsible_user->saveOrFail();
 
-        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 3);
+        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 7);
+
+        if ($result !== true) {
+            return response()->json(['message' => $result]);
+        }
+
+        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 6);
 
         if ($result !== true) {
             return response()->json(['message' => $result]);
@@ -303,6 +310,7 @@ class MatAccMovingController extends Controller
             $operation->status = 1;
         } else {
             $operation->status = 4;
+            $operation->author_id = $operation->responsible_RP ?? Auth::user()->id;
         }
 
         if ($operation->wasDraftAndUserCanWorkOnlyWithDraftsAndNoConflictInOperation($oldStatus, $is_conflict)) {
@@ -337,12 +345,37 @@ class MatAccMovingController extends Controller
 
         $from_responsible_user->saveOrFail();
 
-        MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->where('type', 3)->delete();
+        MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->whereIn('type', [3, 6, 7])->delete();
 
-        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 3);
+        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 7);
 
         if ($result !== true) {
             return response()->json(['message' => $result]);
+        }
+
+        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 6);
+
+        if ($result !== true) {
+            return response()->json(['message' => $result]);
+        }
+
+        $part_mats = MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->whereIn('type', [8, 9])->get();
+
+        foreach ($part_mats as $part_mat) {
+            $plan_q = $part_mat->sameMaterials()->whereIn('type', [3, 7]);
+            if ($plan_q->doesntExist()) {
+                if ($plan_q->withTrashed()->exists()) {
+                    $plan_mat = $plan_q->first();
+                    $plan_mat->restore();
+                    $plan_mat->count = 0;
+                    $plan_mat->save();
+                } else {
+                    $plan_mat = $part_mat->replicate();
+                    $plan_mat->count = 0;
+                    $plan_mat->type = 7;
+                    $plan_mat->save();
+                }
+            }
         }
 
         $operation->generateOperationConflictNotifications();
@@ -388,18 +421,8 @@ class MatAccMovingController extends Controller
         DB::beginTransaction();
 
         $operation = MaterialAccountingOperation::where('type', 4)->where('status', 2)->findOrFail($operation_id);
-        $operation->checkClosed();
 
-        $operation->status = 3;
-        $operation->comment_author = $request->comment;
-        $operation->is_close = 1;
-
-        $operation->saveOrFail();
-
-        $operation->generateOperationAcceptNotifications();
-
-        // type 4 only for moving now
-        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 4, 'inactivity');
+        $result = (new MaterialAccountingService())->acceptOperation($operation);
 
         if ($result !== true) {
             return response()->json(['message' => $result]);

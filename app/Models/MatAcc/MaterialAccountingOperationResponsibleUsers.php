@@ -31,6 +31,7 @@ class MaterialAccountingOperationResponsibleUsers extends Model
         static::created(function($user) {
             event((new MaterialAccountingOperationResponsibleUsersEvents)->respUserCreated($user));
         });
+
     }
 
 

@@ -90,6 +90,12 @@
         padding-right: 0 !important;
     }
 
+    [data-balloon],
+    [data-balloon]:before,
+    [data-balloon]:after {
+        z-index: 9999;
+    }
+
     @media (max-width: 768px) {
         .floating-calculator {
             text-align: center !important;
@@ -136,6 +142,7 @@
 @endsection
 
 @section('content')
+@include('building.material_accounting.modules.material_notes')
 <div class="row" style="margin-bottom:80px">
     <div class="col-md-12">
         <div class="nav-container" style="margin:0 0 10px 15px">
@@ -417,14 +424,19 @@
                     <template>
                         <tr v-for="(base, key) in bases">
                             <td style="width: 35%" data-label="Объект">@{{ base.object.name_tag }}</td>
-                            <td data-label="Материал"><b>@{{ base.material_name }}</b></td>
+                            <td data-label="Материал"><b>@{{ getBaseName(base) }}</b></td>
                             <td data-label="Количество">
                                 <b>@{{ base.round_count }}</b> @{{ base.unit }}<br>
                                 <span v-for="(item, item_key) in base.convert_params" class="amount-materials">
                                     <b>@{{ calculateConvertedAmount(base.round_count, item.value) }}</b> @{{ item.unit }}<br>
                                 </span>
                             </td>
-                            <td data-label="Действия" class="actions-dropdown actions-dropdown-desk">
+                            <td data-label="Операции" class="actions-dropdown actions-dropdown-desk">
+                                <button type="button" class="btn btn-link btn-xs pd-0" :class="base.comments.length > 0 ? ' btn-danger' : ' btn-secondary'"
+                                        data-balloon-pos="up" aria-label="Примечания" @click="() => { materialNotes().changeBase(base, false, false); hideTooltips(); }" @mouseleave="hideTooltips"
+                                        data-toggle="modal" data-target="#material-notes"
+                                    ><i class="fa fa-info-circle"></i>
+                                </button>
                                 <a href="#" data-toggle="dropdown" class="btn dropdown-toggle btn-link btn-xs btn-space" data-original-title="Запланировать операцию">
                                     <i class="fa fa-bars"></i>
                                 </a>
@@ -433,19 +445,13 @@
                                     <a class="dropdown-item" href="{{ route('building::mat_acc::write_off::create') }}">Списание</a>
                                     <a class="dropdown-item" href="{{ route('building::mat_acc::transformation::create') }}">Преобразование</a>
                                     <a class="dropdown-item" href="{{ route('building::mat_acc::moving::create') }}">Перемещение</a>
-{{--                                    @canany(['mat_acc_base_move_to_new', 'mat_acc_base_move_to_used'])--}}
-
-{{--                                        @can('mat_acc_base_move_to_new')--}}
-                                            <template v-if="base.used === true">
-                                                <button class="dropdown-item" @click.stop="moveToNew(base)">Отметить как новый</button>
-                                            </template>
-{{--                                        @endcan--}}
-{{--                                        @can('mat_acc_base_move_to_used')--}}
-                                            <template v-if="base.used === false">
-                                                <button class="dropdown-item" @click.stop="moveToUsed(base)">Отметить как Б/У</button>
-                                            </template>
-{{--                                        @endcan--}}
-{{--                                    @endcanany--}}
+                                    <template v-if="base.used === true">
+                                        <button class="dropdown-item" @click.stop="moveToNew(base)">Отметить как новый</button>
+                                    </template>
+                                    <template v-if="base.used === false">
+                                        <button class="dropdown-item" @click.stop="moveToUsed(base)">Отметить как Б/У</button>
+                                    </template>
+                                    <a class="dropdown-item" @click.stop="splitBase(base)">Управление примечаниями</a>
                                 </ul>
                             </td>
                             <td>
@@ -486,6 +492,113 @@
         </div>
     </div>
 </div>
+<div class="modal fade bd-example-modal-lg show" id="baseSplits" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" v-if="base_to_split !== null">
+            <form id="split_form" action="{{ route('building::mat_acc::split_base') }}" method="post">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Управление примечаниями</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-20 mt-20">
+                            <label for="">Материал</label>
+                            <input readonly class="form-control" :value="base_to_split.material_name">
+                            <input type="hidden" :value="base_to_split.id" name="comment_id">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-20 mt-20">
+                            <label for="">Доступное количество (@{{ curr_unit }})</label>
+                            <input type="number" readonly :value="converted_count" :precision="3" :step="0.001" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9 mb-20 mt-20">
+                            <label for="">@{{ split_mode === 'unite' ? 'Количество для присоединения' : 'Количество для отделения' }}</label>
+                            <input type="number" v-model="count" name="count" :precision="3" :step="0.001" :max="converted_count" min="0.001" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-20 mt-20">
+                            <label for="">Ед. измерения</label>
+                            <select class="form-control" name="unit" v-model="curr_unit">
+                                <option>@{{ base_to_split.unit }}</option>
+                                <option v-for="unit in base_to_split.convert_params">@{{ unit.unit }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9 mt-20">
+                            <div class="form-check form-check-radio">
+                                <label class="form-check-label" style="text-transform:none">
+                                    <input class="form-check-input" type="radio" name="mode" value="split" v-model="split_mode" checked>
+                                    <span class="form-check-sign"></span>
+                                    Отделить в новую позицию
+                                </label>
+                                <label class="form-check-label" style="text-transform:none">
+                                    <input class="form-check-input" type="radio" name="mode" value="unite" v-model="split_mode">
+                                    <span class="form-check-sign"></span>
+                                    Присоединить к существующей позиции
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="split_mode === 'split'">
+                        <h6 class="text-center">Примечания</h6>
+                            <p>После отделения, данный материал, в выбранном вами количестве и с указанными примечаниями, будет отображаться отдельной строкой.</p>
+                        <div class="row align-items-center" v-for="(row, index) in comments_count">
+                            <div class="col-auto">
+                                @{{ index + 1 }}.
+                            </div>
+                            <div class="col my-2 px-0">
+                                <input name="comments[]" type="text" class="form-control" v-model="comments_count[index]">
+                            </div>
+                            <button type="button" data-balloon-pos="up"
+                                    aria-label="Удалить"
+                                    class="btn btn-link btn-xs btn-space btn-danger mn-0"
+                                    @click="comments_count.splice(index, 1)"
+                            ><i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-right">
+                                <button type="button" class="btn btn-sm btn-round btn-success" @click="comments_count.push('')">
+                                    <i class="el-icon-plus"></i> Добавить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="row">
+                            <div class="col-md-12 mb-20">
+                                <label for="">Выберите материал для объединения</label>
+                                <select class="form-control" name="mat_to_unite" v-model="unite_to_id" :required="split_mode === 'unite'">
+                                    <option v-for="sibling in base_to_split.siblings" :value="sibling.id">@{{ getBaseName(sibling) }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-20">
+                                <p v-html="result_comment"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center mt-30">
+                            <div class="row justify-content-center mb-2">
+                                <button type="submit" form="split_form" class="btn btn-info">@{{ split_mode === 'unite' ? 'Присоединить' : 'Отделить' }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <form id="print_report" target="_blank" multisumit="true" method="post" action="{{route('building::mat_acc::report::print')}}">
     @csrf
     <input id="print_data" type="hidden" name="results">
@@ -565,7 +678,7 @@
                                         <el-select v-model="base_id" id="material-select" :class="v.classes" disabled>
                                             <el-option
                                                 :key="base.id"
-                                                :label="base.material_name"
+                                                :label="getBaseName(base)"
                                                 :value="base.id">
                                             </el-option>
                                         </el-select>
@@ -626,6 +739,12 @@
         maxDate: moment(),
         date: null
     });
+    //request cancel (to avoid queue mistakes
+    let filter_request = null;
+    function clearFilterRequest() {
+        filter_request.cancel();
+        filter_request = null;
+    }
 
     $(document).ready(function() {
         $('.js-example-basic-single').select2({
@@ -670,7 +789,7 @@
                 if (this.etalon && val !== this.etalon.result_name) {
                     this.etalon = null;
                     this.slider_key += 1;
-                    bases.backdoor += 1;
+                    VueBases.backdoor += 1;
                 }
             }
         },
@@ -701,7 +820,7 @@
             });
 
             $( "#search" ).catcomplete({
-                delay: 0,
+                delay: 1000,
                 inLength: 0,
                 autoFocus: true,
                 source: (request, response) => {
@@ -833,7 +952,7 @@
                     this.globalSearch = item.result_name;
                     this.etalon = item;
                     this.slider_key += 1;
-                    bases.backdoor += 1;
+                    VueBases.backdoor += 1;
                     const etalonFilterItems = this.filter_items.filter(el => el.parameter_id === item.type_id && el.value_id.reference_id === item.result_id);
                     if (etalonFilterItems.length === 0) {
                         this.filter_items.push({
@@ -922,17 +1041,22 @@
                 date = date === 'null' ? null : date;
                 var is_free = '{{Request::get('is_free')}}';
                 var is_using = '{{Request::get('is_using')}}';
-                if(bases) {
-                    date = bases.search_date;
-                    is_free = bases.is_free;
-                    is_using = bases.is_using;
+                if(VueBases) {
+                    date = VueBases.search_date;
+                    is_free = VueBases.is_free;
+                    is_using = VueBases.is_using;
                 }
+                if (filter_request) clearFilterRequest();
+                const axiosSource = axios.CancelToken.source();
+                filter_request = axiosSource;
                 axios.post('{{ route('building::mat_acc::report_card::filter_base') }}', {
                     filter: filter,
                     date: date,
                     is_free: is_free,
-                    is_using: is_using
+                    is_using: is_using,},{
+                    cancelToken: axiosSource.token,
                 }).then(function (response) {
+                    filter_request = null;
                     eventHub.$emit('addEvent', '');
                     that.need_attributes.map(el => el.value = '');
                     that.observer_key += 1;
@@ -942,7 +1066,13 @@
                         }
                     });
                     window.history.pushState("", "", "?" + that.compactFilters());
-                    bases.bases = response.data['result'];
+                    VueBases.bases = response.data['result'];
+                }).catch(function(err) {
+                    if (axios.isCancel(err)) {
+                        console.log("Request cancelled");
+                    } else {
+                        console.log(err);
+                    }
                 })
             },
             compactFilters: () => {
@@ -958,7 +1088,7 @@
                         filter_values.push(btoa(encodeURIComponent(JSON.stringify(filter_item))));
                     }
                 });
-                filter_url = 'parameter_id=' + filter_params.toString() + '&value_ids=' + filter_values.toString() + '&date=' + bases.search_date;
+                filter_url = 'parameter_id=' + filter_params.toString() + '&value_ids=' + filter_values.toString() + '&date=' + VueBases.search_date;
                 return filter_url;
             },
             changeFilterValues: function () {
@@ -1063,7 +1193,7 @@
                 let that = this;
                 that.need_attributes = [];
                 axios.post('{{ route('building::materials::category::get_need_attrs') }}', { category_id: that.category_id }).then(function (response) {
-                    that.attrs_all = response.data;
+                    that.attrs_all = response.data.attrs;
                     that.attrs_all = that.attrs_all.reverse();
 
                     that.attrs_all.forEach(function(attribute) {
@@ -1352,7 +1482,7 @@
 
     var eventHub = new Vue();
 
-    var bases = new Vue({
+    var VueBases = new Vue({
         el: '#bases',
         data: {
             bases: {!! $bases !!},
@@ -1381,12 +1511,12 @@
                 defer.done(function(){
                     // This is executed only after every ajax request has been completed
                     filter.filter();
-                    bases.untilPageEnd = document.body.scrollHeight - window.pageYOffset - document.body.clientHeight;
+                    VueBases.untilPageEnd = document.body.scrollHeight - window.pageYOffset - document.body.clientHeight;
                 });
             }
 
             $(window).on('scroll', function(){
-                bases.untilPageEnd = document.body.scrollHeight - window.pageYOffset - document.body.clientHeight;
+                VueBases.untilPageEnd = document.body.scrollHeight - window.pageYOffset - document.body.clientHeight;
                 $('.tooltip').remove();
             });
 
@@ -1397,22 +1527,13 @@
         },
         watch: {
             search_date: function (val) {
-                axios.post('{{ route('building::mat_acc::report_card::filter_base') }}', {date: bases.search_date, filter: filter.filter_items, is_free: bases.is_free, is_using: bases.is_using}).then(function (response) {
-                    bases.bases = response.data['result'];
-                    window.history.pushState("", "", "?" + filter.compactFilters());
-                })
+                this.filter_base(val);
             },
             is_free: function (val) {
-                axios.post('{{ route('building::mat_acc::report_card::filter_base') }}', {date: bases.search_date, filter: filter.filter_items, is_free: bases.is_free, is_using: bases.is_using}).then(function (response) {
-                    window.history.pushState("", "", "?" + filter.compactFilters());
-                    bases.bases = response.data['result'];
-                })
+                this.filter_base(val);
             },
             is_using: function (val) {
-                axios.post('{{ route('building::mat_acc::report_card::filter_base') }}', {date: bases.search_date, filter: filter.filter_items, is_free: bases.is_free, is_using: bases.is_using}).then(function (response) {
-                    window.history.pushState("", "", "?" + filter.compactFilters());
-                    bases.bases = response.data['result'];
-                })
+                this.filter_base(val);
             },
             sum_partial: function (val) {
                 $('#sum-partial').html(this.stringifyUnitTable(val));
@@ -1427,30 +1548,49 @@
             }
         },
         methods: {
-            // convert: function(e, mat) {
-            //     var selected_param_id = $(e).val();
-            //     var base_id = $(e).attr('id');
-            //     if (selected_param_id === '0') {
-            //         bases.bases[base_id].round_count = parseFloat(bases.bases[base_id].count).toFixed(3);
-            //     } else {
-            //         var material = bases.bases[base_id].material;
-            //         var selected_param = material.convertation_parameters.filter(param => {
-            //             return param.id == selected_param_id
-            //         });
-            //         bases.bases[base_id].round_count = parseFloat(bases.bases[base_id].count * selected_param[0].value).toFixed(3);
-            //     }
-            // },
+            filter_base: function (val) {
+                if (filter_request) clearFilterRequest();
+                const axiosSource = axios.CancelToken.source();
+                filter_request = axiosSource;
+                axios.post('{{ route('building::mat_acc::report_card::filter_base') }}',
+                    {date: VueBases.search_date, filter: filter.filter_items, is_free: VueBases.is_free, is_using: VueBases.is_using},
+                    {cancelToken: axiosSource.token})
+                    .then(function (response) {
+                        filter_request = null;
+                        window.history.pushState("", "", "?" + filter.compactFilters());
+                        VueBases.bases = response.data['result'];
+                }).catch(function(err) {
+                    if (axios.isCancel(err)) {
+                        console.log("Request cancelled");
+                    } else {
+                        console.log(err);
+                    }
+                })
+            },
+            getBaseName: function (base) {
+                let comment_name = '';
+
+                let comments_count = base.comments ? base.comments.length : 0;
+                if (comments_count > 0) {
+                    base.comments.forEach(comment => {
+                        comment_name += comment.comment + ', ';
+                    });
+                    comment_name = comment_name.substring(0, comment_name.length - 2);
+
+                    if (comment_name.length > 23) {
+                        comment_name = comment_name.substring(0, 23) + '...';
+                    }
+                    comment_name = ' (' + comment_name.trimEnd() + ')'
+                }
+                return base.material_name + comment_name;
+            },
             print_rep: function() {
-                var data = ('{' + '"object_ids":[' + bases.bases.map(function(base) { return base.object_id}) +
-                    '],"material_ids":[' + bases.bases.map(function(base) { return base.material.id}) +
-                    '],"used":[' + bases.bases.map(function(base) { return base.used}) +
-                    '],"material_unit":[' + bases.bases.map(function(base) { return '"' + base.unit + '"'}) +
-                    '],"count":[' + bases.bases.map(function(base) { return base.count}) + '],' +
-                    '"filter_params":[' + filter.filter_items.map(function(badge) { return badge.parameter_id}) +
-                    '],"filter_values":[' + filter.filter_items.map(function(badge) { return JSON.stringify(badge.parameter_text + ": " + badge.value)}) + ']' +
-                    ',"date":"' + bases.search_date +
-                    '","is_using":"' + bases.is_using +
-                    '","is_free":"' + bases.is_free + '"}'
+                let filters = _.cloneDeep(filter.filter_items);
+
+                var data = ('{' + '"filter":' + JSON.stringify(filters) +
+                    ',"date":"' + VueBases.search_date +
+                    '","is_using":"' + VueBases.is_using +
+                    '","is_free":"' + VueBases.is_free + '"}'
                 );
 
                 // console.log(data);
@@ -1463,6 +1603,16 @@
             },
             onFocus: function() {
                 $('.el-input__inner').blur();
+            },
+            materialNotes() {
+                return materialNotes;
+            },
+            hideTooltips() {
+                for (let ms = 50; ms <= 1050; ms += 100) {
+                    setTimeout(() => {
+                        $('[data-balloon-pos]').blur();
+                    }, ms);
+                }
             },
             parseCustomFloat: function(str) {
                 str = String(str);
@@ -1554,6 +1704,18 @@
 
                 this.any_checked = this.bases.find(base => base.checked);
             },
+            splitBase(base) {
+                baseSplits.comments_count = [];
+                baseSplits.base_to_split = base;
+                baseSplits.curr_unit = base.unit;
+                axios.post('{{route('building::mat_acc::get_siblings')}}', {
+                    base_id: base.id,
+                }).then(response => {
+                    base.siblings = response.data;
+                    $('body').click();
+                    $('#baseSplits').modal('show');
+                });
+            },
             moveToNew(base) {
                 $('body').click();
                 toNew.base = base;
@@ -1575,6 +1737,64 @@
         }
     })
 
+    var baseSplits = new Vue({
+        el: "#baseSplits",
+        data: {
+            base_to_split: null,
+            comments_count: [],
+            curr_unit: '',
+            split_mode: 'split',
+            count: 0,
+            unite_to_id: 0,
+        },
+        computed: {
+            converted_count: function() {
+                return this.getConvertedValue(this.base_to_split);
+            },
+            result_comment: function () {
+                let parsed_count = isNaN(parseFloat(this.count)) ? 0 : parseFloat(this.count);
+                parsed_count = parsed_count > parseFloat(this.converted_count) ? parseFloat(this.converted_count) : parsed_count;
+                let mat_count = parsed_count < parseFloat(this.converted_count) ? 2 : 1;
+
+                let unite_base = '';
+                if (this.unite_to_id === 0) {
+                    return ''
+                } else {
+                    unite_base = this.base_to_split.siblings.find(base => {return base.id === this.unite_to_id;});
+                }
+
+                let result_mat = '<li>' + VueBases.getBaseName(unite_base) + ' в количестве ' + (parseFloat(this.getConvertedValue(unite_base)) + parsed_count).toFixed(3) + ' ' + this.curr_unit + '</li>';
+                let result = 'После присоединения, получится ';
+                if (mat_count === 1) {
+                    result += '1 материал: <ul>' + result_mat;
+                } else {
+                    result += '2 материала: <ul>' + result_mat;
+                    result += '<li>' + VueBases.getBaseName(this.base_to_split) + ' в количестве ' + (parseFloat(this.converted_count) - parsed_count).toFixed(3) + ' ' + this.curr_unit + '</li>';
+                }
+                result += '</ul>';
+
+                return result
+            }
+        },
+        methods: {
+            getBaseName(base) {
+                return VueBases.getBaseName(base);
+            },
+            getConvertedValue(base) {
+                let convert_value = this.findUnitInParams(base.convert_params, this.curr_unit);
+                if (convert_value) {
+                    console.log(convert_value.value, base.count);
+                    return (convert_value.value * base.count).toFixed(3);
+                } else {
+                    return parseFloat(base.count).toFixed(3);
+                }
+            },
+            findUnitInParams(params, unit) {
+                let key = Object.keys(params).find(param_key => params[param_key].unit === unit);
+                return params[key];
+            }
+        }
+    });
     @if (config("app.env") == "local_dev")
         function manualTransfer() {
             swal({
@@ -1665,6 +1885,9 @@
                     observer_key: 2
                 },
                 methods: {
+                    getBaseName(base) {
+                        return VueBases.getBaseName(base);
+                    },
                     submit() {
                         this.$refs.observer.validate().then(success => {
                             if (!success) {

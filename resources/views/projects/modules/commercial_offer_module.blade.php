@@ -58,7 +58,7 @@
                                 @foreach($offers_type as $key => $offer)
                                     @if($key == 0)
                                         <tr>
-                                            <td data-label="Дата изменения" data-toggle="collapse" href=".o{{ hash('md5', $offer->option) . 'is_tongue-' . $offer->is_tongue }}" role="button" class="collapsed tr-pointer" aria-expanded="false" aria-controls="o{{ hash('md5', $offer->option) . 'is_tongue-' . $offer->is_tongue }}">
+                                            <td data-label="Дата изменения" data-toggle="collapse" href=".o{{ hash('md5', $offer->option) . 'is_tongue-' . $offer->is_tongue }}" role="button" class="collapsed tr-pointer prerendered-date-time" aria-expanded="false" aria-controls="o{{ hash('md5', $offer->option) . 'is_tongue-' . $offer->is_tongue }}">
                                                 {{ $offer->created_at }}
                                             </td>
                                             <td data-label="Тип" data-toggle="collapse" href=".o{{ hash('md5', $offer->option) . 'is_tongue-' . $offer->is_tongue }}" role="button" class="collapsed tr-pointer" aria-expanded="false" aria-controls="o{{ hash('md5', $offer->option) . 'is_tongue-' . $offer->is_tongue }}">

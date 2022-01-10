@@ -55,7 +55,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-10__mobile">
                         <label for="count">Значение</label>
                         <input id="mobileSearch" type="text" name="count" placeholder="Введите значение" class="form-control filter-input" required style="margin-top:4px">
                         <div class="row date_update" style="padding-top:4px; display: none">
@@ -145,7 +145,7 @@
                                 <tr style="cursor:default" class="header">
                                     <td data-label="№">{{ $wv->id }}</td>
                                     <td data-label="Тип">{{ $wv->wv_type[$wv->type] }}</td>
-                                    <td data-label="Дата обновления">{{ $wv->updated_at }}</td>
+                                    <td data-label="Дата обновления" class="prerendered-date" data-id="{{$wv->id}}">{{ $wv->updated_at }}</td>
                                     <td data-label="Проект">{{ $wv->project_name }}</td>
                                     <td data-label="Контрагент"><a href="{{ route('contractors::card', $wv->contractor_id) }}" class="table-link">{{ $wv->contractor_name }}</a></td>
                                     <td data-label="Адрес"><a href="{{ route('contractors::card', $wv->contractor_id) }}" class="table-link">{{ $wv->address }}</a></td>
@@ -432,6 +432,38 @@
             } else {
                 $('.pagination .page-item').removeClass('d-none');
                 $('.pagination .dot').remove();
+            }
+        });
+    </script>
+    <script>
+        vm = new Vue({
+            el: '#contractsTable',
+            data: {
+                work_volumes: {!!json_encode($work_volumes)!!}
+            },
+            mounted() {
+                const that = this;
+                $('.prerendered-date').each(function() {
+                    const id = $(this).data('id');
+                    const date = that.work_volumes.data[that.work_volumes.data.map(el => el.id).indexOf(id)].updated_at;
+                    const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                    const innerSpan = $('<span/>', {
+                        'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                    });
+                    innerSpan.text(content);
+                    $(this).html(innerSpan);
+                })
+            },
+            methods: {
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+                },
             }
         });
     </script>

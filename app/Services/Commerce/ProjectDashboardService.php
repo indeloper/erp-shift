@@ -140,7 +140,7 @@ class ProjectDashboardService
         //TODO: check count unit here
         $mat_acc_stats = $mat_acc_materials->reduce(function($grouped_sum, $mat) {
             if ($mat->unit != 'т') {
-                $mat->count = $mat->convert_params->where('unit', 'т')->first()->value * $mat->count;
+                $mat->count = ($mat->convert_params->where('unit', 'т')->first()->value ?? 0) * $mat->count;
                 $mat->unit = 'т';
             }
             $cat_id = $mat->material->category_id;

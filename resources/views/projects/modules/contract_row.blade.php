@@ -30,7 +30,7 @@
             <a class="table-link" href="{{ route('contractors::card', $contractor->id) }}">{{ $contractor->short_name }}</a>
         @endif
     </td>
-    <td data-label="Дата добавления">{{$contract->updated_at}}</td>
+    <td data-label="Дата добавления" class="prerendered-date-time">{{$contract->updated_at}}</td>
     <td data-label="Версия" class="text-center">
         {{ $contract->version }}
     </td>

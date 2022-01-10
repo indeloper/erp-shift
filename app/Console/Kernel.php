@@ -32,13 +32,18 @@ class Kernel extends ConsoleKernel
         Commands\DefectExpireCommand::class,
         Commands\AutoConfirmTicket::class,
         Commands\BirthdayNotifier::class,
+        Commands\AppearanceControlCommand::class,
+        Commands\WorkTimeControlCommand::class,
+        Commands\BirthdayNotifier::class,
         Commands\CheckContractorsInfo::class,
         Commands\CreateUsageReportTask::class,
         Commands\MoveManualRodTo7Category::class,
         Commands\fixOperationOn23Jan::class,
+        Commands\CertificatelessOperationsNotify::class,
         Commands\RefactorSplitsDB::class,
         Commands\GenerateEmails::class,
         Commands\ExpiredTaskReminder::class,
+        Commands\CreateNewPlanMat::class,
 //        Commands\SendNotificationsNeedContract::class
         // q3w custom commands
         Commands\CheckOverdueMaterialAccountingOperation::class
@@ -52,9 +57,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-//        $schedule->command('check:ex-task')->everyTenMinutes();
 
-/*     !!!Q3W   $schedule->command('tasks:checkDelayed')->everyThirtyMinutes();
+//        $schedule->command('check:ex-task')->everyTenMinutes();
+        $schedule->command('tasks:checkDelayed')->everyThirtyMinutes();
         $schedule->command('users:check-vacations')->dailyAt('01:00');
         $schedule->command('contractors:check-contacts')->dailyAt('04:00');
         $schedule->command('contacts:check')->dailyAt('04:00');
@@ -64,9 +69,17 @@ class Kernel extends ConsoleKernel
         $schedule->command('birthday:check')->dailyAt('09:00');
 
         $schedule->command('ticket:auto_confirm')->everyFiveMinutes();
+
+        $schedule->command('check:contractors')->dailyAt('01:00');
+        $schedule->command('certificatless-operations:notify')->cron('0 10 * * 1-5');
         //material accounting
         $schedule->command('mat_acc:transfer_base')->dailyAt('03:15');
-        $schedule->command('check:contractors')->dailyAt('01:00'); Q3W!!!*/
+        // human resources
+//        $schedule->command('appearance:control')->cron('0 8 * * 1-5');
+//        $schedule->command('appearance:control', ['time' => '9:00'])->cron('0 9 * * 1-5');
+//        $schedule->command('appearance:control', ['time' => '17:00'])->cron('0 17 * * 1-5');
+//        $schedule->command('work-time:control')->cron('0 17 * * 1-5');
+//        $schedule->command('work-time:control', ['time' => '21:00'])->cron('0 21 * * 1-5');
 //        $schedule->command('notification:need-contract')->cron('0 0 */3 * *');
         //q3w material accounting
         $schedule->command('materialOperation:checkOverdue')->everyThirtyMinutes();

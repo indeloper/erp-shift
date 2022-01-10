@@ -92,7 +92,11 @@
                             </thead>
                             <tbody>
                                 <tr v-for="task in tasks">
-                                    <td data-label="Время создания">@{{ task.created_at_formatted }}</td>
+                                    <td data-label="Время создания">
+                                        <span :class="isWeekendDay(task.created_at_formatted, 'DD.MM.YYYY HH:mm') ? 'weekend-day' : ''">
+                                            @{{ isValidDate(task.created_at_formatted, 'DD.MM.YYYY HH:mm') ? weekdayDate(task.created_at_formatted, 'DD.MM.YYYY HH:mm', 'DD.MM.YYYY dd HH:mm') : '-' }}
+                                        </span>
+                                    </td>
                                     <td data-label="Название">@{{ task.name }}</td>
                                     <td data-label="Исполнитель"><a class="table-link" :href="task.responsible_user.card_route" target="_blank">@{{ task.responsible_user.long_full_name }}</a></td>
                                     <td class="actions text-right">
@@ -128,7 +132,9 @@
                                 Время создания
                             </span>
                             <span class="sidebar-info__body-title">
-                                @{{ defect.created_at_formatted }}
+                                <span :class="isWeekendDay(defect.created_at_formatted, 'DD.MM.YYYY HH:mm') ? 'weekend-day' : ''">
+                                    @{{ isValidDate(defect.created_at_formatted, 'DD.MM.YYYY HH:mm') ? weekdayDate(defect.created_at_formatted, 'DD.MM.YYYY HH:mm', 'DD.MM.YYYY dd HH:mm') : '-' }}
+                                </span>
                             </span>
                         </div>
                         <div class="sidebar-info__text-unit">
@@ -171,7 +177,9 @@
                                 </span>
                                 <span class="sidebar-info__body-title">
                                     <template v-if="defect.repair_start_date">
-                                        @{{ defect.repair_start }}
+                                        <span :class="isWeekendDay(defect.repair_start, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                            @{{ isValidDate(defect.repair_start, 'DD.MM.YYYY') ? weekdayDate(defect.repair_start, 'DD.MM.YYYY') : '-' }}
+                                        </span>
                                     </template>
                                     <template v-else>
                                         <span class="text-danger">Не определена</span>
@@ -184,7 +192,11 @@
                                 </span>
                                 <span class="sidebar-info__body-title">
                                     <template v-if="defect.repair_end_date">
-                                        <a @if($data['defect']->status == 3 and ($data['defect']->responsible_user_id == auth()->id() or auth()->user()->isProjectManager() )) data-toggle="modal" data-target="#repair_period_update" href=""@endif>@{{ defect.repair_end }}</a>
+                                        <a @if($data['defect']->status == 3 and ($data['defect']->responsible_user_id == auth()->id() or auth()->user()->isProjectManager() )) data-toggle="modal" data-target="#repair_period_update" href=""@endif>
+                                            <span :class="isWeekendDay(defect.repair_end, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                @{{ isValidDate(defect.repair_end, 'DD.MM.YYYY') ? weekdayDate(defect.repair_end, 'DD.MM.YYYY') : '-' }}
+                                            </span>
+                                        </a>
                                     </template>
                                     <template v-else>
                                         <span class="text-danger">Не определена</span>
@@ -264,7 +276,11 @@
                             </thead>
                             <tbody>
                             <tr v-for="task in tasks">
-                                <td data-label="Время создания">@{{ task.created_at_formatted }}</td>
+                                <td data-label="Время создания">
+                                    <span :class="isWeekendDay(task.created_at_formatted, 'DD.MM.YYYY HH:mm') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(task.created_at_formatted, 'DD.MM.YYYY HH:mm') ? weekdayDate(task.created_at_formatted, 'DD.MM.YYYY HH:mm', 'DD.MM.YYYY dd HH:mm') : '-' }}
+                                    </span>
+                                </td>
                                 <td data-label="Название">@{{ task.name }}</td>
                                 <td data-label="Исполнитель"><a class="table-link" :href="task.responsible_user.card_route" target="_blank">@{{ task.responsible_user.long_full_name }}</a></td>
                                 <td class="actions text-right">
@@ -308,7 +324,7 @@
                                         {{--:type="comment.type"
                                         :color="comment.color" --}}
                                         :size="`large`"
-                                        :timestamp="comment.created_at_formatted"
+                                        :timestamp="isValidDate(comment.created_at_formatted, 'DD.MM.YYYY HH:mm') ? weekdayDate(comment.created_at_formatted, 'DD.MM.YYYY HH:mm', 'DD.MM.YYYY dd HH:mm') : '-'"
                                         placement="top"
                                     >
                                         <span class="activity-author"><a :href="comment.author.card_route">@{{ comment.author.long_full_name }}</a></span>
@@ -1014,6 +1030,15 @@
 
                 return (defect.user_id === auth_id && defect.status === 1) ;
             },
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
             removeDefect(id) {
                 if (!this.loading) {
                     swal({
@@ -1057,6 +1082,15 @@
                     case 5:
                         return 'text-danger';
                 }
+            },
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
             },
         }
     });
@@ -1521,6 +1555,15 @@
                     this.defect = defect;
                     this.$forceUpdate();
                 },
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+                },
                 addComment() {
                     if (this.comment.text) {
                         this.$refs['defect-comment-input'].validate().then(result => {
@@ -1645,5 +1688,41 @@
         @endif
     });
 </script>
-
+<script type="text/javascript">
+    var vm = new Vue ({
+        el: '#base',
+        mounted() {
+            const that = this;
+            $('.prerendered-date-time').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+            $('.prerendered-date').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY') ? that.weekdayDate(date, 'DD.MM.YYYY') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+        },
+        methods: {
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+        }
+    })
+</script>
 @endsection

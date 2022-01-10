@@ -5,7 +5,6 @@
 @section('url', route('commercial_offers::index'))
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <link href="{{ mix('css/projects.css') }}" rel="stylesheet" />
     <style>
         /* balloon.css tooltip styles */
@@ -75,7 +74,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-10__mobile">
                         <label for="count">Значение</label>
                         <input id="mobileSearch" type="text" name="count" placeholder="Введите значение" class="form-control" required style="margin-top:4px">
                         <div class="row date_update" style="padding-top:4px; display: none">
@@ -163,7 +162,7 @@
                                 <tr style="cursor:default" class="@if ($document->isNeedToBeColored()) row-important @endif header">
                                     <td data-label="№">{{ $document->id }}</td>
                                     <td data-label="Название">{{ 'Коммерческое предложение (' . $document->option . ')' }}</td>
-                                    <td data-label="Дата обновления">{{ $document->updated_at }}</td>
+                                    <td data-label="Дата обновления" class="prerendered-date" data-docid="{{$document->id}}">{{ $document->updated_at }}</td>
                                     <td data-label="Проект">{{ $document->project_name }}</td>
                                     <td data-label="Контрагент"><a href="{{ route('contractors::card', $document->contractor_id) }}" class="table-link">{{ $document->contractor_name }}</a></td>
                                     <td data-label="Адрес"><a href="{{ route('contractors::card', $document->contractor_id) }}" class="table-link">{{ $document->address }}</a></td>
@@ -468,6 +467,38 @@
                 $('.pagination .dot').remove();
                 $('[data-balloon-pos]').removeAttr('data-balloon-length');
                 $('[data-balloon-pos]').attr('data-balloon-pos', 'left');
+            }
+        });
+    </script>
+    <script>
+        vm = new Vue({
+            el: '#contractsTable',
+            data: {
+                com_offers: {!!json_encode($com_offers)!!}
+            },
+            mounted() {
+                const that = this;
+                $('.prerendered-date').each(function() {
+                    const docId = $(this).data('docid');
+                    const date = that.com_offers.data[that.com_offers.data.map(el => el.id).indexOf(docId)].updated_at;
+                    const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                    const innerSpan = $('<span/>', {
+                        'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                    });
+                    innerSpan.text(content);
+                    $(this).html(innerSpan);
+                })
+            },
+            methods: {
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+                },
             }
         });
     </script>

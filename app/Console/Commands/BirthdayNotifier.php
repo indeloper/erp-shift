@@ -42,6 +42,7 @@ class BirthdayNotifier extends Command
     {
         $whoHaveBirthdayToday = User::whoHaveBirthdayToday()->get();
         $whoHaveBirthdayNextWeek = User::whoHaveBirthdayNextWeek()->get();
+
         $this->generateBirthdayTodayNotifications($whoHaveBirthdayToday);
         $this->generateBirthdayNextWeekNotifications($whoHaveBirthdayNextWeek);
     }

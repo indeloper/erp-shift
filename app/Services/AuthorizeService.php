@@ -31,4 +31,24 @@ class AuthorizeService
     {
         return ($this->user->id == $defect->user_id and $defect->isNew()) ?: $this->returnUnauthorized();
     }
+
+    public function authorizeJobCategoriesIndex()
+    {
+        return $this->user->hasPermission('human_resources_job_categories_view') ?: $this->returnUnauthorized();
+    }
+
+    public function authorizeJobCategoryShow()
+    {
+        return $this->authorizeJobCategoriesIndex();
+    }
+
+    public function authorizeReportGroupsIndex()
+    {
+        return $this->user->hasPermission('human_resources_report_group_view') ?: $this->returnUnauthorized();
+    }
+
+    public function authorizeReportGroupsShow()
+    {
+        return $this->authorizeJobCategoriesIndex();
+    }
 }

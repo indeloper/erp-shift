@@ -15,7 +15,11 @@ class ViewComposerServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer(
-            'layouts.app', 'App\Http\ViewComposers\TaskComposer'
+            [
+                'layouts.app',
+                'layouts.messages'
+            ],
+            'App\Http\ViewComposers\TaskComposer'
         );
 
         View::composer(
@@ -33,7 +37,12 @@ class ViewComposerServiceProvider extends ServiceProvider
         );
 
         View::composer(
-            'layouts.messages', 'App\Http\ViewComposers\TaskComposer'
+            [
+                'human_resources.reports.summary_report',
+                'human_resources.reports.daily_report',
+                'human_resources.reports.detailed_report',
+            ],
+            'App\Http\ViewComposers\TimecardComposer'
         );
     }
 

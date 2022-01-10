@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Messenger;
+namespace App\Model\Messenger;
 
-use App\Models\Messenger\Message;
+use App\Model\Messenger\Message;
 use App\Model\Messenger\Participant;
 use App\Model\Messenger\Thread;
 use App\Models\User;

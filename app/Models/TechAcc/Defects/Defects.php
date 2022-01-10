@@ -334,16 +334,16 @@ class Defects extends Model
 
     /**
      * Getter for author name
-     * @return Carbon|null
+     * @return string|null
      */
     public function getAuthorNameAttribute()
     {
-        return $this->author->full_name;
+        return $this->author ? $this->author->full_name : null;
     }
 
     /**
      * Getter for responsible user name
-     * @return Carbon|null
+     * @return string|null
      */
     public function getResponsibleUserNameAttribute()
     {

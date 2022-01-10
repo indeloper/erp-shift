@@ -2,7 +2,9 @@
 
 namespace App\Models\MatAcc;
 
+use App\Models\Comment;
 use App\Models\Manual\ManualMaterialParameter;
+use App\Traits\Commentable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProjectObject;
@@ -11,8 +13,22 @@ use App\Models\Manual\ManualMaterial;
 use \Carbon\Carbon;
 use Illuminate\Http\Request;
 
+/**
+ * @property integer id
+ * @property integer object_id
+ * @property integer manual_material_id
+ * @property string date
+ * @property string count
+ * @property string unit
+ * @property integer used
+ * @property integer ancestor_base_id
+ *
+ * Also there is MaterialAccountingBaseObserver. ancestor_base_id is set there.
+ */
 class MaterialAccountingBase extends Model
 {
+    use Commentable;
+
     protected $fillable = [
         'object_id',
         'manual_material_id',
@@ -20,6 +36,7 @@ class MaterialAccountingBase extends Model
         'count',
         'unit',
         'used',
+        'ancestor_base_id'
     ];
 
     protected $appends = ['round_count', 'convert_params', 'material_name'];
@@ -62,6 +79,11 @@ class MaterialAccountingBase extends Model
         return $this->material->name . ($this->used ? ' Б/У' : '');
     }
 
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
     public function object()
     {
         return $this->belongsTo(ProjectObject::class, 'object_id', 'id');
@@ -78,6 +100,55 @@ class MaterialAccountingBase extends Model
             ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
             ->select('manual_materials.*', 'manual_material_categories.id as cat_id', 'manual_material_categories.category_unit')
             ->withTrashed();
+    }
+
+    public function getSiblingsAttribute()
+    {
+        return MaterialAccountingBase::where([
+            'manual_material_id' => $this->manual_material_id,
+            'date' => $this->date,
+            'object_id' => $this->object_id,
+        ])
+            ->where('count', '>', 0)
+            ->where('id', '!=', $this->id)
+            ->with('comments')
+            ->get()
+            ->each->setAppends(['round_count', 'convert_params', 'comment_name_count', 'comment_name', 'material_name']);
+    }
+
+    /**
+     * returns same bases (with same comments) for all history
+     * be careful it also return current model
+     *
+     * to get same material (but different comment) bases use siblings accessor
+     */
+    public function historyBases()
+    {
+        return $this->hasMany(MaterialAccountingBase::class, 'ancestor_base_id', 'ancestor_base_id');
+    }
+
+    public function getCommentsInline(): string
+    {
+        $comments_inline = $this->comments()->get()->implode('comment', ', ');
+        if (strlen($comments_inline) == 0) {
+            $comments_inline = "Примечания отсутствуют";
+        }
+        if (mb_strlen($comments_inline) > 26) {
+            $comments_inline = trim(mb_substr($comments_inline, 0, 23)) . '...';
+        }
+
+        return $comments_inline;
+    }
+
+    public function getCommentNameAttribute()
+    {
+        $comments = $this->getCommentsInline();
+        return $this->material_name . " ($comments)";
+    }
+
+    public function getCommentNameCountAttribute()
+    {
+        return "$this->comment_name $this->round_count $this->unit";
     }
 
     function backdating($materials, Carbon $back_date, $object_id)
@@ -107,6 +178,41 @@ class MaterialAccountingBase extends Model
         }
     }
 
+    public function getAllConvertedAttribute()
+    {
+        $unordered_units = [[
+            'count' => $this->round_count,
+            'unit' => $this->unit,
+            ],
+        ];
+        foreach ($this->convert_params as $param) {
+            $unordered_units []= [
+                'count' => number_format(round(($param->value * $this->count), 3), 3),
+                'unit' => $param->unit,
+            ];
+        }
+
+        $unit_order = [
+            'шт',
+            'м.п',
+            'т',
+            'м2',
+            'м3',
+        ];
+
+        $ordered_units = [];
+        foreach ($unit_order as $unit) {
+            $param = array_values(array_filter($unordered_units, function($uno_param) use ($unit) {
+                return $uno_param['unit'] == $unit;
+            }));
+
+            if (count($param)) {
+                $ordered_units []= $param[0];
+            }
+        }
+
+        return $ordered_units;
+    }
 
     public function getCreatedAtAttribute($date)
     {
@@ -144,10 +250,23 @@ class MaterialAccountingBase extends Model
                 return;
             }
 
+            foreach ($this->comments as $comment) {
+                if (!$existedBase->comments()->where('comment', $comment->comment)->exists()) {
+                    $new_comment = $comment->replicate();
+                    $new_comment->commentable_id = $existedBase->id;
+                    $new_comment->save();
+                }
+            }
+
             $existedBase->update(['count' => round($existedCount + round($count, 3), 3)]);
         } else {
             $newBase = $this->replicate();
             $newBase->save();
+            foreach ($this->comments as $comment) {
+                $new_comment = $comment->replicate();
+                $new_comment->commentable_id = $newBase->id;
+                $new_comment->save();
+            }
             $newBase->update(['count' => round($count, 3), 'used' => $used]);
         }
     }

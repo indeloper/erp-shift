@@ -6,6 +6,7 @@ use App\Http\Requests\Building\MaterialAccounting\SendTransformationRequest;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
 use App\Models\ProjectObject;
 use App\Models\User;
+use App\Services\MaterialAccounting\MaterialAccountingService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -216,6 +217,7 @@ class MatAccTransformationController extends Controller
             $operation->status = 1;
         } else {
             $operation->status = 4;
+            $operation->author_id = $operation->responsible_RP ?? Auth::user()->id;
         }
 
         if ($operation->wasDraftAndUserCanWorkOnlyWithDraftsAndNoConflictInOperation($oldStatus, $is_conflict)) {
@@ -240,7 +242,7 @@ class MatAccTransformationController extends Controller
 
         $responsible_user->saveOrFail();
 
-        MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->whereIn('type', [6, 7])->delete();
+        MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->whereIn('type', [3, 6, 7])->delete();
 
         $result_from = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials_from, 7);
 
@@ -253,7 +255,25 @@ class MatAccTransformationController extends Controller
         if ($result_to !== true) {
             return response()->json(['message' => $result_to]);
         }
+        $part_mats = MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->whereIn('type', [8, 9])->get();
 
+        foreach ($part_mats as $part_mat) {
+            $plan_type = $part_mat->type == 8 ? 7 : 6;
+            $plan_q = $part_mat->sameMaterials()->where('type', $plan_type);
+            if ($plan_q->doesntExist()) {
+                if ($plan_q->withTrashed()->exists()) {
+                    $plan_mat = $plan_q->first();
+                    $plan_mat->restore();
+                    $plan_mat->count = 0;
+                    $plan_mat->save();
+                } else {
+                    $plan_mat = $part_mat->replicate();
+                    $plan_mat->count = 0;
+                    $plan_mat->type = $plan_type;
+                    $plan_mat->save();
+                }
+            }
+        }
         $operation->generateOperationConflictNotifications();
 
         DB::commit();
@@ -298,28 +318,11 @@ class MatAccTransformationController extends Controller
         DB::beginTransaction();
 
         $operation = MaterialAccountingOperation::where('type', 3)->where('status', 2)->findOrFail($operation_id);
-        $operation->checkClosed();
 
-        $operation->status = 3;
-        $operation->is_close = 1;
-        $operation->actual_date_to = Carbon::now()->format('d.m.Y');
-        $operation->recipient_id = Auth::user()->id;
-        $operation->comment_to = $request->comment;
+        $result = (new MaterialAccountingService())->acceptOperation($operation);
 
-        $operation->saveOrFail();
-
-        $operation->generateOperationAcceptNotifications();
-
-        $result_from = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials_from, 5, 'inactivity');
-
-        if ($result_from !== true) {
-            return response()->json(['message' => $result_from]);
-        }
-
-        $result_to = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials_to, 4, 'inactivity');
-
-        if ($result_to !== true) {
-            return response()->json(['message' => $result_to]);
+        if ($result !== true) {
+            return response()->json(['message' => $result]);
         }
 
         DB::commit();

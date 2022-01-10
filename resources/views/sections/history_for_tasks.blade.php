@@ -10,10 +10,10 @@
                         @endif
                     @else
                     solved-task @endif">
-            <td data-label="Дата создания" data-target="#show_task_info{{ $solved_task->id }}" data-toggle="modal" class="collapsed tr-pointer" aria-expanded="false">
+            <td data-label="Дата создания" data-target="#show_task_info{{ $solved_task->id }}" data-toggle="modal" class="collapsed tr-pointer prerendered-date-time" aria-expanded="false">
                 {{ $solved_task->created_at }}
             </td>
-            <td data-label="Дата исполнения" data-target="#show_task_info{{ $solved_task->id }}" data-toggle="modal" class="collapsed tr-pointer" aria-expanded="false">
+            <td data-label="Дата исполнения" data-target="#show_task_info{{ $solved_task->id }}" data-toggle="modal" class="collapsed tr-pointer prerendered-date-time" aria-expanded="false">
                     @if($solved_task->is_solved) {{ $solved_task->updated_at }} @else - @endif
             </td>
             <td data-label="Событие" data-target="#show_task_info{{ $solved_task->id }}" data-toggle="modal" class="collapsed tr-pointer" aria-expanded="false">

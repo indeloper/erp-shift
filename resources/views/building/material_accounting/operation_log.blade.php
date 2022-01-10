@@ -325,7 +325,7 @@
                         <!-- <button type="button" name="button" class="btn btn-wd btn-outline" style="margin-top:5px" data-toggle="modal" data-target="#co_export">
                             Экспорт из КП
                         </button> -->
-                        <button type="button" data-toggle="modal" data-target="#operation_excel" class="btn btn-wd btn-outline" style="margin-top:5px;">
+                        <button type="button" data-toggle="modal" data-target="#operation_excel" v-on:click="setObject" class="btn btn-wd btn-outline" style="margin-top:5px;">
                             Отчет по материалам
                         </button>
                         <button type="button" v-on:click="print_rep()" name="button" class="btn btn-wd btn-outline" style="margin-top:5px;">
@@ -398,9 +398,9 @@
                         </p>
                         <p class="el-mobile-table"><span class="table-stroke__label">Адрес:</span> <span class="table-stroke__content">@{{ props.row.address_text }}</span></p>
                         <p class="el-mobile-table"><span class="table-stroke__label">Автор:</span> <span class="table-stroke__content">@{{ props.row.author.full_name }}</span></p>
-                        <p class="el-mobile-table"><span class="table-stroke__label">Дата создания:</span> <span class="table-stroke__content">@{{ props.row.created_date }}</span></p>
-                        <p class="el-mobile-table"><span class="table-stroke__label">Дата начала:</span> <span class="table-stroke__content">@{{ props.row.actual_date_from }}</span></p>
-                        <p class="el-mobile-table"><span class="table-stroke__label">Дата закрытия:</span> <span class="table-stroke__content">@{{ props.row.closed_date }}</span></p>
+                        <p class="el-mobile-table"><span class="table-stroke__label">Дата создания:</span> <span :class="isWeekendDay(props.row.created_date, 'DD.MM.YYYY') ? 'weekend-day table-stroke__content' : 'table-stroke__content'">@{{ isValidDate(props.row.created_date, 'DD.MM.YYYY') ? weekdayDate(props.row.created_date, 'DD.MM.YYYY') : '-' }}</span></p>
+                        <p class="el-mobile-table"><span class="table-stroke__label">Дата начала:</span> <span :class="isWeekendDay(props.row.actual_date_from, 'DD.MM.YYYY') ? 'weekend-day table-stroke__content' : 'table-stroke__content'">@{{ isValidDate(props.row.actual_date_from, 'DD.MM.YYYY') ? weekdayDate(props.row.actual_date_from, 'DD.MM.YYYY') : '-' }}</span></p>
+                        <p class="el-mobile-table"><span class="table-stroke__label">Дата закрытия:</span> <span :class="isWeekendDay(props.row.closed_date, 'DD.MM.YYYY') ? 'weekend-day table-stroke__content' : 'table-stroke__content'">@{{ isValidDate(props.row.closed_date, 'DD.MM.YYYY') ? weekdayDate(props.row.closed_date, 'DD.MM.YYYY') : '-' }}</span></p>
                         <p class="el-mobile-table"><span class="table-stroke__label">Статус:</span> <span class="table-stroke__content">@{{ props.row.status_name }}</span></p>
                           <p class="el-mobile-table text-right" style="margin-top: 20px">
                                   <a :href="props.row.url" @click="save_src">Перейти в операцию →</a>
@@ -459,21 +459,33 @@
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
-                      prop="created_date"
                       label="Дата создания"
                       min-width="80">
+                        <template slot-scope="scope">
+                            <span :class="isWeekendDay(scope.row.created_date, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                @{{ isValidDate(scope.row.created_date, 'DD.MM.YYYY') ? weekdayDate(scope.row.created_date, 'DD.MM.YYYY') : '-' }}
+                            </span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
-                      prop="actual_date_from"
                       label="Дата начала"
                       min-width="80">
+                        <template slot-scope="scope">
+                            <span :class="isWeekendDay(scope.row.actual_date_from, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                @{{ isValidDate(scope.row.actual_date_from, 'DD.MM.YYYY') ? weekdayDate(scope.row.actual_date_from, 'DD.MM.YYYY') : '-' }}
+                            </span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
-                      prop="closed_date"
                       label="Дата закрытия"
                       min-width="80">
+                        <template slot-scope="scope">
+                            <span :class="isWeekendDay(scope.row.closed_date, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                @{{ isValidDate(scope.row.closed_date, 'DD.MM.YYYY') ? weekdayDate(scope.row.created_date, 'DD.MM.YYYY') : '-' }}
+                            </span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                       v-if="hideMobile"
@@ -690,6 +702,12 @@
             date: null
         });
     });
+//request cancel (to avoid queue mistakes
+    let filter_request = null;
+    function clearFilterRequest() {
+        filter_request.cancel();
+        filter_request = null;
+    }
 
     $(document).ready(function() {
         $('.js-example-basic-single').select2({
@@ -697,12 +715,17 @@
         });
 
         operations.loadingOperations = true;
+        if (filter_request) clearFilterRequest();
+        const axiosSource = axios.CancelToken.source();
+        filter_request = axiosSource;
         axios.post('{{ route('building::mat_acc::report_card::filter') }}', {
             date: operations.search_date,
             search: operations.search_queries_compact,
             filter: filter.filter_items,
-            with_closed: operations.with_closed
+            with_closed: operations.with_closed,},{
+            cancelToken: axiosSource.token,
         }).then(function (response) {
+            filter_request = null;
             window.history.pushState("", "", "?" + filter.compactFilters());
             operations.operations = response.data['result'];
             operations.loadingOperations = false;
@@ -1048,12 +1071,17 @@ var filter = new Vue({
         send_filter: function (filter) {
             var that = this;
             operations.loadingOperations = true;
+            if (filter_request) clearFilterRequest();
+            const axiosSource = axios.CancelToken.source();
+            filter_request = axiosSource;
             axios.post('{{ route('building::mat_acc::report_card::filter') }}', {
                 date: operations.search_date,
                 search: operations.search_queries_compact,
                 filter: filter.filter_items,
-                with_closed: operations.with_closed
+                with_closed: operations.with_closed,},{
+                cancelToken: axiosSource.token,
             }).then(function (response) {
+                filter_request = null;
                 eventHub.$emit('addEvent', '');
                     that.need_attributes.map(el => el.value = '');
                     that.observer_key += 1;
@@ -1225,7 +1253,7 @@ var filter = new Vue({
             let that = this;
             that.need_attributes = [];
             axios.post('{{ route('building::materials::category::get_need_attrs') }}', { category_id: that.category_id }).then(function (response) {
-                that.attrs_all = response.data;
+                that.attrs_all = response.data.attrs;
                 that.attrs_all = that.attrs_all.reverse();
 
                 that.attrs_all.forEach(function(attribute) {
@@ -1346,12 +1374,17 @@ var operations = new Vue({
     watch: {
         search_date: function (val) {
             operations.loadingOperations = true;
+            if (filter_request) clearFilterRequest();
+            const axiosSource = axios.CancelToken.source();
+            filter_request = axiosSource;
             axios.post('{{ route('building::mat_acc::report_card::filter') }}', {
                 date: operations.search_date,
                 search: operations.search_queries_compact,
                 filter: filter.filter_items,
-                with_closed: operations.with_closed
+                with_closed: operations.with_closed,},{
+                cancelToken: axiosSource.token,
             }).then(function (response) {
+                filter_request = null;
                 window.history.pushState("", "", "?" + filter.compactFilters());
                 operations.operations = response.data['result'];
                 operations.loadingOperations = false;
@@ -1381,6 +1414,9 @@ var operations = new Vue({
             return this.search_queries.length > 0
                 ? `${this.search_queries.join('•')}`
                 : '';
+        },
+        moment() {
+            return moment;
         }
     },
     methods: {
@@ -1391,6 +1427,15 @@ var operations = new Vue({
         save_src() {
             document.cookie = encodeURIComponent('opsource') + '=' + encodeURIComponent(window.location.href);
         },
+        isValidDate(date, format) {
+            return moment(date, format).isValid();
+        },
+        weekdayDate(date, inputFormat, outputFormat) {
+            return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+        },
+        isWeekendDay(date, format) {
+            return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+        },
         delete_search_budge: function (index) {
             this.search_queries.splice(index, 1);
             filter.send_filter(filter);
@@ -1400,12 +1445,17 @@ var operations = new Vue({
                 this.search_queries.push(operations.search_tf.trim());
                 operations.search_tf = '';
                 operations.loadingOperations = true;
+                if (filter_request) clearFilterRequest();
+                const axiosSource = axios.CancelToken.source();
+                filter_request = axiosSource;
                 axios.post('{{ route('building::mat_acc::report_card::filter') }}', {
                     date: operations.search_date,
                     search: operations.search_queries_compact,
                     filter: filter.filter_items,
-                    with_closed: operations.with_closed
+                    with_closed: operations.with_closed,},{
+                    cancelToken: axiosSource.token,
                 }).then(function (response) {
+                    filter_request = null;
                     window.history.pushState("", "", "?" + filter.compactFilters());
                     operations.operations = response.data['result'];
                     operations.loadingOperations = false;
@@ -1479,12 +1529,17 @@ var operations = new Vue({
 
         updateResults() {
             operations.loadingOperations = true;
+            if (filter_request) clearFilterRequest();
+            const axiosSource = axios.CancelToken.source();
+            filter_request = axiosSource;
             axios.post('{{ route('building::mat_acc::report_card::filter') }}', {
                 date: operations.search_date,
                 search: operations.search_queries_compact,
                 filter: filter.filter_items,
-                with_closed: operations.with_closed
+                with_closed: operations.with_closed,},{
+                cancelToken: axiosSource.token,
             }).then(function (response) {
+                filter_request = null;
                 window.history.pushState("", "", "?" + filter.compactFilters());
                 operations.operations = response.data['result'];
                 operations.loadingOperations = false;
@@ -1494,7 +1549,10 @@ var operations = new Vue({
         },
         onFocus: function() {
             $('.el-input__inner').blur();
-        }
+        },
+        setObject() {
+            operation_excel.setObject();
+        },
     },
 
 })
@@ -1746,6 +1804,19 @@ var operation_excel = new Vue({
                 axios.post('{{ route('building::mat_acc::report_card::get_objects') }}').then(function (response) {
                     operation_excel.objects = response.data;
                 })
+            }
+        },
+        setObject: function() {
+            let object_filter = filter.filter_items.find(filter_item => filter_item.parameter_id == 0);
+            if (object_filter) {
+                this.object_id = {
+                    'code': object_filter.value_id,
+                    'label': object_filter.value,
+                };
+                let object_info = this.objects.find(obj => obj.code == object_filter.value_id);
+                if (!object_info) {
+                    this.objects.push(this.object_id);
+                }
             }
         },
         onFocus: function() {

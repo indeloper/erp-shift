@@ -19,7 +19,7 @@
     top: 5px;
 }
 
-.el-table th>.cell {
+.el-table:not(.ignore-css) th>.cell {
     text-overflow: initial!important;
     font-size:11px!important;
 }
@@ -378,7 +378,7 @@
 .activity-timeline .activity-author {
     position: absolute;
     top: 0px;
-    left: 135px;
+    left: 150px;
     font-size: 13px;
     color: #164aad;
 }

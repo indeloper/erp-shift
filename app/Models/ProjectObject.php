@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Logable;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Traits\DevExtremeDataSourceLoadable;
@@ -11,7 +12,7 @@ use App\Models\Building\ObjectResponsibleUser;
 
 class ProjectObject extends Model
 {
-    use DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, Logable;
 
     protected $fillable = ['name', 'address', 'cadastral_number', 'short_name', 'material_accounting_type'];
 

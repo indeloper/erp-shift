@@ -3,7 +3,6 @@
 @section('title', 'Учет топлива')
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style>
         th.text-truncate {
             position: relative;
@@ -77,7 +76,7 @@
                                 ></el-option>
                             </el-select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mt-10__mobile">
                             <label for="count">Значение</label>
                             <el-select v-if="filter_attribute === 'object_id'"
                                        v-model="filter_value"
@@ -438,7 +437,9 @@
                             Дата ввода в эксплуатацию
                         </div>
                         <div class="col-md-8 font-weight-bold">
-                            @{{ convertDateFormat(fuel.explotation_start) }}
+                            <span :class="isWeekendDay(convertDateFormat(fuel.explotation_start), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                @{{ isValidDate(convertDateFormat(fuel.explotation_start), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(fuel.explotation_start), 'DD.MM.YYYY') : '-' }}
+                            </span>
                         </div>
                     </div>
                     <h6 class="decor-h6-modal">Заявки на ремонт</h6>
@@ -476,10 +477,20 @@
                                         <template v-else>
                                             <tr v-for="(defect, index) in fuel.defects_light" v-if="index < 10" class="href" :data-href="'{{ route('building::tech_acc::defects.show', '') }}' + '/' + defect.id">
                                                 <td data-label="Нач. ремонта">
-                                                    @{{ defect.repair_start_date ? convertDateFormat(defect.repair_start_date) : 'Не назначено' }}
+                                                    <span :class="isWeekendDay(convertDateFormat(defect.repair_start_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                        @{{ defect.repair_start_date ?
+                                                            (isValidDate(convertDateFormat(defect.repair_start_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(defect.repair_start_date), 'DD.MM.YYYY') : '-')
+                                                            : 'Не назначено'
+                                                        }}
+                                                    </span>
                                                 </td>
                                                 <td data-label="Оконч. ремонта">
-                                                    @{{ defect.repair_end_date ? convertDateFormat(defect.repair_end_date) : 'Не назначено' }}
+                                                    <span :class="isWeekendDay(convertDateFormat(defect.repair_end_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                        @{{ defect.repair_end_date ?
+                                                            (isValidDate(convertDateFormat(defect.repair_end_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(defect.repair_end_date), 'DD.MM.YYYY') : '-')
+                                                            : 'Не назначено'
+                                                        }}
+                                                    </span>
                                                 </td>
                                                 <td data-label="Исполнитель">
                                                     @{{ defect.responsible_user_name ? defect.responsible_user_name : 'Не назначен' }}
@@ -539,7 +550,9 @@
                             label="Дата"
                         >
                             <template slot-scope="scope">
-                                @{{  convertDateFormat(scope.row.operation_date)  }}
+                                <span :class="isWeekendDay(convertDateFormat(scope.row.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                    @{{ isValidDate(convertDateFormat(scope.row.operation_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(scope.row.operation_date), 'DD.MM.YYYY') : '-' }}
+                                </span>
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -1065,6 +1078,15 @@
                 convertDateFormat(dateString, full) {
                     return full ? moment(dateString, 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY HH:mm:ss') :
                         moment(dateString, 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY');
+                },
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
                 },
                 getStatusClass(status_id) {
                     switch (status_id) {

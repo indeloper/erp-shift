@@ -20,7 +20,7 @@ class MaterialAccountingOperationObserver
 
                     $task = Task::create([
                         'name' => 'Контроль операции ' . mb_strtolower($operation->type_name),
-                        'responsible_user_id' => Group::find(6)->getUsers()->first()->id, //stinky place
+                        'responsible_user_id' => Group::find(8)->getUsers()->first()->id, //stinky place
                         'target_id' => $operation->id,
                         'expired_at' => now()->addHours(24),
                         'status' => 38,

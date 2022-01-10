@@ -1,5 +1,5 @@
 <el-collapse-transition>
-    <div {{--v-show="displays[ticket.id]"--}} :key="ticket.id">
+     <div {{--v-show="displays[ticket.id]"--}} :key="ticket.id">
         <validation-observer :ref="'observer-' + ticket.id">
             <hr style="border-color:#F6F6F6">
             <h6 class="decor-h6-modal">@{{ ticket.our_technic.name + ' ' + ticket.our_technic.inventory_number }}</h6>

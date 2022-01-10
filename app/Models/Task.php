@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Traits\Notificationable;
+use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,7 +14,7 @@ use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 
 class Task extends Model
 {
-    use SoftDeletes, Notificationable;
+    use SoftDeletes, Notificationable, NotificationGenerator;
 
     protected $fillable = [
         'name',
@@ -70,8 +71,8 @@ class Task extends Model
         21 => 'Контроль списания',                          //mat acc write off operation
         22 => 'Контроль удаления материала',                          //mat acc write off operation
         23 => 'Контроль редактирования материала',                          //mat acc write off operation
-        24 => 'Назначение отвественного руководителя проектов (сваи)',
-        25 => 'Назначение отвественного руководителя проектов (шпунт)',
+        24 => 'Назначение ответственного руководителя проектов (сваи)',
+        25 => 'Назначение ответственного руководителя проектов (шпунт)',
         26 => 'Назначение исполнителя заявки на неисправность',
         27 => 'Согласование продления использования техники',
         28 => 'Согласование заявки на технику',
@@ -81,9 +82,12 @@ class Task extends Model
         32 => 'Подтверждение получения техники',
         33 => 'Контроль заявки на неисправность',
         35 => 'Контроль выполнения заявки на неисправность',
-        38 => 'Согласование даты операции',
         36 => 'Отметка времени использования техники',
         37 => 'Проверка изменений в информации о контрагенте',
+        38 => 'Согласование даты операции',
+        39 => 'Назначение ответственного за учёт времени в проекте',    // human resources
+        40 => 'Контроль явки',    // human resources
+        41 => 'Контроль рабочего времени',    // human resources
         43 => 'Контроль наличия сертификатов',
         45 => 'Контроль договора в операциях',
     ]; //TODO: adding something here? check trello first
@@ -217,6 +221,9 @@ class Task extends Model
         elseif (in_array($this->status, self::LINK_TO_TICKET_STATUS)) return route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $this->taskable->id ?? '']);
         elseif ($this->status >= 26 and $this->status < 36) return route('tasks::tech_task', $this->id);
         elseif ($this->status == 36) return route('tasks::partial_36', $this->id);
+        elseif ($this->status === 40) return route('human_resources.timecard_day.appearance_task', $this->id);
+        // TODO ADD SOMETHING HERE
+        elseif ($this->status === 41) return route('human_resources.timecard_day.working_time_task', $this->id);
         else return route('tasks::common_task', $this->id);
     }
 

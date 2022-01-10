@@ -5,6 +5,9 @@
 @section('url', route('users::index'))
 
 @section('css_top')
+<script>
+    localStorage.setItem('userprofilevisited', true);
+</script>
 <style>
   .custom-tree-node {
     flex: 1;
@@ -71,25 +74,28 @@
                             </div>
                         </div>
                     </div>
-                    @can('users_vacations')
-                        @if($user->in_vacation == 0)
-                            <div class="col-md-6">
-                                <div class="right-edge">
-                                    <a class="btn btn-sm btn-info btn-outline" href="#" data-toggle="modal" data-target="#vacation">
-                                        Отпуск
-                                    </a>
-                                </div>
+                    @canany(['users_vacations', 'user_job_category_change'])
+                        <div class="col-md-6">
+                            <div class="right-edge">
+{{--                                @can('user_job_category_change')--}}
+{{--                                    <button class="btn btn-sm btn-outline" data-toggle="modal" data-target="#change_job_category">--}}
+{{--                                        Изменить должностную категорию--}}
+{{--                                    </button>--}}
+{{--                                @endcan--}}
+                                @can('users_vacations')
+                                    @if($user->in_vacation == 0)
+                                        <a class="btn btn-sm btn-info btn-outline" href="#" data-toggle="modal" data-target="#vacation">
+                                            Отпуск
+                                        </a>
+                                    @else
+                                        <button class="btn btn-sm btn-info btn-outline" onclick="outFromVacation()">
+                                            Выход из отпуска
+                                        </button>
+                                    @endif
+                                @endcan
                             </div>
-                        @else
-                            <div class="col-md-6">
-                                <div class="right-edge">
-                                    <button class="btn btn-sm btn-info btn-outline" onclick="outFromVacation()">
-                                        Выход из отпуска
-                                    </button>
-                                </div>
-                            </div>
-                        @endif
-                    @endcan
+                        </div>
+                    @endcanany
                 </div>
                 <hr>
             </div>
@@ -128,6 +134,12 @@
                         <label class="col-sm-3 col-form-label label-info-card">Подразделение</label>
                         <div class="col-sm-9">
                             <p class="p-info-card"> {{ $department->name }} </p>
+                        </div>
+                    </div>
+                    <div class="row info-string line-bottom">
+                        <label class="col-sm-3 col-form-label label-info-card">Должностная категория</label>
+                        <div class="col-sm-9">
+                            <p class="p-info-card"> {{ $user->jobCategory ? $user->jobCategory->name : 'Не указана' }} </p>
                         </div>
                     </div>
                     <div class="row info-string line-bottom">
@@ -375,6 +387,63 @@
 </div>
 @endif
 @endcan
+@can('user_job_category_change')
+<div class="modal fade modal-primary" id="change_job_category" role="dialog" aria-labelledby="modal-search" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-update">Изменение должностной категории сотрудника</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="card border-0 m-0">
+                    <div class="card-body">
+                        <validation-observer ref="observer" :key="observer_key">
+                            <form id="job_category_form" class="form-horizontal">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="">Должностная категория<span class="star">*</span></label>
+                                        <validation-provider rules="required" vid="job-category-select"
+                                                             ref="job-category-select" v-slot="v">
+                                            <el-select v-model="job_category_id"
+                                                       :class="v.classes"
+                                                       clearable filterable
+                                                       id="job-category-select"
+                                                       :remote-method="search_job_categories"
+                                                       @clear="search_job_categories('')"
+                                                       remote
+                                                       placeholder="Поиск должностной категории"
+                                            >
+                                                <el-option
+                                                    v-for="item in job_categories"
+                                                    :key="item.id"
+                                                    :label="item.name"
+                                                    :value="item.id">
+                                                </el-option>
+                                            </el-select>
+                                            <div class="error-message">@{{ v.errors[0] }}</div>
+                                        </validation-provider>
+                                    </div>
+                                </div>
+                            </form>
+                        </validation-observer>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12">
+                    <div class="row justify-content-center mb-2">
+                        <el-button type="info" class="btn btn-secondary" data-dismiss="modal">Закрыть</el-button>
+                        <el-button @click.stop="submit" :loading="loading_submit">Сохранить</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endcan
 @can('user_permissions')
 <div class="modal fade bd-example-modal-lg" id="permissions" role="dialog" aria-labelledby="modal-search" aria-hidden="true">
     <div class="modal-dialog modal-lg permission-modal" role="document">
@@ -437,9 +506,8 @@
             }
         }
     });
-</script>
+
 @can('users_permissions')
-<script type="text/javascript">
     var access = new Vue ({
         el:'#access',
         data() {
@@ -466,48 +534,103 @@
           }
         }
     });
-
-</script>
 @endcan
-<script>
-    var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+{{--@can('user_job_category_change')--}}
+{{--    Vue.component('validation-provider', VeeValidate.ValidationProvider);--}}
+{{--    Vue.component('validation-observer', VeeValidate.ValidationObserver);--}}
+{{--    var jobCategoryForm = new Vue({--}}
+{{--        el: '#change_job_category',--}}
+{{--        data: {--}}
+{{--            user_id: '{{ $user->id }}',--}}
+{{--            job_category_id: '',--}}
+{{--            job_categories: [],--}}
+{{--            observer_key: 1,--}}
+{{--            loading_submit: false--}}
+{{--        },--}}
+{{--        mounted() {--}}
+{{--            this.search_job_categories('');--}}
+{{--        },--}}
+{{--        methods: {--}}
+{{--            search_job_categories(query) {--}}
+{{--                if (query) {--}}
+{{--                    axios.get('{{ route('human_resources.job_category.get') }}', {params: { q: query }})--}}
+{{--                    .then(response => this.job_categories = response.data.map(el => ({--}}
+{{--                        name: el.name,--}}
+{{--                        id: el.id--}}
+{{--                    })))--}}
+{{--                    .catch(error => console.log(error));--}}
+{{--                } else {--}}
+{{--                    axios.get('{{ route('human_resources.job_category.get') }}')--}}
+{{--                    .then(response => this.job_categories = response.data.map(el => ({--}}
+{{--                        name: el.name,--}}
+{{--                        id: el.id--}}
+{{--                    })))--}}
+{{--                    .catch(error => console.log(error));--}}
+{{--                }--}}
+{{--            },--}}
+{{--            submit() {--}}
+{{--                this.$refs.observer.validate().then(success => {--}}
+{{--                    if (!success) {--}}
+{{--                        const error_field_vid = Object.keys(this.$refs.observer.errors).find(el => this.$refs[el].errors.length > 0);--}}
+{{--                        $('.modal').animate({--}}
+{{--                            scrollTop: $('#' + error_field_vid).offset().top--}}
+{{--                        }, 1200);--}}
+{{--                        $('#' + error_field_vid).focus();--}}
+{{--                        return;--}}
+{{--                    }--}}
 
-    function checkOldPassword(elem) {
-        old_password = $(elem).val();
+{{--                    this.loading_submit = true;--}}
+{{--                    const payload = {};--}}
+{{--                    payload.user_id = this.user_id;--}}
+{{--                    payload.job_category_id = this.job_category_id;--}}
+{{--                    axios.post('{{ route('users::update_job_category') }}', payload)--}}
+{{--                    .then((response) => {--}}
+{{--                        location.reload();--}}
+{{--                    }).catch(error => this.handleError(error));--}}
+{{--                });--}}
+{{--            }--}}
+{{--        }--}}
+{{--    });--}}
+{{--@endcan--}}
 
-        if (old_password.match(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/)) {
-            $(elem).removeClass('is-invalid');
-            $('#password_input').removeAttr('readonly');
-        } else {
-            $(elem).addClass('is-invalid');
-            $('#password_input').attr('readonly', 'readonly');
-            $('#password_confirmation').attr('readonly', 'readonly');
-        }
+var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+
+function checkOldPassword(elem) {
+    old_password = $(elem).val();
+
+    if (old_password.match(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/)) {
+        $(elem).removeClass('is-invalid');
+        $('#password_input').removeAttr('readonly');
+    } else {
+        $(elem).addClass('is-invalid');
+        $('#password_input').attr('readonly', 'readonly');
+        $('#password_confirmation').attr('readonly', 'readonly');
     }
+}
 
-    function checkPassword(elem) {
-        password = $(elem).val();
+function checkPassword(elem) {
+    password = $(elem).val();
 
-        if (password.match(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/)) {
-            $(elem).removeClass('is-invalid');
-            $('#password_confirmation').removeAttr('readonly');
-        } else {
-            $(elem).addClass('is-invalid');
-            $('#password_confirmation').attr('readonly', 'readonly');
-        }
+    if (password.match(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/)) {
+        $(elem).removeClass('is-invalid');
+        $('#password_confirmation').removeAttr('readonly');
+    } else {
+        $(elem).addClass('is-invalid');
+        $('#password_confirmation').attr('readonly', 'readonly');
     }
+}
 
-    function checkConfirmation(elem) {
-        confirmation = $(elem).val();
+function checkConfirmation(elem) {
+    confirmation = $(elem).val();
 
-        if (confirmation.match(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/) && confirmation == $('#password_input').val()) {
-            $(elem).removeClass('is-invalid');
-            $('#update_user_submit').removeAttr('disabled');
-        } else {
-            $(elem).addClass('is-invalid');
-            $('#update_user_submit').attr('disabled', 'disabled');
-        }
+    if (confirmation.match(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/) && confirmation == $('#password_input').val()) {
+        $(elem).removeClass('is-invalid');
+        $('#update_user_submit').removeAttr('disabled');
+    } else {
+        $(elem).addClass('is-invalid');
+        $('#update_user_submit').attr('disabled', 'disabled');
     }
+}
 
     @if(Auth::user()->department_id == 5 || Auth::user()->isInGroup(10)/*14*/ | auth()->id() == 1)
         @if($user->in_vacation == 0)
@@ -572,70 +695,117 @@
                     $('#vacation_submit').removeAttr('disabled');
                 }
             }
-        @else
-        function outFromVacation()
+        });
+
+        $('#from').datetimepicker({
+            format: 'DD.MM.YYYY',
+            locale: 'ru',
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-chevron-up",
+                down: "fa fa-chevron-down",
+                previous: 'fa fa-chevron-left',
+                next: 'fa fa-chevron-right',
+                today: 'fa fa-screenshot',
+                clear: 'fa fa-trash',
+                close: 'fa fa-remove'
+            },
+            minDate: moment(),
+            date: null,
+        }).on('dp.change', function(e) {
+            checkDates()
+        });
+
+        $('#by').datetimepicker({
+            format: 'DD.MM.YYYY',
+            locale: 'ru',
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-chevron-up",
+                down: "fa fa-chevron-down",
+                previous: 'fa fa-chevron-left',
+                next: 'fa fa-chevron-right',
+                today: 'fa fa-screenshot',
+                clear: 'fa fa-trash',
+                close: 'fa fa-remove'
+            },
+            minDate: moment().add(1, 'd'),
+            date: null,
+
+        }).on('dp.change', function(e) {
+            checkDates()
+        });
+
+        function checkDates()
         {
-            swal({
-                title: 'Подтверждение',
-                text: "Подтвердите, что пользователь вышел из отпуска",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                cancelButtonText: 'Назад',
-                confirmButtonText: 'Подтвердить'
-            }).then((result) => {
-                if(result.value) {
-                    $.ajax({
-                        url:"{{ route('users::from_vacation', $user->id) }}",
-                        type: 'POST',
-                        data: {
-                            _token: CSRF_TOKEN,
-                            vacation_id: {{ $vacation->id }}
-                        },
-                        dataType: 'JSON',
-                        success: function () {
-                            location.reload()
-                        }
-                    });
-                }
-            });
+            var from = moment($('#from').val(),"DD.MM.YYYY");
+            var by = moment($('#by').val(),"DD.MM.YYYY");
+
+            if (from > by || from === by) {
+                $('#vacation_submit').attr('disabled', 'disabled');
+            } else {
+                $('#vacation_submit').removeAttr('disabled');
+            }
         }
-        @endif
+    @else
+    function outFromVacation()
+    {
+        swal({
+            title: 'Подтверждение',
+            text: "Подтвердите, что пользователь вышел из отпуска",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            cancelButtonText: 'Назад',
+            confirmButtonText: 'Подтвердить'
+        }).then((result) => {
+            if(result.value) {
+                $.ajax({
+                    url:"{{ route('users::from_vacation', $user->id) }}",
+                    type: 'POST',
+                    data: {
+                        _token: CSRF_TOKEN,
+                        vacation_id: {{ $vacation->id }}
+                    },
+                    dataType: 'JSON',
+                    success: function () {
+                        location.reload()
+                    }
+                });
+            }
+        });
+    }
     @endif
-</script>
+@endif
 
 @if(session()->has('pass'))
-<script>
     swal({
         title: "Внимание",
         text: "Пароль не верен",
         type: 'warning',
         timer: 1000
     });
-</script>
 @endif
 
 @if(session()->has('bad_request'))
-<script>
     swal({
         title: "Внимание",
         text: "{{ session()->get('bad_request') }}",
         type: 'warning',
         timer: 4000
     });
-</script>
 @endif
 
 @if(session()->has('too_much_vacations'))
-<script>
     swal({
         title: "Внимание",
         text: "{{ session()->get('too_much_vacations') }}",
         type: 'warning',
         timer: 4000
     });
-</script>
 @endif
-
+</script>
 @endsection

@@ -25,4 +25,3 @@ Start:
 - Uncomment boot(): in `App/Http/Providers/AuthServiceProvider.php` uncomment public function boot()
 - Run npm: `npm run dev`
 - Generate Laravel application key: php artisan key:generate
-- Run project: php artisan serve

@@ -36,6 +36,11 @@ class ManualReference extends Model
         return $this->hasOne(ManualMaterialCategory::class, 'id', 'category_id');
     }
 
+    public function materials()
+    {
+        return $this->hasMany(ManualMaterial::class, 'manual_reference_id', 'id');
+    }
+
     public function createNewRelations($collection_parameters)
     {
         foreach ($collection_parameters as $attr_id => $value) {

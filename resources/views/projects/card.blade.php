@@ -69,6 +69,12 @@
     .form-check input[type="checkbox"], .form-check-radio input[type="radio"] {
         margin-left: -7px;
     }
+
+    @media (max-width: 769px) {
+        .responsive-button {
+            width: 100%;
+        }
+    }
 </style>
 
 @endsection
@@ -287,32 +293,50 @@
                                                     @endcan
                                                 </tr>
                                                 @foreach($resp_users as $user)
-                                                <tr>
-                                                    <td data-label="ФИО">
-                                                        <a href="{{ route('users::card', $user->id) }}" class="table-link">
-                                                            {{ $user->last_name }} {{ $user->first_name }} {{ $user->patronymic }}
-                                                        </a>
-                                                    </td>
-                                                    <td data-label="Должность">{{ $user->group_name }}</td>
-                                                    @if ($user->role)
-                                                        <td data-label="Позиция">{{ $user->role_codes[$user->role] }}</td>
-                                                    @else
-                                                        <td data-label="Позиция">Не указана</td>
-                                                    @endif
-                                                    @if(Gate::check('projects_responsible_users') or (
-                                                    in_array(Auth::id(), $project->respUsers()->where('role', 5)->get()->pluck('user_id')->toArray()) and $user->role == 8
-                                                    )or (
-                                                    in_array(Auth::id(), $project->respUsers()->where('role', 6)->get()->pluck('user_id')->toArray()) and $user->role == 9
-                                                    )
-                                                    )
-                                                        <td data-label="" class="td-actions text-right actions">
-                                                            <a href="#" class="btn btn-link btn-danger remove_responsible_user mn-0 padding-actions" user_id="{{ $user->id }}" project_id="{{ $project->id }}" role="{{ $user->role }}"><i class="fa fa-times"></i></a>
+                                                    <tr>
+                                                        <td data-label="ФИО">
+                                                            <a href="{{ route('users::card', $user->id) }}" class="table-link">
+                                                                {{ $user->last_name }} {{ $user->first_name }} {{ $user->patronymic }}
+                                                            </a>
                                                         </td>
+                                                        <td data-label="Должность">{{ $user->group_name }}</td>
+                                                        @if ($user->role)
+                                                            <td data-label="Позиция">{{ $user->role_codes[$user->role] }}</td>
                                                         @else
-                                                        <td></td>
-                                                    @endif
-                                                </tr>
+                                                            <td data-label="Позиция">Не указана</td>
+                                                        @endif
+                                                        @if(Gate::check('projects_responsible_users') or (
+                                                        in_array(Auth::id(), $project->respUsers()->where('role', 5)->get()->pluck('user_id')->toArray()) and $user->role == 8
+                                                        )or (
+                                                        in_array(Auth::id(), $project->respUsers()->where('role', 6)->get()->pluck('user_id')->toArray()) and $user->role == 9
+                                                        )
+                                                        )
+                                                            <td data-label="" class="td-actions text-right actions">
+                                                                <a href="#" class="btn btn-link btn-danger remove_responsible_user mn-0 padding-actions" user_id="{{ $user->id }}" project_id="{{ $project->id }}" role="{{ $user->role }}"><i class="fa fa-times"></i></a>
+                                                            </td>
+                                                            @else
+                                                            <td></td>
+                                                        @endif
+                                                    </tr>
                                                 @endforeach
+                                                @if($project->timeResponsible)
+                                                    <tr>
+                                                        <td data-label="ФИО">
+                                                            <a href="{{ $project->timeResponsible->card_route }}" class="table-link">
+                                                                {{ $project->timeResponsible->full_name }}
+                                                            </a>
+                                                        </td>
+                                                        <td data-label="Должность">{{ $project->timeResponsible->group_name }}</td>
+                                                        <td data-label="Позиция">Отв. за учёт рабоч. врем.</td>
+                                                        @can('human_resources_project_time_responsible_user_change')
+                                                            <td data-label="" class="td-actions text-right actions">
+                                                                <a href="#" class="btn btn-link btn-danger remove_responsible_time_user mn-0 padding-actions" user_id="{{ $user->id }}" project_id="{{ $project->id }}" role="{{ $user->role }}"><i class="fa fa-times"></i></a>
+                                                            </td>
+                                                        @else
+                                                            <td></td>
+                                                        @endcan
+                                                    </tr>
+                                                @endif
                                             </tbody>
                                         </table>
                                     </div>
@@ -456,7 +480,7 @@
                                                         <td data-label="Название" data-target=".doc-collapse{{$document->id}}" data-toggle="collapse" class="collapsed tr-pointer" aria-expanded="false">
                                                             {{ $document->name }}
                                                         </td>
-                                                        <td data-label="Дата добавления" class="text-center">{{ $document->updated_at }}</td>
+                                                        <td data-label="Дата добавления" class="text-center prerendered-date-time">{{ $document->updated_at }}</td>
                                                         <td data-label="Автор"><a href="{{ route('users::card', $document->user_id) }}" class="table-link">{{ $document->last_name }} {{ $document->first_name }} {{ $document->patronymic }}</a></td>
                                                         <td data-label="Версия" class="text-center">{{ $document->version }}</td>
                                                         <td data-label="" class="td-actions text-right actions">
@@ -474,7 +498,7 @@
                                                         @foreach($extra_documents->where('project_document_id', $document->id) as $extra_document)
                                                             <tr class="doc-collapse{{$document->id}} contact-note card-collapse collapse">
                                                                 <td></td>
-                                                                <td data-label="Дата добавления" class="text-center">{{ $extra_document->created_at }}</td>
+                                                                <td data-label="Дата добавления" class="text-center prerendered-date-time">{{ $extra_document->created_at }}</td>
                                                                 <td data-label="Автор">
                                                                     <a href="{{ route('users::card', $document->user_id) }}" class="table-link">{{ $extra_document->last_name }} {{ $extra_document->first_name }} {{ $extra_document->patronymic }}</a>
                                                                 </td>
@@ -571,6 +595,7 @@
 
                     @include('projects.modules.contracts_module')
 
+{{--                    @include('projects.modules.users_module')--}}
                 </div>
             </div>
         </div>
@@ -596,7 +621,7 @@
                       @csrf
                       <input type="hidden" name="project_id" value="{{ $project->id }}">
                       <div class="row">
-                          <label class="col-sm-3 col-form-label">Фамилия<star class="star">*</star></label>
+                          <label class="col-sm-3 col-form-label">Фамилия<span class="star">*</span></label>
                           <div class="col-sm-9">
                               <div class="form-group">
                                   <input class="form-control" type="text" name="last_name" required maxlength="50">
@@ -604,7 +629,7 @@
                           </div>
                       </div>
                       <div class="row">
-                          <label class="col-sm-3 col-form-label">Имя<star class="star">*</star></label>
+                          <label class="col-sm-3 col-form-label">Имя<span class="star">*</span></label>
                           <div class="col-sm-9">
                               <div class="form-group">
                                   <input class="form-control" type="text" name="first_name" required maxlength="50">
@@ -620,7 +645,7 @@
                           </div>
                       </div>
                       <div class="row">
-                          <label class="col-sm-3 col-form-label">Должность<star class="star">*</star></label>
+                          <label class="col-sm-3 col-form-label">Должность<span class="star">*</span></label>
                           <div class="col-sm-9">
                               <div class="form-group">
                                   <input class="form-control" type="text" name="position" maxlength="50" required>
@@ -733,7 +758,7 @@
                       <input type="hidden" id="edit_contact_id" name="id">
                       <input type="hidden" value="{{ $project->id }}" name="project_id">
                       <div class="row">
-                          <label class="col-sm-3 col-form-label">Фамилия<star class="star">*</star></label>
+                          <label class="col-sm-3 col-form-label">Фамилия<span class="star">*</span></label>
                           <div class="col-sm-9">
                               <div class="form-group">
                                   <input class="form-control" type="text" name="last_name" id="edit_last_name" required maxlength="50">
@@ -741,7 +766,7 @@
                           </div>
                       </div>
                       <div class="row">
-                          <label class="col-sm-3 col-form-label">Имя<star class="star">*</star></label>
+                          <label class="col-sm-3 col-form-label">Имя<span class="star">*</span></label>
                           <div class="col-sm-9">
                               <div class="form-group">
                                   <input class="form-control" type="text" name="first_name" id="edit_first_name" required maxlength="50">
@@ -757,7 +782,7 @@
                           </div>
                       </div>
                       <div class="row">
-                          <label class="col-sm-3 col-form-label">Должность<star class="star">*</star></label>
+                          <label class="col-sm-3 col-form-label">Должность<span class="star">*</span></label>
                           <div class="col-sm-9">
                               <div class="form-group">
                                   <input class="form-control" type="text" name="position" id="edit_position" maxlength="50" required>
@@ -820,7 +845,7 @@
                         <form id="form_select_contacts" class="form-horizontal" action="{{ route('projects::select_contacts', $project->id) }}" method="post">
                             @csrf
                             <div class="row">
-                                <label class="col-sm-3 col-form-label">Контакты<star class="star">*</star></label>
+                                <label class="col-sm-3 col-form-label">Контакты<span class="star">*</span></label>
                                 <div class="col-sm-9">
                                     <div class="form-group">
                                         <select name="contact_id" id="js-select-contacts" style="width:100%;" data-title="Выберите контрагента" data-style="btn-default btn-outline" data-menu-style="dropdown-blue" required>
@@ -847,9 +872,8 @@
         </div>
     </div>
 </div>
-    @if(Gate::check('projects_responsible_users') or in_array(Auth::id(), $project->respUsers()->whereIn('role', [5, 6])->get()->pluck('user_id')->toArray()) )
-
-        <div class="modal fade bd-example-modal-lg" id="select-user" role="dialog" aria-labelledby="modal-search" aria-hidden="true">
+@if(Gate::check('projects_responsible_users') or in_array(Auth::id(), $project->respUsers()->whereIn('role', [5, 6])->get()->pluck('user_id')->toArray()) )
+<div class="modal fade bd-example-modal-lg" id="select-user" role="dialog" aria-labelledby="modal-search" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -859,73 +883,61 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="card border-0">
+                <div class="card border-0 m-0">
                     <div class="card-body">
-                        <form id="form_select_user" class="form-horizontal" action="{{ route('projects::select_user', $project->id) }}" method="post">
-                            @csrf
-                            <div class="row">
-                                <label class="col-sm-3 col-form-label">Позиция<star class="star">*</star></label>
-                                <div class="col-sm-9">
-                                    <div class="form-group">
-                                        <select name="role" id="js-select-position" style="width:100%;" data-title="Выберите позицию" data-style="btn-default btn-outline" data-menu-style="dropdown-blue" required>
-                                            <option value="">Выберите позицию</option>
-                                            @if(Auth::user()->isInGroup(8)/*5*/ || Auth::user()->isInGroup(13))
-                                                <option value="5">Руководитель проектов (сваи)</option>
-                                                <option value="6">Руководитель проектов (шпунт)</option>
-                                            @elseif(Auth::user()->isInGroup(19))
-                                                <option value="5">Руководитель проектов (сваи)</option>
-                                            @elseif(Auth::user()->isInGroup(27))
-                                                <option value="6">Руководитель проектов (шпунт)</option>
-                                            @elseif(Auth::user()->isInGroup(50)/*7*/)
-{{--                                            @elseif(Auth::user()->group_id == 50/*7*/) example of new vacation logic --}}
-                                                <option value="1">Ответственный специалист по КП (сваи)</option>
-                                                <option value="2">Ответственный специалист по КП (шпунт)</option>
-                                                <option value="3">Ответственный специалист по объёмам работ (сваи)</option>
-                                                <option value="5">Руководитель проектов (сваи)</option>
-                                                <option value="6">Руководитель проектов (шпунт)</option>
-                                            @elseif(Auth::user()->isInGroup(53)/*16*/)
-                                                <option value="4">Ответственный специалист по объёмам работ (шпунт)</option>
-                                                <option value="7">Ответственный специалист по договорной работе</option>
-                                            @elseif(Auth::user()->isInGroup(54)/*26*/)
-                                                <option value="1">Ответственный специалист по КП (сваи)</option>
-                                                <option value="3">Ответственный специалист по объёмам работ (сваи)</option>
-                                                <option value="7">Ответственный специалист по договорной работе</option>
-                                            @elseif(Auth::user()->isInGroup(49)/*32*/)
-                                                <option value="7">Ответственный специалист по договорной работе</option>
-                                            @elseif(in_array(Auth::user()->group_id, [5, 6]))
-                                                <option value="1">Ответственный специалист по КП (сваи)</option>
-                                                <option value="2">Ответственный специалист по КП (шпунт)</option>
-                                                <option value="3">Ответственный специалист по объёмам работ (сваи)</option>
-                                                <option value="4">Ответственный специалист по объёмам работ (шпунт)</option>
-                                                <option value="5">Руководитель проектов (сваи)</option>
-                                                <option value="6">Руководитель проектов (шпунт)</option>
-                                                <option value="7">Ответственный специалист по договорной работе</option>
-                                            @endif
-
-                                            @if(in_array(Auth::id(), $project->respUsers->where('role', 5)->pluck('user_id')->toArray()))
-                                                <option value="8">Ответственный производитель работ (сваи)</option>
-                                            @endif
-                                            @if(in_array(Auth::id(), $project->respUsers->where('role', 6)->pluck('user_id')->toArray()))
-                                                <option value="9">Ответственный производитель работ (шпунт)</option>
-                                            @endif
-                                        </select>
-                                    </div>
-                                </div>
+                        <validation-observer ref="observer" :key="observer_key">
+                            <div>
+                                <label class="d-block" for="">Позиция<span class="star">*</span></label>
+                                <validation-provider rules="required" vid="position-select"
+                                                     ref="position-select" v-slot="v">
+                                    <el-select v-model="position" clearable filterable
+                                               :class="v.classes"
+                                               id="position-select"
+                                               placeholder="Выберите позицию">
+                                        <el-option
+                                            v-for="item in positionOptions"
+                                            :key="item.id"
+                                            :label="item.name"
+                                            :value="item.id">
+                                        </el-option>
+                                    </el-select>
+                                    <div class="error-message">@{{ v.errors[0] }}</div>
+                                </validation-provider>
                             </div>
-                            <div class="row">
-                                <label class="col-sm-3 col-form-label">Сотрудники<star class="star">*</star></label>
-                                <div class="col-sm-9">
-                                    <div class="form-group">
-                                        <select name="user" id="js-select-users" style="width:100%;" data-title="Выберите сотрудника" data-style="btn-default btn-outline" data-menu-style="dropdown-blue" required>
-                                        </select>
-                                    </div>
-                                </div>
+                            <div class="mt-2">
+                                <label class="d-block" for="">Сотрудник<span class="star">*</span></label>
+                                <validation-provider rules="required" vid="related-user-select"
+                                                     ref="related-user-select" v-slot="v">
+                                    <el-select v-model="relatedUser" clearable filterable
+                                               :disabled="!position"
+                                               remote
+                                               :remote-method="searchRelatedUsers"
+                                               @clear="searchRelatedUsers('')"
+                                               :class="v.classes"
+                                               id="related-user-select"
+                                               placeholder="Выберите сотрудника">
+                                        <el-option
+                                            v-for="item in relatedUsers"
+                                            :key="item.id"
+                                            :label="item.name"
+                                            :value="item.id">
+                                        </el-option>
+                                    </el-select>
+                                    <div class="error-message">@{{ v.errors[0] }}</div>
+                                </validation-provider>
                             </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                        <button type="submit" form="form_select_user" class="btn btn-info">Добавить</button>
+                            <div class="mt-2 d-md-flex justify-content-md-between">
+                                <el-button @click="closeModal"
+                                           type="warning"
+                                           class="responsive-button mx-0"
+                                >Закрыть</el-button>
+                                <el-button @click.stop="submit"
+                                           :loading="loading"
+                                           type="primary"
+                                           class="responsive-button mt-10__mobile mx-0"
+                                >Добавить</el-button>
+                            </div>
+                        </validation-observer>
                     </div>
                 </div>
             </div>
@@ -952,7 +964,7 @@
                             <div class="form-group">
                                 <div id="contractors_row">
                                     <div class="row">
-                                        <label class="col-sm-3 col-form-label">Доп. контрагент<star class="star">*</star></label>
+                                        <label class="col-sm-3 col-form-label">Доп. контрагент<span class="star">*</span></label>
                                         <div class="col-sm-7">
                                             <div class="form-group select-accessible-140">
                                                 <select name="contractor_ids[]" class="js-select-contractor slct" style="width:100%;" required>
@@ -986,7 +998,7 @@
 
 <div class="d-none">
     <div class="row" id="new_contractor_input">
-        <label class="col-sm-3 col-form-label">Доп. контрагент<star class="star">*</star></label>
+        <label class="col-sm-3 col-form-label">Доп. контрагент<span class="star">*</span></label>
         <div class="col-sm-7">
             <div class="form-group select-accessible-140">
                 <select name="contractor_ids[]" class="js-select-more-contractors slct" style="width:100%;" required>
@@ -1024,7 +1036,7 @@
                             <input name="project_document_id" id="project_document_id" type="hidden">
                             <div class="form-group">
                                 <div class="row">
-                                    <label class="col-sm-3 col-form-label">Документ<star class="star">*</star></label>
+                                    <label class="col-sm-3 col-form-label">Документ<span class="star">*</span></label>
                                     <div class="col-sm-6" style="padding-top:0px;">
                                         <div class="file-container">
                                             <div id="fileName" class="file-name"></div>
@@ -1068,7 +1080,7 @@
                             @csrf
                             <div class="form-group">
                                 <div class="row">
-                                    <label class="col-sm-3 col-form-label">Наименования<star class="star">*</star></label>
+                                    <label class="col-sm-3 col-form-label">Наименования<span class="star">*</span></label>
                                     <div class="col-sm-9">
                                         <select name="wv_ids[]" multiple class="selectpicker" title="Выберите наименования" style="width:100%;">
                                             @foreach($work_volumes_options as $work_volume)
@@ -1106,7 +1118,7 @@
                             @csrf
                             <div class="form-group">
                                 <div class="row">
-                                    <label class="col-sm-3 col-form-label">Документы<star class="star">*</star></label>
+                                    <label class="col-sm-3 col-form-label">Документы<span class="star">*</span></label>
                                     <div class="col-sm-6" style="padding-top:0px;">
                                         <div class="file-container">
                                             <div id="fileName" class="file-name"></div>
@@ -1148,7 +1160,7 @@
                            @csrf
                            <input type="hidden" name="from_project" value="{{ $project->id }}">
                            <div class="row">
-                               <label class="col-sm-3 col-form-label">Название<star class="star">*</star></label>
+                               <label class="col-sm-3 col-form-label">Название<span class="star">*</span></label>
                                <div class="col-sm-9">
                                    <div class="form-group">
                                        <input class="form-control" type="text" name="name" required maxlength="50">
@@ -1156,7 +1168,7 @@
                                </div>
                            </div>
                            <div class="row">
-                               <label class="col-sm-3 col-form-label">Описание<star class="star">*</star></label>
+                               <label class="col-sm-3 col-form-label">Описание<span class="star">*</span></label>
                                <div class="col-sm-9">
                                    <div class="form-group">
                                        <textarea class="form-control textarea-rows" name="description" required maxlength="250"></textarea>
@@ -1164,7 +1176,7 @@
                                </div>
                            </div>
                            <div class="row">
-                               <label class="col-sm-3 col-form-label">Контрагент<star class="star">*</star></label>
+                               <label class="col-sm-3 col-form-label">Контрагент<span class="star">*</span></label>
                                <div class="col-sm-6">
                                    <div class="form-group">
                                        <select id="js-select-contractor" name="contractor_id"  style="width:100%;" required>
@@ -1190,7 +1202,7 @@
                                </div>
                            </div>
                            <div class="row">
-                               <label class="col-sm-3 col-form-label">Ответственное лицо<star class="star">*</star></label>
+                               <label class="col-sm-3 col-form-label">Ответственное лицо<span class="star">*</span></label>
                                <div class="col-sm-6">
                                    <div class="form-group">
                                        <select id="js-select-user" name="responsible_user_id"  style="width:100%;" required>
@@ -1199,7 +1211,7 @@
                                </div>
                            </div>
                            <div class="row">
-                               <label class="col-sm-3 col-form-label">Срок выполнения<star class="star">*</star></label>
+                               <label class="col-sm-3 col-form-label">Срок выполнения<span class="star">*</span></label>
                                <div class="col-sm-6">
                                    <div class="form-group">
                                        <input id="datetimepicker" name="expired_at" type="text" min="{{ \Carbon\Carbon::now()->addMinutes(30) }}" class="form-control datetimepicker" placeholder="Укажите дату" required>
@@ -1248,7 +1260,7 @@
                        <form id="" class="form-horizontal" action="" method="post" enctype="multipart/form-data">
                            <div class="row">
                                <div class="col-md-3">
-                                   <label>Вид документа<star class="star">*</star></label>
+                                   <label>Вид документа<span class="star">*</span></label>
                                </div>
                                <div class="col-md-6">
                                    <div class="form-group">
@@ -1261,7 +1273,7 @@
                            </div>
                            <div class="row" >
                                <label class="col-sm-3 col-form-label" for="" style="font-size:0.80">
-                                   Подписанный договор<star class="star">*</star>
+                                   Подписанный договор<span class="star">*</span>
                                </label>
                                <div class="col-sm-6">
                                    <div class="file-container">
@@ -1311,7 +1323,7 @@
                     </label>
                 </div>
             </div>
-            <div class="col-1">
+            <div class="col-1" id="base">
                 <button type="button" class="btn-success btn-link btn-xs btn pd-0" onclick="add_phone(this)">
                     <i class="fa fa-plus"></i>
                 </button>
@@ -1332,13 +1344,15 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('js_footer')
 <script src="{{ mix('js/form-validation.js') }}" type="text/javascript"></script>
 <script src="{{ asset('js/plugins/jquery.mask.min.js') }}"></script>
-
+<script type="text/javascript">
+    Vue.component('validation-provider', VeeValidate.ValidationProvider);
+    Vue.component('validation-observer', VeeValidate.ValidationObserver);
+</script>
 
 <script>
     var count_phone = 1;
@@ -1400,6 +1414,125 @@
             }
         });
     }
+
+    var userSelect = new Vue({
+        el: "#select-user",
+        data: {
+            POSITIONS: [
+                { id: 1, name: 'Ответственный специалист по КП (сваи)'},
+                { id: 2, name: 'Ответственный специалист по КП (шпунт)'},
+                { id: 3, name: 'Ответственный специалист по объёмам работ (сваи)'},
+                { id: 4, name: 'Ответственный специалист по объёмам работ (шпунт)'},
+                { id: 5, name: 'Руководитель проектов (сваи)'},
+                { id: 6, name: 'Руководитель проектов (шпунт)'},
+                { id: 7, name: 'Ответственный специалист по договорной работе'},
+                { id: 8, name: 'Ответственный производитель работ (сваи)'},
+                { id: 9, name: 'Ответственный производитель работ (шпунт)'},
+                { id: 10, name: 'Ответственный за учёт рабочего времени'},
+            ],
+            visiblePositions: [
+            @if(Auth::user()->isInGroup(8)/*5*/ || Auth::user()->isInGroup(13))
+                5, 6,
+            @elseif(Auth::user()->isInGroup(19))
+                5,
+            @elseif(Auth::user()->isInGroup(27))
+                6,
+            @elseif(Auth::user()->isInGroup(50)/*7*/)
+            {{-- @elseif(Auth::user()->group_id == 50/*7*/) example of new vacation logic --}}
+                1, 2, 3, 5, 6,
+            @elseif(Auth::user()->isInGroup(53)/*16*/)
+                4, 7,
+            @elseif(Auth::user()->isInGroup(54)/*26*/)
+                1, 3, 7,
+            @elseif(Auth::user()->isInGroup(49)/*32*/)
+                7,
+            @elseif(in_array(Auth::user()->group_id, [5, 6]))
+                1, 2, 3, 4, 5, 6, 7,
+            @endif
+            @can('human_resources_project_time_responsible_user_change')
+                10,
+            @endcan
+            @if(in_array(Auth::id(), $project->respUsers->where('role', 5)->pluck('user_id')->toArray()))
+                8,
+            @endif
+            @if(in_array(Auth::id(), $project->respUsers->where('role', 6)->pluck('user_id')->toArray()))
+                9,
+            @endif
+            ],
+            relatedUsers: [],
+
+            position: '',
+            relatedUser: '',
+
+            loading: false,
+            observer_key: 1,
+        },
+        computed: {
+            positionOptions() {
+                return this.POSITIONS.filter(el => this.visiblePositions.indexOf(el.id) !== -1);
+            }
+        },
+        watch: {
+            position(val) {
+                this.searchRelatedUsers('');
+            }
+        },
+        methods: {
+            closeModal() {
+                $('#select-user').modal('hide');
+            },
+            submit() {
+                this.$refs.observer.validate().then(success => {
+                    if (!success) {
+                        const error_field_vid = Object.keys(this.$refs.observer.errors).find(el => this.$refs[el].errors.length > 0);
+                        $('#' + error_field_vid).focus();
+                        return;
+                    }
+                    if (this.position !== 10) {
+                        const payload = {
+                            role: String(this.position),
+                            user: String(this.relatedUser),
+                        };
+                        this.loading = true;
+                        axios.post('{{ route('projects::select_user', $project->id) }}', payload)
+                            .then(() => {
+                                window.location.reload();
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                                this.loading = false;
+                            })
+                    } else {
+                        const payload = {
+                            time_responsible_user_id: String(this.relatedUser),
+                            project_id: {{ $project->id }},
+                        };
+                        this.loading = true;
+                        axios.post('{{ route('projects::update_time_responsible', $project->id) }}', payload)
+                            .then(() => {
+                                window.location.reload();
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                                this.loading = false;
+                            })
+                    }
+                });
+            },
+            searchRelatedUsers(query) {
+                axios.get('/projects/ajax/get-users', {params: {
+                        role: this.position,
+                        q: query,
+                    }})
+                    .then(response => {
+                        this.relatedUsers = response.data.results.map(el => ({ id: el.id, name: el.text, })).filter(el => el.id !== 1);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            },
+        }
+    })
 
     $('.js-select-contractor').select2({
         language: "ru",
@@ -1592,9 +1725,6 @@
         }
     });
 
-    $('#js-select-position').select2({
-        language: "ru"
-    });
 
     $('#js-select-users').select2({
         language: "ru",
@@ -1612,17 +1742,6 @@
         },
         disabled: true
     });
-
-    $("#js-select-position").on("change", function () {
-        result = $("#js-select-position").val();
-        if (result) {
-            $("#js-select-users").prop("disabled", false);
-        } else {
-            $("#js-select-users").prop("disabled", true);
-        }
-        $("#js-select-users").val(null).trigger("change");
-    });
-
 
     $("#project_status").on("change", function() {
         $.ajax({
@@ -1764,6 +1883,36 @@
                         }
                     }
                 });
+            }
+        })
+    });
+
+    $('.remove_responsible_time_user').on('click', function() {
+        swal({
+            title: 'Вы уверены?',
+            text: "Ответственное лицо будет удалено!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            cancelButtonText: 'Назад',
+            confirmButtonText: 'Удалить'
+        }).then((result) => {
+            if(result.value) {
+                axios.post('{{ route('projects::update_time_responsible', $project->id) }}', {
+                    project_id: {{ $project -> id }},
+                    time_responsible_user_id: null,
+                })
+                    .then(() => {
+                        window.location.reload();
+                    })
+                    .catch((error) => {
+                        swal({
+                            title: "Внимание",
+                            text: "Вы не можете удалить ответственное лицо, так как у него есть невыполненные задачи",
+                            type: 'warning',
+                        });
+                    })
             }
         })
     });
@@ -2093,5 +2242,42 @@ $('#addSvPile').click(function(){
             timer: 5000,
         });
     @endif
+</script>
+<script type="text/javascript">
+    var vm = new Vue ({
+        el: '#base',
+        mounted() {
+            const that = this;
+            $('.prerendered-date-time').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+            $('.prerendered-date').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY') ? that.weekdayDate(date, 'DD.MM.YYYY') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+        },
+        methods: {
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+        }
+    })
 </script>
 @endpush

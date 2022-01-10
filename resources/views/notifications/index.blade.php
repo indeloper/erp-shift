@@ -242,7 +242,7 @@
 @section('js_footer')
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <script type="text/javascript">
-        function ban_notification() {
+        function ban_notification(e, id) {
             swal({
                 title: 'Вы уверены?',
                 text: "Все уведомления будут отключены!",
@@ -291,7 +291,7 @@
                     notify_id: notify_id,
                 },
                 dataType: 'JSON',
-                success: function () {
+                success: function (data) {
                     $(e).closest('.notify').remove();
                     $('.tooltip').tooltip('hide');
                     notify_length = $('.notify').length;
@@ -315,7 +315,7 @@
                     notify_id: notify_id,
                 },
                 dataType: 'JSON',
-                success: function () {
+                success: function (data) {
                     $(e).closest('.notify').appendTo('.notify_place');
                     $(e).closest('.notify').addClass('bg-color-snow');
                     $(e).hide();
@@ -363,7 +363,7 @@
             } else {
                 return false;
             }
-        }
+        };
 
         $(document).ready(function(){
             if(screen.width<=769){

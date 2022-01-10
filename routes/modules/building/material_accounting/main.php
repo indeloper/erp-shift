@@ -22,6 +22,7 @@ Route::any('/report_card/get_objects', 'MaterialAccountingController@get_objects
 Route::any('/report_card/get_suppliers', 'MaterialAccountingController@get_suppliers')->name('report_card::get_suppliers');
 Route::any('/report_card/get_materials', 'MaterialAccountingController@get_materials')->name('report_card::get_materials');
 Route::any('/report_card/get_bases', 'MaterialAccountingController@get_bases')->name('report_card::get_bases');
+Route::get('/report_card/get_base_comments', 'MaterialAccountingController@get_base_comments')->name('report_card::get_base_comments');
 Route::post('/check_problem/{operation_id}', 'MaterialAccountingController@check_problem')->name('check_problem');
 Route::post('/close_operation/{operation_id}', 'MaterialAccountingController@close_operation')->name('close_operation');
 Route::post('/report/operations_actions', 'MaterialAccountingController@export_object_actions')->name('export_object_actions');
@@ -54,6 +55,8 @@ Route::post('/get_material_category_description', 'MaterialAccountingController@
 Route::post('/materials_count', 'MaterialAccountingController@materials_count')->name('materials_count');
 Route::post('/attach_material', 'MaterialAccountingController@attach_material')->name('attach_material');
 
+Route::post('/get_siblings', 'MaterialAccountingController@getSiblings')->name('get_siblings');
+Route::post('/split_base', 'MaterialAccountingController@splitBase')->name('split_base');
 Route::post('/used', 'MaterialAccountingController@moveToUsed')->name('move_to_used');
 Route::post('/new', 'MaterialAccountingController@moveToNew')->name('move_to_new');
 

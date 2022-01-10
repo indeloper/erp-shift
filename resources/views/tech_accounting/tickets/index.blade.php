@@ -3,7 +3,6 @@
 @section('title', 'Учет техники')
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style>
         th.text-truncate {
             position: relative;
@@ -114,7 +113,7 @@
                                 ></el-option>
                             </el-select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mt-10__mobile">
                             <label for="count">Значение</label>
                             <el-select
                                 v-if="filter_attribute === 'sending_object_id'"
@@ -322,7 +321,9 @@
                                     @{{ ticket.id }}
                                 </td>
                                 <td data-label="Дата создания">
-                                    @{{ convertDateFormat(ticket.created_at, true) }}
+                                    <span :class="isWeekendDay(ticket.created_at, 'YYYY-MM-DD HH:mm:ss') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(ticket.created_at, 'YYYY-MM-DD HH:mm:ss') ? weekdayDate(ticket.created_at, 'YYYY-MM-DD HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
+                                    </span>
                                 </td>
                                 <td data-label="Марка">
                                     @{{ ticket.short_data ? ticket.short_data.brand : '' }}
@@ -769,6 +770,15 @@
                 convertDateFormat(dateString, full) {
                     return full ? moment(dateString, 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY HH:mm:ss') :
                         moment(dateString, 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY');
+                },
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
                 },
                 addFilter() {
                     if (this.filter_value && this.filter_attribute) {

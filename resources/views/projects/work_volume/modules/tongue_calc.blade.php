@@ -278,7 +278,7 @@
                     let that = this;
                     that.need_attributes = [];
                     axios.post('{{ route('building::materials::category::get_need_attrs') }}', { category_id: that.category_id }).then(function (response) {
-                        that.attrs_all = response.data;
+                        that.attrs_all = response.data.attrs;
                         that.attrs_all = that.attrs_all.reverse();
 
                         that.attrs_all.forEach(function(attribute) {

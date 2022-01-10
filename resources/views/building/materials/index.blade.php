@@ -654,6 +654,7 @@
 @endsection
 
 @section('js_footer')
+
 <script>
 @can('manual_materials_edit')
     var unitOptions = {

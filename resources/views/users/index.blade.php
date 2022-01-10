@@ -53,6 +53,7 @@
                                 <th>Должность</th>
                                 <th>Подразделение</th>
                                 <th>Компания</th>
+                                <th>Должностная категория</th>
                                 <th class="text-center">Статус</th>
                             </tr>
                         </thead>
@@ -66,6 +67,7 @@
                                 <td data-label="Должность">{{ $user->group_name }}</td>
                                 <td data-label="Подразделение">{{ $user->dep_name }}</td>
                                 <td data-label="Компания">{{ $companies[$user->company] }}</td>
+                                <td data-label="Должностная категория">{{ $user->job_category_name }}</td>
                                 <td data-label="Статус" class="text-center">@if($user->status)Активен@elseНе активен@endif</td>
                             </tr>
                         @endforeach
@@ -78,7 +80,7 @@
             <div class="col-md-12 fix-pagination">
                 <div class="right-edge">
                     <div class="page-container">
-                        {{ $users->appends(['search' => Request::get('search')])->links() }}
+                        {{ $users->appends(['search' => Request::get('search'), 'job_category_id' => Request::get('job_category_id')])->links() }}
                     </div>
                 </div>
             </div>

@@ -10,6 +10,7 @@ use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualReference;
 use App\Models\Manual\ManualReferenceParameter;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -159,7 +160,7 @@ class ManualMaterialCategoryController extends Controller
     {
         $category = ManualMaterialCategory::find($request->category_id);
 
-        return response()->json($category->needAttributes());
+        return response()->json(['attrs' => $category->needAttributes(), 'unit_show' => MaterialAccountingOperationMaterials::flipUnit($category->unit_show) . '']);
     }
 
     public function getNeedAttributesValues(Request $request)

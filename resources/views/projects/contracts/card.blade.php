@@ -72,7 +72,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row" id="base">
     <div class="col-xl-12 ml-auto mr-auto">
         <div class="card">
             <div class="card-header">
@@ -220,7 +220,7 @@
                                                                             {{ $contract_request->patronymic }}
                                                                         @endif
                                                                     </td>
-                                                                    <td data-label="Дата">{{ $contract_request->updated_at }}</td>
+                                                                    <td data-label="Дата" class="prerendered-date-time">{{ $contract_request->updated_at }}</td>
                                                                     <td class="text-right">
                                                                         <button rel="tooltip" type="button" class="btn btn-info btn-link btn-xs padding-actions" data-toggle="modal" data-target="#view-contract-request-{{ $contract_request->id }}" data-original-title="Просмотр">
 
@@ -323,7 +323,7 @@
                                                     <td data-label="Тип">
                                                         {{ $extra_contract->name }}
                                                     </td>
-                                                    <td data-label="Дата добавления">{{ $extra_contract->created_at }}</td>
+                                                    <td data-label="Дата добавления" class="prerendered-date-time">{{ $extra_contract->created_at }}</td>
                                                     <td data-label="Версия" class="text-center">{{ $extra_contract->version }}</td>
                                                     <td data-label="Статус">{{ $extra_contract->contract_status[$extra_contract->status] }}</td>
                                                     <td data-label="Действия" class="text-right actions">
@@ -524,8 +524,8 @@
                                                     <td data-label="#">{{ $key + 1 }}</td>
                                                     <td data-label="Наименование" type="input">{{ $key_date->name }}</td>
                                                     <td data-label="Сумма" type="number">{{ $key_date->sum ? round($key_date->sum, 2) : '' }}</td>
-                                                    <td data-label="Дата с" type="from">{{ $key_date->date_from ? $key_date->date_from->format('d.m.Y') : '' }}</td>
-                                                    <td data-label="Дата по" type="to">{{ $key_date->date_to ? $key_date->date_to->format('d.m.Y') : '' }}</td>
+                                                    <td data-label="Дата с" type="from" class="prerendered-date">{{ $key_date->date_from ? $key_date->date_from->format('d.m.Y') : '' }}</td>
+                                                    <td data-label="Дата по" type="to" class="prerendered-date">{{ $key_date->date_to ? $key_date->date_to->format('d.m.Y') : '' }}</td>
                                                     <td data-label="Примечание" type="text">{{ $key_date->note }}</td>
                                                 </tr>
                                                 @if ($key_date->related_key_dates->count())
@@ -534,8 +534,8 @@
                                                             <td data-label="#">{{ ($key + 1) . '.' . ($skey + 1) }}</td>
                                                             <td data-label="Наименование" type="input">{{ $related_key_date->name }}</td>
                                                             <td data-label="Сумма" type="number">{{ $related_key_date->sum ? round($related_key_date->sum, 2) : '' }}</td>
-                                                            <td data-label="Дата с" type="from">{{ $related_key_date->date_from ? $related_key_date->date_from->format('d.m.Y') : '' }}</td>
-                                                            <td data-label="Дата по" type="to">{{ $related_key_date->date_to ? $related_key_date->date_to->format('d.m.Y') : '' }}</td>
+                                                            <td data-label="Дата с" type="from" class="prerendered-date">{{ $related_key_date->date_from ? $related_key_date->date_from->format('d.m.Y') : '' }}</td>
+                                                            <td data-label="Дата по" type="to" class="prerendered-date">{{ $related_key_date->date_to ? $related_key_date->date_to->format('d.m.Y') : '' }}</td>
                                                             <td data-label="Примечание" type="text">{{ $related_key_date->note }}</td>
                                                         </tr>
                                                     @endforeach
@@ -1702,5 +1702,41 @@ $('#findResp_edit').select2({
 });
 
 </script>
-
+<script type="text/javascript">
+    var vm = new Vue ({
+        el: '#base',
+        mounted() {
+            const that = this;
+            $('.prerendered-date-time').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+            $('.prerendered-date').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY') ? that.weekdayDate(date, 'DD.MM.YYYY') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+        },
+        methods: {
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+        }
+    })
+</script>
 @endsection

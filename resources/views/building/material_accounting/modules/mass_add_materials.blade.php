@@ -27,16 +27,15 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, index) in materials">
-                                            <td>@{{ item.material.name + ' ' + (item.used ? 'Б/У' : '') }}</td>
+                                            <td>@{{ item.comment_name }}</td>
                                             <td class="text-right">
-                                                <b>@{{ Number(item.count).toFixed(3) }}</b> @{{ item.unit }} <br>
-                                                <span v-for="(base) in item.convert_params" class="amount-materials">
-                                                    <b>@{{ calculateConvertedAmount(item.round_count, base.value) }}</b> @{{ base.unit }}<br>
+                                                <span v-for="(count) in item.all_converted" class="amount-materials">
+                                                    <b>@{{ count.count }}</b> @{{ count.unit }}<br>
                                                 </span>
                                             </td>
                                             <td class="text-right">
                                                 <div>
-                                                    <el-checkbox v-model="item.checked" :disabled="isPresent(item)"></el-checkbox>
+                                                    <el-checkbox v-model="item.checked"></el-checkbox>
                                                 </div>
                                             </td>
                                         </tr>
@@ -72,33 +71,35 @@
                     });
                 }
             },
-            mounted() {
-              setInterval(() => {
-                  this.$forceUpdate();
-              }, 200);
-            },
             methods: {
-                addMaterialsToInputs()
-                {
+                addMaterialsToInputs() {
                     let that = this.vueMaterialsInstance();
 
                     $('#mass_add_materials_modal').modal('hide');
                     axios.post('{{ route('building::mat_acc::report_card::get_materials') }}', {base_id: vm.selected ? vm.selected : vm.object_id_from,}).then(function (response) {
                         that.new_materials = response.data;
 
-                        Object.keys(mass_add_materials.materials).map(function(key) {
+                        Object.keys(mass_add_materials.materials).map(function (key) {
                             if (mass_add_materials.materials[key].checked === true) {
+                                let ex_base_id = typeof (mass_add_materials.materials[key].id) === 'object' ? mass_add_materials.materials[key].id['from'] : mass_add_materials.materials[key].id;
 
-                                if (!that.inArray(that.new_materials, {id: mass_add_materials.materials[key].manual_material_id, used: (mass_add_materials.materials[key].used ? 1 : 0)})) {
+                                if (!that.inArray(that.new_materials, ex_base_id)) {
                                     that.new_materials.push({
                                         id: mass_add_materials.materials[key].manual_material_id,
-                                        used: (mass_add_materials.materials[key].used ? 1 : 0),
-                                        label: mass_add_materials.materials[key].material.name
+                                        base_id: mass_add_materials.materials[key].id,
+                                        label: mass_add_materials.materials[key].comment_name,
+                                        used: mass_add_materials.materials[key].used,
+                                        unit: that.units.find(function (item) {
+                                            if (item.text === mass_add_materials.materials[key].unit) {
+                                                return true;
+                                            }
+                                        }).id,
                                     })
                                 }
 
                                 setTimeout(() => {
                                     if (that.material_inputs.length === 1
+                                        && !that.material_inputs[0].base_id
                                         && !that.material_inputs[0].material_id
                                         && !that.material_inputs[0].material_unit
                                         && !that.material_inputs[0].material_count) {
@@ -107,19 +108,20 @@
                                     that.material_inputs.push({
                                         id: that.next_mat_id++,
                                         material_id: `${mass_add_materials.materials[key].manual_material_id}_${mass_add_materials.materials[key].used ? 1 : 0}`,
+                                        base_id: ex_base_id,
                                         material_unit: that.units.find(function (item) {
                                             if (item.text === mass_add_materials.materials[key].unit) {
                                                 return true;
                                             }
                                         }).id,
-                                        material_label: '',
-                                        used: mass_add_materials.materials[key].used,
                                         material_count: Number(mass_add_materials.materials[key].count),
+                                        material_date: (new Date()).toISOString().split('T')[0],
+                                        used: mass_add_materials.materials[key].used,
                                         units: that.units,
-                                        materials: response.data
+                                        materials: that.new_materials
                                     });
                                 }, 200);
-                                mass_add_materials.materials[key].checked = false;
+                                Vue.set(mass_add_materials.materials[key], 'checked', false);
                             }
                         });
                     });
@@ -139,18 +141,20 @@
                 findAllMaterials(base_id) {
                     let that = this;
 
-                    axios.post('{{ route('building::mat_acc::get_materials_from_base') }}', {base_id: base_id, date: vm.operation_date_from ? vm.operation_date_from : vm.operation_date}).then(function (response) {
+                    that.vueMaterialsInstance().is_loading_mats = true;
+                    axios.post('{{ route('building::mat_acc::get_materials_from_base') }}', {
+                        base_id: base_id,
+                        date: vm.operation_date_from ? vm.operation_date_from : vm.operation_date
+                    }).then(function (response) {
                         that.materials = response.data;
+                        that.vueMaterialsInstance().is_loading_mats = false;
                     });
                 },
-                calculateConvertedAmount: function(base, coef) {
-                    return this.prettifyNumber(this.parseCustomFloat(base) * this.parseCustomFloat(coef));
-                },
-                parseCustomFloat: function(str) {
+                parseCustomFloat: function (str) {
                     str = String(str);
                     return +str.split(',').join('');
                 },
-                prettifyNumber: function(num) {
+                prettifyNumber: function (num) {
                     const [wholePart, decimalPart] = num.toFixed(3).split('.');
                     const wholePartDestructed = wholePart.split('');
                     const prettyWholePartDestructed = [];
@@ -165,7 +169,7 @@
                     return `${prettyWholePartDestructed.join('')}.${decimalPart}`;
                 },
             }
-        })
+        });
 
 
     </script>

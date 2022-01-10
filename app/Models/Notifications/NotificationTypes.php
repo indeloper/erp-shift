@@ -11,7 +11,7 @@ class NotificationTypes extends Model
 
     const NOTIFICATION_GROUPS = [
         1 => 'Notifications for Standard Tasks or for all tasks',
-        2 => 'Notifications related to Materials Accounting and tasks',
+        2 => 'Notifications related to Material Accounting and tasks',
         3 => 'Notifications related to Tech Support and tasks',
         4 => 'Notifications related to Contractors and tasks',
         5 => 'Notifications related to Work Volumes tasks',
@@ -20,6 +20,7 @@ class NotificationTypes extends Model
         8 => 'Notifications related to Projects',
         9 => 'Notifications related to Users',
         10 => 'Notifications related to Tech Accounting and tasks',
+        11 => 'Notifications related to Human Resources Accounting'
     ];
 
     const WDIM_FOR_EVERYONE = [

@@ -330,7 +330,7 @@
                                     @endif
                                 </td>
                                 <td data-label="Контрагент">{{ $task->contractor_name ? $task->contractor_name : 'Не выбран'}}</td>
-                                <td data-label="Срок исполнения">{{ $task->expired_at }}</td>
+                                <td data-label="Срок исполнения" class="prerendered-date">{{ $task->expired_at }}</td>
                                 <td data-label="Автор">
                                     @if($task->user_id)
                                     <a href="{{ route('users::card', $task->user_id) }}" class="table-link">
@@ -363,7 +363,7 @@
                                     @endif
                                 </td>
                                 <td data-label="Контрагент">{{ $task->contractor_name ? $task->contractor_name : 'Не выбран'}}</td>
-                                <td data-label="Срок исполнения">{{ $task->expired_at }}</td>
+                                <td data-label="Срок исполнения" class="prerendered-date">{{ $task->expired_at }}</td>
                                 <td data-label="Автор">
                                     @if($task->user_id)
                                         <a href="{{ route('users::card', $task->user_id) }}" class="table-link">
@@ -650,7 +650,7 @@
                                     <span class="task-info__head-title">
                                         Установленный срок исполнения
                                     </span>
-                                <span class="task-info__body-title">
+                                <span class="task-info__body-title prerendered-date">
                                         {{ $task->prev_task->expired_at }}
                                     </span>
                             </div>
@@ -839,7 +839,30 @@
 @endif
 <script type="text/javascript">
     var statistic = new Vue ({
-        el: '#statistic'
+        el: '#statistic',
+        mounted() {
+            const that = this;
+            $('.prerendered-date').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            })
+        },
+        methods: {
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+        }
     })
 
 </script>

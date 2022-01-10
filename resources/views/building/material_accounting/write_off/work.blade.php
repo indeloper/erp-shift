@@ -64,6 +64,7 @@
 @endsection
 
 @section('content')
+    @include('building.material_accounting.modules.material_notes')
 
     @include('building.material_accounting.modules.breadcrump')
 
@@ -109,7 +110,7 @@
         @include('building.material_accounting.modules.history_composit')
 
         <!-- information about materials -->
-            @include('building.material_accounting.modules.info_about_materials')
+            @include('building.material_accounting.modules.info_about_materials_moving')
 
             @if($operation->comment_author)
                 <div class="card strpied-tabled-with-hover">
@@ -185,7 +186,9 @@
                                         :material_unit.sync="material_input.material_unit"
                                         :material_count.sync="material_input.material_count"
                                         :material_date.sync="material_input.material_date"
+                                        :material_input="material_input"
                                         :materials.sync="material_input.materials"
+                                        :base_id.sync="material_input.base_id"
                                         :used.sync="material_input.used"
                                         :units.sync="material_input.units"
                                         v-on:remove="material_inputs.splice(index, 1)"
@@ -346,26 +349,40 @@
     <script>
         Vue.component('material-item', {
             template: '\
-      <div class="row" style="margin-top: 7px;">\
+      <div class="form-row" style="margin-top: 7px;">\
           <div class="col-md-4">\
               <label :class="[material_index !== 1 ? \'show-mobile-label mt-10__mobile\' : \'mt-10__mobile\']" >\
                   Материал <span class="star">*</span>\
               </label>\
               <template>\
-                <el-select @change="changeMaterialId" ref="usernameInput" v-model="default_material_id" clearable filterable :remote-method="search" remote size="large" placeholder="Выберите материал">\
+                <el-select @change="changeMaterialId" ref="usernameInput" v-model="default_base_id" clearable filterable :remote-method="search" remote size="large" placeholder="Выберите материал">\
                   <el-option\
-                    v-for="item in materials"\
+                    v-for="item in new_materials_filtered"\
                     :label="item.label"\
-                    :key="`${item.id}_${item.used ? 1 : 0}`"\
-                    :value="`${item.id}_${item.used ? 1 : 0}`">\
+                    :key="item.base_id"\
+                    :value="item.base_id">\
                   </el-option>\
                 </el-select>\
               </template>\
           </div>\
-           <div class="col-md-1 align-self-end">\
-                 <button data-toggle="modal" data-target="#description" @click="getDescription" title="Примечание" type="button" name="button" class="btn btn-sm btn-primary btn-outline mt-10__mobile btn-block" style="height: 40px;">\
+           <div class="col-md-1 align-self-end text-center">\
+                <button data-toggle="modal" data-target="#material-notes" @click="() => { materialNotes().changeMaterialInput(this,false, true); hideTooltips(); }"\
+                        @mouseleave="hideTooltips" type="button"\
+                        data-balloon-pos="up" :aria-label="notesLabel"\
+                        data-balloon-length="medium"\
+                        :disabled="!material_id"\
+                        class="btn btn-link btn-xs pd-0 mt-10__mobile mr-1" style="height: 40px;"\
+                        :class="material_id && comments.length > 0 ? \'btn-danger\' : \' btn-secondary\'">\
                     <i style="font-size:18px;" class="fa fa-info-circle"></i>\
-                 </button>\
+                </button>\
+                <button data-toggle="modal" data-target="#description" @click="() => { getDescription(); hideTooltips(); }"\
+                        @mouseleave="hideTooltips" type="button"\
+                        data-balloon-pos="up" aria-label="Описание категории материала"\
+                        :disabled="!material_id"\
+                        class="btn btn-link btn-xs pd-0 mt-10__mobile" style="height: 40px;"\
+                        :class="material_id ? \'btn-primary\' : \' btn-secondary\'">\
+                    <i style="font-size:18px;" class="fa fa-info-circle"></i>\
+                </button>\
               </div>\
           <div class="col-md-1">\
               <label for="" :class="[material_index !== 1 ? \'show-mobile-label mt-10__mobile\' : \'mt-10__mobile\']">\
@@ -415,7 +432,7 @@
                 </label>\
                     <template>\
                         <el-checkbox v-model="default_material_used"\
-                            border class="d-block" disabled\
+                            border class="d-block"\
                            @can('mat_acc_base_move_to_new') @change="changeUsageValue" @endcan @cannot('mat_acc_base_move_to_new') disabled @endcannot
                 ></el-checkbox>\
             </template>\
@@ -425,30 +442,52 @@
             <i style="font-size:18px;" :class="[material_index !== 1 ? \'fa fa-times remove-stroke-index\' : \'fa fa-times remove-stroke\']" ></i>\
           </button>\
           </div>\
+        </div>\
           ',
-            props: ['material_id', 'material_unit', 'material_count', 'inputs_length', 'material_index', 'used', 'materials', 'units', 'used'],
+            props: ['material_id', 'material_unit', 'material_count', 'inputs_length', 'material_index', 'used', 'materials', 'units', 'material_input', 'base_id', 'index'],
             computed: {
+                notesLabel() {
+                    if (!this.material_id) {
+                        return 'Примечания';
+                    }
+                    if (this.comments && this.comments.length > 0) {
+                        const commentsString = this.comments.map(comment => comment.comment).join(', ');
+                        if (commentsString.length > 90) {
+                            return commentsString.slice(0, 90) + '... см. полный список примечаний в справочнике.';
+                        } else {
+                            return commentsString;
+                        }
+                    } else {
+                        return 'Вы можете добавить к этому материалу примечания';
+                    }
+                },
                 new_materials_filtered() {
                     return this.materials
                         .filter(el => {
-                            const count = materials.material_inputs.filter(input => input.material_id == el.id && input.used == el.used).length;
-                            return count < 1 || String(this.default_material_id).split('_')[0] === el.id && String(this.default_material_id).split('_')[1] == el.used;
+                            const count = materials.material_inputs.filter(input => input.base_id == el.base_id).length;
+                            return count < 1 || this.default_base_id == el.base_id;
                         });
                 }
             },
             methods: {
-                changeMaterialId(value) {
-                    this.$emit('update:material_id', value.split('_')[0]);
-                    this.getDescription();
+                changeMaterialId(value, on_load = false) {
                     if (value) {
-                        let mat = this.materials.filter(input => input.id == value.split('_')[0]
-                            && input.used == value.split('_')[1])[0];
+                        let mat = this.materials.filter(input => input.base_id == value)[0];
                         let used = (mat.used === undefined ? false : mat.used);
+                        this.$emit('update:material_id', mat.id);
+                        this.$emit('update:base_id', value);
+                        this.getDescription();
                         this.changeUsageValue(used);
+                        this.loadComments(mat);
                         this.default_material_used = used;
+                        this.default_material_id = mat.id;
 
-                        let unit = (mat.unit === undefined ? null : mat.unit);
-                        this.autoChangeUnit(unit)
+                        if (this.default_material_unit == false) {
+                            let unit = (mat.unit === undefined ? null : mat.unit);
+                            if (!on_load) {
+                                this.autoChangeUnit(unit);
+                            }
+                        }
                     } else {
                         this.changeUsageValue(false);
                         this.default_material_used = false;
@@ -466,8 +505,7 @@
                 changeUsageValue(value) {
                     this.$emit('update:used', value);
                 },
-                autoChangeUnit(unit)
-                {
+                autoChangeUnit(unit) {
                     this.changeMaterialUnit(unit);
                     this.default_material_unit = unit;
                 },
@@ -501,21 +539,59 @@
 
                     descriptionModal.material = this;
                 },
+                hideTooltips() {
+                    for (let ms = 50; ms <= 1050; ms += 100) {
+                        setTimeout(() => {
+                            $('[data-balloon-pos]').blur();
+                        }, ms);
+                    }
+                },
+                materialNotes() {
+                    return materialNotes;
+                },
+                locationFromName() {
+                    if (typeof(vm) !== 'undefined') {
+                        return vm.$refs['search_from'] ? vm.$refs['search_from'].query : null;
+                    } else if (typeof(this.predefinedLocation) !== 'undefined') {
+                        return this.predefinedLocation;
+                    }
+                    return null;
+                },
+                materialName() {
+                    return this.$refs['usernameInput'] ? this.$refs['usernameInput'].query : null;
+                },
+                loadComments(mat) {
+                    if (typeof(mat) !== 'undefined' && mat.base_id) {
+                        axios.get('{{ route('building::mat_acc::report_card::get_base_comments') }}', { params: { base_id: mat.base_id }})
+                        .then(response => {
+                            this.id = mat.base_id;
+                            this.comments = response.data.comments;
+                        })
+                        .catch(error => console.log(error));
+                    }
+                }
             },
             data: function () {
                 return {
-                    default_material_id: materials.material_inputs[this.inputs_length - 1].material_id,
-                    default_material_unit: materials.material_inputs[this.inputs_length - 1].material_unit,
-                    default_material_count: materials.material_inputs[this.inputs_length - 1].material_count,
-                    default_material_used: materials.material_inputs[this.inputs_length - 1].used,
-                    default_material_date: materials.material_inputs[this.inputs_length - 1].material_date,
+                    default_material_id: materials.material_inputs[this.index].material_id,
+                    default_base_id: materials.material_inputs[this.index].base_id,
+                    default_material_unit: materials.material_inputs[this.index].material_unit,
+                    default_material_count: materials.material_inputs[this.index].material_count,
+                    default_material_used: materials.material_inputs[this.index].used,
+                    default_material_date: materials.material_inputs[this.index].material_date,
                     default_material_description: 'Нет описания',
                     documents: [],
+                    comments: [],
+                    id: null,
                     dateToOptions: {
                         firstDayOfWeek: 1,
-                    },
+                    }
                 }
-
+            },
+            mounted() {
+                if (this.default_base_id) {
+                    this.changeMaterialId(this.default_base_id, true);
+                }
             }
         })
 
@@ -530,17 +606,22 @@
                 units: {!! json_encode($operation->materials()->getModel()::$main_units) !!},
                 exist_materials: {!! $operation->materialDifference($operation->materials->where('type', 3), $operation->materialsPartFrom) !!}
             },
-            mounted: function () {
+            created: function () {
                 const that = this;
 
                 axios.post('{{ route('building::mat_acc::report_card::get_materials') }}', {base_id: {{ $operation->object_id_from }}, material_ids: {{ $operation->materials->pluck('manual_material_id') }} }).then(function (response) {
                     that.new_materials = response.data;
 
                     Object.keys(that.exist_materials).map(function (key) {
-                        if (!that.inArray(that.new_materials, {id: that.exist_materials[key].manual_material_id, used: that.exist_materials[key].used})) {
+                        let ex_base_id = typeof (that.exist_materials[key].base_id) === 'object' ? undefined : that.exist_materials[key].base_id;
+
+                        if (!that.inArray(that.new_materials, ex_base_id, that.exist_materials[key].manual_material_id)) {
                             that.new_materials.push({
                                 id: that.exist_materials[key].manual_material_id,
-                                label: that.exist_materials[key].manual.name
+                                base_id: ex_base_id,
+                                label: that.exist_materials[key].comment_name,
+                                used: that.exist_materials[key].used,
+                                unit: that.exist_materials[key].unit,
                             })
                         }
 
@@ -548,6 +629,7 @@
                             that.material_inputs.push({
                                 id: that.next_mat_id++,
                                 material_id: `${that.exist_materials[key].manual_material_id}_${that.exist_materials[key].used ? 1 : 0}`,
+                                base_id: ex_base_id,
                                 material_unit: that.exist_materials[key].unit,
                                 material_count: Number(that.exist_materials[key].count),
                                 material_date: (new Date()).toISOString().split('T')[0],
@@ -569,6 +651,7 @@
                         that.material_inputs.push({
                             id: that.next_mat_id++,
                             material_id: '',
+                            base_id: '',
                             material_unit: '',
                             material_label: '',
                             material_count: '',
@@ -579,10 +662,10 @@
                         });
                     });
                 },
-                inArray: function (array, element) {
+                inArray: function (array, base, manual_id) {
                     var length = array.length;
                     for (var i = 0; i < length; i++) {
-                        if (array[i].id == element.id && (element.used === undefined || array[i].used == element.used)) return true;
+                        if (array[i].base_id == base && array[i].id == manual_id) return true;
                     }
                     return false;
                 }

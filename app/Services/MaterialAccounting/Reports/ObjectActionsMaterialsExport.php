@@ -40,58 +40,24 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
      */
     public $materials_planned;
 
-    public function __construct($object, $operations, $balance = false)
+    public function __construct($object, $operations, $materials_planned, $materials_to, $materials_to_uniq, $materials_from,  $balance = false)
     {
         $this->object = $object;
-        $this->mats_balance = MaterialAccountingBase::with('material.convertation_parameters')
-            ->where('object_id', $object->id)
-            ->where('date', Carbon::today()->format('d.m.Y'))
-            ->get();
+        if ($balance) {
+            $this->mats_balance = MaterialAccountingBase::with('material.convertation_parameters')
+                ->where('object_id', $object->id)
+                ->where('date', Carbon::today()->format('d.m.Y'))
+                ->get();
+        }
 
         $this->operations = $operations;
-        $this->materials_planned = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
-            ->with('operation', 'manual')
-            ->whereHas('operation', function ($q) use ($object) {
-                $q->where('object_id_to', $object->id);
-            })
-            ->whereIn('operation_id', $operations->pluck('id'))
-            ->whereIn('type', [3])
-            ->select('*',  DB::raw('sum(count) as count'))
-            ->groupBy('manual_material_id', 'type', 'unit')
-            ->get();
+        $this->materials_planned = $materials_planned;
 
-        $this->materials_to = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
-            ->with('operation', 'manual')
-            ->whereHas('operation', function ($q) use ($object) {
-                $q->where('object_id_to', $object->id);
-            })
-            ->whereIn('operation_id', $operations->pluck('id'))
-            ->whereIn('type', [9])
-            ->select('*',  DB::raw('sum(count) as count'))
-            ->groupBy('manual_material_id', 'type', 'unit')
-            ->get();
+        $this->materials_to = $materials_to;
 
-        $this->materials_to_uniq = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
-            ->with('operation', 'manual')
-            ->whereHas('operation', function ($q) use ($object) {
-                $q->where('object_id_to', $object->id);
-            })
-            ->whereIn('operation_id', $operations->pluck('id'))
-            ->whereIn('type', [9])
-            ->select('*',  DB::raw('sum(count) as count'))
-            ->groupBy('manual_material_id')
-            ->get();
+        $this->materials_to_uniq = $materials_to_uniq;
 
-        $this->materials_from = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
-            ->with('operation', 'manual')
-            ->whereHas('operation', function ($q) use ($object) {
-                $q->where('object_id_from', $object->id);
-            })
-            ->whereIn('operation_id', $operations->pluck('id'))
-            ->whereIn('type', [8])
-            ->select('*',  DB::raw('sum(count) as count'))
-            ->groupBy('manual_material_id', 'type', 'unit')
-            ->get();
+        $this->materials_from = $materials_from;
 
         $this->balance = $balance;
     }
@@ -235,7 +201,9 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
             $mat_to = $all_materials_to->where('manual_material_id', $item->manual_material_id);
             $mat_from = $all_materials_from->where('manual_material_id', $item->manual_material_id);
             $planned_mat = $all_materials_planned->where('manual_material_id', $item->manual_material_id);
-            $balance_mat = $this->mats_balance->where('manual_material_id', $item->manual_material_id);
+            if ($this->balance) {
+                $balance_mat = $this->mats_balance->where('manual_material_id', $item->manual_material_id);
+            }
 
             $push = [];
             $push[0] = '';

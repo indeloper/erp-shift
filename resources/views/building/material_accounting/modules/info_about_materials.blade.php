@@ -38,138 +38,51 @@
                         </thead>
                         <tbody>
                         @php $manual_ids = []; @endphp
-                        @foreach($operation->materials->groupBy(['manual_material_id', 'used']) as $materialsGroupedByManualMaterialId)
-                            @foreach($materialsGroupedByManualMaterialId as $materialsGroupedByUsage)
-                                <tr>
-                                    <td data-label="Материал">{{ $materialsGroupedByUsage->first()->material_name }}</td>
-                                    <td data-label="Ед. измерения" class="text-center">
-                                        {{$materialsGroupedByUsage->first()->units_name[$materialsGroupedByUsage->first()->unit]}} <br>
-                                        @if($materialsGroupedByUsage->first())
-                                            @foreach($materialsGroupedByUsage->first()->converted_count as $conv_count)
-                                                {{ $conv_count['unit'] }} <br>
-                                            @endforeach
-                                        @endif
-                                    </td>
-                                    <td data-label="План" class="text-right">
-                                        {{ $materialsGroupedByUsage->where('type', 3)->first() ? round($materialsGroupedByUsage->where('type', 3)->sum('count'), 3) : '-' }} <br>
-                                        @if($materialsGroupedByUsage->where('type', 3)->first())
-                                            @foreach($materialsGroupedByUsage->where('type', 3)->first()->converted_count as $key=>$conv_count)
-                                                {{ round($materialsGroupedByUsage->where('type', 3)->map(function ($item) use ($key) {
-                                                    return $item->converted_count[$key];
-                                                })->sum('count'), 3) }} <br>
-                                            @endforeach
-                                        @endif
-                                    </td>
+                        @foreach($operation->materials->groupBy('base_id') as $materialsGroupedByBaseId)
+                            <tr>
+                                    <td data-label="Материал">{{ $materialsGroupedByBaseId->first()->comment_name }}</td>
+                                    <td data-label="Ед. измерения" class="text-center">{{ $materialsGroupedByBaseId->first()->units_name[$materialsGroupedByBaseId->first()->unit]  }}</td>
+                                    <td data-label="План" class="text-right">{{ $materialsGroupedByBaseId->where('type', 3)->first() ? round($materialsGroupedByBaseId->where('type', 3)->sum('count'), 3) : '-' }}</td>
                                     @if($operation->type > 2)
                                         @if($operation->materials->where('type', 1)->count())
-                                            <td data-label="Отправлено" class="text-right">
-                                                {{ $materialsGroupedByUsage->where('type', 1)->first() ? round($materialsGroupedByUsage->where('type', 1)->sum('count'), 3) : '-' }}
-                                                @if($materialsGroupedByUsage->where('type', 1)->first() && $materialsGroupedByUsage->where('type', 3)->first())
-                                                    @php $diff = round($materialsGroupedByUsage->where('type', 1)->sum('count') - $materialsGroupedByUsage->where('type', 3)->sum('count'), 3); @endphp
-                                                    @if($diff < 0)
-                                                        <span class="negative-fact"> ({{ $diff }})</span>
-                                                    @elseif($diff > 0)
-                                                        <span class="positive-fact"> ({{ '+' . $diff }})</span>
-                                                    @endif
-                                                @endif <br>
-                                                @if($materialsGroupedByUsage->where('type', 1)->first())
-                                                    @foreach($materialsGroupedByUsage->where('type', 1)->first()->converted_count as $key=>$conv_count)
-                                                        {{ round($materialsGroupedByUsage->where('type', 1)->map(function ($item) use ($key) {
-                                                            return $item->converted_count[$key];
-                                                        })->sum('count'), 3) }}
-                                                        @if($materialsGroupedByUsage->where('type', 1)->first() && $materialsGroupedByUsage->where('type', 3)->first())
-                                                            @php $diff = round($materialsGroupedByUsage->where('type', 1)->map(function ($item) use ($key) {
-                                                                return $item->converted_count[$key];
-                                                            })->sum('count') - $materialsGroupedByUsage->where('type', 3)->map(function ($item) use ($key) {
-                                                                return $item->converted_count[$key];
-                                                            })->sum('count'), 3); @endphp
-                                                            @if($diff < 0)
-                                                                <span class="negative-fact"> ({{ $diff }})</span>
-                                                            @elseif($diff > 0)
-                                                                <span class="positive-fact"> ({{ '+' . $diff }})</span>
-                                                            @endif
-                                                        @endif
-                                                        <br>
-                                                    @endforeach
+                                            <td data-label="Отправлено" class="text-right">{{ $materialsGroupedByBaseId->where('type', 1)->first() ? round($materialsGroupedByBaseId->where('type', 1)->sum('count'), 3) : '-' }}
+                                            @if($materialsGroupedByBaseId->where('type', 1)->first() && $materialsGroupedByBaseId->where('type', 3)->first())
+                                                @php $diff = round($materialsGroupedByBaseId->where('type', 1)->sum('count') - $materialsGroupedByBaseId->where('type', 3)->sum('count'), 3); @endphp
+                                                @if($diff < 0)
+                                                    <span class="negative-fact"> ({{ $diff }})</span>
+                                                @elseif($diff > 0)
+                                                    <span class="positive-fact"> ({{ '+' . $diff }})</span>
                                                 @endif
+                                            @endif
                                             </td>
                                         @endif
 
                                         @if($operation->materials->where('type', 2)->count())
-                                            <td data-label="Принято" class="text-right">
-                                                {{ $materialsGroupedByUsage->where('type', 2)->first() ? round($materialsGroupedByUsage->where('type', 2)->sum('count'), 3) : '-' }}
-                                                @if($materialsGroupedByUsage->where('type', 2)->first()  && $materialsGroupedByUsage->where('type', 3)->first())
-                                                    @php $diff = round($materialsGroupedByUsage->where('type', 2)->sum('count') - $materialsGroupedByUsage->where('type', 3)->sum('count'), 3); @endphp
-                                                    @if($diff < 0)
-                                                        <span class="negative-fact"> ({{ $diff }})</span>
-                                                    @elseif($diff > 0)
-                                                        <span class="positive-fact"> ({{ '+' . $diff }})</span>
-                                                    @endif
-                                                @endif <br>
-                                                @if($materialsGroupedByUsage->where('type', 2)->first())
-                                                    @foreach($materialsGroupedByUsage->where('type', 2)->first()->converted_count as $key=>$conv_count)
-                                                        {{ round($materialsGroupedByUsage->where('type', 2)->map(function ($item) use ($key) {
-                                                            return $item->converted_count[$key];
-                                                        })->sum('count'), 3) }}
-                                                        @if($materialsGroupedByUsage->where('type', 2)->first() && $materialsGroupedByUsage->where('type', 3)->first())
-                                                            @php $diff = round($materialsGroupedByUsage->where('type', 2)->map(function ($item) use ($key) {
-                                                                return $item->converted_count[$key];
-                                                            })->sum('count') - $materialsGroupedByUsage->where('type', 3)->map(function ($item) use ($key) {
-                                                                return $item->converted_count[$key];
-                                                            })->sum('count'), 3); @endphp
-                                                            @if($diff < 0)
-                                                                <span class="negative-fact"> ({{ $diff }})</span>
-                                                            @elseif($diff > 0)
-                                                                <span class="positive-fact"> ({{ '+' . $diff }})</span>
-                                                            @endif
-                                                        @endif
-                                                        <br>
-                                                    @endforeach
+                                            <td data-label="Принято" class="text-right">{{ $materialsGroupedByBaseId->where('type', 2)->first() ? round($materialsGroupedByBaseId->where('type', 2)->sum('count'), 3) : '-' }}
+                                            @if($materialsGroupedByBaseId->where('type', 2)->first()  && $materialsGroupedByBaseId->where('type', 3)->first())
+                                                @php $diff = round($materialsGroupedByBaseId->where('type', 2)->sum('count') - $materialsGroupedByBaseId->where('type', 3)->sum('count'), 3); @endphp
+                                                @if($diff < 0)
+                                                    <span class="negative-fact"> ({{ $diff }})</span>
+                                                @elseif($diff > 0)
+                                                    <span class="positive-fact"> ({{ '+' . $diff }})</span>
                                                 @endif
+                                            @endif
                                             </td>
                                         @endif
 
                                         @if($operation->materials->where('type', 4)->count())
-                                            <td data-label="Итог" class="text-right">
-                                                {{ $materialsGroupedByUsage->where('type', 4)->first() ? round($materialsGroupedByUsage->where('type', 4)->sum('count'), 3) : '-' }} <br>
-                                                @if($materialsGroupedByUsage->where('type', 4)->first())
-                                                    @foreach($materialsGroupedByUsage->where('type', 4)->first()->converted_count as $key=>$conv_count)
-                                                        {{ round($materialsGroupedByUsage->where('type', 4)->map(function ($item) use ($key) {
-                                                            return $item->converted_count[$key];
-                                                        })->sum('count'), 3) }} <br>
-                                                    @endforeach
-                                                @endif
-                                            </td>
+                                            <td data-label="Итог" class="text-right">{{ $materialsGroupedByBaseId->where('type', 4)->first() ? round($materialsGroupedByBaseId->where('type', 4)->sum('count'), 3) : '-' }}</td>
                                         @endif
                                     @else
                                         @if($operation->materials->where('type', 1)->count())
-                                            <td data-label="Факт" class="text-right">
-                                                {{ $materialsGroupedByUsage->where('type', 1)->first() ? round($materialsGroupedByUsage->where('type', 1)->sum('count'), 3) : '-' }} <br>
-                                                @if($materialsGroupedByUsage->where('type', 1)->first())
-                                                    @foreach($materialsGroupedByUsage->where('type', 1)->first()->converted_count as $key=>$conv_count)
-                                                        {{ round($materialsGroupedByUsage->where('type', 1)->map(function ($item) use ($key) {
-                                                            return $item->converted_count[$key];
-                                                        })->sum('count'), 3) }} <br>
-                                                    @endforeach
-                                                @endif
-                                            </td>
+                                            <td data-label="Факт" class="text-right">{{ $materialsGroupedByBaseId->where('type', 1)->first() ? round($materialsGroupedByBaseId->where('type', 1)->sum('count'), 3) : '-' }}</td>
                                         @endif
 
                                         @if($operation->materials->where('type', 2)->count())
-                                            <td data-label="Итог" class="text-right">
-                                                {{ $materialsGroupedByUsage->where('type', 2)->first() ? round($materialsGroupedByUsage->where('type', 2)->sum('count'), 3) : '-' }} <br>
-                                                @if($materialsGroupedByUsage->where('type', 2)->first())
-                                                    @foreach($materialsGroupedByUsage->where('type', 2)->first()->converted_count as $key=>$conv_count)
-                                                        {{ round($materialsGroupedByUsage->where('type', 2)->map(function ($item) use ($key) {
-                                                            return $item->converted_count[$key];
-                                                        })->sum('count'), 3) }} <br>
-                                                    @endforeach
-                                                @endif
-                                            </td>
+                                            <td data-label="Итог" class="text-right">{{ $materialsGroupedByBaseId->where('type', 2)->first() ? round($materialsGroupedByBaseId->where('type', 2)->sum('count'), 3) : '-' }}</td>
                                         @endif
                                     @endif
                                 </tr>
-                            @endforeach
                         @endforeach
                         </tbody>
 

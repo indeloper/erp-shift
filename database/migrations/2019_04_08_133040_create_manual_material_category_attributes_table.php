@@ -21,7 +21,6 @@ class CreateManualMaterialCategoryAttributesTable extends Migration
             $table->boolean('is_required');
             $table->unsignedInteger('category_id');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

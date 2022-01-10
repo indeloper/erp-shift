@@ -18,7 +18,9 @@ class TechnicTicketReportService
     {
         $date = $date ?? Carbon::now();
         $user = User::find($user_id);
-        $tickets = $tickets ?? $user->technic_tickets()->wherePivot('type', 4)->where('status', 7)->get();
+        $tickets = $tickets ?? $user->technic_tickets()->wherePivot('type', 4)->where('status', 7)->where(function($q) use ($date) {
+                $q->where('deactivated_at', '>=', $date)->orWhere('deactivated_at', null);
+            })->get();
 
         if ($this->taskIsNotNeededForUserForDate($user, $tickets, $date)) {
             $user->tasks()->where('is_solved', 0)->where('status', 36)->whereDate('created_at', $date)->each(function($task) {

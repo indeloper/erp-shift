@@ -5,6 +5,7 @@ namespace App\Services\MaterialAccounting;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualReference;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationFile;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 use App\Models\MatAcc\MaterialAccountingMaterialFile;
 use App\Models\Manual\ManualMaterial;
@@ -421,32 +422,31 @@ class MaterialAccountingService {
     {
         $materials = $this->operation->materials()
             ->with('manual')
-            ->whereIn('type', [$factType, $acceptType])
-            ->get()
-            ->groupBy(['type']);
+            ->where('type', $factType)
+            ->get();
 
-        foreach ($materials[$factType] as $material) {
-            $materialCompare = $materials[$acceptType]->where('manual_material_id', $material->manual_material_id)->where('used', $material->used)->first();
+        foreach ($materials as $fact_material) {
+            $materialCompare = $fact_material->sameMaterials()->where('type', $acceptType)->first();
             if (!$materialCompare) {
                 return [
                     'status' => 'error',
                     'message' => 'Отсутствует материал в факте операции! '
-                        . $material->manual->name
+                        . $fact_material->manual->name
                 ];
             }
 
-            if ($material->unit == $materialCompare->unit) {
+            if ($fact_material->unit == $materialCompare->unit) {
             }
             else {
                 $materialCompare->count = ($materialCompare->manual->convert_to($materialCompare->unit)->value ?? 0) * $materialCompare->count;
             }
 
-            if (!$materialCompare || $materialCompare->count != $material->count) {
+            if (!$materialCompare || $materialCompare->count != $fact_material->count) {
                 return [
                     'status' => 'error',
                     'message' => 'Фактический и итоговый материал отличаются! '
-                        . $material->manual->name
-                        . ' итог: ' . $material->count . ' ' . $material->units_name[$material->unit]
+                        . $fact_material->manual->name
+                        . ' итог: ' . $fact_material->count . ' ' . $fact_material->units_name[$fact_material->unit]
                         . ', факт: ' . ($materialCompare->count ?? 0) . ' ' . $materialCompare->units_name[$materialCompare->unit]
                 ];
             }
@@ -564,6 +564,61 @@ class MaterialAccountingService {
 //        }
 
         return $response;
+    }
+
+    public function acceptOperation($operation)
+    {
+        $operation->checkClosed();
+        $operation->status = 3;
+        $operation->is_close = 1;
+        $operation->recipient_id = $operation->recipient_id != 0 ? $operation->recipient_id : Auth::user()->id;
+
+        $materials = $operation->materialsPartTo()->get()->reduce(function ($result, $mat) {
+            if (isset($result[$mat->base_id])) {
+                $result[$mat->base_id]['material_count'] += $mat->count;
+            } else {
+                $result[$mat->base_id] = [
+                    'material_id' => $mat->manual_material_id,
+                    'base_id' => $mat->base_id,
+                    'used' => $mat->used,
+                    'material_unit' => $mat->unit,
+                    'material_count' => $mat->count,
+                ];
+            }
+            return $result;
+        }, []);
+
+        $operation->saveOrFail();
+        $operation->generateOperationAcceptNotifications();
+
+        $dummy_mat = (new MaterialAccountingOperationMaterials());
+        $itog_type = $dummy_mat->itog_types[$operation->type];
+
+        $result = $dummy_mat->createOperationMaterials($operation, $materials, is_array($itog_type) ? $itog_type[0] : $itog_type, 'inactivity');
+        if ($result !== true) {
+            return $result;
+        }
+
+        if ($operation->type == 3) {
+            $materials = $operation->materialsPartFrom()->get()->reduce(function ($result, $mat) {
+                if (isset($result[$mat->base_id])) {
+                    $result[$mat->base_id]['material_count'] += $mat->count;
+                } else {
+                    $result[$mat->base_id] = [
+                        'material_id' => $mat->manual_material_id,
+                        'base_id' => $mat->base_id,
+                        'used' => $mat->used,
+                        'material_unit' => $mat->unit,
+                        'material_count' => $mat->count,
+                    ];
+                }
+                return $result;
+            }, []);
+
+            $result = $dummy_mat->createOperationMaterials($operation, $materials, $itog_type[1], 'inactivity');
+        }
+
+        return $result;
     }
 
 }

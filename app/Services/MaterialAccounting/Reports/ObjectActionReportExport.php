@@ -2,6 +2,8 @@
 
 namespace App\Services\MaterialAccounting\Reports;
 
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
@@ -13,6 +15,12 @@ use Carbon\Carbon;
 class ObjectActionReportExport implements WithMultipleSheets
 {
     use Exportable;
+
+    /**
+     * @var \Illuminate\Database\Eloquent\Builder
+     */
+    public $operations;
+    public $object;
 
     public function __construct(int $object_id)
     {
@@ -42,12 +50,61 @@ class ObjectActionReportExport implements WithMultipleSheets
      */
     public function sheets(): array
     {
-        // $this->operations = $this->operations->get();
+        if (get_class($this->operations) == 'Illuminate\Database\Eloquent\Builder') {
+            $this->operations = $this->operations->get();
+        }
+        $object = $this->object;
+        $operations = $this->operations;
+
+        $this->materials_planned = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
+            ->with('operation', 'manual')
+            ->whereHas('operation', function ($q) use ($object) {
+                $q->where('object_id_to', $object->id);
+            })
+            ->whereIn('operation_id', $operations->pluck('id'))
+            ->whereIn('type', [3])
+            ->select('*',  DB::raw('sum(count) as count'))
+            ->groupBy('manual_material_id', 'type', 'unit')
+            ->get();
+
+        $this->materials_to = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
+            ->with('operation', 'manual')
+            ->whereHas('operation', function ($q) use ($object) {
+                $q->where('object_id_to', $object->id);
+            })
+            ->whereIn('operation_id', $operations->pluck('id'))
+            ->whereIn('type', [9])
+            ->select('*',  DB::raw('sum(count) as count'))
+            ->groupBy('manual_material_id', 'type', 'unit')
+            ->get();
+
+        $this->materials_to_uniq = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
+            ->with('operation', 'manual')
+            ->whereHas('operation', function ($q) use ($object) {
+                $q->where('object_id_to', $object->id);
+            })
+            ->whereIn('operation_id', $operations->pluck('id'))
+            ->whereIn('type', [9])
+            ->select('*',  DB::raw('sum(count) as count'))
+            ->groupBy('manual_material_id')
+            ->get();
+
+        $this->materials_from = MaterialAccountingOperationMaterials::with('manual.convertation_parameters')
+            ->with('operation', 'manual')
+            ->whereHas('operation', function ($q) use ($object) {
+                $q->where('object_id_from', $object->id);
+            })
+            ->whereIn('operation_id', $operations->pluck('id'))
+            ->whereIn('type', [8])
+            ->select('*',  DB::raw('sum(count) as count'))
+            ->groupBy('manual_material_id', 'type', 'unit')
+            ->get();
+
         $sheets = [];
 
         $sheets[] = new ObjectActionsExport($this->object, $this->operations);
-        $sheets[] = new ObjectActionsMaterialsExport($this->object, $this->operations);
-        $sheets[] = new ObjectActionsMaterialsExport($this->object, $this->operations, true);
+        $sheets[] = new ObjectActionsMaterialsExport($this->object, $this->operations, $this->materials_planned, $this->materials_to, $this->materials_to_uniq, $this->materials_from);
+        $sheets[] = new ObjectActionsMaterialsExport($this->object, $this->operations, $this->materials_planned, $this->materials_to, $this->materials_to_uniq, $this->materials_from, true);
 
 
         return $sheets;

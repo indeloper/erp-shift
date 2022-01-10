@@ -2,47 +2,41 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
-use App\Models\Notification;
+use App\Traits\AdditionalFunctions;
+
+use App\Http\Requests\UserRequests\{UserCreateRequest,
+    UserUpdateRequest,
+    UserUpdatePasswordRequest,
+    UserJobCategoryUpdate};
+
+use App\Models\{
+    User,
+    Group,
+    UserPermission,
+    GroupPermission,
+    Permission,
+    Department,
+    FileEntry,
+    Project,
+    ProjectResponsibleUser};
 use App\Models\Notifications\UserDisabledNotifications;
 use App\Models\TechAcc\Defects\Defects;
-use App\Models\Vacation\ProjectResponsibleUserRedirectHistory;
-use App\Models\Task;
-use App\Models\TaskRedirect;
 use App\Models\Vacation\VacationsHistory;
-use App\Traits\AdditionalFunctions;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
+use App\Models\HumanResources\Brigade;
+
 use Carbon\Carbon;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 
-use App\Http\Requests\UserRequests\UserCreateRequest;
-use App\Http\Requests\UserRequests\UserUpdateRequest;
-use App\Http\Requests\UserRequests\UserUpdatePasswordRequest;
-
-use App\Models\User;
-use App\Models\Group;
-use App\Models\UserPermission;
-use App\Models\GroupPermission;
-use App\Models\Permission;
-use App\Models\Department;
-use App\Models\FileEntry;
-use App\Models\Project;
-use App\Models\ProjectResponsibleUser;
-use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\{File, Storage, DB, Artisan, Auth, Hash};
 class UserController extends Controller
 {
     use AdditionalFunctions;
 
     public function index(Request $request)
     {
-        $users = User::getAllUsers()->withoutGlobalScope('email')->orderByRaw("CASE WHEN users.id IN (6,7) THEN 1 ELSE 2 END, users.last_name");
+        $newRequest = $this->createNewRequest($request->toArray());
+        $users = User::getAllUsers()->withoutGlobalScope('email')->filter($newRequest)->orderByRaw("CASE WHEN users.id IN (6,7) THEN 1 ELSE 2 END, users.last_name");
 
         if ($request->search) {
             $groups = Group::where('name', $request->search)
@@ -86,7 +80,7 @@ class UserController extends Controller
         }
 
         return view('users.index', [
-            'users' => $users->whereNotNull('is_deleted')->paginate(20),
+            'users' => $users->whereNotNull('is_deleted')->with('jobCategory')->paginate(20),
             'companies' => User::$companies,
         ]);
     }
@@ -578,6 +572,49 @@ class UserController extends Controller
         $newRequest = $this->createNewRequest($request->except('q'));
         $responsible_user_ids = Defects::filter($newRequest)->whereNotNull('responsible_user_id')->pluck('responsible_user_id')->unique()->toArray();
         $users = User::forDefects($request->q, $responsible_user_ids)->get();
+
+        foreach ($users as $user) {
+            if ($user->id != 1) {
+                $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
+            }
+        }
+
+        return response()->json($users_json);
+    }
+
+    public function updateJobCategory(UserJobCategoryUpdate $request)
+    {
+        DB::beginTransaction();
+
+        $user = User::withoutGlobalScope('email')->findOrFail($request->user_id);
+        $user->update(['job_category_id' => $request->job_category_id]);
+
+        DB::commit();
+
+        return response()->json(true);
+    }
+
+    public function getUsersPaginated(Request $request)
+    {
+        $output = [];
+        parse_str(parse_url($request->url)['query'] ?? '', $output);
+        $newRequest = $this->createNewRequest($output);
+
+        $filtered_users = User::filter($newRequest)->orderBy('updated_at')->paginate(15);
+
+        return response()->json([
+            'data' => [
+                'users' => $filtered_users->items(),
+                'users_count' => $filtered_users->total(),
+            ],
+        ]);
+    }
+
+    public function getBrigadeForemans(Request $request)
+    {
+        $foremanIds = Brigade::whereNotNull('foreman_id')->pluck('foreman_id')->unique()->toArray();
+        $users = User::forDefects($request->q, $foremanIds)->get();
+        $users_json = [];
 
         foreach ($users as $user) {
             if ($user->id != 1) {

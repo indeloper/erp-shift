@@ -25,7 +25,7 @@
 
 <div class="row">
     <div class="col-md-12 col-xl-10 ml-auto mr-auto pd-0-min">
-        @include('building.material_accounting.modules.info_about_materials')
+        @include('building.material_accounting.modules.info_about_materials_moving')
 
         <div class="card strpied-tabled-with-hover" id="materials">
             <div class="card-body">

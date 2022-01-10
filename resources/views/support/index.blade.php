@@ -4,7 +4,6 @@
 
 @section('url', route('support::index'))
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style>
         .popover {
             max-width: 50vw;

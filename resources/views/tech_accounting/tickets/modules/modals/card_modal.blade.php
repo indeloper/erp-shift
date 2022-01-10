@@ -16,11 +16,11 @@
                                     </div>
                                 </div>
                                 <div class="task-info__text-unit text-right">
-                                        <span class="task-info__head-title">
-                                            Время создания
-                                        </span>
-                                    <span class="task-info__body-title">
-                                            @{{ ticket.created_at ? customConvertDateFormat(ticket.created_at) : '' }}
+                                    <span class="task-info__head-title">
+                                        Время создания
+                                    </span>
+                                    <span :class="isWeekendDay(ticket.created_at, 'YYYY-MM-DD HH:mm:ss') ? 'weekend-day task-info__body-title' : 'task-info__body-title'">
+                                        @{{ isValidDate(ticket.created_at, 'YYYY-MM-DD HH:mm:ss') ? weekdayDate(ticket.created_at, 'YYYY-MM-DD HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
                                     </span>
                                 </div>
                                 <div class="task-info__text-unit text-right">
@@ -108,7 +108,12 @@
                                             Период отправки
                                         </span>
                                         <span v-if="ticket.sending_from_date && ticket.sending_to_date" class="task-info__body-title">
-                                            @{{ convertDateFormat(ticket.sending_from_date, false) }} - @{{ convertDateFormat(ticket.sending_to_date, false) }}
+                                            <span :class="isWeekendDay(convertDateFormat(ticket.sending_from_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                @{{ isValidDate(convertDateFormat(ticket.sending_from_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.sending_from_date, false), 'DD.MM.YYYY') : '-' }}
+                                            </span> -
+                                            <span :class="isWeekendDay(convertDateFormat(ticket.sending_to_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                @{{ isValidDate(convertDateFormat(ticket.sending_to_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.sending_to_date, false), 'DD.MM.YYYY') : '-' }}
+                                            </span>
                                         </span>
                                         <span v-else class="task-info__body-title text-danger">Не назначен</span>
                                     </div>
@@ -117,7 +122,12 @@
                                             Период приемки
                                         </span>
                                         <span v-if="ticket.getting_from_date && ticket.getting_to_date" class="task-info__body-title">
-                                            @{{ convertDateFormat(ticket.getting_from_date, false) }} - @{{  convertDateFormat(ticket.getting_to_date, false) }}
+                                            <span :class="isWeekendDay(convertDateFormat(ticket.getting_from_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                @{{ isValidDate(convertDateFormat(ticket.getting_from_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.getting_from_date, false), 'DD.MM.YYYY') : '-' }}
+                                            </span> -
+                                            <span :class="isWeekendDay(convertDateFormat(ticket.getting_to_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                @{{ isValidDate(convertDateFormat(ticket.getting_to_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.getting_to_date, false), 'DD.MM.YYYY') : '-' }}
+                                            </span>
                                         </span>
                                         <span v-else class="task-info__body-title text-danger">Не назначен</span>
                                     </div>
@@ -163,16 +173,16 @@
                                         <span class="task-info__head-title">
                                             Плановое начало использования
                                         </span>
-                                        <span class="task-info__body-title">
-                                            @{{ convertDateFormat(ticket.usage_from_date, false) }}
+                                        <span :class="isWeekendDay(convertDateFormat(ticket.usage_from_date, false), 'DD.MM.YYYY') ? 'weekend-day task-info__body-title' : 'task-info__body-title'">
+                                            @{{ isValidDate(convertDateFormat(ticket.usage_from_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.usage_from_date, false), 'DD.MM.YYYY') : '-' }}
                                         </span>
                                     </div>
                                     <div class="task-info__text-unit">
                                         <span class="task-info__head-title">
                                             Плановое окончание использования
                                         </span>
-                                        <span class="task-info__body-title">
-                                            @{{ convertDateFormat(ticket.usage_to_date, false) }}
+                                        <span :class="isWeekendDay(convertDateFormat(ticket.usage_to_date, false), 'DD.MM.YYYY') ? 'weekend-day task-info__body-title' : 'task-info__body-title'">
+                                            @{{ isValidDate(convertDateFormat(ticket.usage_to_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.usage_to_date, false), 'DD.MM.YYYY') : '-' }}
                                         </span>
                                     </div>
                                     <div class="task-info__text-unit">
@@ -222,7 +232,12 @@
                                         Период отправки
                                     </span>
                                     <span v-if="ticket.sending_from_date && ticket.sending_to_date" class="task-info__body-title">
-                                        @{{ convertDateFormat(ticket.sending_from_date, false) }} - @{{ convertDateFormat(ticket.sending_to_date, false) }}
+                                        <span :class="isWeekendDay(convertDateFormat(ticket.sending_from_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                            @{{ isValidDate(convertDateFormat(ticket.sending_from_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.sending_from_date, false), 'DD.MM.YYYY') : '-' }}
+                                        </span> -
+                                        <span :class="isWeekendDay(convertDateFormat(ticket.sending_to_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                            @{{ isValidDate(convertDateFormat(ticket.sending_to_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.sending_to_date, false), 'DD.MM.YYYY') : '-' }}
+                                        </span>
                                     </span>
                                     <span v-else class="task-info__body-title text-danger">Не назначен</span>
                                 </div>
@@ -231,7 +246,12 @@
                                         Период приемки
                                     </span>
                                     <span v-if="ticket.getting_from_date && ticket.getting_to_date" class="task-info__body-title">
-                                        @{{ convertDateFormat(ticket.getting_from_date, false) }} - @{{  convertDateFormat(ticket.getting_to_date, false) }}
+                                        <span :class="isWeekendDay(convertDateFormat(ticket.getting_from_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                            @{{ isValidDate(convertDateFormat(ticket.getting_from_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.getting_from_date, false), 'DD.MM.YYYY') : '-' }}
+                                        </span> -
+                                        <span :class="isWeekendDay(convertDateFormat(ticket.getting_to_date, false), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                            @{{ isValidDate(convertDateFormat(ticket.getting_to_date, false), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(ticket.getting_to_date, false), 'DD.MM.YYYY') : '-' }}
+                                        </span>
                                     </span>
                                     <span v-else class="task-info__body-title text-danger">Не назначен</span>
                                 </div>
@@ -257,8 +277,12 @@
                                             :key="table_key"
                                             style="width: 100%">
                                             <el-table-column
-                                                prop="date_carbon"
                                                 label="Дата">
+                                                <template slot-scope="scope">
+                                                    <span :class="isWeekendDay(scope.row.date_carbon, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                        @{{ isValidDate(scope.row.date_carbon, 'DD.MM.YYYY') ? weekdayDate(scope.row.date_carbon, 'DD.MM.YYYY') : '-' }}
+                                                    </span>
+                                                </template>
                                             </el-table-column>
                                             <el-table-column
                                                 prop="hours"
@@ -298,7 +322,11 @@
                                                          style="border-bottom: 2px solid lightgrey;"
                                                     >
                                                         <div class="font-weight-bold mr-2">Дата</div>
-                                                        <div class="wrapword">@{{ scope.row.date_carbon }}</div>
+                                                        <div class="wrapword">
+                                                            <span :class="isWeekendDay(scope.row.date_carbon, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                                @{{ isValidDate(scope.row.date_carbon, 'DD.MM.YYYY') ? weekdayDate(scope.row.date_carbon, 'DD.MM.YYYY') : '-' }}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                     <div class="d-flex justify-content-between"
                                                          style="border-bottom: 2px solid lightgrey;"
@@ -395,8 +423,12 @@
                                         :data="ticket.active_tasks"
                                         style="width: 100%">
                                         <el-table-column
-                                            prop="created_at"
                                             label="Дата создания">
+                                            <template slot-scope="scope">
+                                                <span :class="isWeekendDay(scope.row.created_at, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
+                                                    @{{ isValidDate(scope.row.created_at, 'DD.MM.YYYY HH:mm:ss') ? weekdayDate(scope.row.created_at, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
+                                                </span>
+                                            </template>
                                         </el-table-column>
                                         <el-table-column
                                             prop="name"
@@ -462,7 +494,7 @@
                                         {{--:type="activity.type"
                                         :color="activity.color"--}}
                                         :size="'large'"
-                                        :timestamp="customConvertDateFormat(comment.created_at).split(':').slice(0,2).join(':')"
+                                        :timestamp="isValidDate(customConvertDateFormat(comment.created_at).split(':').slice(0,2).join(':'), 'DD.MM.YYYY HH:mm') ? weekdayDate(customConvertDateFormat(comment.created_at).split(':').slice(0,2).join(':'), 'DD.MM.YYYY HH:mm', 'DD.MM.YYYY dd HH:mm') : '-'"
                                         placement="top"
                                     >
                                         <span class="activity-author">@{{ comment.author ? comment.author.full_name : 'Система' }}</span>
@@ -681,6 +713,15 @@
                 },
                 customConvertDateFormat(dateString) {
                     return dateString.split(' ')[0].split('-').reverse().join('.') + ' ' + dateString.split(' ')[1];
+                },
+                isWeekendDay(date, format) {
+                    return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+                },
+                isValidDate(date, format) {
+                    return moment(date, format).isValid();
+                },
+                weekdayDate(date, inputFormat, outputFormat) {
+                    return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
                 },
                 addComment() {
                     if (this.comment.text) {

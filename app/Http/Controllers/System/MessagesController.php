@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Events\MessageDeleted;
 use App\Events\MessageStored;
 use App\Events\MessageUpdated;
-use App\Models\Messenger\MessageFile;
+use App\Model\Messenger\MessageFile;
 use App\Models\FileEntry;
 use App\Models\Messenger\MessageForwards;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Models\Messenger\Message;
+use App\Model\Messenger\Message;
 use App\Model\Messenger\Participant;
 use App\Model\Messenger\Thread;
 

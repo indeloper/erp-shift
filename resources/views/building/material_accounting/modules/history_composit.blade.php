@@ -6,7 +6,7 @@
             <div class="card" style="margin-bottom:0">
                 @if($operation->type != 4 && $operation->type != 3)
                 <div class="card-header">
-                    <h5 class="card-title">
+                    <h5 class="materials-info-title mb-10__mobile">
                         <a class="collapsed story-collapse-card__link show" data-target="#collapse2" href="#" data-toggle="collapse">
                             История операции
                             <b class="caret" style="margin-top:8px"></b>
@@ -37,7 +37,7 @@
                                     <tr>
                                         <td data-label="Дата">
                                             <i class="el-icon-time" style="margin-right: 5px;"></i>
-                                            {{ $material->fact_date ?? $material->created_at }}
+                                            <div class="prerendered-date" style="display: inline">{{ $material->fact_date ?? $material->created_at }}</div>
                                         </td>
                                         @if($operation->type > 2)
                                             <td data-label="Тип операции">
@@ -45,7 +45,7 @@
                                             </td>
                                         @endif
                                         <td data-label="Материал">
-                                            {{ $material->material_name }}
+                                            {{ $material->comment_name }}
                                         </td>
                                         <!-- <td data-label="Ед. измерения" class="text-center">
                                             {{ $material->manual->category_unit }}
@@ -135,7 +135,7 @@
                                                                     Материал <span class="star">*</span>
                                                                 </label>
                                                                 <template>
-                                                                    <el-select {{-- @change="changeMaterialId" --}} ref="usernameInput" v-model="materials[{{ $key }}].manual_material_id" clearable filterable @clear="search(``)" :remote-method="search" remote size="large" placeholder="Выберите материал">
+                                                                    <el-select ref="usernameInput" v-model="materials[{{ $key }}].manual_material_id" clearable filterable @clear="search(``)" :remote-method="search" remote size="large" placeholder="Выберите материал">
                                                                         <el-option
                                                                             v-for="item in manual_materials"
                                                                             :label="item.label"
@@ -143,14 +143,6 @@
                                                                             :value="item.id">
                                                                         </el-option>
                                                                     </el-select>
-{{--                                                                    <el-select v-model="materials[{{ $key }}].manual_material_id" size="large" placeholder="Выберите материал">--}}
-{{--                                                                        <el-option--}}
-{{--                                                                            v-for="item in manual_materials"--}}
-{{--                                                                            :label="item.label"--}}
-{{--                                                                            :key="item.id"--}}
-{{--                                                                            :value="item.id">--}}
-{{--                                                                        </el-option>--}}
-{{--                                                                    </el-select>--}}
                                                                 </template>
                                                             </div>
                                                             <div class="col-lg-2">
@@ -239,7 +231,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                            <el-button style="margin-top: 5px;" type="primary" :loading="is_send_update" @click="update(materials[{{ $key }}].id, materials[{{ $key }}].manual_material_id, materials[{{ $key }}].unit, materials[{{ $key }}].count, materials[{{ $key }}].used, materials[{{ $key }}].material_addition.description ? materials[{{ $key }}].material_addition.description : '', {{ \Carbon\Carbon::now() < \Carbon\Carbon::parse($material->created_at)->addDay() or $operation->isAuthor()}})">Редактировать</el-button>
+                                            <el-button style="margin-top: 5px;" type="primary" :loading="is_send_update" @click="update(materials[{{ $key }}], {{ \Carbon\Carbon::now() < \Carbon\Carbon::parse($material->created_at)->addDay() or $operation->isAuthor()}})">Редактировать</el-button>
                                         </div>
                                     </div>
                                 </div>
@@ -275,7 +267,7 @@
                                </div>
                                <div class="story-info-block">
                                    <h6 class="story-info-label">Материал</h6>
-                                   <span class="story-info-item">{{ $material->material_name }}</span>
+                                   <span class="story-info-item">{{ $material->comment_name }}</span>
                                </div>
                                <div class="story-info-block">
                                    <h6 class="story-info-label">Количество</h6>
@@ -399,7 +391,6 @@ function delete_history(material_id, is_unlocked) {
                     },
                     dataType: 'JSON',
                     success: function (data) {
-                        console.log(data);
                         if (data.status == 'success') {
                             location.reload()
                         } else if (data.status == 'error') {
@@ -452,16 +443,7 @@ function delete_history(material_id, is_unlocked) {
         });
     }
 }
-var upload = new Vue({
-    el: '#upload',
-    methods: {
-        delete_uploaded_file(file, fileList) {
-            axios.post('{{ route('building::mat_acc::delete_file', $operation->id) }}', {file_name: file.response.file_name}).then(function (response) {
-                console.log(response.data);
-            })
-        },
-    }
-    });
+
 var modals = new Vue({
     el: '#materials_story',
     data : {
@@ -483,8 +465,27 @@ var modals = new Vue({
         axios.post('{{ route('building::mat_acc::report_card::get_materials') }}', {material_ids: that.ids}).then(function (response) {
             that.manual_materials = response.data;
         });
+
+        $('.prerendered-date').each(function() {
+            const date = $(this).text();
+            const content = that.isValidDate(date, 'DD.MM.YYYY') ? that.weekdayDate(date, 'DD.MM.YYYY') : '-';
+            const innerSpan = $('<span/>', {
+                'class': that.isWeekendDay(date, 'DD.MM.YYYY') ? 'weekend-day' : ''
+            });
+            innerSpan.text(content);
+            $(this).html(innerSpan);
+        });
     },
     methods: {
+        isWeekendDay(date, format) {
+            return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+        },
+        isValidDate(date, format) {
+            return moment(date, format).isValid();
+        },
+        weekdayDate(date, inputFormat, outputFormat) {
+            return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+        },
         delete_file(file, fileList) {
             axios.post('{{ route('building::mat_acc::delete_file', $operation->id) }}', {file_name: file.file_name}).then(function (response) {
                 console.log(response.data);
@@ -513,17 +514,22 @@ var modals = new Vue({
                 });
             }
         },
-        update(material_id, manual_material_id, unit, count, used, description, is_unlocked) {
+        changeUsageValue(value) {
+            this.$emit('update:used', value);
+        },
+        update(material, is_unlocked) {
             this.is_send_update = true;
             if (is_unlocked) {
                 axios.post('{{ route('building::mat_acc::update_part_operation') }}', {
-                    material_id: material_id,
-                    manual_material_id: manual_material_id,
-                    material_unit: unit,
-                    material_count: count,
-                    used: used,
-                    description: description
-                }).then(function (response) {
+                    material_id: material.id,
+                    base_id: material.base_id,
+                    manual_material_id: material.manual_material_id,
+                    material_unit: material.unit,
+                    material_count: material.count,
+                    used: material.used,
+                    description: material.material_addition.description ? material.material_addition.description : '',
+
+            }).then(function (response) {
                     if (response.data.status == 'success') {
                         location.reload()
                     } else if (response.data.status == 'error') {
@@ -539,16 +545,17 @@ var modals = new Vue({
                 });
             } else {
                 axios.post('{{ route('building::mat_acc::store_update_task') }}', {
-                    material_id: material_id,
-                    manual_material_id: manual_material_id,
-                    material_unit: unit,
-                    material_count: count,
-                    description: description,
-                    used: used,
+                    material_id: material.id,
+                    base_id: material.base_id,
+                    manual_material_id: material.manual_material_id,
+                    material_unit: material.unit,
+                    material_count: material.count,
+                    description: material.material_addition.description ? material.material_addition.description : '',
+                    used: material.used,
                 }).then(function(response) {
                     if (response.data.status == 'success') {
                         location.reload()
-                    } else if (response.data.status == 'error') {
+                    } else {
                         modals.is_send_update = false;
 
                         modals.$message({

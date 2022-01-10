@@ -7,6 +7,7 @@ use App\Http\Requests\Building\MaterialAccounting\SendArrivalRequest;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
 use App\Models\ProjectObject;
 use App\Models\User;
+use App\Services\MaterialAccounting\MaterialAccountingService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -200,7 +201,24 @@ class MatAccArrivalController extends Controller
         if ($result !== true) {
             return response()->json(['message' => $result]);
         }
+        $part_mats = MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->where('type', 9)->get();
 
+        foreach ($part_mats as $part_mat) {
+            $plan_q = $part_mat->sameMaterials()->where('type', 3);
+            if ($plan_q->doesntExist()) {
+                if ($plan_q->withTrashed()->exists()) {
+                    $plan_mat = $plan_q->first();
+                    $plan_mat->restore();
+                    $plan_mat->count = 0;
+                    $plan_mat->save();
+                } else {
+                    $plan_mat = $part_mat->replicate();
+                    $plan_mat->count = 0;
+                    $plan_mat->type = 3;
+                    $plan_mat->save();
+                }
+            }
+        }
         DB::commit();
 
         return response()->json(true);
@@ -242,9 +260,9 @@ class MatAccArrivalController extends Controller
         DB::beginTransaction();
 
         $operation = MaterialAccountingOperation::where('type', 1)->where('status', 2)->findOrFail($operation_id);
-        $operation->checkClosed();
 
-        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 2, 'inactivity');
+        $result = (new MaterialAccountingService())->acceptOperation($operation);
+
         if ($result !== true) {
             return response()->json(['message' => $result]);
         }
@@ -253,16 +271,6 @@ class MatAccArrivalController extends Controller
         if ($resultCompare['status'] !== 'success') {
             return response()->json($resultCompare);
         }
-
-        $operation->status = 3;
-        $operation->actual_date_to = Carbon::now()->format('d.m.Y');
-        $operation->recipient_id = Auth::user()->id;
-        $operation->comment_to = $request->comment;
-        $operation->is_close = 1;
-
-        $operation->saveOrFail();
-
-        $operation->generateOperationAcceptNotifications();
 
         event((new OperationClosed)->withOutContract($operation));
 

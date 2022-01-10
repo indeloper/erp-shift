@@ -5,6 +5,7 @@ namespace App\Models\MatAcc;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
+use App\Models\MatAcc\MaterialAccountingBase;
 use App\Models\Notification;
 use App\Models\Task;
 use App\Traits\NotificationGenerator;
@@ -19,7 +20,6 @@ use App\Models\ProjectObject;
 use App\Models\User;
 use App\Models\Manual\ManualMaterial;
 use App\Models\Building\ObjectResponsibleUser;
-use App\Models\MatAcc\MaterialAccountingBase;
 
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -212,7 +212,7 @@ class MaterialAccountingOperation extends Model
     public function getTotalWeigthAttribute()
     {
         $total_weigth = 0;
-        foreach ($this->getParentMats()->where('type', $this->type == 3 ? 7 : 3) as $material) {
+        foreach ($this->getParentMats()->whereIn('type', [3, 7]) as $material) {
             if ($material->unit == '1') {
                 $total_weigth += $material->count;
             } else {
@@ -395,7 +395,7 @@ class MaterialAccountingOperation extends Model
 
     public function materialsPart()
     {
-        return $this->allMaterials()->whereIn('type', [8, 9]);
+        return $this->allMaterials()->whereIn('type', [8, 9])->with('comments');
     }
 
     public function materialsPartTo()
@@ -530,6 +530,7 @@ class MaterialAccountingOperation extends Model
     public function getParentMats()
     {
         $mats = $this->materials;
+        $mats->each->setAppends(['material_name']);
         $parent_mats = collect([]);
 
         if ($this->parent()->count() > 0) {
@@ -619,16 +620,16 @@ class MaterialAccountingOperation extends Model
     {
         // if ($is_dd) dump($main_materials, $part_materials);
         if (!$part_materials) {
-            return $main_materials;
+            return [$main_materials];
         }
 
         $new_materials = collect();
         $link = 0;
-        foreach ($part_materials->whereIn('manual_material_id', $main_materials->pluck('manual_material_id')) as $part_material) {
-            $main_material = $main_materials->where('manual_material_id', $part_material->manual_material_id)->whereNotIn('id', $new_materials->pluck('id'))->first();
+        foreach ($part_materials->whereIn('base_id', $main_materials->pluck('base_id')) as $part_material) {
+            $main_material = $main_materials->where('base_id', $part_material->base_id)->whereNotIn('id', $new_materials->pluck('id'))->first();
 
             if (!$main_material) {
-                $main_material = $new_materials->where('manual_material_id', $part_material->manual_material_id)->first();
+                $main_material = $new_materials->where('base_id', $part_material->base_id)->first();
                 $link = 1;
             }
 
@@ -645,7 +646,7 @@ class MaterialAccountingOperation extends Model
             $link = 0;
         }
         // if ($is_dd) dd($main_materials);
-        return $main_materials->where('count', '>', 0);
+        return $main_materials->where('count', '>', 0)->values();
     }
 
     public function checkProblem($operation, $materials)
@@ -671,20 +672,50 @@ class MaterialAccountingOperation extends Model
             $count = round($material['material_count'], 3);
 
             foreach ($period as $date) {
-                $base = MaterialAccountingBase::where('object_id', $operation->object_id_from)
-                    ->where('manual_material_id', $material['material_id'])
-                    ->where('date', $date->format('d.m.Y'))
-                    ->where('used', $material['used'] ?? 0)
-                    ->first();
+                $comments = isset($material['comments']) ? $material['comments'] : [];
+                if ($material['base_id'] == true and $material['base_id'] != 'undefined') {
+                    $base_comments = MaterialAccountingBase::where('id', $material['base_id'])
+                        ->with('historyBases')
+                        ->where('date', $date->format('d.m.Y'))
+                        ->first();
+                    if ($base_comments and count($comments) == 0) {
+                        $comments = $base_comments->comments()->get();
+                    }
+                }
+                $base = MaterialAccountingBase::query()->where([
+                    'object_id' => $operation->object_id_from,
+                    'manual_material_id' => $material['material_id'],
+                    'date' => $date->format('d.m.Y'),
+                    'used' => $material['used'] ?? 0,
+                ]);
+
+                if ($comments and count($comments) > 0) {
+                    //we are looking for the same comments.
+                    foreach ($comments as $comment) {
+                        $base->whereHas('comments', function ($comm_q) use ($comment) {
+                            $comm_q->where('comment', $comment['comment']);
+                        });
+                    }
+                    $base->has('comments', count($comments));
+                } else {
+                    // or absence of comments
+                    $base->whereDoesntHave('comments');
+                }
+                $base = $base->first();
 
                 if (!isset($base->unit)) {
                     return true;
                 }
 
-                if ($base->unit == (new MaterialAccountingOperationMaterials)->units_name[$material['material_unit']]) {
+                $unit = null;
+                if (isset((new MaterialAccountingOperationMaterials)->units_name[$material['material_unit']])) {
+                    $unit = (new MaterialAccountingOperationMaterials)->units_name[$material['material_unit']];
+                }
+                $unit = $unit ?? $material['material_unit'];
+                if ($base->unit == $unit) {
                 } else {
                     $convertParam = $mat
-                            ->convert_from($units_name[$material['material_unit']])
+                            ->convert_from($unit)
                             ->where('unit', $base->unit)->first()->value ?? 0;
                     if ($convertParam) {
                         $count = $count * $convertParam;
@@ -699,7 +730,7 @@ class MaterialAccountingOperation extends Model
                     if ($base->unit == $existPart->units_name[$existPart->unit]) {
                     } else {
                         $convertParam = $mat
-                                ->convert_from($units_name[$material['material_unit']])
+                                ->convert_from($unit)
                                 ->where('unit', $base->unit)->first()->value ?? 0;
 
                         if ($convertParam) {

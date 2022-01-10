@@ -33,7 +33,7 @@
                                     @foreach($work_volumes_type as $key => $work_volume)
                                         @if($key == 0)
                                             <tr>
-                                                <td data-label="Дата создания" data-toggle="collapse" class="collapsed tr-pointer" href=".wv{{ hash('md5', $work_volume->option) . 'type-' . $work_volume->type }}" role="button" aria-expanded="false" aria-controls="wv{{ hash('md5', $work_volume->option) . 'type-' . $work_volume->type }}">
+                                                <td data-label="Дата создания" data-toggle="collapse" class="collapsed tr-pointer prerendered-date-time" href=".wv{{ hash('md5', $work_volume->option) . 'type-' . $work_volume->type }}" role="button" aria-expanded="false" aria-controls="wv{{ hash('md5', $work_volume->option) . 'type-' . $work_volume->type }}">
                                                     {{ $work_volume->created_at }}
                                                 </td>
                                                 <td data-label="Версия" data-toggle="collapse" class="collapsed tr-pointer text-center" href=".wv{{ hash('md5', $work_volume->option) . 'type-' . $work_volume->type }}" role="button" aria-expanded="false" aria-controls="wv{{ hash('md5', $work_volume->option) . 'type-' . $work_volume->type }}">

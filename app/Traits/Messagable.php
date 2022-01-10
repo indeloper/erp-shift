@@ -68,7 +68,7 @@ trait Messagable
      */
     public function unreadMessages()
     {
-        return \App\Models\Messenger\Message::unreadForUser($this->getKey())->get();
+        return \App\Model\Messenger\Message::unreadForUser($this->getKey())->get();
     }
 
     /**

@@ -216,7 +216,9 @@ class TasksController extends Controller
                 ->pluck('id')
                 ->toArray();
 
-            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $request->q . '%');
+            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $request->q . '%')
+                ->orWhere(DB::raw('CONCAT(last_name, " ", first_name)'), 'like', '%' . $request->q . '%')
+                ->orWhere('users.id', $request->q);
 
             if (!empty($groups)) {
                 $users = $users->orWhereIn('group_id', [$groups]);

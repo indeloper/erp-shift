@@ -3,7 +3,6 @@
 @section('title', 'Учет техники')
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style>
         #th-select, .th-option  {
             color: #9A9A9A;
@@ -93,7 +92,7 @@
                             ></el-option>
                         </el-select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-10__mobile">
                         <label for="count">Значение</label>
                         <el-select v-if="filter_attribute === 'start_location_id'"
                                    v-model="filter_value"
@@ -271,7 +270,9 @@
                                     <span :class="getStatusClass(tech.human_status)">@{{tech.human_status}}</span>
                                 </td>
                                 <td data-label="Планируемая дата освобождения">
-                                    @{{tech.release_date}}
+                                    <span :class="isWeekendDay(tech.release_date, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(tech.release_date, 'DD.MM.YYYY') ? weekdayDate(tech.release_date, 'DD.MM.YYYY') : '-' }}
+                                    </span>
                                 </td>
                                 <td class="text-right actions">
                                     <button data-balloon-pos="up" aria-label="Просмотр"
@@ -636,8 +637,8 @@
                                     <span class="task-info__head-title">
                                         Дата начала эксплуатации
                                     </span>
-                                    <span class="task-info__body-title">
-                                        @{{tech.exploitation_start ? tech.exploitation_start.split(' ')[0].split('-').reverse().join('.') : ''}}
+                                    <span :class="isWeekendDay(tech.exploitation_start, 'YYYY-MM-DD') ? 'weekend-day task-info__body-title' : 'task-info__body-title'">
+                                        @{{ isValidDate(tech.exploitation_start, 'YYYY-MM-DD') ? weekdayDate(tech.exploitation_start, 'YYYY-MM-DD') : '' }}
                                     </span>
                                 </div>
                             </div>
@@ -732,8 +733,10 @@
                                                        <td data-label="#">
                                                             @{{ticket.id}}
                                                        </td>
-                                                       <td  class="text-center" data-label="Дата создания">
-                                                            @{{prettyDate(ticket.created_at)}}
+                                                       <td class="text-center" data-label="Дата создания">
+                                                            <span :class="isWeekendDay(prettyDate(ticket.created_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                                @{{ isValidDate(prettyDate(ticket.created_at), 'DD.MM.YYYY') ? weekdayDate(prettyDate(ticket.created_at), 'DD.MM.YYYY') : '-' }}
+                                                            </span>
                                                        </td>
                                                        <td class="text-center" data-label="Статус">
                                                             <span :class="getTicketStatusClass(ticket.status)">@{{ticket.status}}</span>
@@ -792,8 +795,10 @@
                                                         <td data-label="#">
                                                             @{{ticket.id}}
                                                         </td>
-                                                        <td  class="text-center" data-label="Дата создания">
-                                                            @{{prettyDate(ticket.created_at)}}
+                                                        <td class="text-center" data-label="Дата создания">
+                                                            <span :class="isWeekendDay(prettyDate(ticket.created_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                                @{{ isValidDate(prettyDate(ticket.created_at), 'DD.MM.YYYY') ? weekdayDate(prettyDate(ticket.created_at), 'DD.MM.YYYY') : '-' }}
+                                                            </span>
                                                         </td>
                                                         <td class="text-center" data-label="Статус">
                                                             <span :class="getDefectStatusClass(ticket.status)">@{{ticket.status_name}}</span>
@@ -847,8 +852,7 @@
 <script type="text/javascript">
     Vue.component('validation-provider', VeeValidate.ValidationProvider);
     Vue.component('validation-observer', VeeValidate.ValidationObserver);
-</script>
-<script type="text/javascript">
+
     var vm = new Vue({
         el: '#base',
         router: new VueRouter({
@@ -1049,6 +1053,15 @@
             updateCurrentLocationName() {
               this.filter_location_name = this.locations.find(loc => loc.id === this.filter_value).name;
             },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
             removeFilter(index) {
                 const queryObj = {};
                 Object.assign(queryObj, this.$route.query);
@@ -1113,6 +1126,13 @@
             },
             handleResize() {
                 this.window_width = $(window).width();
+            },
+            hideTooltips() {
+                for (let ms = 50; ms <= 1050; ms += 100) {
+                    setTimeout(() => {
+                        $('[data-balloon-pos]').blur();
+                    }, ms);
+                }
             },
             @can('tech_acc_our_technic_create')
             createTech() {
@@ -1189,13 +1209,18 @@
                                 $data['category']->id,
                                 ''
                         ]) }}' + '/' + id)
-                            .then(() => this.techs.splice(this.techs.findIndex(el => el.id === id), 1))
+                            .then(() => {
+                                this.techs.splice(this.techs.findIndex(el => el.id === id), 1);
+                                this.hideTooltips();
+                            })
                             //TODO add actual error handler
                             .catch(error => swal({
                                 type: 'error',
                                 title: "Ошибка удаления ",
                                 html: message,
                             }));
+                    } else {
+                        this.hideTooltips();
                     }
                 });
             },
@@ -1224,8 +1249,7 @@
             },
         }
     });
-</script>
-<script type="text/javascript">
+
     var cardTech = new Vue ({
         el:'#card_tech',
         data: {
@@ -1269,6 +1293,15 @@
             },
             prettyDate(date) {
                 return moment(date.split('T')[0], 'YYYY-MM-DD').format('DD.MM.YYYY');
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
             },
             update(tech) {
                 this.tech = tech;

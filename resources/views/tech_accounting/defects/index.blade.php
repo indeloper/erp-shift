@@ -5,7 +5,6 @@
 @section('url', route('building::tech_acc::defects.index'))
 
 @section('css_top')
-    <link rel="stylesheet" href="{{ asset('css/balloon.css') }}">
     <style media="screen">
     @media(max-width: 1200px){
         .table-responsive {
@@ -79,7 +78,7 @@
                             ></el-option>
                         </el-select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mt-10__mobile">
                         <label for="count">Значение</label>
                         <el-select v-if="filter_attribute === 'owner'"
                                    v-model="filter_value" filterable clearable
@@ -269,10 +268,14 @@
                                     <span :class="`${getStatusClass(defect.status)}`" >@{{ defect.status_name }}</span>
                                 </td>
                                 <td class="text-center" data-label="Начало ремонта">
-                                    @{{ defect.repair_start ? defect.repair_start : 'Не назначен' }}
+                                    <span :class="isWeekendDay(defect.repair_start, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(defect.repair_start, 'DD.MM.YYYY') ? weekdayDate(defect.repair_start, 'DD.MM.YYYY') : 'Не назначена' }}
+                                    </span>
                                 </td>
                                 <td class="text-center" data-label="Окончание ремонта">
-                                    @{{ defect.repair_end ? defect.repair_end : 'Не назначена' }}
+                                    <span :class="isWeekendDay(defect.repair_end, 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                        @{{ isValidDate(defect.repair_end, 'DD.MM.YYYY') ? weekdayDate(defect.repair_end, 'DD.MM.YYYY') : 'Не назначена' }}
+                                    </span>
                                 </td>
                                 <td data-label="Исполнитель">
                                     @{{ defect.responsible_user ? defect.responsible_user.full_name : 'Не назначен' }}
@@ -663,6 +666,15 @@
                     this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
                 }
                 this.resetCurrentPage();
+            },
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
             },
             toggleActive() {
                 const queryObj = {};

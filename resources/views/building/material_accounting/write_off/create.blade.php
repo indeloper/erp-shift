@@ -65,6 +65,7 @@
 
 @section('content')
 
+    @include('building.material_accounting.modules.material_notes')
 
     @include('building.material_accounting.modules.breadcrump')
 
@@ -130,7 +131,7 @@
                         <div class="col-md-5">
                             <label for="">Место списания <span class="star">*</span></label>
                             <template>
-                                <el-select v-model="selected" @change="clean_materials" clearable filterable
+                                <el-select v-model="selected" @change="clean_materials" ref="search_from" clearable filterable
                                            :remote-method="search" remote name="object_id" placeholder="Поиск">
                                     <el-option
                                         v-for="item in options"
@@ -148,6 +149,7 @@
                             <template>
                                 <div class="block">
                                     <el-date-picker
+                                        @change="clean_materials"
                                         v-model="operation_date"
                                         type="date"
                                         format="dd.MM.yyyy"
@@ -251,11 +253,17 @@
             <div class="card" id="materials" v-cloak>
                 <div class="card-body">
                     <h6 style="display:inline-block; width: 50%; margin-bottom:30px">Материалы</h6>
-                    <button data-toggle="modal" data-target="#mass_add_materials_modal" type="button" name="button"
-                            class="btn btn-sm btn-info float-right clearfix"
-                            style="font-size: 12px;border-radius: 3px;padding: 8px 15px; font-weight:500">
-                        Выбрать массово
-                    </button>
+                    <div class="float-right">
+                        <el-tooltip :disabled="!is_loading_mats" content="Ищем и готовим материалы..." placement="top">
+                            <span>
+                                <el-button data-toggle="modal" data-target="#mass_add_materials_modal" type="primary" name="button"
+                                        :loading="is_loading_mats"
+                                        style="font-size: 13px;border-radius: 3px;padding: 8px 15px; font-weight:400">
+                                    Выбрать массово
+                                </el-button>
+                            </span>
+                        </el-tooltip>
+                    </div>
                     <br>
                     <div class="materials"
                          v-if="material_inputs.length > 0 ? (new_materials ? new_materials.length > 0 : false) : false">
@@ -268,6 +276,8 @@
                             :material_id.sync="material_input.material_id"
                             :material_unit.sync="material_input.material_unit"
                             :material_count.sync="material_input.material_count"
+                            :material_input="material_input"
+                            :base_id.sync="material_input.base_id"
                             :used.sync="material_input.used"
                             :materials.sync="material_input.materials"
                             :units.sync="material_input.units"
@@ -276,7 +286,7 @@
                         </div>
                     </div>
                     <div v-else>
-                        @{{ !selected ? 'Выберите место списания.' : 'На объекте отсутствуют материалы для списания.' }}
+                        @{{ !selected ? 'Выберите место и дату списания.' : (!operation_date ? 'Выберите дату списания' : 'На объекте отсутствуют материалы для списания.') }}
                     </div>
                     <div class="row"
                          v-if="material_inputs.length > 0 ? (new_materials ? new_materials.length > 0 : false) : false">
@@ -440,47 +450,64 @@
                     });
                 },
                 clean_materials() {
-                    mass_add_materials.findAllMaterials(vm.selected);
+                    if (vm.selected && vm.operation_date) {
+                        mass_add_materials.findAllMaterials(vm.selected);
 
-                    axios.post('{{ route('building::mat_acc::report_card::get_materials') }}', {base_id: vm.selected ? vm.selected : -1}).then(function (response) {
-                        materials.new_materials = response.data;
-                        materials.material_inputs = [];
-                        materials.material_inputs.push({
-                            id: materials.next_mat_id++,
-                            material_id: '',
-                            material_unit: '',
-                            material_count: Number(0),
-                            used: false,
-                            units: materials.units,
-                            materials: materials.new_materials
+                        axios.post('{{ route('building::mat_acc::report_card::get_materials') }}', {base_id: vm.selected ? vm.selected : -1}).then(function (response) {
+                            materials.new_materials = response.data;
+                            materials.material_inputs = [];
+                            materials.material_inputs.push({
+                                id: materials.next_mat_id++,
+                                base_id: '',
+                                material_id: '',
+                                material_unit: '',
+                                material_count: Number(0),
+                                used: false,
+                                units: materials.units,
+                                materials: materials.new_materials
+                            });
                         });
-                    });
+                    }
                 }
             }
         })
 
         Vue.component('material-item', {
             template: '\
-          <div class="row" style="margin-top: 7px;">\
+          <div class="form-row" style="margin-top: 7px;">\
               <div class="col-md-5">\
                   <label :class="[material_index !== 1 ? \'show-mobile-label mt-10__mobile\' : \'mt-10__mobile\']" >\
                       Материал <span class="star">*</span>\
                   </label>\
                   <template>\
-                    <el-select @change="changeMaterialId" ref="usernameInput" v-model="default_material_id" clearable filterable @clear="search(``)" :remote-method="search" remote size="large" placeholder="Выберите материал">\
+                    <el-select @change="changeMaterialId" ref="usernameInput" v-model="default_base_id" clearable filterable @clear="search(``)" :remote-method="search" remote size="large" placeholder="Выберите материал">\
                       <el-option\
                         v-for="item in new_materials_filtered"\
                         :label="item.label"\
-                        :key="`${item.id}_${item.used ? 1 : 0}`"\
-                        :value="`${item.id}_${item.used ? 1 : 0}`">\
+                        :key="item.base_id"\
+                        :value="item.base_id">\
                       </el-option>\
                     </el-select>\
                   </template>\
               </div>\
-              <div class="col-md-1 align-self-end">\
-                 <button data-toggle="modal" data-target="#description" @click="getDescription" title="Примечание" type="button" name="button" class="btn btn-sm btn-primary btn-outline mt-10__mobile btn-block" style="height: 40px;">\
+              <div class="col-md-1 align-self-end text-center">\
+                <button data-toggle="modal" data-target="#material-notes" @click="() => { materialNotes().changeMaterialInput(this, false, true); hideTooltips(); }"\
+                        @mouseleave="hideTooltips" type="button"\
+                        data-balloon-pos="up" :aria-label="notesLabel"\
+                        data-balloon-length="medium"\
+                        :disabled="!material_id"\
+                        class="btn btn-link btn-xs pd-0 mt-10__mobile mr-1" style="height: 40px;"\
+                        :class="material_id && comments.length > 0 ? \'btn-danger\' : \' btn-secondary\'">\
                     <i style="font-size:18px;" class="fa fa-info-circle"></i>\
-                 </button>\
+                </button>\
+                <button data-toggle="modal" data-target="#description" @click="() => { getDescription(); hideTooltips(); }"\
+                        @mouseleave="hideTooltips" type="button"\
+                        data-balloon-pos="up" aria-label="Описание категории материала"\
+                        :disabled="!material_id"\
+                        class="btn btn-link btn-xs pd-0 mt-10__mobile" style="height: 40px;"\
+                        :class="material_id ? \'btn-primary\' : \' btn-secondary\'">\
+                    <i style="font-size:18px;" class="fa fa-info-circle"></i>\
+                </button>\
               </div>\
               <div :class="[inputs_length === 1 ? \'col-md-2\' : \'col-md-2\']">\
                   <label for="" :class="[material_index !== 1 ? \'show-mobile-label mt-10__mobile\' : \'mt-10__mobile\']">\
@@ -511,7 +538,7 @@
                 </label>\
                 <template>\
                     <el-checkbox v-model="default_material_used"\
-                        border class="d-block" disabled\
+                       border class="d-block"\
                        @can('mat_acc_base_move_to_new') @change="changeUsageValue" @endcan @cannot('mat_acc_base_move_to_new') disabled @endcannot
                 ></el-checkbox>\
            </template>\
@@ -523,29 +550,48 @@
                 </div>\
             </div>\
           ',
-            props: ['material_id', 'material_unit', 'material_count', 'used', 'inputs_length', 'material_index', 'materials', 'units', 'index', 'used'],
+            props: ['material_id', 'material_unit', 'material_count', 'used', 'inputs_length', 'material_index', 'materials', 'units', 'index', 'material_input', 'base_id'],
             computed: {
                 new_materials_filtered() {
                     return this.materials
                         .filter(el => {
-                            const count = materials.material_inputs.filter(input => input.material_id == el.id && input.used == el.used).length;
-                            return count < 1 || String(this.default_material_id).split('_')[0] === el.id && String(this.default_material_id).split('_')[1] == el.used;
+                            const count = materials.material_inputs.filter(input => input.base_id == el.base_id).length;
+                            return count < 1 || this.default_base_id == el.base_id;
                         });
-                }
+                    },
+                    notesLabel() {
+                        if (!this.material_id) {
+                            return 'Примечания';
+                        }
+                        if (this.comments && this.comments.length > 0) {
+                            const commentsString = this.comments.map(comment => comment.comment).join(', ');
+                            if (commentsString.length > 90) {
+                                return commentsString.slice(0, 90) + '... см. полный список примечаний в справочнике.';
+                            } else {
+                                return commentsString;
+                            }
+                        } else {
+                            return 'Вы можете добавить к этому материалу примечания';
+                        }
+                    }
             },
             methods: {
                 changeMaterialId(value) {
-                    this.$emit('update:material_id', value.split('_')[0]);
-                    this.getDescription();
                     if (value) {
-                        let mat = this.materials.filter(input => input.id == value.split('_')[0]
-                            && input.used == value.split('_')[1])[0];
+                        let mat = this.materials.filter(input => input.base_id == value)[0];
                         let used = (mat.used === undefined ? false : mat.used);
+                        this.$emit('update:material_id', mat.id);
+                        this.$emit('update:base_id', value);
+                        this.getDescription();
                         this.changeUsageValue(used);
                         this.default_material_used = used;
+                        this.default_material_id = mat.id;
+                        this.loadComments(mat);
 
-                        let unit = (mat.unit === undefined ? null : mat.unit);
-                        this.autoChangeUnit(unit)
+                        if (this.default_material_unit == false) {
+                            let unit = (mat.unit === undefined ? null : mat.unit);
+                            this.autoChangeUnit(unit)
+                        }
                     } else {
                         this.changeUsageValue(false);
                         this.default_material_used = false;
@@ -589,16 +635,55 @@
                     }).then(function (response) {
                         materials.material_inputs[that.index].materials = response.data
                     })
+                },
+                hideTooltips() {
+                    for (let ms = 50; ms <= 1050; ms += 100) {
+                        setTimeout(() => {
+                            $('[data-balloon-pos]').blur();
+                        }, ms);
+                    }
+                },
+                materialNotes() {
+                    return materialNotes;
+                },
+                locationFromName() {
+                    if (typeof(vm) !== 'undefined') {
+                        return vm.$refs['search_from'] ? vm.$refs['search_from'].query : null;
+                    } else if (typeof(this.predefinedLocation) !== 'undefined') {
+                        return this.predefinedLocation;
+                    }
+                    return null;
+                },
+                materialName() {
+                    return this.$refs['usernameInput'] ? this.$refs['usernameInput'].query : null;
+                },
+                loadComments(mat) {
+                    if (typeof(mat) !== 'undefined' && mat.base_id) {
+                        axios.get('{{ route('building::mat_acc::report_card::get_base_comments') }}', { params: { base_id: mat.base_id }})
+                        .then(response => {
+                            this.id = mat.base_id;
+                            this.comments = response.data.comments;
+                        })
+                        .catch(error => console.log(error));
+                    }
                 }
             },
             data: function () {
                 return {
-                    default_material_id: this.material_id ? this.material_id : materials.material_inputs[this.inputs_length - 1].material_id,
-                    default_material_unit: this.material_unit ? this.material_unit : materials.material_inputs[this.inputs_length - 1].material_unit,
-                    default_material_count: this.material_count ? this.material_count : materials.material_inputs[this.inputs_length - 1].material_count,
-                    default_material_used: (this.used !== null && this.used !== undefined) ? this.used : materials.material_inputs[this.inputs_length - 1].used,
+                    default_material_id: this.material_id ? this.material_id : materials.material_inputs[this.index].material_id,
+                    default_base_id: materials.material_inputs[this.index].base_id,
+                    default_material_unit: this.material_unit ? this.material_unit : materials.material_inputs[this.index].material_unit,
+                    default_material_count: this.material_count ? this.material_count : materials.material_inputs[this.index].material_count,
+                    default_material_used: (this.used !== null && this.used !== undefined) ? this.used : materials.material_inputs[this.index].used,
                     default_material_description: 'Нет описания',
                     documents: [],
+                    comments: [],
+                    id: null
+                }
+            },
+            mounted() {
+                if (this.default_base_id) {
+                    this.changeMaterialId(this.default_base_id);
                 }
             }
         });
@@ -615,11 +700,18 @@
                 exist_materials: [],
                 is_loading_send: false,
                 is_loading_draft: false,
+                is_loading_mats: false,
             },
             computed: {
                 selected() {
                     return vm.selected;
                 },
+                operation_date() {
+                    return vm.operation_date;
+                },
+                show_tooltip() {
+                    return !this.is_loading_mats;
+                }
             },
             methods: {
                 add_material() {
@@ -631,6 +723,7 @@
                         that.material_inputs.push({
                             id: that.next_mat_id++,
                             material_id: '',
+                            base_id: '',
                             material_unit: '',
                             material_label: '',
                             material_count: '',
@@ -639,13 +732,6 @@
                             materials: that.new_materials
                         });
                     });
-                },
-                inArray: function (array, element) {
-                    var length = array.length;
-                    for (var i = 0; i < length; i++) {
-                        if (array[i].id == element.id && (element.used === undefined || array[i].used == element.used)) return true;
-                    }
-                    return false;
                 },
                 check_conflict() {
                     materials.is_loading_send = true;
@@ -717,7 +803,7 @@
                             window.location = '{{ route('building::mat_acc::operations') }}';
                         } else {
                             materials.is_loading_send = false;
-
+                            materials.is_loading_draft = false;
                             materials.$message({
                                 showClose: true,
                                 message: response.data.message,
@@ -728,6 +814,7 @@
                     }).catch(function (request) {
                         var errors = Object.values(request.response.data.errors);
                         materials.is_loading_send = false;
+                        materials.is_loading_draft = false;
 
                         errors.forEach(function (error, key) {
                             if (key == 0) {
@@ -787,6 +874,13 @@
                             }
                         });
                     });
+                },
+                inArray: function (array, element) { //this one is used in mass_add_materials
+                    var length = array.length;
+                    for (var i = 0; i < length; i++) {
+                        if (array[i].base_id == element) return true;
+                    }
+                    return false;
                 }
             }
         })

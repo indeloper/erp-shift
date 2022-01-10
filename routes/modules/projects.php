@@ -2,6 +2,7 @@
 Route::group(['middleware' => 'can:projects'], function () {
     Route::get('/', 'ProjectController@index')->name('index');
     Route::get('/card/{id}', 'ProjectController@card')->name('card');
+    Route::get('/card/{project}/users', 'ProjectController@users')->name('users');
     Route::get('/create', 'ProjectController@create')->name('create')->middleware('can:projects_create');
     Route::get('/edit/{id}', 'ProjectController@edit')->name('edit');
     Route::get('/tasks/{id}', 'ProjectController@tasks')->name('tasks');
@@ -13,6 +14,12 @@ Route::group(['middleware' => 'can:projects'], function () {
     Route::post('{project_id}/change_status', 'ProjectController@change_status')->name('change_status');
     Route::post('{project_id}/add_contractors', 'ProjectController@add_contractors')->name('add_contractors');
     Route::post('/importance-toggler', 'ProjectController@importance_toggler')->name('importance_toggler');
+    Route::post('/update_time_responsible', 'ProjectController@updateTimeResponsibleUser')->name('update_time_responsible');
+    Route::post('/{project}/appoint_user', 'ProjectController@appointUser')->name('appoint_user');
+    Route::post('/{project}/appoint_brigade', 'ProjectController@appointBrigade')->name('appoint_brigade');
+    Route::post('/{project}/detach_user', 'ProjectController@detachUser')->name('detach_user');
+    Route::post('/{project}/detach_brigade', 'ProjectController@detachBrigade')->name('detach_brigade');
+    Route::post('/get_project_users', 'ProjectController@getProjectUsers')->name('get_project_users');
 });
 
 
@@ -27,6 +34,7 @@ Route::get('/get-contractors', 'ProjectController@get_contractors');
 Route::get('/get-projects', 'ProjectController@getProjects')->name('get_projects');
 Route::post('/delete-contact', 'ProjectController@contact_delete')->name('contact_delete');
 Route::post('/store-temp-contact', 'ProjectController@store_temp_contact')->name('store_temp_contact');
+Route::post('/get-projects-for-human-accounting', 'ProjectController@getProjectsForHumanAccounting')->name('get_projects_for_human');
 
 Route::get('ajax/get-contractors', 'ProjectController@get_contractors');
 Route::any('ajax/get-contractors-contacts/', 'ProjectController@get_contractors_contacts');

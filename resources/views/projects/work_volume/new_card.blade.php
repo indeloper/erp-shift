@@ -257,7 +257,7 @@
                                                                 {{ $wv_request->first_name }}
                                                                 {{ $wv_request->patronymic }}
                                                             </td>
-                                                            <td data-label="Дата">{{ $wv_request->updated_at }}</td>
+                                                            <td data-label="Дата" class="prerendered-date-time">{{ $wv_request->updated_at }}</td>
                                                             <td data-label="" class="text-right actions ">
                                                                 <button rel="tooltip" data-placement="top" class="btn-edit btn-link btn-xs btn padding-actions mn-0"
                                                                         @if(session()->get('edited_wv_request_id', 'default') == $wv_request->id) onclick="clearSession()" data-original-title="Отменить редактирование" @else data-toggle="modal" data-target="#view-request{{ $wv_request->id }}" data-original-title="Просмотр" @endif>
@@ -3072,6 +3072,42 @@
     })
 
     </script>
-
+<script type="text/javascript">
+    var vm = new Vue ({
+        el: '#base',
+        mounted() {
+            const that = this;
+            $('.prerendered-date-time').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+            $('.prerendered-date').each(function() {
+                const date = $(this).text();
+                const content = that.isValidDate(date, 'DD.MM.YYYY') ? that.weekdayDate(date, 'DD.MM.YYYY') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY') ? 'weekend-day' : ''
+                });
+                innerSpan.text(content);
+                $(this).html(innerSpan);
+            });
+        },
+        methods: {
+            isWeekendDay(date, format) {
+                return [5, 6].indexOf(moment(date, format).weekday()) !== -1;
+            },
+            isValidDate(date, format) {
+                return moment(date, format).isValid();
+            },
+            weekdayDate(date, inputFormat, outputFormat) {
+                return moment(date, inputFormat).format(outputFormat ? outputFormat : 'DD.MM.YYYY dd');
+            },
+        }
+    })
+</script>
 
 @endsection

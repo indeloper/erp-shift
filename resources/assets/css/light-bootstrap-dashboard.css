@@ -140,7 +140,7 @@ p,
 .alert,
 a,
 .td-name,
-td,
+:not(.ignore-css) td,
 button.close {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;

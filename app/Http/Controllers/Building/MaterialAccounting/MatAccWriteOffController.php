@@ -20,6 +20,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 
+use App\Services\MaterialAccounting\MaterialAccountingService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -109,7 +110,7 @@ class MatAccWriteOffController extends Controller
             'operation' => $operation,
             'units' => MaterialAccountingOperationMaterials::$main_units,
             // operation author can't do anything in controlled operation
-            'edit_restrict' => (Auth::id() == 7) ? false : ($operation->status == 8) ? true : false
+            'edit_restrict' => (Auth::id() == User::where('group_id', 8)->first()->id) ? false : ($operation->status == 8) ? true : false
         ]);
     }
 
@@ -223,6 +224,7 @@ class MatAccWriteOffController extends Controller
             $operation->status = 1;
         } else {
             $operation->status = 4;
+            $operation->author_id = $operation->responsible_RP ?? Auth::user()->id;
         }
 
         if ($operation->wasDraftAndUserCanWorkOnlyWithDraftsAndNoConflictInOperation($oldStatus, $is_conflict)) {
@@ -261,6 +263,24 @@ class MatAccWriteOffController extends Controller
 
         if ($result !== true) {
             return response()->json(['message' => $result]);
+        }
+        $part_mats = MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->where('type', 8)->get();
+
+        foreach ($part_mats as $part_mat) {
+            $plan_q = $part_mat->sameMaterials()->where('type', 3);
+            if ($plan_q->doesntExist()) {
+                if ($plan_q->withTrashed()->exists()) {
+                    $plan_mat = $plan_q->first();
+                    $plan_mat->restore();
+                    $plan_mat->count = 0;
+                    $plan_mat->save();
+                } else {
+                    $plan_mat = $part_mat->replicate();
+                    $plan_mat->count = 0;
+                    $plan_mat->type = 3;
+                    $plan_mat->save();
+                }
+            }
         }
 
         $operation->generateOperationConflictNotifications();
@@ -306,26 +326,12 @@ class MatAccWriteOffController extends Controller
         DB::beginTransaction();
 
         $operation = MaterialAccountingOperation::where('type', 2)->where('status', 2)->findOrFail($operation_id);
-        $operation->checkClosed();
-        $operation->status = 3;
-        $operation->actual_date_to = Carbon::now()->format('d.m.Y');
-        $operation->recipient_id = Auth::user()->id;
-        $operation->comment_to = $request->comment;
-        $operation->is_close = 1;
-        $operation->saveOrFail();
 
-        $operation->generateOperationAcceptNotifications();
-
-        $result = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $request->materials, 2, 'inactivity');
+        $result = (new MaterialAccountingService())->acceptOperation($operation);
 
         if ($result !== true) {
             return response()->json(['message' => $result]);
         }
-
-        // attach files
-        MaterialAccountingOperationFile::whereIn('id', array_merge($request->files_ids ?? [], $request->images_ids ?? []))
-            ->where('operation_id', 0)
-            ->update(['operation_id' => $operation->id]);
 
         DB::commit();
 
@@ -335,7 +341,7 @@ class MatAccWriteOffController extends Controller
     /**
      * Operation control task card
      * @param int $id
-     * @return void
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function control($id)
     {
