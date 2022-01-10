@@ -29,7 +29,7 @@ class CreateQ3wMaterialOperationsTable extends Migration
         $routeNames = ['Поставка', 'Перемещение', 'Преобразование', 'Списание'];
 
         foreach ($routeNames as $routeName) {
-            $route = new q3wOperationRoute();
+            $route = new App\models\q3wMaterial\operations\q3wOperationRoute();
             $route -> name = $routeName;
             $route -> save();
         }
