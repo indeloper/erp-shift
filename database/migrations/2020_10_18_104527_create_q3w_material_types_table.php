@@ -85,7 +85,8 @@ class CreateQ3wMaterialTypesTable extends Migration
             $materialType->save();
         }*/
 
-        Artisan::call('db:seed', array('--class' => 'materialTypesSeeder'));
+        //Какая-то проблема с таким вызовом через putty. Придется делать руками после миграций.
+        //Artisan::call('db:seed', array('--class' => 'materialTypesSeeder'));
     }
 
     /**
