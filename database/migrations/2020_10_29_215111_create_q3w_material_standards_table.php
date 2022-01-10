@@ -99,6 +99,7 @@ class CreateQ3wMaterialStandardsTable extends Migration
             }
         }*/
 
+        //Какая-то проблема с таким вызовом через putty. Придется делать руками после миграций.
         Artisan::call('db:seed', array('--class' => 'materialsSeeder'));
     }
 
