@@ -4,6 +4,7 @@ use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStageType;
 use App\models\q3wMaterial\operations\q3wOperationRoute;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -29,9 +30,10 @@ class CreateQ3wMaterialOperationsTable extends Migration
         $routeNames = ['Поставка', 'Перемещение', 'Преобразование', 'Списание'];
 
         foreach ($routeNames as $routeName) {
-            $route = new App\models\q3wMaterial\operations\q3wOperationRoute();
+            DB::table('q3w_operation_routes')->insert(['name' => $routeName]);
+            /*$route = new App\models\q3wMaterial\operations\q3wOperationRoute();
             $route -> name = $routeName;
-            $route -> save();
+            $route -> save();*/
         }
 
         Schema::create('q3w_operation_route_stage_types', function (Blueprint $table) {
