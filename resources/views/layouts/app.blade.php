@@ -166,7 +166,7 @@
                                 <b class="caret"></b>
                             </p>
                         </a>
-                        <div class="collapse @if(Request::is('contractors') || Request::is('contractors/*') || Request::is('objects') || Request::is('objects/*')) show @endif" id="commerceExamples">
+                        <div class="collapse @if(Request::is('contractors') || Request::is('contractors/*') || Request::is('objects') || Request::is('objects/*') || Request::is('building/materials') || Request::is('building/materials/*') || Request::is('building/works') || Request::is('building/works/*') || Request::is('building/work_groups/*') || Request::is('building/work_groups')) show @endif" id="commerceExamples">
                             <ul class="nav">
                                 @can('contractors')
                                 <li class="nav-item @if (Request::is('contractors') || Request::is('contractors/*')) active @endif">
@@ -183,8 +183,25 @@
                                         <span class="sidebar-normal">Объекты</span>
                                     </a>
                                 </li>
-                                <hr>
+
                                 @endcan
+                                @if(Auth::user()->can('manual_materials'))
+                                    <li class="nav-item @if (Request::is('building/materials') || Request::is('building/materials/*')) active @endif">
+                                        <a class="nav-link" href="{{ route('building::materials::index') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-diamond pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Материалы</span>
+                                        </a>
+                                    </li>
+                                @endif
+                                @if(Auth::user()->can('manual_works'))
+                                    <li class="nav-item @if (Request::is('building/works') || Request::is('building/works/*') || Request::is('building/work_groups/*') || Request::is('building/work_groups'))  active @endif">
+                                        <a class="nav-link" href="{{ route('building::works::index') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-config pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Работы</span>
+                                        </a>
+                                    </li>
+                                @endif
+                                <hr>
                             </ul>
                         </div>
                     </li>
