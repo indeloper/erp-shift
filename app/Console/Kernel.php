@@ -65,7 +65,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('contacts:check')->dailyAt('04:00');
         $schedule->command('defects:check')->dailyAt('08:00');
         $schedule->command('usage_report_task:create')->dailyAt('07:00');
-        $schedule->command('expired:remind')->dailyAt('17:30');
+        //$schedule->command('expired:remind')->dailyAt('17:30'); Отключено по просьбе Самсонова К.
         $schedule->command('birthday:check')->dailyAt('09:00');
 
         $schedule->command('ticket:auto_confirm')->everyFiveMinutes();
