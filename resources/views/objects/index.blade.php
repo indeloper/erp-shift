@@ -265,6 +265,15 @@
                                    </div>
                                </div>
                            @endif
+                           <div class="form-group" id="">
+                               <div class="row">
+                                   <label class="col-sm-3 col-form-label">Тип учета<star class="star">*</star></label>
+                                   <div class="col-sm-9">
+                                       <select id="material_accounting_type" name="material_accounting_type" style="width:100%;">
+                                       </select>
+                                   </div>
+                               </div>
+                           </div>
                          </form>
                      </div>
                  </div>
