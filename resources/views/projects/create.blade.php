@@ -506,6 +506,7 @@
                 cadastral_number: $('#cadastral_number').val(),
                 address: $('#set_address').val(),
                 short_name: $('#short_name').val(),
+                material_accounting_type: 1,
                 task_id: 1
             },
             dataType: 'JSON',

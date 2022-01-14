@@ -55,6 +55,7 @@ class ObjectController extends Controller
         $object->address = $request->address;
         $object->cadastral_number = $request->cadastral_number;
         $object->short_name = $request->short_name;
+        $object->material_accounting_type = $request->material_accounting_type;
 
         $object->save();
 
