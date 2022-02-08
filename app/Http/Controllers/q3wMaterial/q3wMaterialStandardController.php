@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use App\models\q3wMaterial\q3wMaterialAccountingType;
-use App\models\q3wMaterial\q3wMaterialStandard;
-use App\Models\q3wMaterial\q3wMaterialType;
+use App\Models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use http\Exception;
 use Illuminate\Http\Request;
