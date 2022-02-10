@@ -6,16 +6,13 @@ use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
-use App\Models\q3wMaterial\q3wMaterial;
-use App\models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialComment;
-use App\models\q3wMaterial\q3wMaterialSnapshot;
-use App\models\q3wMaterial\q3wMaterialSnapshotMaterial;
-use App\models\q3wMaterial\q3wMaterialStandard;
+use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
+use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -224,7 +221,7 @@ class q3wMaterialController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\models\q3wMaterial\q3wMaterial $q3wMaterial
+     * @param \App\Models\q3wMaterial\q3wMaterial $q3wMaterial
      * @return string
      */
     public function show(Request $request)

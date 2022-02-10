@@ -89,7 +89,7 @@ class q3wMaterialStandardController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param  \App\Models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
      * @return \Illuminate\Http\Response
      */
     public function edit(q3wMaterialStandard $q3wMaterialStandard)
@@ -101,7 +101,7 @@ class q3wMaterialStandardController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
+     * @param  \App\Models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
