@@ -1033,7 +1033,7 @@
                         itemType: "group",
                         caption: "Файлы",
                         colSpan: 2,
-                        colCount: 4,
+                        colCount: 3,
                         items: [{
                             colSpan: 1,
                             template:
@@ -1062,22 +1062,11 @@
                                 template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
                                     '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
                                     '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
-                                    '<span class="dx-uploader-span">Фото машины сзади</span>' +
+                                    '<span class="dx-uploader-span">Фото машины сзади с материалами</span>' +
                                     '</div>' +
                                     '<div id="upload-progress-3" class="upload-progress"></div>' +
                                     '</div>' +
                                     '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
-                            },
-                            {
-                                colSpan: 1,
-                                template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                    '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
-                                    '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
-                                    '<span class="dx-uploader-span">Фото материалов</span>' +
-                                    '</div>' +
-                                    '<div id="upload-progress-4" class="upload-progress"></div>' +
-                                    '</div>' +
-                                    '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
                             }
                         ]
                     },
