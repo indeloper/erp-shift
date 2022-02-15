@@ -1,5 +1,5 @@
 <?php return array (
-  'providers' => 
+  'providers' =>
   array (
     0 => 'Illuminate\\Auth\\AuthServiceProvider',
     1 => 'Illuminate\\Broadcasting\\BroadcastServiceProvider',
@@ -24,35 +24,34 @@
     20 => 'Illuminate\\Validation\\ValidationServiceProvider',
     21 => 'Illuminate\\View\\ViewServiceProvider',
     22 => 'Barryvdh\\Debugbar\\ServiceProvider',
-    23 => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
-    24 => 'BeyondCode\\DumpServer\\DumpServerServiceProvider',
-    25 => 'Facade\\Ignition\\IgnitionServiceProvider',
-    26 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
-    27 => 'Fomvasss\\Dadata\\DadataServiceProvider',
-    28 => 'Intervention\\Image\\ImageServiceProvider',
-    29 => 'Laravel\\Dusk\\DuskServiceProvider',
-    30 => 'Laravel\\Passport\\PassportServiceProvider',
-    31 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    32 => 'Lexx\\ChatMessenger\\ChatMessengerServiceProvider',
-    33 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
-    34 => 'Carbon\\Laravel\\ServiceProvider',
-    35 => 'niklasravnsborg\\LaravelPdf\\PdfServiceProvider',
-    36 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    37 => 'Fomvasss\\Dadata\\DadataServiceProvider',
-    38 => 'niklasravnsborg\\LaravelPdf\\PdfServiceProvider',
-    39 => 'Intervention\\Image\\ImageServiceProvider',
-    40 => 'App\\Providers\\AppServiceProvider',
-    41 => 'App\\Providers\\AuthServiceProvider',
-    42 => 'App\\Providers\\EventServiceProvider',
-    43 => 'App\\Providers\\RouteServiceProvider',
-    44 => 'App\\Providers\\ViewComposerServiceProvider',
-    45 => 'Telegram\\Bot\\Laravel\\TelegramServiceProvider',
-    46 => 'Lexx\\ChatMessenger\\ChatMessengerServiceProvider',
-    47 => 'App\\Providers\\PHPExcelMacroServiceProvider',
-    48 => 'App\\Providers\\ObserversServiceProvider',
-    49 => 'App\\Providers\\BladeDirectivesProvider',
+    23 => 'BeyondCode\\DumpServer\\DumpServerServiceProvider',
+    24 => 'Facade\\Ignition\\IgnitionServiceProvider',
+    25 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
+    26 => 'Fomvasss\\Dadata\\DadataServiceProvider',
+    27 => 'Intervention\\Image\\ImageServiceProvider',
+    28 => 'Laravel\\Dusk\\DuskServiceProvider',
+    29 => 'Laravel\\Passport\\PassportServiceProvider',
+    30 => 'Laravel\\Tinker\\TinkerServiceProvider',
+    31 => 'Lexx\\ChatMessenger\\ChatMessengerServiceProvider',
+    32 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+    33 => 'Carbon\\Laravel\\ServiceProvider',
+    34 => 'niklasravnsborg\\LaravelPdf\\PdfServiceProvider',
+    35 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    36 => 'Fomvasss\\Dadata\\DadataServiceProvider',
+    37 => 'niklasravnsborg\\LaravelPdf\\PdfServiceProvider',
+    38 => 'Intervention\\Image\\ImageServiceProvider',
+    39 => 'App\\Providers\\AppServiceProvider',
+    40 => 'App\\Providers\\AuthServiceProvider',
+    41 => 'App\\Providers\\EventServiceProvider',
+    42 => 'App\\Providers\\RouteServiceProvider',
+    43 => 'App\\Providers\\ViewComposerServiceProvider',
+    44 => 'Telegram\\Bot\\Laravel\\TelegramServiceProvider',
+    45 => 'Lexx\\ChatMessenger\\ChatMessengerServiceProvider',
+    46 => 'App\\Providers\\PHPExcelMacroServiceProvider',
+    47 => 'App\\Providers\\ObserversServiceProvider',
+    48 => 'App\\Providers\\BladeDirectivesProvider',
   ),
-  'eager' => 
+  'eager' =>
   array (
     0 => 'Illuminate\\Auth\\AuthServiceProvider',
     1 => 'Illuminate\\Cookie\\CookieServiceProvider',
@@ -89,7 +88,7 @@
     32 => 'App\\Providers\\ObserversServiceProvider',
     33 => 'App\\Providers\\BladeDirectivesProvider',
   ),
-  'deferred' => 
+  'deferred' =>
   array (
     'Illuminate\\Broadcasting\\BroadcastManager' => 'Illuminate\\Broadcasting\\BroadcastServiceProvider',
     'Illuminate\\Contracts\\Broadcasting\\Factory' => 'Illuminate\\Broadcasting\\BroadcastServiceProvider',
@@ -195,61 +194,56 @@
     'translation.loader' => 'Illuminate\\Translation\\TranslationServiceProvider',
     'validator' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'validation.presence' => 'Illuminate\\Validation\\ValidationServiceProvider',
-    'command.ide-helper.generate' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
-    'command.ide-helper.models' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
     'command.tinker' => 'Laravel\\Tinker\\TinkerServiceProvider',
     'NunoMaduro\\Collision\\Contracts\\Provider' => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     'telegram' => 'Telegram\\Bot\\Laravel\\TelegramServiceProvider',
     'Telegram\\Bot\\Api' => 'Telegram\\Bot\\Laravel\\TelegramServiceProvider',
   ),
-  'when' => 
+  'when' =>
   array (
-    'Illuminate\\Broadcasting\\BroadcastServiceProvider' => 
+    'Illuminate\\Broadcasting\\BroadcastServiceProvider' =>
     array (
     ),
-    'Illuminate\\Bus\\BusServiceProvider' => 
+    'Illuminate\\Bus\\BusServiceProvider' =>
     array (
     ),
-    'Illuminate\\Cache\\CacheServiceProvider' => 
+    'Illuminate\\Cache\\CacheServiceProvider' =>
     array (
     ),
-    'Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider' => 
+    'Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider' =>
     array (
     ),
-    'Illuminate\\Hashing\\HashServiceProvider' => 
+    'Illuminate\\Hashing\\HashServiceProvider' =>
     array (
     ),
-    'Illuminate\\Mail\\MailServiceProvider' => 
+    'Illuminate\\Mail\\MailServiceProvider' =>
     array (
     ),
-    'Illuminate\\Pipeline\\PipelineServiceProvider' => 
+    'Illuminate\\Pipeline\\PipelineServiceProvider' =>
     array (
     ),
-    'Illuminate\\Queue\\QueueServiceProvider' => 
+    'Illuminate\\Queue\\QueueServiceProvider' =>
     array (
     ),
-    'Illuminate\\Redis\\RedisServiceProvider' => 
+    'Illuminate\\Redis\\RedisServiceProvider' =>
     array (
     ),
-    'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider' => 
+    'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider' =>
     array (
     ),
-    'Illuminate\\Translation\\TranslationServiceProvider' => 
+    'Illuminate\\Translation\\TranslationServiceProvider' =>
     array (
     ),
-    'Illuminate\\Validation\\ValidationServiceProvider' => 
+    'Illuminate\\Validation\\ValidationServiceProvider' =>
     array (
     ),
-    'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider' => 
+    'Laravel\\Tinker\\TinkerServiceProvider' =>
     array (
     ),
-    'Laravel\\Tinker\\TinkerServiceProvider' => 
+    'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider' =>
     array (
     ),
-    'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider' => 
-    array (
-    ),
-    'Telegram\\Bot\\Laravel\\TelegramServiceProvider' => 
+    'Telegram\\Bot\\Laravel\\TelegramServiceProvider' =>
     array (
     ),
   ),

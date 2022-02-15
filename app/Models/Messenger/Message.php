@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Messenger;
+namespace App\Models\Messenger;
 
 use App\Models\Messenger\MessageForwards;
 use Illuminate\Database\Eloquent\Builder;
