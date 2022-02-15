@@ -31,6 +31,8 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     });
     Route::post('/get_objects', 'Commerce\ObjectController@getObjects')->name('objects::get_objects');
 
+    Route::get('tasks/download_tasks_report', 'Tasks\TasksController@downloadTasksReport')->name('tasks.download_tasks_report')->middleware('can:commercial_block_task_report_xlsx_export_access');
+
     Route::group(['prefix' => 'tasks', 'as' => 'tasks::', 'namespace' => "Tasks"], function () {
         Route::get('/', 'TasksController@index')->name('index');
         Route::get('/card/{id}', 'TasksController@card')->name('card');
