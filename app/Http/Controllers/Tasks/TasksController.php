@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tasks;
 use App\Http\Controllers\Controller;
 
 use App\Services\Commerce\ProjectDashboardService;
+use App\Services\Tasks\Reports\TasksXLSXReport;
 use Illuminate\Http\Request;
 use App\Http\Requests\TaskRequests\TaskCreateRequest;
 
@@ -473,5 +474,57 @@ class TasksController extends Controller
         }
 
         return $proj_stats;
+    }
+
+    public function downloadTasksReport(Request $request){
+        $tasks = (new Task)
+            ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
+            ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+            ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
+            ->leftJoin('contractors', 'contractors.id', '=', 'tasks.contractor_id')
+            ->leftJoin('commercial_offers', 'commercial_offers.project_id', '=', 'projects.id')
+            ->leftJoin('work_volumes', 'commercial_offers.work_volume_id', '=', 'work_volumes.id')
+            ->leftJoin('work_volume_materials', 'work_volumes.id', '=', 'work_volume_materials.work_volume_id')
+            ->leftJoin('manual_materials', 'work_volume_materials.manual_material_id', '=', 'manual_materials.id')
+            ->addSelect([
+                'tasks.id',
+                'projects.name AS project_name',
+                'project_objects.address AS project_address',
+                'contractors.short_name AS contractor_name',
+                'commercial_offers.id AS commercial_offers_id',
+                'commercial_offers.title AS commercial_offers_title',
+                'work_volume_materials.id AS work_volume_materials_id',
+                'manual_materials.name AS manual_material_name'
+            ])
+            ->where('tasks.is_solved', '=', 0)
+            ->where('tasks.responsible_user_id', '=', Auth::user()->id)
+            ->where('commercial_offers.status', '=', 5)
+            ->orderBy('project_objects.address')
+            ->orderBy('commercial_offers.title')
+            ->orderBy('manual_materials.name')
+            ->get()
+            ->groupBy(['id', 'commercial_offers_id', 'work_volume_materials_id'])
+            ->toArray();
+
+        return (new TasksXLSXReport($tasks))->export();
+    }
+
+    public function downloadTasksReport(Request $request){
+        $tasks = (new Task)
+            ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
+            ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+            ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
+            ->leftJoin('contractors', 'contractors.id', '=', 'tasks.contractor_id')
+            ->addSelect(['tasks.id',
+                'projects.name as project_name',
+                'project_objects.address as project_address',
+                'contractors.short_name as contractor_name'])
+            ->where('tasks.is_solved', '=', 0)
+            ->where('tasks.responsible_user_id', '=', Auth::user()->id)
+            ->OrderBy('project_objects.address')
+            ->get()
+            ->toArray();
+
+        return (new TasksXLSXReport($tasks))->export();
     }
 }
