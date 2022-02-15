@@ -309,7 +309,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/transfer/completed', 'q3wMaterial\operations\q3wMaterialTransferOperationController@completed')->name('materials.operations.transfer.completed')->middleware('can:material_accounting_material_list_access');
 
     //Material transformation
-    //Route::get('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new');
+    Route::get('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new');
     Route::get('/materials/transformation/new2', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new2'); //Small fix to develop on remote dev
     Route::get('/materials/transformation/view', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@view')->name('materials.operations.transformation.view')->middleware('can:material_accounting_operations_creating');
     Route::post('/materials/transformation/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@validateMaterialList')->name('materials.operations.transformation.new.validate-material-list')->middleware('can:material_accounting_operations_creating');
