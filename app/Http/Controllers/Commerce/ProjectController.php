@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Models\Building\ObjectResponsibleUser;
 use App\Models\HumanResources\Brigade;
 use App\Services\HumanResources\AppointmentService;
 use App\Services\HumanResources\TimecardService;
@@ -700,9 +701,14 @@ class ProjectController extends Controller
         }
         $resp_user = $resp_user->first();
 
+        if ($resp_user) {
+            $old_user = $resp_user->user_id;
+        } else {
+            $old_user = null;
+        }
+
         if ($resp_user and !in_array($request->role, ['7', '8', '9'])) {
             // if exist, update
-            $old_user = $resp_user->user_id;
             $resp_user->user_id = $request->user;
             $resp_user->save();
         } elseif ($contract_resp->where('user_id', $request->user)->count() == 0) {
@@ -713,6 +719,40 @@ class ProjectController extends Controller
                 'user_id' => $request->user
             ]);
         }
+
+        //if user exists and have role_id = 6 (meaning responsible for tongue), then we have to add him as a responsible user in material accounting mode of object
+        if (in_array($request->role, ['6'])) {
+            if ($old_user){
+                $objectResponsibleUser = ObjectResponsibleUser::where('object_id', '=', $project->object_id)
+                    ->where('user_id', '=', $old_user)
+                    ->get()
+                    ->first();
+            } else {
+                $objectResponsibleUser = ObjectResponsibleUser::where('object_id', '=', $project->object_id)
+                    ->where('user_id', '=', $resp_user->user_id)
+                    ->get()
+                    ->first();
+            }
+
+            if ($objectResponsibleUser){
+                $newObjectResponsibleUserExists = ObjectResponsibleUser::where('object_id', '=', $project->object_id)
+                    ->where('user_id', '=', $request->user)
+                    ->get()
+                    ->first();
+
+                if(!$newObjectResponsibleUserExists) {
+                    $objectResponsibleUser->user_id = $request->user;
+                    $objectResponsibleUser->save();
+                }
+            } else {
+                ObjectResponsibleUser::create([
+                    'object_id' => $project->object_id,
+                    'user_id' => $request->user,
+                    'role' => 1
+                ]);
+            }
+        }
+
         if ($request->task24 or $request->task25) {
             $solved_task = Task::where('status', $request->task24 ? 24 : 25)->where('is_solved', 0)->first();
             $solved_task->final_note = $request->final_note;
