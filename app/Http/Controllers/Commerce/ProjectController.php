@@ -72,7 +72,6 @@ class ProjectController extends Controller
         }
 
         if ($request->search) {
-
             $search = mb_strtolower($request->search);
             $result = array_filter($projects->getModel()->project_status, function($item) use ($search) {
                 return stristr(mb_strtolower($item), $search);
