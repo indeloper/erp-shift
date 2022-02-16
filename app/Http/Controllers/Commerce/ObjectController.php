@@ -17,6 +17,8 @@ use App\Http\Requests\ObjectRequests\ObjectRequest;
 
 class ObjectController extends Controller
 {
+
+
     public function index(Request $request)
     {
         $objects = ProjectObject::with('resp_users.user')
@@ -30,10 +32,15 @@ class ObjectController extends Controller
         }
 
         if ($request->search) {
-            $objects->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('address', 'like', '%' . $request->search . '%')
-                ->orWhere('short_name', 'like', '%' . $request->search . '%')
-                ->orWhere('cadastral_number', 'like', '%' . $request->search . '%');
+            $objects->getModel()->smartSearch($objects,
+                [
+                    'name',
+                    'address',
+                    'short_name',
+                    'cadastral_number'
+                ],
+                $request->search
+            );
         }
 
         $objects_ids = $objects->paginate(15)->pluck('id');
