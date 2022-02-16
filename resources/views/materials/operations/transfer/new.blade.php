@@ -1087,6 +1087,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;

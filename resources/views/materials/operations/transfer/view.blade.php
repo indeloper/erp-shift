@@ -322,6 +322,8 @@
                                     }).dxLoadIndicator("instance");
                                 },
                                 onClick: function (e) {
+                                    getTransferMaterialGrid().closeEditCell();
+
                                     let result = e.validationGroup.validate();
                                     if (!result.isValid) {
                                         return;
@@ -403,6 +405,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -445,6 +449,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -525,6 +531,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -2175,7 +2183,7 @@
                     @endIf
                 @endIf
 
-                operationForm.getEditor("transferMaterialGrid").option("disabled", state);
+                    getTransferMaterialGrid().option("disabled", state);
                 @if($allowMoving)
                     operationForm.getEditor("newCommentTextArea").option("disabled", state);
                 @endIf

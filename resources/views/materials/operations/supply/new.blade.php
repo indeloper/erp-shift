@@ -810,6 +810,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                operationForm.getEditor("supplyMaterialGrid").closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;

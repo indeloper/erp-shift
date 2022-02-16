@@ -849,6 +849,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getWriteOffMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;

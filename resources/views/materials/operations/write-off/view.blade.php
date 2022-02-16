@@ -206,6 +206,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getWriteOffMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -789,6 +791,10 @@
                 })
             }
             @endif
+
+            function getWriteOffMaterialGrid() {
+                return operationForm.getEditor("writeOffMaterialGrid");
+            }
 
             @if ($allowEditing)
             function getFileOptions() {
