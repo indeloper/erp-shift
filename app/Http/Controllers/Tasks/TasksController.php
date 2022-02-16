@@ -39,7 +39,7 @@ class TasksController extends Controller
                 'projects.name as project_name', 'project_objects.address as project_address', 'contractors.short_name as contractor_name', 'tasks.*');
 
         if ($request->search) {
-            $tasks->getModel()->smartSearch([
+            $tasks->getModel()->smartSearch($tasks, [
                 'full_name',
                 'tasks.name',
                 'projects.name',

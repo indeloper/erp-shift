@@ -15,18 +15,13 @@ trait SmartSearchable
         return explode($delimiter, $searchString);
     }
 
-    public function smartSearch(array $fields, string $searchText){
-        //dd($this);
-        $result = $this::query();
-
-        $searchWords = $this->getArrayOfSearchWords($searchText);
-
-        foreach ($fields as $field){
-            foreach ($searchWords as $searchWord){
-                $result->where(function ($query) use ($field, $searchWord) {
-                    $query->orWhere($this->formatSearchWord($searchWord));
-                });
+    public function smartSearch($builderQuery, array $fields, string $searchText){
+        $searchWord = $this->formatSearchWord($searchText);
+        $builderQuery->where(function ($query) use ($fields, $searchWord) {
+            foreach ($fields as $field){
+                $query->orWhere($field, 'like', $this->formatSearchWord($searchWord));
             }
-        }
+        });
+        return $builderQuery;
     }
 }
