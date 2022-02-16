@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Facades\DB;
 
 trait DevExtremeDataSourceLoadable
