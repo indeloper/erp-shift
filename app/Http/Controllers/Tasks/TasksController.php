@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\{DB, Auth, File, Storage};
 
 class TasksController extends Controller
 {
+
     public function index(Request $request)
     {
         if(!Auth::user()->can('dashbord') && !Auth::user()->can('tasks')) return abort(403);
@@ -38,12 +39,13 @@ class TasksController extends Controller
                 'projects.name as project_name', 'project_objects.address as project_address', 'contractors.short_name as contractor_name', 'tasks.*');
 
         if ($request->search) {
-            $tasks = $tasks->where(function ($query) use ($request) {
-                $query->where('full_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('tasks.name', 'like', '%' . $request->search . '%')
-                    ->orWhere('projects.name', 'like', '%' . $request->search . '%')
-                    ->orWhere('contractors.short_name', 'like', '%' . $request->search . '%');
-            });
+            $tasks->getModel()->smartSearch([
+                'full_name',
+                'tasks.name',
+                'projects.name',
+                'project_objects.address',
+                'contractors.short_name'
+            ], $request->search);
         }
 
         if ($request->has('name')) {
