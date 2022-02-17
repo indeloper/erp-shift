@@ -1439,7 +1439,7 @@
                 6,
             @elseif(Auth::user()->isInGroup(50)/*7*/)
             {{-- @elseif(Auth::user()->group_id == 50/*7*/) example of new vacation logic --}}
-                1, 2, 3, 5, 6,
+                1, 2, 3, 4, 5, 6,
             @elseif(Auth::user()->isInGroup(53)/*16*/)
                 4, 7,
             @elseif(Auth::user()->isInGroup(54)/*26*/)

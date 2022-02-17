@@ -595,7 +595,7 @@ class ProjectController extends Controller
                 }
                 $users->whereIn('users.id', $third_role);
             } else if ($role == 4) {
-                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([53, 52, 54]);
+                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([53, 52, 54, 50]);
 
                 $users->whereIn('users.group_id',
                     array_unique(array_merge(['53'/*'16'*/, '52'/*'9'*/, '54'], $usersFromGroup))
