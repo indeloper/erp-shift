@@ -1008,6 +1008,15 @@ class ProjectController extends Controller
             DB::commit();
         }
 
+        $objectResponsibleUser = ObjectResponsibleUser::where('object_id', '=' , $project->object_id)
+            ->where('user_id', '=', $request->user_id)
+            ->get()
+            ->first();
+
+        if ($objectResponsibleUser) {
+            $objectResponsibleUser->delete();
+        }
+
         return response()->json(!$user_tasks_count ? true : false);
     }
 
