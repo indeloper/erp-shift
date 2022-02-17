@@ -154,11 +154,11 @@
                 },
             });
 
-            let usersStore = new DevExpress.data.CustomStore({
+            let usersWithMaterialListAccessStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
                 load: function (loadOptions) {
-                    return $.getJSON("{{route('users.list')}}",
+                    return $.getJSON("{{route('users-with-material-list-access.list')}}",
                         {data: JSON.stringify(loadOptions)});
                 },
             });
@@ -898,7 +898,7 @@
                             editorType: "dxSelectBox",
                             editorOptions: {
                                 dataSource: {
-                                    store: usersStore
+                                    store: usersWithMaterialListAccessStore
                                 },
                                 displayExpr: "full_name",
                                 valueExpr: "id",
@@ -963,7 +963,7 @@
                             editorType: "dxSelectBox",
                             editorOptions: {
                                 dataSource: {
-                                    store: usersStore
+                                    store: usersWithMaterialListAccessStore
                                 },
                                 displayExpr: "full_name",
                                 valueExpr: "id",

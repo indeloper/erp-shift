@@ -116,12 +116,13 @@
 
             });
 
-            let usersData = new DevExpress.data.DataSource({
-                reshapeOnPush: true,
-                store: new DevExpress.data.ArrayStore({
-                    key: "id",
-                    data: {!!$users!!}
-                })
+            let usersWithMaterialListAccessStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('users-with-material-list-access.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
             });
             //</editor-fold>
 
@@ -779,7 +780,9 @@
                             },
                             editorType: "dxSelectBox",
                             editorOptions: {
-                                dataSource: usersData,
+                                dataSource: {
+                                    store: usersWithMaterialListAccessStore
+                                },
                                 displayExpr: "full_name",
                                 valueExpr: "id",
                                 searchEnabled: true,
