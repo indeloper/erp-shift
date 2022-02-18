@@ -211,17 +211,14 @@
                                     return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
                                 },
                                 cellTemplate: function (container, options) {
-
                                     let quantity;
                                     let amount;
-                                    let comment;
-
 
                                     quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
                                     amount = options.data.amount ? options.data.amount + " " : "";
 
-
                                     switch (options.data.accounting_type) {
+                                        case 1:
                                         case 2:
                                             let standardNameText = options.data.standard_name +
                                                 ' (' +
@@ -294,6 +291,7 @@
                                     let amount = data.amount ? data.amount + " " : "";
 
                                     switch (data.accounting_type) {
+                                        case 1:
                                         case 2:
                                             let standardItem = $("<div>")
                                             let standardNameText = data.standard_name +
