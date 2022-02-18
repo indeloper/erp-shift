@@ -595,10 +595,10 @@ class ProjectController extends Controller
                 }
                 $users->whereIn('users.id', $third_role);
             } else if ($role == 4) {
-                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([53, 52, 54, 50]);
+                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([53, 52, 54, 50, 74]);
 
                 $users->whereIn('users.group_id',
-                    array_unique(array_merge(['53'/*'16'*/, '52'/*'9'*/, '54'], $usersFromGroup))
+                    array_unique(array_merge(['53'/*'16'*/, '52'/*'9'*/, '54', '50', '74'], $usersFromGroup))
                 );
             } else if ($role == 5) {
                 $usersFromGroup = $this->findAllUsersAndReturnGroupIds([8, 19, 13, 58]);
