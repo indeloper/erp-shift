@@ -52,6 +52,10 @@ class TasksController extends Controller
             $tasks = ($request->get('name') == 'asc') ? $tasks->orderBy('tasks.name') : $tasks->orderByDesc('tasks.name');
         } else if ($request->has('date')) {
             $tasks = $request->get('date') == 'asc' ? $tasks->orderBy('tasks.expired_at') : $tasks->orderByDesc('tasks.expired_at');
+        } else {
+            //default sorting
+            $tasks->orderBy('tasks.is_seen');
+            $tasks->orderByDesc('tasks.updated_at');
         }
 
 
