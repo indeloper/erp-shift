@@ -37,5 +37,5 @@ echo $zipfile ' - backup was successfully created'
 # Delete old backups
 find $backupfolder -type f -mtime +$keep_day -delete
 rsync -rtv --delete $backupfolder $backupmountpoint
-rsync -rtv $backuperpfilesfolder $backupmountpoint
+rsync -rtv --exclude=node_modules --exclude=public/temp --exclude=storage/framework/sessions --exclude=storage/framework/views $backuperpfilesfolder $backupmountpoint
 echo $(date +%d-%m-%Y_%H-%M-%S)' UTC - Finished backup process'
