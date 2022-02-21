@@ -938,6 +938,8 @@
 
                         if (needToShowErrorWindow) {
                             showErrorWindow(materialErrorList);
+                            setButtonIndicatorVisibleState("createSupplyOperation", false)
+                            setElementsDisabledState(false);
                         }
 
                         if (!needToShowErrorWindow){
