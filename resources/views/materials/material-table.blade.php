@@ -379,7 +379,7 @@
                                             let quantity = options.data.quantity;
                                             let measureUnit = options.data.measure_unit_value;
 
-                                            $(`<div>${quantity} ${measureUnit}</div>`)
+                                            $(`<div>${Math.round(quantity * 100) / 100} ${measureUnit}</div>`)
                                                 .appendTo(container);
                                         }
                                     },
