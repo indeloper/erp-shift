@@ -444,7 +444,7 @@
                                                 let photoUrl;
 
                                                 if (options.data.image) {
-                                                    photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.image;
+                                                    photoUrl = `{{ asset('storage/img/user_images/') }}` + '/' + options.data.image;
                                                 } else {
                                                     photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
                                                 }
