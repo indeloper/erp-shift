@@ -244,7 +244,7 @@
                                     <li class="nav-item @if (Request::is('/materials/table') || Request::is('/materials/table/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.table') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
-                                            <span class="sidebar-normal">Табель учета</span>
+                                            <span class="sidebar-normal">Табель учета материалов</span>
                                         </a>
                                     </li>
                                 @endif
