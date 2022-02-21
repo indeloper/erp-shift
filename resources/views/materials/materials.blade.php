@@ -894,8 +894,8 @@
             function createOperationButtons(){
                 let groupTabs = $('.actual-materials-grid').find('.dx-tabpanel-tabs');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupTabs);
-                groupTabs.find('.dx-tabs-wrapper').addClass('dx-form-tabs-wrapper-span-with-buttons');
-                let groupTabWrapperButtonsDiv = groupTabs.find('.dx-form-tabs-wrapper-span-with-buttons');
+                let tabList = groupTabs.find('.dx-tabs[role=tablist]')
+                console.log(tabList);
 
                 $('<div class="tab-wrapper-button">')
                     .dxButton(
@@ -1010,7 +1010,7 @@
                             }
                         }
                     )
-                    .prependTo(groupTabWrapperButtonsDiv);
+                    .prependTo(tabList);
 
                 $('<div class="tab-wrapper-button">')
                     .dxDropDownButton({
@@ -1076,7 +1076,7 @@
                         },
                         items: ["Поставка", "Перемещение", "Преобразование", "Списание"]
                     })
-                    .prependTo(groupTabWrapperButtonsDiv)
+                    .prependTo(tabList)
 
             }
 
