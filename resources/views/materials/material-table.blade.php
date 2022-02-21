@@ -544,15 +544,16 @@
 
                 $('<div>')
                     .dxButton({
-                        text: "Печать",
-                        icon: "fa fa-print",
+                        text: "Скачать",
+                        icon: "fa fa-download",
                         onClick: (e) => {
                             delete dataSourceLoadOptions.skip;
                             delete dataSourceLoadOptions.take;
 
                             $('#filterList').val(JSON.stringify(filterList));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
-                            $('#printMaterialsTable').submit();
+                            $('#printMaterialsTable').get(0).submit();
+
                         }
                     })
                     .addClass('dx-form-group-caption-button')
