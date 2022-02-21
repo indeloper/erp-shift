@@ -737,7 +737,7 @@ class q3wMaterialWriteOffOperationController extends Controller
 
         $notification = new Notification();
         $notification->save();
-        $notification->additional_info = PHP_EOL . $operation->url . $operation->id;
+        $notification->additional_info = PHP_EOL . $operation->url;
         $notification->update([
             'name' => $notificationText,
             'target_id' => $operation->id,
