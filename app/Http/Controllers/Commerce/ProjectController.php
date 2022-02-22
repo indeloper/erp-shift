@@ -720,7 +720,9 @@ class ProjectController extends Controller
             ]);
         }
 
-        //if user exists and have role_id = 6 (meaning responsible for tongue), then we have to add him as a responsible user in material accounting mode of object
+        // If user exists and have role_id = 6 (meaning responsible for tongue),
+        // then we have to add him as a responsible user in material accounting mode of object
+        // Also, that function sets up, that accept has participation in material accounting
         if (in_array($request->role, ['6'])) {
             if ($old_user){
                 $objectResponsibleUser = ObjectResponsibleUser::where('object_id', '=', $project->object_id)
@@ -750,6 +752,12 @@ class ProjectController extends Controller
                     'user_id' => $request->user,
                     'role' => 1
                 ]);
+            }
+
+            $projectObject = ProjectObject::find($project->object_id);
+            if ($projectObject) {
+                $projectObject->is_participates_in_material_accounting = 1;
+                $projectObject->save();
             }
         }
 

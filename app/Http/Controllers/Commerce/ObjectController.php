@@ -63,6 +63,7 @@ class ObjectController extends Controller
         $object->cadastral_number = $request->cadastral_number;
         $object->short_name = $request->short_name;
         $object->material_accounting_type = $request->material_accounting_type;
+        $object->is_participates_in_material_accounting = $request->is_participates_in_material_accounting;
 
         $object->save();
 
@@ -85,6 +86,11 @@ class ObjectController extends Controller
         $object->cadastral_number = $request->cadastral_number;
         $object->short_name = $request->short_name;
         $object->material_accounting_type = $request->material_accounting_type;
+        if (isset($request->is_participates_in_material_accounting)) {
+            $object->is_participates_in_material_accounting = 1;
+        } else {
+            $object->is_participates_in_material_accounting = 0;
+        }
 
         $object->save();
 
@@ -106,7 +112,6 @@ class ObjectController extends Controller
 
         return redirect()->route('objects::index');
     }
-
 
     public function get_object_projects()
     {
