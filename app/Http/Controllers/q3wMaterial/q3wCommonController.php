@@ -35,6 +35,18 @@ class q3wCommonController extends Controller
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
+    public function projectObjectsListWhichParticipatesInMaterialAccounting(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new ProjectObject)->dxLoadOptions($options)
+            ->whereNotNull('short_name')
+            ->where('is_participates_in_material_accounting', '=', 1)
+            ->orderBy('short_name')
+            ->get(['id', 'name', 'short_name', 'material_accounting_type'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
     public function ContractorsList(Request $request)
     {
         $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;

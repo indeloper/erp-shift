@@ -31,7 +31,10 @@ class q3wMaterialController extends Controller
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
         } else {
-            $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
+            $projectObjectId = ProjectObject::whereNotNull('short_name')
+                ->where('is_participates_in_material_accounting', '=', 1)
+                ->get(['id'])
+                ->first()->id;
         }
 
         return view('materials.materials')->with([
@@ -39,7 +42,11 @@ class q3wMaterialController extends Controller
             'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
             'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
             'materialStandards' => q3wMaterialStandard::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
-            'projectObjects' => ProjectObject::all('id', 'name', 'short_name', 'address')->toJson(JSON_UNESCAPED_UNICODE),
+            'projectObjects' => ProjectObject::where('is_participates_in_material_accounting', '=', 1)
+                ->whereNotNull('short_name')
+                ->orderBy('short_name')
+                ->get('id', 'name', 'short_name', 'address')
+                ->toJson(JSON_UNESCAPED_UNICODE),
             'projectObjectId' => $projectObjectId
         ]);
     }

@@ -243,6 +243,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     //Q3W Routing
     //Common
     Route::get('/project-objects/list', 'q3wMaterial\q3wCommonController@projectObjectsList')->name('project-objects.list');
+    Route::get('/project-objects/which-participates-in-material-accounting/list', 'q3wMaterial\q3wCommonController@projectObjectsListWhichParticipatesInMaterialAccounting')->name('project-objects.which-participates-in-material-accounting.list');
     Route::get('/project-objects/material-accounting-types/lookup-list', 'q3wMaterial\q3wCommonController@projectObjectMaterialAccountingTypesLookupList')->name('material.material-accounting-types.lookup-list');
     Route::get('/contractors/list', 'q3wMaterial\q3wCommonController@contractorsList')->name('contractors.list');
     Route::get('/users/list', 'q3wMaterial\q3wCommonController@usersList')->name('users.list');

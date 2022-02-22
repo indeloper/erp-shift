@@ -103,13 +103,13 @@
                 store: writeOffMaterialStore
             })
 
-            let projectObjectsDataSource = new DevExpress.data.DataSource({
+            let projectObjectsListWhichParticipatesInMaterialAccountingDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
                     key: "id",
                     loadMode: "raw",
                     load: function (loadOptions) {
-                        return $.getJSON("{{route('project-objects.list')}}",
+                        return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
                             {data: JSON.stringify(loadOptions)});
                     }
                 })
@@ -707,7 +707,7 @@
                         },
                         editorType: "dxSelectBox",
                         editorOptions: {
-                            dataSource: projectObjectsDataSource,
+                            dataSource: projectObjectsListWhichParticipatesInMaterialAccountingDataSource,
                             displayExpr: "short_name",
                             valueExpr: "id",
                             searchEnabled: true,

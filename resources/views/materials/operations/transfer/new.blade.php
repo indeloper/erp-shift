@@ -145,11 +145,11 @@
                 store: transferMaterialStore
             })
 
-            let projectObjectStore = new DevExpress.data.CustomStore({
+            let projectObjectsListWhichParticipatesInMaterialAccountingStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
                 load: function (loadOptions) {
-                    return $.getJSON("{{route('project-objects.list')}}",
+                    return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
                         {data: JSON.stringify(loadOptions)});
                 },
             });
@@ -823,7 +823,7 @@
                         editorType: "dxSelectBox",
                         editorOptions: {
                             dataSource: {
-                                store: projectObjectStore
+                                store: projectObjectsListWhichParticipatesInMaterialAccountingStore
                             },
                             displayExpr: "short_name",
                             valueExpr: "id",
@@ -924,7 +924,7 @@
                         editorType: "dxSelectBox",
                         editorOptions: {
                             dataSource: {
-                                store: projectObjectStore
+                                store: projectObjectsListWhichParticipatesInMaterialAccountingStore
                             },
                             displayExpr: "short_name",
                             valueExpr: "id",

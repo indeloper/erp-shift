@@ -155,6 +155,19 @@
                 })
             });
 
+            let projectObjectsListWhichParticipatesInMaterialAccountingData = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: new DevExpress.data.CustomStore({
+                    key: "id",
+                    loadMode: "processed",
+                    loadMode: "raw",
+                    load: function (loadOptions) {
+                        return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
+                            {data: JSON.stringify(loadOptions)});
+                    },
+                })
+            });
+
             let actualMaterialsDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
@@ -346,7 +359,7 @@
                                 },
                                 editorType: "dxSelectBox",
                                 editorOptions: {
-                                    dataSource: projectObjectsData,
+                                    dataSource: projectObjectsListWhichParticipatesInMaterialAccountingData,
                                     displayExpr: function (data) {
                                         if (isNullOrUndefined(data.short_name)) {
                                             return data.name
