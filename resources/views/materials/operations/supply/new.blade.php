@@ -164,6 +164,9 @@
                             grouping: {
                                 autoExpandAll: true,
                             },
+                            scrolling: {
+                                mode: 'virtual'
+                            },
                             groupPanel: {
                                 visible: false
                             },

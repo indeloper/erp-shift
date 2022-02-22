@@ -185,6 +185,9 @@
                             paging: {
                                 enabled: true
                             },
+                            scrolling: {
+                                mode: 'virtual'
+                            },
                             searchPanel: {
                                 visible: true,
                                 searchVisibleColumnsOnly: true,

@@ -217,6 +217,9 @@
                             groupPanel: {
                                 visible: false
                             },
+                            scrolling: {
+                                mode: 'virtual'
+                            },
                             selection: {
                                 allowSelectAll: true,
                                 deferred: false,
