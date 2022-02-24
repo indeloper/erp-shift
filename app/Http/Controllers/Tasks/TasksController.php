@@ -514,23 +514,4 @@ class TasksController extends Controller
 
         return (new TasksXLSXReport($tasks))->export();
     }
-
-    public function downloadTasksReport(Request $request){
-        $tasks = (new Task)
-            ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
-            ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
-            ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
-            ->leftJoin('contractors', 'contractors.id', '=', 'tasks.contractor_id')
-            ->addSelect(['tasks.id',
-                'projects.name as project_name',
-                'project_objects.address as project_address',
-                'contractors.short_name as contractor_name'])
-            ->where('tasks.is_solved', '=', 0)
-            ->where('tasks.responsible_user_id', '=', Auth::user()->id)
-            ->OrderBy('project_objects.address')
-            ->get()
-            ->toArray();
-
-        return (new TasksXLSXReport($tasks))->export();
-    }
 }
