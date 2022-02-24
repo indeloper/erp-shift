@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Models\Building\ObjectResponsibleUser;
 use App\Models\HumanResources\Brigade;
 use App\Services\HumanResources\AppointmentService;
 use App\Services\HumanResources\TimecardService;
@@ -72,7 +73,6 @@ class ProjectController extends Controller
         }
 
         if ($request->search) {
-
             $search = mb_strtolower($request->search);
             $result = array_filter($projects->getModel()->project_status, function($item) use ($search) {
                 return stristr(mb_strtolower($item), $search);
@@ -595,10 +595,10 @@ class ProjectController extends Controller
                 }
                 $users->whereIn('users.id', $third_role);
             } else if ($role == 4) {
-                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([53, 52, 54]);
+                $usersFromGroup = $this->findAllUsersAndReturnGroupIds([53, 52, 54, 50, 74]);
 
                 $users->whereIn('users.group_id',
-                    array_unique(array_merge(['53'/*'16'*/, '52'/*'9'*/, '54'], $usersFromGroup))
+                    array_unique(array_merge(['53'/*'16'*/, '52'/*'9'*/, '54', '50', '74'], $usersFromGroup))
                 );
             } else if ($role == 5) {
                 $usersFromGroup = $this->findAllUsersAndReturnGroupIds([8, 19, 13, 58]);
@@ -701,9 +701,14 @@ class ProjectController extends Controller
         }
         $resp_user = $resp_user->first();
 
+        if ($resp_user) {
+            $old_user = $resp_user->user_id;
+        } else {
+            $old_user = null;
+        }
+
         if ($resp_user and !in_array($request->role, ['7', '8', '9'])) {
             // if exist, update
-            $old_user = $resp_user->user_id;
             $resp_user->user_id = $request->user;
             $resp_user->save();
         } elseif ($contract_resp->where('user_id', $request->user)->count() == 0) {
@@ -714,6 +719,48 @@ class ProjectController extends Controller
                 'user_id' => $request->user
             ]);
         }
+
+        // If user exists and have role_id = 6 (meaning responsible for tongue),
+        // then we have to add him as a responsible user in material accounting mode of object
+        // Also, that function sets up, that accept has participation in material accounting
+        if (in_array($request->role, ['6'])) {
+            if ($old_user){
+                $objectResponsibleUser = ObjectResponsibleUser::where('object_id', '=', $project->object_id)
+                    ->where('user_id', '=', $old_user)
+                    ->get()
+                    ->first();
+            } else {
+                $objectResponsibleUser = ObjectResponsibleUser::where('object_id', '=', $project->object_id)
+                    ->where('user_id', '=', $resp_user->user_id)
+                    ->get()
+                    ->first();
+            }
+
+            if ($objectResponsibleUser){
+                $newObjectResponsibleUserExists = ObjectResponsibleUser::where('object_id', '=', $project->object_id)
+                    ->where('user_id', '=', $request->user)
+                    ->get()
+                    ->first();
+
+                if(!$newObjectResponsibleUserExists) {
+                    $objectResponsibleUser->user_id = $request->user;
+                    $objectResponsibleUser->save();
+                }
+            } else {
+                ObjectResponsibleUser::create([
+                    'object_id' => $project->object_id,
+                    'user_id' => $request->user,
+                    'role' => 1
+                ]);
+            }
+
+            $projectObject = ProjectObject::find($project->object_id);
+            if ($projectObject) {
+                $projectObject->is_participates_in_material_accounting = 1;
+                $projectObject->save();
+            }
+        }
+
         if ($request->task24 or $request->task25) {
             $solved_task = Task::where('status', $request->task24 ? 24 : 25)->where('is_solved', 0)->first();
             $solved_task->final_note = $request->final_note;
@@ -967,6 +1014,15 @@ class ProjectController extends Controller
             Session::flash('users', 'Ответственный удален');
 
             DB::commit();
+        }
+
+        $objectResponsibleUser = ObjectResponsibleUser::where('object_id', '=' , $project->object_id)
+            ->where('user_id', '=', $request->user_id)
+            ->get()
+            ->first();
+
+        if ($objectResponsibleUser) {
+            $objectResponsibleUser->delete();
         }
 
         return response()->json(!$user_tasks_count ? true : false);

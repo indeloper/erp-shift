@@ -145,20 +145,20 @@
                 store: transferMaterialStore
             })
 
-            let projectObjectStore = new DevExpress.data.CustomStore({
+            let projectObjectsListWhichParticipatesInMaterialAccountingStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
                 load: function (loadOptions) {
-                    return $.getJSON("{{route('project-objects.list')}}",
+                    return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
                         {data: JSON.stringify(loadOptions)});
                 },
             });
 
-            let usersStore = new DevExpress.data.CustomStore({
+            let usersWithMaterialListAccessStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
                 load: function (loadOptions) {
-                    return $.getJSON("{{route('users.list')}}",
+                    return $.getJSON("{{route('users-with-material-list-access.list')}}",
                         {data: JSON.stringify(loadOptions)});
                 },
             });
@@ -216,6 +216,9 @@
                             },
                             groupPanel: {
                                 visible: false
+                            },
+                            scrolling: {
+                                mode: 'virtual'
                             },
                             selection: {
                                 allowSelectAll: true,
@@ -823,7 +826,7 @@
                         editorType: "dxSelectBox",
                         editorOptions: {
                             dataSource: {
-                                store: projectObjectStore
+                                store: projectObjectsListWhichParticipatesInMaterialAccountingStore
                             },
                             displayExpr: "short_name",
                             valueExpr: "id",
@@ -898,7 +901,7 @@
                             editorType: "dxSelectBox",
                             editorOptions: {
                                 dataSource: {
-                                    store: usersStore
+                                    store: usersWithMaterialListAccessStore
                                 },
                                 displayExpr: "full_name",
                                 valueExpr: "id",
@@ -924,7 +927,7 @@
                         editorType: "dxSelectBox",
                         editorOptions: {
                             dataSource: {
-                                store: projectObjectStore
+                                store: projectObjectsListWhichParticipatesInMaterialAccountingStore
                             },
                             displayExpr: "short_name",
                             valueExpr: "id",
@@ -963,7 +966,7 @@
                             editorType: "dxSelectBox",
                             editorOptions: {
                                 dataSource: {
-                                    store: usersStore
+                                    store: usersWithMaterialListAccessStore
                                 },
                                 displayExpr: "full_name",
                                 valueExpr: "id",
@@ -1033,7 +1036,7 @@
                         itemType: "group",
                         caption: "Файлы",
                         colSpan: 2,
-                        colCount: 4,
+                        colCount: 3,
                         items: [{
                             colSpan: 1,
                             template:
@@ -1062,22 +1065,11 @@
                                 template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
                                     '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
                                     '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
-                                    '<span class="dx-uploader-span">Фото машины сзади</span>' +
+                                    '<span class="dx-uploader-span">Фото машины сзади с материалами</span>' +
                                     '</div>' +
                                     '<div id="upload-progress-3" class="upload-progress"></div>' +
                                     '</div>' +
                                     '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
-                            },
-                            {
-                                colSpan: 1,
-                                template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                    '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
-                                    '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
-                                    '<span class="dx-uploader-span">Фото материалов</span>' +
-                                    '</div>' +
-                                    '<div id="upload-progress-4" class="upload-progress"></div>' +
-                                    '</div>' +
-                                    '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
                             }
                         ]
                     },
@@ -1098,6 +1090,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;

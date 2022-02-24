@@ -6,6 +6,7 @@ use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Traits\Notificationable;
 use App\Traits\NotificationGenerator;
+use App\Traits\SmartSearchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 
 class Task extends Model
 {
-    use SoftDeletes, Notificationable, NotificationGenerator;
+    use SoftDeletes, Notificationable, NotificationGenerator, SmartSearchable;
 
     protected $fillable = [
         'name',

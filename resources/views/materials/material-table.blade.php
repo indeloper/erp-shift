@@ -379,7 +379,7 @@
                                             let quantity = options.data.quantity;
                                             let measureUnit = options.data.measure_unit_value;
 
-                                            $(`<div>${quantity} ${measureUnit}</div>`)
+                                            $(`<div>${Math.round(quantity * 100) / 100} ${measureUnit}</div>`)
                                                 .appendTo(container);
                                         }
                                     },
@@ -544,15 +544,16 @@
 
                 $('<div>')
                     .dxButton({
-                        text: "Печать",
-                        icon: "fa fa-print",
+                        text: "Скачать",
+                        icon: "fa fa-download",
                         onClick: (e) => {
                             delete dataSourceLoadOptions.skip;
                             delete dataSourceLoadOptions.take;
 
                             $('#filterList').val(JSON.stringify(filterList));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
-                            $('#printMaterialsTable').submit();
+                            $('#printMaterialsTable').get(0).submit();
+
                         }
                     })
                     .addClass('dx-form-group-caption-button')

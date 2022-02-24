@@ -31,6 +31,8 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     });
     Route::post('/get_objects', 'Commerce\ObjectController@getObjects')->name('objects::get_objects');
 
+    Route::get('tasks/download_tasks_report', 'Tasks\TasksController@downloadTasksReport')->name('tasks.download_tasks_report')->middleware('can:commercial_block_task_report_xlsx_export_access');
+
     Route::group(['prefix' => 'tasks', 'as' => 'tasks::', 'namespace' => "Tasks"], function () {
         Route::get('/', 'TasksController@index')->name('index');
         Route::get('/card/{id}', 'TasksController@card')->name('card');
@@ -241,9 +243,12 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     //Q3W Routing
     //Common
     Route::get('/project-objects/list', 'q3wMaterial\q3wCommonController@projectObjectsList')->name('project-objects.list');
+    Route::get('/project-objects/which-participates-in-material-accounting/list', 'q3wMaterial\q3wCommonController@projectObjectsListWhichParticipatesInMaterialAccounting')->name('project-objects.which-participates-in-material-accounting.list');
     Route::get('/project-objects/material-accounting-types/lookup-list', 'q3wMaterial\q3wCommonController@projectObjectMaterialAccountingTypesLookupList')->name('material.material-accounting-types.lookup-list');
     Route::get('/contractors/list', 'q3wMaterial\q3wCommonController@contractorsList')->name('contractors.list');
     Route::get('/users/list', 'q3wMaterial\q3wCommonController@usersList')->name('users.list');
+    Route::get('/users-with-material-list-access.list/list', 'q3wMaterial\q3wCommonController@usersWithMaterialListAccess')->name('users-with-material-list-access.list');
+
     Route::get('/material/measure-units/list', 'q3wMaterial\q3wCommonController@measureUnitsList')->name('material.measure-units.list');
     Route::get('/material/accounting-types/list', 'q3wMaterial\q3wCommonController@materialAccountingTypesList')->name('material.accounting-types.list');
     Route::get('/material/operations/routes/list', 'q3wMaterial\q3wCommonController@operationRoutesList')->name('material.operation.routes.list');

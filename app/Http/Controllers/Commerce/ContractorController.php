@@ -40,13 +40,16 @@ class ContractorController extends Controller
         $contractors = Contractor::query()->orderBy('id', 'desc');
 
         if ($request->search) {
-            $contractors->where(function ($contractors) use ($request) {
-                $contractors->where('full_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('short_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('inn', 'like', '%' . $request->search . '%')
-                    ->orWhere('kpp', 'like', '%' . $request->search . '%')
-                    ->orWhere('legal_address', 'like', '%' . $request->search . '%');
-            });
+            $contractors->getModel()->smartSearch($contractors,
+                [
+                    'full_name',
+                    'short_name',
+                    'inn',
+                    'kpp',
+                    'ogrn',
+                    'legal_address'
+                ],
+                $request->search);
         }
 
         $contractors->where('in_archive', 0);

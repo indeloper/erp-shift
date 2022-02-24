@@ -206,6 +206,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getWriteOffMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -538,19 +540,19 @@
                                             dataType: "string",
                                             width: 240,
                                             cellTemplate: (container, options) => {
-                                                let photoUrl = "";
+                                                let photoUrl;
 
-                                                if (options.data.photo) {
-                                                    photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.photo;
+                                                if (options.data.image) {
+                                                    photoUrl = `{{ asset('storage/img/user_images/') }}` + '/' + options.data.image;
                                                 } else {
                                                     photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
                                                 }
 
                                                 let authorName = options.data.last_name +
                                                     ' ' +
-                                                    options.data.first_name.substr(0, 1) +
+                                                    options.data.first_name.substring(0, 1) +
                                                     '. ' +
-                                                    options.data.patronymic.substr(0, 1) +
+                                                    options.data.patronymic.substring(0, 1) +
                                                     '.';
 
                                                 let commentDate = new Intl.DateTimeFormat('ru-RU', {
@@ -789,6 +791,10 @@
                 })
             }
             @endif
+
+            function getWriteOffMaterialGrid() {
+                return operationForm.getEditor("writeOffMaterialGrid");
+            }
 
             @if ($allowEditing)
             function getFileOptions() {

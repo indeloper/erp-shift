@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\q3wMaterial;
 
 use App\Models\Contractors\Contractor;
+use App\Models\Permission;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
@@ -15,6 +16,7 @@ use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class q3wCommonController extends Controller
 {
@@ -28,6 +30,18 @@ class q3wCommonController extends Controller
 
         return (new ProjectObject)->dxLoadOptions($options)
             ->whereNotNull('short_name')
+            ->orderBy('short_name')
+            ->get(['id', 'name', 'short_name', 'material_accounting_type'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function projectObjectsListWhichParticipatesInMaterialAccounting(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new ProjectObject)->dxLoadOptions($options)
+            ->whereNotNull('short_name')
+            ->where('is_participates_in_material_accounting', '=', 1)
             ->orderBy('short_name')
             ->get(['id', 'name', 'short_name', 'material_accounting_type'])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
@@ -48,12 +62,39 @@ class q3wCommonController extends Controller
         $options = json_decode($request['data']);
 
         return (new User)->dxLoadOptions($options)
-            ->where('is_deleted', 0)
-            ->where('status', 1)
+            ->active()
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->orderBy('patronymic')
             ->get()
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function usersWithMaterialListAccess(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        $permissionId = Permission::where('codename', 'material_accounting_material_list_access')->get()->first()->id;
+
+        return (new User)->dxLoadOptions($options)
+            ->active()
+            ->leftJoin('user_permissions', function ($join) use ($permissionId) {
+                $join->on('users.id', 'user_permissions.user_id');
+                $join->on('user_permissions.permission_id', '=', DB::raw($permissionId));
+            })
+            ->leftJoin('group_permissions', function ($join) use ($permissionId) {
+                $join->on('users.group_id', 'group_permissions.group_id');
+                $join->on('group_permissions.permission_id', '=', DB::raw($permissionId));
+            })
+            ->where(function ($query) {
+                $query->orWhereNotNull('user_permissions.permission_id');
+                $query->orWhereNotNull('group_permissions.permission_id');
+            })
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->orderBy('patronymic')
+            ->distinct()
+            ->get('users.*')
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 

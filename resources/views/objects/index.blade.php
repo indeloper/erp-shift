@@ -267,6 +267,14 @@
                            @endif
                            <div class="form-group" id="">
                                <div class="row">
+                                   <label class="col-sm-3 col-form-label">Участвует в мат. учете</label>
+                                   <div class="col-sm-9">
+                                       <input type="checkbox" id="update_is_participates_in_material_accounting" name="is_participates_in_material_accounting"  style="width: 20px; height: 20px;"/>
+                                   </div>
+                               </div>
+                           </div>
+                           <div class="form-group" id="">
+                               <div class="row">
                                    <label class="col-sm-3 col-form-label">Тип учета<star class="star">*</star></label>
                                    <div class="col-sm-9">
                                        <select id="material_accounting_type" name="material_accounting_type" style="width:100%;">
@@ -335,6 +343,11 @@
         $('#update_address').val(data.address);
         $('#update_short_name').val(data.short_name);
         $('#update_cadastral_number').val(data.cadastral_number);
+        if (data.is_participates_in_material_accounting) {
+            $('#update_is_participates_in_material_accounting').attr("checked", true);
+        } else {
+            $('#update_is_participates_in_material_accounting').removeAttr("checked");
+        }
 
         $('#resp_users_role_one').select2({
             language: "ru",

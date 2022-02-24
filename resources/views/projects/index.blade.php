@@ -17,11 +17,11 @@
 @section('content')
     <div class="card strpied-tabled-with-hover" id="filter">
         <div class="card-body">
-            <h6>Фильтрация</h6>
+            <h6>Фильтрация по материалам</h6>
             <div class="row">
                 <div class="col-md-4" style="margin:15px 5px 20px 0">
                     <template>
-                        <el-input  placeholder="Поиск" @keyup.native.enter="filter" v-model="param_value" clearable
+                        <el-input  placeholder="Введите наименование материала" @keyup.native.enter="filter" v-model="param_value" clearable
                                   class="d-inline-block"
                                   style="margin-bottom: 10px"
                         ></el-input>

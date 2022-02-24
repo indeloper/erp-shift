@@ -322,6 +322,8 @@
                                     }).dxLoadIndicator("instance");
                                 },
                                 onClick: function (e) {
+                                    getTransferMaterialGrid().closeEditCell();
+
                                     let result = e.validationGroup.validate();
                                     if (!result.isValid) {
                                         return;
@@ -403,6 +405,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -445,6 +449,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -525,6 +531,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getTransferMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;
@@ -576,6 +584,9 @@
                             },
                             groupPanel: {
                                 visible: false
+                            },
+                            scrolling: {
+                                mode: 'virtual'
                             },
                             selection: {
                                 allowSelectAll: true,
@@ -1500,19 +1511,19 @@
                                         dataType: "string",
                                         width: 240,
                                         cellTemplate: (container, options) => {
-                                            let photoUrl = "";
+                                            let photoUrl;
 
-                                            if (options.data.photo) {
-                                                photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.photo;
+                                            if (options.data.image) {
+                                                photoUrl = `{{ asset('storage/img/user_images/') }}` + '/' + options.data.image;
                                             } else {
                                                 photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
                                             }
 
                                             let authorName = options.data.last_name +
                                                 ' ' +
-                                                options.data.first_name.substr(0, 1) +
+                                                options.data.first_name.substring(0, 1) +
                                                 '. ' +
-                                                options.data.patronymic.substr(0, 1) +
+                                                options.data.patronymic.substring(0, 1) +
                                                 '.';
 
                                             let commentDate = new Intl.DateTimeFormat('ru-RU', {
@@ -1521,9 +1532,9 @@
                                             }).format(new Date(options.data.created_at)).replaceAll(',', '');
 
                                             $(`<div class="comment-user-photo">` +
-                                                  `<img src="` + photoUrl + `" class="photo">` +
-                                              `</div>`)
-                                            .appendTo(container);
+                                                `<img src="` + photoUrl + `" class="photo">` +
+                                                `</div>`)
+                                                .appendTo(container);
 
                                             $(`<span class="comment-date">` +
                                                 commentDate +
@@ -1559,7 +1570,7 @@
                             @if($allowEditing)
                             {
                                 colSpan: 2,
-                                colCount: 4,
+                                colCount: 3,
                                 items: [{
                                     colSpan: 1,
                                     template:
@@ -1588,22 +1599,11 @@
                                         template: '<div id="dropzone-external-3" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
                                             '<img id="dropzone-image-3" class="dropzone-image" src="#" hidden alt="" />' +
                                             '<div id="dropzone-text-3" class="dx-uploader-flex-box dropzone-text">' +
-                                            '<span class="dx-uploader-span">Фото машины сзади</span>' +
+                                            '<span class="dx-uploader-span">Фото машины сзади с материалами</span>' +
                                             '</div>' +
                                             '<div id="upload-progress-3" class="upload-progress"></div>' +
                                             '</div>' +
                                             '<div class="file-uploader" purpose="behind-vehicle-photo" index="3"></div>'
-                                    },
-                                    {
-                                        colSpan: 1,
-                                        template: '<div id="dropzone-external-4" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
-                                            '<img id="dropzone-image-4" class="dropzone-image" src="#" hidden alt="" />' +
-                                            '<div id="dropzone-text-4" class="dx-uploader-flex-box dropzone-text">' +
-                                            '<span class="dx-uploader-span">Фото материалов</span>' +
-                                            '</div>' +
-                                            '<div id="upload-progress-4" class="upload-progress"></div>' +
-                                            '</div>' +
-                                            '<div class="file-uploader" purpose="materials-photo" index="4"></div>'
                                     }
                                 ]
                             },
@@ -2186,7 +2186,7 @@
                     @endIf
                 @endIf
 
-                operationForm.getEditor("transferMaterialGrid").option("disabled", state);
+                    getTransferMaterialGrid().option("disabled", state);
                 @if($allowMoving)
                     operationForm.getEditor("newCommentTextArea").option("disabled", state);
                 @endIf

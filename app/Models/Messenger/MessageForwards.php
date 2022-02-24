@@ -2,7 +2,7 @@
 
 namespace App\Models\Messenger;
 
-use App\Model\Messenger\Message;
+use App\Models\Messenger\Message;
 use Illuminate\Database\Eloquent\Model;
 
 class MessageForwards extends Model

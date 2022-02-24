@@ -103,25 +103,26 @@
                 store: writeOffMaterialStore
             })
 
-            let projectObjectsDataSource = new DevExpress.data.DataSource({
+            let projectObjectsListWhichParticipatesInMaterialAccountingDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
                     key: "id",
                     loadMode: "raw",
                     load: function (loadOptions) {
-                        return $.getJSON("{{route('project-objects.list')}}",
+                        return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
                             {data: JSON.stringify(loadOptions)});
                     }
                 })
 
             });
 
-            let usersData = new DevExpress.data.DataSource({
-                reshapeOnPush: true,
-                store: new DevExpress.data.ArrayStore({
-                    key: "id",
-                    data: {!!$users!!}
-                })
+            let usersWithMaterialListAccessStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('users-with-material-list-access.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
             });
             //</editor-fold>
 
@@ -184,6 +185,9 @@
                             paging: {
                                 enabled: true
                             },
+                            scrolling: {
+                                mode: 'virtual'
+                            },
                             searchPanel: {
                                 visible: true,
                                 searchVisibleColumnsOnly: true,
@@ -210,17 +214,14 @@
                                     return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
                                 },
                                 cellTemplate: function (container, options) {
-
                                     let quantity;
                                     let amount;
-                                    let comment;
-
 
                                     quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
                                     amount = options.data.amount ? options.data.amount + " " : "";
 
-
                                     switch (options.data.accounting_type) {
+                                        case 1:
                                         case 2:
                                             let standardNameText = options.data.standard_name +
                                                 ' (' +
@@ -293,6 +294,7 @@
                                     let amount = data.amount ? data.amount + " " : "";
 
                                     switch (data.accounting_type) {
+                                        case 1:
                                         case 2:
                                             let standardItem = $("<div>")
                                             let standardNameText = data.standard_name +
@@ -708,7 +710,7 @@
                         },
                         editorType: "dxSelectBox",
                         editorOptions: {
-                            dataSource: projectObjectsDataSource,
+                            dataSource: projectObjectsListWhichParticipatesInMaterialAccountingDataSource,
                             displayExpr: "short_name",
                             valueExpr: "id",
                             searchEnabled: true,
@@ -779,7 +781,9 @@
                             },
                             editorType: "dxSelectBox",
                             editorOptions: {
-                                dataSource: usersData,
+                                dataSource: {
+                                    store: usersWithMaterialListAccessStore
+                                },
                                 displayExpr: "full_name",
                                 valueExpr: "id",
                                 searchEnabled: true,
@@ -849,6 +853,8 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: function (e) {
+                                getWriteOffMaterialGrid().closeEditCell();
+
                                 let result = e.validationGroup.validate();
                                 if (!result.isValid) {
                                     return;

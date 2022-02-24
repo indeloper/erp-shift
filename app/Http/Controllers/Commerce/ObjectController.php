@@ -17,6 +17,8 @@ use App\Http\Requests\ObjectRequests\ObjectRequest;
 
 class ObjectController extends Controller
 {
+
+
     public function index(Request $request)
     {
         $objects = ProjectObject::with('resp_users.user')
@@ -30,10 +32,15 @@ class ObjectController extends Controller
         }
 
         if ($request->search) {
-            $objects->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('address', 'like', '%' . $request->search . '%')
-                ->orWhere('short_name', 'like', '%' . $request->search . '%')
-                ->orWhere('cadastral_number', 'like', '%' . $request->search . '%');
+            $objects->getModel()->smartSearch($objects,
+                [
+                    'name',
+                    'address',
+                    'short_name',
+                    'cadastral_number'
+                ],
+                $request->search
+            );
         }
 
         $objects_ids = $objects->paginate(15)->pluck('id');
@@ -56,6 +63,7 @@ class ObjectController extends Controller
         $object->cadastral_number = $request->cadastral_number;
         $object->short_name = $request->short_name;
         $object->material_accounting_type = $request->material_accounting_type;
+        $object->is_participates_in_material_accounting = $request->is_participates_in_material_accounting;
 
         $object->save();
 
@@ -78,6 +86,11 @@ class ObjectController extends Controller
         $object->cadastral_number = $request->cadastral_number;
         $object->short_name = $request->short_name;
         $object->material_accounting_type = $request->material_accounting_type;
+        if (isset($request->is_participates_in_material_accounting)) {
+            $object->is_participates_in_material_accounting = 1;
+        } else {
+            $object->is_participates_in_material_accounting = 0;
+        }
 
         $object->save();
 
@@ -99,7 +112,6 @@ class ObjectController extends Controller
 
         return redirect()->route('objects::index');
     }
-
 
     public function get_object_projects()
     {

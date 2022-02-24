@@ -157,13 +157,13 @@
                 store: supplyMaterialStore
             })
 
-            let projectObjectsDataSource = new DevExpress.data.DataSource({
+            let projectObjectsListWhichParticipatesInMaterialAccountingDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
                     key: "id",
                     loadMode: "raw",
                     load: function (loadOptions) {
-                        return $.getJSON("{{route('project-objects.list')}}",
+                        return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
                             {data: JSON.stringify(loadOptions)});
                     }
                 })
@@ -181,12 +181,13 @@
                 })
             });
 
-            let usersData = new DevExpress.data.DataSource({
-                reshapeOnPush: true,
-                store: new DevExpress.data.ArrayStore({
-                    key: "id",
-                    data: {!!$users!!}
-                })
+            let usersWithMaterialListAccessStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('users-with-material-list-access.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
             });
             //</editor-fold>
 
@@ -222,6 +223,9 @@
                             },
                             paging: {
                                 enabled: false
+                            },
+                            scrolling: {
+                                mode: 'virtual'
                             },
                             searchPanel: {
                                 visible: true,
@@ -477,7 +481,7 @@
                         },
                         editorType: "dxSelectBox",
                         editorOptions: {
-                            dataSource: projectObjectsDataSource,
+                            dataSource: projectObjectsListWhichParticipatesInMaterialAccountingDataSource,
                             displayExpr: "short_name",
                             valueExpr: "id",
                             searchEnabled: true,
@@ -540,7 +544,9 @@
                             },
                             editorType: "dxSelectBox",
                             editorOptions: {
-                                dataSource: usersData,
+                                dataSource: {
+                                    store: usersWithMaterialListAccessStore
+                                },
                                 displayExpr: "full_name",
                                 valueExpr: "id",
                                 searchEnabled: true,

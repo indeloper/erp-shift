@@ -155,6 +155,19 @@
                 })
             });
 
+            let projectObjectsListWhichParticipatesInMaterialAccountingData = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: new DevExpress.data.CustomStore({
+                    key: "id",
+                    loadMode: "processed",
+                    loadMode: "raw",
+                    load: function (loadOptions) {
+                        return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
+                            {data: JSON.stringify(loadOptions)});
+                    },
+                })
+            });
+
             let actualMaterialsDataSource = new DevExpress.data.DataSource({
                 reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
@@ -346,7 +359,7 @@
                                 },
                                 editorType: "dxSelectBox",
                                 editorOptions: {
-                                    dataSource: projectObjectsData,
+                                    dataSource: projectObjectsListWhichParticipatesInMaterialAccountingData,
                                     displayExpr: function (data) {
                                         if (isNullOrUndefined(data.short_name)) {
                                             return data.name
@@ -894,8 +907,8 @@
             function createOperationButtons(){
                 let groupTabs = $('.actual-materials-grid').find('.dx-tabpanel-tabs');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupTabs);
-                groupTabs.find('.dx-tabs-wrapper').addClass('dx-form-tabs-wrapper-span-with-buttons');
-                let groupTabWrapperButtonsDiv = groupTabs.find('.dx-form-tabs-wrapper-span-with-buttons');
+                let tabList = groupTabs.find('.dx-tabs[role=tablist]')
+                console.log(tabList);
 
                 $('<div class="tab-wrapper-button">')
                     .dxButton(
@@ -1010,7 +1023,7 @@
                             }
                         }
                     )
-                    .prependTo(groupTabWrapperButtonsDiv);
+                    .prependTo(tabList);
 
                 $('<div class="tab-wrapper-button">')
                     .dxDropDownButton({
@@ -1076,7 +1089,7 @@
                         },
                         items: ["Поставка", "Перемещение", "Преобразование", "Списание"]
                     })
-                    .prependTo(groupTabWrapperButtonsDiv)
+                    .prependTo(tabList)
 
             }
 

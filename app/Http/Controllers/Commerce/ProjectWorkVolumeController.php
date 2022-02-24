@@ -1304,7 +1304,7 @@ class ProjectWorkVolumeController extends Controller
                 if (!$tongueResp) {
                     $tongueTask->name =  'Назначение ответственного за ОР (шпунт)';
                     $tongueTask->status = 14;
-                    $tongueTask->responsible_user_id = Group::find(53/*16*/)->getUsers()->first()->id;
+                    $tongueTask->responsible_user_id = Group::find(50)->getUsers()->first()->id; // [hardcoded]
                     $tongueTask->expired_at = Carbon::now()->addHours(3);
                 } else {
                     $prev_task = $wv_tongue->tasks()->orderByDesc('id')->first() ?? null;
@@ -1751,12 +1751,12 @@ class ProjectWorkVolumeController extends Controller
                        $task = Task::where('responsible_user_id', Auth::id())->where('target_id', $work_volume->id)->where('status', $work_volume->type ? 4 : 3)->where('project_id', $project->id)->where('is_solved', 0)->get()->first();
                        !isset($task) ?: $task->solve();
 
-                       // make new task for Начальник ПТО
+                       // make new task for Директор по развитию
                        if (!Task::where('project_id', $work_volume->project_id)->where('target_id', $work_volume->id)->where('status', 18)->where('is_solved', 0)->count()) {
                            $task18 = new Task();
                            $task18->project_id = $work_volume->project_id;
                            $task18->name = 'Контроль выполнения ОР шпунтового направления по проекту ' . ($project->name);
-                           $task18->responsible_user_id = Group::find(53/*16*/)->getUsers()->first()->id; //Начальник ПТО
+                           $task18->responsible_user_id = Group::find(50)->getUsers()->first()->id; //Директор по развитию [hardcoded]
                            $task18->contractor_id = $project->contractor_id;
                            $task18->target_id = $work_volume->id; // WV id
                            $task18->expired_at = $this->addHours(24);
@@ -1863,7 +1863,7 @@ class ProjectWorkVolumeController extends Controller
                $task18 = new Task();
                $task18->project_id = $project->id;
                $task18->name = 'Контроль выполнения ОР шпунтового направления по проекту ' . ($project->name);
-               $task18->responsible_user_id = Group::find(53/*16*/)->getUsers()->first()->id; //Начальник ПТО
+               $task18->responsible_user_id = Group::find(50)->getUsers()->first()->id; //Директор по развитию [hardcoded]
                $task18->contractor_id = $project->contractor_id;
                $task18->target_id = $work_volume->id; // WV id
                $task18->expired_at = $this->addHours(24);
