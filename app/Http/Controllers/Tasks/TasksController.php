@@ -497,6 +497,7 @@ class TasksController extends Controller
                 'projects.name AS project_name',
                 'project_objects.address AS project_address',
                 'contractors.short_name AS contractor_name',
+                DB::Raw('IFNULL(`tasks`.`final_note`, (SELECT `final_note` FROM `tasks` AS `prev_task` WHERE `prev_task`.`id` = `tasks`.`prev_task_id`)) as final_note'),
                 'commercial_offers.id AS commercial_offers_id',
                 'commercial_offers.option AS commercial_offers_title',
                 DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"),

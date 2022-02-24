@@ -85,7 +85,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                         $material['project_name'],
                         $material['project_address'],
                         $material['contractor_name'],
-                        '',
+                        $material['final_note'],
                         $material['commercial_offers_title'],
                         $material['material_name'],
                         $material['material_count']
