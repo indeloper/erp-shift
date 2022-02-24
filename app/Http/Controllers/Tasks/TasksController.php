@@ -489,18 +489,18 @@ class TasksController extends Controller
             ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
             ->leftJoin('contractors', 'contractors.id', '=', 'tasks.contractor_id')
             ->leftJoin('commercial_offers', 'commercial_offers.project_id', '=', 'projects.id')
-            ->leftJoin('work_volumes', 'commercial_offers.work_volume_id', '=', 'work_volumes.id')
-            ->leftJoin('work_volume_materials', 'work_volumes.id', '=', 'work_volume_materials.work_volume_id')
-            ->leftJoin('manual_materials', 'work_volume_materials.manual_material_id', '=', 'manual_materials.id')
+            ->leftJoin('commercial_offer_material_splits', 'commercial_offer_material_splits.com_offer_id', '=', 'commercial_offers.id')
+            ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
+            ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
             ->addSelect([
                 'tasks.id',
                 'projects.name AS project_name',
                 'project_objects.address AS project_address',
                 'contractors.short_name AS contractor_name',
                 'commercial_offers.id AS commercial_offers_id',
-                'commercial_offers.title AS commercial_offers_title',
-                'work_volume_materials.id AS work_volume_materials_id',
-                'manual_materials.name AS manual_material_name'
+                'commercial_offers.option AS commercial_offers_title',
+                DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"),
+                'commercial_offer_material_splits.count AS material_count'
             ])
             ->where('tasks.is_solved', '=', 0)
             ->where('tasks.responsible_user_id', '=', Auth::user()->id)
@@ -508,8 +508,9 @@ class TasksController extends Controller
             ->orderBy('project_objects.address')
             ->orderBy('commercial_offers.title')
             ->orderBy('manual_materials.name')
+            ->distinct()
             ->get()
-            ->groupBy(['id', 'commercial_offers_id', 'work_volume_materials_id'])
+            ->groupBy(['id', 'commercial_offers_id'])
             ->toArray();
 
         return (new TasksXLSXReport($tasks))->export();
