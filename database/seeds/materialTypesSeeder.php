@@ -13,6 +13,7 @@ class materialTypesSeeder extends Seeder
     public function run()
     {
         DB::table("q3w_material_types")->insert([
+            'id' => 1,
             "name" => "Шпунт",
             "measure_unit" => 1,
             "accounting_type" => 2,
@@ -20,6 +21,7 @@ class materialTypesSeeder extends Seeder
         ]);
 
         DB::table("q3w_material_types")->insert([
+            'id' => 2,
             "name" => "Арматура",
             "measure_unit" => 1,
             "accounting_type" => 1,
@@ -27,13 +29,15 @@ class materialTypesSeeder extends Seeder
         ]);
 
         DB::table("q3w_material_types")->insert([
+            'id' => 3,
             "name" => "Двутавр",
             "measure_unit" => 1,
             "accounting_type" => 1,
-            "description" => "Двутавр широкополочный по ГОСТ 26020-83, двутавр колонный (К) по ГОСТ 26020-83, двутавр нормальный (Б) по ГОСТ 26020-83",
+            "description" => "Двутавр широкополочный по ГОСТ 57837-2017, Двутавр колонный (К) по ГОСТ 57837-2017, Двутавр нормальный (Б) по ГОСТ 57837-2017",
         ]);
 
         DB::table("q3w_material_types")->insert([
+            'id' => 4,
             "name" => "Труба прямошовная",
             "measure_unit" => 1,
             "accounting_type" => 1,
@@ -41,6 +45,7 @@ class materialTypesSeeder extends Seeder
         ]);
 
         DB::table("q3w_material_types")->insert([
+            'id' => 5,
             "name" => "Швеллер",
             "measure_unit" => 1,
             "accounting_type" => 1,
@@ -48,6 +53,7 @@ class materialTypesSeeder extends Seeder
         ]);
 
         DB::table("q3w_material_types")->insert([
+            'id' => 6,
             "name" => "Угловой элемент",
             "measure_unit" => 1,
             "accounting_type" => 2,
@@ -55,10 +61,19 @@ class materialTypesSeeder extends Seeder
         ]);
 
         DB::table("q3w_material_types")->insert([
+            'id' => 7,
             "name" => "Лист г/к",
             "measure_unit" => 2,
             "accounting_type" => 1,
             "description" => "",
+        ]);
+
+        DB::table("q3w_material_types")->insert([
+            'id' => 8,
+            "name" => "Труба квадратная",
+            "measure_unit" => 1,
+            "accounting_type" => 2,
+            "description" => "Трубы стальные квадратные по ГОСТ 8639-82",
         ]);
     }
 }
