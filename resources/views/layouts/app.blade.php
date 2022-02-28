@@ -201,6 +201,14 @@
                                         </a>
                                     </li>
                                 @endif
+                                @if(Auth::user()->can('commercial_block_task_report_xlsx_export_access'))
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('tasks.filter-tasks-report') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-download pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Отчет по задачам и КП</span>
+                                        </a>
+                                    </li>
+                                @endif
                                 <hr>
                             </ul>
                         </div>

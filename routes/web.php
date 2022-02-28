@@ -31,7 +31,11 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     });
     Route::post('/get_objects', 'Commerce\ObjectController@getObjects')->name('objects::get_objects');
 
-    Route::get('tasks/download_tasks_report', 'Tasks\TasksController@downloadTasksReport')->name('tasks.download_tasks_report')->middleware('can:commercial_block_task_report_xlsx_export_access');
+    Route::get('tasks/filter-tasks-report', 'Tasks\TasksController@showTasksReportFilterForm')->name('tasks.filter-tasks-report')->middleware('can:commercial_block_task_report_xlsx_export_access');
+    Route::post('tasks/download-tasks-report', 'Tasks\TasksController@downloadTasksReport')->name('tasks.download-tasks-report')->middleware('can:commercial_block_task_report_xlsx_export_access');
+    Route::get('tasks/current-user-tasks-project-objects-list', 'Tasks\TasksController@currentUserTasksProjectObjectsList')->name('tasks.current-user-tasks-project-objects.list');
+    Route::get('tasks/current-user-tasks-contractors-list', 'Tasks\TasksController@currentUserTasksContractorsList')->name('tasks.current-user-tasks-contractors.list');
+    Route::get('tasks/current-user-tasks-split-material-list', 'Tasks\TasksController@currentUserTasksSplitMaterialList')->name('tasks.current-user-tasks-split-material.list');
 
     Route::group(['prefix' => 'tasks', 'as' => 'tasks::', 'namespace' => "Tasks"], function () {
         Route::get('/', 'TasksController@index')->name('index');
