@@ -4,7 +4,6 @@ namespace App\Services\Tasks\Reports;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -17,7 +16,6 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents, WithTitle, WithColumnFormatting, WithColumnWidths
 {
@@ -66,7 +64,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
         ];
     }
 
-    public function collection()
+    public function collection(): Collection
     {
         $results = collect();
         $taskNumber = 1;
