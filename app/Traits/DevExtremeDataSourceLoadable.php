@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\Types\Boolean;
 
 trait DevExtremeDataSourceLoadable
 {
@@ -88,7 +89,7 @@ trait DevExtremeDataSourceLoadable
             }
         }
 
-        return $this->appendFilter($query, $filter);
+        return $this->appendFilter($query, $filter, '', true);
     }
 
     /**
@@ -101,9 +102,10 @@ trait DevExtremeDataSourceLoadable
      * @param $query
      * @param $filterArray
      * @param string $logicalOperator
+     * @param bool $useHaving
      * @return mixed
      */
-    protected function appendFilter($query, $filterArray, string $logicalOperator = '')
+    protected function appendFilter($query, $filterArray, string $logicalOperator = '', bool $useHaving = false)
     {
         $result = $query;
 
@@ -115,29 +117,41 @@ trait DevExtremeDataSourceLoadable
                 'operator' => $filterArray[1],
                 'value' => $filterArray[2]);
 
-            $result->where(
-                $this->formatField($translatedFilterItem['fieldName'], $translatedFilterItem['operator']),
-                $this->conditionOperators[$translatedFilterItem['operator']],
-                $this->formatValue($translatedFilterItem['value'], $translatedFilterItem['operator'])
-            );
+            if ($useHaving){
+                $result->having(
+                    $this->formatField($translatedFilterItem['fieldName'], $translatedFilterItem['operator']),
+                    $this->conditionOperators[$translatedFilterItem['operator']],
+                    $this->formatValue($translatedFilterItem['value'], $translatedFilterItem['operator'])
+                );
+            } else {
+                $result->where(
+                    $this->formatField($translatedFilterItem['fieldName'], $translatedFilterItem['operator']),
+                    $this->conditionOperators[$translatedFilterItem['operator']],
+                    $this->formatValue($translatedFilterItem['value'], $translatedFilterItem['operator'])
+                );
+            }
         } else {
             foreach ($filterArray as $filterItem) {
                 if (is_array($filterItem)) {
-                    switch ($logicalOperator) {
-                        case 'and':
-                            $result->where(function ($query) use ($filterItem) {
-                                $this->appendFilter($query, $filterItem);
-                            });
-                            break;
-                        case 'or':
-                            $result->orWhere(function ($query) use ($filterItem) {
-                                $this->appendFilter($query, $filterItem);
-                            });
-                            break;
-                        default:
-                            $result->where(function ($query) use ($filterItem) {
-                                $this->appendFilter($query, $filterItem);
-                            });
+                    if ($useHaving){
+                        $this->appendFilter($query, $filterItem, $logicalOperator, $useHaving);
+                    } else {
+                        switch ($logicalOperator) {
+                            case 'and':
+                                $result->where(function ($query) use ($filterItem, $logicalOperator, $useHaving) {
+                                    $this->appendFilter($query, $filterItem, $logicalOperator, $useHaving);
+                                });
+                                break;
+                            case 'or':
+                                $result->orWhere(function ($query) use ($filterItem, $logicalOperator, $useHaving) {
+                                    $this->appendFilter($query, $filterItem, $logicalOperator, $useHaving);
+                                });
+                                break;
+                            default:
+                                $result->where(function ($query) use ($filterItem, $logicalOperator, $useHaving) {
+                                    $this->appendFilter($query, $filterItem, $logicalOperator, $useHaving);
+                                });
+                        }
                     }
                 } else {
                     $logicalOperator = $this->logicalOperators[$filterItem];
