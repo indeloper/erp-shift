@@ -9,9 +9,16 @@ use App\Services\Tasks\Reports\TasksXLSXReport;
 use Illuminate\Http\Request;
 use App\Http\Requests\TaskRequests\TaskCreateRequest;
 
-use App\Models\{Task, TaskFile, FileEntry,
-    User, Group, Project, TaskRedirect,
-    Notification, SupportMail};
+use App\Models\{ProjectObject,
+    Task,
+    TaskFile,
+    FileEntry,
+    User,
+    Group,
+    Project,
+    TaskRedirect,
+    Notification,
+    SupportMail};
 use App\Models\Contractors\Contractor;
 use App\Models\Contract\Contract;
 use App\Models\CommercialOffer\CommercialOffer;
@@ -482,8 +489,15 @@ class TasksController extends Controller
         return $proj_stats;
     }
 
+    public function showTasksReportFilterForm(Request $request){
+        return view('tasks.filter-tasks-report');
+    }
+
     public function downloadTasksReport(Request $request){
+        $filterOptions = json_decode($request->input('filterOptions'));
+
         $tasks = (new Task)
+            ->dxLoadOptions($filterOptions)
             ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
             ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
             ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
@@ -493,7 +507,7 @@ class TasksController extends Controller
             ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
             ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
             ->addSelect([
-                'tasks.id',
+                'projects.id',
                 'projects.name AS project_name',
                 'project_objects.address AS project_address',
                 'contractors.short_name AS contractor_name',
@@ -515,5 +529,52 @@ class TasksController extends Controller
             ->toArray();
 
         return (new TasksXLSXReport($tasks))->export();
+    }
+
+    public function currentUserTasksProjectObjectsList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new Task)->dxLoadOptions($options)
+            ->join('projects', 'projects.id', '=', 'tasks.project_id')
+            ->join('project_objects', 'project_objects.id', '=', 'projects.object_id')
+            ->where('tasks.responsible_user_id', '=', Auth::id())
+            ->where('tasks.is_solved', '=', 0)
+            ->orderBy('project_objects.name')
+            ->distinct()
+            ->get(['project_objects.id', 'project_objects.name as project_object_name', 'project_objects.short_name'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function currentUserTasksContractorsList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new Task)->dxLoadOptions($options)
+            ->join('contractors', 'contractors.id', '=', 'tasks.contractor_id')
+            ->where('tasks.responsible_user_id', '=', Auth::id())
+            ->where('tasks.is_solved', '=', 0)
+            ->orderBy('short_name')
+            ->distinct()
+            ->get(['contractors.id', 'contractors.short_name'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function currentUserTasksSplitMaterialList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new Task)->dxLoadOptions($options)
+            ->join('projects', 'projects.id', '=', 'tasks.project_id')
+            ->join('commercial_offers', 'commercial_offers.project_id', '=', 'tasks.project_id')
+            ->leftJoin('commercial_offer_material_splits', 'commercial_offer_material_splits.com_offer_id', '=', 'commercial_offers.id')
+            ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
+            ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
+            ->where('tasks.responsible_user_id', '=', Auth::id())
+            ->where('tasks.is_solved', '=', 0)
+            //->orderBy(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"))
+            ->distinct()
+            ->get(['commercial_offer_material_splits.man_mat_id', DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`")])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

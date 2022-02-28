@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Notificationable;
 use App\Traits\NotificationGenerator;
 use App\Traits\SmartSearchable;
@@ -15,7 +16,7 @@ use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 
 class Task extends Model
 {
-    use SoftDeletes, Notificationable, NotificationGenerator, SmartSearchable;
+    use SoftDeletes, Notificationable, NotificationGenerator, SmartSearchable, DevExtremeDataSourceLoadable;
 
     protected $fillable = [
         'name',

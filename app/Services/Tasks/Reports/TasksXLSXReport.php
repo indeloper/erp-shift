@@ -58,8 +58,8 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                 'Работа',
                 'Адрес',
                 'Заказчик',
-                'Комментарий',
                 'Коммерческое предложение',
+                'Комментарий',
                 'Номенклатура',
                 'Тоннаж'
             ]
@@ -85,8 +85,8 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                         $material['project_name'],
                         $material['project_address'],
                         $material['contractor_name'],
-                        $material['final_note'],
                         $material['commercial_offers_title'],
+                        $material['final_note'],
                         $material['material_name'],
                         $material['material_count']
                     ]);
@@ -114,7 +114,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                $event->sheet->setAutoFilter('A2:D2');
+                //$event->sheet->setAutoFilter('A2:D2');
                 //Main header styles
                 $event->sheet->getDelegate()->mergeCells('A1:H1');
 
@@ -124,10 +124,10 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                     $event->sheet->getDelegate()->mergeCells('B'.$mergeArray[0].':B'.$mergeArray[1]);
                     $event->sheet->getDelegate()->mergeCells('C'.$mergeArray[0].':C'.$mergeArray[1]);
                     $event->sheet->getDelegate()->mergeCells('D'.$mergeArray[0].':D'.$mergeArray[1]);
-                    $event->sheet->getDelegate()->mergeCells('E'.$mergeArray[0].':E'.$mergeArray[1]);
                 }
 
                 foreach ($this->mergeCommercialOfferArray as $mergeArray){
+                    $event->sheet->getDelegate()->mergeCells('E'.$mergeArray[0].':E'.$mergeArray[1]);
                     $event->sheet->getDelegate()->mergeCells('F'.$mergeArray[0].':F'.$mergeArray[1]);
                 }
 
@@ -167,7 +167,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                     ]);
 
                 //Table data
-                $event->sheet->getStyle('A'.self::startLineNumber.':H'.$this->lastLineNumber)
+                $event->sheet->getStyle('A' . self::startLineNumber . ':H' . $this->lastLineNumber)
                     ->applyFromArray([
                         'borders' => [
                             'allBorders' => [
@@ -178,10 +178,10 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                         'alignment' => [
                             'vertical' => Alignment::VERTICAL_CENTER
                         ],
-                ]);
+                    ]);
 
                 $event->sheet->getDelegate()
-                    ->getStyle('A'.self::startLineNumber.':H'.$this->lastLineNumber)
+                    ->getStyle('A' . self::startLineNumber . ':H' . $this->lastLineNumber)
                     ->getAlignment()
                     ->setWrapText(true);
             }
@@ -218,8 +218,8 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
             'B' => 34,
             'C' => 85,
             'D' => 31,
-            'E' => 31,
-            'F' => 80,
+            'F' => 40,
+            'E' => 31
         ];
     }
 }
