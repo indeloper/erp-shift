@@ -102,7 +102,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
             $taskMergeStartIndex = $taskMergeEndIndex;
         }
 
-        $this->lastLineNumber = $taskMergeEndIndex;
+        $this->lastLineNumber = $taskMergeEndIndex - 1;
 
         return $results;
     }
