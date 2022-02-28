@@ -157,14 +157,14 @@
                         },
                         {
                             colSpan: 3,
-                            dataField: 'splitMaterialsComboBox',
+                            dataField: 'splitMaterialsTagBox',
                             dataType: 'integer',
                             caption: "Адрес",
                             value: true,
                             label: {
                                 visible: false
                             },
-                            editorType: "dxSelectBox",
+                            editorType: "dxTagBox",
                             editorOptions: {
                                 displayExpr: "material_name",
                                 valueExpr: "man_mat_id",
@@ -173,14 +173,15 @@
                                     pageSize: 25,
                                     store: new DevExpress.data.CustomStore({
                                         key: "id",
-                                        loadMode: "processed",
+                                        loadMode: "raw",
                                         load: function (loadOptions) {
                                             return $.getJSON("{{route('tasks.current-user-tasks-split-material.list')}}",
                                                 {data: JSON.stringify(loadOptions)});
                                         }
                                     })
                                 },
-                                searchEnabled: true
+                                searchEnabled: true,
+                                showSelectionControls: true
                             }
                         },
                         {
@@ -225,15 +226,23 @@
             }
 
             if (data.splitMaterialsCheckBox){
-                if (data.splitMaterialsComboBox){
+                if (data.splitMaterialsTagBox){
                     if (filterArray.length !== 0) {
                         filterArray.push('and');
                     }
 
-                    filterArray.push(['man_mat_id', '=', data.splitMaterialsComboBox]);
+                    let splitMaterialsFilterArray = [];
+
+                    data.splitMaterialsTagBox.forEach((item, i) => {
+                        splitMaterialsFilterArray.push(['man_mat_id', '=', item])
+
+                        if (data.splitMaterialsTagBox.length !== i + 1) {
+                            splitMaterialsFilterArray.push('or');
+                        }
+                    })
+                    filterArray.push(splitMaterialsFilterArray);
                 }
             }
-
 
             return filterArray;
         }
