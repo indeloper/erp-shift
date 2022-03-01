@@ -1019,6 +1019,9 @@
             }
 
             function repaintMaterialsAfterTransformLayer(){
+                let layer = $('#materials-after-transform');
+                layer.empty();
+
                 if (currentTransformationStage === "fillingMaterialsToTransform"){
                     return
                 }
@@ -1026,12 +1029,9 @@
                 const transformationHeaderStageText = 'Добавьте преобразованные материалы';
                 const transformationHeaderText = 'Пребразованные материалы:';
 
-                let layer = $('#materials-after-transform');
-
                 let isQuantityControlDisabled = currentTransformationStage !== "fillingMaterialsAfterTransform";
                 let isAmountControlDisabled = currentTransformationStage !== "fillingMaterialsAfterTransform";
 
-                layer.empty();
                 layer.append($('<hr>'));
 
                 if (currentTransformationStage === "fillingMaterialsAfterTransform") {
