@@ -929,10 +929,18 @@
                             min: 0,
                             value: material.quantity,
                             format: "#0.## " + material.measure_unit_value,
+                            placeholder: material.measure_unit_value,
                             disabled: isQuantityControlDisabled,
                             onValueChanged: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
                                 material.quantity = e.value;
                                 validateMaterialList(false, false);
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
                             }
                         }))
 
@@ -944,8 +952,15 @@
                                 value: material.amount,
                                 disabled: isAmountControlDisabled,
                                 onValueChanged: (e) => {
+                                    e.component.option("format", "#0 шт");
                                     material.amount = e.value;
                                     validateMaterialList(false, false);
+                                },
+                                onFocusIn: (e) => {
+                                    e.component.option("format", "");
+                                },
+                                onFocusOut: (e) => {
+                                    e.component.option("format", "#0 шт");
                                 }
                             }))
                     }
@@ -1007,8 +1022,8 @@
                                 })
 
                                 materialsRemains.forEach((material) => {
-                                    material.amount = 0;
-                                    material.quantity = 0;
+                                    material.amount = null;
+                                    material.quantity = null;
                                 })
 
                                 repaintTransformLayers();
@@ -1113,9 +1128,16 @@
                             disabled: isQuantityControlDisabled,
                             placeholder: material.measure_unit_value,
                             onValueChanged: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
                                 material.quantity = e.value;
                                 repaintMaterialsAfterTransformLayer();
                                 validateMaterialList(false, false);
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
                             }
                         }))
 
@@ -1128,9 +1150,16 @@
                                 disabled: isAmountControlDisabled,
                                 placeholder: "шт",
                                 onValueChanged: (e) => {
+                                    e.component.option("format", "#0 шт");
                                     material.amount = e.value;
                                     repaintMaterialsAfterTransformLayer();
                                     validateMaterialList(false, false);
+                                },
+                                onFocusIn: (e) => {
+                                    e.component.option("format", "");
+                                },
+                                onFocusOut: (e) => {
+                                    e.component.option("format", "#0 шт");
                                 }
                             }))
 
@@ -1284,11 +1313,19 @@
                             min: 0,
                             value: material.quantity,
                             format: "#0.## " + material.measure_unit_value,
+                            placeholder: material.measure_unit_value,
                             onValueChanged: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
                                 material.quantity = e.value;
                                 let remains = calculateRemains(material.standard_id);
                                 $('.calculation-summary[standard-id="' + material.standard_id + '"]').html(getCalculationSummaryText(remains.delta, remains.total, remains.transform_total));
                                 repaintMaterialRemains();
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
                             }
                         }))
 
@@ -1296,13 +1333,19 @@
                         element.append($('<div class="transformation-number-box transformation-amount transformation-remains-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
                             .dxNumberBox({
                                 min: 0,
-                                format: "#0 шт.",
+                                format: "#0 шт",
                                 value: material.amount,
                                 onValueChanged: (e) => {
                                     material.amount = e.value;
                                     let remains = calculateRemains(material.standard_id);
                                     $('.calculation-summary[standard-id="' + material.standard_id + '"]').html(getCalculationSummaryText(remains.delta, remains.total, remains.transform_total));
                                     repaintMaterialRemains();
+                                },
+                                onFocusIn: (e) => {
+                                    e.component.option("format", "");
+                                },
+                                onFocusOut: (e) => {
+                                    e.component.option("format", "#0 шт");
                                 }
                             }))
                     }
@@ -1319,16 +1362,16 @@
                     element.append($('<span class="calculation-summary" standard-id="' + material.standard_id + '">' + getCalculationSummaryText(remainsSummary.delta, remainsSummary.total, remainsSummary.transform_total) + '</span>'));
                 });
                 if (currentTransformationStage === "fillingMaterialsRemains") {
-                    let isCreateTransfomationButtonDisabled = true;
+                    let isCreateTransformationButtonDisabled = true;
                     if (materialsRemains.length === 0) {
-                        isCreateTransfomationButtonDisabled = true;
+                        isCreateTransformationButtonDisabled = true;
                     } else {
                         if ($(".allocation-pending").length !== 0) {
                             if (getTransformationType() === "corningManufacturing") {
-                                isCreateTransfomationButtonDisabled = false;
+                                isCreateTransformationButtonDisabled = false;
                             }
                         } else {
-                            isCreateTransfomationButtonDisabled = false;
+                            isCreateTransformationButtonDisabled = false;
                         }
                     }
 
@@ -1340,7 +1383,7 @@
                             type: "default",
                             stylingMode: "contained",
                             useSubmitBehavior: false,
-                            disabled: isCreateTransfomationButtonDisabled,
+                            disabled: isCreateTransformationButtonDisabled,
                             template: function(data, container) {
                                 $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
                                 let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
