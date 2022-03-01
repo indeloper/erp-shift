@@ -9,8 +9,6 @@
         .table-responsive {
         overflow-x: auto;
         }
-
-
     }
 
 </style>
@@ -312,7 +310,17 @@
                     <tbody>
                     @if (Request::has(['date']) or Request::has(['name']))
                         @foreach($tasks as $task)
-                            <tr data-href="{{ $task->task_route() }}" class="@if ($task->is_overdue()) overdue-task @elseif($task->is_seen != 1) new-task @endif href" style="cursor:default">
+                            <tr data-href="{{ $task->task_route() }}" class="
+                                @if ($task->revive_at)
+                                    delayed-task
+                                @else
+                                    @if ($task->is_overdue())
+                                        overdue-task
+                                    @elseif($task->is_seen != 1)
+                                        new-task
+                                    @endif
+                                @endif
+                                href" style="cursor:default">
                                 <td data-label="Задача">{{ $task->name }}</td>
                                 <td data-label="Предыдущее событие" @if(isset($task->prev_task)) data-target="#show_task_info{{ $task->prev_task->id }}" data-toggle="modal" @endif>
                                     @if($task->prev_task)
@@ -330,7 +338,15 @@
                                     @endif
                                 </td>
                                 <td data-label="Контрагент">{{ $task->contractor_name ? $task->contractor_name : 'Не выбран'}}</td>
-                                <td data-label="Срок исполнения" class="prerendered-date">{{ $task->expired_at }}</td>
+                                @if($task->revive_at)
+                                    <td data-label="Срок исполнения" class="delayed-date">
+                                        {{$task->revive_at}}
+                                    </td>
+                                @else
+                                    <td data-label="Срок исполнения" class="prerendered-date">
+                                        {{$task->expired_at}}
+                                    </td>
+                                @endif
                                 <td data-label="Автор">
                                     @if($task->user_id)
                                     <a href="{{ route('users::card', $task->user_id) }}" class="table-link">
@@ -344,8 +360,18 @@
                             </tr>
                         @endforeach
                     @else
-                        @foreach($tasks->sortBy('expired_at') as $task)
-                            <tr style="cursor:default" data-href="{{ $task->task_route() }}" class="@if ($task->is_overdue()) overdue-task @elseif($task->is_seen != 1) new-task @endif href">
+                        @foreach($tasks as $task)
+                            <tr style="cursor:default" data-href="{{ $task->task_route() }}" class="
+                                 @if ($task->revive_at)
+                                    delayed-task
+                                 @else
+                                    @if ($task->is_overdue())
+                                        overdue-task
+                                    @elseif($task->is_seen != 1)
+                                                                    new-task
+                                    @endif
+                                @endif
+                                href">
                                 <td data-label="Задача">{{ $task->name }}</td>
                                 <td data-label="Предыдущее событие" @if(isset($task->prev_task)) data-target="#show_task_info{{ $task->prev_task->id }}" data-toggle="modal" @endif>
                                     @if($task->prev_task)
@@ -363,7 +389,16 @@
                                     @endif
                                 </td>
                                 <td data-label="Контрагент">{{ $task->contractor_name ? $task->contractor_name : 'Не выбран'}}</td>
-                                <td data-label="Срок исполнения" class="prerendered-date">{{ $task->expired_at }}</td>
+                                @if($task->revive_at)
+                                    <td data-label="Срок исполнения" class="delayed-date">
+                                        {{$task->revive_at}}
+                                    </td>
+                                @else
+                                    <td data-label="Срок исполнения" class="prerendered-date">
+                                        {{$task->expired_at}}
+                                    </td>
+                                @endif
+
                                 <td data-label="Автор">
                                     @if($task->user_id)
                                         <a href="{{ route('users::card', $task->user_id) }}" class="table-link">
@@ -849,6 +884,16 @@
                     'class': that.isWeekendDay(date, 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''
                 });
                 innerSpan.text(content);
+                $(this).html(innerSpan);
+            })
+
+            $('.delayed-date').each(function() {
+                const date = $(this).text().trim();
+                const content = that.isValidDate(date, 'DD.MM.YYYY HH:mm:ss') ? that.weekdayDate(date, 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY') : '-';
+                const innerSpan = $('<span/>', {
+                    'class': that.isWeekendDay(date, 'DD.MM.YYYY') ? 'weekend-day' : ''
+                });
+                innerSpan.text('Отложено до ' + content);
                 $(this).html(innerSpan);
             })
         },

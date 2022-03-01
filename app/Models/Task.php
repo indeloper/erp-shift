@@ -207,6 +207,14 @@ class Task extends Model
     {
         return Carbon::parse($date)->format('d.m.Y H:i:s');
     }
+    public function getReviveAtAttribute($date)
+    {
+        if ($date) {
+            return Carbon::parse($date)->format('d.m.Y');
+        } else {
+            return null;
+        }
+    }
 
     public function task_route()
     {

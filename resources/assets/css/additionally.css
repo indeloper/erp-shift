@@ -151,7 +151,7 @@
 
     .tr-title {
         border-bottom: none!important;
-        background-color: none;
+        background-color: transparent;
         margin-top: 40px;
     }
 
@@ -434,6 +434,11 @@ table.dataTable > thead > tr > td, table.dataTable > tbody > tr > td, table.data
 
 .new-task td:first-child {
     border-left: 2px solid #6D48FF
+}
+
+.delayed-task {
+    background-color: #C6E3FF;
+    color: #014e8e;
 }
 
 
@@ -1956,7 +1961,7 @@ button.btn.btn-close-record:active {
 @media(max-width:1025px) {
     tbody .tr-title {
         border-bottom: transparent;
-        background-color: none !important;
+        background-color: transparent !important;
     }
 
     tbody.tr-title td .th-text {

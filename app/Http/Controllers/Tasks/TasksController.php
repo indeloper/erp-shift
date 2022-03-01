@@ -37,7 +37,14 @@ class TasksController extends Controller
         if(!Auth::user()->can('dashbord') && !Auth::user()->can('tasks')) return abort(403);
 
         $tasks = Task::query()
-            ->where('tasks.is_solved', 0)
+            ->where(function ($query) {
+                $query->orWhere('tasks.is_solved', 0);
+
+                $query->orWhere(function ($query){
+                    $query->whereNotNull('tasks.revive_at')
+                        ->where(DB::Raw('date(tasks.revive_at)'), '>=', DB::Raw('date(now())') );
+                });
+            })
             ->where('tasks.responsible_user_id', Auth::user()->id)
             ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
             ->leftjoin('projects', 'projects.id', 'tasks.project_id')
@@ -62,10 +69,11 @@ class TasksController extends Controller
             $tasks = $request->get('date') == 'asc' ? $tasks->orderBy('tasks.expired_at') : $tasks->orderByDesc('tasks.expired_at');
         } else {
             //default sorting
+            $tasks->orderByDesc(DB::Raw('ISNULL(`tasks`.`revive_at`)'));
+            $tasks->orderByDesc('tasks.revive_at');
             $tasks->orderBy('tasks.is_seen');
             $tasks->orderByDesc('tasks.updated_at');
         }
-
 
         if (Auth::user()->can('dashbord')) {
             $data = [
@@ -109,7 +117,7 @@ class TasksController extends Controller
         }
 
 //        dd($data['work_volumes']->where('status', 1)->groupBy('project_id'));
-
+        //dd($data);
         return view('tasks.index', $data);
     }
 
