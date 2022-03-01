@@ -104,6 +104,8 @@
             let materialsRemains = [];
 
             let currentTransformationStage = "fillingMaterialsToTransform";
+            let isUserIsResponsibleForMaterialAccounting = false;
+
 
             let suspendSourceObjectLookupValueChanged = false;
             //<editor-fold desc="JS: DataSources">
@@ -489,6 +491,7 @@
                             onValueChanged: function (e) {
                                 function updateComponentsDataSources(projectObjectIdValue) {
                                     projectObjectId = projectObjectIdValue;
+                                    availableMaterialsDataSource.reload();
                                 }
 
                                 if (suspendSourceObjectLookupValueChanged) {
@@ -499,19 +502,28 @@
                                 let oldValue = e.previousValue;
                                 let currentValue = e.value;
 
-                                // if (operationForm.getEditor("transferMaterialGrid").option("dataSource").items().length > 0 && e.previousValue !== null) {
-                                //     let confirmDialog = DevExpress.ui.dialog.confirm('При смене объекта отправления будут удалены введенные данные по материалам операции.<br>Продолжить?', 'Смена объекта отправления');
-                                //     confirmDialog.done(function (dialogResult) {
-                                //         if (dialogResult) {
-                                //             updateComponentsDataSources(currentValue);
-                                //         } else {
-                                //             suspendSourceObjectLookupValueChanged = true;
-                                //             e.component.option('value', oldValue);
-                                //         }
-                                //     });
-                                // } else {
-                                updateComponentsDataSources(currentValue);
-                                //}
+                                 if (materialsToTransform.length > 0 && e.previousValue !== null) {
+                                     let confirmDialog = DevExpress.ui.dialog.confirm('При смене объекта будут удалены введенные данные по материалам операции.<br>Продолжить?', 'Смена объекта');
+                                     confirmDialog.done(function (dialogResult) {
+                                         if (dialogResult) {
+                                             updateComponentsDataSources(currentValue);
+
+                                             currentTransformationStage = "fillingMaterialsToTransform";
+                                             materialsToTransform = [];
+                                             materialsAfterTransform = [];
+                                             materialsRemains = [];
+
+                                             repaintMaterialsToTransformLayer();
+                                             repaintMaterialsAfterTransformLayer();
+                                             repaintMaterialRemains();
+                                         } else {
+                                             suspendSourceObjectLookupValueChanged = true;
+                                             e.component.option('value', oldValue);
+                                         }
+                                     });
+                                 } else {
+                                    updateComponentsDataSources(currentValue);
+                                 }
                             }
                         },
                         validationRules: [{
@@ -1169,9 +1181,37 @@
                                 }).dxLoadIndicator("instance");
                             },
                             onClick: (e) => {
-                                console.log(currentTransformationStage);
-                                currentTransformationStage = "fillingMaterialsRemains";
-                                repaintTransformLayers();
+                                setButtonIndicatorVisibleState(true)
+                                setElementsDisabledState(true);
+
+                                $.ajax({
+                                    url: "{{route('materials.transformation.is-user-responsible-for-material-accounting')}}",
+                                    method: "POST",
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    data: {
+                                        data: JSON.stringify({project_object_id: projectObjectId})
+                                    },
+                                    success: function (data, textStatus, jqXHR) {
+                                        isUserIsResponsibleForMaterialAccounting = data.isUserResponsibleForMaterialAccounting;
+
+                                        currentTransformationStage = "fillingMaterialsRemains";
+                                        repaintTransformLayers();
+                                        setButtonIndicatorVisibleState(false)
+                                        setElementsDisabledState(false);
+
+                                        console.log("isUserIsResponsibleForMaterialAccounting", isUserIsResponsibleForMaterialAccounting);
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        isUserIsResponsibleForMaterialAccounting = false;
+
+                                        currentTransformationStage = "fillingMaterialsRemains";
+                                        repaintTransformLayers();
+                                        setButtonIndicatorVisibleState(false)
+                                        setElementsDisabledState(false);
+                                    }
+                                })
                             }
                         }));
                     }
@@ -1179,17 +1219,15 @@
             }
 
             function repaintMaterialRemains() {
+                let layer = $('#materials-remains');
+                layer.empty();
+
                 if (currentTransformationStage !== "fillingMaterialsRemains") {
                     return
                 }
 
                 const transformationHeaderStageText = 'Распределите остатки исходных материалов';
 
-                let layer = $('#materials-remains');
-
-
-
-                layer.empty();
                 layer.append($('<hr>'));
 
                 layer.append($('<span class="transform-wizard-caption">' + transformationHeaderStageText + '</span>'));
@@ -1294,9 +1332,11 @@
                         }
                     }
 
+                    let buttonText = isUserIsResponsibleForMaterialAccounting ? "Подтвердить преобразование" : "Отправить на согласование";
+
                     if (materialsRemains.length > 0) {
                         layer.append($('<div class="createTransformationOperationButton transform-wizard-button" >').dxButton({
-                            text: "Отправить на согласование",
+                            text: buttonText,
                             type: "default",
                             stylingMode: "contained",
                             useSubmitBehavior: false,

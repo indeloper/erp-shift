@@ -326,6 +326,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::post('/materials/transformation/cancel', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@cancelOperation')->name('materials.operations.transformation.cancel')->middleware('can:material_accounting_operations_creating');
     Route::post('/materials/transformation/move', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@confirmOperation')->name('materials.operations.transformation.move')->middleware('can:material_accounting_operations_creating');
     Route::get('/materials/transformation/completed', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@completed')->name('materials.operations.transformation.completed')->middleware('can:material_accounting_material_list_access');
+    Route::post('/materials/transformation/is-user-responsible-for-material-accounting', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@isUserResponsibleForMaterialAccountingWebRequest')->name('materials.transformation.is-user-responsible-for-material-accounting')->middleware('can:material_accounting_operations_creating');
 
     //Material write-off
     Route::get('/materials/write-off/new', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@create')->name('materials.operations.write-off.new')->middleware('can:material_accounting_operations_creating');

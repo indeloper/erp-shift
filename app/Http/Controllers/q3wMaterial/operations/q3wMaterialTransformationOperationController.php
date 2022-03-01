@@ -55,7 +55,6 @@ class q3wMaterialTransformationOperationController extends Controller
             $projectObjectId = 0;
         }
 
-
         return view('materials.operations.transformation.new')->with([
             'projectObjectId' => $projectObjectId,
             'currentUserId' => Auth::id(),
@@ -68,7 +67,7 @@ class q3wMaterialTransformationOperationController extends Controller
                 ->get(['a.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
                 ->toJSON(),
             'projectObjects' => ProjectObject::all('id', 'name', 'short_name')->toJson(JSON_UNESCAPED_UNICODE),
-            'users' => User::getAllUsers()->where('status', 1)->get()->toJson(JSON_UNESCAPED_UNICODE)
+            'users' => User::getAllUsers()->where('status', 1)->get()->toJson(JSON_UNESCAPED_UNICODE),
         ]);
     }
 
@@ -389,7 +388,6 @@ class q3wMaterialTransformationOperationController extends Controller
 
         foreach ($requestData['materialsToTransform'] as $material) {
             $materialStandard = q3wMaterialStandard::findOrFail($material['standard_id']);
-            $materialType = $materialStandard->materialType;
 
             $materialAmount = $material['amount'];
             $materialQuantity = $material['quantity'];
@@ -482,13 +480,24 @@ class q3wMaterialTransformationOperationController extends Controller
             $operationMaterial->save();
         }
 
+
         $materialOperation->operation_route_stage_id = 70;
         $materialOperation->save();
 
-        $this->sendTransformationNotificationToResponsibilityUsersOfObject($materialOperation, 'Ожидание согласования преобразования', $materialOperation->source_project_object_id);
+        if (!$this->isUserResponsibleForMaterialAccounting($materialOperation->source_project_object_id)) {
+            $this->sendTransformationNotificationToResponsibilityUsersOfObject($materialOperation, 'Ожидание согласования преобразования', $materialOperation->source_project_object_id);
+        }
 
         $materialOperation->operation_route_stage_id = 71;
         $materialOperation->save();
+
+        if ($this->isUserResponsibleForMaterialAccounting($materialOperation->source_project_object_id)) {
+            $this->move($materialOperation);
+            (new q3wMaterialSnapshot)->takeSnapshot($materialOperation, ProjectObject::find($materialOperation->source_project_object_id));
+
+            $materialOperation->operation_route_stage_id = 73;
+            $materialOperation->save();
+        }
 
         DB::commit();
 
@@ -872,5 +881,12 @@ class q3wMaterialTransformationOperationController extends Controller
     public function allowCancelling(q3wMaterialOperation $operation): bool
     {
         return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+    }
+
+    public function isUserResponsibleForMaterialAccountingWebRequest(Request $request) {
+        $requestData = json_decode($request["data"]);
+        return response()->json([
+            'isUserResponsibleForMaterialAccounting' => $this->isUserResponsibleForMaterialAccounting($requestData->project_object_id)
+            ]);
     }
 }
