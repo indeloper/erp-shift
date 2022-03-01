@@ -78,12 +78,17 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
         foreach ($this->tasks as $task) {
             foreach($task as $commercialOffer) {
                 foreach($commercialOffer as $material) {
+                    if ($material['revive_at']) {
+                        $commercialOfferTitle = $material['commercial_offers_title'].PHP_EOL.'Отложена до '.$material['revive_at'];
+                    } else {
+                        $commercialOfferTitle = $material['commercial_offers_title'];
+                    }
                     $results->push([
                         $taskNumber,
                         $material['project_name'],
                         $material['project_address'],
                         $material['contractor_name'],
-                        $material['commercial_offers_title'],
+                        $commercialOfferTitle,
                         $material['final_note'],
                         $material['material_name'],
                         $material['material_count']

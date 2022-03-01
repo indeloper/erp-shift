@@ -893,7 +893,7 @@
                 const innerSpan = $('<span/>', {
                     'class': that.isWeekendDay(date, 'DD.MM.YYYY') ? 'weekend-day' : ''
                 });
-                innerSpan.text('Отложено до ' + content);
+                innerSpan.text('Отложена до ' + content);
                 $(this).html(innerSpan);
             })
         },

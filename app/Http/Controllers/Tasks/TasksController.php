@@ -42,7 +42,7 @@ class TasksController extends Controller
 
                 $query->orWhere(function ($query){
                     $query->whereNotNull('tasks.revive_at')
-                        ->where(DB::Raw('date(tasks.revive_at)'), '>=', DB::Raw('date(now())') );
+                        ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())') );
                 });
             })
             ->where('tasks.responsible_user_id', Auth::user()->id)
@@ -515,19 +515,31 @@ class TasksController extends Controller
             ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
             ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
             ->addSelect([
-                'projects.id',
+                'tasks.id',
+                'tasks.id as task_id',
                 'projects.name AS project_name',
                 'project_objects.address AS project_address',
                 'contractors.short_name AS contractor_name',
                 DB::Raw('IFNULL(`tasks`.`final_note`, (SELECT `final_note` FROM `tasks` AS `prev_task` WHERE `prev_task`.`id` = `tasks`.`prev_task_id`)) as final_note'),
+                'tasks.revive_at',
                 'commercial_offers.id AS commercial_offers_id',
                 'commercial_offers.option AS commercial_offers_title',
                 DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"),
                 'commercial_offer_material_splits.count AS material_count'
             ])
-            ->where('tasks.is_solved', '=', 0)
+            ->where(function ($query) {
+                $query->orWhere('tasks.is_solved', 0);
+
+                $query->orWhere(function ($query){
+                    $query->whereNotNull('tasks.revive_at')
+                        ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())') );
+                });
+            })
             ->where('tasks.responsible_user_id', '=', Auth::user()->id)
             ->where('commercial_offers.status', '=', 5)
+            ->orderByDesc(DB::Raw('ISNULL(`tasks`.`revive_at`)'))
+            ->orderByDesc('tasks.revive_at')
+            ->orderBy('tasks.id')
             ->orderBy('project_objects.address')
             ->orderBy('commercial_offers.title')
             ->orderBy('manual_materials.name')
