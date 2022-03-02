@@ -117,9 +117,9 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                //$event->sheet->setAutoFilter('A2:D2');
+                $event->sheet->setAutoFilter('G2:H2');
                 //Main header styles
-                $event->sheet->getDelegate()->mergeCells('A1:H1');
+                $event->sheet->getDelegate()->mergeCells('G1:H1');
 
                 // Cell Merging
                 foreach ($this->mergeTaskArray as $mergeArray){
