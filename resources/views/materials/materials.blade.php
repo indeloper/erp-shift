@@ -349,7 +349,7 @@
                         itemType: "group",
                         name: "projectObjectGroup",
                         caption: "Объект",
-                        height: 400,
+                        cssClass: "project-object-group",
                         items: [
                             {
                                 dataField: "project_object_id",
@@ -373,8 +373,6 @@
                                     onValueChanged: function (e) {
                                         projectObject = e.value;
                                         snapshotId = null;
-
-                                        console.log(e);
 
                                         updateProjectObjectDetailInfo(e.value);
 
@@ -406,6 +404,7 @@
                     },
                     {
                         itemType: "group",
+                        cssClass: "active-operations-group",
                         caption: "Активные операции",
                         name: "activeOperationGroup",
                         items: [{
@@ -417,8 +416,8 @@
                                 columnAutoWidth: false,
                                 showBorders: true,
                                 showColumnLines: true,
-                                height: 166,
                                 noDataText: "Активные операции отсутствуют",
+                                height: 244,
                                 columns: [
                                     {
                                         dataField: "id",
@@ -426,6 +425,7 @@
                                         caption: "Операция",
                                         width: "20%",
                                         showSpinButtons: true,
+
                                         cellTemplate: function (container, options) {
                                             let operationId = options.data.id;
                                             let operationUrl = options.data.url;
@@ -896,12 +896,15 @@
             }
 
             function recalculateGUISizes() {
-                //console.log($(".dx-field-item-content.dx-field-item-content-location-bottom.dx-field-item-has-group").first().height());
-                /*console.log(projectObjectInfoForm.itemOption("projectObjectGroup").height);
-                console.log(projectObjectInfoForm.itemOption("activeOperationGroup").height)
-                let objectGroupHeight = projectObjectInfoForm.itemOption("projectObjectGroup").height
-                projectObjectInfoForm.itemOption("activeOperationGroup", "height", objectGroupHeight);
-                projectObjectInfoForm.updateDimensions();*/
+                let topContainersHeight = 280;
+
+                $(".project-object-group ").find(".dx-form-group-with-caption").height(topContainersHeight);
+                $(".active-operations-group").find(".dx-form-group-with-caption").height(topContainersHeight);
+                /*let projectObjectGroupInnerContentHeight = $(".project-object-group ").find('.dx-layout-manager.dx-widget').height()
+//                console.log("projectObjectGroupInnerContentHeight", projectObjectGroupInnerContentHeight);
+                $(".active-operations-group").find(".dx-datagrid").height(projectObjectGroupInnerContentHeight);
+                projectObjectInfoForm.refresh();*/
+                //$(".active-operations-group").find(".dx-datagrid").attr("style", "height: " + projectObjectGroupInnerContentHeight + "px");
             }
 
             function createOperationButtons(){
