@@ -770,7 +770,7 @@
         if ($('js-select-objects').val() == "create_object") {
             notify.$message({
                 showClose: true,
-                message: 'Вам необходимо добавить как минимум одного контакта проекту',
+                message: 'Контакты не указаны. Необходимо добавить хотя бы одно контактное лицо в проект.',
                 type: 'error',
                 duration: 5000
             });

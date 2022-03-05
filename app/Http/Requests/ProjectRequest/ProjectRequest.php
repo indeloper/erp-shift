@@ -37,7 +37,7 @@ class ProjectRequest extends FormRequest
              'object_address.max' => 'Максимальное число символов : 150',
              'object_address.required' => 'Поле АДРЕС ОБЪЕКТА обязательно для заполнения',
              'description.max' => 'Максимальное число символов : 200',
-             'contractor_contact_ids.required' => 'Вам необходимо добавить как минимум одного контакта проекту',
+             'contractor_contact_ids.required' => 'Контакты не указаны. Необходимо добавить хотя бы одно контактное лицо в проект.',
          ];
     }
 
