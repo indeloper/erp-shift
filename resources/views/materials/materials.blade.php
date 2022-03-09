@@ -102,7 +102,7 @@
             float: right;
             margin-top: 4px;
             margin-right: 4px;
-            background: white;
+            background-color: white !important;
         }
 </style>
 @endsection
