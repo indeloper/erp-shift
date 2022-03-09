@@ -633,7 +633,8 @@ class TasksController extends Controller
             ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
             ->where('tasks.responsible_user_id', '=', Auth::id())
             ->where('tasks.is_solved', '=', 0)
-            //->orderBy(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"))
+            ->whereNotNull(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END"))
+            ->orderBy(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END"))
             ->distinct()
             ->get(['commercial_offer_material_splits.man_mat_id', DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`")])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
