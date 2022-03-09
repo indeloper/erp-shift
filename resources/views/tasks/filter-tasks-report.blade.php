@@ -32,6 +32,7 @@
     <form id="filterTasksReport" target="_blank" method="post" action="{{route('tasks.download-tasks-report')}}">
         @csrf
         <input id="filterOptions" type="hidden" name="filterOptions">
+        <input id="reportType" type="hidden" name="reportType">
     </form>
 @endsection
 
@@ -51,11 +52,58 @@
             items: [
                 {
                     itemType: "group",
-                    caption: "Фильтрация",
+                    caption: "Настройки и фильтрация",
                     name: "filterGroup",
                     colCount: 4,
-
                     items: [
+                        {
+                            verticalAlignment: "center",
+                            dataField: 'reportTypeCheckBox',
+                            dataType: 'boolean',
+                            caption: "Адрес",
+                            value: true,
+                            label: {
+                                visible: false
+                            },
+                            editorType: "dxCheckBox",
+                            editorOptions: {
+                                value: true,
+                                text: "Тип отчета"
+                            },
+                            disabled: true
+                        },
+                        {
+                            colSpan: 3,
+                            dataField: 'reportTypeComboBox',
+                            dataType: 'integer',
+                            caption: "Тип отчета",
+                            value: true,
+                            label: {
+                                visible: false
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                displayExpr: "reportTypeName",
+                                valueExpr: "id",
+                                value: "tasks",
+                                dataSource: {
+                                    paginate: true,
+                                    pageSize: 25,
+                                    store: [
+                                        {id: "tasks", reportTypeName: "По задачам"},
+                                        {id: "tasksAndMaterials", reportTypeName: "По задачам и материалам"}
+                                    ]
+                                },
+                                searchEnabled: false
+                            }
+                        },
+                        {
+                            itemType: "simple",
+                            colSpan: 4,
+                            template: (data, itemElement) => {
+                                itemElement.append($("<hr>"))
+                            }
+                        },
                         {
                             verticalAlignment: "center",
                             dataField: 'addressCheckBox',
@@ -194,11 +242,11 @@
                                 text: "Печать",
                                 icon: "fa fa-print",
                                 onClick: () => {
+                                    let selectedReportType = getReportType(filterTasksReportForm.option('formData'));
                                     let filterExpression = generateFilterExpression(filterTasksReportForm.option('formData'));
                                     $('#filterOptions').val(JSON.stringify({filter: filterExpression}));
+                                    $('#reportType').val(JSON.stringify({reportType: selectedReportType}));
                                     $('#filterTasksReport').get(0).submit();
-
-                                    console.log('filterExpression:', generateFilterExpression(filterTasksReportForm.option('formData')));
                                 }
                             }
                         }
@@ -206,6 +254,14 @@
                 }
             ]
         }).dxForm("instance");
+
+        function getReportType(data){
+            if (data.reportTypeCheckBox){
+                if (data.reportTypeComboBox){
+                    return data.reportTypeComboBox;
+                }
+            }
+        }
 
         function generateFilterExpression(data) {
             let filterArray = [];

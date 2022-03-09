@@ -63,7 +63,12 @@ class ObjectController extends Controller
         $object->cadastral_number = $request->cadastral_number;
         $object->short_name = $request->short_name;
         $object->material_accounting_type = $request->material_accounting_type;
-        $object->is_participates_in_material_accounting = $request->is_participates_in_material_accounting;
+        if ($object->is_participates_in_material_accounting) {
+            $object->is_participates_in_material_accounting = $request->is_participates_in_material_accounting;
+        } else {
+            $object->is_participates_in_material_accounting = 0;
+        }
+
 
         $object->save();
 

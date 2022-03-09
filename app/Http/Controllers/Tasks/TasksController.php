@@ -503,52 +503,93 @@ class TasksController extends Controller
 
     public function downloadTasksReport(Request $request){
         $filterOptions = json_decode($request->input('filterOptions'));
+        $reportType = json_decode($request->input('reportType'))->reportType;
 
-        $tasks = (new Task)
-            ->dxLoadOptions($filterOptions)
-            ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
-            ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
-            ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
-            ->leftJoin('contractors', 'contractors.id', '=', 'tasks.contractor_id')
-            ->leftJoin('commercial_offers', 'commercial_offers.project_id', '=', 'projects.id')
-            ->leftJoin('commercial_offer_material_splits', 'commercial_offer_material_splits.com_offer_id', '=', 'commercial_offers.id')
-            ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
-            ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
-            ->addSelect([
-                'tasks.id',
-                'tasks.id as task_id',
-                'projects.name AS project_name',
-                'project_objects.address AS project_address',
-                'contractors.short_name AS contractor_name',
-                DB::Raw('IFNULL(`tasks`.`final_note`, (SELECT `final_note` FROM `tasks` AS `prev_task` WHERE `prev_task`.`id` = `tasks`.`prev_task_id`)) as final_note'),
-                'tasks.revive_at',
-                'commercial_offers.id AS commercial_offers_id',
-                'commercial_offers.option AS commercial_offers_title',
-                DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"),
-                'commercial_offer_material_splits.count AS material_count'
-            ])
-            ->where(function ($query) {
-                $query->orWhere('tasks.is_solved', 0);
+        if ($reportType == "tasks") {
+            $tasks = (new Task)
+                ->dxLoadOptions($filterOptions)
+                ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
+                ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+                ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
+                ->leftJoin('contractors', 'contractors.id', '=', 'tasks.contractor_id')
+                ->leftJoin('commercial_offers', 'commercial_offers.project_id', '=', 'projects.id')
+                ->leftJoin('commercial_offer_material_splits', 'commercial_offer_material_splits.com_offer_id', '=', 'commercial_offers.id')
+                ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
+                ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
+                ->addSelect([
+                    'tasks.id',
+                    'tasks.id as task_id',
+                    'projects.name AS project_name',
+                    'project_objects.address AS project_address',
+                    'contractors.short_name AS contractor_name',
+                    DB::Raw('IFNULL(`tasks`.`final_note`, (SELECT `final_note` FROM `tasks` AS `prev_task` WHERE `prev_task`.`id` = `tasks`.`prev_task_id`)) as final_note'),
+                    'tasks.revive_at',
+                ])
+                ->where(function ($query) {
+                    $query->orWhere('tasks.is_solved', 0);
 
-                $query->orWhere(function ($query){
-                    $query->whereNotNull('tasks.revive_at')
-                        ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())') );
-                });
-            })
-            ->where('tasks.responsible_user_id', '=', Auth::user()->id)
-            ->where('commercial_offers.status', '=', 5)
-            ->orderByDesc(DB::Raw('ISNULL(`tasks`.`revive_at`)'))
-            ->orderByDesc('tasks.revive_at')
-            ->orderBy('tasks.id')
-            ->orderBy('project_objects.address')
-            ->orderBy('commercial_offers.title')
-            ->orderBy('manual_materials.name')
-            ->distinct()
-            ->get()
-            ->groupBy(['id', 'commercial_offers_id'])
-            ->toArray();
+                    $query->orWhere(function ($query) {
+                        $query->whereNotNull('tasks.revive_at')
+                            ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())'));
+                    });
+                })
+                ->where('tasks.responsible_user_id', '=', Auth::user()->id)
+                ->where('commercial_offers.status', '=', 5)
+                ->orderByDesc(DB::Raw('ISNULL(`tasks`.`revive_at`)'))
+                ->orderByDesc('tasks.revive_at')
+                ->orderBy('project_objects.address')
+                ->distinct()
+                ->get()
+                ->toArray();
+        } elseif ($reportType == "tasksAndMaterials") {
+            $tasks = (new Task)
+                ->dxLoadOptions($filterOptions)
+                ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
+                ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+                ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
+                ->leftJoin('contractors', 'contractors.id', '=', 'tasks.contractor_id')
+                ->leftJoin('commercial_offers', 'commercial_offers.project_id', '=', 'projects.id')
+                ->leftJoin('commercial_offer_material_splits', 'commercial_offer_material_splits.com_offer_id', '=', 'commercial_offers.id')
+                ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
+                ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
+                ->addSelect([
+                    'tasks.id',
+                    'tasks.id as task_id',
+                    'projects.name AS project_name',
+                    'project_objects.address AS project_address',
+                    'contractors.short_name AS contractor_name',
+                    DB::Raw('IFNULL(`tasks`.`final_note`, (SELECT `final_note` FROM `tasks` AS `prev_task` WHERE `prev_task`.`id` = `tasks`.`prev_task_id`)) as final_note'),
+                    'tasks.revive_at',
+                    'commercial_offers.id AS commercial_offers_id',
+                    'commercial_offers.option AS commercial_offers_title',
+                    DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"),
+                    'commercial_offer_material_splits.count AS material_count'
+                ])
+                ->where(function ($query) {
+                    $query->orWhere('tasks.is_solved', 0);
 
-        return (new TasksXLSXReport($tasks))->export();
+                    $query->orWhere(function ($query) {
+                        $query->whereNotNull('tasks.revive_at')
+                            ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())'));
+                    });
+                })
+                ->where('tasks.responsible_user_id', '=', Auth::user()->id)
+                ->where('commercial_offers.status', '=', 5)
+                ->orderByDesc(DB::Raw('ISNULL(`tasks`.`revive_at`)'))
+                ->orderByDesc('tasks.revive_at')
+                ->orderBy('tasks.id')
+                ->orderBy('project_objects.address')
+                ->orderBy('commercial_offers.title')
+                ->orderBy('manual_materials.name')
+                ->distinct()
+                ->get()
+                ->groupBy(['id', 'commercial_offers_id'])
+                ->toArray();
+        }
+
+
+
+        return (new TasksXLSXReport($tasks, $reportType))->export();
     }
 
     public function currentUserTasksProjectObjectsList(Request $request)
@@ -592,7 +633,8 @@ class TasksController extends Controller
             ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
             ->where('tasks.responsible_user_id', '=', Auth::id())
             ->where('tasks.is_solved', '=', 0)
-            //->orderBy(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"))
+            ->whereNotNull(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END"))
+            ->orderBy(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END"))
             ->distinct()
             ->get(['commercial_offer_material_splits.man_mat_id', DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`")])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
