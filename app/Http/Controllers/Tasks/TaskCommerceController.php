@@ -14,6 +14,7 @@ use App\Models\Contract\ContractThesisVerifier;
 use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Project;
+use App\Models\ProjectObject;
 use App\Models\WorkVolume\WorkVolume;
 use App\Models\Contract\ContractRequest;
 use App\Models\Notification;
@@ -349,6 +350,21 @@ class TaskCommerceController extends Controller
                     } else {
                         // find mikhail task and add user comment
                         Task::where('project_id', $project->id)->where('target_id', $com_offer->id)->where('is_solved', 0)->where('id', '!=', $task_id)->update(['description' => $request->final_note ? 'Комментарий от ' . Auth::user()->full_name . ': ' . $request->final_note : '']);
+                    }
+
+                    $usersToNotifyAboutAcceptedCommercialOffer = User::whereIn("group_id", [2])->where("status", "=", 1)->where("is_deleted", "=", 0)->get();
+                    if ($project) {
+                        $notificationProjectObject = ProjectObject::find($project->object_id);
+                        $notificationText = 'Коммерческое предложение согласовано.' . PHP_EOL . 'Адрес: ' . $notificationProjectObject->address . PHP_EOL;
+                        foreach ($usersToNotifyAboutAcceptedCommercialOffer as $user) {
+                            $notification = new Notification();
+                            $notification->save();
+                            $notification->additional_info = 'Коммерческое предложение: ' . route('projects::commercial_offer' . (($com_offer->is_tongue) ? '::card_tongue' : '::card_pile'), [$com_offer->project_id, $com_offer->id]);
+                            $notification->update([
+                                'name' => $notificationText,
+                                'user_id' => $user->id
+                            ]);
+                        }
                     }
                 }
             } else if ($request->status_result == 'decline') {
