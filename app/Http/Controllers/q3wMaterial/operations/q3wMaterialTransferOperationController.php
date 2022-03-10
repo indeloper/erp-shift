@@ -914,6 +914,7 @@ class q3wMaterialTransferOperationController extends Controller
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                         ->get();
 
                     $material->total_amount = $material->total_amount - $activeOperationMaterialAmount->sum('amount');
@@ -925,6 +926,7 @@ class q3wMaterialTransferOperationController extends Controller
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                         ->get(DB::raw('sum(`quantity`) as quantity'))
                         ->first();
                     $material->total_quantity = $material->total_quantity - $activeOperationMaterialAmount->quantity;
