@@ -196,7 +196,7 @@ class q3wMaterialOperationController extends Controller
             ->orderBy('q3w_operation_comments.created_at', 'desc')
             ->get([
                 'q3w_operation_comments.*',
-                'q3w_operation_route_stages.name as route_stage_name',
+                'q3w_operation_route_stages.human_readable_name as route_stage_name',
                 'users.first_name',
                 'users.last_name',
                 'users.patronymic',

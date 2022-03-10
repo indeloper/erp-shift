@@ -684,14 +684,6 @@ class q3wMaterialTransferOperationController extends Controller
 
         $operationRouteStage = 4;
 
-        if ($requestData['transfer_operation_initiator'] == 'none' || $requestData['transfer_operation_initiator'] == 'source') {
-            $operationRouteStage = 5;
-        }
-
-        if ($requestData['transfer_operation_initiator'] == 'destination') {
-            $operationRouteStage = 24;
-        }
-
         //Нужно проверить, что материал существует
         //Нужно проверить, что остаток будет большим, или равным нулю
         foreach ($requestData['materials'] as $inputMaterial) {
@@ -795,6 +787,17 @@ class q3wMaterialTransferOperationController extends Controller
             $uploadedFile->operation_route_stage_id = $materialOperation->operation_route_stage_id;
             $uploadedFile->save();
         }
+
+        if ($requestData['transfer_operation_initiator'] == 'none' || $requestData['transfer_operation_initiator'] == 'source') {
+            $operationRouteStage = 5;
+        }
+
+        if ($requestData['transfer_operation_initiator'] == 'destination') {
+            $operationRouteStage = 24;
+        }
+
+        $materialOperation->operation_route_stage_id = $operationRouteStage;
+        $materialOperation->save();
 
         DB::commit();
 
