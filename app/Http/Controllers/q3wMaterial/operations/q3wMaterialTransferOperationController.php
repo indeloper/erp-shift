@@ -1452,6 +1452,7 @@ class q3wMaterialTransferOperationController extends Controller
             ->leftJoin('q3w_materials as g', 'a.standard_id', '=', 'g.standard_id')
             ->leftJoin('q3w_operation_material_comments as j', 'a.comment_id', '=', 'j.id')
             ->where('a.material_operation_id', '=', $operation->id)
+            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->distinct()
             ->get(['a.id',
                 'a.standard_id',
