@@ -58,6 +58,13 @@
             color: lightblue;
         }
 
+        .dx-link.fa-minus.deleted {
+            color: indianred;
+        }
+        .dx-link.fa-plus.added {
+            color: darkseagreen;
+        }
+
         .dx-form-group {
             background-color: #fff;
             border: 1px solid #cfcfcf;
@@ -857,26 +864,43 @@
                     type: "buttons",
                     width: 130,
                     buttons: [
+                            @if ($allowEditing)
                         {
                             template: function (container, options) {
                                 if (options.data.edit_states.indexOf("deletedByRecipient") === -1) {
                                     let validationUid = options.data.validationUid;
-                                    let validationDiv = $('<div class="row-validation-indicator"/>')
+                                    let validationDiv = $('<div class="row-validation-indicator"/>&nbsp;')
                                         .attr("validation-uid", validationUid)
 
                                     updateRowsValidationState([options.data], options.data.validationState, options.data.validationResult, validationDiv);
+                                    validationDiv.parent().append("&nbsp;");
                                     return validationDiv;
                                 }
                             }
                         },
-                            @if ($allowEditing)
+                            @endif
+
                         {
-                            icon: "fas fa-plus",
+                            hint: "Запись добавлена",
+                            icon: "fas fa-plus added",
                             visible: (e) => {
                                 return e.row.data.edit_states.indexOf("addedByRecipient") !== -1
                             }
                         },
-
+                        @if (!$allowEditing)
+                        {
+                            hint: "Запись удалена",
+                            icon: "fas fa-minus deleted",
+                            visible: (e) => {
+                                if (e.row.data.edit_states.indexOf("deletedByRecipient") !== -1) {
+                                    let rowElement = e.row.cells[0].cellElement.parent();
+                                    rowElement.css("color", "lightgrey");
+                                    return true
+                                }
+                            }
+                        },
+                        @endif
+                        @if ($allowEditing)
                         {
                             hint: "Отменить удаление",
                             icon: "dx-icon-revert deleted",
@@ -938,10 +962,11 @@
                                 e.event.preventDefault();
                             }
                         },
+                        @endif
                         {
                             hint: "Комментарии",
                             icon: "fas fa-message",
-
+                            @if ($allowEditing)
                             template: (container, options) => {
                                 let accountingType;
 
@@ -1010,8 +1035,37 @@
                                 }
                                 return commentLink;
                             }
+                            @else
+                            template: (container, options) => {
+                                if (options.data.comment && options.data.comment !== options.data.initial_comment) {
+                                    let commentLink = $("<a>")
+                                        .attr("href", "#")
+                                        .attr("title", "Комментарий")
+                                        .addClass("dx-link dx-icon fas fa-comment dx-link-icon")
+                                        .mouseenter(function () {
+                                            let comment = "";
+
+                                            if (options.data.initial_comment) {
+                                                comment += `<b>Комментарий изменен:</b><br>${options.data.comment}`
+                                            } else {
+                                                comment += `<b>Комментарий добавлен:</b><br>${options.data.comment}`
+                                            }
+
+                                            let materialCommentPopover = $('#materialCommentTemplate');
+                                            materialCommentPopover.dxPopover({
+                                                position: "top",
+                                                width: 300,
+                                                contentTemplate: comment,
+                                                hideEvent: "mouseleave",
+                                            })
+                                                .dxPopover("instance")
+                                                .show($(this));
+                                        });
+                                    return commentLink;
+                                }
+                            }
+                            @endif
                         }
-                        @endif
                     ]
                 },
                 {
@@ -2264,12 +2318,12 @@
                     .prependTo(groupCaptionButtonsDiv)
             }
 
+            createAddMaterialsButton();
+            @endif
+
             function getTransferMaterialGrid() {
                 return operationForm.getEditor("transferMaterialGrid");
             }
-
-            createAddMaterialsButton();
-            @endif
         });
     </script>
 @endsection
