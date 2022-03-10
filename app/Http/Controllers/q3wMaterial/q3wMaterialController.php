@@ -218,7 +218,7 @@ class q3wMaterialController extends Controller
                     'd.name as material_type_name',
                     'e.value as measure_unit_value',
                     'b.comment_id as initial_comment_id',
-                    'b.null as comment_id',
+                    DB::Raw('null as `comment_id`'),
                     'f.comment as initial_comment',
                     'f.comment as comment',
                 DB::RAW('0 as from_operation')])
