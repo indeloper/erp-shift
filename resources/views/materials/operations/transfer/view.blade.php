@@ -1683,8 +1683,8 @@
                                                 console.log('fileHistoryGrid options', options);
                                                 let photoUrl = "";
 
-                                                if (options.data.data[0].photo) {
-                                                    photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.data[0].photo;
+                                                if (options.data.data[0].image) {
+                                                    photoUrl = `{{ asset('storage/img/user_images') }}/` + options.data.data[0].image;
                                                 } else {
                                                     photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
                                                 }
