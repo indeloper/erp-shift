@@ -106,6 +106,7 @@
     <script>
         $(function () {
             //<editor-fold desc="JS: DataSources">
+            let currentUserId = {{Auth::id()}};
             let operationData = {!! $operationData !!};
 
             let sourceProjectObjectId = {{$sourceProjectObjectId}};
@@ -928,7 +929,14 @@
                                 return e.row.data.edit_states.indexOf("deletedByRecipient") === -1
                             },
                             onClick: (e) => {
-                                if (e.row.data.edit_states.indexOf("addedByInitiator") === -1) {
+                                console.log('e.row.data.edit_states.indexOf("addedByInitiator")', e.row.data.edit_states.indexOf("addedByInitiator"));
+                                console.log("transferOperationInitiator", transferOperationInitiator);
+                                console.log("operationData.destination_responsible_user_id", operationData.destination_responsible_user_id);
+                                console.log("operationData.source_responsible_user_id", operationData.source_responsible_user_id);
+                                console.log("currentUserId", currentUserId);
+                                if ((e.row.data.edit_states.indexOf("addedByInitiator") === -1) &&
+                                    ((transferOperationInitiator === "none" || transferOperationInitiator === "source") && operationData.destination_responsible_user_id === currentUserId) ||
+                                    (transferOperationInitiator === "destination" && operationData.source_responsible_user_id === currentUserId)) {
                                     e.component.deleteRow(e.row.rowIndex);
                                 } else {
                                     e.row.data.edit_states.push("deletedByRecipient");

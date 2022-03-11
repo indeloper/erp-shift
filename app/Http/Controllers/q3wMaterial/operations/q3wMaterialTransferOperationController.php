@@ -814,21 +814,10 @@ class q3wMaterialTransferOperationController extends Controller
     {
         $operation = q3wMaterialOperation::findOrFail($request->operationId);
         $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
-        $transferOperationInitiator = "none";
+        $transferOperationInitiator = $this->getTransferOperationInitiator($operation);
 
-        if (isset($operation->source_project_object_id)) {
-            $sourceProjectObjectId = $operation->source_project_object_id;
-            $transferOperationInitiator = "source";
-        } else {
-            $sourceProjectObjectId = 0;
-        }
-
-        if (isset($operation->destination_project_object_id)) {
-            $destinationProjectObjectId = $operation->destination_project_object_id;
-            $transferOperationInitiator = "destination";
-        } else {
-            $destinationProjectObjectId = 0;
-        }
+        $sourceProjectObjectId = $operation->source_project_object_id;
+        $destinationProjectObjectId = $operation->destination_project_object_id;
 
         $materials = DB::table('q3w_operation_materials as a')
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
@@ -1478,5 +1467,16 @@ class q3wMaterialTransferOperationController extends Controller
             'operationRouteStage' => $operationRouteStage,
             'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE)
         ]);
+    }
+
+    public function getTransferOperationInitiator(q3wMaterialOperation $operation): string
+    {
+        if (in_array($operation->operation_route_stage_id, [6, 11, 19])) {
+            return "source";
+        } elseif (in_array($operation->operation_route_stage_id, [25, 30, 38])) {
+            return "destination";
+        } else {
+            return "none";
+        }
     }
 }
