@@ -400,12 +400,9 @@
                             label: {
                                 text: "Номер ТТН"
                             },
-                            editorType: "dxNumberBox",
+                            editorType: "dxTextBox",
                             editorOptions: {
-                                readOnly: true,
-                                min: 0,
-                                format: "000000",
-                                showSpinButtons: false
+                                readOnly: true
                             }
                         }]
                 },

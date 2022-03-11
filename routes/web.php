@@ -260,7 +260,6 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/material/operations/route-stages-without-notifications/list', 'q3wMaterial\q3wCommonController@operationRouteStagesWithoutNotificationsList')->name('material.operation.route-stages-without-notifications.list');
     Route::get('/material/types/lookup-list', 'q3wMaterial\q3wCommonController@materialTypesLookupList')->name('material.types.lookup-list');
     Route::get('/material/transformation-types/lookup-list', 'q3wMaterial\q3wCommonController@materialTransformationTypesLookupList')->name('material.transformation-types.lookup-list');
-    Route::get('/material/consignment-number/validate', 'q3wMaterial\q3wCommonController@isConsignmentNumberUnique')->name('material.consignment-number.validate');
 
     //Materials
     Route::get('/materials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
