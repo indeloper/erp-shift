@@ -1030,7 +1030,7 @@
                                 '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
                                 '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
                                 '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
-                                '<span class="dx-uploader-span">Фото ТТН</span>' +
+                                '<span class="dx-uploader-span">Фото ТН</span>' +
                                 '</div>' +
                                 '<div id="upload-progress-1" class="upload-progress"></div>' +
                                 '</div>' +

@@ -398,7 +398,7 @@
                             colSpan: 1,
                             dataField: "consignment_note_number",
                             label: {
-                                text: "Номер ТТН"
+                                text: "Номер ТН"
                             },
                             editorType: "dxTextBox",
                             editorOptions: {
