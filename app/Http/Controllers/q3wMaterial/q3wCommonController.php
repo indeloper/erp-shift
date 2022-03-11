@@ -167,14 +167,4 @@ class q3wCommonController extends Controller
 
         return (new q3wMaterialTransformationType())->dxLoadOptions($options)->get(['id', 'value'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
-
-    public function isConsignmentNumberUnique(Request $request) {
-        $consignmentNumber = $request['consignmentNumber'];
-
-        if (!(q3wMaterialOperation::where('consignment_note_number', '=', $consignmentNumber)->exists())) {
-            return Response('ok');
-        } else {
-            return Response('error', 400);
-        }
-    }
 }

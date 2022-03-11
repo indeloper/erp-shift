@@ -398,14 +398,11 @@
                             colSpan: 1,
                             dataField: "consignment_note_number",
                             label: {
-                                text: "Номер ТТН"
+                                text: "Номер ТН"
                             },
-                            editorType: "dxNumberBox",
+                            editorType: "dxTextBox",
                             editorOptions: {
-                                readOnly: true,
-                                min: 0,
-                                format: "000000",
-                                showSpinButtons: false
+                                readOnly: true
                             }
                         }]
                 },
