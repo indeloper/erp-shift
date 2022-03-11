@@ -143,8 +143,6 @@ class q3wMaterialTransferOperationController extends Controller
 
     public function move(q3wMaterialOperation $operation)
     {
-        DB::beginTransaction();
-
         foreach ($operation->materials as $operationMaterial) {
             if (in_array("deletedByRecipient", json_decode($operationMaterial->edit_states))) {
                 continue;
@@ -299,8 +297,6 @@ class q3wMaterialTransferOperationController extends Controller
 
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->source_project_object_id));
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->destination_project_object_id));
-
-        DB::commit();
     }
 
     public function moveOperationToNextStage($operationId, $moveToConflict, $cancelled = false)
@@ -799,9 +795,9 @@ class q3wMaterialTransferOperationController extends Controller
         $materialOperation->operation_route_stage_id = $operationRouteStage;
         $materialOperation->save();
 
-        DB::commit();
-
         $this->moveOperationToNextStage($materialOperation->id, false);
+
+        DB::commit();
 
         return response()->json([
             'result' => 'ok',
@@ -1070,7 +1066,7 @@ class q3wMaterialTransferOperationController extends Controller
 
         $materialOperationComment->save();
 
-        DB::commit();
+
 
         if (in_array($operation->operation_route_stage_id, [11, 19, 30, 38])) {
             if (isset($requestData->userAction)) {
@@ -1084,6 +1080,8 @@ class q3wMaterialTransferOperationController extends Controller
         }
 
         $this->moveOperationToNextStage($operation->id, $moveToConflict);
+
+        DB::commit();
     }
 
     /**
@@ -1391,9 +1389,11 @@ class q3wMaterialTransferOperationController extends Controller
                 $materialOperationComment->save();
             }
 
-            DB::commit();
+
 
             $this->moveOperationToNextStage($operation->id, false, true);
+
+            DB::commit();
         }
     }
 
