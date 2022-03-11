@@ -304,16 +304,13 @@
                         }
                     },
                         {
-                            name: "consignmentNoteNumberSelectBox",
+                            name: "consignmentNoteNumberTextBox",
                             dataField: "consignment_note_number",
                             label: {
                                 text: "Номер ТТН"
                             },
-                            editorType: "dxNumberBox",
+                            editorType: "dxTextBox",
                             editorOptions: {
-                                min: 0,
-                                format: "000000",
-                                showSpinButtons: false,
                                 readOnly: true
                             }
                         },
