@@ -15,7 +15,7 @@ class UpdateOperationFileTypeRecord extends Migration
     public function up()
     {
         $operationFileType = q3wOperationFileType::where("string_identifier", "like", "consignment-note-photo")->first();
-        $operationFileType->name = "ТН";
+        $operationFileType->name = "Фото ТТН/ТН";
         $operationFileType->save();
     }
 
