@@ -701,28 +701,15 @@
                         }]
                     },
                         {
-                            name: "consignmentNoteNumberSelectBox",
+                            name: "consignmentNoteNumberTextBox",
                             dataField: "consignment_note_number",
                             label: {
                                 text: "Номер ТТН"
                             },
-                            editorType: "dxNumberBox",
-                            editorOptions: {
-                                min: 0,
-                                format: "000000",
-                                showSpinButtons: false,
-                                value: null
-                            },
+                            editorType: "dxTextBox",
                             validationRules: [{
                                 type: "required",
                                 message: 'Поле "Номер ТТН" обязательно для заполнения'
-                            },
-                            {
-                                type: "async",
-                                message: 'Поле "Номер ТТН" должно быть уникальным',
-                                validationCallback: function(params) {
-                                    return validateConsignmentNumberUnique(params.value);
-                                }
                             }]
                         }]
                     },
@@ -1195,7 +1182,7 @@
                 operationForm.getEditor("operationDateDateBox").option("disabled", state);
                 operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
                 operationForm.getEditor("contractorSelectBox").option("disabled", state);
-                operationForm.getEditor("consignmentNoteNumberSelectBox").option("disabled", state);
+                operationForm.getEditor("consignmentNoteNumberTextBox").option("disabled", state);
                 operationForm.getEditor("newCommentTextArea").option("disabled", state);
             }
 
@@ -1231,15 +1218,6 @@
                 }
 
                 DevExpress.ui.dialog.alert(htmlMessage, "Обнаружены ошибки");
-            }
-
-            function validateConsignmentNumberUnique(value){
-                return $.ajax({
-                    url: "{{route('material.consignment-number.validate')}}",
-                    data: {
-                        consignmentNumber: value,
-                    }
-                })
             }
 
             function createAddMaterialsButton(){
