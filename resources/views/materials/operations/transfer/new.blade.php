@@ -883,8 +883,10 @@
                             },
                             editorType: "dxDateBox",
                             editorOptions: {
-                                value: transferOperationInitiator === "source" ? Date.now() : null,
-                                readOnly: transferOperationInitiator === "source" ? true : false,
+                                value: Date.now(),
+                                max: Date.now(),
+                                min: getMinDate(),
+                                readOnly: false,
                             },
                             validationRules: [{
                                 type: transferOperationInitiator !== "destination" ? "required" : "",
@@ -1623,6 +1625,12 @@
 
             function getTransferMaterialGrid() {
                 return operationForm.getEditor("transferMaterialGrid");
+            }
+
+            function getMinDate() {
+                let minDate = new Date();
+
+                return minDate.setDate(minDate.getDate() - 3);
             }
 
             createAddMaterialsButton();

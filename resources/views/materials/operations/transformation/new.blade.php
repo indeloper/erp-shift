@@ -540,7 +540,10 @@
                             },
                             editorType: "dxDateBox",
                             editorOptions: {
-                                value: Date.now()
+                                value: Date.now(),
+                                max: Date.now(),
+                                min: getMinDate(),
+                                readOnly: false
                             },
                             validationRules: [{
                                 type: "required",
@@ -1513,6 +1516,12 @@
                     default:
                         return "none"
                 }
+            }
+
+            function getMinDate() {
+                let minDate = new Date();
+
+                return minDate.setDate(minDate.getDate() - 3);
             }
         });
     </script>

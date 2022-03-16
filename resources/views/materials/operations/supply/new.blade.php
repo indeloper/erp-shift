@@ -649,7 +649,9 @@
                             editorType: "dxDateBox",
                             editorOptions: {
                                 value: Date.now(),
-                                readOnly: true
+                                max: Date.now(),
+                                min: getMinDate(),
+                                readOnly: false
                             },
                             validationRules: [{
                                 type: "required",
@@ -1247,7 +1249,14 @@
                 return operationForm.getEditor("supplyMaterialGrid");
             }
 
+            function getMinDate() {
+                let minDate = new Date();
+
+                return minDate.setDate(minDate.getDate() - 3);
+            }
+
             createAddMaterialsButton();
+
 
 
         });

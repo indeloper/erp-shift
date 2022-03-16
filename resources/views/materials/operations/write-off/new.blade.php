@@ -765,7 +765,10 @@
                             },
                             editorType: "dxDateBox",
                             editorOptions: {
-                                value: Date.now()
+                                value: Date.now(),
+                                max: Date.now(),
+                                min: getMinDate(),
+                                readOnly: false
                             },
                             validationRules: [{
                                 type: "required",
@@ -1434,6 +1437,12 @@
 
                 files.splice(fileIndex, 0, fileUploader);
                 operationForm.itemOption("fileUploaderGroup", "items", getFileOptions());
+            }
+
+            function getMinDate() {
+                let minDate = new Date();
+
+                return minDate.setDate(minDate.getDate() - 3);
             }
 
             createAddMaterialsButton();
