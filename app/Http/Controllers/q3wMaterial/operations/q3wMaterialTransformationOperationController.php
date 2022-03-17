@@ -763,15 +763,20 @@ class q3wMaterialTransformationOperationController extends Controller
         $this->move($operation);
 
         if (isset($requestData->new_comment)) {
-            $materialOperationComment = new q3wOperationComment([
-                'material_operation_id' => $operation->id,
-                'operation_route_stage_id' => $operation->operation_route_stage_id,
-                'comment' => $requestData->new_comment,
-                'user_id' => Auth::id()
-            ]);
-
-            $materialOperationComment->save();
+            $commentText = $requestData->new_comment;
+        } else {
+            $commentText = self::EMPTY_COMMENT_TEXT;
         }
+
+        $materialOperationComment = new q3wOperationComment([
+            'material_operation_id' => $operation->id,
+            'operation_route_stage_id' => $operation->operation_route_stage_id,
+            'comment' => $commentText,
+            'user_id' => Auth::id()
+        ]);
+
+        $materialOperationComment->save();
+
 
         (new q3wMaterialSnapshot)->takeSnapshot($operation, $projectObject);
 
@@ -787,6 +792,9 @@ class q3wMaterialTransformationOperationController extends Controller
         $operation->operation_route_stage_id = 73;
         $operation->save();
 
+        $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+        $materialOperationComment->save();
+
         DB::commit();
     }
 
@@ -798,15 +806,17 @@ class q3wMaterialTransformationOperationController extends Controller
             DB::beginTransaction();
 
             if (isset($requestData->new_comment)) {
-                $materialOperationComment = new q3wOperationComment([
-                    'material_operation_id' => $operation->id,
-                    'operation_route_stage_id' => $operation->operation_route_stage_id,
-                    'comment' => $requestData->new_comment,
-                    'user_id' => Auth::id()
-                ]);
-
-                $materialOperationComment->save();
+                $commentText = $requestData->new_comment;
+            } else {
+                $commentText = self::EMPTY_COMMENT_TEXT;
             }
+
+            $materialOperationComment = new q3wOperationComment([
+                'material_operation_id' => $operation->id,
+                'operation_route_stage_id' => $operation->operation_route_stage_id,
+                'comment' => $commentText,
+                'user_id' => Auth::id()
+            ]);
 
             $operation->operation_route_stage_id = 72;
             $operation->save();
@@ -819,6 +829,9 @@ class q3wMaterialTransformationOperationController extends Controller
 
             $operation->operation_route_stage_id = 74;
             $operation->save();
+
+            $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+            $materialOperationComment->save();
 
             DB::commit();
         }

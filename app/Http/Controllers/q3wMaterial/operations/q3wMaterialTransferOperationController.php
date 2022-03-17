@@ -1055,8 +1055,6 @@ class q3wMaterialTransferOperationController extends Controller
 
         $materialOperationComment->save();
 
-
-
         if (in_array($operation->operation_route_stage_id, [11, 19, 30, 38])) {
             if (isset($requestData->userAction)) {
                 if ($requestData->userAction == "forceComplete") {
@@ -1069,6 +1067,10 @@ class q3wMaterialTransferOperationController extends Controller
         }
 
         $this->moveOperationToNextStage($operation->id, $moveToConflict);
+
+        $operation = q3wMaterialOperation::find($operation->id);
+        $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+        $materialOperationComment->save();
 
         DB::commit();
     }
@@ -1368,19 +1370,25 @@ class q3wMaterialTransferOperationController extends Controller
             DB::beginTransaction();
 
             if (isset($requestData->new_comment)) {
-                $materialOperationComment = new q3wOperationComment([
-                    'material_operation_id' => $operation->id,
-                    'operation_route_stage_id' => $operation->operation_route_stage_id,
-                    'comment' => $requestData->new_comment,
-                    'user_id' => Auth::id()
-                ]);
-
-                $materialOperationComment->save();
+                $commentText = $requestData->new_comment;
+            } else {
+                $commentText = self::EMPTY_COMMENT_TEXT;
             }
 
+            $materialOperationComment = new q3wOperationComment([
+                'material_operation_id' => $operation->id,
+                'operation_route_stage_id' => $operation->operation_route_stage_id,
+                'comment' => $commentText,
+                'user_id' => Auth::id()
+            ]);
 
+            $materialOperationComment->save();
 
             $this->moveOperationToNextStage($operation->id, false, true);
+
+            $operation = q3wMaterialOperation::find($operation->id);
+            $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+            $materialOperationComment->save();
 
             DB::commit();
         }
