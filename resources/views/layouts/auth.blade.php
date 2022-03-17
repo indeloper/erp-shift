@@ -58,7 +58,7 @@
                                     <div class="card-body">
                                         <div class="form-group">
                                             <label>Электронная почта</label>
-                                            <input id="email" type="email" placeholder="example@tucki.ru" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
+                                            <input id="email" type="email" placeholder="example@sk-gorod.com" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
                                         </div>
                                         <div class="form-group">
                                             <label>Пароль</label>
@@ -92,7 +92,7 @@
                         <script>
                             document.write(new Date().getFullYear())
                         </script>
-                        <a href="http://tucki.ru">tucki.ru</a>
+                        <a href="http://sk-gorod.com">ООО «СК ГОРОД»</a>
                     </p>
                 </nav>
             </div>

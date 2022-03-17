@@ -77,7 +77,7 @@ class SupportController extends Controller
             $subject = 'SK-HELP  NOTIFY';
             $headers  = 'MIME-Version: 1.0' . "\r\n";
             $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-            $headers .= 'From: support@sk.restpa.ru';
+            $headers .= 'From: dev@sk-gorod.com';
             $message = '<h1>' . $support->title . '</h1>';
             $message .= '<p style="font-size: 14px;">' . $support->description . '</p>';
             $message .= '<p>Сообщение пришло из ' . $support->page_path . '</p>';
@@ -92,8 +92,7 @@ class SupportController extends Controller
             }
 
             mail($to, $subject, $message, $headers);
-            mail('pashenko@tucki.ru', $subject, $message, $headers);
-            mail('n.stepanov@tucki.ru', $subject, $message, $headers);
+            mail('dev@sk-gorod.com', $subject, $message, $headers);
 
             $notification = new Notification();
             $notification->save();
@@ -126,7 +125,7 @@ class SupportController extends Controller
         if ($ticket->status == 'matching') {
             $task = Task::create([
                 'name' => 'Согласование дополнительных работ',
-                'description' => '<p>Тема: ' . $ticket->title . '. </p><p>Описание: ' . $ticket->description . '.  </p><p>Автор: ' . $ticket->sender->full_name . '</p>' . '<p>Необходимое время: ' . $ticket->estimate . ' ч. </p>' . ($ticket->result_description ? ('</p>' . '<p>Комментарий от tucki: ' . $ticket->result_description . '</p>') : ''),
+                'description' => '<p>Тема: ' . $ticket->title . '. </p><p>Описание: ' . $ticket->description . '.  </p><p>Автор: ' . $ticket->sender->full_name . '</p>' . '<p>Необходимое время: ' . $ticket->estimate . ' ч. </p>' . ($ticket->result_description ? ('</p>' . '<p>Комментарий от отдела ИТ: ' . $ticket->result_description . '</p>') : ''),
                 'responsible_user_id' => Group::find(5/*3*/)->getUsers()->first()->id,
                 'status' => 1,
                 'target_id' => $ticket->id,
@@ -188,10 +187,9 @@ class SupportController extends Controller
         DB::commit();
         $headers  = 'MIME-Version: 1.0' . "\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $headers .= 'From: ' . 'agreement@sk.restpa.ru';
+        $headers .= 'From: ' . 'dev@sk-gorod.com';
         $message = $task->description . '<p>' . $task->final_note . '</p>';
-        $result = mail('gl@tucki.ru', 'СК согласование', $message, $headers);
-        $result = mail('pashenko@tucki.ru', 'СК согласование', $message, $headers);
+        $result = mail('dev@sk-gorod.com', 'СК согласование', $message, $headers);
 
         return redirect()->route('tasks::index');
     }
@@ -336,26 +334,16 @@ class SupportController extends Controller
 
     public function makeOtherNotifications($ticket, $notification): void
     {
-        $this->sendEmailToIlya($notification);
-//        $this->sendTelegramMessageToMikhail($notification, $ticket->user_id);
+        $this->sendEmailToITDepartment($notification);
     }
 
-    public function sendEmailToIlya($notification)
+    public function sendEmailToITDepartment($notification)
     {
         $headers  = 'MIME-Version: 1.0' . "\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $headers .= 'From: ' . 'support@sk.restpa.ru';
+        $headers .= 'From: ' . 'dev@sk-gorod.com';
         $message = "Пользователь {$notification->user->long_full_name} получил(а) уведомление о заявке: " . '<p>' . $notification->name . '</p>';
-        $result = mail('pashenko@tucki.ru', 'СК изменение заявки', $message, $headers);
-    }
-
-    public function sendTelegramMessageToMikhail($notification, $user_id)
-    {
-        if ($user_id != 6)
-        event(new NotificationCreated("Пользователь {$notification->user->long_full_name} получил(а) уведомление о заявке: {$notification->name}",
-            6,
-            $notification->type
-        ));
+        $result = mail('dev@sk-gorod.com', 'СК изменение заявки', $message, $headers);
     }
 
     public function report()
