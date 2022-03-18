@@ -299,6 +299,7 @@
                             name: "commentHistoryGrid",
                             editorType: "dxDataGrid",
                             editorOptions: {
+                                height: 158,
                                 dataSource: operationHistoryDataSource,
                                 wordWrapEnabled: true,
                                 showColumnHeaders: false,
