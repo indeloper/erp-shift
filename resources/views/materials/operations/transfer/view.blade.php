@@ -1107,6 +1107,7 @@
                                 divStandardName.addClass("standard-name-cell-with-comment");
                             }
 
+                            @if ($allowEditing)
                             let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${Math.round(options.data.quantity * 100) / 100}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
@@ -1123,6 +1124,7 @@
 
                                 return false;
                             });
+                            @endif
                         }
 
                         recalculateStandardsRemains(options.data.id);
