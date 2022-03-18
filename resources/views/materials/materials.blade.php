@@ -662,10 +662,11 @@
                                                                 dataType: "number",
                                                                 width: 24,
                                                                 cellTemplate: function (container, options) {
+                                                                    console.log("getOperationRouteIcon", options);
                                                                     let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
                                                                         options.data.source_project_object_id,
                                                                         options.data.destination_project_object_id,
-                                                                        options.data.transfer_operation_stage_id
+                                                                        options.data.transform_operation_stage_id
                                                                     );
 
                                                                     $(`<div><i class="${operationIcon}"></i></div>`)
@@ -880,7 +881,6 @@
 
                         break;
                     case 3:
-                        console.log(transferStageId);
                         switch (transferStageId) {
                             case 1:
                                 return 'fas fa-random minus';
