@@ -800,7 +800,7 @@
                         }]
                 }, {
                     itemType: "group",
-                    caption: "Комментарий",
+                    caption: "Комментарий *",
                     items: [{
                         name: "newCommentTextArea",
                         dataField: "new_comment",
