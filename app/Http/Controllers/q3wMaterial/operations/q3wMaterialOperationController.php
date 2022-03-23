@@ -217,7 +217,7 @@ class q3wMaterialOperationController extends Controller
             ->orderBy('q3w_operation_files.operation_route_stage_id', 'desc')
             ->get([
                 'q3w_operation_files.*',
-                'q3w_operation_route_stages.name as route_stage_name',
+                'q3w_operation_route_stages.human_readable_name as route_stage_name',
                 'q3w_operation_file_types.name as file_type_name',
                 'users.first_name',
                 'users.last_name',
