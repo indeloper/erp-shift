@@ -374,7 +374,7 @@
                                     standard_weight: material.weight,
                                     quantity: Math.round(material.quantity * 100) / 100,
                                     amount: amount,
-                                    comment: null,
+                                    comment: material.comment,
                                     initial_comment_id: material.comment_id,
                                     initial_comment: material.comment,
                                     total_quantity: material.quantity,
