@@ -546,22 +546,22 @@
                                                 summaryType: "count",
                                                 displayFormat: "Количество: {0}",
                                             },
-                                                {
-                                                    column: "amount",
-                                                    summaryType: "sum",
-                                                    displayFormat: "Всего: {0} шт",
-                                                    showInGroupFooter: false,
-                                                    alignByColumn: true
+                                            {
+                                                column: "amount",
+                                                summaryType: "sum",
+                                                displayFormat: "Всего: {0} шт",
+                                                showInGroupFooter: false,
+                                                alignByColumn: true
+                                            },
+                                            {
+                                                column: "computed_weight",
+                                                summaryType: "sum",
+                                                customizeText: function (data) {
+                                                    return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
                                                 },
-                                                {
-                                                    column: "computed_weight",
-                                                    summaryType: "sum",
-                                                    customizeText: function (data) {
-                                                        return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
-                                                    },
-                                                    showInGroupFooter: false,
-                                                    alignByColumn: true
-                                                }],
+                                                showInGroupFooter: false,
+                                                alignByColumn: true
+                                            }],
                                             totalItems: [{
                                                 column: "computed_weight",
                                                 summaryType: "sum",
