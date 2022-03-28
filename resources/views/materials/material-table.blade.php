@@ -22,6 +22,29 @@
             border: 0;
             border-radius: 0;
         }
+
+        .standard-name-cell-with-comment {
+            margin: 0 -1px -1px -1px;
+        }
+
+        .operation-delimiter {
+            border-top: 2px solid #a5a4a4 !important;
+        }
+
+        .operation-label {
+            border: 1px solid #2a6285;
+            padding: 2px 6px 2px 6px;
+            background: #42a3df;
+            color: aliceblue;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .operation-container {
+            height: 30px;
+            position: absolute;
+        }
+
     </style>
 @endsection
 
@@ -40,6 +63,10 @@
 
         let measureUnitsData = {!!$measureUnits!!};
         let materialTypesData = {!!$materialTypes!!};
+
+        let previousOperationId = 0;
+
+        let projectObject = 9;
 
         let filterOptions = [
             {
@@ -331,20 +358,59 @@
                                 },
                                 columns: [
                                     {
-                                        dataField: "project_object_short_name",
+                                        dataField: "operation_date",
+                                        dataType: "date",
+                                        caption: "Дата",
+                                        width: 90,
+                                        cellTemplate: (container, options) => {
+                                            console.log("date options", options);
+                                            if (previousOperationId === 0) {
+                                                previousOperationId = options.data.material_operation_id;
+                                            }
+
+                                            if (options.data.id !== previousOperationId) {
+                                                container.parent().addClass('operation-delimiter');
+                                                previousOperationId = options.data.id;
+
+                                                let operationLabel = $(`<div class='operation-container'><a class="operation-label" target="_blank" href="${options.data.url}">Операция №${options.data.id}</a></div>`)
+                                                    .appendTo(container);
+
+                                                operationLabel.offset({top: container.parent().offset().top - 8, left: container.parent().offset().left + 8})
+                                            }
+
+                                            $(`<div>${options.text}</div>`)
+                                                .appendTo(container);
+                                        }
+                                    },
+                                    {
+                                        dataField: "route_name",
                                         dataType: "string",
-                                        caption: "Объект",
-                                        width: 500,
-                                        sortOrder: "asc",
-                                        groupIndex: 0
+                                        caption: "Вид работ",
+                                        width: 155,
+                                        cellTemplate: (container, options) => {
+                                            container.parent().addClass('lalala');
+                                            let workTypeName = '';
+                                            let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
+                                                options.data.source_project_object_id,
+                                                options.data.destination_project_object_id,
+                                                options.data.transform_operation_stage_id
+                                            );
+
+                                            if (options.data.operation_route_id === 3){
+                                                workTypeName = options.data.transformation_type_value;
+                                            } else {
+                                                workTypeName = options.data.route_name;
+                                            }
+
+                                            $(`<div><i class="${operationIcon}"></i> ${workTypeName}</div>`)
+                                                .appendTo(container);
+                                        }
                                     },
                                     {
                                         dataField: "standard_name",
                                         dataType: "string",
                                         caption: "Наименование",
-                                        width: 500,
-                                        sortIndex: 0,
-                                        sortOrder: "asc",
+                                        width: 250,
                                         cellTemplate: (container, options) => {
                                             $(`<div class="standard-name">${options.text}</div>`)
                                                 .appendTo(container);
@@ -358,22 +424,10 @@
                                         }
                                     },
                                     {
-                                        dataField: "measure_unit",
-                                        dataType: "number",
-                                        caption: "Ед. изм.",
-                                        alignment: "right",
-                                        lookup: {
-                                            dataSource: measureUnitsData,
-                                            displayExpr: "value",
-                                            valueExpr: "id"
-                                        }
-                                    },
-                                    {
                                         dataField: "quantity",
                                         dataType: "number",
                                         caption: "Количество",
-                                        sortIndex: 1,
-                                        sortOrder: "asc",
+                                        width: 100,
                                         showSpinButtons: true,
                                         cellTemplate: function (container, options) {
                                             let quantity = options.data.quantity;
@@ -387,8 +441,7 @@
                                         dataField: "amount",
                                         dataType: "number",
                                         caption: "Количество (шт)",
-                                        sortIndex: 2,
-                                        sortOrder: "asc",
+                                        width: 125,
                                         cellTemplate: function (container, options) {
                                             let amount = options.data.amount;
                                             $(`<div>${amount} шт</div>`)
@@ -396,40 +449,51 @@
                                         }
                                     },
                                     {
-                                        dataField: "computed_weight",
+                                        dataField: "total_quantity",
                                         dataType: "number",
-                                        caption: "Вес",
-                                        calculateCellValue: function (rowData) {
-                                            let amount = rowData.amount;
-                                            let weight = amount * rowData.quantity * rowData.weight;
-
-                                            if (isNaN(weight)) {
-                                                weight = 0;
-                                            } else {
-                                                weight = Math.round(weight * 1000) / 1000;
-                                            }
-
-                                            rowData.computed_weight = weight;
-                                            return weight;
-                                        },
+                                        caption: "Π ед.изм./шт",
+                                        width: 100,
                                         cellTemplate: function (container, options) {
-                                            let weight = options.data.computed_weight;
+                                            let totalQuantity = options.data.total_quantity;
+                                            let measureUnit = options.data.measure_unit_value;
 
-                                            $(`<div>${weight} т.</div>`)
+                                            $(`<div>${totalQuantity + ' ' + measureUnit}</div>`)
                                                 .appendTo(container);
                                         }
                                     },
                                     {
-                                        dataField: "material_type",
+                                        dataField: "weight",
                                         dataType: "number",
-                                        caption: "Тип материала",
-                                        groupIndex: 1,
-                                        lookup: {
-                                            dataSource: materialTypesData,
-                                            displayExpr: "name",
-                                            valueExpr: "id"
+                                        caption: "Вес",
+                                        width: 100,
+                                        cellTemplate: function (container, options) {
+                                            let weight = Math.round(options.data.weight * 1000) / 1000;
+                                            $(`<div>${weight} т</div>`)
+                                                .appendTo(container);
                                         }
-                                    }
+                                    },
+                                    {
+                                        dataField: "coming_from_project_object",
+                                        dataType: "string",
+                                        caption: "Приход"
+                                    },
+                                    {
+                                        dataField: "outgoing_to_project_object",
+                                        dataType: "string",
+                                        caption: "Уход"
+                                    },
+                                    {
+                                        dataField: "item_transport_consignment_note_number",
+                                        dataType: "string",
+                                        caption: "№ ТТН",
+                                        width: 80
+                                    },
+                                    {
+                                        dataField: "consignment_note_number",
+                                        dataType: "string",
+                                        caption: "№ ТН",
+                                        width: 80
+                                    },
                                 ],
                                 summary: {
                                     groupItems: [{
@@ -460,7 +524,7 @@
                                             return `Итого: ${Math.round(data.value * 1000) / 1000} т.`
                                         }
                                     }]
-                                },
+                                }
                             }
                         }]
                     }
@@ -561,6 +625,37 @@
             }
 
             createGridReportButtons();
+
+            function getOperationRouteIcon(operationRouteId, sourceProjectObjectId, destinationProjectObjectId, transferStageId) {
+                switch (operationRouteId) {
+                    case 1:
+                        return 'fas fa-plus';
+                    case 2:
+                        if (projectObject === sourceProjectObjectId) {
+                            return 'fas fa-sign-out-alt'
+                        }
+
+                        if (projectObject === destinationProjectObjectId) {
+                            return 'fas fa-sign-in-alt'
+                        }
+
+                        break;
+                    case 3:
+                        switch (transferStageId) {
+                            case 1:
+                                return 'fas fa-random minus';
+                            case 2:
+                            case 3:
+                                return 'fas fa-random plus';
+                            default:
+                                return 'fas fa-random';
+                        }
+                    case 4:
+                        return 'fas fa-minus';
+                }
+            }
+
+            //function getRowClassNameForBackground
         });
     </script>
 @endsection
