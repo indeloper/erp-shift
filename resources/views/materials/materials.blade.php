@@ -592,7 +592,7 @@
                                                             },*/
                                                             mode: "multiple",
                                                             selectAllMode: "allPages",
-                                                            showCheckBoxesMode: "always"
+                                                            //showCheckBoxesMode: "always"
                                                         },
                                                         columns: [
                                                             {
@@ -603,7 +603,7 @@
                                                                 cellTemplate: function (container, options) {
                                                                     let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
                                                                         options.data.source_project_object_id,
-                                                                        options.data.destination_pr`oject_object_id,
+                                                                        options.data.destination_project_object_id,
                                                                         options.data.transform_operation_stage_id
                                                                     );
 

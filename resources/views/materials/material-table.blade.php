@@ -40,6 +40,11 @@
             font-weight: bold;
         }
 
+        .operation-label:hover {
+            color: aliceblue;
+            text-decoration: underline;
+        }
+
         .operation-container {
             height: 30px;
             position: absolute;
@@ -365,21 +370,34 @@
                                         cellTemplate: (container, options) => {
                                             console.log("date options", options);
                                             if (previousOperationId === 0) {
-                                                previousOperationId = options.data.material_operation_id;
-                                            }
-
-                                            if (options.data.id !== previousOperationId) {
-                                                container.parent().addClass('operation-delimiter');
                                                 previousOperationId = options.data.id;
-
                                                 let operationLabel = $(`<div class='operation-container'><a class="operation-label" target="_blank" href="${options.data.url}">Операция №${options.data.id}</a></div>`)
                                                     .appendTo(container);
+                                                $(`<div><br>${options.text}</div>`)
+                                                    .appendTo(container);
 
-                                                operationLabel.offset({top: container.parent().offset().top - 8, left: container.parent().offset().left + 8})
+                                                operationLabel.offset({top: container.parent().offset().top + 8, left: container.parent().offset().left + 8})
+                                            } else {
+                                                if (options.data.id !== previousOperationId) {
+                                                    container.parent().addClass('operation-delimiter');
+                                                    previousOperationId = options.data.id;
+
+                                                    let operationLabel = $(`<div class='operation-container'><a class="operation-label" target="_blank" href="${options.data.url}">Операция №${options.data.id}</a></div>`)
+                                                        .appendTo(container);
+
+                                                    operationLabel.offset({
+                                                        top: container.parent().offset().top - 8,
+                                                        left: container.parent().offset().left + 8
+                                                    })
+
+
+                                                }
+
+                                                $(`<div>${options.text}</div>`)
+                                                    .appendTo(container);
                                             }
 
-                                            $(`<div>${options.text}</div>`)
-                                                .appendTo(container);
+
                                         }
                                     },
                                     {
