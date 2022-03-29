@@ -50,12 +50,35 @@
             position: absolute;
         }
 
+        .dx-form-group-caption-buttons {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: flex-start;
+        }
+
+        .dx-placeholder {
+            line-height: 6px;
+        }
+
+        .dx-selectbox {
+            height: 29px;
+            margin-left: 4px;
+        }
+
+        .main-filter-label {
+            line-height: 33px;
+            font-weight: bold;
+        }
+
     </style>
 @endsection
 
 @section('content')
     <div id="formContainer"></div>
     <div id="gridContainer"></div>
+    <div id="filterPopupContainer">
+        <div id="filterFormContainer"></div>
+    </div>
     <form id="printMaterialsTable" target="_blank" method="post" action="{{route('materials.table.print')}}">
         @csrf
         <input id="filterOptions" type="hidden" name="filterOptions">
@@ -71,7 +94,7 @@
 
         let previousOperationId = 0;
 
-        let projectObject = 9;
+        let projectObject = {{$projectObjectId}};
 
         let filterOptions = [
             {
@@ -120,9 +143,12 @@
                         dataSourceLoadOptions = loadOptions;
 
                         return $.getJSON("{{route('materials.table.list')}}",
-                            {data: JSON.stringify(loadOptions)});
+                            {data: JSON.stringify(loadOptions), projectObjectId: projectObject});
                     },
-                })
+                }),
+                onChanged: (e) => {
+                    previousOperationId = 0;
+                }
             });
 
             let materialGridForm = $("#formContainer").dxForm({
@@ -130,7 +156,7 @@
                     currentSelectedFilterGroup: null
                 },
                 items: [
-                    {
+                    /*{
                         itemType: "group",
                         caption: "Фильтрация",
                         name: "filterGroup",
@@ -148,7 +174,7 @@
                                         changeFilterGroupVisibility("filterGroup." + e.value);
                                     }
                                 },
-                            },//snapshotDateFilterGroup
+                            },
                             {
                                 itemType: "group",
                                 name: "snapshotDateFilterGroup",
@@ -281,7 +307,7 @@
                                             searchExpr: "q3w_material_standards`.`name",
                                         },
                                     },
-                                    /*{
+                                    {
                                         name: "standardFilterRangeSlider",
                                         editorType: "dxRangeSlider",
                                         editorOptions: {
@@ -298,7 +324,7 @@
                                                 position: "bottom"
                                             }
                                         }
-                                    },*/
+                                    },
                                     {
                                         editorType: "dxButton",
                                         editorOptions: {
@@ -332,14 +358,14 @@
                                 cssClass: "selected-filter-operations"
                             }
                         ]
-                    },
+                    },*/
                     {
                         itemType: "group",
                         caption: "Табель учета материалов",
                         cssClass: "material-snapshot-grid",
                         name: "materialsTableGrid",
                         items: [{
-                            name: "reservedMaterialsGrid",
+                            name: "materialsTableGrid",
                             editorType: "dxDataGrid",
                             editorOptions: {
                                 dataSource: materialsTableDataSource,
@@ -349,7 +375,7 @@
                                 showBorders: true,
                                 showColumnLines: true,
                                 filterRow: {
-                                    visible: false,
+                                    visible: true,
                                     applyFilter: "auto"
                                 },
                                 grouping: {
@@ -368,7 +394,6 @@
                                         caption: "Дата",
                                         width: 90,
                                         cellTemplate: (container, options) => {
-                                            console.log("date options", options);
                                             if (previousOperationId === 0) {
                                                 previousOperationId = options.data.id;
                                                 let operationLabel = $(`<div class='operation-container'><a class="operation-label" target="_blank" href="${options.data.url}">Операция №${options.data.id}</a></div>`)
@@ -406,7 +431,6 @@
                                         caption: "Вид работ",
                                         width: 155,
                                         cellTemplate: (container, options) => {
-                                            container.parent().addClass('lalala');
                                             let workTypeName = '';
                                             let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
                                                 options.data.source_project_object_id,
@@ -610,16 +634,167 @@
                 repaintFilterTagBox();
             }
 
+            let filterForm = $("#filterFormContainer").dxForm({
+                name: "filterGroup",
+                colCount: 4,
+                items: [
+                    {
+                        dataField: 'operationTypeCheckBox',
+                        dataType: 'boolean',
+                        caption: "Тип операции",
+                        value: true,
+                        label: {
+                            visible: false
+                        },
+                        editorType: "dxCheckBox",
+                        editorOptions: {
+                            value: false,
+                            text: "Тип операции"
+                        }
+                    },
+                    {
+                        colSpan: 3,
+                        dataField: 'operationTypeTagBox',
+                        dataType: 'integer',
+                        caption: "Тип операции",
+                        value: true,
+                        label: {
+                            visible: false
+                        },
+                        editorType: "dxTagBox",
+                        editorOptions: {
+                            displayExpr: "name",
+                            valueExpr: "id",
+                            dataSource: {
+                                paginate: true,
+                                pageSize: 25,
+                                store: new DevExpress.data.CustomStore({
+                                    key: "id",
+                                    loadMode: "raw",
+                                    load: function (loadOptions) {
+                                        return $.getJSON("{{route('material.operation.routes.list')}}",
+                                            {data: JSON.stringify(loadOptions)});
+                                    }
+                                })
+                            },
+                            searchEnabled: true,
+                            showSelectionControls: true
+                        }
+                    },
+                    {
+                        dataField: 'materialStandardCheckBox',
+                        dataType: 'boolean',
+                        caption: "Эталон",
+                        value: true,
+                        label: {
+                            visible: false
+                        },
+                        editorType: "dxCheckBox",
+                        editorOptions: {
+                            value: false,
+                            text: "Эталон"
+                        }
+                    },
+                    {
+                        colSpan: 3,
+                        dataField: 'materialStandardTagBox',
+                        dataType: 'integer',
+                        caption: "Эталон",
+                        value: true,
+                        label: {
+                            visible: false
+                        },
+                        editorType: "dxTagBox",
+                        editorOptions: {
+                            displayExpr: "name",
+                            valueExpr: "id",
+                            dataSource: {
+                                paginate: true,
+                                pageSize: 25,
+                                store: new DevExpress.data.CustomStore({
+                                    key: "id",
+                                    loadMode: "raw",
+                                    load: function (loadOptions) {
+                                        return $.getJSON("{{route('materials.standards.list')}}",
+                                            {data: JSON.stringify(loadOptions)});
+                                    }
+                                })
+                            },
+                            searchEnabled: true,
+                            showSelectionControls: true
+                        }
+                    },
+                    {
+                        itemType: "empty"
+                    },
+                    {
+                        itemType: "button",
+                        colSpan: 3,
+                        buttonOptions: {
+                            text: "ОК",
+                            onClick: () => {
+                                let selectedReportType = getReportType(filterTasksReportForm.option('formData'));
+                                let filterExpression = generateFilterExpression(filterTasksReportForm.option('formData'));
+                                $('#filterOptions').val(JSON.stringify({filter: filterExpression}));
+                                $('#reportType').val(JSON.stringify({reportType: selectedReportType}));
+                                $('#filterTasksReport').get(0).submit();
+                            }
+                        }
+                    }
+                ]
+            }).dxForm("instance");
+
+            let filterPopup = $("#filterPopupContainer").dxPopup({
+
+            }).dxPopup("instance");
+
             function createGridReportButtons(){
                 let groupCaption = $('.material-snapshot-grid').find('.dx-form-group-with-caption');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
                 groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
                 let groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
 
+                $('<div>')
+                    .text("Объект:")
+                    .addClass('main-filter-label')
+                    .prependTo(groupCaptionButtonsDiv)
+
+                $('<div>')
+                    .dxSelectBox({
+                        width: 280,
+                        dataSource: new DevExpress.data.DataSource({
+                            store: new DevExpress.data.CustomStore({
+                                key: "id",
+                                loadMode: "raw",
+                                load: function (loadOptions) {
+                                    return $.getJSON("{{route('project-objects.list')}}",
+                                        {data: JSON.stringify(loadOptions)});
+                                },
+                            })
+                        }),
+                        displayExpr: "short_name",
+                        valueExpr: "id",
+                        searchEnabled: true,
+                        searchExpr: "short_name",
+                        value: projectObject,
+                        onValueChanged: (e) => {
+                            projectObject = e.value;
+                            previousOperationId = 0;
+                            materialsTableDataSource.reload();
+                            window.history.pushState("", "", "?project_object=" + projectObject);
+                        }
+                    })
+                    .addClass('dx-form-group-caption-button')
+                    .prependTo(groupCaptionButtonsDiv)
+
                 /*$('<div>')
                     .dxButton({
-                        text: "Отчет",
-                        icon: "fa fa-download"
+                        text: "Фильтр",
+                        icon: "fa fa-filter",
+                        onClick: (e) => {
+                            filterPopup.show();
+
+                        }
                     })
                     .addClass('dx-form-group-caption-button')
                     .prependTo(groupCaptionButtonsDiv)*/
