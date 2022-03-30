@@ -395,18 +395,8 @@ class q3wMaterialController extends Controller
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
-    public function materialsTableList(Request $request): string
-    {
-        $options = json_decode($request['data']);
-        $projectObjectId = json_decode($request["projectObjectId"]) ?? ProjectObject::whereNotNull('short_name')
-                ->orderBy("short_name")
-                ->get(['id'])
-                ->first()->id;
-
-//        dd($projectObjectId);
-
-
-        $materialsList = (new q3wMaterialOperation)
+    public function getMaterialTableQuery($projectObjectId, $filterOptions) {
+        return (new q3wMaterialOperation)
             ->leftJoin('q3w_operation_materials', 'q3w_operation_materials.material_operation_id', '=', 'q3w_material_operations.id')
             ->leftJoin('q3w_material_standards', 'q3w_operation_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin('project_objects AS source_project_objects', 'q3w_material_operations.source_project_object_id', '=', 'source_project_objects.id')
@@ -421,7 +411,7 @@ class q3wMaterialController extends Controller
             ->where('amount', '<>', '0')
             ->where(function ($query) use ($projectObjectId){
                 $query->where('q3w_material_operations.source_project_object_id', '=', $projectObjectId)
-                ->orWhere('q3w_material_operations.destination_project_object_id', '=', $projectObjectId);
+                    ->orWhere('q3w_material_operations.destination_project_object_id', '=', $projectObjectId);
             })
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)")
             ->orderBy('operation_date')
@@ -458,62 +448,36 @@ class q3wMaterialController extends Controller
                 'q3w_operation_material_comments.comment',
                 DB::Raw('IF(`q3w_material_operations`.`operation_route_id` = 1, `q3w_material_operations`.`consignment_note_number`, NULL) AS `item_transport_consignment_note_number`'),
                 DB::Raw('IF(`q3w_material_operations`.`operation_route_id` = 2, `q3w_material_operations`.`consignment_note_number`, NULL) AS `consignment_note_number`')
-                ])
+            ]);
+    }
+
+    public function materialsTableList(Request $request): string
+    {
+        $options = json_decode($request['data']);
+        $projectObjectId = json_decode($request["projectObjectId"]) ?? ProjectObject::whereNotNull('short_name')
+                ->orderBy("short_name")
+                ->get(['id'])
+                ->first()->id;
+
+        return $this->getMaterialTableQuery($projectObjectId, $options)
             ->get()
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-
-        return $materialsList;
     }
 
     public function printMaterialsTable(Request $request) {
-        $filterOptions = json_decode($request->input('filterOptions'));
-        $filterList = json_decode($request->input('filterList'));
+        /*$filterOptions = json_decode($request->input('filterOptions'));
+        $filterList = json_decode($request->input('filterList'));*/
 
-        $materialsList = (new q3wMaterialSnapshotMaterial)
-            ->dxLoadOptions($filterOptions)
-            ->leftJoin('q3w_material_snapshots', 'q3w_material_snapshot_materials.snapshot_id', '=', 'q3w_material_snapshots.id')
-            ->leftJoin('q3w_material_standards', 'q3w_material_snapshot_materials.standard_id', '=', 'q3w_material_standards.id')
-            ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
-            ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
-            ->leftJoin('project_objects', 'q3w_material_snapshots.project_object_id', '=', 'project_objects.id')
-            ->leftJoin('q3w_material_snapshot_material_comments', 'q3w_material_snapshot_materials.comment_id', '=', 'q3w_material_snapshot_material_comments.id')
-            ->select(['q3w_material_snapshot_materials.id',
-                'q3w_material_snapshot_materials.standard_id',
-                'q3w_material_snapshot_materials.quantity',
-                'q3w_material_snapshot_materials.amount',
-                'q3w_material_snapshots.created_at as snapshot_date',
-                DB::raw('MAX(`q3w_material_snapshots`.`created_at`) OVER (PARTITION BY `project_objects`.`id`) as `max_snapshot_date`'),
-                'q3w_material_standards.name as standard_name',
-                'q3w_material_standards.material_type',
-                'q3w_material_standards.weight',
-                'q3w_material_types.accounting_type',
-                'q3w_material_types.measure_unit',
-                'q3w_material_types.name as material_type_name',
-                'q3w_measure_units.value as measure_unit_value',
-                'project_objects.short_name as project_object_short_name',
-                'project_objects.address as project_object_address',
-                'q3w_material_snapshot_material_comments.comment'
-                ]);
+        $options = json_decode($request['data']);
+        $projectObjectId = json_decode($request["projectObjectId"]) ?? ProjectObject::whereNotNull('short_name')
+                ->orderBy("short_name")
+                ->get(['id'])
+                ->first()->id;
 
-        $groupedMaterials = DB::table(DB::raw('('.Str::replaceArray('?', $materialsList->getBindings(), $materialsList->toSql()).') as TEMP'))
-            ->where('snapshot_date', '=', DB::raw('`max_snapshot_date`'))
-            ->where('quantity', '<>', 0)
-            ->where('amount', '<>', 0)
-            ->orderBy('standard_name')
-            ->orderBy('quantity')
-            ->orderBy('amount')
-            ->get(['*'])
-            ->groupBy(['project_object_short_name', 'material_type_name', 'standard_name'])
+        $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
+            ->get()
             ->toArray();
 
-
-
-        return (new MaterialTableXLSXReport($groupedMaterials, $filterList))->export();
-
-        /*return view('materials.print-material-table')
-            ->with([
-                'materials' => $groupedMaterials,
-                'filterList' => $filterList
-            ]);*/
+        return (new MaterialTableXLSXReport($materialsList, null))->export();
     }
 }

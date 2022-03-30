@@ -26,6 +26,10 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
     use Exportable;
 
     const startLineNumber = 12;
+    /**
+     * @var string
+     */
+    private $reportType;
 
     /**
      * @var array
@@ -43,10 +47,11 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
      */
     private $lastLineNumber;
 
-    public function __construct($materials, $filterList)
+    public function __construct($materials, $filterList, $reportType)
     {
         $this->materials = $materials;
         $this->filterList = $filterList;
+        $this->reportType = $reportType;
     }
 
     public function headings(): array
