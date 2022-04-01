@@ -70,6 +70,10 @@
             font-weight: bold;
         }
 
+        .dx-datagrid-filter-panel {
+            display: none !important;
+        }
+
     </style>
 @endsection
 
@@ -81,6 +85,7 @@
     </div>
     <form id="printMaterialsTable" target="_blank" method="post" action="{{route('materials.table.print')}}">
         @csrf
+        <input id="projectObjectId" type="hidden" name="projectObjectId">
         <input id="filterOptions" type="hidden" name="filterOptions">
         <input id="filterList" type="hidden" name="filterList">
     </form>
@@ -96,26 +101,7 @@
 
         let projectObject = {{$projectObjectId}};
 
-        let filterOptions = [
-            {
-                name: "Дата",
-                filterType: "dateBox",
-                groupName: "snapshotDateFilterGroup",
-                required: true
-            },
-            {
-                name: "Объект",
-                filterType: "lookup",
-                groupName: "projectObjectFilterGroup"
-            },
-            {
-                name: "Эталон",
-                filterType: "lookup",
-                groupName: "standardFilterGroup"
-            },
-        ]
-
-        let filterList = [];
+        let filterText = '';
 
         let dataSourceLoadOptions = {};
 
@@ -135,11 +121,10 @@
             });
 
             let materialsTableDataSource = new DevExpress.data.DataSource({
-                reshapeOnPush: true,
                 store: new DevExpress.data.CustomStore({
                     key: "id",
                     load: function (loadOptions) {
-                        loadOptions.filter = getLoadOptionsFilterArray();
+                        /*loadOptions.filter = getLoadOptionsFilterArray();*/
                         dataSourceLoadOptions = loadOptions;
 
                         return $.getJSON("{{route('materials.table.list')}}",
@@ -156,219 +141,16 @@
                     currentSelectedFilterGroup: null
                 },
                 items: [
-                    /*{
-                        itemType: "group",
-                        caption: "Фильтрация",
-                        name: "filterGroup",
-                        items: [
-                            {
-                                dataField: "currentSelectedFilterGroup",
-                                name: "fieldSelectorLookup",
-                                label: {visible: false},
-                                editorType: "dxLookup",
-                                editorOptions: {
-                                    dataSource: filterOptions,
-                                    displayExpr: "name",
-                                    valueExpr: "groupName",
-                                    onValueChanged: (e) => {
-                                        changeFilterGroupVisibility("filterGroup." + e.value);
-                                    }
-                                },
-                            },
-                            {
-                                itemType: "group",
-                                name: "snapshotDateFilterGroup",
-                                colCount: 2,
-                                visible: false,
-                                cssClass: "dx-group-no-border",
-                                items: [
-                                    {
-                                        name: "snapshotDateDateBox",
-                                        editorType: "dxDateBox",
-                                        editorOptions: {
-                                        },
-                                    },
-                                    {
-                                        editorType: "dxButton",
-                                        editorOptions: {
-                                            text: "Добавить",
-                                            icon:"check",
-                                            type:"default",
-                                            height: 40,
-                                            onClick: (e) => {
-                                                if (!Date.prototype.toISODate) {
-                                                    Date.prototype.toISODate = function() {
-                                                        return this.getFullYear() + '-' +
-                                                            ('0'+ (this.getMonth()+1)).slice(-2) + '-' +
-                                                            ('0'+ this.getDate()).slice(-2);
-                                                    }
-                                                }
-
-                                                let filterElement = materialGridForm.getEditor("snapshotDateDateBox");
-
-                                                let dateISOString = filterElement.option("value").toISODate();
-
-                                                if (filterElement.option("value")) {
-                                                    filterList.push(
-                                                        {
-                                                            id: new DevExpress.data.Guid().toString(),
-                                                            fieldName: "q3w_material_snapshots.created_at",
-                                                            operation: "<=",
-                                                            value: "'" + dateISOString + "T23:59:59'",
-                                                            text: 'Дата: ' + filterElement.option("text")
-                                                        }
-                                                    )
-                                                }
-                                                repaintFilterTagBox();
-                                                materialsTableDataSource.reload();
-                                            }
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                itemType: "group",
-                                name: "projectObjectFilterGroup",
-                                colCount: 2,
-                                visible: false,
-                                cssClass: "dx-group-no-border",
-                                items: [
-                                    {
-                                        name: "projectObjectFilterLookup",
-                                        editorType: "dxLookup",
-                                        editorOptions: {
-                                            dataSource: new DevExpress.data.DataSource({
-                                                store: new DevExpress.data.CustomStore({
-                                                    key: "id",
-                                                    //loadMode: "raw",
-                                                    load: function (loadOptions) {
-                                                        return $.getJSON("{{route('project-objects.list')}}",
-                                                            {data: JSON.stringify(loadOptions)});
-                                                    },
-                                                })
-                                            }),
-                                            displayExpr: "short_name",
-                                            valueExpr: "id",
-                                            searchEnabled: true,
-                                            searchExpr: "short_name",
-                                        },
-                                    },
-                                    {
-                                        editorType: "dxButton",
-                                        editorOptions: {
-                                            text: "Добавить",
-                                            icon:"check",
-                                            type:"default",
-                                            height: 40,
-                                            onClick: (e) => {
-                                                let filterElement = materialGridForm.getEditor("projectObjectFilterLookup");
-                                                if (filterElement.option("value")) {
-                                                    filterList.push(
-                                                        {
-                                                            id: new DevExpress.data.Guid().toString(),
-                                                            fieldName: "project_object_id",
-                                                            operation: "=",
-                                                            value: filterElement.option("value"),
-                                                            text: 'Объект: ' + filterElement.option("text")
-                                                        }
-                                                    )
-                                                }
-                                                repaintFilterTagBox();
-                                                materialsTableDataSource.reload();
-                                            }
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                itemType: "group",
-                                name: "standardFilterGroup",
-                                colCount: 2,
-                                visible: false,
-                                cssClass: "dx-group-no-border",
-                                items: [
-                                    {
-                                        name: "standardFilterLookup",
-                                        editorType: "dxLookup",
-                                        editorOptions: {
-                                            dataSource: new DevExpress.data.DataSource({
-                                                store: new DevExpress.data.CustomStore({
-                                                    key: "id",
-                                                    //loadMode: "raw",
-                                                    load: function (loadOptions) {
-                                                        return $.getJSON("{{route('materials.standards.list')}}",
-                                                            {data: JSON.stringify(loadOptions)});
-                                                    },
-                                                })
-                                            }),
-                                            displayExpr: "name",
-                                            valueExpr: "id",
-                                            searchEnabled: true,
-                                            searchExpr: "q3w_material_standards`.`name",
-                                        },
-                                    },
-                                    {
-                                        name: "standardFilterRangeSlider",
-                                        editorType: "dxRangeSlider",
-                                        editorOptions: {
-                                            min: 0,
-                                            max: 100,
-                                            start: 0,
-                                            end: 65,
-                                            tooltip: {
-                                                enabled: true,
-                                                format: function (value) {
-                                                    return value + "...";
-                                                },
-                                                showMode: "always",
-                                                position: "bottom"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        editorType: "dxButton",
-                                        editorOptions: {
-                                            text: "Добавить",
-                                            icon:"check",
-                                            type:"default",
-                                            height: 40,
-                                            onClick: (e) => {
-                                                let filterElement = materialGridForm.getEditor("standardFilterLookup");
-                                                if (filterElement.option("value")) {
-                                                    filterList.push(
-                                                        {
-                                                            id: new DevExpress.data.Guid().toString(),
-                                                            fieldName: "standard_id",
-                                                            operation: "=",
-                                                            value: filterElement.option("value"),
-                                                            text: 'Эталон: ' + filterElement.option("text")
-                                                        }
-                                                    )
-                                                }
-                                                repaintFilterTagBox();
-                                                materialsTableDataSource.reload();
-                                            }
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                itemType: "empty",
-                                name: "selectedFilterOperations",
-                                cssClass: "selected-filter-operations"
-                            }
-                        ]
-                    },*/
                     {
                         itemType: "group",
                         caption: "Табель учета материалов",
                         cssClass: "material-snapshot-grid",
-                        name: "materialsTableGrid",
                         items: [{
                             name: "materialsTableGrid",
                             editorType: "dxDataGrid",
                             editorOptions: {
                                 dataSource: materialsTableDataSource,
+                                remoteOperations: true,
                                 focusedRowEnabled: false,
                                 hoverStateEnabled: true,
                                 columnAutoWidth: false,
@@ -377,6 +159,12 @@
                                 filterRow: {
                                     visible: true,
                                     applyFilter: "auto"
+                                },
+                                filterPanel: {
+                                    visible: true,
+                                    customizeText: (e) => {
+                                        filterText = e.text;
+                                    }
                                 },
                                 grouping: {
                                     autoExpandAll: true,
@@ -431,18 +219,12 @@
                                         caption: "Вид работ",
                                         width: 155,
                                         cellTemplate: (container, options) => {
-                                            let workTypeName = '';
+                                            let workTypeName = options.data.route_name;
                                             let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
                                                 options.data.source_project_object_id,
                                                 options.data.destination_project_object_id,
                                                 options.data.transform_operation_stage_id
                                             );
-
-                                            if (options.data.operation_route_id === 3){
-                                                workTypeName = options.data.transformation_type_value;
-                                            } else {
-                                                workTypeName = options.data.route_name;
-                                            }
 
                                             $(`<div><i class="${operationIcon}"></i> ${workTypeName}</div>`)
                                                 .appendTo(container);
@@ -536,37 +318,7 @@
                                         caption: "№ ТН",
                                         width: 80
                                     },
-                                ],
-                                summary: {
-                                    groupItems: [{
-                                        column: "standard_id",
-                                        summaryType: "count",
-                                        displayFormat: "Количество: {0}",
-                                    },
-                                        {
-                                            column: "amount",
-                                            summaryType: "sum",
-                                            displayFormat: "Всего: {0} шт",
-                                            showInGroupFooter: false,
-                                            alignByColumn: true
-                                        },
-                                        {
-                                            column: "computed_weight",
-                                            summaryType: "sum",
-                                            customizeText: function (data) {
-                                                return `Всего: ${Math.round(data.value * 1000) / 1000} т.`
-                                            },
-                                            showInGroupFooter: false,
-                                            alignByColumn: true
-                                        }],
-                                    totalItems: [{
-                                        column: "computed_weight",
-                                        summaryType: "sum",
-                                        customizeText: function (data) {
-                                            return `Итого: ${Math.round(data.value * 1000) / 1000} т.`
-                                        }
-                                    }]
-                                }
+                                ]
                             }
                         }]
                     }
@@ -787,18 +539,6 @@
                     .addClass('dx-form-group-caption-button')
                     .prependTo(groupCaptionButtonsDiv)
 
-                /*$('<div>')
-                    .dxButton({
-                        text: "Фильтр",
-                        icon: "fa fa-filter",
-                        onClick: (e) => {
-                            filterPopup.show();
-
-                        }
-                    })
-                    .addClass('dx-form-group-caption-button')
-                    .prependTo(groupCaptionButtonsDiv)*/
-
                 $('<div>')
                     .dxButton({
                         text: "Скачать",
@@ -807,10 +547,12 @@
                             delete dataSourceLoadOptions.skip;
                             delete dataSourceLoadOptions.take;
 
-                            $('#filterList').val(JSON.stringify(filterList));
+                            console.log(materialGridForm.getEditor("materialsTableGrid").option("filterValue"));
+
+                            $('#projectObjectId').val(JSON.stringify(projectObject));
+                            $('#filterList').val(JSON.stringify(filterText));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
                             $('#printMaterialsTable').get(0).submit();
-
                         }
                     })
                     .addClass('dx-form-group-caption-button')
@@ -819,7 +561,7 @@
 
             createGridReportButtons();
 
-            function getOperationRouteIcon(operationRouteId, sourceProjectObjectId, destinationProjectObjectId, transferStageId) {
+            function getOperationRouteIcon(operationRouteId, sourceProjectObjectId, destinationProjectObjectId, transformStageId) {
                 switch (operationRouteId) {
                     case 1:
                         return 'fas fa-plus';
@@ -834,7 +576,7 @@
 
                         break;
                     case 3:
-                        switch (transferStageId) {
+                        switch (transformStageId) {
                             case 1:
                                 return 'fas fa-random minus';
                             case 2:
@@ -847,8 +589,6 @@
                         return 'fas fa-minus';
                 }
             }
-
-            //function getRowClassNameForBackground
         });
     </script>
 @endsection

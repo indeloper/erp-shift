@@ -397,6 +397,7 @@ class q3wMaterialController extends Controller
 
     public function getMaterialTableQuery($projectObjectId, $filterOptions) {
         return (new q3wMaterialOperation)
+            ->dxLoadOptions($filterOptions, true)
             ->leftJoin('q3w_operation_materials', 'q3w_operation_materials.material_operation_id', '=', 'q3w_material_operations.id')
             ->leftJoin('q3w_material_standards', 'q3w_operation_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin('project_objects AS source_project_objects', 'q3w_material_operations.source_project_object_id', '=', 'source_project_objects.id')
@@ -433,7 +434,7 @@ class q3wMaterialController extends Controller
                 'q3w_material_operations.transformation_type_id',
                 'q3w_material_transformation_types.value as transformation_type_value',
                 'q3w_operation_materials.transform_operation_stage_id',
-                'q3w_operation_routes.name as route_name',
+                DB::Raw('IF (`q3w_material_operations`.`operation_route_id` = 3, `q3w_material_transformation_types`.`value`, `q3w_operation_routes`.`name`) as route_name'),
                 'q3w_material_standards.name as standard_name',
                 'q3w_operation_materials.quantity',
                 'q3w_operation_materials.amount',
@@ -458,26 +459,30 @@ class q3wMaterialController extends Controller
                 ->orderBy("short_name")
                 ->get(['id'])
                 ->first()->id;
+        $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
+            ->get();
 
-        return $this->getMaterialTableQuery($projectObjectId, $options)
-            ->get()
-            ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+        return json_encode(array(
+                "data" => $materialsList,
+                "totalCount" => $materialsList->count()
+            ),
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function printMaterialsTable(Request $request) {
-        /*$filterOptions = json_decode($request->input('filterOptions'));
-        $filterList = json_decode($request->input('filterList'));*/
-
-        $options = json_decode($request['data']);
+        $filterText = json_decode($request->input('filterList'));
+        $options = json_decode($request['filterOptions']);
         $projectObjectId = json_decode($request["projectObjectId"]) ?? ProjectObject::whereNotNull('short_name')
                 ->orderBy("short_name")
                 ->get(['id'])
                 ->first()->id;
 
+
+
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get()
             ->toArray();
 
-        return (new MaterialTableXLSXReport($materialsList, null))->export();
+        return (new MaterialTableXLSXReport($projectObjectId, $materialsList, $filterText, null))->export();
     }
 }

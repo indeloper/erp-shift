@@ -2,6 +2,7 @@
 
 namespace App\Services\q3wMaterialAccounting\Reports;
 
+use App\Models\ProjectObject;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -18,7 +19,6 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use PhpOffice\PhpSpreadsheet\Worksheet\BaseDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents, WithTitle, WithDrawings, WithColumnFormatting, WithColumnWidths
@@ -35,8 +35,9 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
      * @var array
      */
     private $date;
-    private $filterList;
-    private $styleRulesArray;
+    private $filterText;
+    private $borderStyleRulesArray;
+    private $colorStyleRulesArray;
     /**
      * @var Collection
      */
@@ -45,70 +46,56 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
     /**
      * @var int
      */
+    private $projectObjectId;
     private $lastLineNumber;
 
-    public function __construct($materials, $filterList, $reportType)
+    public function __construct($projectObjectId, $materials, $filterText, $reportType)
     {
         $this->materials = $materials;
-        $this->filterList = $filterList;
+        $this->filterText = $filterText;
         $this->reportType = $reportType;
+        $this->projectObjectId = $projectObjectId;
     }
 
     public function headings(): array
     {
-        $filterText = '';
-        $filterTextArray = [];
-
-        if (isset($this->filterList)) {
-            foreach ($this->filterList as $filterItem) {
-                $filterTextArray[] = $filterItem->text;
-            }
-            $filterText = implode($filterTextArray, '; ');
-        } else {
-            $filterText = 'Не указаны';
+        if (empty($this->filterText)) {
+            $this->filterText = 'Не указаны';
         }
 
         return [
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', Carbon::now()->format('d.m.Y H:i')],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '196128, г. Санкт-Петербург, ул.Варшавская д. 9, к.1, литера А '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'Тел.:', '+7 (812) 922-76-96'],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '+7 (812) 326-94-06'],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'www.sk-gorod.com'],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',  ' ', Carbon::now()->format('d.m.Y H:i')],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',  ' ', '196128, г. Санкт-Петербург,'.PHP_EOL.'ул.Варшавская д. 9, к.1, литера А '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',  'Тел.:', '+7 (812) 922-76-96'],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',  ' ', '+7 (812) 326-94-06'],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'www.sk-gorod.com'],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
             [
-                '',
-                '',
-                'ОТЧЕТ ПО МАТЕРИАЛАМ НА ОБЪЕКТАХ'
+                'ТАБЕЛЬ УЧЕТА МАТЕРИАЛОВ ОТ ' .  Carbon::now()->format('d.m.Y')
             ],
             [
-                '',
-                '',
-                "Отчет по состоянию материалов от «" . Carbon::now()->format('d.m.Y') . "»"
+                "Объект: " . ProjectObject::findOrFail($this->projectObjectId)->short_name
             ],
             [
-                '',
-                '',
-                "Отчет по состоянию материалов на «" . $this->date . "»"
+                'Фильтры: ' . $this->filterText
             ],
             [
-                '',
-                '',
-                'Фильтры: '.$filterText
+
             ],
             [
-                '',
-                '',
                 '№',
-                '',
-                '',
-                'Материал',
-                'Длина',
-                'Площадь, м²',
-                'Объём, м³',
-                'Кол-во, шт',
-                'Общая длина, м.п.',
-                'Масса, т.',
-                'Примечание',
+                'Дата',
+                'Вид работ',
+                'Наименование',
+                'Кол-во (ед. изм.)',
+                'Кол-во (шт.)',
+                'Π ед.изм./шт',
+                'Вес',
+                'Приход',
+                'Уход',
+                'Комментарий',
+                '№ ТТН',
+                '№ ТН'
             ]
         ];
     }
@@ -118,176 +105,94 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
         $results = collect();
         $number = 1;
         $lineNumber = self::startLineNumber;
+        $prevOperationId = 0;
 
-        foreach ($this->materials as $objectKey => $objectValue) {
-            $subNumber = 1;
-            $results->push(['', '', $number . '. ' . $objectKey]);
+        foreach ($this->materials as $material) {
+            $results->push([
+                $number,
+                Carbon::parse($material['operation_date'])->format('d.m.Y'),
+                $material['route_name'],
+                $material['standard_name'],
+                $material['quantity'],
+                $material['amount'],
+                '=E'.$lineNumber.'*F'.$lineNumber,
+                '=ROUND(G'.$lineNumber.'*'.$material['standard_weight'].', 3)',
+                $material['coming_from_project_object'],
+                $material['outgoing_to_project_object'],
+                $material['comment'],
+                $material['item_transport_consignment_note_number'],
+                $material['consignment_note_number']
+            ]);
 
-            $this->styleRulesArray[] = ['styleName'=>'objectGroup', 'lineNumber'=>$lineNumber];
-            $lineNumber ++;
-            $objectStartIndex = $lineNumber;
-
-            $objectsSummaryLineNumbers = [];
-            foreach($objectValue as $materialTypeKey => $materialTypeValue) {
-                $results->push(['', '', '', $number .'.'.$subNumber. '. ' . $materialTypeKey]);
-
-                $this->styleRulesArray[] = ['styleName'=>'materialTypeGroup', 'lineNumber'=>$lineNumber];
-
-                $materialTypeNumber = 1;
-                $lineNumber++;
-
-
-                $materialStandardSummaryLines = [];
-
-                foreach ($materialTypeValue as $materialstandardKey => $materialStandardValue){
-                    switch($materialStandardValue[0]->accounting_type) {
-                        case 2:
-                        $results->push(['', '', '', '', $number.'.'.$subNumber.'.'.$materialTypeNumber.'. '. $materialstandardKey]);
-
-                        $this->styleRulesArray[] = ['styleName'=>'materialstandardGroup', 'lineNumber'=>$lineNumber];
-
-                        $lineNumber++;
-                        break;
-                    }
-
-                    $materialNumber = 1;
-
-                    $materialSummaryLines = [];
-
-                    switch($materialStandardValue[0]->accounting_type) {
-                        case 2:
-                            foreach ($materialStandardValue as $materialKey => $materialValue) {
-                                $results->push(['',
-                                    '',
-                                    '',
-                                    '',
-                                    '',
-                                    $number . '.' . $subNumber . '.' . $materialTypeNumber . '.' . $materialNumber . '. ' . $materialValue->standard_name,
-                                    $materialValue->quantity,
-                                    '',
-                                    '',
-                                    $materialValue->amount,
-                                    $materialValue->amount * $materialValue->quantity,
-                                    $materialValue->quantity * $materialValue->amount * $materialValue->weight,
-                                    $materialValue->comment
-                                ]);
-
-                                $this->styleRulesArray[] = ['styleName'=>'materialData', 'lineNumber'=>$lineNumber, 'accountingType'=>$materialStandardValue[0]->accounting_type];
-
-                                $materialSummaryLines[] = 'columnLetter'.$lineNumber;
-
-                                $materialNumber++;
-                                $lineNumber++;
-                            }
-                            break;
-                        default:
-                            $length = '';
-                            $area = '';
-                            $volume = '';
-                            $amount = $materialStandardValue[0]->amount;
-
-                            switch ($materialStandardValue[0]->measure_unit) {
-                                case 1: //м.п
-                                    $length = $materialStandardValue[0]->quantity;
-                                    $commonLength = $materialStandardValue[0]->quantity * $materialStandardValue[0]->amount;
-                                    break;
-                                case 2:	//м²
-                                    $area = $materialStandardValue[0]->quantity;
-                                    break;
-                                case 3:	//м³
-                                    $volume = $materialStandardValue[0]->quantity;
-                                    break;
-                            }
-
-                            switch ($materialStandardValue[0]->measure_unit) {
-                                case 5:
-                                    $mass = $materialStandardValue[0]->quantity;
-                                    break;
-                                default:
-                                    $mass = $materialStandardValue[0]->quantity * $materialStandardValue[0]->amount * $materialStandardValue[0]->weight;
-                            }
-
-                            $results->push(['',
-                                '',
-                                '',
-                                '',
-                                '',
-                                $number . '.' . $subNumber . '.' . $materialTypeNumber . '. ' . $materialStandardValue[0]->standard_name,
-                                $length,
-                                $area,
-                                $volume,
-                                $amount,
-                                $commonLength,
-                                $mass
-                            ]);
-
-                            $this->styleRulesArray[] = ['styleName'=>'materialData', 'lineNumber'=>$lineNumber, 'accountingType'=>$materialStandardValue[0]->accounting_type];
-
-                            $materialStandardSummaryLines[] = 'columnLetter'.$lineNumber;
-
-                            $lineNumber++;
-                    }
-                    $materialTypeNumber++;
-
-                    switch($materialStandardValue[0]->accounting_type) {
-                        case 2:
-                            $results->push(['',
-                                '',
-                                '',
-                                '',
-                                '',
-                                '',
-                                '',
-                                '='.str_replace('columnLetter', 'H', implode('+', $materialSummaryLines)),
-                                '='.str_replace('columnLetter', 'I', implode('+', $materialSummaryLines)),
-                                '='.str_replace('columnLetter', 'J', implode('+', $materialSummaryLines)),
-                                '='.str_replace('columnLetter', 'K', implode('+', $materialSummaryLines)),
-                                '='.str_replace('columnLetter', 'L', implode('+', $materialSummaryLines))]);
-
-                            $this->styleRulesArray[] = ['styleName'=>'materialStandardGroupFooter', 'lineNumber'=>$lineNumber];
-                            $materialStandardSummaryLines[] = 'columnLetter'.$lineNumber;
-                            $lineNumber++;
-                            break;
-                    }
-                }
-
-                $results->push(['',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '='.str_replace('columnLetter', 'H', implode('+', $materialStandardSummaryLines)),
-                    '='.str_replace('columnLetter', 'I', implode('+', $materialStandardSummaryLines)),
-                    '='.str_replace('columnLetter', 'J', implode('+', $materialStandardSummaryLines)),
-                    '='.str_replace('columnLetter', 'K', implode('+', $materialStandardSummaryLines)),
-                    '='.str_replace('columnLetter', 'L', implode('+', $materialStandardSummaryLines))]);
-
-                $this->styleRulesArray[] = ['styleName'=>'materialTypeGroupFooter', 'lineNumber'=>$lineNumber];
-                $objectsSummaryLineNumbers[] = 'columnLetter'.$lineNumber;
-                $lineNumber++;
-
-                $subNumber++;
+            if ($prevOperationId == 0) {
+                $prevOperationId = $material['id'];
             }
 
-            $results->push(['',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '='.str_replace('columnLetter', 'H', implode('+', $objectsSummaryLineNumbers)),
-                '='.str_replace('columnLetter', 'I', implode('+', $objectsSummaryLineNumbers)),
-                '='.str_replace('columnLetter', 'J', implode('+', $objectsSummaryLineNumbers)),
-                '='.str_replace('columnLetter', 'K', implode('+', $objectsSummaryLineNumbers)),
-                '='.str_replace('columnLetter', 'L', implode('+', $objectsSummaryLineNumbers))]);
+            $borders = null;
 
-            $this->styleRulesArray[] = ['styleName'=>'objectGroupFooter', 'lineNumber'=>$lineNumber];
-            $lineNumber ++;
+            if ($prevOperationId == $material['id']) {
+                $borders = [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => array('rgb' => '303030'),
+                    ],
+                ];
+            } else {
+                $borders = [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => array('rgb' => '303030'),
+                    ],
+                    'top' => [
+                        'borderStyle' => Border::BORDER_THICK,
+                        'color' => array('rgb' => '868686'),
+                    ],
+                ];
+            }
+
+            $isMaterialHasLeftProjectObject = false;
+
+            switch ($material['operation_route_id']) {
+                case 2:
+                    if ($material['source_project_object_id'] == $this->projectObjectId) {
+                        $isMaterialHasLeftProjectObject = true;
+                    }
+                    break;
+                case 3:
+                    if ($material['transform_operation_stage_id'] == 1) {
+                        $isMaterialHasLeftProjectObject = true;
+                    }
+                    break;
+                case 4:
+                    $isMaterialHasLeftProjectObject = true;
+                break;
+            }
+
+            if ($isMaterialHasLeftProjectObject) {
+                $fontStyle = [
+                    'color' => array('rgb' => '9C0006'),
+                ];
+                $fillStyle = [
+                    'fillType' => Fill::FILL_SOLID,
+                    'color' => array('rgb' => 'FCD5D4'),
+                ];
+            } else {
+                $fontStyle = [
+                    'color' => array('rgb' => '006100'),
+                ];
+                $fillStyle = [
+                    'fillType' => Fill::FILL_SOLID,
+                    'color' => array('rgb' => 'EBF1DE'),
+                ];
+            }
+
+            $prevOperationId = $material['id'];
+
+            $this->borderStyleRulesArray[$lineNumber] = ['borders' => $borders];
+            $this->colorStyleRulesArray[$lineNumber] = ['font' => $fontStyle,'fill' => $fillStyle];
 
             $number++;
+            $lineNumber ++;
         }
 
         $this->lastLineNumber = $lineNumber;
@@ -301,26 +206,31 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                //$event->sheet->setAutoFilter('C11:K11');
+                $event->sheet->setAutoFilter('A11:M11');
 
                 //Main header styles
-                $event->sheet->getDelegate()->mergeCells('C1:G3'); //image logo
-                $event->sheet->getDelegate()->mergeCells('C7:M7');
-                $event->sheet->getDelegate()->mergeCells('C8:M8');
-                $event->sheet->getDelegate()->mergeCells('C9:M9');
-                $event->sheet->getDelegate()->mergeCells('C10:M10');
-                $event->sheet->getDelegate()->mergeCells('C11:E11');
+                $event->sheet->getDelegate()->mergeCells('A1:G3'); //image logo
+                $event->sheet->getDelegate()->mergeCells('L1:M1');
+                $event->sheet->getDelegate()->mergeCells('L2:M2');
+                $event->sheet->getDelegate()->mergeCells('L3:M3');
+                $event->sheet->getDelegate()->mergeCells('L4:M4');
+                $event->sheet->getDelegate()->mergeCells('L5:M5');
+                $event->sheet->getDelegate()->mergeCells('A7:M7');
+                $event->sheet->getDelegate()->mergeCells('A8:M8');
+                $event->sheet->getDelegate()->mergeCells('A9:M9');
+                $event->sheet->getDelegate()->mergeCells('A10:M10');
 
                 $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(63);
 
-                $event->sheet->getDelegate()->getStyle('M2')->getAlignment()->setWrapText(true);
+                $event->sheet->getDelegate()->getStyle('L2')->getAlignment()->setWrapText(true);
 
-                $event->sheet->horizontalAlign('L3' , Alignment::HORIZONTAL_RIGHT);
-                $event->sheet->horizontalAlign('C7' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('C8:E10' , Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign('A7' , Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('K3' , Alignment::HORIZONTAL_RIGHT);
+                $event->sheet->horizontalAlign('A8:E10' , Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign('L1:M6' , Alignment::HORIZONTAL_LEFT);
                 $event->sheet->getDelegate()->getStyle('C10')->getAlignment()->setWrapText(true);
 
-                $event->sheet->getStyle('C7')
+                $event->sheet->getStyle('A7')
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
@@ -328,546 +238,45 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                     ]);
 
                 //Table headers
-                $event->sheet->getStyle('C11:M11')
+                $event->sheet->getStyle('A11:M11')
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
+
+                        ],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'color' => array('rgb' => 'B8CCE4')
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030'),
+                                'color' => array('rgb' => '303030')
                             ],
                         ]
                     ]);
 
-                if (!isset($this->styleRulesArray)){
+                if (!isset($this->borderStyleRulesArray)){
                     return;
                 }
 
-                foreach ($this->styleRulesArray as $styleRule) {
-                    switch ($styleRule['styleName']) {
-                        case 'objectGroup':
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'top' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ],
-                                    'font' => [
-                                        'bold' => true,
-                                        'color' => array('rgb' => '303030'),
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'BDCBD6'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'bottom' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'right' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-                            $event->sheet->horizontalAlign('C'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'], Alignment::HORIZONTAL_LEFT);
-                            break;
-                        case 'objectGroupFooter':
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'top' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-                                $event->sheet->getStyle('C'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                    ->applyFromArray([
-                                    'font' => [
-                                        'bold' => true,
-                                        'color' => array('rgb' => '303030'),
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'BDCBD6'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'bottom' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'right' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-                            $event->sheet->horizontalAlign('C'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'], Alignment::HORIZONTAL_RIGHT);
-
-                            $event->sheet->getStyle('L'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0.000');
-
-                            break;
-                        case 'materialTypeGroup':
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'top' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ],
-                                    'font' => [
-                                        'bold' => true
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'D8E4BC'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'bottom' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'right' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ]
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'BDCBD6'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->horizontalAlign('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_LEFT);
-                            break;
-                        case 'materialTypeGroupFooter':
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'top' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-                                $event->sheet->getStyle('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                    ->applyFromArray([
-                                    'font' => [
-                                        'bold' => true
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'D8E4BC'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'bottom' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'right' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ]
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'BDCBD6'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->horizontalAlign('D'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_RIGHT);
-
-                            $event->sheet->getStyle('L'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0.000');
-
-                            break;
-                        case 'materialstandardGroup':
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'top' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ],
-                                    'font' => [
-                                        'bold' => true
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'DBE9F4'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('F'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'bottom' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'right' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ]
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'BDCBD6'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'D8E4BC'),
-                                    ]
-                                ]);
-                            $event->sheet->horizontalAlign('E'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_LEFT);
-                            break;
-                        case 'materialStandardGroupFooter':
-                            $event->sheet->getStyle('F'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'top' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'font' => [
-                                        'bold' => true
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'DBE9F4'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('F'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'bottom' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'right' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ]
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'BDCBD6'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'D8E4BC'),
-                                    ]
-                                ]);
-                            $event->sheet->horizontalAlign('E'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_RIGHT);
-
-                            $event->sheet->getStyle('L'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0.000');
-
-                            break;
-                        case 'materialData':
-                            $event->sheet->getStyle('F'.$styleRule
-                                ['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'bottom' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('G'.$styleRule['lineNumber'].':M'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'allBorders' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('C'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ]
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'BDCBD6'),
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('E'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ]
-                                ]);
-
-                            $event->sheet->getStyle('D'.$styleRule['lineNumber'])
-                                ->applyFromArray([
-                                    'borders' => [
-                                        'left' => [
-                                            'borderStyle' => Border::BORDER_THIN,
-                                            'color' => array('rgb' => '303030'),
-                                        ],
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => 'D8E4BC'),
-                                    ]
-                                ]);
-
-                            switch ($styleRule['accountingType']) {
-                                case 2:
-                                    $event->sheet->getStyle('F'.$styleRule['lineNumber'])
-                                        ->applyFromArray([
-                                            'borders' => [
-                                                'left' => [
-                                                    'borderStyle' => Border::BORDER_THIN,
-                                                    'color' => array('rgb' => '303030'),
-                                                ],
-                                            ]
-                                        ]);
-                                    $event->sheet->getStyle('E'.$styleRule['lineNumber'])
-                                        ->applyFromArray([
-                                            'fill' => [
-                                                'fillType' => Fill::FILL_SOLID,
-                                                'color' => array('rgb' => 'DBE9F4'),
-                                            ]
-                                        ]);
-                                    break;
-                                default:
-                                    $event->sheet->getStyle('E'.$styleRule['lineNumber'])
-                                        ->applyFromArray([
-                                            'borders' => [
-                                                'bottom' => [
-                                                    'borderStyle' => Border::BORDER_THIN,
-                                                    'color' => array('rgb' => '303030'),
-                                                ],
-                                            ]
-                                        ]);
-                            }
-                            $event->sheet->horizontalAlign('F'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_LEFT);
-                            $event->sheet->horizontalAlign('M'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_LEFT);
-                            $event->sheet->horizontalAlign('G'.$styleRule['lineNumber'].':'.'L'.$styleRule['lineNumber'] , Alignment::HORIZONTAL_RIGHT);
-
-                            $event->sheet->getStyle('G'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0.00');
-                            $event->sheet->getStyle('H'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0.00');
-                            $event->sheet->getStyle('I'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0.00');
-                            $event->sheet->getStyle('J'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0');
-                            $event->sheet->getStyle('K'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0');
-                            $event->sheet->getStyle('L'.$styleRule['lineNumber'])->getNumberFormat()
-                                ->setFormatCode('0.000');
-                    }
-
-                    $event->sheet->getStyle('C'.($this->lastLineNumber - 1).':M'.($this->lastLineNumber - 1))
-                        ->applyFromArray([
-                            'borders' => [
-                                'bottom' => [
-                                    'borderStyle' => Border::BORDER_THIN,
-                                    'color' => array('rgb' => '303030'),
-                                ],
-                            ]
-                        ]);
+                foreach ($this->borderStyleRulesArray as $line => $style){
+                    $event->sheet->getStyle('A'.$line.':M'.$line)->applyFromArray($style);
                 }
+
+                foreach ($this->colorStyleRulesArray as $line => $style){
+                    $event->sheet->getStyle('C'.$line)->applyFromArray($style);
+                }
+
+                $event->sheet->getStyle('C'.($this->lastLineNumber - 1).':M'.($this->lastLineNumber - 1))
+                    ->applyFromArray([
+                        'borders' => [
+                            'bottom' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => array('rgb' => '303030')
+                            ],
+                        ]
+                    ]);
             }
         ];
     }
@@ -877,10 +286,10 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
      */
     public function title(): string
     {
-        return 'Отчет по материалам';
+        return 'Табель учета материалов';
     }
 
-    public function export($fileName = 'Отчет по объектам.xlsx')
+    public function export($fileName = 'Табель учета материалов.xlsx')
     {
         return $this->download($fileName);
     }
@@ -895,7 +304,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
         $drawing->setDescription('Logo');
         $drawing->setPath(public_path('/img/logosvg.png'));
         $drawing->setHeight(120);
-        $drawing->setCoordinates('C1');
+        $drawing->setCoordinates('A1');
 
         return $drawing;
     }
@@ -913,12 +322,15 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
     public function columnWidths(): array
     {
         return [
-            'A' => 2,
-            'B' => 2,
-            'C' => 2,
-            'D' => 2,
-            'E' => 2,
-            'M' => 18
+            'A' => 5,
+            'B' => 10,
+            'C' => 19,
+            'D' => 30,
+            'F' => 16,
+            'G' => 16,
+            'E' => 16,
+            'L' => 11,
+            'M' => 11
         ];
     }
 }
