@@ -1470,6 +1470,9 @@
                     case "lengthDocking":
                         result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
                         break;
+                    case "wedgeShapedProduction":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        break;
                     case "corningManufacturing":
                         let uniqueStandards = [];
 
@@ -1513,6 +1516,8 @@
                         return "lengthDocking";
                     case 3:
                         return "corningManufacturing";
+                    case 4:
+                        return "wedgeShapedProduction";
                     default:
                         return "none"
                 }
