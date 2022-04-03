@@ -144,7 +144,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if(Auth::id() == 1)
+                        @if(Auth::user()->is_su == 1)
                             <div class="form-group">
                                 <div class="row">
                                     <label class="col-sm-3 col-form-label">Telegram Chat ID</label>
@@ -201,7 +201,7 @@
                                         <div class="file-upload ">
                                             <label class="pull-right">
                                                 <span><i class="nc-icon nc-attach-87" style="font-size:25px; line-height: 40px"></i></span>
-                                                <input type="file" accept="image/*" name="user_image" onchange="getFileName();" id="uploadedFile">
+                                                <input type="file" accept="image/*" name="user_image" onchange="getFileName(this)" id="uploadedFile">
                                             </label>
                                         </div>
                                     </div>

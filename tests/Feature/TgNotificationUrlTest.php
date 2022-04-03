@@ -33,7 +33,7 @@ class TgNotificationUrlTest extends TestCase
     {
         $service = new NotificationService();
         $notif = Notification::create();
-        $message = "Заявка на технику №96 согласована и ожидает назначения на рейс. Автор заявки: Бургутин Ю. А. \n Ссылка на заявку: https://sk.restpa.ru/building/tech_acc/our_technic_tickets?ticket_id=96";
+        $message = "Заявка на технику №96 согласована и ожидает назначения на рейс. Автор заявки: Бургутин Ю. А. \n Ссылка на заявку: https://erp.sk-gorod.com/building/tech_acc/our_technic_tickets?ticket_id=96";
 
         $new_message = $service->replaceUrl($message, $notif->id);
 

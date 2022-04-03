@@ -531,69 +531,72 @@
                             message: 'Поле "Объект" обязательно для заполнения'
                         }]
                     },
-                        {
-                            name: "operationDateDateBox",
-                            dataField: "operation_date",
-                            colSpan: 1,
-                            label: {
-                                text: "Дата преобразования"
-                            },
-                            editorType: "dxDateBox",
-                            editorOptions: {
-                                value: Date.now()
-                            },
-                            validationRules: [{
-                                type: "required",
-                                message: 'Поле "Дата преобразования" обязательно для заполнения'
-                            }]
+                    {
+                        name: "operationDateDateBox",
+                        dataField: "operation_date",
+                        colSpan: 1,
+                        label: {
+                            text: "Дата преобразования"
                         },
-                        {
-                            name: "destinationResponsibleUserSelectBox",
-                            colSpan: 1,
-                            dataField: "responsible_user_id",
-                            label: {
-                                text: "Ответственный"
-                            },
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                dataSource: {
-                                    store: usersWithMaterialListAccessStore
-                                },
-                                displayExpr: "full_name",
-                                valueExpr: "id",
-                                searchEnabled: true,
-                                value: {{$currentUserId}}
-                            },
-                            validationRules: [{
-                                type: "required",
-                                message: 'Поле "Ответственный" обязательно для заполнения'
-                            }]
-
+                        editorType: "dxDateBox",
+                        editorOptions: {
+                            value: Date.now(),
+                            max: Date.now(),
+                            min: getMinDate(),
+                            readOnly: false
                         },
-                        {
-                            name: "transformationTypeSelectBox",
-                            colSpan: 1,
-                            dataField: "transformation_type_id",
-                            label: {
-                                text: "Тип преобразования"
-                            },
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                dataSource: materialTransformationTypesDataSource,
-                                displayExpr: "value",
-                                valueExpr: "id",
-                                searchEnabled: true,
-                                value: null,
-                                onValueChanged: () => {
-                                    repaintMaterialRemains();
-                                }
-                            },
-                            validationRules: [{
-                                type: "required",
-                                message: 'Поле "Тип преобразования" обязательно для заполнения'
-                            }]
-
+                        validationRules: [{
+                            type: "required",
+                            message: 'Поле "Дата преобразования" обязательно для заполнения'
                         }]
+                    },
+                    {
+                        name: "destinationResponsibleUserSelectBox",
+                        colSpan: 1,
+                        dataField: "responsible_user_id",
+                        label: {
+                            text: "Ответственный"
+                        },
+                        editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: {
+                                store: usersWithMaterialListAccessStore
+                            },
+                            displayExpr: "full_name",
+                            valueExpr: "id",
+                            searchEnabled: true,
+                            value: {{$currentUserId}}
+                        },
+                        validationRules: [{
+                            type: "required",
+                            message: 'Поле "Ответственный" обязательно для заполнения'
+                        }]
+
+                    },
+                    {
+                        name: "transformationTypeSelectBox",
+                        colSpan: 1,
+                        dataField: "transformation_type_id",
+                        label: {
+                            text: "Тип преобразования"
+                        },
+                        editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: materialTransformationTypesDataSource,
+                            displayExpr: "value",
+                            valueExpr: "id",
+                            searchEnabled: true,
+                            value: null,
+                            onValueChanged: () => {
+                                repaintMaterialRemains();
+                            }
+                        },
+                        validationRules: [{
+                            type: "required",
+                            message: 'Поле "Тип преобразования" обязательно для заполнения'
+                        }]
+
+                    }]
                 },
                     {
                         itemType: "group",
@@ -1467,6 +1470,9 @@
                     case "lengthDocking":
                         result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
                         break;
+                    case "wedgeShapedProduction":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        break;
                     case "corningManufacturing":
                         let uniqueStandards = [];
 
@@ -1510,9 +1516,17 @@
                         return "lengthDocking";
                     case 3:
                         return "corningManufacturing";
+                    case 4:
+                        return "wedgeShapedProduction";
                     default:
                         return "none"
                 }
+            }
+
+            function getMinDate() {
+                let minDate = new Date();
+
+                return minDate.setDate(minDate.getDate() - 3);
             }
         });
     </script>

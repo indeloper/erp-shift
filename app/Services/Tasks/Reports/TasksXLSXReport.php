@@ -40,18 +40,35 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
      */
     private $lastLineNumber;
 
-    public function __construct($tasks)
+    /**
+     * @var int`
+     */
+    private $reportType;
+
+    /**
+     * @param $tasks
+     * @param $reportType
+     */
+    public function __construct($tasks, $reportType)
     {
         $this->tasks = $tasks;
+        $this->reportType = $reportType;
     }
 
     public function headings(): array
     {
-        return [
-            [
-                'Отчет по задачам от '.Carbon::now()->format('d.m.Y')
-            ],
-            [
+        $headingArray = [];
+
+        if ($this->reportType == "tasks"){
+            $headingArray = [
+                '№ п/п',
+                'Работа',
+                'Адрес',
+                'Заказчик',
+                'Комментарий'
+            ];
+        } elseif ($this->reportType == "tasksAndMaterials"){
+            $headingArray = [
                 '№ п/п',
                 'Работа',
                 'Адрес',
@@ -60,7 +77,14 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                 'Комментарий',
                 'Номенклатура',
                 'Тоннаж'
-            ]
+            ];
+        }
+
+        return [
+            [
+                'Отчет по задачам от '.Carbon::now()->format('d.m.Y')
+            ],
+            $headingArray
         ];
     }
 
@@ -75,37 +99,58 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
         $commercialOfferMergeStartIndex = 3;
         $commercialOfferMergeEndIndex = 3;
 
-        foreach ($this->tasks as $task) {
-            foreach($task as $commercialOffer) {
-                foreach($commercialOffer as $material) {
-                    if ($material['revive_at']) {
-                        $commercialOfferTitle = $material['commercial_offers_title'].PHP_EOL.'Отложена до '.$material['revive_at'];
-                    } else {
-                        $commercialOfferTitle = $material['commercial_offers_title'];
-                    }
-                    $results->push([
-                        $taskNumber,
-                        $material['project_name'],
-                        $material['project_address'],
-                        $material['contractor_name'],
-                        $commercialOfferTitle,
-                        $material['final_note'],
-                        $material['material_name'],
-                        $material['material_count']
-                    ]);
-
-                    $taskMergeEndIndex++;
-                    $commercialOfferMergeEndIndex++;
+        if ($this->reportType == "tasks") {
+            foreach ($this->tasks as $task) {
+                if ($task['revive_at']) {
+                    $taskTitle = $task['project_name'].PHP_EOL.'Отложена до '.$task['revive_at'];
+                } else {
+                    $taskTitle = $task['project_name'];
                 }
-                $this->mergeCommercialOfferArray[] = [$commercialOfferMergeStartIndex, $commercialOfferMergeEndIndex - 1];
-                $commercialOfferMergeStartIndex = $commercialOfferMergeEndIndex;
-            }
-            $taskNumber++;
-            $this->mergeTaskArray[] = [$taskMergeStartIndex, $taskMergeEndIndex - 1];
-            $taskMergeStartIndex = $taskMergeEndIndex;
-        }
 
-        $this->lastLineNumber = $taskMergeEndIndex - 1;
+                $results->push([
+                    $taskNumber,
+                    $taskTitle,
+                    $task['project_address'],
+                    $task['contractor_name'],
+                    $task['final_note']
+                ]);
+
+                $taskNumber++;
+            }
+            $this->lastLineNumber = $taskNumber + 1;
+        } elseif ($this->reportType == "tasksAndMaterials") {
+            foreach ($this->tasks as $task) {
+                foreach($task as $commercialOffer) {
+                    foreach($commercialOffer as $material) {
+                        if ($material['revive_at']) {
+                            $commercialOfferTitle = $material['commercial_offers_title'].PHP_EOL.'Отложена до '.$material['revive_at'];
+                        } else {
+                            $commercialOfferTitle = $material['commercial_offers_title'];
+                        }
+                        $results->push([
+                            $taskNumber,
+                            $material['project_name'],
+                            $material['project_address'],
+                            $material['contractor_name'],
+                            $commercialOfferTitle,
+                            $material['final_note'],
+                            $material['material_name'],
+                            $material['material_count']
+                        ]);
+
+                        $taskMergeEndIndex++;
+                        $commercialOfferMergeEndIndex++;
+                    }
+                    $this->mergeCommercialOfferArray[] = [$commercialOfferMergeStartIndex, $commercialOfferMergeEndIndex - 1];
+                    $commercialOfferMergeStartIndex = $commercialOfferMergeEndIndex;
+                }
+                $taskNumber++;
+                $this->mergeTaskArray[] = [$taskMergeStartIndex, $taskMergeEndIndex - 1];
+                $taskMergeStartIndex = $taskMergeEndIndex;
+            }
+
+            $this->lastLineNumber = $taskMergeEndIndex - 1;
+        }
 
         return $results;
     }
@@ -117,24 +162,34 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                //$event->sheet->setAutoFilter('A2:D2');
+                $headerEndName = "A";
+                if ($this->reportType == "tasks") {
+                    $headerEndName = "E";
+                    $event->sheet->setAutoFilter('B2:E2');
+                } elseif ($this->reportType == "tasksAndMaterials") {
+                    $headerEndName = "H";
+                    $event->sheet->setAutoFilter('G2:H2');
+                }
+
                 //Main header styles
-                $event->sheet->getDelegate()->mergeCells('A1:H1');
+                $event->sheet->getDelegate()->mergeCells('A1:'.$headerEndName.'1');
 
-                // Cell Merging
-                foreach ($this->mergeTaskArray as $mergeArray){
-                    $event->sheet->getDelegate()->mergeCells('A'.$mergeArray[0].':A'.$mergeArray[1]);
-                    $event->sheet->getDelegate()->mergeCells('B'.$mergeArray[0].':B'.$mergeArray[1]);
-                    $event->sheet->getDelegate()->mergeCells('C'.$mergeArray[0].':C'.$mergeArray[1]);
-                    $event->sheet->getDelegate()->mergeCells('D'.$mergeArray[0].':D'.$mergeArray[1]);
+                if ($this->reportType == "tasksAndMaterials") {
+                    // Cell Merging
+                    foreach ($this->mergeTaskArray as $mergeArray) {
+                        $event->sheet->getDelegate()->mergeCells('A' . $mergeArray[0] . ':A' . $mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('B' . $mergeArray[0] . ':B' . $mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('C' . $mergeArray[0] . ':C' . $mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('D' . $mergeArray[0] . ':D' . $mergeArray[1]);
+                    }
+
+                    foreach ($this->mergeCommercialOfferArray as $mergeArray) {
+                        $event->sheet->getDelegate()->mergeCells('E' . $mergeArray[0] . ':E' . $mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('F' . $mergeArray[0] . ':F' . $mergeArray[1]);
+                    }
                 }
 
-                foreach ($this->mergeCommercialOfferArray as $mergeArray){
-                    $event->sheet->getDelegate()->mergeCells('E'.$mergeArray[0].':E'.$mergeArray[1]);
-                    $event->sheet->getDelegate()->mergeCells('F'.$mergeArray[0].':F'.$mergeArray[1]);
-                }
-
-                $event->sheet->getStyle('A1:H1')
+                $event->sheet->getStyle('A1:'.$headerEndName.'1')
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
@@ -152,7 +207,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                     ]);
 
                 //Table headers
-                $event->sheet->getStyle('A2:H2')
+                $event->sheet->getStyle('A2:'.$headerEndName.'2')
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
@@ -170,7 +225,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                     ]);
 
                 //Table data
-                $event->sheet->getStyle('A' . self::startLineNumber . ':H' . $this->lastLineNumber)
+                $event->sheet->getStyle('A' . self::startLineNumber . ':' . $headerEndName . $this->lastLineNumber)
                     ->applyFromArray([
                         'borders' => [
                             'allBorders' => [
@@ -184,7 +239,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                     ]);
 
                 $event->sheet->getDelegate()
-                    ->getStyle('A' . self::startLineNumber . ':H' . $this->lastLineNumber)
+                    ->getStyle('A' . self::startLineNumber . ':' . $headerEndName . $this->lastLineNumber)
                     ->getAlignment()
                     ->setWrapText(true);
             }

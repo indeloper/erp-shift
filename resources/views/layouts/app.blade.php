@@ -547,12 +547,12 @@
                 <nav>
                     <p class="copyright text-center">
                         <span>© {{ date('Y') }}</span>
-                        <a href="https://tucki.ru">Tucki</a>.
+                        <a href="https://sk-gorod.com">ООО «СК ГОРОД»</a>
                     </p>
                 </nav>
                 <nav>
                     <p class="copyright text-center">
-                        <a id="modal_open" data-toggle="modal" data-target="#support_modal" data-original-title="Написать в тех. поддержку" class="support-modal">Техническая поддержка</a>.
+                        <a id="modal_open" data-toggle="modal" data-target="#support_modal" data-original-title="Написать в тех. поддержку" class="support-modal">Техническая поддержка</a>
                     </p>
                 </nav>
             </footer>

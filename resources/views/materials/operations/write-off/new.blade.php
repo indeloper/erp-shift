@@ -362,6 +362,7 @@
                                 }
 
                                 let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.comment_id);
+
                                 writeOffMaterialDataSource.store().insert({
                                     id: new DevExpress.data.Guid().toString(),
                                     standard_id: material.standard_id,
@@ -372,8 +373,8 @@
                                     measure_unit_value: material.measure_unit_value,
                                     standard_weight: material.weight,
                                     quantity: Math.round(material.quantity * 100) / 100,
-                                    amount: material.amount,
-                                    comment: null,
+                                    amount: amount,
+                                    comment: material.comment,
                                     initial_comment_id: material.comment_id,
                                     initial_comment: material.comment,
                                     total_quantity: material.quantity,
@@ -765,7 +766,10 @@
                             },
                             editorType: "dxDateBox",
                             editorOptions: {
-                                value: Date.now()
+                                value: Date.now(),
+                                max: Date.now(),
+                                min: getMinDate(),
+                                readOnly: false
                             },
                             validationRules: [{
                                 type: "required",
@@ -797,7 +801,7 @@
                         }]
                 }, {
                     itemType: "group",
-                    caption: "Комментарий",
+                    caption: "Комментарий *",
                     items: [{
                         name: "newCommentTextArea",
                         dataField: "new_comment",
@@ -929,12 +933,16 @@
                         }
                         break;
                     default:
-                        filterConditions = ["standard_id", "=", standardId];
+                        filterConditions = [["standard_id", "=", standardId],
+                            "and",
+                            ["initial_comment_id", "=", initialCommentId]];
                 }
 
                 let filteredData = getWriteOffMaterialGrid().getDataSource().store().createQuery()
                     .filter(filterConditions)
                     .toArray();
+
+                console.log("filteredData", filteredData);
 
                 if (filteredData.length > 0) {
                     return filteredData[0].validationUid
@@ -1434,6 +1442,12 @@
 
                 files.splice(fileIndex, 0, fileUploader);
                 operationForm.itemOption("fileUploaderGroup", "items", getFileOptions());
+            }
+
+            function getMinDate() {
+                let minDate = new Date();
+
+                return minDate.setDate(minDate.getDate() - 3);
             }
 
             createAddMaterialsButton();

@@ -143,8 +143,6 @@ class q3wMaterialTransferOperationController extends Controller
 
     public function move(q3wMaterialOperation $operation)
     {
-        DB::beginTransaction();
-
         foreach ($operation->materials as $operationMaterial) {
             if (in_array("deletedByRecipient", json_decode($operationMaterial->edit_states))) {
                 continue;
@@ -299,8 +297,6 @@ class q3wMaterialTransferOperationController extends Controller
 
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->source_project_object_id));
         (new q3wMaterialSnapshot)->takeSnapshot($operation, ProjectObject::find($operation->destination_project_object_id));
-
-        DB::commit();
     }
 
     public function moveOperationToNextStage($operationId, $moveToConflict, $cancelled = false)
@@ -684,14 +680,6 @@ class q3wMaterialTransferOperationController extends Controller
 
         $operationRouteStage = 4;
 
-        if ($requestData['transfer_operation_initiator'] == 'none' || $requestData['transfer_operation_initiator'] == 'source') {
-            $operationRouteStage = 5;
-        }
-
-        if ($requestData['transfer_operation_initiator'] == 'destination') {
-            $operationRouteStage = 24;
-        }
-
         //Нужно проверить, что материал существует
         //Нужно проверить, что остаток будет большим, или равным нулю
         foreach ($requestData['materials'] as $inputMaterial) {
@@ -796,9 +784,20 @@ class q3wMaterialTransferOperationController extends Controller
             $uploadedFile->save();
         }
 
-        DB::commit();
+        if ($requestData['transfer_operation_initiator'] == 'none' || $requestData['transfer_operation_initiator'] == 'source') {
+            $operationRouteStage = 5;
+        }
+
+        if ($requestData['transfer_operation_initiator'] == 'destination') {
+            $operationRouteStage = 24;
+        }
+
+        $materialOperation->operation_route_stage_id = $operationRouteStage;
+        $materialOperation->save();
 
         $this->moveOperationToNextStage($materialOperation->id, false);
+
+        DB::commit();
 
         return response()->json([
             'result' => 'ok',
@@ -815,21 +814,10 @@ class q3wMaterialTransferOperationController extends Controller
     {
         $operation = q3wMaterialOperation::findOrFail($request->operationId);
         $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
-        $transferOperationInitiator = "none";
+        $transferOperationInitiator = $this->getTransferOperationInitiator($operation);
 
-        if (isset($operation->source_project_object_id)) {
-            $sourceProjectObjectId = $operation->source_project_object_id;
-            $transferOperationInitiator = "source";
-        } else {
-            $sourceProjectObjectId = 0;
-        }
-
-        if (isset($operation->destination_project_object_id)) {
-            $destinationProjectObjectId = $operation->destination_project_object_id;
-            $transferOperationInitiator = "destination";
-        } else {
-            $destinationProjectObjectId = 0;
-        }
+        $sourceProjectObjectId = $operation->source_project_object_id;
+        $destinationProjectObjectId = $operation->destination_project_object_id;
 
         $materials = DB::table('q3w_operation_materials as a')
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
@@ -914,6 +902,7 @@ class q3wMaterialTransferOperationController extends Controller
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                         ->get();
 
                     $material->total_amount = $material->total_amount - $activeOperationMaterialAmount->sum('amount');
@@ -925,6 +914,7 @@ class q3wMaterialTransferOperationController extends Controller
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                         ->get(DB::raw('sum(`quantity`) as quantity'))
                         ->first();
                     $material->total_quantity = $material->total_quantity - $activeOperationMaterialAmount->quantity;
@@ -1065,8 +1055,6 @@ class q3wMaterialTransferOperationController extends Controller
 
         $materialOperationComment->save();
 
-        DB::commit();
-
         if (in_array($operation->operation_route_stage_id, [11, 19, 30, 38])) {
             if (isset($requestData->userAction)) {
                 if ($requestData->userAction == "forceComplete") {
@@ -1079,6 +1067,12 @@ class q3wMaterialTransferOperationController extends Controller
         }
 
         $this->moveOperationToNextStage($operation->id, $moveToConflict);
+
+        $operation = q3wMaterialOperation::find($operation->id);
+        $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+        $materialOperationComment->save();
+
+        DB::commit();
     }
 
     /**
@@ -1115,15 +1109,15 @@ class q3wMaterialTransferOperationController extends Controller
     {
         switch ($operation->operation_route_stage_id) {
             case 6:
-                return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+                return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id) || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);;
             case 11:
-                return Auth::id() == $operation->destination_responsible_user_id || Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+                return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 19:
                 return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 25:
-                return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+                return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id) || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 30:
-                return Auth::id() == $operation->destination_responsible_user_id || Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+                return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 38:
                 return $this->isUserResponsibleForMaterialAccounting($operation->source_responsible_user_id);
             default:
@@ -1376,19 +1370,27 @@ class q3wMaterialTransferOperationController extends Controller
             DB::beginTransaction();
 
             if (isset($requestData->new_comment)) {
-                $materialOperationComment = new q3wOperationComment([
-                    'material_operation_id' => $operation->id,
-                    'operation_route_stage_id' => $operation->operation_route_stage_id,
-                    'comment' => $requestData->new_comment,
-                    'user_id' => Auth::id()
-                ]);
-
-                $materialOperationComment->save();
+                $commentText = $requestData->new_comment;
+            } else {
+                $commentText = self::EMPTY_COMMENT_TEXT;
             }
 
-            DB::commit();
+            $materialOperationComment = new q3wOperationComment([
+                'material_operation_id' => $operation->id,
+                'operation_route_stage_id' => $operation->operation_route_stage_id,
+                'comment' => $commentText,
+                'user_id' => Auth::id()
+            ]);
+
+            $materialOperationComment->save();
 
             $this->moveOperationToNextStage($operation->id, false, true);
+
+            $operation = q3wMaterialOperation::find($operation->id);
+            $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+            $materialOperationComment->save();
+
+            DB::commit();
         }
     }
 
@@ -1450,6 +1452,7 @@ class q3wMaterialTransferOperationController extends Controller
             ->leftJoin('q3w_materials as g', 'a.standard_id', '=', 'g.standard_id')
             ->leftJoin('q3w_operation_material_comments as j', 'a.comment_id', '=', 'j.id')
             ->where('a.material_operation_id', '=', $operation->id)
+            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->distinct()
             ->get(['a.id',
                 'a.standard_id',
@@ -1472,5 +1475,16 @@ class q3wMaterialTransferOperationController extends Controller
             'operationRouteStage' => $operationRouteStage,
             'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE)
         ]);
+    }
+
+    public function getTransferOperationInitiator(q3wMaterialOperation $operation): string
+    {
+        if (in_array($operation->operation_route_stage_id, [6, 11, 19])) {
+            return "source";
+        } elseif (in_array($operation->operation_route_stage_id, [25, 30, 38])) {
+            return "destination";
+        } else {
+            return "none";
+        }
     }
 }

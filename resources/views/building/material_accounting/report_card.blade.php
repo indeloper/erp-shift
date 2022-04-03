@@ -1817,7 +1817,7 @@
                         if (result.value) {
                             swal({
                                 title: "Опасно",
-                                text: "Последняя проверка, если вы не из команды разработки, свяжитесь, пожалуйста с tucki industrial.",
+                                text: "Последняя проверка, если вы не из команды разработки, свяжитесь, пожалуйста с отделом ИТ.",
                                 type: 'danger',
                                 showCancelButton: 'true',
                                 showConfirmButton: 'true',

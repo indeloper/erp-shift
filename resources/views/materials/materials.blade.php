@@ -14,68 +14,7 @@
             border-left: none !important;
         }
 
-        /*Snapshot tiles*/
-        .dx-item-content .dx-tile-content {
-            display: flex;
-        }
 
-        .snapshot-tile-icon {
-            width: 20%;
-            height: 100%;
-            border-right: 1px lightgray dashed;
-
-            text-align: center;
-        }
-
-        .snapshot-tile-icon > i {
-            line-height: 40px;
-
-            font-size: x-large;
-            font-weight: bold;
-        }
-
-        .snapshot-tile-icon > i.fa-sign-out-alt {
-            font-size: large;
-        }
-
-        .snapshot-tile-icon > i.fa-sign-in-alt {
-            font-size: large;
-        }
-
-        .snapshot-tile-icon > i.fa-random {
-            font-size: large;
-        }
-
-        i.fa-plus {
-            color: green;
-        }
-
-        i.fas.fa-sign-out-alt {
-            color: indianred;
-        }
-
-        i.fas.fa-sign-in-alt {
-            color: green;
-        }
-
-        i.fas.fa-random {
-            color: #6767ec
-        }
-
-        i.fas.fa-random.plus {
-            color: green
-        }
-
-        i.fas.fa-random.minus, i.fas.fa-minus {
-            color: indianred
-        }
-
-        .snapshot-tile-content {
-            width: 80%;
-            height: 100%;
-            padding: 4px;
-            text-align: right;
-        }
 
         .dx-form-group, .dx-tabpanel {
             background-color: #fff;
@@ -102,7 +41,7 @@
             float: right;
             margin-top: 4px;
             margin-right: 4px;
-            background: white;
+            background-color: white !important;
         }
 </style>
 @endsection
@@ -349,7 +288,7 @@
                         itemType: "group",
                         name: "projectObjectGroup",
                         caption: "Объект",
-                        height: 400,
+                        cssClass: "project-object-group",
                         items: [
                             {
                                 dataField: "project_object_id",
@@ -373,8 +312,6 @@
                                     onValueChanged: function (e) {
                                         projectObject = e.value;
                                         snapshotId = null;
-
-                                        console.log(e);
 
                                         updateProjectObjectDetailInfo(e.value);
 
@@ -406,6 +343,7 @@
                     },
                     {
                         itemType: "group",
+                        cssClass: "active-operations-group",
                         caption: "Активные операции",
                         name: "activeOperationGroup",
                         items: [{
@@ -417,8 +355,8 @@
                                 columnAutoWidth: false,
                                 showBorders: true,
                                 showColumnLines: true,
-                                height: 166,
                                 noDataText: "Активные операции отсутствуют",
+                                height: 244,
                                 columns: [
                                     {
                                         dataField: "id",
@@ -426,6 +364,7 @@
                                         caption: "Операция",
                                         width: "20%",
                                         showSpinButtons: true,
+
                                         cellTemplate: function (container, options) {
                                             let operationId = options.data.id;
                                             let operationUrl = options.data.url;
@@ -607,22 +546,22 @@
                                                 summaryType: "count",
                                                 displayFormat: "Количество: {0}",
                                             },
-                                                {
-                                                    column: "amount",
-                                                    summaryType: "sum",
-                                                    displayFormat: "Всего: {0} шт",
-                                                    showInGroupFooter: false,
-                                                    alignByColumn: true
+                                            {
+                                                column: "amount",
+                                                summaryType: "sum",
+                                                displayFormat: "Всего: {0} шт",
+                                                showInGroupFooter: false,
+                                                alignByColumn: true
+                                            },
+                                            {
+                                                column: "computed_weight",
+                                                summaryType: "sum",
+                                                customizeText: function (data) {
+                                                    return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
                                                 },
-                                                {
-                                                    column: "computed_weight",
-                                                    summaryType: "sum",
-                                                    customizeText: function (data) {
-                                                        return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
-                                                    },
-                                                    showInGroupFooter: false,
-                                                    alignByColumn: true
-                                                }],
+                                                showInGroupFooter: false,
+                                                alignByColumn: true
+                                            }],
                                             totalItems: [{
                                                 column: "computed_weight",
                                                 summaryType: "sum",
@@ -653,7 +592,7 @@
                                                             },*/
                                                             mode: "multiple",
                                                             selectAllMode: "allPages",
-                                                            showCheckBoxesMode: "always"
+                                                            //showCheckBoxesMode: "always"
                                                         },
                                                         columns: [
                                                             {
@@ -665,7 +604,7 @@
                                                                     let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
                                                                         options.data.source_project_object_id,
                                                                         options.data.destination_project_object_id,
-                                                                        options.data.transfer_operation_stage_id
+                                                                        options.data.transform_operation_stage_id
                                                                     );
 
                                                                     $(`<div><i class="${operationIcon}"></i></div>`)
@@ -880,7 +819,6 @@
 
                         break;
                     case 3:
-                        console.log(transferStageId);
                         switch (transferStageId) {
                             case 1:
                                 return 'fas fa-random minus';
@@ -896,12 +834,15 @@
             }
 
             function recalculateGUISizes() {
-                //console.log($(".dx-field-item-content.dx-field-item-content-location-bottom.dx-field-item-has-group").first().height());
-                /*console.log(projectObjectInfoForm.itemOption("projectObjectGroup").height);
-                console.log(projectObjectInfoForm.itemOption("activeOperationGroup").height)
-                let objectGroupHeight = projectObjectInfoForm.itemOption("projectObjectGroup").height
-                projectObjectInfoForm.itemOption("activeOperationGroup", "height", objectGroupHeight);
-                projectObjectInfoForm.updateDimensions();*/
+                let topContainersHeight = 280;
+
+                $(".project-object-group ").find(".dx-form-group-with-caption").height(topContainersHeight);
+                $(".active-operations-group").find(".dx-form-group-with-caption").height(topContainersHeight);
+                /*let projectObjectGroupInnerContentHeight = $(".project-object-group ").find('.dx-layout-manager.dx-widget').height()
+//                console.log("projectObjectGroupInnerContentHeight", projectObjectGroupInnerContentHeight);
+                $(".active-operations-group").find(".dx-datagrid").height(projectObjectGroupInnerContentHeight);
+                projectObjectInfoForm.refresh();*/
+                //$(".active-operations-group").find(".dx-datagrid").attr("style", "height: " + projectObjectGroupInnerContentHeight + "px");
             }
 
             function createOperationButtons(){

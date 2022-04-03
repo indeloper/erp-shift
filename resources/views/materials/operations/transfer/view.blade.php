@@ -58,6 +58,13 @@
             color: lightblue;
         }
 
+        .dx-link.fa-minus.deleted {
+            color: indianred;
+        }
+        .dx-link.fa-plus.added {
+            color: darkseagreen;
+        }
+
         .dx-form-group {
             background-color: #fff;
             border: 1px solid #cfcfcf;
@@ -99,6 +106,7 @@
     <script>
         $(function () {
             //<editor-fold desc="JS: DataSources">
+            let currentUserId = {{Auth::id()}};
             let operationData = {!! $operationData !!};
 
             let sourceProjectObjectId = {{$sourceProjectObjectId}};
@@ -857,26 +865,43 @@
                     type: "buttons",
                     width: 130,
                     buttons: [
+                            @if ($allowEditing)
                         {
                             template: function (container, options) {
                                 if (options.data.edit_states.indexOf("deletedByRecipient") === -1) {
                                     let validationUid = options.data.validationUid;
-                                    let validationDiv = $('<div class="row-validation-indicator"/>')
+                                    let validationDiv = $('<div class="row-validation-indicator"/>&nbsp;')
                                         .attr("validation-uid", validationUid)
 
                                     updateRowsValidationState([options.data], options.data.validationState, options.data.validationResult, validationDiv);
+                                    validationDiv.parent().append("&nbsp;");
                                     return validationDiv;
                                 }
                             }
                         },
-                            @if ($allowEditing)
+                            @endif
+
                         {
-                            icon: "fas fa-plus",
+                            hint: "Запись добавлена",
+                            icon: "fas fa-plus added",
                             visible: (e) => {
                                 return e.row.data.edit_states.indexOf("addedByRecipient") !== -1
                             }
                         },
-
+                        @if (!$allowEditing)
+                        {
+                            hint: "Запись удалена",
+                            icon: "fas fa-minus deleted",
+                            visible: (e) => {
+                                if (e.row.data.edit_states.indexOf("deletedByRecipient") !== -1) {
+                                    let rowElement = e.row.cells[0].cellElement.parent();
+                                    rowElement.css("color", "lightgrey");
+                                    return true
+                                }
+                            }
+                        },
+                        @endif
+                        @if ($allowEditing)
                         {
                             hint: "Отменить удаление",
                             icon: "dx-icon-revert deleted",
@@ -904,7 +929,14 @@
                                 return e.row.data.edit_states.indexOf("deletedByRecipient") === -1
                             },
                             onClick: (e) => {
-                                if (e.row.data.edit_states.indexOf("addedByInitiator") === -1) {
+                                console.log('e.row.data.edit_states.indexOf("addedByInitiator")', e.row.data.edit_states.indexOf("addedByInitiator"));
+                                console.log("transferOperationInitiator", transferOperationInitiator);
+                                console.log("operationData.destination_responsible_user_id", operationData.destination_responsible_user_id);
+                                console.log("operationData.source_responsible_user_id", operationData.source_responsible_user_id);
+                                console.log("currentUserId", currentUserId);
+                                if ((e.row.data.edit_states.indexOf("addedByInitiator") === -1) &&
+                                    ((transferOperationInitiator === "none" || transferOperationInitiator === "source") && operationData.destination_responsible_user_id === currentUserId) ||
+                                    (transferOperationInitiator === "destination" && operationData.source_responsible_user_id === currentUserId)) {
                                     e.component.deleteRow(e.row.rowIndex);
                                 } else {
                                     e.row.data.edit_states.push("deletedByRecipient");
@@ -938,10 +970,11 @@
                                 e.event.preventDefault();
                             }
                         },
+                        @endif
                         {
                             hint: "Комментарии",
                             icon: "fas fa-message",
-
+                            @if ($allowEditing)
                             template: (container, options) => {
                                 let accountingType;
 
@@ -1010,8 +1043,37 @@
                                 }
                                 return commentLink;
                             }
+                            @else
+                            template: (container, options) => {
+                                if (options.data.comment && options.data.comment !== options.data.initial_comment) {
+                                    let commentLink = $("<a>")
+                                        .attr("href", "#")
+                                        .attr("title", "Комментарий")
+                                        .addClass("dx-link dx-icon fas fa-comment dx-link-icon")
+                                        .mouseenter(function () {
+                                            let comment = "";
+
+                                            if (options.data.initial_comment) {
+                                                comment += `<b>Комментарий изменен:</b><br>${options.data.comment}`
+                                            } else {
+                                                comment += `<b>Комментарий добавлен:</b><br>${options.data.comment}`
+                                            }
+
+                                            let materialCommentPopover = $('#materialCommentTemplate');
+                                            materialCommentPopover.dxPopover({
+                                                position: "top",
+                                                width: 300,
+                                                contentTemplate: comment,
+                                                hideEvent: "mouseleave",
+                                            })
+                                                .dxPopover("instance")
+                                                .show($(this));
+                                        });
+                                    return commentLink;
+                                }
+                            }
+                            @endif
                         }
-                        @endif
                     ]
                 },
                 {
@@ -1045,6 +1107,7 @@
                                 divStandardName.addClass("standard-name-cell-with-comment");
                             }
 
+                            @if ($allowEditing)
                             let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${Math.round(options.data.quantity * 100) / 100}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
                                 .appendTo(container);
 
@@ -1061,6 +1124,7 @@
 
                                 return false;
                             });
+                            @endif
                         }
 
                         recalculateStandardsRemains(options.data.id);
@@ -1451,14 +1515,11 @@
                             colSpan: 1,
                             dataField: "consignment_note_number",
                             label: {
-                                text: "Номер ТТН"
+                                text: "Номер ТН"
                             },
-                            editorType: "dxNumberBox",
+                            editorType: "dxTextBox",
                             editorOptions: {
-                                readOnly: true,
-                                min: 0,
-                                format: "000000",
-                                showSpinButtons: false
+                                readOnly: true
                             }
                         }]
                 },
@@ -1577,7 +1638,7 @@
                                         '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
                                         '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
                                         '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
-                                        '<span class="dx-uploader-span">Фото ТТН</span>' +
+                                        '<span class="dx-uploader-span">Фото ТН</span>' +
                                         '</div>' +
                                         '<div id="upload-progress-1" class="upload-progress"></div>' +
                                         '</div>' +
@@ -1624,17 +1685,17 @@
                                                 console.log('fileHistoryGrid options', options);
                                                 let photoUrl = "";
 
-                                                if (options.data.data[0].photo) {
-                                                    photoUrl = `{{ asset('storage/img/user_images/') }}` + options.data.data[0].photo;
+                                                if (options.data.data[0].image) {
+                                                    photoUrl = `{{ asset('storage/img/user_images') }}/` + options.data.data[0].image;
                                                 } else {
                                                     photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
                                                 }
 
                                                 let authorName = options.data.data[0].last_name +
                                                     ' ' +
-                                                    options.data.data[0].first_name.substr(0, 1) +
+                                                    options.data.data[0].first_name.substring(0, 1) +
                                                     '. ' +
-                                                    options.data.data[0].patronymic.substr(0, 1) +
+                                                    options.data.data[0].patronymic.substring(0, 1) +
                                                     '.';
 
                                                 let commentDate = new Intl.DateTimeFormat('ru-RU', {
@@ -2264,12 +2325,12 @@
                     .prependTo(groupCaptionButtonsDiv)
             }
 
+            createAddMaterialsButton();
+            @endif
+
             function getTransferMaterialGrid() {
                 return operationForm.getEditor("transferMaterialGrid");
             }
-
-            createAddMaterialsButton();
-            @endif
         });
     </script>
 @endsection

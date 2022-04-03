@@ -387,11 +387,7 @@ class q3wMaterialWriteOffOperationController extends Controller
 
         $materialOperation->save();
 
-        if (isset($requestData['new_comment'])){
-            $newComment = $requestData['new_comment'];
-        } else {
-            $newComment = self::EMPTY_COMMENT_TEXT;
-        }
+        $newComment = $requestData['new_comment'] ?? self::EMPTY_COMMENT_TEXT;
 
         $materialOperationComment = new q3wOperationComment([
             'material_operation_id' => $materialOperation->id,
@@ -502,20 +498,6 @@ class q3wMaterialWriteOffOperationController extends Controller
             'allowCancelling' => $this->allowCancelling($operation),
             'routeStageId' => $operation->operation_route_stage_id
         ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @return void
-     */
-    public function update(Request $request)
-    {
-        DB::beginTransaction();
-        $requestData = json_decode($request["data"]);
-
-        dd($requestData->materials);
     }
 
     public function moveOperationToNextStage($operationId, $cancelled = false){
@@ -651,11 +633,7 @@ class q3wMaterialWriteOffOperationController extends Controller
 
         DB::beginTransaction();
 
-        if (isset($requestData->new_comment)){
-            $newComment = $requestData->new_comment;
-        } else {
-            $newComment = self::EMPTY_COMMENT_TEXT;
-        }
+        $newComment = $requestData->new_comment ?? self::EMPTY_COMMENT_TEXT;
 
         $materialOperationComment = new q3wOperationComment([
             'material_operation_id' => $operation->id,
@@ -675,6 +653,10 @@ class q3wMaterialWriteOffOperationController extends Controller
 
         $this->moveOperationToNextStage($operation->id);
 
+        $operation = q3wMaterialOperation::find($operation->id);
+        $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+        $materialOperationComment->save();
+
         DB::commit();
     }
 
@@ -685,11 +667,7 @@ class q3wMaterialWriteOffOperationController extends Controller
         if ($this->allowCancelling($operation)){
             DB::beginTransaction();
 
-            if (isset($requestData->new_comment)){
-                $newComment = $requestData->new_comment;
-            } else {
-                $newComment = self::EMPTY_COMMENT_TEXT;
-            }
+            $newComment = $requestData->new_comment ?? self::EMPTY_COMMENT_TEXT;
 
             $materialOperationComment = new q3wOperationComment([
                 'material_operation_id' => $operation->id,
@@ -708,6 +686,10 @@ class q3wMaterialWriteOffOperationController extends Controller
             }
 
             $this->moveOperationToNextStage($operation->id, true);
+
+            $operation = q3wMaterialOperation::find($operation->id);
+            $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+            $materialOperationComment->save();
 
             DB::commit();
         }
@@ -813,6 +795,7 @@ class q3wMaterialWriteOffOperationController extends Controller
             ->leftJoin('q3w_materials as g', 'a.standard_id', '=', 'g.standard_id')
             ->leftJoin('q3w_operation_material_comments as j', 'a.comment_id', '=', 'j.id')
             ->where('a.material_operation_id', '=', $operation->id)
+            ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->distinct()
             ->get(['a.id',
                 'a.standard_id',

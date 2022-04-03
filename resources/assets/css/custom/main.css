@@ -24,7 +24,7 @@
     max-height: 100%;
 }
 .dropzone-text > span {
-    font-weight: 100;
+    font-weight: 500;
     opacity: 0.8;
     text-align: center;
 }
@@ -161,4 +161,67 @@ div.dx-datagrid-header-panel{
 .cell-end-ellipses {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/*Snapshot tiles and operation icons*/
+.dx-item-content .dx-tile-content {
+    display: flex;
+}
+
+.snapshot-tile-icon {
+    width: 20%;
+    height: 100%;
+    border-right: 1px lightgray dashed;
+
+    text-align: center;
+}
+
+.snapshot-tile-icon > i {
+    line-height: 40px;
+
+    font-size: x-large;
+    font-weight: bold;
+}
+
+.snapshot-tile-icon > i.fa-sign-out-alt {
+    font-size: large;
+}
+
+.snapshot-tile-icon > i.fa-sign-in-alt {
+    font-size: large;
+}
+
+.snapshot-tile-icon > i.fa-random {
+    font-size: large;
+}
+
+i.fa-plus {
+    color: green;
+}
+
+i.fas.fa-sign-out-alt {
+    color: indianred;
+}
+
+i.fas.fa-sign-in-alt {
+    color: green;
+}
+
+i.fas.fa-random {
+    color: #6767ec
+}
+
+i.fas.fa-random.plus {
+    color: green
+}
+
+i.fas.fa-random.minus, i.fas.fa-minus {
+    color: indianred
+}
+
+.snapshot-tile-content {
+    width: 80%;
+    height: 100%;
+    padding: 4px;
+    text-align: right;
 }

@@ -168,7 +168,7 @@ trait DevExtremeDataSourceLoadable
      * @param object $loadOption
      * @return Builder|static
      */
-    public function dxLoadOptions($loadOption)
+    public function dxLoadOptions($loadOption, $useHavingInsteadOfWhere = false)
     {
         $result = $this::query();
 
@@ -187,7 +187,7 @@ trait DevExtremeDataSourceLoadable
         }
 
         if (isset($loadOption->filter) && count($loadOption->filter) != 0) {
-            $this->appendFilter($result, $loadOption->filter);
+            $this->appendFilter($result, $loadOption->filter, '', $useHavingInsteadOfWhere);
 
         }
         return $result;

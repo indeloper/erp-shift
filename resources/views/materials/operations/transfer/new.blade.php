@@ -883,8 +883,10 @@
                             },
                             editorType: "dxDateBox",
                             editorOptions: {
-                                value: transferOperationInitiator === "source" ? Date.now() : null,
-                                readOnly: transferOperationInitiator === "source" ? true : false,
+                                value: Date.now(),
+                                max: Date.now(),
+                                min: getMinDate(),
+                                readOnly: false,
                             },
                             validationRules: [{
                                 type: transferOperationInitiator !== "destination" ? "required" : "",
@@ -979,28 +981,15 @@
                             }]
                         },
                         {
-                            name: "consignmentNoteNumberNumberBox",
+                            name: "consignmentNoteNumberTextBox",
                             dataField: "consignment_note_number",
                             label: {
-                                text: "Номер ТТН"
+                                text: "Номер ТН"
                             },
-                            editorType: "dxNumberBox",
-                            editorOptions: {
-                                min: 0,
-                                format: "000000",
-                                showSpinButtons: false,
-                                value: null
-                            },
+                            editorType: "dxTextBox",
                             validationRules: [{
                                 type: "required",
-                                message: 'Поле "Номер ТТН" обязательно для заполнения'
-                            },
-                            {
-                                type: "async",
-                                message: 'Поле "Номер ТТН" должно быть уникальным',
-                                validationCallback: function(params) {
-                                    return validateConsignmentNumberUnique(params.value);
-                                }
+                                message: 'Поле "Номер ТН" обязательно для заполнения'
                             }]
                         }]
                 },
@@ -1043,7 +1032,7 @@
                                 '<div id="dropzone-external-1" class="dx-uploader-flex-box dx-theme-border-color dropzone-external">' +
                                 '<img id="dropzone-image-1" class="dropzone-image" src="#" hidden alt="" />' +
                                 '<div id="dropzone-text-1" class="dx-uploader-flex-box dropzone-text">' +
-                                '<span class="dx-uploader-span">Фото ТТН</span>' +
+                                '<span class="dx-uploader-span">Фото ТН</span>' +
                                 '</div>' +
                                 '<div id="upload-progress-1" class="upload-progress"></div>' +
                                 '</div>' +
@@ -1573,7 +1562,7 @@
                 operationForm.getEditor("destinationProjectObjectSelectBox").option("disabled", state);
                 //operationForm.getEditor("operationDateEndDateBox").option("disabled", state);
                 operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
-                operationForm.getEditor("consignmentNoteNumberNumberBox").option("disabled", state);
+                operationForm.getEditor("consignmentNoteNumberTextBox").option("disabled", state);
                 operationForm.getEditor("newCommentTextArea").option("disabled", state);
             }
 
@@ -1611,15 +1600,6 @@
                 DevExpress.ui.dialog.alert(htmlMessage, "Обнаружены ошибки");
             }
 
-            function validateConsignmentNumberUnique(value){
-                return $.ajax({
-                    url: "{{route('material.consignment-number.validate')}}",
-                    data: {
-                        consignmentNumber: value,
-                    }
-                })
-            }
-
             function createAddMaterialsButton(){
                 let groupCaption = $('.materials-grid').find('.dx-form-group-with-caption');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
@@ -1645,6 +1625,12 @@
 
             function getTransferMaterialGrid() {
                 return operationForm.getEditor("transferMaterialGrid");
+            }
+
+            function getMinDate() {
+                let minDate = new Date();
+
+                return minDate.setDate(minDate.getDate() - 3);
             }
 
             createAddMaterialsButton();

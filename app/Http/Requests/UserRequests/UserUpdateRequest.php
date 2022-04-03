@@ -86,7 +86,7 @@ class UserUpdateRequest extends FormRequest
             'password' => $this->password ? 'min:7|regex:/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/' : '',
             'password_confirmation' => 'same:password',
             'status' => 'boolean',
-            'user_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'user_image' => 'mimes:jpeg,png,jpg,gif,svg|max:5120',
             'chat_id' => 'nullable|string|max:50',
         ];
     }
