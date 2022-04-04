@@ -177,6 +177,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::get('/get_authors_for_defects', 'UserController@get_authors_for_defects')->name('get_authors_for_defects');
         Route::get('/get_foreman_for_brigades', 'UserController@getBrigadeForemans')->name('get_foreman_for_brigades');
         Route::get('/get_responsible_users_for_defects', 'UserController@get_responsible_users_for_defects')->name('get_responsible_users_for_defects');
+        Route::get('/getUserSetting', 'UserController@getSetting')->name('get-user-setting');
 
         Route::post('/store', 'UserController@store')->name('store')->middleware('can:users_create');
         Route::post('/update/{id}', 'UserController@update')->name('update');
@@ -189,6 +190,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('/add_permissions', 'UserController@add_permissions')->name('add_permissions')->middleware('can:users_permissions');
         Route::post('/update_job_category', 'UserController@updateJobCategory')->name('update_job_category');
         Route::post('users_paginated', 'UserController@getUsersPaginated')->name('paginated');
+        Route::post('/setUserSetting', 'UserController@setSetting')->name('set-user-setting');
     });
 
     Route::group(['prefix' => 'notifications', 'as' => 'notifications::', 'namespace' => "Common"], function () {

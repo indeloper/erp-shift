@@ -10,8 +10,7 @@ use App\Http\Requests\UserRequests\{UserCreateRequest,
     UserUpdatePasswordRequest,
     UserJobCategoryUpdate};
 
-use App\Models\{
-    User,
+use App\Models\{User,
     Group,
     UserPermission,
     GroupPermission,
@@ -19,7 +18,8 @@ use App\Models\{
     Department,
     FileEntry,
     Project,
-    ProjectResponsibleUser};
+    ProjectResponsibleUser,
+    UsersSetting};
 use App\Models\Notifications\UserDisabledNotifications;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\Vacation\VacationsHistory;
@@ -623,5 +623,17 @@ class UserController extends Controller
         }
 
         return response()->json($users_json);
+    }
+
+    public function getSetting(Request $request){
+        $codename = json_decode($request['data'])->codename;
+        return (new UsersSetting)->getSetting($codename)->toJSON();
+    }
+
+    public function setSetting(Request $request){
+        $codename = json_decode($request['data'])->codename;
+        $value = json_decode($request['data'])->value;
+
+        (new UsersSetting)->setSetting($codename, $value);
     }
 }

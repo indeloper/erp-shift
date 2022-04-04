@@ -12,6 +12,7 @@ use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use App\Models\UsersSetting;
 use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -28,12 +29,14 @@ class q3wMaterialController extends Controller
      */
     public function index(Request $request)
     {
-        $projectObjectId = $request->project_object ?? ProjectObject::whereNotNull('short_name')
-                ->where('is_participates_in_material_accounting', '=', 1)
-                ->orderBy("short_name")
-                ->get(['id'])
-                ->first()->id;
-
+        $projectObjectId = (new UsersSetting)->getSetting('material_accounting_last_project_object_id');
+        if (!isset($projectObjectId)){
+            $projectObjectId = $request->project_object ?? ProjectObject::whereNotNull('short_name')
+                    ->where('is_participates_in_material_accounting', '=', 1)
+                    ->orderBy("short_name")
+                    ->get(['id'])
+                    ->first()->id;
+        }
         return view('materials.materials')->with([
             'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
             'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
@@ -238,6 +241,7 @@ class q3wMaterialController extends Controller
     {
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
+            (new UsersSetting)->setSetting('material_accounting_last_project_object_id', $projectObjectId);
         } else {
             $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
         }
