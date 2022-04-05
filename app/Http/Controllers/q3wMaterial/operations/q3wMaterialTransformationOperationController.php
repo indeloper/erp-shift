@@ -617,15 +617,17 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->where('quantity', $materialQuantity)
                     ->where(function ($query) use ($materialAfterTransferComment) {
                         if (!empty($materialAfterTransferComment)) {
-                            $query->where('comment', '=', $materialAfterTransferComment);
+                            $query->where('comment', 'like', $materialAfterTransferComment);
                         } else {
                             $query->whereNull('comment_id');
                         }
                     })
+                    ->get('q3w_materials.*')
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
+                    ->get('q3w_materials.*')
                     ->first();
             }
 
@@ -636,8 +638,6 @@ class q3wMaterialTransformationOperationController extends Controller
                     $material->amount = 1;
                     $material->quantity = $material->quantity + $materialQuantity * $materialAmount;
                 }
-
-                $material -> save();
             } else {
                 if (!empty($materialAfterTransferComment)) {
                     $materialComment = new q3wMaterialComment([
@@ -657,17 +657,8 @@ class q3wMaterialTransformationOperationController extends Controller
                     'quantity' => $materialQuantity,
                     'comment_id' => $materialCommentId
                 ]);
-
-                if ($materialType->accounting_type == 2) {
-                    $material->amount = $materialAmount;
-                    $material->quantity = $materialQuantity;
-                } else {
-                    $material->amount = 1;
-                    $material->quantity = $materialQuantity * $materialAmount;
-                }
-
-                $material->save();
             }
+            $material->save();
         }
 
         $materialsRemains = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
@@ -693,11 +684,12 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->where('quantity', $materialQuantity)
                     ->where(function ($query) use ($materialRemainsComment) {
                         if (!empty($materialRemainsComment)) {
-                            $query->where('comment', '=', $materialRemainsComment);
+                            $query->where('comment', 'like', $materialRemainsComment);
                         } else {
                             $query->whereNull('comment_id');
                         }
                     })
+                    ->get('q3w_materials.*')
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
@@ -713,7 +705,6 @@ class q3wMaterialTransformationOperationController extends Controller
                     $material->quantity = $material->quantity + $materialQuantity * $materialAmount;
                 }
 
-                $material -> save();
             } else {
                 if (!empty($materialRemainsComment)) {
                     $materialComment = new q3wMaterialComment([
@@ -734,16 +725,8 @@ class q3wMaterialTransformationOperationController extends Controller
                     'comment_id' => $materialCommentId
                 ]);
 
-                if ($materialType->accounting_type == 2) {
-                    $material->amount = $materialAmount;
-                    $material->quantity = $materialQuantity;
-                } else {
-                    $material->amount = 1;
-                    $material->quantity = $materialQuantity * $materialAmount;
-                }
-
-                $material->save();
             }
+            $material->save();
         }
     }
 
@@ -762,11 +745,7 @@ class q3wMaterialTransformationOperationController extends Controller
 
         $this->move($operation);
 
-        if (isset($requestData->new_comment)) {
-            $commentText = $requestData->new_comment;
-        } else {
-            $commentText = self::EMPTY_COMMENT_TEXT;
-        }
+        $commentText = $requestData->new_comment ?? self::EMPTY_COMMENT_TEXT;
 
         $materialOperationComment = new q3wOperationComment([
             'material_operation_id' => $operation->id,
