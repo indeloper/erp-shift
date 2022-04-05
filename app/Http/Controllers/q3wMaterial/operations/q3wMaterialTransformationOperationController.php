@@ -604,14 +604,15 @@ class q3wMaterialTransformationOperationController extends Controller
             $materialAmount = $materialAfterTransfer['amount'];
             $materialQuantity = $materialAfterTransfer['quantity'];
 
-            if (empty($materialAfterTransfer['comment'])) {
+            if (empty($materialAfterTransfer['comment_id'])) {
                 $materialAfterTransferComment = null;
             } else {
-                $materialAfterTransferComment = $materialAfterTransfer['comment'];
+                $materialAfterTransferComment = q3wOperationMaterialComment::find($materialAfterTransfer['comment_id'])->comment;
             }
 
             if ($materialType->accounting_type == 2) {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $materialQuantity)
                     ->where(function ($query) use ($materialAfterTransferComment) {
@@ -621,10 +622,12 @@ class q3wMaterialTransformationOperationController extends Controller
                             $query->whereNull('comment_id');
                         }
                     })
+                    ->get('q3w_materials.*')
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
+                    ->get('q3w_materials.*')
                     ->first();
             }
 
@@ -668,14 +671,15 @@ class q3wMaterialTransformationOperationController extends Controller
             $materialAmount = $materialRemains['amount'];
             $materialQuantity = $materialRemains['quantity'];
 
-            if (empty($materialRemains['comment'])) {
+            if (empty($materialRemains['comment_id'])) {
                 $materialRemainsComment = null;
             } else {
-                $materialRemainsComment = $materialRemains['comment_id'];
+                $materialRemainsComment = q3wOperationMaterialComment::find($materialRemains['comment_id'])->comment;
             }
 
             if ($materialType->accounting_type == 2) {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $materialQuantity)
                     ->where(function ($query) use ($materialRemainsComment) {
@@ -685,6 +689,7 @@ class q3wMaterialTransformationOperationController extends Controller
                             $query->whereNull('comment_id');
                         }
                     })
+                    ->get('q3w_materials.*')
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
