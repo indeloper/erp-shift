@@ -19,9 +19,15 @@ class UsersSetting extends Model
     }
 
     public function getSetting($codename){
-        return $this->where('codename', 'like', $codename)
+        $setting = $this->where('codename', 'like', $codename)
             ->where('user_id', '=', Auth::id())
-            ->first()
-            ->value;
+            ->first();
+
+        if (isset($setting))
+        {
+            return $setting->value;
+        } else {
+            return null;
+        }
     }
 }
