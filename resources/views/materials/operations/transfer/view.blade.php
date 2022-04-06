@@ -195,8 +195,6 @@
                         validateMaterialList(false, false);
                         isTransferMaterialStoreBeenAlreadyLoaded = true;
                     }
-
-                    console.log("transferMaterialData", transferMaterialData);
                 }
             })
             let transferMaterialDataSource = new DevExpress.data.DataSource({
@@ -633,16 +631,9 @@
                                 },
                                 cellTemplate: function (container, options) {
 
-                                    let quantity;
-                                    let amount;
+                                    let quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
+                                    let amount = options.data.amount ? options.data.amount + " " : "";
 
-                                    if (transferOperationInitiator === "destination") {
-                                        quantity = "";
-                                        amount = "";
-                                    } else {
-                                        quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
-                                        amount = options.data.amount ? options.data.amount + " " : "";
-                                    }
                                     switch (options.data.accounting_type) {
                                         case 1:
                                         case 2:
@@ -689,7 +680,6 @@
                             onSelectionChanged: function (e) {
                                 selectedMaterialStandardsListDataSource.store().clear();
                                 e.selectedRowsData.forEach(function (selectedRowItem) {
-                                    console.log("selectedRowItem", selectedRowItem);
                                     selectedMaterialStandardsListDataSource.store().insert(selectedRowItem)
                                 })
 
@@ -698,29 +688,32 @@
                             onToolbarPreparing: function (e) {
                                 let dataGrid = e.component;
 
-                                e.toolbarOptions.items.unshift(
-                                    {
-                                        location: "before",
-                                        template: function () {
-                                            return $("<div/>")
-                                                .dxCheckBox({
-                                                    value: false,
-                                                    width: "auto",
-                                                    text: "Показать все материалы",
-                                                    rtlEnabled: true,
-                                                    onValueChanged: (e) => {
-                                                        if (e.value) {
-                                                            dataGrid.option("dataSource", allMaterialsWithActualAmountDataSource)
-                                                            allMaterialsWithActualAmountDataSource.reload();
-                                                        } else {
-                                                            dataGrid.option("dataSource", availableMaterialsDataSource)
-                                                            availableMaterialsDataSource.reload();
+                                if (transferOperationInitiator !== 'destination') {
+                                    e.toolbarOptions.items.unshift(
+                                        {
+                                            location: "before",
+                                            template: function () {
+                                                return $("<div/>")
+                                                    .dxCheckBox({
+                                                        value: false,
+                                                        width: "auto",
+                                                        text: "Показать все материалы",
+                                                        rtlEnabled: true,
+                                                        onValueChanged: (e) => {
+                                                            if (e.value) {
+                                                                dataGrid.option("dataSource", allMaterialsWithActualAmountDataSource)
+                                                                allMaterialsWithActualAmountDataSource.reload();
+                                                            } else {
+                                                                dataGrid.option("dataSource", availableMaterialsDataSource)
+                                                                availableMaterialsDataSource.reload();
+                                                            }
                                                         }
-                                                    }
 
-                                                });
+                                                    });
+                                            }
                                         }
-                                    });
+                                    );
+                                }
                             }
                         }
                     }]
@@ -800,7 +793,6 @@
                                 let selectedMaterialsData = materialsStandardsAddingForm.getEditor("selectedMaterialsList").option("items");
 
                                 selectedMaterialsData.forEach(function (material) {
-                                    console.log("material", material);
                                     let quantity;
                                     let amount = null;
 
@@ -929,14 +921,9 @@
                                 return e.row.data.edit_states.indexOf("deletedByRecipient") === -1
                             },
                             onClick: (e) => {
-                                console.log('e.row.data.edit_states.indexOf("addedByInitiator")', e.row.data.edit_states.indexOf("addedByInitiator"));
-                                console.log("transferOperationInitiator", transferOperationInitiator);
-                                console.log("operationData.destination_responsible_user_id", operationData.destination_responsible_user_id);
-                                console.log("operationData.source_responsible_user_id", operationData.source_responsible_user_id);
-                                console.log("currentUserId", currentUserId);
                                 if ((e.row.data.edit_states.indexOf("addedByInitiator") === -1) &&
                                     ((transferOperationInitiator === "none" || transferOperationInitiator === "source") && operationData.destination_responsible_user_id === currentUserId) ||
-                                    (transferOperationInitiator === "destination" && operationData.source_responsible_user_id === currentUserId)) {
+                                    (transferOperationInitiator === "destination" && operationData.destination_responsible_user_id === currentUserId)) {
                                     e.component.deleteRow(e.row.rowIndex);
                                 } else {
                                     e.row.data.edit_states.push("deletedByRecipient");
@@ -1325,7 +1312,6 @@
                             }
 
                             if (options.summaryProcess === "calculate") {
-                                console.log(options.value);
                                 if (options.value.edit_states.indexOf("deletedByRecipient") === -1) {
                                     options.totalValue = options.totalValue + (options.value.amount * options.value.quantity * options.value.standard_weight);
                                 }
@@ -1348,7 +1334,6 @@
                             }
 
                             if (options.summaryProcess === "calculate") {
-                                console.log(options.value);
                                 if (options.value.edit_states.indexOf("deletedByRecipient") === -1) {
                                     options.totalValue = options.totalValue + options.value.amount;
                                 }
@@ -1362,7 +1347,6 @@
                 },
                 onEditorPreparing: (e) => {
                     if (e.dataField === "quantity" && e.parentType === "dataRow") {
-                        console.log(e);
                         if (e.row.data.accounting_type === 2 && e.row.data.edit_states.indexOf("addedByRecipient") === -1) {
                             e.cancel = true;
                             e.editorElement.append($(`<div>${e.row.data.quantity} ${e.row.data.measure_unit_value}</div>`))
@@ -1379,14 +1363,10 @@
                         e.newData.edit_states.push("editedByRecipient");
                     }
 
-                    console.log(e.newData);
-
                     if (e.oldData.accounting_type === 2) {
                         if (e.newData.quantity !== undefined) {
                             e.newData.total_amount = null;
                             availableMaterialsDataSource.items().forEach((item) => {
-                                console.log(item.items[0].quantity);
-                                console.log(e.newData.quantity);
                                 if (item.items[0].standard_id === e.oldData.standard_id && item.items[0].quantity === e.newData.quantity) {
                                     e.newData.total_amount = item.items[0].amount;
                                 }
@@ -1682,7 +1662,6 @@
                                             dataType: "string",
                                             width: 240,
                                             cellTemplate: (container, options) => {
-                                                console.log('fileHistoryGrid options', options);
                                                 let photoUrl = "";
 
                                                 if (options.data.data[0].image) {
@@ -1772,8 +1751,6 @@
                 transferOperationData.uploaded_files = uploadedFiles;
                 transferOperationData.materials = transferMaterialDataSource.store().createQuery().toArray();
 
-                console.log(transferOperationData);
-                //validateMaterialList(transferOperationData);
                 postEditingData(transferOperationData);
             }
 
@@ -1853,8 +1830,6 @@
                     validationData = transferMaterialDataSource.store().createQuery()
                         .toArray();
                 }
-
-                console.log(validationData);
 
                 updateRowsValidationState(validationData, "inProcess", "none")
 
@@ -2256,7 +2231,6 @@
             function setButtonIndicatorVisibleState(buttonId, state){
                 if (buttonId === "*"){
                     $(".button-loading-indicator").each((index, element) =>{
-                        console.log(element);
                          try {
                             let loadingIndicator = $(element).dxLoadIndicator("instance");
                             if (loadingIndicator) {

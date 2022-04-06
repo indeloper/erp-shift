@@ -257,16 +257,9 @@
                                 },
                                 cellTemplate: function (container, options) {
 
-                                    let quantity;
-                                    let amount;
+                                    let quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
+                                    let amount = options.data.amount ? options.data.amount + " " : "";
 
-                                    if (transferOperationInitiator === "destination") {
-                                        quantity = "";
-                                        amount = "";
-                                    } else {
-                                        quantity = options.data.quantity ? Math.round(options.data.quantity * 100) / 100 + " " : "";
-                                        amount = options.data.amount ? options.data.amount + " " : "";
-                                    }
                                     switch (options.data.accounting_type) {
                                         case 1:
                                         case 2:
@@ -627,22 +620,24 @@
                                 divStandardName.addClass("standard-name-cell-with-comment");
                             }
 
-                            let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${Math.round(options.data.quantity * 100) / 100}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
-                                .appendTo(container);
+                            if (transferOperationInitiator !== "destination") {
+                                let divStandardRemains = $(`<div class="standard-remains" standard-id="${options.data.standard_id}" standard-quantity="${Math.round(options.data.quantity * 100) / 100}" accounting-type="${options.data.accounting_type}" initial-comment-id="${options.data.initial_comment_id}"></div>`)
+                                    .appendTo(container);
 
-                            divStandardRemains.mouseenter(function () {
-                                let standardRemainsPopover = $('#standardRemainsTemplate');
-                                standardRemainsPopover.dxPopover({
+                                divStandardRemains.mouseenter(function () {
+                                    let standardRemainsPopover = $('#standardRemainsTemplate');
+                                    standardRemainsPopover.dxPopover({
                                         position: "top",
                                         width: 300,
                                         contentTemplate: "Остаток материала на объекте отправления",
                                         hideEvent: "mouseleave",
                                     })
-                                .dxPopover("instance")
-                                .show($(this));
+                                        .dxPopover("instance")
+                                        .show($(this));
 
-                                return false;
-                            });
+                                    return false;
+                                });
+                            }
                         }
 
                         recalculateStandardsRemains(options.data.id);
@@ -1193,11 +1188,15 @@
                         .toArray();
                 }
 
+
+                console.log('validationData', validationData);
+
                 updateRowsValidationState(validationData, "inProcess", "none")
 
                 let transferOperationData = {
                     materials: validationData,
                     sourceProjectObjectId: sourceProjectObjectId,
+                    transferOperationInitiator: transferOperationInitiator,
                     timestamp: new Date()
                 };
                 $.ajax({
@@ -1557,10 +1556,18 @@
                 operationForm.getEditor("createTransferOperation").option("disabled", state);
                 getTransferMaterialGrid().option("disabled", state);
                 operationForm.getEditor("sourceProjectObjectSelectBox").option("disabled", state);
-                operationForm.getEditor("operationDateStartDateBox").option("disabled", state);
+                switch (transferOperationInitiator) {
+                    case "none":
+                    case "source":
+                        operationForm.getEditor("operationDateStartDateBox").option("disabled", state);
+                        break;
+                    case "destination":
+                        operationForm.getEditor("operationDateEndDateBox").option("disabled", state);
+                        break;
+                }
+
                 operationForm.getEditor("sourceResponsibleUserSelectBox").option("disabled", state);
                 operationForm.getEditor("destinationProjectObjectSelectBox").option("disabled", state);
-                //operationForm.getEditor("operationDateEndDateBox").option("disabled", state);
                 operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
                 operationForm.getEditor("consignmentNoteNumberTextBox").option("disabled", state);
                 operationForm.getEditor("newCommentTextArea").option("disabled", state);

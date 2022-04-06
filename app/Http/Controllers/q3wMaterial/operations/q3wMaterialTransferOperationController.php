@@ -680,33 +680,36 @@ class q3wMaterialTransferOperationController extends Controller
 
         $operationRouteStage = 4;
 
+        //Для операций, инициатором которых является отправитель:
         //Нужно проверить, что материал существует
         //Нужно проверить, что остаток будет большим, или равным нулю
-        foreach ($requestData['materials'] as $inputMaterial) {
-            $sourceMaterial = q3wMaterial::where('project_object', $requestData['source_project_object_id'])
-                ->where('standard_id', $inputMaterial['standard_id'])
-                ->where(function ($query) use ($inputMaterial) {
-                    switch ($inputMaterial['accounting_type']) {
-                        case 2:
-                            $query->where('quantity', '=',  $inputMaterial['quantity']);
-                            break;
-                    }
-                })
-                ->where("comment_id", $inputMaterial['initial_comment_id'])
-                ->firstOrFail();
+        if ($requestData['transfer_operation_initiator'] == 'none' || $requestData['transfer_operation_initiator'] == 'source') {
+            foreach ($requestData['materials'] as $inputMaterial) {
+                $sourceMaterial = q3wMaterial::where('project_object', $requestData['source_project_object_id'])
+                    ->where('standard_id', $inputMaterial['standard_id'])
+                    ->where(function ($query) use ($inputMaterial) {
+                        switch ($inputMaterial['accounting_type']) {
+                            case 2:
+                                $query->where('quantity', '=', $inputMaterial['quantity']);
+                                break;
+                        }
+                    })
+                    ->where("comment_id", $inputMaterial['initial_comment_id'])
+                    ->firstOrFail();
 
-            switch($inputMaterial['accounting_type']){
-                case 2:
-                    if ($inputMaterial['amount'] > $sourceMaterial['amount']) {
-                        abort(400, 'Bad amount for standard ' . $inputMaterial['standard_id']);
-                    }
-                    break;
-                default:
-                    if ($inputMaterial['amount'] * $inputMaterial['quantity'] > $sourceMaterial['quantity']) {
-                        abort(400, 'Bad amount for standard ' . $inputMaterial['standard_id']);
-                    }
+                switch ($inputMaterial['accounting_type']) {
+                    case 2:
+                        if ($inputMaterial['amount'] > $sourceMaterial['amount']) {
+                            abort(400, 'Bad amount for standard ' . $inputMaterial['standard_id']);
+                        }
+                        break;
+                    default:
+                        if ($inputMaterial['amount'] * $inputMaterial['quantity'] > $sourceMaterial['quantity']) {
+                            abort(400, 'Bad amount for standard ' . $inputMaterial['standard_id']);
+                        }
+                }
+
             }
-
         }
 
         $materialOperation = new q3wMaterialOperation([
@@ -1172,6 +1175,12 @@ class q3wMaterialTransferOperationController extends Controller
             $operationId = $validationData->operationId;
         }
 
+        if (empty($validationData->transferOperationInitiator)) {
+            $transferOperationInitiator = "";
+        } else {
+            $transferOperationInitiator = $validationData->transferOperationInitiator;
+        }
+
         if (empty($validationData->userAction)) {
             $userAction = "";
         } else {
@@ -1200,7 +1209,12 @@ class q3wMaterialTransferOperationController extends Controller
                     $checkSourceObjectMaterialsCount = in_array($operation->operation_route_stage_id, [11, 19, 25, 38]);
                 }
             }
+        } else {
+            if ($transferOperationInitiator == "destination") {
+                $checkSourceObjectMaterialsCount = false;
+            }
         }
+
 
         if (!empty($materials)) {
             $unitedMaterials = [];

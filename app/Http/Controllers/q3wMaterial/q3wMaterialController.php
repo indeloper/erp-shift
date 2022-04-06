@@ -198,11 +198,7 @@ class q3wMaterialController extends Controller
     }
 
     public function allProjectObjectMaterialsWithActualAmountList(Request $request){
-        if (isset($request->project_object)) {
-            $projectObjectId = $request->project_object;
-        } else {
-            $projectObjectId = ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
-        }
+        $projectObjectId = $request->project_object ?? ProjectObject::whereNotNull('short_name')->get(['id'])->first()->id;
 
         return DB::table('q3w_material_standards as a')
             ->leftJoin('q3w_materials as b', function($join) use ($projectObjectId) {
@@ -212,7 +208,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types as d', 'a.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->leftJoin('q3w_material_comments as f', 'b.comment_id', '=', 'f.id')
-            ->get(['a.id',
+            ->get([DB::Raw('UUID() as `id`'),
                     'a.id as standard_id',
                     'a.name as standard_name',
                     'b.amount',
@@ -224,7 +220,7 @@ class q3wMaterialController extends Controller
                     'd.name as material_type_name',
                     'e.value as measure_unit_value',
                     'b.comment_id as initial_comment_id',
-                    DB::Raw('null as `comment_id`'),
+                    'b.comment_id as comment_id',
                     'f.comment as initial_comment',
                     'f.comment as comment',
                 DB::RAW('0 as from_operation')])
