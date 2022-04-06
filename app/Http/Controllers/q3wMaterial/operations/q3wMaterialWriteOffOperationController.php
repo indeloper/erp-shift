@@ -115,6 +115,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                             ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                             ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                            ->whereNotIn('transform_operation_stage_id', [2, 3])
                             ->where('q3w_material_operations.source_project_object_id', $projectObjectId)
                             ->get(DB::raw('sum(`quantity`) as quantity'))
                             ->first();
@@ -253,6 +254,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->whereNotIn('transform_operation_stage_id', [2, 3])
                         ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
                         ->get(DB::raw('sum(`amount`) as amount'))
                         ->first();
@@ -271,6 +273,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->whereNotIn('transform_operation_stage_id', [2, 3])
                         ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
                         ->get(DB::raw('sum(`amount`) as amount, sum(`quantity`) as quantity'))
                         ->first();

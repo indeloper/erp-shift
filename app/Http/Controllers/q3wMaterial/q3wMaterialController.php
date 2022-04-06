@@ -138,6 +138,7 @@ class q3wMaterialController extends Controller
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+            ->whereNotIn('transform_operation_stage_id', [2, 3])
             ->where('a.material_operation_id', '<>', $operationId)
             ->get(['a.id',
                 'a.standard_id',
@@ -381,9 +382,9 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_comments as g', 'a.initial_comment_id', '=', 'g.id')
             ->where('f.source_project_object_id', $projectObjectId)
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-            ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+            ->whereNotIn('transform_operation_stage_id', [2, 3])
             ->get(['a.id',
                 'a.standard_id',
                 'a.quantity',
