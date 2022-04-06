@@ -278,7 +278,7 @@
                                         caption: "Π ед.изм./шт",
                                         width: 100,
                                         cellTemplate: function (container, options) {
-                                            let totalQuantity = options.data.total_quantity;
+                                            let totalQuantity = (options.data.total_quantity * 100) / 100;
                                             let measureUnit = options.data.measure_unit_value;
 
                                             $(`<div>${totalQuantity + ' ' + measureUnit}</div>`)
