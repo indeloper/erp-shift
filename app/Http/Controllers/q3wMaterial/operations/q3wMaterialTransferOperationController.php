@@ -1126,7 +1126,7 @@ class q3wMaterialTransferOperationController extends Controller
             case 30:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 38:
-                return $this->isUserResponsibleForMaterialAccounting($operation->source_responsible_user_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             default:
                 return false;
         }
@@ -1146,7 +1146,7 @@ class q3wMaterialTransferOperationController extends Controller
             case 30:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 38:
-                return $this->isUserResponsibleForMaterialAccounting($operation->source_responsible_user_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             default:
                 return false;
         }
