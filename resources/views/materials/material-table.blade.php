@@ -519,7 +519,7 @@
                                 key: "id",
                                 loadMode: "raw",
                                 load: function (loadOptions) {
-                                    return $.getJSON("{{route('project-objects.list')}}",
+                                    return $.getJSON("{{route('project-objects.which-participates-in-material-accounting.list')}}",
                                         {data: JSON.stringify(loadOptions)});
                                 },
                             })
