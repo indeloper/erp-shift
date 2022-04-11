@@ -14,8 +14,6 @@
             border-left: none !important;
         }
 
-
-
         .dx-form-group, .dx-tabpanel {
             background-color: #fff;
             border: 1px solid #cfcfcf;

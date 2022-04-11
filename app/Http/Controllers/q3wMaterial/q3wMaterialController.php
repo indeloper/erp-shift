@@ -13,7 +13,9 @@ use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\UsersSetting;
+use App\Services\q3wMaterialAccounting\Reports\MaterialRemainsXLSXReport;
 use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +68,24 @@ class q3wMaterialController extends Controller
             'projectObjects' => ProjectObject::all('id', 'name', 'short_name', 'address')->toJson(JSON_UNESCAPED_UNICODE),
             'projectObjectId' => $projectObjectId
             ]);
+    }
+
+    public function remains(Request $request)
+    {
+        $projectObjectId = $request->projectObjectId ?? ProjectObject::whereNotNull('short_name')
+                ->orderBy("short_name")
+                ->get(['id'])
+                ->first()->id;
+
+        if (isset($request->requestedDate)){
+            $requestedDate = $request->requestedDate;
+        } else {
+            $requestedDate = Carbon::today()->format('Y-m-d');
+        }
+        return view('materials.material-remains')->with([
+            'projectObjectId' => $projectObjectId,
+            'requestedDate' => $requestedDate
+        ]);
     }
 
     /**
@@ -457,10 +477,8 @@ class q3wMaterialController extends Controller
     public function materialsTableList(Request $request): string
     {
         $options = json_decode($request['data']);
-        $projectObjectId = json_decode($request["projectObjectId"]) ?? ProjectObject::whereNotNull('short_name')
-                ->orderBy("short_name")
-                ->get(['id'])
-                ->first()->id;
+        $projectObjectId = json_decode($request["projectObjectId"]);
+
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get();
 
@@ -474,10 +492,7 @@ class q3wMaterialController extends Controller
     public function printMaterialsTable(Request $request) {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        $projectObjectId = json_decode($request["projectObjectId"]) ?? ProjectObject::whereNotNull('short_name')
-                ->orderBy("short_name")
-                ->get(['id'])
-                ->first()->id;
+        $projectObjectId = json_decode($request["projectObjectId"]);
 
 
 
@@ -486,5 +501,103 @@ class q3wMaterialController extends Controller
             ->toArray();
 
         return (new MaterialTableXLSXReport($projectObjectId, $materialsList, $filterText, null))->export();
+    }
+
+    public function getMaterialRemainsQuery($projectObjectId, $date, $filterOptions){
+        return (new q3wMaterialStandard)
+            ->dxLoadOptions($filterOptions, true)
+            ->leftJoin(DB::Raw("(SELECT
+                                      `snapshots`.`project_object_id`,
+                                      `q3w_material_snapshot_materials`.`standard_id`,
+                                      SUM(`amount`) AS `amount_remains`,
+                                      SUM(`amount` * `quantity`) AS `quantity_remains`
+                                    FROM `q3w_material_snapshot_materials`
+                                      LEFT JOIN (SELECT DISTINCT
+                                          MAX(`id`) OVER (PARTITION BY `project_object_id`) AS `max_snapshot_id`,
+                                          `project_object_id`
+                                        FROM `q3w_material_snapshots`
+                                        WHERE DATE(`created_at`) <= DATE('$date')) AS `snapshots`
+                                        ON `q3w_material_snapshot_materials`.`snapshot_id` = `snapshots`.`max_snapshot_id`
+                                    WHERE `snapshots`.`project_object_id` IS NOT NULL
+                                    AND `project_object_id` = '$projectObjectId'
+                                    GROUP BY `project_object_id`,
+                                             standard_id) AS material_remains"), 'material_remains.standard_id', '=', 'q3w_material_standards.id')
+            ->leftJoin(DB::Raw("(SELECT
+                                          `source_project_object_id`,
+                                          `destination_project_object_id`,
+                                          `standard_id`,
+                                          SUM(`amount`) AS `coming_to_material_amount`,
+                                          SUM(`amount` * `quantity`) AS `coming_to_material_quantity`
+                                        FROM `q3w_operation_materials`
+                                          LEFT JOIN `q3w_material_operations`
+                                            ON `q3w_operation_materials`.`material_operation_id` = `q3w_material_operations`.`id`
+                                          LEFT JOIN `q3w_material_standards`
+                                            ON `q3w_operation_materials`.`standard_id` = `q3w_material_standards`.id
+                                        WHERE (`operation_route_id` IN (1, 2)
+                                        AND `destination_project_object_id` = '$projectObjectId'
+                                        AND DATE(`operation_date`) <= DATE('$date'))
+                                        GROUP BY `destination_project_object_id`,
+                                                 `standard_id`) AS `coming_to_materials`"), 'coming_to_materials.standard_id', '=', 'q3w_material_standards.id')
+            ->leftJoin(DB::Raw("(SELECT
+                                          `source_project_object_id`,
+                                          `destination_project_object_id`,
+                                          `standard_id`,
+                                          SUM(`amount`) AS `outgoing_material_amount`,
+                                          SUM(`amount` * `quantity`) AS `outgoing_material_quantity`
+                                        FROM `q3w_operation_materials`
+                                          LEFT JOIN `q3w_material_operations`
+                                            ON `q3w_operation_materials`.`material_operation_id` = `q3w_material_operations`.`id`
+                                          LEFT JOIN `q3w_material_standards`
+                                            ON `q3w_operation_materials`.`standard_id` = `q3w_material_standards`.`id`
+                                        WHERE (`operation_route_id` IN (2, 4)
+                                        AND `source_project_object_id` = '$projectObjectId'
+                                        AND DATE(`operation_date`) <= DATE('$date'))
+                                        GROUP BY `source_project_object_id`,
+                                                 `standard_id`) AS `outgoing_materials`"), 'outgoing_materials.standard_id', '=', 'q3w_material_standards.id')
+            ->where(function ($query){
+                 $query->whereNotNull('material_remains.project_object_id')
+                    ->orWhereNotNull('coming_to_materials.destination_project_object_id')
+                    ->orWhereNotNull('outgoing_materials.source_project_object_id');
+            })
+            ->select([
+                'q3w_material_standards.id as id',
+                'q3w_material_standards.name as standard_name',
+                DB::raw('IFNULL(`coming_to_material_amount`, 0) as `coming_to_material_amount`'),
+                DB::raw('IFNULL(`coming_to_material_quantity`, 0) as `coming_to_material_quantity`'),
+                DB::raw('IFNULL(round((`coming_to_material_amount` * `coming_to_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `coming_to_material_weight`'),
+                DB::raw('IFNULL(`outgoing_material_amount`, 0) as `outgoing_material_amount`'),
+                DB::raw('IFNULL(`outgoing_material_quantity`, 0) as `outgoing_material_quantity`'),
+                DB::raw('IFNULL(round((`outgoing_material_amount` * `outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
+                DB::raw('IFNULL(`amount_remains`, 0) as `amount_remains`'),
+                DB::raw('IFNULL(`quantity_remains`, 0) as `quantity_remains`'),
+                DB::raw('IFNULL(round((`amount_remains` * `quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')]);
+    }
+
+    public function materialRemainsList(Request $request): string {
+        $options = json_decode($request['data']);
+        $projectObjectId = $request["projectObjectId"];
+        $requestedDate = $request["requestedDate"];
+
+        $materialsList = $this->getMaterialRemainsQuery($projectObjectId, $requestedDate, $options)
+            ->get();
+
+        return json_encode(array(
+            "data" => $materialsList,
+            "totalCount" => $materialsList->count()
+        ),
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function exportMaterialRemains(Request $request) {
+        $filterText = json_decode($request->input('filterList'));
+        $options = json_decode($request['filterOptions']);
+        $projectObjectId = json_decode($request["projectObjectId"]);
+        $requestedDate = json_decode($request["requestedDate"]);
+
+        $materialsList = $this->getMaterialRemainsQuery($projectObjectId, $requestedDate, $options)
+            ->get()
+            ->toArray();
+
+        return (new MaterialRemainsXLSXReport($projectObjectId, $materialsList, $filterText, $requestedDate))->export();
     }
 }

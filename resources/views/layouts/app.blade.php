@@ -256,6 +256,14 @@
                                         </a>
                                     </li>
                                 @endif
+                                @if(Auth::user()->can('material_accounting_material_remains_report_access'))
+                                    <li class="nav-item @if (Request::is('/materials/remains') || Request::is('/materials/remains/*')) active @endif">
+                                        <a class="nav-link" href="{{ route('materials.remains') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Остатки материалов</span>
+                                        </a>
+                                    </li>
+                                @endif
                                 @if(Auth::user()->can('material_accounting_materials_standards_editing'))
                                     <li class="nav-item @if (Request::is('materials/material-standard') || Request::is('materials/material-standard/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.standards.index') }}">

@@ -268,6 +268,9 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/table', 'q3wMaterial\q3wMaterialController@table')->name('materials.table');
     Route::get('/materials/table/list', 'q3wMaterial\q3wMaterialController@materialsTableList')->name('materials.table.list');
     Route::post('/materials/table/print', 'q3wMaterial\q3wMaterialController@printMaterialsTable')->name('materials.table.print');
+    Route::get('/materials/remains', 'q3wMaterial\q3wMaterialController@remains')->name('materials.remains')->middleware('can:material_accounting_material_remains_report_access');
+    Route::get('/materials/remains/list', 'q3wMaterial\q3wMaterialController@materialRemainsList')->name('materials.remains.list')->middleware('can:material_accounting_material_remains_report_access');
+    Route::post('/materials/remains/print', 'q3wMaterial\q3wMaterialController@exportMaterialRemains')->name('materials.remains.print')->middleware('can:material_accounting_material_remains_report_access') ;
     Route::get('/materials/list', 'q3wMaterial\q3wMaterialController@show')->name('materials.list');
     Route::get('/materials/actual/list', 'q3wMaterial\q3wMaterialController@actualProjectObjectMaterialsList')->name('materials.actual.list');
     Route::get('/materials/reserved/list/', 'q3wMaterial\q3wMaterialController@reservedMaterialsList')->name('materials.reserved.list');
