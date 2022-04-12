@@ -354,7 +354,7 @@
                 }
 
                 container.addClass(cssClass);
-                container.append($(`<div>${options.displayValue}</div>`))
+                container.append($(`<div>${Math.round(options.displayValue * 1000) / 1000}</div>`))
             }
         });
     </script>
