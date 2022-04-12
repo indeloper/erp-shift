@@ -199,7 +199,22 @@
             {
                 dataField: "name",
                 dataType: "string",
-                caption: "Наименование эталона"
+                caption: "Наименование эталона",
+                calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
+                    if (["contains", "notcontains"].indexOf(selectedFilterOperation) !== -1) {
+
+                        let words = filterValue.split(" ");
+                        let filter = [];
+                        words.forEach(function (word) {
+                            filter.push(["name", selectedFilterOperation, word]);
+                            filter.push("and");
+                        });
+                        console.log(filter);
+                        filter.pop();
+                        return filter;
+                    }
+                    return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
+                }
             },
             {
                 dataField: "weight",
