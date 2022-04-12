@@ -570,7 +570,9 @@ class q3wMaterialController extends Controller
                 DB::raw('IFNULL(round((`outgoing_material_amount` * `outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
                 DB::raw('IFNULL(`amount_remains`, 0) as `amount_remains`'),
                 DB::raw('IFNULL(`quantity_remains`, 0) as `quantity_remains`'),
-                DB::raw('IFNULL(round((`amount_remains` * `quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')]);
+                DB::raw('IFNULL(round((`amount_remains` * `quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')])
+            ->orderBy('q3w_material_standards.material_type')
+            ->orderBy('q3w_material_standards.name');
     }
 
     public function materialRemainsList(Request $request): string {
