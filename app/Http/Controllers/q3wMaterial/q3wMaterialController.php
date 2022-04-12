@@ -563,6 +563,7 @@ class q3wMaterialController extends Controller
                 'q3w_material_standards.id as id',
                 'q3w_material_standards.name as standard_name',
                 DB::raw('IFNULL(`coming_to_material_amount`, 0) as `coming_to_material_amount`'),
+                DB::raw('IFNULL(CASE WHEN q3w_material_standards.material_type = 1 AND `coming_to_material_amount` > 1 THEN 1 ELSE `coming_to_material_amount` END, 0) as `coming_to_material_amount`'),
                 DB::raw('IFNULL(`coming_to_material_quantity`, 0) as `coming_to_material_quantity`'),
                 DB::raw('IFNULL(round((`coming_to_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `coming_to_material_weight`'),
                 DB::raw('IFNULL(`outgoing_material_amount`, 0) as `outgoing_material_amount`'),
