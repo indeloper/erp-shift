@@ -562,15 +562,15 @@ class q3wMaterialController extends Controller
             ->select([
                 'q3w_material_standards.id as id',
                 'q3w_material_standards.name as standard_name',
-                DB::raw('IFNULL(`coming_to_material_amount`, 0) as `coming_to_material_amount`'),
+                DB::raw('IFNULL((CASE WHEN `q3w_material_standards`.`material_type` = 1 THEN 1 WHEN `q3w_material_standards`.`material_type` = 2 THEN `coming_to_material_amount` END), 0) as `coming_to_material_amount`'),
                 DB::raw('IFNULL(`coming_to_material_quantity`, 0) as `coming_to_material_quantity`'),
-                DB::raw('IFNULL(round((`coming_to_material_amount` * `coming_to_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `coming_to_material_weight`'),
-                DB::raw('IFNULL(`outgoing_material_amount`, 0) as `outgoing_material_amount`'),
+                DB::raw('IFNULL(round((`coming_to_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `coming_to_material_weight`'),
+                DB::raw('IFNULL((CASE WHEN `q3w_material_standards`.`material_type` = 1 THEN 1 WHEN `q3w_material_standards`.`material_type` = 2 THEN `outgoing_material_amount` END), 0) as `outgoing_material_amount`'),
                 DB::raw('IFNULL(`outgoing_material_quantity`, 0) as `outgoing_material_quantity`'),
-                DB::raw('IFNULL(round((`outgoing_material_amount` * `outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
+                DB::raw('IFNULL(round((`outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
                 DB::raw('IFNULL(`amount_remains`, 0) as `amount_remains`'),
                 DB::raw('IFNULL(`quantity_remains`, 0) as `quantity_remains`'),
-                DB::raw('IFNULL(round((`amount_remains` * `quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')])
+                DB::raw('IFNULL(round((`quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')])
             ->orderBy('q3w_material_standards.material_type')
             ->orderBy('q3w_material_standards.name');
     }
