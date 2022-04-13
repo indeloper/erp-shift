@@ -209,7 +209,7 @@ class q3wMaterialController extends Controller
                         break;
                     default:
                         if ($operationMaterial->standard_id == $material->standard_id) {
-                            $material->quantity -= $operationMaterial->quantity * $operationMaterial->amount;
+                            $material->quantity -= round($operationMaterial->quantity * $operationMaterial->amount, 2);
                         }
                 }
             }
