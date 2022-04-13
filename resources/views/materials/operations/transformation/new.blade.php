@@ -121,7 +121,8 @@
 
             let availableMaterialsDataSource = new DevExpress.data.DataSource({
                 key: "id",
-                store: availableMaterialsStore
+                store: availableMaterialsStore,
+                filter: [ "accounting_type", "=", "2" ]
             });
 
             let materialStandardsListStore = new DevExpress.data.CustomStore({
@@ -135,7 +136,8 @@
 
             let materialStandardsListDataSource = new DevExpress.data.DataSource({
                 key: "id",
-                store: materialStandardsListStore
+                store: materialStandardsListStore,
+                filter: [ "accounting_type", "=", "2" ]
             })
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
@@ -1012,7 +1014,7 @@
                                     let pushElement = true;
 
                                     materialsRemains.forEach((materialRemain) => {
-                                        if (material.standard_id === materialRemain.standard_id || material.accounting_type == 2) {
+                                        if (material.standard_id === materialRemain.standard_id) {
                                             pushElement = false;
                                         }
                                     })
