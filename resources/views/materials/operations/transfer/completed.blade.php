@@ -184,7 +184,13 @@
                     editorOptions: {
                         min: 0
                     },
-                    showSpinButtons: false
+                    showSpinButtons: false,
+                    cellTemplate: function (container, options) {
+                        let quantity = options.data.quantity;
+
+                        $(`<div>${quantity} ${options.data.measure_unit_value}</div>`)
+                            .appendTo(container);
+                    }
                 },
                 {
                     dataField: "amount",
@@ -193,6 +199,12 @@
                     editorOptions: {
                         min: 0,
                         format: "#"
+                    },
+                    cellTemplate: function (container, options) {
+                        let amount = options.data.amount;
+
+                        $(`<div>${amount} шт.</div>`)
+                            .appendTo(container);
                     }
                 },
                 {
