@@ -213,7 +213,7 @@ class q3wMaterialController extends Controller
                         }
                 }
 
-                $material->quantity = round($material->quantity);
+                $material->quantity = round($material->quantity, 2);
             }
         }
 
