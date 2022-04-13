@@ -1343,7 +1343,7 @@ class q3wMaterialTransferOperationController extends Controller
                             $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity * $operationAmount;
                         }
 
-                        if ($materialAmountDelta < 0) {
+                        if (round($materialAmountDelta, 2) < 0) {
                             $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'itemName' => $materialName, 'message' => 'На объекте отправления недостаточно материала'];
                         }
                     }
