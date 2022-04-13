@@ -125,9 +125,11 @@ class q3wMaterialTransferOperationController extends Controller
                             ->where('q3w_material_operations.source_project_object_id', $sourceProjectObjectId)
                             ->get(DB::raw('sum(`quantity`) as quantity'))
                             ->first();
-                        $material->total_quantity = round($material->total_quantity - $activeOperationMaterialAmount->quantity, 2);
+                        $material->total_quantity = $material->total_quantity - $activeOperationMaterialAmount->quantity;
                 }
 
+                $material->quantity = round($material->quantity, 2);
+                $material->total_quantity = round($material->total_quantity, 2);
                 $material->validationUid = Str::uuid();
             }
         } else {
