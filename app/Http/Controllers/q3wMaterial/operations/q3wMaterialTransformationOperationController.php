@@ -161,11 +161,13 @@ class q3wMaterialTransformationOperationController extends Controller
                         ->where('project_object', $projectObjectId)
                         ->where('standard_id', $material->standard_id)
                         ->where('quantity', $material->quantity)
+                        ->where('comment_id', $material->initial_comment_id)
                         ->get()
                         ->first();
 
                     $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
                         ->where('quantity', $material->quantity)
+                        ->where('initial_comment_id', $material->initial_comment_id)
                         ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
@@ -180,11 +182,13 @@ class q3wMaterialTransformationOperationController extends Controller
                     $projectObjectMaterial = (new q3wMaterial)
                         ->where('project_object', $projectObjectId)
                         ->where('standard_id', $material->standard_id)
+                        ->where('comment_id', $material->initial_comment_id)
                         ->get()
                         ->first();
 
                     $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
                         ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
+                        ->where('initial_comment_id', $material->initial_comment_id)
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
