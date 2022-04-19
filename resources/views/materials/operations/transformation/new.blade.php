@@ -121,8 +121,7 @@
 
             let availableMaterialsDataSource = new DevExpress.data.DataSource({
                 key: "id",
-                store: availableMaterialsStore,
-                filter: [ "accounting_type", "=", "2" ]
+                store: availableMaterialsStore
             });
 
             let materialStandardsListStore = new DevExpress.data.CustomStore({
@@ -136,8 +135,7 @@
 
             let materialStandardsListDataSource = new DevExpress.data.DataSource({
                 key: "id",
-                store: materialStandardsListStore,
-                filter: [ "accounting_type", "=", "2" ]
+                store: materialStandardsListStore
             })
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
@@ -1144,38 +1142,37 @@
                             }
                         }))
 
-                    if (material.accounting_type === 2) {
-                        element.append($('<div class="transformation-number-box transformation-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
-                            .dxNumberBox({
-                                min: 0,
-                                format: "#0 шт",
-                                value: material.amount,
-                                disabled: isAmountControlDisabled,
-                                placeholder: "шт",
-                                onValueChanged: (e) => {
-                                    e.component.option("format", "#0 шт");
-                                    material.amount = e.value;
-                                    repaintMaterialsAfterTransformLayer();
-                                    validateMaterialList(false, false);
-                                },
-                                onFocusIn: (e) => {
-                                    e.component.option("format", "");
-                                },
-                                onFocusOut: (e) => {
-                                    e.component.option("format", "#0 шт");
-                                }
-                            }))
+                    element.append($('<div class="transformation-number-box transformation-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxNumberBox({
+                            min: 0,
+                            format: "#0 шт",
+                            value: material.amount,
+                            disabled: isAmountControlDisabled,
+                            placeholder: "шт",
+                            onValueChanged: (e) => {
+                                e.component.option("format", "#0 шт");
+                                material.amount = e.value;
+                                repaintMaterialsAfterTransformLayer();
+                                validateMaterialList(false, false);
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0 шт");
+                            }
+                        })
+                    )
 
-                        element.append($('<div class="transformation-comment-box transformation-comment" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
-                            .dxTextEditor({
-                                value: material.comment,
-                                disabled: isAmountControlDisabled,
-                                placeholder: "Введите комментарий...",
-                                onValueChanged: (e) => {
-                                    material.comment = e.value;
-                                }
-                            }))
-                    }
+                    element.append($('<div class="transformation-comment-box transformation-comment" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxTextEditor({
+                            value: material.comment,
+                            disabled: isAmountControlDisabled,
+                            placeholder: "Введите комментарий...",
+                            onValueChanged: (e) => {
+                                material.comment = e.value;
+                            }
+                        }))
 
                     element.append($('<div class="transformation-validator" uid="' + material.id + '" material-id = "' + material.material_id + '">' +
                         '<div class="validator-icon"></div>' +
@@ -1186,7 +1183,13 @@
                 if (currentTransformationStage === "fillingMaterialsAfterTransform") {
                     if (materialsAfterTransform.length <= 0) {
                         layer.append($('<div class="transform-wizard-button">').dxButton({
-                            text: "Добавить",
+                            text: () => {
+                                if (materialsAfterTransform.length > 0) {
+                                    return "Добавить еще"
+                                } else {
+                                    return "Добавить"
+                                }
+                            },
                             type: "default",
                             stylingMode: "outlined",
                             onClick: (e) => {
@@ -1238,7 +1241,6 @@
                                     error: function (jqXHR, textStatus, errorThrown) {
                                         isUserIsResponsibleForMaterialAccounting = false;
 
-                                        currentTransformationStage = "fillingMaterialsRemains";
                                         repaintTransformLayers();
                                         setButtonIndicatorVisibleState(false)
                                         setElementsDisabledState(false);
@@ -1332,26 +1334,24 @@
                             }
                         }))
 
-                    if (material.accounting_type === 2) {
-                        element.append($('<div class="transformation-number-box transformation-amount transformation-remains-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
-                            .dxNumberBox({
-                                min: 0,
-                                format: "#0 шт",
-                                value: material.amount,
-                                onValueChanged: (e) => {
-                                    material.amount = e.value;
-                                    let remains = calculateRemains(material.standard_id);
-                                    $('.calculation-summary[standard-id="' + material.standard_id + '"]').html(getCalculationSummaryText(remains.delta, remains.total, remains.transform_total));
-                                    repaintMaterialRemains();
-                                },
-                                onFocusIn: (e) => {
-                                    e.component.option("format", "");
-                                },
-                                onFocusOut: (e) => {
-                                    e.component.option("format", "#0 шт");
-                                }
-                            }))
-                    }
+                    element.append($('<div class="transformation-number-box transformation-amount transformation-remains-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxNumberBox({
+                            min: 0,
+                            format: "#0 шт",
+                            value: material.amount,
+                            onValueChanged: (e) => {
+                                material.amount = e.value;
+                                let remains = calculateRemains(material.standard_id);
+                                $('.calculation-summary[standard-id="' + material.standard_id + '"]').html(getCalculationSummaryText(remains.delta, remains.total, remains.transform_total));
+                                repaintMaterialRemains();
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0 шт");
+                            }
+                        }))
 
                     element.append($('<div class="transformation-comment-box transformation-comment" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
                         .dxTextEditor({
@@ -1474,6 +1474,7 @@
                         result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
                         break;
                     case "corningManufacturing":
+                    case "pairProduction":
                         let uniqueStandards = [];
 
                         materialsToTransform.forEach((material) => {
@@ -1487,6 +1488,9 @@
                         } else {
                             result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
                         }
+                        break;
+                    case "corningCutting":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
                         break;
                 }
                 return result;
@@ -1518,6 +1522,10 @@
                         return "corningManufacturing";
                     case 4:
                         return "wedgeShapedProduction";
+                    case 5:
+                        return "pairProduction";
+                    case 6:
+                        return "corningCutting";
                     default:
                         return "none"
                 }

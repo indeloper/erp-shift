@@ -575,6 +575,13 @@ class q3wMaterialTransformationOperationController extends Controller
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
+                    ->where(function ($query) use ($materialToTransfer) {
+                        if (empty($materialToTransfer['initial_comment_id'])) {
+                            $query->whereNull('comment_id');
+                        } else {
+                            $query->where('comment_id', $materialToTransfer['initial_comment_id']);
+                        }
+                    })
                     ->first();
             }
 
@@ -632,7 +639,15 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
+                    ->where(function ($query) use ($materialAfterTransferComment) {
+                        if (!empty($materialAfterTransferComment)) {
+                            $query->where('comment', 'like', $materialAfterTransferComment);
+                        } else {
+                            $query->whereNull('comment_id');
+                        }
+                    })
                     ->get('q3w_materials.*')
                     ->first();
             }
@@ -699,7 +714,15 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
+                    ->where(function ($query) use ($materialRemainsComment) {
+                        if (!empty($materialRemainsComment)) {
+                            $query->where('comment', 'like', $materialRemainsComment);
+                        } else {
+                            $query->whereNull('comment_id');
+                        }
+                    })
                     ->first();
             }
 
@@ -730,7 +753,6 @@ class q3wMaterialTransformationOperationController extends Controller
                     'quantity' => $materialQuantity,
                     'comment_id' => $materialCommentId
                 ]);
-
             }
             $material->save();
         }

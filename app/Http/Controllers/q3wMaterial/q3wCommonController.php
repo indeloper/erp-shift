@@ -165,6 +165,6 @@ class q3wCommonController extends Controller
     {
         $options = json_decode($request['data']);
 
-        return (new q3wMaterialTransformationType())->dxLoadOptions($options)->get(['id', 'value'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return (new q3wMaterialTransformationType())->dxLoadOptions($options)->orderBy('value')->get(['id', 'value'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }
