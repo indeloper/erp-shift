@@ -563,13 +563,13 @@ class q3wMaterialController extends Controller
             ->select([
                 'q3w_material_standards.id as id',
                 'q3w_material_standards.name as standard_name',
-                DB::raw('IFNULL(CASE WHEN q3w_material_types.accounting_type = 1 AND `coming_to_material_amount` > 1 THEN 1 ELSE `coming_to_material_amount` END, 0) as `coming_to_material_amount`'),
+                DB::raw('IFNULL(CASE WHEN `q3w_material_types`.`accounting_type` = 1 AND `coming_to_material_amount` > 1 THEN 1 ELSE `coming_to_material_amount` END, 0) as `coming_to_material_amount`'),
                 DB::raw('IFNULL(`coming_to_material_quantity`, 0) as `coming_to_material_quantity`'),
                 DB::raw('IFNULL(round((`coming_to_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `coming_to_material_weight`'),
-                DB::raw('IFNULL(CASE WHEN q3w_material_types.accounting_type = 1 AND `outgoing_material_amount` > 1 THEN 1 ELSE `outgoing_material_amount` END, 0) as `outgoing_material_amount`'),
+                DB::raw('IFNULL(CASE WHEN `q3w_material_types`.`accounting_type` = 1 AND `outgoing_material_amount` > 1 THEN 1 ELSE `outgoing_material_amount` END, 0) as `outgoing_material_amount`'),
                 DB::raw('IFNULL(`outgoing_material_quantity`, 0) as `outgoing_material_quantity`'),
                 DB::raw('IFNULL(round((`outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
-                DB::raw('IFNULL(`amount_remains`, 0) as `amount_remains`'),
+                DB::raw('IFNULL(CASE WHEN `amount_remains` = 1 AND `amount_remains` > 1 THEN 1 ELSE `amount_remains` END, 0) as `amount_remains`'),
                 DB::raw('IFNULL(`quantity_remains`, 0) as `quantity_remains`'),
                 DB::raw('IFNULL(round((`quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')])
             ->orderBy('q3w_material_standards.material_type')
