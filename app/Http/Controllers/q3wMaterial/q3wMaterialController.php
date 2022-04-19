@@ -532,10 +532,13 @@ class q3wMaterialController extends Controller
                                           LEFT JOIN `q3w_material_operations`
                                             ON `q3w_operation_materials`.`material_operation_id` = `q3w_material_operations`.`id`
                                           LEFT JOIN `q3w_material_standards`
-                                            ON `q3w_operation_materials`.`standard_id` = `q3w_material_standards`.id
-                                        WHERE (`operation_route_id` IN (1, 2)
+                                            ON `q3w_operation_materials`.`standard_id` = `q3w_material_standards`.`id`
+                                          LEFT JOIN `q3w_operation_route_stages`
+                                            ON `q3w_material_operations`.`operation_route_stage_id` = `q3w_operation_route_stages`.`id`
+                                        WHERE (`q3w_material_operations`.`operation_route_id` IN (1, 2)
                                         AND `destination_project_object_id` = '$projectObjectId'
                                         AND DATE(`operation_date`) <= DATE('$date'))
+                                        AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
                                         GROUP BY `destination_project_object_id`,
                                                  `standard_id`) AS `coming_to_materials`"), 'coming_to_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin(DB::Raw("(SELECT
@@ -549,9 +552,12 @@ class q3wMaterialController extends Controller
                                             ON `q3w_operation_materials`.`material_operation_id` = `q3w_material_operations`.`id`
                                           LEFT JOIN `q3w_material_standards`
                                             ON `q3w_operation_materials`.`standard_id` = `q3w_material_standards`.`id`
-                                        WHERE (`operation_route_id` IN (2, 4)
+                                          LEFT JOIN `q3w_operation_route_stages`
+                                            ON `q3w_material_operations`.`operation_route_stage_id` = `q3w_operation_route_stages`.`id`
+                                        WHERE (`q3w_material_operations`.`operation_route_id` IN (2, 4)
                                         AND `source_project_object_id` = '$projectObjectId'
                                         AND DATE(`operation_date`) <= DATE('$date'))
+                                        AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
                                         GROUP BY `source_project_object_id`,
                                                  `standard_id`) AS `outgoing_materials`"), 'outgoing_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin('q3w_material_types', 'q3w_material_types.id', '=', 'q3w_material_standards.material_type')
@@ -569,7 +575,7 @@ class q3wMaterialController extends Controller
                 DB::raw('IFNULL(CASE WHEN `q3w_material_types`.`accounting_type` = 1 AND `outgoing_material_amount` > 1 THEN 1 ELSE `outgoing_material_amount` END, 0) as `outgoing_material_amount`'),
                 DB::raw('IFNULL(`outgoing_material_quantity`, 0) as `outgoing_material_quantity`'),
                 DB::raw('IFNULL(round((`outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
-                DB::raw('IFNULL(CASE WHEN `amount_remains` = 1 AND `amount_remains` > 1 THEN 1 ELSE `amount_remains` END, 0) as `amount_remains`'),
+                DB::raw('IFNULL(CASE WHEN `accounting_type` = 1 AND `amount_remains` > 1 THEN 1 WHEN `accounting_type` = 1 AND `amount_remains` >= 1 AND `quantity_remains` = 0 THEN 0 ELSE `amount_remains` END, 0) as `amount_remains`'),
                 DB::raw('IFNULL(`quantity_remains`, 0) as `quantity_remains`'),
                 DB::raw('IFNULL(round((`quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')])
             ->orderBy('q3w_material_standards.material_type')
