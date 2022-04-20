@@ -708,7 +708,7 @@ class q3wMaterialTransferOperationController extends Controller
                         }
                         break;
                     default:
-                        if ($inputMaterial['amount'] * $inputMaterial['quantity'] > $sourceMaterial['quantity']) {
+                        if (round($inputMaterial['amount'] * $inputMaterial['quantity'], 2) > round($sourceMaterial['quantity'], 2)) {
                             abort(400, 'Bad amount for standard ' . $inputMaterial['standard_id']);
                         }
                 }
