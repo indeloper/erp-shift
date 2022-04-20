@@ -268,6 +268,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                         ->first();
 
                     $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $unitedMaterial->standard_id)
+                        ->where('initial_comment_id', $unitedMaterial->initial_comment_id)
                         ->where('material_operation_id', '<>', $operationId)
                         ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
                         ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
@@ -275,11 +276,10 @@ class q3wMaterialWriteOffOperationController extends Controller
                         ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
                         ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
                         ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
-                        ->get(DB::raw('sum(`amount`) as amount, sum(`quantity`) as quantity'))
+                        ->get(DB::raw('sum(`amount` * `quantity`) as total_quantity'))
                         ->first();
 
-                    $operationAmount = $activeOperationMaterialAmount->amount;
-                    $operationQuantity = $activeOperationMaterialAmount->quantity;
+                    $operationQuantity = $activeOperationMaterialAmount->total_quantity;
                 }
 
                 if (!isset($errors[$key])) {
@@ -294,9 +294,9 @@ class q3wMaterialWriteOffOperationController extends Controller
                     $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
                 } else {
                     if ($accountingType == 2) {
-                        $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount;
+                        $materialAmountDelta = round($sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount, 2);
                     } else {
-                        $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity * $operationAmount;
+                        $materialAmountDelta = round($sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity, 2);
                     }
 
                     if (round($materialAmountDelta, 2) < 0) {
