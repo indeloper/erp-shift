@@ -572,10 +572,15 @@
                                             enabled: true,
                                             template: function(container, options) {
                                                 let currentMaterialData = options.data;
+                                                let operationRouteIconWidth = 24;
+                                                let dxCommandSelectWidth = $('.dx-command-select').outerWidth();
+                                                let dxCommandExpandWidth = $('.dx-command-expand.dx-datagrid-group-space').outerWidth();
+                                                let materialDateWidth = $('[aria-label$=Наименование]').outerWidth() + $('[aria-label$="Ед. изм."]').outerWidth() - dxCommandSelectWidth - operationRouteIconWidth;
+                                                console.log("materialDateWidth", materialDateWidth);
 
                                                 $("<div>")
                                                     .dxDataGrid({
-                                                        columnAutoWidth: true,
+                                                        columnAutoWidth: false,
                                                         showBorders: true,
                                                         showColumnHeaders: false,
                                                         selection: {
@@ -597,7 +602,7 @@
                                                                 dataField: "operation_route_id",
                                                                 caption: "",
                                                                 dataType: "number",
-                                                                width: 24,
+                                                                width: operationRouteIconWidth,
                                                                 cellTemplate: function (container, options) {
                                                                     let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
                                                                         options.data.source_project_object_id,
@@ -613,7 +618,7 @@
                                                                 dataField: "operation_date",
                                                                 caption: "Дата",
                                                                 dataType: "datetime",
-                                                                width: 416,
+                                                                width: materialDateWidth,
                                                                 cellTemplate: function (container, options) {
                                                                     let operationDate = options.text.replaceAll(',', ' ');
 
@@ -645,7 +650,31 @@
                                                                 }
                                                             },
                                                             {
-                                                                dataField: "operation_id",
+                                                                dataField: "weight",
+                                                                caption: "Вес",
+                                                                dataType: "number",
+                                                                calculateCellValue: function (rowData) {
+                                                                    let amount = rowData.amount;
+                                                                    let weight = amount * rowData.quantity * rowData.weight;
+
+                                                                    if (isNaN(weight)) {
+                                                                        weight = 0;
+                                                                    } else {
+                                                                        weight = Math.round(weight * 1000) / 1000;
+                                                                    }
+
+                                                                    rowData.computed_weight = weight;
+                                                                    return weight;
+                                                                },
+                                                                cellTemplate: function (container, options) {
+                                                                    let weight = options.data.computed_weight;
+
+                                                                    $(`<div>${weight} т</div>`)
+                                                                        .appendTo(container);
+                                                                }
+                                                            },
+                                                            {
+                                                                dataField: "id",
                                                                 dataType: "number",
                                                                 caption: "Номер операции",
                                                                 groupIndex: 0,
@@ -654,14 +683,22 @@
                                                                     console.log(options);
                                                                     let operationId = options.text;
                                                                     let operationUrl = options.data.items[0].url;
+                                                                    let routeName = options.data.items[0].route_name;
                                                                     let postfix = '';
 
                                                                     switch (options.data.items[0].operation_route_id){
                                                                         case 1:
-                                                                            postfix = '➞';
+                                                                            postfix = options.data.items[0].contractor_short_name;
                                                                             break;
                                                                         case 2:
-                                                                            postfix = '➞';
+                                                                            if (options.data.items[0].source_project_object_id === projectObject){
+                                                                                postfix = `${options.data.items[0].destination_project_object_name} ➞ ${options.data.items[0].source_project_object_name}`;
+                                                                            } else {
+                                                                                postfix = `${options.data.items[0].source_project_object_name} ➞ ${options.data.items[0].destination_project_object_name}`;
+                                                                            }
+                                                                            break;
+                                                                        case 3:
+                                                                            routeName = options.data.items[0].transformation_type_value
                                                                             break;
                                                                     }
 
@@ -669,7 +706,7 @@
                                                                         postfix = `(${postfix})`;
                                                                     }
 
-                                                                    $(`<div><a href="${operationUrl}">Операция #${operationId}</a></div> ${postfix}`)
+                                                                    $(`<div><a href="${operationUrl}" target="_blank">Операция #${operationId}</a> — ${routeName} ${postfix}</div>`)
                                                                         .appendTo(container);
                                                                 }
                                                             }

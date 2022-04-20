@@ -353,6 +353,9 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_operation_material_comments as f', 'comment_id', '=', 'f.id')
             ->leftJoin('project_objects as g', 'q3w_material_operations.source_project_object_id', '=', 'g.id')
             ->leftJoin('project_objects as h', 'q3w_material_operations.destination_project_object_id', '=', 'h.id')
+            ->leftJoin('contractors as i', 'q3w_material_operations.contractor_id', '=', 'i.id')
+            ->leftJoin('q3w_operation_routes as j', 'q3w_material_operations.operation_route_id', '=', 'j.id')
+            ->leftJoin('q3w_material_transformation_types as k', 'q3w_material_operations.transformation_type_id', '=', 'k.id')
             ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity, $commentId) {
                 if (isset($commentId)) {//If comment Id passed we need to check material's comment field
                     $comment = q3wMaterialComment::findOrFail($commentId)->comment;
@@ -377,8 +380,11 @@ class q3wMaterialController extends Controller
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->whereIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->orderBy('q3w_material_operations.created_at', 'desc')
-            ->get(['a.*',
-                'q3w_material_operations.id as operation_id',
+            ->get(['a.amount',
+                'a.quantity',
+                'a.transform_operation_stage_id',
+                'b.weight',
+                'q3w_material_operations.id as id',
                 'q3w_material_operations.operation_route_id',
                 'q3w_material_operations.operation_route_stage_id',
                 'q3w_material_operations.source_project_object_id',
@@ -386,7 +392,13 @@ class q3wMaterialController extends Controller
                 'q3w_material_operations.created_at as operation_date',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value'])
+                'e.value as measure_unit_value',
+                'g.short_name as source_project_object_name',
+                'h.short_name as destination_project_object_name',
+                'i.short_name as contractor_short_name',
+                'j.name as route_name',
+                'k.value as transformation_type_value'
+                ])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
