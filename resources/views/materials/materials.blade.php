@@ -681,24 +681,32 @@
                                                                 sortOrder: "desc",
                                                                 groupCellTemplate: function (container, options) {
                                                                     console.log(options);
+                                                                    let data;
+
+                                                                    if (options.data.items) {
+                                                                        data = options.data.items[0]
+                                                                    } else {
+                                                                        data = options.data.collapsedItems[0]
+                                                                    }
+
                                                                     let operationId = options.text;
-                                                                    let operationUrl = options.data.items[0].url;
-                                                                    let routeName = options.data.items[0].route_name;
+                                                                    let operationUrl = data.url;
+                                                                    let routeName = data.route_name;
                                                                     let postfix = '';
 
-                                                                    switch (options.data.items[0].operation_route_id){
+                                                                    switch (data.operation_route_id){
                                                                         case 1:
-                                                                            postfix = options.data.items[0].contractor_short_name;
+                                                                            postfix = data.contractor_short_name;
                                                                             break;
                                                                         case 2:
-                                                                            if (options.data.items[0].source_project_object_id === projectObject){
-                                                                                postfix = `${options.data.items[0].destination_project_object_name} ➞ ${options.data.items[0].source_project_object_name}`;
+                                                                            if (data.source_project_object_id === projectObject){
+                                                                                postfix = `${data.destination_project_object_name} ➞ ${data.source_project_object_name}`;
                                                                             } else {
-                                                                                postfix = `${options.data.items[0].source_project_object_name} ➞ ${options.data.items[0].destination_project_object_name}`;
+                                                                                postfix = `${data.source_project_object_name} ➞ ${data.destination_project_object_name}`;
                                                                             }
                                                                             break;
                                                                         case 3:
-                                                                            routeName = options.data.items[0].transformation_type_value
+                                                                            routeName = data.transformation_type_value
                                                                             break;
                                                                     }
 
