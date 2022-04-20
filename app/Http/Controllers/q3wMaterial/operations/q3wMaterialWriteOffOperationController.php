@@ -294,9 +294,9 @@ class q3wMaterialWriteOffOperationController extends Controller
                     $errors[$key]['errorList'][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
                 } else {
                     if ($accountingType == 2) {
-                        $materialAmountDelta = round($sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount, 2);
+                        $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount;
                     } else {
-                        $materialAmountDelta = round($sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity * $operationAmount, 2);
+                        $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity * $operationAmount;
                     }
 
                     if (round($materialAmountDelta, 2) < 0) {
