@@ -708,9 +708,9 @@
                                                                             break;
                                                                         case 2:
                                                                             if (data.source_project_object_id === projectObject){
-                                                                                postfix = `${data.destination_project_object_name} ➞ ${data.source_project_object_name}`;
-                                                                            } else {
                                                                                 postfix = `${data.source_project_object_name} ➞ ${data.destination_project_object_name}`;
+                                                                            } else {
+                                                                                postfix = `${data.destination_project_object_name} ➞ ${data.source_project_object_name}`;
                                                                             }
                                                                             break;
                                                                         case 3:
