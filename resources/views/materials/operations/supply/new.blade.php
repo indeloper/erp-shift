@@ -194,12 +194,22 @@
                                 sortOrder: "asc",
                                 calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                                     if (target === "search") {
+                                        let columnsNames = ["standard_name"]
+
                                         let words = filterValue.split(" ");
                                         let filter = [];
-                                        words.forEach(function (word) {
-                                            filter.push(["standard_name", "contains", word]);
-                                            filter.push("and");
-                                        });
+
+                                        columnsNames.forEach(function (column, index) {
+                                            filter.push([]);
+                                            words.forEach(function (word) {
+                                                filter[filter.length - 1].push([column, "contains", word]);
+                                                filter[filter.length - 1].push("and");
+                                            });
+
+                                            filter[filter.length - 1].pop();
+                                            filter.push("or");
+                                        })
+                                        console.log(filter)
                                         filter.pop();
                                         return filter;
                                     }

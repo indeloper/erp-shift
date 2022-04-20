@@ -204,7 +204,6 @@
                             })
 
                             filter.pop();
-                            console.log("filter", filter);
                             return filter;
                         }
                         return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
