@@ -651,9 +651,25 @@
                                                                 groupIndex: 0,
                                                                 sortOrder: "desc",
                                                                 groupCellTemplate: function (container, options) {
+                                                                    console.log(options);
                                                                     let operationId = options.text;
+                                                                    let operationUrl = options.data.items[0].url;
+                                                                    let postfix = '';
 
-                                                                    $(`<div>Операция #${operationId}</div>`)
+                                                                    switch (options.data.items[0].operation_route_id){
+                                                                        case 1:
+                                                                            postfix = '➞';
+                                                                            break;
+                                                                        case 2:
+                                                                            postfix = '➞';
+                                                                            break;
+                                                                    }
+
+                                                                    if (postfix) {
+                                                                        postfix = `(${postfix})`;
+                                                                    }
+
+                                                                    $(`<div><a href="${operationUrl}">Операция #${operationId}</a></div> ${postfix}`)
                                                                         .appendTo(container);
                                                                 }
                                                             }

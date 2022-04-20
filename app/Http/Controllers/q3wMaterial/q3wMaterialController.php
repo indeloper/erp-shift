@@ -346,11 +346,13 @@ class q3wMaterialController extends Controller
         $commentId = $request->commentId;
 
 
-        return q3wOperationMaterial::leftJoin('q3w_material_operations as a', 'q3w_operation_materials.material_operation_id', '=', 'a.id')
-            ->leftJoin('q3w_material_standards as b', 'q3w_operation_materials.standard_id', '=', 'b.id')
+        return q3wMaterialOperation::rightJoin('q3w_operation_materials as a', 'a.material_operation_id', '=', 'q3w_material_operations.id')
+            ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->leftJoin('q3w_operation_material_comments as f', 'comment_id', '=', 'f.id')
+            ->leftJoin('project_objects as g', 'q3w_material_operations.source_project_object_id', '=', 'g.id')
+            ->leftJoin('project_objects as h', 'q3w_material_operations.destination_project_object_id', '=', 'h.id')
             ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity, $commentId) {
                 if (isset($commentId)) {//If comment Id passed we need to check material's comment field
                     $comment = q3wMaterialComment::findOrFail($commentId)->comment;
@@ -369,18 +371,19 @@ class q3wMaterialController extends Controller
                 }
             })
             ->where(function ($query) use ($projectObject) {
-                $query->where('a.source_project_object_id', $projectObject->id)
-                    ->orWhere('a.destination_project_object_id', $projectObject->id);
+                $query->where('q3w_material_operations.source_project_object_id', $projectObject->id)
+                    ->orWhere('q3w_material_operations.destination_project_object_id', $projectObject->id);
             })
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-            ->whereIn('a.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
-            ->orderBy('a.created_at', 'desc')
-            ->get(['q3w_operation_materials.*',
-                'a.id as operation_id',
-                'a.operation_route_id',
-                'a.source_project_object_id',
-                'a.destination_project_object_id',
-                'a.created_at as operation_date',
+            ->whereIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
+            ->orderBy('q3w_material_operations.created_at', 'desc')
+            ->get(['a.*',
+                'q3w_material_operations.id as operation_id',
+                'q3w_material_operations.operation_route_id',
+                'q3w_material_operations.operation_route_stage_id',
+                'q3w_material_operations.source_project_object_id',
+                'q3w_material_operations.destination_project_object_id',
+                'q3w_material_operations.created_at as operation_date',
                 'd.measure_unit',
                 'd.name as material_type_name',
                 'e.value as measure_unit_value'])
