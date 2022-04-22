@@ -240,8 +240,6 @@
                                 dataField: "standard_name",
                                 dataType: "string",
                                 caption: "Наименование",
-                                sortIndex: 0,
-                                sortOrder: "asc",
                                 calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                                     if (target === "search") {
                                         let columnsNames = ["standard_name", "comment"]
@@ -460,6 +458,17 @@
                                         validationState: "unvalidated",
                                         validationResult: "none"
                                     })
+
+                                    $.ajax({
+                                        type: "POST",
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                        contentType: "json",
+                                        dataType: "json",
+                                        url: "{{route('materials.standard.incriminate-selection-counter')}}",
+                                        data: JSON.stringify({standardId: materialStandard.id})
+                                    });
 
                                     validateMaterialList(false, false, validationUid);
                                 });

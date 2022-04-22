@@ -183,6 +183,8 @@ class q3wMaterialController extends Controller
             ->where('a.project_object', '=', $projectObjectId)
             ->where('amount', '<>', 0)
             ->where('quantity', '<>', 0)
+            ->orderBy('selection_counter', 'desc')
+            ->orderBy('b.name')
             ->get(['a.*',
                 'f.comment',
                 'b.name as standard_name',
@@ -191,7 +193,7 @@ class q3wMaterialController extends Controller
                 'd.accounting_type',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value',])
+                'e.value as measure_unit_value'])
             ->toArray();
 
         foreach ($activeOperationMaterials as $operationMaterial){
@@ -229,6 +231,8 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types as d', 'a.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->leftJoin('q3w_material_comments as f', 'b.comment_id', '=', 'f.id')
+            ->orderBy('a.selection_counter', 'desc')
+            ->orderBy('a.name')
             ->get([DB::Raw('UUID() as `id`'),
                     'a.id as standard_id',
                     'a.name as standard_name',

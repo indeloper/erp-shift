@@ -239,8 +239,6 @@
                                 dataField: "standard_name",
                                 dataType: "string",
                                 caption: "Наименование",
-                                sortIndex: 0,
-                                sortOrder: "asc",
                                 calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                                     if (target === "search") {
                                         let columnsNames = ["standard_name", "comment"]
