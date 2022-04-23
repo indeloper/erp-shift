@@ -489,6 +489,7 @@ class q3wMaterialTransferOperationController extends Controller
                     $operation->operation_route_stage_id = 32;
                     $operation->save();
                     $this->sendTransferNotification($operation, 'Перемещение завершено после конфликта. Получатель подтверил корректность изменений.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 32:
                     $operation->operation_route_stage_id = 33;
@@ -497,7 +498,7 @@ class q3wMaterialTransferOperationController extends Controller
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 33:
-                    $operation->operation_route_stage_id = 35;
+                    $operation->operation_route_stage_id = 34;
                     $operation->save();
                     $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено после конфликта. Получатель подтверил корректность изменений.', $operation->source_project_object_id);
                     break;
@@ -544,7 +545,6 @@ class q3wMaterialTransferOperationController extends Controller
                     $operation->operation_route_stage_id = 42;
                     $operation->save();
                     $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
-                    $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
 
                 //Отмена заявки по ветке отправителя этап 6
@@ -708,7 +708,7 @@ class q3wMaterialTransferOperationController extends Controller
                         }
                         break;
                     default:
-                        if ($inputMaterial['amount'] * $inputMaterial['quantity'] > $sourceMaterial['quantity']) {
+                        if (round($inputMaterial['amount'] * $inputMaterial['quantity'], 2) > round($sourceMaterial['quantity'], 2)) {
                             abort(400, 'Bad amount for standard ' . $inputMaterial['standard_id']);
                         }
                 }

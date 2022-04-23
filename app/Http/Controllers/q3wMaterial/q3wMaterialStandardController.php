@@ -6,6 +6,7 @@ use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use http\Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -45,7 +46,7 @@ class q3wMaterialStandardController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store(Request $request)
     {
@@ -102,7 +103,7 @@ class q3wMaterialStandardController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\q3wMaterial\q3wMaterialStandard  $q3wMaterialStandard
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
     {
@@ -117,7 +118,6 @@ class q3wMaterialStandardController extends Controller
             return response()->json([
                 'result' => 'ok'
             ], 200);
-
         }
         catch(Exception $e)
         {
@@ -132,9 +132,9 @@ class q3wMaterialStandardController extends Controller
      * Remove the specified resource from storage.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function delete(Request $request): \Illuminate\Http\JsonResponse
+    public function delete(Request $request): JsonResponse
     {
         try {
             $id = $request->all()["key"];
@@ -157,9 +157,11 @@ class q3wMaterialStandardController extends Controller
     {
         $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
 
-        return $queryResultArray = (new q3wMaterialStandard())->dxLoadOptions($dxLoadOptions)
+        return (new q3wMaterialStandard())->dxLoadOptions($dxLoadOptions)
             ->leftJoin('q3w_material_types as b', 'q3w_material_standards.material_type', '=', 'b.id')
             ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
+            ->orderBy('selection_counter', 'desc')
+            ->orderBy('q3w_material_standards.name')
             ->get(['q3w_material_standards.id',
                 'q3w_material_standards.id as standard_id',
                 'q3w_material_standards.name as standard_name',
@@ -167,10 +169,24 @@ class q3wMaterialStandardController extends Controller
                 'q3w_material_standards.material_type',
                 'q3w_material_standards.participates_in_search',
                 'q3w_material_standards.name',
+                'q3w_material_standards.selection_counter',
                 'b.name as material_type_name',
                 'b.measure_unit',
                 'b.accounting_type',
                 'd.value as measure_unit_value'])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function incriminateSelectionCounter(Request $request): JsonResponse {
+        $requestData = json_decode($request->getContent(), false);
+        $standardId = $requestData->standardId;
+        $standard = q3wMaterialStandard::findOrFail($standardId);
+        $standard->selection_counter += 1;
+        $standard->save();
+
+        return response()->json([
+            'result' => 'ok',
+            'value' => $standard->selection_counter
+        ], 200);
     }
 }

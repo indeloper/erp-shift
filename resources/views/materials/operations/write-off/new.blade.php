@@ -198,17 +198,23 @@
                                 dataField: "standard_name",
                                 dataType: "string",
                                 caption: "Наименование",
-                                sortIndex: 0,
-                                sortOrder: "asc",
                                 calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                                     if (target === "search") {
+                                        let columnsNames = ["standard_name", "comment"]
+
                                         let words = filterValue.split(" ");
                                         let filter = [];
-                                        words.forEach(function (word) {
-                                            filter.push(["standard_name", "contains", word]);
-                                            filter.push("and");
-                                        });
-                                        filter.pop();
+
+                                        columnsNames.forEach(function (column, index) {
+                                            filter.push([]);
+                                            words.forEach(function (word) {
+                                                filter[filter.length - 1].push([column, "contains", word]);
+                                                filter[filter.length - 1].push("and");
+                                            });
+
+                                            filter[filter.length - 1].pop();
+                                            filter.push("or");
+                                        })
                                         return filter;
                                     }
                                     return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
@@ -383,6 +389,17 @@
                                     validationState: "unvalidated",
                                     validationResult: "none"
                                 })
+
+                                $.ajax({
+                                    type: "POST",
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    contentType: "json",
+                                    dataType: "json",
+                                    url: "{{route('materials.standard.incriminate-selection-counter')}}",
+                                    data: JSON.stringify({standardId: materialStandard.id})
+                                });
 
                                 validateMaterialList(false, false, validationUid);
                             })

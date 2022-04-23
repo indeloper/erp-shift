@@ -202,14 +202,21 @@
                 caption: "Наименование эталона",
                 calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                     if (["contains", "notcontains"].indexOf(selectedFilterOperation) !== -1) {
+                        let columnsNames = ["name"]
 
                         let words = filterValue.split(" ");
                         let filter = [];
-                        words.forEach(function (word) {
-                            filter.push(["name", selectedFilterOperation, word]);
-                            filter.push("and");
-                        });
-                        console.log(filter);
+
+                        columnsNames.forEach(function (column, index) {
+                            filter.push([]);
+                            words.forEach(function (word) {
+                                filter[filter.length - 1].push([column, selectedFilterOperation, word]);
+                                filter[filter.length - 1].push("and");
+                            });
+
+                            filter[filter.length - 1].pop();
+                            filter.push("or");
+                        })
                         filter.pop();
                         return filter;
                     }

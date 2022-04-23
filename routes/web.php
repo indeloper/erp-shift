@@ -295,6 +295,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::put('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@update')->name('materials.standards.update')->middleware('can:material_accounting_materials_standards_editing');
     Route::post('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@store')->name('materials.standards.store')->middleware('can:material_accounting_materials_standards_editing');
     Route::delete('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@delete')->name('materials.standards.delete')->middleware('can:material_accounting_materials_standards_editing');
+    Route::post('/materials/standard/incriminate-selection-counter', 'q3wMaterial\q3wMaterialStandardController@incriminateSelectionCounter')->name('materials.standard.incriminate-selection-counter');
 
     //Material Operations
     Route::get('/materials/operations/all', 'q3wMaterial\operations\q3wMaterialOperationController@index')->name('materials.operations.index')->middleware('can:material_accounting_operation_list_access');

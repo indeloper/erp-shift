@@ -187,14 +187,22 @@
                     },
                     calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
                         if (["contains", "notcontains"].indexOf(selectedFilterOperation) !== -1) {
+                            let columnsNames = ["standard_name", "comment"]
 
                             let words = filterValue.split(" ");
                             let filter = [];
-                            words.forEach(function (word) {
-                                filter.push(["standard_name", selectedFilterOperation, word]);
-                                filter.push("and");
-                            });
-                            console.log(filter);
+
+                            columnsNames.forEach(function (column, index) {
+                                filter.push([]);
+                                words.forEach(function (word) {
+                                    filter[filter.length - 1].push([column, selectedFilterOperation, word]);
+                                    filter[filter.length - 1].push("and");
+                                });
+
+                                filter[filter.length - 1].pop();
+                                filter.push("or");
+                            })
+
                             filter.pop();
                             return filter;
                         }
@@ -572,10 +580,15 @@
                                             enabled: true,
                                             template: function(container, options) {
                                                 let currentMaterialData = options.data;
+                                                let operationRouteIconWidth = 24;
+                                                let dxCommandSelectWidth = $('.dx-command-select').outerWidth();
+                                                let dxCommandExpandWidth = $('.dx-command-expand.dx-datagrid-group-space').outerWidth();
+                                                let materialDateWidth = $('[aria-label$=Наименование]').outerWidth() + $('[aria-label$="Ед. изм."]').outerWidth() - dxCommandSelectWidth - operationRouteIconWidth;
+                                                console.log("materialDateWidth", materialDateWidth);
 
                                                 $("<div>")
                                                     .dxDataGrid({
-                                                        columnAutoWidth: true,
+                                                        columnAutoWidth: false,
                                                         showBorders: true,
                                                         showColumnHeaders: false,
                                                         selection: {
@@ -597,7 +610,7 @@
                                                                 dataField: "operation_route_id",
                                                                 caption: "",
                                                                 dataType: "number",
-                                                                width: 24,
+                                                                width: operationRouteIconWidth,
                                                                 cellTemplate: function (container, options) {
                                                                     let operationIcon = getOperationRouteIcon(options.data.operation_route_id,
                                                                         options.data.source_project_object_id,
@@ -613,7 +626,7 @@
                                                                 dataField: "operation_date",
                                                                 caption: "Дата",
                                                                 dataType: "datetime",
-                                                                width: 416,
+                                                                width: materialDateWidth,
                                                                 cellTemplate: function (container, options) {
                                                                     let operationDate = options.text.replaceAll(',', ' ');
 
@@ -645,15 +658,67 @@
                                                                 }
                                                             },
                                                             {
-                                                                dataField: "operation_id",
+                                                                dataField: "weight",
+                                                                caption: "Вес",
+                                                                dataType: "number",
+                                                                calculateCellValue: function (rowData) {
+                                                                    let amount = rowData.amount;
+                                                                    let weight = amount * rowData.quantity * rowData.weight;
+
+                                                                    if (isNaN(weight)) {
+                                                                        weight = 0;
+                                                                    } else {
+                                                                        weight = Math.round(weight * 1000) / 1000;
+                                                                    }
+
+                                                                    rowData.computed_weight = weight;
+                                                                    return weight;
+                                                                },
+                                                                cellTemplate: function (container, options) {
+                                                                    let weight = options.data.computed_weight;
+
+                                                                    $(`<div>${weight} т</div>`)
+                                                                        .appendTo(container);
+                                                                }
+                                                            },
+                                                            {
+                                                                dataField: "id",
                                                                 dataType: "number",
                                                                 caption: "Номер операции",
                                                                 groupIndex: 0,
                                                                 sortOrder: "desc",
                                                                 groupCellTemplate: function (container, options) {
-                                                                    let operationId = options.text;
+                                                                    console.log(options);
+                                                                    let data;
 
-                                                                    $(`<div>Операция #${operationId}</div>`)
+                                                                    if (options.data.items) {
+                                                                        data = options.data.items[0]
+                                                                    } else {
+                                                                        data = options.data.collapsedItems[0]
+                                                                    }
+
+                                                                    let operationId = options.text;
+                                                                    let operationUrl = data.url;
+                                                                    let routeName = data.route_name;
+                                                                    let postfix = '';
+
+                                                                    switch (data.operation_route_id){
+                                                                        case 1:
+                                                                            postfix = data.contractor_short_name;
+                                                                            break;
+                                                                        case 2:
+                                                                            postfix = `${data.source_project_object_name} ➞ ${data.destination_project_object_name}`;
+                                                                            break;
+                                                                        case 3:
+                                                                            routeName = data.transformation_type_value
+                                                                            break;
+                                                                    }
+
+                                                                    if (postfix) {
+                                                                        postfix = `(${postfix})`;
+                                                                    }
+
+                                                                    $(`<div><a href="${operationUrl}" target="_blank">Операция #${operationId}</a> — ${routeName} ${postfix}</div>`)
                                                                         .appendTo(container);
                                                                 }
                                                             }
