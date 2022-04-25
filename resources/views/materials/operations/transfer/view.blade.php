@@ -843,7 +843,7 @@
                                         contentType: "json",
                                         dataType: "json",
                                         url: "{{route('materials.standard.incriminate-selection-counter')}}",
-                                        data: JSON.stringify({standardId: materialStandard.id})
+                                        data: JSON.stringify({standardId: material.standard_id})
                                     });
 
                                     validateMaterialList(false, false, validationUid, "");
