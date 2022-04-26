@@ -1004,7 +1004,9 @@ class q3wMaterialTransferOperationController extends Controller
                     ]
                 );
             } else {
-                $operationMaterialComment = q3wOperationMaterialComment::find($inputMaterial->comment_id);
+                if (isset($inputMaterial->comment_id)) {
+                    $operationMaterialComment = q3wOperationMaterialComment::find($inputMaterial->comment_id);
+                }
 
                 if (isset($operationMaterialComment)) {
                     if ($operationMaterialComment->comment == $inputMaterial->comment) {
