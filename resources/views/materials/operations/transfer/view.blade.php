@@ -825,6 +825,7 @@
                                         quantity: quantity,
                                         amount: amount,
                                         comment: material.comment,
+                                        comment_id: material.comment_id,
                                         initial_comment_id: material.comment_id,
                                         initial_comment: material.initial_comment,
                                         total_quantity: material.quantity,
