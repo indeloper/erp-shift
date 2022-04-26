@@ -825,8 +825,8 @@
                                         quantity: quantity,
                                         amount: amount,
                                         comment: material.comment,
-                                        comment_id: material.comment_id,
-                                        initial_comment_id: material.comment_id,
+                                        comment_id: null,
+                                        initial_comment_id: material.initial_comment_id,
                                         initial_comment: material.initial_comment,
                                         total_quantity: material.quantity,
                                         total_amount: material.amount,
@@ -844,7 +844,7 @@
                                         contentType: "json",
                                         dataType: "json",
                                         url: "{{route('materials.standard.incriminate-selection-counter')}}",
-                                        data: JSON.stringify({standardId: material.standard_id})
+                                        data: JSON.stringify({standardId: materialStandard.id})
                                     });
 
                                     validateMaterialList(false, false, validationUid, "");
