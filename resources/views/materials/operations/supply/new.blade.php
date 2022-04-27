@@ -968,7 +968,7 @@
             }
 
             function getValidationUid(){
-                return new DevExpress.data.Guid().toString();
+                return "uid-" + new DevExpress.data.Guid().toString();
             }
 
             function updateCommonValidationState() {

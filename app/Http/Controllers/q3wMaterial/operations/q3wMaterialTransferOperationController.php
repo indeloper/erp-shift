@@ -1049,11 +1049,7 @@ class q3wMaterialTransferOperationController extends Controller
             }
         }
 
-        if (isset($requestData->new_comment)){
-            $newComment = $requestData->new_comment;
-        } else {
-            $newComment = self::EMPTY_COMMENT_TEXT;
-        }
+        $newComment = $requestData->new_comment ?? self::EMPTY_COMMENT_TEXT;
 
         $materialOperationComment = new q3wOperationComment([
             'material_operation_id' => $operation->id,
@@ -1319,11 +1315,11 @@ class q3wMaterialTransferOperationController extends Controller
                     ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
                     ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
                     ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
-                    ->get(DB::raw('sum(`amount`) as amount, sum(`quantity`) as quantity'))
+                    ->get(DB::raw('sum(`amount`) as amount, sum(`quantity` * `amount`) as total_quantity'))
                     ->first();
 
                 $operationAmount = $activeOperationMaterialAmount->amount;
-                $operationQuantity = $activeOperationMaterialAmount->quantity;
+                $operationTotalQuantity = $activeOperationMaterialAmount->total_quantity;
 
                 if (!isset($errors[$key])) {
                     if ($materialStandard->materialType->measure_unit == 1) {
@@ -1340,7 +1336,7 @@ class q3wMaterialTransferOperationController extends Controller
                         if ($accountingType == 2) {
                             $materialAmountDelta = $sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount;
                         } else {
-                            $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity * $operationAmount;
+                            $materialAmountDelta = $sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationTotalQuantity;
                         }
 
                         if (round($materialAmountDelta, 2) < 0) {

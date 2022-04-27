@@ -814,7 +814,7 @@
                                     let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.initial_comment_id);
 
                                     transferMaterialDataSource.store().insert({
-                                        id: new DevExpress.data.Guid().toString(),
+                                        id: "uid-" + new DevExpress.data.Guid().toString(),
                                         standard_id: material.standard_id,
                                         standard_name: material.standard_name,
                                         accounting_type: material.accounting_type,
@@ -825,6 +825,7 @@
                                         quantity: quantity,
                                         amount: amount,
                                         comment: material.comment,
+                                        comment_id: null,
                                         initial_comment_id: material.comment_id,
                                         initial_comment: material.initial_comment,
                                         total_quantity: material.quantity,
@@ -956,7 +957,7 @@
                             hint: "Дублировать",
                             icon: "copy",
                             onClick: function (e) {
-                                let clonedItemId = new DevExpress.data.Guid().toString();
+                                let clonedItemId = "uid-" + new DevExpress.data.Guid().toString();
 
                                 let clonedItem = $.extend({},
                                     e.row.data, {
@@ -1778,7 +1779,7 @@
                 switch (accountingType) {
                     case 2:
                         if (!quantity || !amount) {
-                            return new DevExpress.data.Guid().toString();
+                            return "uid-" + new DevExpress.data.Guid().toString();
                         } else {
                             filterConditions = [["standard_id", "=", standardId],
                                 "and",
@@ -1802,7 +1803,7 @@
                 if (filteredData.length > 0) {
                     return filteredData[0].validationUid
                 } else {
-                    return new DevExpress.data.Guid().toString();
+                    return "uid-" + new DevExpress.data.Guid().toString();
                 }
             }
 

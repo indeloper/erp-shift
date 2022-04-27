@@ -49,7 +49,7 @@ class Handler extends ExceptionHandler
             elseif ($exception instanceof ModelNotFoundException) {/* nothing */}
             elseif ($exception instanceof TokenMismatchException) {/* nothing */}
             else {
-                $text = $this->createErrorMessage($exception);
+                $text = mb_substr($this->createErrorMessage($exception), 0, 4096);
             }
 
             if (isset($text)) {

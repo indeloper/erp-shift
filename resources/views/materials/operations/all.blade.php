@@ -324,7 +324,7 @@
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
-                                                            id: new DevExpress.data.Guid().toString(),
+                                                            id: "uid-" + new DevExpress.data.Guid().toString(),
                                                             fieldName: "project_object_id",
                                                             operation: "=",
                                                             value: filterElement.option("value"),
@@ -422,7 +422,7 @@
                                                 if (filterElementCondition.option("value")) {
                                                     filterList.push(
                                                         {
-                                                            id: new DevExpress.data.Guid().toString(),
+                                                            id: "uid-" + new DevExpress.data.Guid().toString(),
                                                             fieldName: "operation_date",
                                                             operation: filterElementCondition.option("value"),
                                                             value: dateStartISOString,
@@ -477,7 +477,7 @@
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
-                                                            id: new DevExpress.data.Guid().toString(),
+                                                            id: "uid-" + new DevExpress.data.Guid().toString(),
                                                             fieldName: "q3w_material_operations.operation_route_id",
                                                             operation: "=",
                                                             value: filterElement.option("value"),
@@ -531,7 +531,7 @@
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
-                                                            id: new DevExpress.data.Guid().toString(),
+                                                            id: "uid-" + new DevExpress.data.Guid().toString(),
                                                             fieldName: "q3w_operation_route_stages.name",
                                                             operation: "=",
                                                             value: filterElement.option("value"),
@@ -585,7 +585,7 @@
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
-                                                            id: new DevExpress.data.Guid().toString(),
+                                                            id: "uid-" + new DevExpress.data.Guid().toString(),
                                                             fieldName: "q3w_material_operations.creator_user_id",
                                                             operation: "=",
                                                             value: filterElement.option("value"),
@@ -628,7 +628,7 @@
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
-                                                            id: new DevExpress.data.Guid().toString(),
+                                                            id: "uid-" + new DevExpress.data.Guid().toString(),
                                                             fieldName: "have_conflict",
                                                             operation: "=",
                                                             value: filterElement.option("value"),
@@ -692,7 +692,7 @@
                                                 if (filterElement.option("value")) {
                                                     filterList.push(
                                                         {
-                                                            id: new DevExpress.data.Guid().toString(),
+                                                            id: "uid-" + new DevExpress.data.Guid().toString(),
                                                             fieldName: "have_conflict",
                                                             operation: "=",
                                                             value: filterElement.option("value"),

@@ -404,7 +404,7 @@
                                     switch(currentTransformationStage) {
                                         case "fillingMaterialsToTransform":
                                             materialsToTransform.push({
-                                                id: new DevExpress.data.Guid().toString(),
+                                                id: "uid-" + new DevExpress.data.Guid().toString(),
                                                 material_id: material.id,
                                                 standard_id: material.standard_id,
                                                 standard_name: material.standard_name,
@@ -424,7 +424,7 @@
                                             break;
                                         case "fillingMaterialsAfterTransform":
                                             materialsAfterTransform.push({
-                                                id: new DevExpress.data.Guid().toString(),
+                                                id: "uid-" + new DevExpress.data.Guid().toString(),
                                                 standard_id: material.standard_id,
                                                 standard_name: material.standard_name,
                                                 accounting_type: material.accounting_type,
@@ -1096,7 +1096,7 @@
                             e.preventDefault();
                             materialsAfterTransform.forEach((material, index) => {
                                 if (material.id === $(this).attr("uid")) {
-                                    let clonedItem = $.extend({}, material, {id: new DevExpress.data.Guid().toString()});
+                                    let clonedItem = $.extend({}, material, {id: "uid-" + new DevExpress.data.Guid().toString()});
                                     materialsAfterTransform.push(clonedItem);
                                     repaintMaterialsAfterTransformLayer();
                                     validateMaterialList(false, false);
@@ -1288,7 +1288,7 @@
                             e.preventDefault();
                             materialsRemains.forEach((material, index) => {
                                 if (material.id === $(this).attr("uid")) {
-                                    let clonedItem = $.extend({}, material, {id: new DevExpress.data.Guid().toString()});
+                                    let clonedItem = $.extend({}, material, {id: "uid-" + new DevExpress.data.Guid().toString()});
                                     materialsRemains.push(clonedItem);
                                     repaintMaterialRemains();
                                     //validateMaterialList(false, false);
