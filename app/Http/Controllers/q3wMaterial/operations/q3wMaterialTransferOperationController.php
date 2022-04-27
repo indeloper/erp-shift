@@ -1049,11 +1049,7 @@ class q3wMaterialTransferOperationController extends Controller
             }
         }
 
-        if (isset($requestData->new_comment)){
-            $newComment = $requestData->new_comment;
-        } else {
-            $newComment = self::EMPTY_COMMENT_TEXT;
-        }
+        $newComment = $requestData->new_comment ?? self::EMPTY_COMMENT_TEXT;
 
         $materialOperationComment = new q3wOperationComment([
             'material_operation_id' => $operation->id,
