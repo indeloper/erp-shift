@@ -262,6 +262,8 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/material/operations/route-stages-without-notifications/list', 'q3wMaterial\q3wCommonController@operationRouteStagesWithoutNotificationsList')->name('material.operation.route-stages-without-notifications.list');
     Route::get('/material/types/lookup-list', 'q3wMaterial\q3wCommonController@materialTypesLookupList')->name('material.types.lookup-list');
     Route::get('/material/transformation-types/lookup-list', 'q3wMaterial\q3wCommonController@materialTransformationTypesLookupList')->name('material.transformation-types.lookup-list');
+    Route::get('/material/brand-types/list', 'q3wMaterial\q3wCommonController@materialBrandTypesList')->name('material.brand-types.list');
+    Route::get('/material/brands/list', 'q3wMaterial\q3wCommonController@materialBrandsList')->name('material.brands.list');
 
     //Materials
     Route::get('/materials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
@@ -292,10 +294,13 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/material-standard', 'q3wMaterial\q3wMaterialStandardController@index')->name('materials.standards.index')->middleware('can:material_accounting_materials_standards_editing');
     Route::get('/materials/material-standard/list', 'q3wMaterial\q3wMaterialStandardController@show')->name('materials.standards.list');//!!!
     Route::get('/materials/material-standard/listex', 'q3wMaterial\q3wMaterialStandardController@list')->name('materials.standards.listex');//!!!
+    Route::get('/materials/standard-properties/list', 'q3wMaterial\q3wMaterialStandardController@standardPropertiesList')->name('materials.standard-properties.list');
+    Route::get('/materials/standard-brands/list', 'q3wMaterial\q3wMaterialStandardController@brandsList')->name('materials.brands.list');
     Route::put('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@update')->name('materials.standards.update')->middleware('can:material_accounting_materials_standards_editing');
     Route::post('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@store')->name('materials.standards.store')->middleware('can:material_accounting_materials_standards_editing');
     Route::delete('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@delete')->name('materials.standards.delete')->middleware('can:material_accounting_materials_standards_editing');
     Route::post('/materials/standard/incriminate-selection-counter', 'q3wMaterial\q3wMaterialStandardController@incriminateSelectionCounter')->name('materials.standard.incriminate-selection-counter');
+
 
     //Material Operations
     Route::get('/materials/operations/all', 'q3wMaterial\operations\q3wMaterialOperationController@index')->name('materials.operations.index')->middleware('can:material_accounting_operation_list_access');

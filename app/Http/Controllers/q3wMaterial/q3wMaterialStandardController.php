@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\q3wMaterial;
 
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialBrand;
+use App\Models\q3wMaterial\q3wMaterialBrandsRelation;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use App\Models\q3wMaterial\q3wStandardPropertiesRelations;
+use App\Models\q3wMaterial\q3wStandardProperty;
 use http\Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,8 +32,6 @@ class q3wMaterialStandardController extends Controller
                 ->get(['a.id as id', 'a.name as name', 'b.value as measure_unit_value'])
                                 ->toJson(JSON_UNESCAPED_UNICODE)
         ]);
-
-
     }
 
     /**
@@ -50,22 +52,55 @@ class q3wMaterialStandardController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $materialStandard = new q3wMaterialStandard(json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/));
-            $materialStandard->save();
+        DB::beginTransaction();
 
-            return response()->json([
-                'result' => 'ok',
-                'key' => $materialStandard->id
-            ], 200);
+        $data = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY);
+
+        if (isset($data["standard_properties"])) {
+            $standardProperties = $data["standard_properties"];
+            unset($data["standard_properties"]);
         }
-        catch(Exception $e)
-        {
-            return response()->json([
-                'result' => 'error',
-                'errors'  => $e->getMessage(),
-            ], 400);
+
+        if (isset($data["brands"])) {
+            $brands = $data["brands"];
+            unset($data["brands"]);
         }
+
+        $materialStandard = new q3wMaterialStandard($data);
+        $materialStandard->save();
+
+        if (isset($standardProperties)){
+            q3wStandardPropertiesRelations::where('standard_id', $materialStandard->id)->forceDelete();
+
+            foreach ($standardProperties as $property) {
+                $relation = new q3wStandardPropertiesRelations([
+                    "standard_property_id" => $property,
+                    "standard_id" => $materialStandard->id
+                ]);
+
+                $relation->save();
+            }
+        }
+
+        if (isset($brands)){
+            q3wMaterialBrandsRelation::where('standard_id', $materialStandard->id)->forceDelete();
+
+            foreach ($brands as $editedBrand) {
+                $brand = new q3wMaterialBrandsRelation([
+                    "brand_id" => $editedBrand,
+                    "standard_id" => $materialStandard->id
+                ]);
+
+                $brand->save();
+            }
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'result' => 'ok',
+            'key' => $materialStandard->id
+        ], 200);
     }
 
     /**
@@ -82,9 +117,16 @@ class q3wMaterialStandardController extends Controller
             ->dxLoadOptions($options)
             ->leftJoin('q3w_material_types as b', 'q3w_material_standards.material_type', '=', 'b.id')
             ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
-            ->select(['q3w_material_standards.*', 'b.measure_unit', 'd.value as measure_unit_value'])
+            ->leftJoin('q3w_standard_properties_relations', 'q3w_material_standards.id', '=', 'q3w_standard_properties_relations.standard_id')
+            ->leftJoin('q3w_material_brands_relations', 'q3w_material_standards.id', '=', 'q3w_material_brands_relations.standard_id')
+            ->groupBy(['q3w_material_standards.id'])
+            ->select(['q3w_material_standards.*',
+                DB::Raw('GROUP_CONCAT(DISTINCT `standard_property_id`) as `standard_property_ids`'),
+                DB::Raw('GROUP_CONCAT(DISTINCT `brand_id`) as `brand_ids`'),
+                'b.measure_unit',
+                'd.value as measure_unit_value'])
             ->get()
-            ->toJSON();
+            ->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -107,25 +149,54 @@ class q3wMaterialStandardController extends Controller
      */
     public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
     {
-        try {
-            $id = $request->all()["key"];
-            $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
+        DB::beginTransaction();
 
-            $materialStandard = q3wMaterialStandard::findOrFail($id);
+        $id = $request->all()["key"];
+        $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY);
 
-            $materialStandard -> update($modifiedData);
+        $materialStandard = q3wMaterialStandard::findOrFail($id);
 
-            return response()->json([
-                'result' => 'ok'
-            ], 200);
+        if (isset($modifiedData["standard_properties"])){
+            $standardProperties = $modifiedData["standard_properties"];
+
+            q3wStandardPropertiesRelations::where('standard_id', $materialStandard->id)->forceDelete();
+
+            foreach ($standardProperties as $property) {
+                $relation = new q3wStandardPropertiesRelations([
+                   "standard_property_id" => $property,
+                   "standard_id" => $materialStandard->id
+                ]);
+
+                $relation->save();
+            }
+
+            unset($modifiedData["standard_properties"]);
         }
-        catch(Exception $e)
-        {
-            return response()->json([
-                'result' => 'error',
-                'errors'  => $e->getMessage(),
-            ], 400);
+
+        if (isset($modifiedData["brands"])){
+            $brands = $modifiedData["brands"];
+
+            q3wMaterialBrandsRelation::where('standard_id', $materialStandard->id)->forceDelete();
+
+            foreach ($brands as $editedBrand) {
+                $brand = new q3wMaterialBrandsRelation([
+                    "brand_id" => $editedBrand,
+                    "standard_id" => $materialStandard->id
+                ]);
+
+                $brand->save();
+            }
+
+            unset($modifiedData["brands"]);
         }
+
+        $materialStandard -> update($modifiedData);
+
+        DB::commit();
+
+        return response()->json([
+            'result' => 'ok'
+        ], 200);
     }
 
     /**
@@ -136,21 +207,14 @@ class q3wMaterialStandardController extends Controller
      */
     public function delete(Request $request): JsonResponse
     {
-        try {
-            $id = $request->all()["key"];
+        $id = $request->all()["key"];
 
-            $materialStandard = q3wMaterialStandard::find($id);
-            $materialStandard->delete();
+        $materialStandard = q3wMaterialStandard::find($id);
+        $materialStandard->delete();
 
-            return response()->json([
-                'result' => 'ok'
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'result' => 'error',
-                'errors' => $e->getMessage(),
-            ], 400);
-        }
+        return response()->json([
+            'result' => 'ok'
+        ], 200);
     }
 
     public function list(Request $request): string
@@ -188,5 +252,27 @@ class q3wMaterialStandardController extends Controller
             'result' => 'ok',
             'value' => $standard->selection_counter
         ], 200);
+    }
+
+    public function standardPropertiesList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new q3wStandardProperty())->dxLoadOptions($options)->get()->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function brandsList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new q3wMaterialBrand())->dxLoadOptions($options)
+            ->leftJoin('q3w_material_types', 'q3w_material_brands.material_type_id', '=', 'q3w_material_types.id')
+            ->orderBy(DB::Raw("CONCAT(`q3w_material_types`.`name`, ' ', `q3w_material_brands`.`name`)"))
+            ->get([
+                'q3w_material_brands.id',
+                'q3w_material_brands.name',
+                DB::Raw("CONCAT(`q3w_material_types`.`name`, ' ', `q3w_material_brands`.`name`) as `full_name`")
+            ])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

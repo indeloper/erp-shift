@@ -36,8 +36,30 @@
 
         $(function () {
             //<editor-fold desc="JS: DataSources">
-            let measureUnitsData = {!!$measureUnits!!};
+        let measureUnitsData = {!!$measureUnits!!};
         let materialTypesData = {!!$materialTypes!!};
+
+        let standardPropertiesDataSource = new DevExpress.data.DataSource({
+            store: new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.standard-properties.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                }
+            })
+        })
+
+        let brandsDataSource = new DevExpress.data.DataSource({
+            store: new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.brands.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                }
+            })
+        })
 
         let materialStandardsDataSource = new DevExpress.data.DataSource({
             reshapeOnPush: true,
@@ -175,6 +197,33 @@
                 },
                 {
                     colSpan: 2,
+                    dataField: "standard_properties",
+                    editorType: "dxTagBox",
+                    label: {
+                        text: "Свойства эталона"
+                    },
+                    editorOptions: {
+                        displayExpr: "name",
+                        valueExpr: "id",
+                        dataSource: standardPropertiesDataSource
+                    }
+                },
+                {
+                    colSpan: 2,
+                    dataField: "brands",
+                    editorType: "dxTagBox",
+                    label: {
+                        text: "Марки эталона"
+                    },
+                    editorOptions: {
+                        displayExpr: "full_name",
+                        valueExpr: "id",
+                        dataSource: brandsDataSource,
+                        searchEnabled: true
+                    }
+                },
+                {
+                    colSpan: 2,
                     dataField: "description",
                     editorType: "dxTextArea",
                     label: {
@@ -228,6 +277,16 @@
                 caption: "Вес, т",
                 dataType: "number",
                 width: 120
+            },
+            {
+                dataField: "standard_properties",
+                caption: "Свойства эталона",
+                visible: false
+            },
+            {
+                dataField: "brands",
+                caption: "Марки эталона",
+                visible: false
             },
             {
                 dataField: "description",
