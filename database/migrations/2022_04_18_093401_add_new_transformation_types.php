@@ -14,13 +14,44 @@ class AddNewTransformationTypes extends Migration
      */
     public function up()
     {
+        Schema::table('q3w_material_transformation_types', function($table) {
+            $table->string('codename')->comment("Кодовое наименование");
+        });
+
         $transformationType = new q3wMaterialTransformationType();
-        $transformationType -> value = "Изготовление спаренного";
+        $transformationType -> value = "Роспуск угловых";
+        $transformationType -> codename = "CORNING_DISSOLUTION";
         $transformationType -> save();
 
         $transformationType = new q3wMaterialTransformationType();
-        $transformationType -> value = "Резка углового";
+        $transformationType -> value = "Спаривание балки";
+        $transformationType -> codename = "BEAM_PAIR_PRODUCTION";
         $transformationType -> save();
+
+        $transformationType = new q3wMaterialTransformationType();
+        $transformationType -> value = "Роспуск спаренной балки";
+        $transformationType -> codename = "BEAM_PAIR_DISSOLUTION";
+        $transformationType -> save();
+
+        $transformationType = q3wMaterialTransformationType::where("value", "like", "Резка")->first();
+        $transformationType -> codename = "CUTTING";
+        $transformationType -> save();
+
+        $transformationType = q3wMaterialTransformationType::where("value", "like", "Стыковка по длине")->first();
+        $transformationType -> codename = "LENGTH_DOCKING";
+        $transformationType -> save();
+
+        $transformationType = q3wMaterialTransformationType::where("value", "like", "Изготовление угловых")->first();
+        $transformationType -> codename = "CORNING_PRODUCTION";
+        $transformationType -> save();
+
+        $transformationType = q3wMaterialTransformationType::where("value", "like", "Изготовление клиновидного")->first();
+        $transformationType -> codename = "WEDGE_SHAPE_PRODUCTION";
+        $transformationType -> save();
+
+        Schema::table('q3w_material_transformation_types', function($table) {
+            $table->string('codename')->unique()->string('codename')->comment("Кодовое наименование")->change();
+        });
     }
 
     /**
@@ -30,7 +61,12 @@ class AddNewTransformationTypes extends Migration
      */
     public function down()
     {
-        q3wMaterialTransformationType::where('value', 'like', 'Изготовление спаренного')->first()->forceDelete();
-        q3wMaterialTransformationType::where('value', 'like', 'Резка углового')->first()->forceDelete();
+        Schema::table('q3w_material_transformation_types', function($table) {
+            $table->dropColumn('codename');
+        });
+
+        q3wMaterialTransformationType::where('value', 'like', 'Спаривание балки')->first()->forceDelete();
+        q3wMaterialTransformationType::where('value', 'like', 'Роспуск угловых')->first()->forceDelete();
+        q3wMaterialTransformationType::where('value', 'like', 'Роспуск спаренной балки')->first()->forceDelete();
     }
 }
