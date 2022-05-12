@@ -174,12 +174,8 @@ class q3wMaterialTransferOperationController extends Controller
                         ->where('standard_id', $operationMaterial->standard->id)
                         ->where('quantity', $operationMaterial->quantity)
                         ->where(function ($query) use ($operationMaterial, $operationMaterialComment, $operationMaterialInitialComment) {
-                            if (empty($operationMaterialComment->comment)) {
-                                if (empty($operationMaterial->initial_comment_id)) {
-                                    $query->whereNull('comment_id');
-                                } else {
-                                    $query->where('comment', 'like', $operationMaterialInitialComment->comment);
-                                }
+                            if (empty($operationMaterialComment)) {
+                                $query->whereNull('comment_id');
                             } else {
                                 $query->where('comment', 'like', $operationMaterialComment->comment);
                             }
@@ -203,12 +199,8 @@ class q3wMaterialTransferOperationController extends Controller
                         ->where('project_object', $operation->destination_project_object_id)
                         ->where('standard_id', $operationMaterial->standard->id)
                         ->where(function ($query) use ($operationMaterial, $operationMaterialComment, $operationMaterialInitialComment) {
-                            if (empty($operationMaterialComment->comment)) {
-                                if (empty($operationMaterial->initial_comment_id)) {
-                                    $query->whereNull('comment_id');
-                                } else {
-                                    $query->where('comment', 'like', $operationMaterialInitialComment->comment);
-                                }
+                            if (empty($operationMaterialComment)) {
+                                $query->whereNull('comment_id');
                             } else {
                                 $query->where('comment', 'like', $operationMaterialComment->comment);
                             }
