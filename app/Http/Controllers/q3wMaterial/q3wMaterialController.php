@@ -536,7 +536,9 @@ class q3wMaterialController extends Controller
                                           MAX(`id`) OVER (PARTITION BY `project_object_id`) AS `max_snapshot_id`,
                                           `project_object_id`
                                         FROM `q3w_material_snapshots`
-                                        WHERE DATE(`created_at`) <= DATE('$date')) AS `snapshots`
+                                            LEFT JOIN q3w_material_operations
+                                                ON `q3w_material_snapshots`.`operation_id` = `q3w_material_operations`.`id`
+                                        WHERE DATE(`operation_date`) <= DATE('$date')) AS `snapshots`
                                         ON `q3w_material_snapshot_materials`.`snapshot_id` = `snapshots`.`max_snapshot_id`
                                     WHERE `snapshots`.`project_object_id` IS NOT NULL
                                     AND `project_object_id` = '$projectObjectId'
