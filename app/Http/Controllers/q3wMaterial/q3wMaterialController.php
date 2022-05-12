@@ -533,7 +533,7 @@ class q3wMaterialController extends Controller
                                       SUM(`amount` * `quantity`) AS `quantity_remains`
                                     FROM `q3w_material_snapshot_materials`
                                       LEFT JOIN (SELECT DISTINCT
-                                          MAX(`id`) OVER (PARTITION BY `project_object_id`) AS `max_snapshot_id`,
+                                          MAX(`q3w_material_snapshots`.`id`) OVER (PARTITION BY `project_object_id`) AS `max_snapshot_id`,
                                           `project_object_id`
                                         FROM `q3w_material_snapshots`
                                             LEFT JOIN q3w_material_operations
