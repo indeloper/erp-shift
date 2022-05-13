@@ -18,61 +18,38 @@
             padding-left: 0 !important;
         }
 
-        .transform-element {
-            margin-top: 8px;
-            display: inline-flex;
-            align-content: center;
+        .transformation-type-selector {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
             flex-direction: row;
-            align-items: center;
-            font-size: larger;
+            align-content: space-between;
         }
 
-        .transform-element>.transformation-number-box, .transform-element>.transformation-comment-box {
-            display: inline-block;
-            margin: 8px;
-            max-width: 6%;
-            min-width: 60px;
-        }
-
-
-        .transform-element>.transformation-comment-box {
-            max-width: 20%;
-            min-width: 200px;
-        }
-
-
-        .transform-wizard-button {
-            margin: 8px 8px 8px 0;
-        }
-
-        .transform-wizard-caption {
-            font-weight: bold;
-            font-size: larger;
-            color: darkslategray;
-        }
-
-        .transformation-validator {
-            display: inline-flex;
-            align-content: center;
-            align-items: center;
-        }
-
-        .fa-exclamation-triangle, .fa-trash-alt, .fa-copy, .fa-check-circle{
-            font-size: larger;
-            margin-right: 8px;
-        }
-
-        .fa-check-circle {
-            color: #006100
-        }
-
-        #materialsToTransformElements, #materialsAfterTransformElements, #materialsRemainsTransformElements {
+        .transformation-type-item {
+            width: 120px;
+            height: 120px;
+            margin: 32px;
+            background-color: rgba(183, 183, 183, 0.1);
+            border-width: 2px;
+            border-style: solid;
+            border-color: rgba(183, 183, 183, 0.7);
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        .transformation-standard-name-cell {
-            min-width: 20%;
+        .transformation-type-text {
+            font-weight: 500;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .transformation-type-item:hover {
+            background-color: aliceblue;
+            border-color: #03a9f4a6;
+            cursor: pointer;
         }
     </style>
 @endsection
@@ -621,7 +598,7 @@
                                             {
                                                 itemType: "simple",
                                                 template: function (data, itemElement) {
-                                                    itemElement.append( $("<div id='transformation-type-selector'>"));
+                                                    itemElement.append( $(`<div class="transformation-type-selector"/>`));
                                                 }
                                             }
                                         ]
@@ -651,8 +628,11 @@
                 let transformTypes = materialTransformationTypesDataSource.items();
 
                 transformTypes.forEach(element => {
-                    console.log(element);
-                    transformTypeLayer.append($('<div class="transformation-type-item">element.value</div>'))
+                    transformTypeLayer.append(
+                        $(`<div class="transformation-type-item"/>`).append(
+                            $(`<div class="transformation-type-text">${element.value}</div>`)
+                        )
+                    )
                 })
             }
 
