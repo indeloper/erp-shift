@@ -436,8 +436,8 @@
                                             quantity = null;
                                     }
 
-                                    let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.initial_comment_id);
-
+                                    let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.comment_id);
+                                    console.log(`added material`, material);
                                     transferMaterialDataSource.store().insert({
                                         id: "uid-" + new DevExpress.data.Guid().toString(),
                                         standard_id: material.standard_id,
@@ -1205,9 +1205,6 @@
                     validationData = transferMaterialDataSource.store().createQuery()
                         .toArray();
                 }
-
-
-                console.log('validationData', validationData);
 
                 updateRowsValidationState(validationData, "inProcess", "none")
 

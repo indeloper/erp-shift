@@ -329,7 +329,8 @@ class q3wMaterialController extends Controller
                         }
                         break;
                     default:
-                        if ($operationMaterial->standard_id == $material->standard_id) {
+                        if (($operationMaterial->standard_id == $material->standard_id)
+                            and ($operationMaterial->initial_comment_id == $material->comment_id)) {
                             if ($operationMaterial->amount_modifier < 0) {
                                 $material->quantity += $operationMaterial->quantity * $operationMaterial->amount * $operationMaterial->amount_modifier;
                             }
@@ -501,9 +502,15 @@ class q3wMaterialController extends Controller
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get();
 
+        unset($options->skip);
+        unset($options->take);
+        $totalCount = $this->getMaterialTableQuery($projectObjectId, $options)
+            ->get()
+            ->count();
+
         return json_encode(array(
                 "data" => $materialsList,
-                "totalCount" => $materialsList->count()
+                "totalCount" => $totalCount
             ),
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
@@ -512,8 +519,6 @@ class q3wMaterialController extends Controller
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
         $projectObjectId = json_decode($request["projectObjectId"]);
-
-
 
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get()
@@ -532,10 +537,12 @@ class q3wMaterialController extends Controller
                                       SUM(`amount` * `quantity`) AS `quantity_remains`
                                     FROM `q3w_material_snapshot_materials`
                                       LEFT JOIN (SELECT DISTINCT
-                                          MAX(`id`) OVER (PARTITION BY `project_object_id`) AS `max_snapshot_id`,
+                                          MAX(`q3w_material_snapshots`.`id`) OVER (PARTITION BY `project_object_id`) AS `max_snapshot_id`,
                                           `project_object_id`
                                         FROM `q3w_material_snapshots`
-                                        WHERE DATE(`created_at`) <= DATE('$date')) AS `snapshots`
+                                            LEFT JOIN q3w_material_operations
+                                                ON `q3w_material_snapshots`.`operation_id` = `q3w_material_operations`.`id`
+                                        WHERE DATE(`operation_date`) <= DATE('$date')) AS `snapshots`
                                         ON `q3w_material_snapshot_materials`.`snapshot_id` = `snapshots`.`max_snapshot_id`
                                     WHERE `snapshots`.`project_object_id` IS NOT NULL
                                     AND `project_object_id` = '$projectObjectId'
