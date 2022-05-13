@@ -502,9 +502,15 @@ class q3wMaterialController extends Controller
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get();
 
+        unset($options->skip);
+        unset($options->take);
+        $totalCount = $this->getMaterialTableQuery($projectObjectId, $options)
+            ->get()
+            ->count();
+
         return json_encode(array(
                 "data" => $materialsList,
-                "totalCount" => $materialsList->count()
+                "totalCount" => $totalCount
             ),
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
@@ -513,8 +519,6 @@ class q3wMaterialController extends Controller
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
         $projectObjectId = json_decode($request["projectObjectId"]);
-
-
 
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get()

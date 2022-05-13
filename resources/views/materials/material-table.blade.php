@@ -122,9 +122,8 @@
 
             let materialsTableDataSource = new DevExpress.data.DataSource({
                 store: new DevExpress.data.CustomStore({
-                    key: "id",
+                    loadMode: "processed",
                     load: function (loadOptions) {
-                        /*loadOptions.filter = getLoadOptionsFilterArray();*/
                         dataSourceLoadOptions = loadOptions;
 
                         return $.getJSON("{{route('materials.table.list')}}",
@@ -172,8 +171,13 @@
                                 groupPanel: {
                                     visible: false
                                 },
+                                scrolling: {
+                                    mode: "virtual",
+                                    rowRenderingMode: "virtual",
+                                },
                                 paging: {
-                                    enabled: false
+                                    enabled: true,
+                                    pageSize: 100
                                 },
                                 columns: [
                                     {
@@ -202,8 +206,6 @@
                                                         top: container.parent().offset().top - 8,
                                                         left: container.parent().offset().left + 8
                                                     })
-
-
                                                 }
 
                                                 $(`<div>${options.text}</div>`)
