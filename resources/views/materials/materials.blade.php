@@ -1039,6 +1039,7 @@
                             if (e.itemData === "Поставка") {
                                 let popupWindow = $("#supplyTypePopup")
                                     .dxPopup({
+                                        showCloseButton: true,
                                         width: "auto",
                                         height: "auto",
                                         title: "Выберите тип поставки",

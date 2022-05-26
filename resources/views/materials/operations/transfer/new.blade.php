@@ -482,12 +482,14 @@
             }).dxForm("instance");
 
             let popupContainer = $("#popupContainer").dxPopup({
+                showCloseButton: true,
                 height: "auto",
                 width: "auto",
                 title: "Выберите материалы для добавления"
             });
 
             let materialCommentPopupContainer = $("#commentPopupContainer").dxPopup({
+                showCloseButton: true,
                 height: "auto",
                 width: "auto",
                 title: "Введите комментарий"

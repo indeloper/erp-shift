@@ -499,7 +499,7 @@
             }).dxForm("instance");
 
             let filterPopup = $("#filterPopupContainer").dxPopup({
-
+                showCloseButton: true
             }).dxPopup("instance");
 
             function createGridReportButtons(){

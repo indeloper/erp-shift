@@ -180,9 +180,11 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
             ->leftJoin('q3w_material_comments as f', 'a.comment_id', '=', 'f.id')
+            ->leftJoin('q3w_material_brands_relations as g', 'a.standard_id', '=', 'g.standard_id')
             ->where('a.project_object', '=', $projectObjectId)
             ->where('amount', '<>', 0)
             ->where('quantity', '<>', 0)
+            ->groupBy(['a.id'])
             ->orderBy('selection_counter', 'desc')
             ->orderBy('b.name')
             ->get(['a.*',
@@ -193,7 +195,8 @@ class q3wMaterialController extends Controller
                 'd.accounting_type',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value'])
+                'e.value as measure_unit_value',
+                DB::Raw("GROUP_CONCAT(DISTINCT `g`.`brand_id` SEPARATOR ',') as standard_brands")])
             ->toArray();
 
         foreach ($activeOperationMaterials as $operationMaterial){

@@ -224,6 +224,8 @@ class q3wMaterialStandardController extends Controller
         return (new q3wMaterialStandard())->dxLoadOptions($dxLoadOptions)
             ->leftJoin('q3w_material_types as b', 'q3w_material_standards.material_type', '=', 'b.id')
             ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
+            ->leftJoin('q3w_material_brands_relations as e', 'q3w_material_standards.id', '=', 'e.standard_id')
+            ->groupBy(['q3w_material_standards.id'])
             ->orderBy('selection_counter', 'desc')
             ->orderBy('q3w_material_standards.name')
             ->get(['q3w_material_standards.id',
@@ -237,7 +239,8 @@ class q3wMaterialStandardController extends Controller
                 'b.name as material_type_name',
                 'b.measure_unit',
                 'b.accounting_type',
-                'd.value as measure_unit_value'])
+                'd.value as measure_unit_value',
+                DB::Raw("GROUP_CONCAT(DISTINCT `e`.`brand_id` SEPARATOR ',') as standard_brands")])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
