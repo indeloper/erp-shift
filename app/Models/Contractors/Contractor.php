@@ -157,7 +157,7 @@ class Contractor extends Model
             $notification->save();
             $notification->additional_info = '. ' . route('contractors::card', $this->id);
             $notification->update([
-                'name' => 'Заполните контактов контрагента ' . $this->short_name,
+                'name' => 'Заполните контакты контрагента ' . $this->short_name,
                 'user_id' => $this->user_id,
                 'contractor_id' => $this->id,
                 'status' => 5,

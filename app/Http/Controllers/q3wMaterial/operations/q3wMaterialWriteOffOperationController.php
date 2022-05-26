@@ -606,10 +606,10 @@ class q3wMaterialWriteOffOperationController extends Controller
             }
 
             if ($materialType->accounting_type == 2) {
-                $material->amount = $material->amount - $materialAmount;
+                $material->amount = round($material->amount - $materialAmount, 2);
             } else {
                 $material->amount = 1;
-                $material->quantity = $material->quantity - $materialQuantity * $materialAmount;
+                $material->quantity = round($material->quantity - $materialQuantity * $materialAmount, 2);
             }
 
             if ( $material->amount < 0){
@@ -617,7 +617,7 @@ class q3wMaterialWriteOffOperationController extends Controller
             }
 
             if ( $material->quantity < 0){
-                abort(400, 'Negative quantity amount after write-off');
+                abort(400, 'Negative material quantity after write-off');
             }
 
             $material->save();
