@@ -45,7 +45,7 @@ class TechUpdatesNotify extends Command
     public function handle()
     {
         $notifications = [];
-        $message = 'Техническая поддержка. '. 'C ' . $this->argument('start_date') . ' ' . $this->argument('start_time') . ' по ' . $this->argument('finish_date') . ' ' . $this->argument('finish_time') . ' будут проводиться технические работы. Сервис может быть временно недоступен.';
+        $message = 'Техническая поддержка. '. 'C ' . $this->argument('start_date') . ' ' . $this->argument('start_time') . ' по ' . $this->argument('finish_date') . ' ' . $this->argument('finish_time') . 'в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.';
         DB::beginTransaction();
         foreach (User::all() as $user) {
             $notification = Notification::create([
