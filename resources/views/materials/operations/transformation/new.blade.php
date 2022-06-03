@@ -76,18 +76,39 @@
             float: right;
             margin-left: 8px;
         }
+        .command-row-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .dx-datagrid-rowsview .dx-texteditor-input {
+            text-align: right;
+        }
+
+        .dx-datagrid-rowsview .dx-placeholder {
+            text-align: right;
+            width: 100%;
+        }
+
+        .computed-weight {
+            text-align: right;
+        }
     </style>
 @endsection
 
 @section('content')
     <div id="formContainer"></div>
+
     <div id="popupContainer">
         <div id="materialsStandardsAddingForm"></div>
     </div>
-    <div id="validationPopoverContainer">
-        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }">
 
-        </div>
+    <div id="validationPopoverContainer">
+        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }"></div>
+    </div>
+
+    <div id="validationPopoverContainer">
+        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }"></div>
     </div>
 @endsection
 
@@ -121,7 +142,8 @@
                 store: new DevExpress.data.ArrayStore({
                     key: "id",
                     data: []
-                })
+                }),
+                sort: ["sortIndex"]
             })
 
             let suspendSourceObjectLookupValueChanged = false;
@@ -404,12 +426,15 @@
                                         case transformationStages.fillingMaterialsToTransform:
                                         case transformationStages.fillingMaterialsAfterTransform:
                                             let rowType;
+                                            let sortIndex;
                                             switch (currentTransformationStage) {
                                                 case transformationStages.fillingMaterialsToTransform:
                                                     rowType = rowTypes.rowMaterialsToTransform;
+                                                    sortIndex = 2;
                                                     break;
                                                 case transformationStages.fillingMaterialsAfterTransform:
                                                     rowType = rowTypes.rowMaterialsAfterTransform;
+                                                    sortIndex = 5;
                                                     break;
                                             }
                                             let validationUid = getValidationUid(material);
@@ -433,18 +458,24 @@
                                                 total_amount: material.amount,
                                                 brands: material.standard_brands,
                                                 rowType: rowType,
+                                                sortIndex: sortIndex,
                                                 validationUid: validationUid,
                                                 validationState: "unvalidated",
                                                 validationResult: "none",
+                                                errorMessage: ""
                                             };
 
-                                            insertTransformationRow(data, currentTransformationStage)
+                                            insertTransformationRow(data, currentTransformationStage);
+
+                                            validateMaterialList(data.validationUid);
+
                                             break;
                                         /*case "fillingMaterialsRemains":
                                             break;*/
                                     }
                                 })
 
+                                updateRowFooter();
 
                                 /*switch(currentTransformationStage) {
                                     case "fillingMaterialsToTransform":
@@ -457,7 +488,6 @@
                                         break;
                                 }*/
                                 $("#popupContainer").dxPopup("hide");
-                                /*validateMaterialList(false, false);*/
                             }
                         }
                     }
@@ -652,6 +682,12 @@
                                                     },
                                                     columns: [
                                                         {
+                                                            dataField: "sortIndex",
+                                                            dataType: "integer",
+                                                            sortIndex: 0,
+                                                            visible: false
+                                                        },
+                                                        {
                                                             type: "buttons",
                                                             width: 130,
                                                         },
@@ -757,9 +793,11 @@
                     transformationTypeLayer.click(() => {
                         let data = {
                             name: `Шаг 1: Добавьте материалы для преобразования «${element.value}»`,
-                            rowType: rowTypes.rowHeader
+                            rowType: rowTypes.rowHeader,
+                            sortIndex: 1
                         }
                         insertTransformationRow(data, transformationStages.fillingMaterialsToTransform);
+
                         currentTransformationType = element.codename;
                     })
 
@@ -796,7 +834,8 @@
                                     onClick: () => {
                                         let data = {
                                             name: `Шаг 2: Добавьте материалы после преобразования`,
-                                            rowType: rowTypes.rowHeader
+                                            rowType: rowTypes.rowHeader,
+                                            sortIndex: 4
                                         }
                                         insertTransformationRow(data, transformationStages.fillingMaterialsAfterTransform);
                                     }
@@ -821,14 +860,16 @@
                                     onClick: () => {
                                         let data = {
                                             name: `Шаг 3: Укажите остатки матералов`,
-                                            rowType: rowTypes.rowHeader
+                                            rowType: rowTypes.rowHeader,
+                                            sortIndex: 7
                                         }
                                         insertTransformationRow(data, transformationStages.fillingMaterialsRemainsAndTechnologicalLosses);
                                         insertMaterialsRemains();
 
                                         data = {
                                             name: `Шаг 4: Укажите технологические потери`,
-                                            rowType: rowTypes.rowHeader
+                                            rowType: rowTypes.rowHeader,
+                                            sortIndex: 10
                                         }
                                         insertTransformationRow(data, transformationStages.fillingMaterialsRemainsAndTechnologicalLosses);
                                         insertMaterialsTechnologicalLosses()
@@ -850,7 +891,7 @@
                             .addClass("dx-data-row")
                             .addClass("dx-row-lines")
                             .addClass("dx-column-lines");
-                        let controlRow = $("<td/>").append(getControlRowLayer(rowIndex, data));
+                        let controlRow = $(`<td class="dx-command-edit dx-command-edit-with-icons dx-cell-focus-disabled"/>`).append(getControlRowLayer(rowIndex, data));
                         let standardName = $("<td/>").append(getStandardNameLayer(rowIndex, data));
                         let quantity = $(`<td aria-describedby="dx-col-2" aria-selected="false" role="gridcell" aria-colindex="2" style="text-align: right;"/>`).append(getQuantityLayer(rowIndex, data));
                         let amount = $(`<td aria-describedby="dx-col-3" aria-selected="false" role="gridcell" aria-colindex="3" style="text-align: right;"/>`).append(getAmountLayer(rowIndex, data));
@@ -954,6 +995,7 @@
                                 .update(data.id, {quantity: e.value})
                                 .done(() => {
                                     updateComputedWeightLayer(rowIndex, data);
+                                    validateMaterialList(data.validationUid);
                                 });
                             operationForm.getEditor("transformationGrid").endUpdate();
                         },
@@ -998,6 +1040,7 @@
                                 .update(data.id, {amount: e.value})
                                 .done(() => {
                                     updateComputedWeightLayer(rowIndex, data);
+                                    validateMaterialList(data.validationUid);
                                 });
 
                         },
@@ -1030,18 +1073,72 @@
             }
 
             function getControlRowLayer(rowIndex, data) {
-                let controlRowLayer = $('<div/>');
+                let controlRowLayer = $('<div class="command-row-buttons"/>');
                 let validationUid = data.validationUid;
                 let validationDiv = $(`<div class="row-validation-indicator"/>`)
                     .attr("validation-uid", validationUid)
 
-                let deleteRowDiv = $(`<div class=""><a href="#" class="dx-link dx-icon-trash dx-link-icon" title="Удалить"></a></div>`)
-                    .attr("validation-uid", validationUid)
+                switch(data.validationResult) {
+                    case "valid":
+                        let checkIcon = $(`<i/>`)
+                            .addClass(`dx-link dx-icon fas fa-check-circle dx-link-icon`)
+                            .attr(`style`, `color: #8bc34a`)
+                            .appendTo(validationDiv);
+                        break;
+                    case "invalid":
+                        let exclamationTriangle = $(`<i/>`).addClass(`dx-link fas fa-exclamation-triangle`)
+                            .attr(`style`, `color: #f15a5a`)
+                            .mouseenter(function () {
+                                if (!data.errorMessage) {
+                                    return;
+                                }
+
+                                let validationDescription = $('#validationTemplate');
+
+                                validationDescription.dxPopover({
+                                    position: "top",
+                                    width: 300,
+                                    contentTemplate: "<ul>" + data.errorMessage + "</ul>",
+                                    hideEvent: "mouseleave",
+                                })
+                                    .dxPopover("instance")
+                                    .show($(this));
+                            })
+                            .appendTo(validationDiv);
+                        break;
+                }
+
+                let deleteRowDiv = $(`<div row-index="${rowIndex}"><a href="#" class="dx-link dx-icon-trash dx-link-icon" title="Удалить" row-index="${rowIndex}"></a></div>`)
+                    .attr("validation-uid", validationUid);
+
+                deleteRowDiv.click((e) => {
+                    e.preventDefault();
+
+                    operationForm.getEditor("transformationGrid").deleteRow(rowIndex);
+
+                    validateMaterialList(data.validationUid);
+                    })
 
                 let duplicateRowDiv = $(`<div class=""><a href="#" class="dx-link dx-icon-copy dx-link-icon" title="Дублировать"></a></div>`)
                     .attr("validation-uid", validationUid)
+                    .click((e) => {
+                        e.preventDefault();
 
-                console.log(validationUid);
+                        let clonedItemId = "uid-" + new DevExpress.data.Guid().toString();
+
+                        let clonedItem = $.extend({},
+                            data, {
+                                id: clonedItemId,
+                                edit_states: ["addedByRecipient"],
+                                validationUid: getValidationUid(data),
+                            }
+                        );
+
+                        transformationData.store().insert(clonedItem).done(() => {
+                            transformationData.reload();
+                            validateMaterialList(data.validationUid);
+                        });
+                    })
 
                 controlRowLayer.append(validationDiv);
                 controlRowLayer.append(deleteRowDiv);
@@ -1064,13 +1161,17 @@
                                 "and",
                                 ["amount", ">", 0],
                                 "and",
-                                ["initial_comment_id", "=", material.initial_comment_id]];
+                                ["initial_comment_id", "=", material.initial_comment_id],
+                                "and",
+                                ["rowType", "=", material.rowType]];
                         }
                         break;
                     default:
                         filterConditions = [["standard_id", "=", material.standard_id],
                             "and",
-                            ["initial_comment_id", "=", material.initial_comment_id]];
+                            ["initial_comment_id", "=", material.initial_comment_id],
+                            "and",
+                            ["rowType", "=", material.rowType]];
                 }
 
                 let filteredData = transformationData.store().createQuery()
@@ -1084,100 +1185,145 @@
                 }
             }
 
-            /*function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity, validationUid, userAction) {
+            function validateMaterialList(validationUid) {
+                function validateQuantity(material) {
+                    if (!material.quantity) {
+                        return ({
+                            severity: 1000,
+                            codename: "null_quantity",
+                            message: "Количество в единицах измерения не заполнено",
+                            standard_name: material.standard_name
+                        })
+                    }
+                }
+
+                function validateAmount(material) {
+                    if (!material.amount) {
+                        return ({
+                            severity: 1000,
+                            codename: "null_amount",
+                            message: "Количество в штуках не заполнено",
+                            standard_name: material.standard_name
+                        })
+                    }
+                }
+
+                function validateTotalRemains(material) {
+                    if (material.rowType !== rowTypes.rowMaterialsToTransform) {
+                        return;
+                    }
+
+                    let filterArray = [];
+                    filterArray.push(["rowType", "=", rowTypes.rowMaterialsToTransform]);
+                    filterArray.push("and");
+                    filterArray.push(["standard_id", "=", material.standard_id]);
+                    filterArray.push("and");
+                    filterArray.push(["initial_comment_id", "=", material.initial_comment_id]);
+
+                    switch (material.accounting_type) {
+                        case 2:
+                            filterArray.push("and");
+                            filterArray.push(["quantity", "=", material.quantity]);
+                            break;
+                        default:
+                    }
+
+                    let materialsToCalculateTotalAmount = transformationData.store().createQuery()
+                        .filter(filterArray)
+                        .toArray();
+
+                    let materialToTransferTotalAmount = 0;
+
+                    materialsToCalculateTotalAmount.forEach((materialToCalculateTotalAmount) => {
+                        switch (materialToCalculateTotalAmount.accounting_type) {
+                            case 2:
+                                materialToTransferTotalAmount += materialToCalculateTotalAmount.amount;
+                                break;
+                            default:
+                                materialToTransferTotalAmount += Math.round(materialToCalculateTotalAmount.quantity * materialToCalculateTotalAmount.amount / 100) * 100;
+                        }
+                    })
+
+                    if (material.total_amount < materialToTransferTotalAmount) {
+                        return ({
+                            severity: 1000,
+                            codename: "amount_is_larger_than_total_amount",
+                            message: "На объекте недостаточно материала",
+                            standard_name: material.standard_name
+                        })
+                    }
+                }
+
+                function validateStage() {
+
+                }
+
+                function updateValidationResult(validationData, validationResult, validationFunction) {
+                    validationData.forEach((material) => {
+                        let validationResponse = validationFunction(material);
+                        if (validationResponse) {
+                            validationResult.validationInfo.push(validationResponse);
+                        }
+                    })
+                }
+
                 let validationData;
-                if (validationUid && !(saveEditedData)) {
-                    validationData = transferMaterialDataSource.store().createQuery()
+
+                if (validationUid) {
+                    validationData = transformationData.store().createQuery()
                         .filter(['validationUid', '=', validationUid])
                         .toArray();
                 } else {
-                    validationData = transferMaterialDataSource.store().createQuery()
+                    validationData = transformationData.store().createQuery()
                         .toArray();
                 }
 
-                updateRowsValidationState(validationData, "inProcess", "none")
+                let validationResult = {validationUid: validationUid, validationInfo: []};
 
-                let transferOperationData = {
-                    materials: validationData,
-                    sourceProjectObjectId: sourceProjectObjectId,
-                    operationId: operationData.id,
-                    timestamp: new Date(),
-                    userAction: userAction,
-                };
-                $.ajax({
-                    url: "{{route('materials.operations.transfer.validate-material-list')}}",
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    contentType: "json",
-                    dataType: "json",
-                    data: JSON.stringify(transferOperationData),
-                    success: function (e) {
-                        let needToShowErrorWindow = false;
+                updateValidationResult(validationData, validationResult, validateQuantity);
 
-                        if (!validationUid) {
-                            materialErrorList = [];
-                        } else {
-                            delete (materialErrorList["common"]);
-                        }
-                        e.validationResult.forEach((validationElement) => {
-                            if (materialErrorList[validationElement.validationUid]) {
-                                let materialListTimestamp = new Date(materialErrorList[validationElement.validationUid].timestamp);
-                                let currentResponseTimestamp = new Date(e.timestamp);
+                updateValidationResult(validationData, validationResult, validateAmount);
 
-                                if (materialListTimestamp < currentResponseTimestamp) {
-                                    delete(materialErrorList[validationElement.validationUid]);
-                                } else {
-                                    return;
-                                }
-                            }
+                updateValidationResult(validationData, validationResult, validateTotalRemains);
 
-                            let validatedData = transferMaterialDataSource.store().createQuery()
-                                .filter(['validationUid', '=', validationElement.validationUid])
-                                .toArray();
 
-                            if (validationElement.isValid) {
-                                updateRowsValidationState(validatedData, "validated", "valid");
-                            } else {
-                                materialErrorList[validationElement.validationUid] = {};
-                                materialErrorList[validationElement.validationUid].errorList = validationElement.errorList;
-                                materialErrorList[validationElement.validationUid].timestamp = e.timestamp;
-                                updateRowsValidationState(validatedData, "validated", "invalid");
-                            }
+                validateStage()
+                validationResult.isValid = validationResult.validationInfo.length === 0;
 
-                            updateCommonValidationState();
+                if (!validationResult.isValid) {
+                    let validationErrors = [];
 
-                            if (!validationElement.isValid) {
-                                validationElement.errorList.forEach((errorItem) => {
-                                    if (showErrorWindowOnHighSeverity) {
-                                        if (errorItem.severity > 500) {
-                                            needToShowErrorWindow = true;
-                                        }
-                                    }
-                                })
-                            }
-                        })
+                    validationResult.validationInfo.forEach((validationError) => {
+                        validationErrors.push(validationError.message);
+                    })
 
-                        if (needToShowErrorWindow) {
-                            showErrorWindow(materialErrorList);
-                            setButtonIndicatorVisibleState("*", false)
-                            setElementsDisabledState(false);
-                        }
+                    validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
+                }
 
-                        if (!needToShowErrorWindow){
-                            if (saveEditedData) {
-                                saveOperationData(userAction);
-                            }
-                        }
-                    },
-                    error: function (e) {
-                        DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
-                        setButtonIndicatorVisibleState("*", false)
-                        setElementsDisabledState(false);
+                updateValidationData(validationResult);
+            }
+
+            function updateValidationData(validationData) {
+                let validatedData = transformationData.store().createQuery()
+                    .filter(["validationUid", "=", validationData.validationUid])
+                    .toArray();
+
+                validatedData.forEach((material) => {
+                    let validationState = "validated";
+                    let validationResult;
+
+                    if (validationData.isValid) {
+                        validationResult = "valid"
+                    } else {
+                        validationResult = "invalid"
                     }
-                });
-            }*/
+
+                    transformationData.store().update(material.id, {validationState: validationState, validationResult: validationResult, errorMessage: validationData.errorMessage})
+                        .done((dataObj, key) => {
+                            transformationData.reload();
+                        });
+                })
+            }
 
             function getMinDate() {
                 let minDate = new Date();
@@ -1229,6 +1375,8 @@
                                     filterArray.push("and");
                                 }
 
+                                filterArray.push(["standard_properties", "=", null])
+                                filterArray.push("and")
                                 filterArray.push(["accounting_type", "=", "2"])
                                 break;
                             default:
@@ -1319,6 +1467,47 @@
                         standardFound = false;
                     }
                 })
+            }
+
+            function updateRowFooter() {
+                let rowType;
+                switch (currentTransformationStage) {
+                    case transformationStages.fillingMaterialsToTransform:
+                        rowType = rowTypes.rowMaterialsToTransform;
+                        break;
+                    }
+
+                let data = transformationData.store().createQuery()
+                    .filter(["rowType", "=", rowType])
+                    .toArray();
+
+                if (data.length === 0) {
+                    deleteRowFooter()
+                } else {
+                    insertRowFooter();
+                }
+            }
+
+            function insertRowFooter() {
+                let sortIndex = 0;
+                switch (currentTransformationStage) {
+                    case transformationStages.fillingMaterialsToTransform:
+                        sortIndex = 3;
+                        break;
+                }
+
+                let data = {
+                    rowType: rowTypes.rowFooter,
+                    sortIndex: sortIndex
+                }
+
+                insertTransformationRow(data, currentTransformationStage);
+
+                console.log(transformationData.store().createQuery().toArray());
+            }
+
+            function deleteRowFooter() {
+
             }
         });
     </script>

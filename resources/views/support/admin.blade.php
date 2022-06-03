@@ -20,7 +20,7 @@
             <label>
                 <input id="finish_time" class="form-control" type="time" name="finish_time" required>
             </label>
-            будут проводиться технические работы. Сервис может быть временно недоступен
+            в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.
             <button type="button" onclick="submitNotify()" class="btn btn-success">
                 Отправить сообщение
             </button>
@@ -50,7 +50,7 @@
         {
             swal({
                 title: "Проверьте текст",
-                text: "Техническая поддержка. С " + $('#start_date')[0].value + " " + $('#start_time')[0].value + " по " + $('#finish_date')[0].value + " "  + $('#finish_time')[0].value + " будут проводиться технические работы. Сервис может быть временно недоступен",
+                text: "Техническая поддержка. С " + $('#start_date')[0].value + " " + $('#start_time')[0].value + " по " + $('#finish_date')[0].value + " "  + $('#finish_time')[0].value + "в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.",
                 type: 'warning',
                 showCancelButton: true,
 
