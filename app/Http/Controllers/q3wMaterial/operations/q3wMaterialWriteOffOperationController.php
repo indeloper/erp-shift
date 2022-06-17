@@ -373,7 +373,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                     ->where('standard_id', $inputMaterial['standard_id'])
                     ->firstOrFail();
 
-                if (round($inputMaterial['amount'] * $inputMaterial['amount'], 2) > round($sourceMaterial['quantity'], 2)) {
+                if (round($inputMaterial['amount'] * $inputMaterial['quantity'], 2) > round($sourceMaterial['quantity'], 2)) {
                     abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
                 }
             }
