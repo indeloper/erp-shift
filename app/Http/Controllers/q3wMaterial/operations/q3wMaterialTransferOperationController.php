@@ -325,7 +325,7 @@ class q3wMaterialTransferOperationController extends Controller
                 case 7:
                     $operation->operation_route_stage_id = 8;
                     $operation->save();
-                    $this->sendTransferNotification($operation, 'Перемещение завершено', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->sendTransferNotification($operation, 'Перемещение завершено', $operation->destination_responsible_user_id, $operation->destination_project_object_id);
                     break;
                 case 9:
                     $operation->operation_route_stage_id = 43;
@@ -384,13 +384,13 @@ class q3wMaterialTransferOperationController extends Controller
                 case 17:
                     $operation->operation_route_stage_id = 18;
                     $operation->save();
-                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->destination_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->destination_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 18:
                     $operation->operation_route_stage_id = 19;
                     $operation->save();
-                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->source_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->source_project_object_id);
                     break;
                 case 19:
                     if ($cancelled){
@@ -405,19 +405,19 @@ class q3wMaterialTransferOperationController extends Controller
                 case 20:
                     $operation->operation_route_stage_id = 21;
                     $operation->save();
-                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем получателя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 21:
                     $operation->operation_route_stage_id = 22;
                     $operation->save();
-                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено руководителем получателя.', $operation->source_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено руководителем отправителя.', $operation->source_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 22:
                     $operation->operation_route_stage_id = 23;
                     $operation->save();
-                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем получателя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
 
@@ -497,19 +497,19 @@ class q3wMaterialTransferOperationController extends Controller
                 case 35:
                     $operation->operation_route_stage_id = 36;
                     $operation->save();
-                    $this->sendTransferNotification($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->sendTransferNotification($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 36:
                     $operation->operation_route_stage_id = 37;
                     $operation->save();
-                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->source_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->source_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 37:
                     $operation->operation_route_stage_id = 38;
                     $operation->save();
-                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя отправителя.', $operation->destination_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Конфликт поставлен под контроль руководителя получателя.', $operation->destination_project_object_id);
                     break;
                 case 38:
                     if ($cancelled){
@@ -524,19 +524,19 @@ class q3wMaterialTransferOperationController extends Controller
                 case 39:
                     $operation->operation_route_stage_id = 40;
                     $operation->save();
-                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем получателя.', $operation->source_responsible_user_id, $operation->destination_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 40:
                     $operation->operation_route_stage_id = 41;
                     $operation->save();
-                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено руководителем отправителя.', $operation->destination_project_object_id);
+                    $this->sendTransferNotificationToResponsibilityUsersOfObject($operation, 'Перемещение завершено руководителем получателя.', $operation->destination_project_object_id);
                     $this->moveOperationToNextStage($operation->id, $moveToConflict);
                     break;
                 case 41:
                     $operation->operation_route_stage_id = 42;
                     $operation->save();
-                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем отправителя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
+                    $this->sendTransferNotification($operation, 'Перемещение завершено руководителем получателя.', $operation->destination_responsible_user_id, $operation->source_project_object_id);
                     break;
 
                 //Отмена заявки по ветке отправителя этап 6
@@ -1090,13 +1090,13 @@ class q3wMaterialTransferOperationController extends Controller
             case 11:
                 return Auth::id() == $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 19:
-                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 25:
                 return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 30:
                 return Auth::id() == $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 38:
-                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             default:
                 return false;
         }
@@ -1110,13 +1110,13 @@ class q3wMaterialTransferOperationController extends Controller
             case 11:
                 return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 19:
-                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 25:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id) || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 30:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 38:
-                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             default:
                 return false;
         }
@@ -1130,13 +1130,13 @@ class q3wMaterialTransferOperationController extends Controller
             case 11:
                 return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 19:
-                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 25:
                 return Auth::id() == $operation->source_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
             case 30:
                 return Auth::id() == $operation->destination_responsible_user_id || $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             case 38:
-                return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
+                return $this->isUserResponsibleForMaterialAccounting($operation->destination_project_object_id);
             default:
                 return false;
         }

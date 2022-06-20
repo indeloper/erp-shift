@@ -138,10 +138,10 @@ class q3wMaterialOperation extends Model
             case 37:
             case 71:
             case 77:
-                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->source_project_object_id)->get()->pluck('user_id');
+                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->destination_project_object_id)->get()->pluck('user_id');
                 return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
             case 19:
-                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->destination_project_object_id)->get()->pluck('user_id');
+                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->source_project_object_id)->get()->pluck('user_id');
                 return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
             case 79:
                 $permissionId = Permission::where('codename', 'material_accounting_write_off_confirmation')->first()->id;
