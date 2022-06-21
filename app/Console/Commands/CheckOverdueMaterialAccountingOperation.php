@@ -75,12 +75,12 @@ class CheckOverdueMaterialAccountingOperation extends Command
                         (new q3wMaterialTransferOperationController)->sendTransferNotification($operation, $notificationText, $notifiableUser, $projectObjectId);
                         break;
                     case 19:
-                        //Руководителю получателя
+                        //Руководителю отправителя
                         $projectObjectId = $operation->source_project_object_id;
                         (new q3wMaterialTransferOperationController)->sendTransferNotificationToResponsibilityUsersOfObject($operation, $notificationText, $projectObjectId);
                         break;
                     case 38:
-                        //Руководителю отправителя
+                        //Руководителю получателя
                         $projectObjectId = $operation->destination_project_object_id;
                         (new q3wMaterialTransferOperationController)->sendTransferNotificationToResponsibilityUsersOfObject($operation, $notificationText, $projectObjectId);
                         break;
