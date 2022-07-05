@@ -95,7 +95,8 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                 'Уход',
                 'Комментарий',
                 '№ ТТН',
-                '№ ТН'
+                '№ ТН',
+                'Индекс типа преобразования'
             ]
         ];
     }
@@ -121,7 +122,8 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                 $material['outgoing_to_project_object'],
                 $material['comment'],
                 $material['item_transport_consignment_note_number'],
-                $material['consignment_note_number']
+                $material['consignment_note_number'],
+                $material['transform_operation_stage_id'],
             ]);
 
             if ($prevOperationId == 0) {
@@ -330,7 +332,8 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
             'G' => 16,
             'E' => 16,
             'L' => 11,
-            'M' => 11
+            'M' => 11,
+            'N' => 0
         ];
     }
 }
