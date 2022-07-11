@@ -27,7 +27,7 @@ class AdminController extends Controller
 
     public function loginAsUserId(Request $request)
     {
-        if (auth()->id() == 1) {
+        if (auth()->user()->is_su) {
             auth()->login(User::findOrFail($request->user_id), false);
         }
         return redirect('/');
