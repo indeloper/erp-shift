@@ -540,7 +540,7 @@ class CommercialOffer extends Model
             return true;
         }
         return $pdf_new->stream('commercial_offer_' . $today . '.pdf');
-//         return view('projects.commercial_offer.offer', $data);
+//      return view('projects.commercial_offer.offer', $data);
     }
 
     /**
