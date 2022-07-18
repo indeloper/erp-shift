@@ -64,7 +64,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
 
         return [
             [
-                'Остатки материалов на ' .  Carbon::parse($this->date)->format('d.m.Y')
+                'Остатки материалов на ' . Carbon::parse($this->date)->format('d.m.Y')
             ],
             [
                 'Фильтры: ' . $this->filterText
@@ -107,22 +107,33 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
         $lineNumber = self::startLineNumber;
 
         foreach ($this->materialRemains as $material) {
+            switch ($material['accounting_type']) {
+                case 1:
+                    if (round($material['coming_to_material_weight'] - $material['outgoing_material_material_weight'], 3) != 0) {
+                        $amount = 1;
+                    } else {
+                        $amount = 0;
+                    }
+                    break;
+                default:
+                    $amount = '=B' . $lineNumber . '-E' . $lineNumber;
+            }
 
             $results->push([
                 $material['standard_name'],
-                (string) $material['coming_to_material_amount'],
-                (string) $material['coming_to_material_quantity'],
-                (string) $material['coming_to_material_weight'],
-                (string) $material['outgoing_material_amount'],
-                (string) $material['outgoing_material_quantity'],
-                (string) $material['outgoing_material_material_weight'],
-                (string) $material['amount_remains'],
-                (string) $material['quantity_remains'],
-                (string) $material['weight_remains']
+                (string)$material['coming_to_material_amount'],
+                (string)$material['coming_to_material_quantity'],
+                (string)$material['coming_to_material_weight'],
+                (string)$material['outgoing_material_amount'],
+                (string)$material['outgoing_material_quantity'],
+                (string)$material['outgoing_material_material_weight'],
+                (string)$amount,
+                '=C' . $lineNumber . '-F' . $lineNumber,
+                '=D' . $lineNumber . '-G' . $lineNumber
             ]);
 
             $number++;
-            $lineNumber ++;
+            $lineNumber++;
         }
 
         $this->lastLineNumber = $lineNumber - 1;
@@ -135,7 +146,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->setAutoFilter('A6:J6');
 
                 //Main header styles
@@ -147,15 +158,15 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                 $event->sheet->getDelegate()->mergeCells('E5:G5');
                 $event->sheet->getDelegate()->mergeCells('H5:J5');
 
-                $event->sheet->horizontalAlign('A1' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('A2' , Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_LEFT);
 
-                $event->sheet->horizontalAlign('A4' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('A5' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->verticalAlign('A5' , Alignment::VERTICAL_CENTER);
-                $event->sheet->horizontalAlign('B5' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('E5' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('H5' , Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('A4', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('A5', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->verticalAlign('A5', Alignment::VERTICAL_CENTER);
+                $event->sheet->horizontalAlign('B5', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('E5', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('H5', Alignment::HORIZONTAL_CENTER);
 
                 $event->sheet->getStyle('A1')
                     ->applyFromArray([
@@ -186,7 +197,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                         ]
                     ]);
 
-                $event->sheet->getStyle('A'. self::startLineNumber .':A' . $this->lastLineNumber)
+                $event->sheet->getStyle('A' . self::startLineNumber . ':A' . $this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
@@ -207,7 +218,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                         ]
                     ]);
 
-                $event->sheet->getStyle('B'. self::startLineNumber .':D' . $this->lastLineNumber)
+                $event->sheet->getStyle('B' . self::startLineNumber . ':D' . $this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
                             'color' => array('rgb' => '335633'),
@@ -228,7 +239,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                         ]
                     ]);
 
-                $event->sheet->getStyle('E'. self::startLineNumber .':G' . $this->lastLineNumber)
+                $event->sheet->getStyle('E' . self::startLineNumber . ':G' . $this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
                             'color' => array('rgb' => '762828'),
@@ -249,7 +260,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                         ]
                     ]);
 
-                $event->sheet->getStyle('H'. self::startLineNumber .':J' . $this->lastLineNumber)
+                $event->sheet->getStyle('H' . self::startLineNumber . ':J' . $this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
                             'color' => array('rgb' => '20205a'),
