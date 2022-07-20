@@ -244,7 +244,7 @@
                                                         case 2:
                                                             return rowData.coming_to_material_amount - rowData.outgoing_material_amount;
                                                         default:
-                                                            if (Math.round((rowData.coming_to_material_weight - rowData.outgoing_material_material_weight)*1000)/1000 !== 0) {
+                                                            if (rowData.coming_to_material_weight - rowData.outgoing_material_material_weight !== 0) {
                                                                 return 1
                                                             } else {
                                                                 return 0
