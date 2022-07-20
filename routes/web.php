@@ -219,7 +219,9 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     });
 
     Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'System', 'middleware' => ['can:that_noone_can']], function() {
-        Route::get('/', 'AdminController@admin')->name('index');
+        Route::get('notifications', 'AdminController@admin')->name('notifications');
+        Route::get('validate-material-accounting-data', 'AdminController@validateMaterialAccountingData')->name('validate-material-accounting_data');
+        Route::get('get-material-accounting-data-validation-result', 'AdminController@getMaterialAccountingDataValidationResult')->name('get-material-accounting-data-validation-result');
         Route::post('/send_tech_update_notify', 'AdminController@sendTechUpdateNotify')->name('send_tech_update_notify');
         Route::post('/auth_hack', 'AdminController@loginAsUserId')->name('login_as');
     });
