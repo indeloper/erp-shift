@@ -373,11 +373,18 @@ class q3wMaterialWriteOffOperationController extends Controller
                     ->firstOrFail();
 
                 if ($inputMaterial['amount'] > $sourceMaterial['amount']) {
-                    abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
+                    abort(400, 'Bad amount for standard ' . $inputMaterial['standard_id']);
                 }
             } else {
                 $sourceMaterial = q3wMaterial::where('project_object', $requestData['project_object_id'])
                     ->where('standard_id', $inputMaterial['standard_id'])
+                    ->where(function ($query) use ($inputMaterial) {
+                        if (empty($inputMaterial['initial_comment_id'])) {
+                            $query->whereNull('comment_id');
+                        } else {
+                            $query->where('comment_id', $inputMaterial['initial_comment_id']);
+                        }
+                    })
                     ->firstOrFail();
 
                 if (round($inputMaterial['amount'] * $inputMaterial['quantity'], 2) > round($sourceMaterial['quantity'], 2)) {
@@ -605,6 +612,13 @@ class q3wMaterialWriteOffOperationController extends Controller
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
+                    ->where(function ($query) use ($materialToWriteOff) {
+                        if (empty($materialToWriteOff['initial_comment_id'])) {
+                            $query->whereNull('comment_id');
+                        } else {
+                            $query->where('comment_id', $materialToWriteOff['initial_comment_id']);
+                        }
+                    })
                     ->first();
             }
 
