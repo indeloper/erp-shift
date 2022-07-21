@@ -264,6 +264,13 @@ class q3wMaterialWriteOffOperationController extends Controller
                     $sourceProjectObjectMaterial = (new q3wMaterial)
                         ->where('project_object', $projectObject->id)
                         ->where('standard_id', $unitedMaterial->standard_id)
+                        ->where(function ($query) use ($unitedMaterial) {
+                            if (empty($unitedMaterial->initial_comment_id)){
+                                $query->whereNull('comment_id');
+                            } else {
+                                $query->where('comment_id', $unitedMaterial->initial_comment_id);
+                            }
+                        })
                         ->get()
                         ->first();
 
