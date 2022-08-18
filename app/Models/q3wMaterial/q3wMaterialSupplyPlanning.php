@@ -6,14 +6,10 @@ use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class q3wMaterial extends Model
+class q3wMaterialSupplyPlanning extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable;
 
+    protected $table = "q3w_material_supply_planning";
     protected $guarded = array('id');
-
-    public function standard()
-    {
-        return $this->hasOne(q3wMaterialStandard::class, 'standard_id', 'id');
-    }
 }

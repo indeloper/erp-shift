@@ -348,6 +348,20 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::post('/materials/write-off/cancel', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@cancelOperation')->name('materials.operations.write-off.cancel')->middleware('can:material_accounting_operations_creating');
     Route::post('/materials/write-off/move', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@confirmOperation')->name('materials.operations.write-off.move')->middleware('can:material_accounting_operations_creating');
     Route::get('/materials/write-off/completed', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@completed')->name('materials.operations.write-off.completed')->middleware('can:material_accounting_material_list_access');
+
+    //Material Supply Planning
+    Route::get('/materials/supply-planning', 'q3wMaterial\q3wMaterialSupplyPlanningController@index')->name('materials.supply-planning.index')->middleware('can:material_supply_planning_access');
+    Route::get('/materials/supply-planning/list', 'q3wMaterial\q3wMaterialSupplyPlanningController@list')->name('materials.supply-planning.list')->middleware('can:material_supply_planning_access');
+    Route::get('/materials/supply-planning/get-materials-for-supply-planning-details', 'q3wMaterial\q3wMaterialSupplyPlanningController@getMaterialsForSupplyPlanningDetails')->name('materials.supply-planning.get-materials-for-supply-planning-details')->middleware('can:material_supply_planning_access');
+    //Route::get('/materials/supply-planning/by-key', 'q3wMaterial\q3wMaterialSupplyPlanningController@byKey')->name('materials.supply-planning.by-key');//!!!
+    Route::put('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@update')->name('materials.supply-planning.update')->middleware('can:material_supply_planning_editing');
+    Route::post('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@store')->name('materials.supply-planning.store')->middleware('can:material_supply_planning_editing');
+    Route::delete('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@delete')->name('materials.supply-planning.delete')->middleware('can:material_supply_planning_editing');
+
+    Route::get('/materials/supply-planning/expected-delivery/list', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@list')->name('materials.supply-planning.expected-delivery.list')->middleware('can:material_supply_planning_access');
+    Route::put('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@update')->name('materials.supply-planning.expected-delivery.update')->middleware('can:material_supply_planning_editing');
+    Route::post('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@store')->name('materials.supply-planning.expected-delivery.store')->middleware('can:material_supply_planning_editing');
+    Route::delete('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@delete')->name('materials.supply-planning.expected-delivery.delete')->middleware('can:material_supply_planning_editing');
 });
 
 

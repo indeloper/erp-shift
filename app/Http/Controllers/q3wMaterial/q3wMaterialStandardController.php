@@ -270,10 +270,17 @@ class q3wMaterialStandardController extends Controller
 
         return (new q3wMaterialBrand())->dxLoadOptions($options)
             ->leftJoin('q3w_material_types', 'q3w_material_brands.material_type_id', '=', 'q3w_material_types.id')
+            ->join('q3w_material_brands_relations', 'q3w_material_brands.id', '=', 'q3w_material_brands_relations.brand_id')
+            ->join('q3w_material_standards', 'q3w_material_brands_relations.standard_id', '=', 'q3w_material_standards.id')
+            ->leftJoin('q3w_standard_properties_relations', 'q3w_material_standards.id', '=', 'q3w_standard_properties_relations.standard_id')
+            ->whereNull('q3w_standard_properties_relations.id')
             ->orderBy(DB::Raw("CONCAT(`q3w_material_types`.`name`, ' ', `q3w_material_brands`.`name`)"))
             ->get([
                 'q3w_material_brands.id',
+                'material_type_id',
+                'brand_type_id',
                 'q3w_material_brands.name',
+                'weight as standard_weight',
                 DB::Raw("CONCAT(`q3w_material_types`.`name`, ' ', `q3w_material_brands`.`name`) as `full_name`")
             ])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);

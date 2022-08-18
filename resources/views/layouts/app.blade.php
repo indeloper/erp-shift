@@ -254,6 +254,14 @@
                                         </a>
                                     </li>
                                 @endif
+                                @if(Auth::user()->can('material_supply_planning_access'))
+                                    <li class="nav-item @if (Request::is('materials/supply-planning') || Request::is('materials/supply-planning/*')) active @endif">
+                                        <a class="nav-link" href="{{ route('materials.supply-planning.index') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Планирование поставок</span>
+                                        </a>
+                                    </li>
+                                @endif
                                 @if(Auth::user()->can('material_accounting_material_table_access'))
                                     <li class="nav-item @if (Request::is('/materials/table') || Request::is('/materials/table/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.table') }}">

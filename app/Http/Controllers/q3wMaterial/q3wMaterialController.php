@@ -617,7 +617,7 @@ class q3wMaterialController extends Controller
         return json_encode(array(
             "data" => $materialsList,
             "totalCount" => $materialsList->count()
-        ),
+            ),
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 

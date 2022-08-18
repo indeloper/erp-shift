@@ -33,7 +33,7 @@ const mix = require('laravel-mix');
  mix.copy('resources/assets/css/jquery-ui.min.css', 'public/css');
  mix.copy('resources/assets/css/video-js.css', 'public/css');
 
-mix.sass('resources/assets/css/custom/projects.scss', 'public/css');
+ mix.sass('resources/assets/css/custom/projects.scss', 'public/css');
 
  mix.copy('resources/assets/js/core/bootstrap.min.js', 'public/js/core');
  mix.copy('resources/assets/js/core/jquery.3.2.1.min.js', 'public/js/core');
