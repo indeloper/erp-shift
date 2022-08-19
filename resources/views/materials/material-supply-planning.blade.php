@@ -217,11 +217,13 @@
                                 },
                                 editing: {
                                     mode: 'row',
+                                    @if(Auth::user()->can('material_supply_planning_editing'))
                                     allowUpdating: true,
-                                    allowAdding: true,
+                                    allowAdding: false,
                                     allowDeleting: true,
+                                    @endcan
                                     selectTextOnEditStart: true,
-                                    startEditAction: 'click',
+                                    startEditAction: 'click'
                                 },
                                 columns: [
                                     {
@@ -749,18 +751,15 @@
                                                             let dataGrid =  $(`<div class="supply-planning-details-tab-grid" supply-planning-id="${info.data.id}">`).dxDataGrid({
                                                                 editing: {
                                                                     mode: 'row',
+                                                                    @if(Auth::user()->can('material_supply_planning_editing'))
                                                                     allowUpdating: true,
-                                                                    allowAdding: true,
+                                                                    allowAdding: false,
                                                                     allowDeleting: true,
+                                                                    @endcan
                                                                     selectTextOnEditStart: true,
                                                                     startEditAction: 'click',
                                                                 },
-                                                                mode: 'row',
-                                                                allowUpdating: true,
-                                                                allowAdding: false,
-                                                                allowDeleting: true,
-                                                                selectTextOnEditStart: true,
-                                                                startEditAction: 'click',
+                                                                @if(Auth::user()->can('material_supply_planning_editing'))
                                                                 toolbar: {
                                                                     visible: true,
                                                                     items: [
@@ -780,6 +779,7 @@
                                                                         }
                                                                     ]
                                                                 },
+                                                                @endcan
                                                                 dataSource: new DevExpress.data.DataSource({
                                                                     store: new DevExpress.data.CustomStore({
                                                                         key: "id",
@@ -1004,7 +1004,9 @@
                     .prependTo(groupCaptionButtonsDiv)
             }
 
+            @if(Auth::user()->can('material_supply_planning_editing'))
             createGridGroupHeaderButtons();
+            @endcan
 
             function calculateNeededWeight(rowData) {
                 let weight = rowData.amount * rowData.quantity * rowData.standard_weight;
