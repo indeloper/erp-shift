@@ -169,9 +169,9 @@
                 })
             });
 
-            function getMaterialWeight(data) {
+            function getMaterialWeight(data, weightColumnName = 'weight') {
                 let amount = data.amount;
-                let weight = amount * data.quantity * data.weight;
+                let weight = amount * data.quantity * data[weightColumnName];
 
                 if (isNaN(weight)) {
                     weight = 0;
@@ -282,17 +282,8 @@
                                                 allowEditing: false,
                                                 validationRules: [{type: "required"}],
                                                 calculateCellValue: function (rowData) {
-                                                    let amount = rowData.amount;
-                                                    let weight = amount * rowData.quantity * rowData.standard_weight;
-
-                                                    if (isNaN(weight)) {
-                                                        weight = 0;
-                                                    } else {
-                                                        weight = Math.round(weight * 1000) / 1000;
-                                                    }
-
-                                                    rowData.planned_project_weight = weight;
-                                                    return weight;
+                                                    rowData.planned_project_weight = getMaterialWeight(rowData, 'standard_weight');
+                                                    return rowData.planned_project_weight;
                                                 }
                                             }
                                         ]
@@ -424,19 +415,13 @@
                                                                             showInGroupFooter: false,
                                                                             alignByColumn: true
                                                                         }],
-                                                                    totalItems: [{
-                                                                        name: "totalComputedWeightSummary",
-                                                                        showInColumn: "computed_weight",
-                                                                        summaryType: "custom",
-                                                                        showInGroupFooter: false,
-                                                                        alignByColumn: true
-                                                                    }],
                                                                     calculateCustomSummary: (options) => {
-                                                                        if (options.name === 'totalAmountGroupSummary' || options.name === 'totalComputedWeightGroupSummary' || options.name === 'totalComputedWeightSummary') {
+                                                                        if (options.name === 'totalAmountGroupSummary' || options.name === 'totalAmountSummary' || options.name === 'totalComputedWeightGroupSummary' || options.name === 'totalComputedWeightSummary') {
                                                                             let measureUnit;
                                                                             let computedPropertyName;
                                                                             switch (options.name) {
                                                                                 case 'totalAmountGroupSummary':
+                                                                                case 'totalAmountSummary':
                                                                                     computedPropertyName = 'amount';
                                                                                     measureUnit = 'шт';
                                                                                     break;
@@ -476,6 +461,22 @@
                                                                             }
                                                                         }
                                                                     },
+                                                                    totalItems: [
+                                                                        {
+                                                                            name: "totalComputedWeightSummary",
+                                                                            showInColumn: "computed_weight",
+                                                                            summaryType: "custom",
+                                                                            showInGroupFooter: false,
+                                                                            alignByColumn: true
+                                                                        },
+                                                                        {
+                                                                            name: "totalAmountSummary",
+                                                                            showInColumn: "amount",
+                                                                            summaryType: "custom",
+                                                                            showInGroupFooter: false,
+                                                                            alignByColumn: true
+                                                                        }
+                                                                    ],
                                                                 },
                                                                 columns: [
                                                                     {
@@ -572,7 +573,8 @@
                                                                     }
                                                                 ],
                                                                 onSelectionChanged(e) {
-                                                                    e.component.refresh(true);
+                                                                    //e.component.refresh(true);
+                                                                    e.component.repaint();
                                                                 },
                                                             });
                                                         }
@@ -645,13 +647,69 @@
                                                                             alignByColumn: true
                                                                         }
                                                                     ],
-                                                                    totalItems: [{
-                                                                        column: "computed_weight",
-                                                                        summaryType: "sum",
-                                                                        customizeText: function (data) {
-                                                                            return "Итого: " + Math.round(data.value * 1000) / 1000 + " т"
+                                                                    calculateCustomSummary: (options) => {
+                                                                        if (options.name === 'totalAmountSummary' || options.name === 'totalComputedWeightSummary') {
+                                                                            let measureUnit;
+                                                                            let computedPropertyName;
+                                                                            switch (options.name) {
+                                                                                case 'totalAmountSummary':
+                                                                                    computedPropertyName = 'amount';
+                                                                                    measureUnit = 'шт';
+                                                                                    break;
+                                                                                case 'totalComputedWeightSummary':
+                                                                                    computedPropertyName = 'computed_weight';
+                                                                                    measureUnit = 'т'
+                                                                                    break;
+                                                                            }
+
+                                                                            if (options.summaryProcess === 'start') {
+                                                                                options.totalValue = 0;
+                                                                                options.selectedTotalValue = 0;
+                                                                            }
+                                                                            if (options.summaryProcess === 'calculate') {
+                                                                                if (computedPropertyName === 'computed_weight') {
+                                                                                    options.computed_weight = getMaterialWeight(options.value);
+                                                                                }
+
+                                                                                options.totalValue += options.value[computedPropertyName];
+                                                                                if (options.component.isRowSelected(options.value.id)) {
+                                                                                    options.selectedTotalValue += options.value[computedPropertyName];
+                                                                                }
+                                                                            }
+
+                                                                            if (options.summaryProcess === 'finalize') {
+                                                                                if (computedPropertyName === 'computed_weight') {
+                                                                                    options.totalValue = Math.round(options.totalValue * 1000) / 1000;
+                                                                                    options.selectedTotalValue = Math.round(options.selectedTotalValue * 1000) / 1000;
+                                                                                }
+
+                                                                                options.totalValue = `Всего: ${options.totalValue} ${measureUnit}`;
+
+                                                                                if (options.selectedTotalValue > 0) {
+                                                                                    options.totalValue = `${options.totalValue}; Выбрано: ${options.selectedTotalValue} ${measureUnit}`
+                                                                                }
+                                                                            }
                                                                         }
-                                                                    }]
+                                                                    },
+                                                                    totalItems: [
+                                                                        {
+                                                                            name: "totalComputedWeightSummary",
+                                                                            showInColumn: "computed_weight",
+                                                                            summaryType: "custom",
+                                                                            showInGroupFooter: false,
+                                                                            alignByColumn: true
+                                                                        },
+                                                                        {
+                                                                            name: "totalAmountSummary",
+                                                                            showInColumn: "amount",
+                                                                            summaryType: "custom",
+                                                                            showInGroupFooter: false,
+                                                                            alignByColumn: true
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                onSelectionChanged(e) {
+                                                                    e.component.refresh(true);
                                                                 },
                                                                 columns: [
                                                                     {
@@ -722,17 +780,7 @@
                                                                         dataType: "number",
                                                                         caption: "Вес",
                                                                         calculateCellValue: function (rowData) {
-                                                                            let amount = rowData.amount;
-                                                                            let weight = amount * rowData.quantity * rowData.weight;
-
-                                                                            if (isNaN(weight)) {
-                                                                                weight = 0;
-                                                                            } else {
-                                                                                weight = Math.round(weight * 1000) / 1000;
-                                                                            }
-
-                                                                            rowData.computed_weight = weight;
-                                                                            return weight;
+                                                                            return getMaterialWeight(rowData);
                                                                         },
                                                                         cellTemplate: function (container, options) {
                                                                             let weight = options.data.computed_weight;
@@ -895,13 +943,71 @@
                                                                             alignByColumn: true
                                                                         }
                                                                     ],
-                                                                    totalItems: [{
-                                                                        column: "computed_weight",
-                                                                        summaryType: "sum",
-                                                                        customizeText: function (data) {
-                                                                            return "Итого: " + Math.round(data.value * 1000) / 1000 + " т"
+                                                                    calculateCustomSummary: (options) => {
+
+                                                                        if (options.name === 'totalAmountSummary' || options.name === 'totalComputedWeightSummary') {
+                                                                            let measureUnit;
+                                                                            let computedPropertyName;
+                                                                            switch (options.name) {
+                                                                                case 'totalAmountSummary':
+                                                                                    computedPropertyName = 'amount';
+                                                                                    measureUnit = 'шт';
+                                                                                    break;
+                                                                                case 'totalComputedWeightSummary':
+                                                                                    computedPropertyName = 'computed_weight';
+                                                                                    measureUnit = 'т'
+                                                                                    break;
+                                                                            }
+
+                                                                            if (options.summaryProcess === 'start') {
+                                                                                options.totalValue = 0;
+                                                                                options.selectedTotalValue = 0;
+                                                                            }
+                                                                            if (options.summaryProcess === 'calculate') {
+                                                                                if (computedPropertyName === 'computed_weight') {
+                                                                                    console.log(options.value);
+                                                                                    options.computed_weight = getMaterialWeight(options.value, "standard_weight");
+                                                                                }
+
+                                                                                options.totalValue += options.value[computedPropertyName];
+                                                                                if (options.component.isRowSelected(options.value.id)) {
+                                                                                    options.selectedTotalValue += options.value[computedPropertyName];
+                                                                                }
+                                                                            }
+
+                                                                            if (options.summaryProcess === 'finalize') {
+                                                                                if (computedPropertyName === 'computed_weight') {
+                                                                                    options.totalValue = Math.round(options.totalValue * 1000) / 1000;
+                                                                                    options.selectedTotalValue = Math.round(options.selectedTotalValue * 1000) / 1000;
+                                                                                }
+
+                                                                                options.totalValue = `Всего: ${options.totalValue} ${measureUnit}`;
+
+                                                                                if (options.selectedTotalValue > 0) {
+                                                                                    options.totalValue = `${options.totalValue}; Выбрано: ${options.selectedTotalValue} ${measureUnit}`
+                                                                                }
+                                                                            }
                                                                         }
-                                                                    }]
+                                                                    },
+                                                                    totalItems: [
+                                                                        {
+                                                                            name: "totalComputedWeightSummary",
+                                                                            showInColumn: "computed_weight",
+                                                                            summaryType: "custom",
+                                                                            showInGroupFooter: false,
+                                                                            alignByColumn: true
+                                                                        },
+                                                                        {
+                                                                            name: "totalAmountSummary",
+                                                                            showInColumn: "amount",
+                                                                            summaryType: "custom",
+                                                                            showInGroupFooter: false,
+                                                                            alignByColumn: true
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                onSelectionChanged(e) {
+                                                                    e.component.refresh(true);
                                                                 },
                                                                 columns: [
                                                                     {
@@ -948,19 +1054,9 @@
                                                                         dataField: "computed_weight",
                                                                         dataType: "number",
                                                                         caption: "Вес",
-                                                                        //allowEditing: false,
+                                                                        allowEditing: false,
                                                                         calculateCellValue: function (rowData) {
-                                                                            let amount = rowData.amount;
-                                                                            let weight = amount * rowData.quantity * rowData.standard_weight;
-
-                                                                            if (isNaN(weight)) {
-                                                                                weight = 0;
-                                                                            } else {
-                                                                                weight = Math.round(weight * 1000) / 1000;
-                                                                            }
-
-                                                                            rowData.computed_weight = weight;
-                                                                            return weight;
+                                                                            return getMaterialWeight(rowData, 'standard_weight');
                                                                         },
                                                                         cellTemplate: function (container, options) {
                                                                             let weight = options.data.computed_weight;
