@@ -5,6 +5,7 @@ namespace App\Http\Controllers\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialBrand;
 use App\Models\q3wMaterial\q3wMaterialBrandsRelation;
+use App\Models\q3wMaterial\q3wMaterialBrandType;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wStandardPropertiesRelations;
@@ -284,5 +285,12 @@ class q3wMaterialStandardController extends Controller
                 DB::Raw("CONCAT(`q3w_material_types`.`name`, ' ', `q3w_material_brands`.`name`) as `full_name`")
             ])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function brandTypesList(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new q3wMaterialBrandType())->dxLoadOptions($options)->get()->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

@@ -48,6 +48,10 @@
             margin-top: 6px;
             margin-right: 8px;
         }
+
+        .supply-planning-materials {
+            margin-bottom: 16px;
+        }
     </style>
 @endsection
 
@@ -311,7 +315,7 @@
                                                 }
                                             },
                                             {
-                                                caption: "Л5М (т)", //brand_type_id = 2
+                                                caption: "Л5 УМ (т)", //brand_type_id = 2
                                                 allowEditing: false,
                                                 alignment: 'right',
                                                 calculateCellValue: function (rowData) {
@@ -347,13 +351,305 @@
                                     enabled: true,
                                     autoExpandAll: false,
                                     template: function (container, info) {
+                                        let supplyMaterialsGrid = $(`<div class="supply-planning-materials" supply-planning-id="${info.data.id}">`).dxDataGrid({
+                                            editing: {
+                                                mode: 'row',
+                                                @if(Auth::user()->can('material_supply_planning_editing'))
+                                                allowUpdating: true,
+                                                allowAdding: false,
+                                                allowDeleting: false,
+                                                @endcan
+                                                selectTextOnEditStart: true,
+                                                startEditAction: 'click',
+                                            },
+                                            dataSource: new DevExpress.data.DataSource({
+                                                store: new DevExpress.data.CustomStore({
+                                                    key: "id",
+                                                    loadMode: "raw",
+                                                    load: function (loadOptions) {
+                                                        let loadParameters = {
+                                                            loadOptions: loadOptions,
+                                                            materialSupplyPlanningId: info.data.id,
+                                                            detailType: "supply_materials"
+                                                        }
+
+                                                        return $.getJSON("{{route('materials.supply-planning.materials.list')}}",
+                                                            loadParameters);
+                                                    },
+                                                    insert: function (values) {
+                                                        values.supply_planning_id = info.data.id;
+                                                        return $.ajax({
+                                                            url: "{{route('materials.supply-planning.materials.store')}}",
+                                                            method: "POST",
+                                                            headers: {
+                                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                            },
+                                                            data: {
+                                                                data: JSON.stringify(values),
+                                                                options: null
+                                                            },
+                                                            success: function (data, textStatus, jqXHR) {
+                                                                DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
+                                                            },
+                                                        })
+                                                    },
+                                                    update: function (key, values) {
+                                                        values.supply_planning_id = info.data.id;
+                                                        return $.ajax({
+                                                            url: "{{route('materials.supply-planning.materials.update')}}",
+                                                            method: "PUT",
+                                                            headers: {
+                                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                            },
+                                                            data: {
+                                                                key: key,
+                                                                modifiedData: JSON.stringify(values)
+                                                            },
+                                                            success: function (data, textStatus, jqXHR) {
+                                                                DevExpress.ui.notify("Данные успешно изменены", "success", 1000)
+                                                            }
+                                                        });
+                                                    },
+                                                    remove: function (key) {
+                                                        return $.ajax({
+                                                            url: "{{route('materials.supply-planning.materials.delete')}}",
+                                                            method: "DELETE",
+                                                            headers: {
+                                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                            },
+                                                            data: {
+                                                                key: key
+                                                            },
+                                                            success: function (data, textStatus, jqXHR) {
+                                                                DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                                                            },
+
+                                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                                DevExpress.ui.notify("При удалении данных произошла ошибка", "error", 5000)
+                                                            }
+                                                        })
+                                                    }
+                                                }),
+                                            }),
+                                            showBorders: true,
+                                            showColumnLines: true,
+                                            filterRow: {
+                                                visible: true,
+                                                applyFilter: "auto"
+                                            },
+                                            grouping: {
+                                                autoExpandAll: false,
+                                            },
+                                            groupPanel: {
+                                                visible: false
+                                            },
+                                            /*selection: {
+                                                allowSelectAll: true,
+                                                deferred: false,
+                                                mode: "multiple",
+                                                selectAllMode: "allPages",
+                                                showCheckBoxesMode: "always"
+                                            },*/
+                                            paging: {
+                                                enabled: false
+                                            },
+                                            summary: {
+                                                groupItems: [
+                                                    {
+                                                        column: "standard_name",
+                                                        summaryType: "count",
+                                                        displayFormat: "Количество: {0}",
+                                                    },
+                                                    {
+                                                        column: "amount",
+                                                        summaryType: "sum",
+                                                        displayFormat: "Всего: {0} шт",
+                                                        showInGroupFooter: false,
+                                                        alignByColumn: true
+                                                    },
+                                                    {
+                                                        column: "computed_weight",
+                                                        summaryType: "sum",
+                                                        customizeText: function (data) {
+                                                            return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
+                                                        },
+                                                        showInGroupFooter: false,
+                                                        alignByColumn: true
+                                                    }
+                                                ],
+                                                calculateCustomSummary: (options) => {
+
+                                                    if (options.name === 'totalAmountSummary' || options.name === 'totalComputedWeightSummary') {
+                                                        let measureUnit;
+                                                        let computedPropertyName;
+                                                        switch (options.name) {
+                                                            case 'totalAmountSummary':
+                                                                computedPropertyName = 'amount';
+                                                                measureUnit = 'шт';
+                                                                break;
+                                                            case 'totalComputedWeightSummary':
+                                                                computedPropertyName = 'computed_weight';
+                                                                measureUnit = 'т'
+                                                                break;
+                                                        }
+
+                                                        if (options.summaryProcess === 'start') {
+                                                            options.totalValue = 0;
+                                                            options.selectedTotalValue = 0;
+                                                        }
+                                                        if (options.summaryProcess === 'calculate') {
+                                                            if (computedPropertyName === 'computed_weight') {
+                                                                console.log(options.value);
+                                                                options.computed_weight = getMaterialWeight(options.value, "standard_weight");
+                                                            }
+
+                                                            options.totalValue += options.value[computedPropertyName];
+                                                            if (options.component.isRowSelected(options.value.id)) {
+                                                                options.selectedTotalValue += options.value[computedPropertyName];
+                                                            }
+                                                        }
+
+                                                        if (options.summaryProcess === 'finalize') {
+                                                            if (computedPropertyName === 'computed_weight') {
+                                                                options.totalValue = Math.round(options.totalValue * 1000) / 1000;
+                                                                options.selectedTotalValue = Math.round(options.selectedTotalValue * 1000) / 1000;
+                                                            }
+
+                                                            options.totalValue = `Всего: ${options.totalValue} ${measureUnit}`;
+
+                                                            if (options.selectedTotalValue > 0) {
+                                                                options.totalValue = `${options.totalValue}; Выбрано: ${options.selectedTotalValue} ${measureUnit}`
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                totalItems: [
+                                                    {
+                                                        name: "totalComputedWeightSummary",
+                                                        showInColumn: "computed_weight",
+                                                        column: "computed_weight",
+                                                        summaryType: "sum",
+                                                        displayFormat: "Итого: {0} т",
+                                                        showInGroupFooter: false,
+                                                        alignByColumn: true
+                                                    }
+                                                ]
+                                            },
+                                            onSelectionChanged(e) {
+                                                e.component.refresh(true);
+                                            },
+                                            columns: [
+                                                {
+                                                    caption: "Объект",
+                                                    dataType: "number",
+                                                    dataField: "project_object",
+                                                    allowEditing: false,
+                                                    lookup: {
+                                                        dataSource: {
+                                                            store: projectObjectsStore,
+                                                            paginate: true,
+                                                            pageSize: 25
+                                                        },
+                                                        displayExpr: 'short_name',
+                                                        valueExpr: 'id'
+                                                    },
+                                                    validationRules: [{type: "required"}]
+                                                },
+                                                {
+                                                    dataField: "standard_name",
+                                                    dataType: "string",
+                                                    caption: "Наименование",
+                                                    width: 500,
+                                                    allowEditing: false,
+                                                    cellTemplate: function (container, options) {
+                                                        $(`<div class="standard-name">${options.text}</div>`)
+                                                            .appendTo(container);
+
+                                                        if (options.data.comment) {
+                                                            $(`<div class="material-comment">${options.data.comment}</div>`)
+                                                                .appendTo(container);
+
+                                                            container.addClass("standard-name-cell-with-comment");
+                                                        }
+                                                    },
+                                                    calculateFilterExpression: function (filterValue, selectedFilterOperation, target) {
+                                                        if (["contains", "notcontains"].indexOf(selectedFilterOperation) !== -1) {
+                                                            let columnsNames = ["standard_name", "comment"]
+
+                                                            let words = filterValue.split(" ");
+                                                            let filter = [];
+
+                                                            columnsNames.forEach(function (column, index) {
+                                                                filter.push([]);
+                                                                words.forEach(function (word) {
+                                                                    filter[filter.length - 1].push([column, selectedFilterOperation, word]);
+                                                                    filter[filter.length - 1].push("and");
+                                                                });
+
+                                                                filter[filter.length - 1].pop();
+                                                                filter.push("or");
+                                                            })
+
+                                                            filter.pop();
+                                                            return filter;
+                                                        }
+                                                        return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
+                                                    }
+                                                },
+                                                {
+                                                    dataField: "quantity",
+                                                    dataType: "number",
+                                                    caption: "Длина (м.п)",
+                                                    showSpinButtons: true,
+                                                    allowEditing: false,
+                                                    cellTemplate: function (container, options) {
+                                                        let quantity = Math.round(options.data.quantity * 100) / 100;
+                                                        let measureUnit = 'м.п';
+
+                                                        $(`<div>${quantity} ${measureUnit}</div>`)
+                                                            .appendTo(container);
+                                                    },
+                                                    validationRules: [{type: "required"}]
+                                                },
+                                                {
+                                                    dataField: "amount",
+                                                    dataType: "number",
+                                                    caption: "Количество (шт)",
+                                                    cellTemplate: function (container, options) {
+                                                        let amount = options.data.amount;
+                                                        $(`<div>${amount} шт</div>`)
+                                                            .appendTo(container);
+                                                    },
+                                                    validationRules: [{type: "required"}]
+                                                },
+                                                {
+                                                    dataField: "computed_weight",
+                                                    dataType: "number",
+                                                    caption: "Вес",
+                                                    allowEditing: false,
+                                                    calculateCellValue: function (rowData) {
+                                                        console.log("rowData", rowData);
+                                                        return getMaterialWeight(rowData);
+                                                    },
+                                                    cellTemplate: function (container, options) {
+                                                        let weight = options.data.computed_weight;
+
+                                                        $(`<div>${weight} т</div>`)
+                                                            .appendTo(container);
+                                                    }
+                                                }
+                                            ]
+                                        })
+                                        container.append(supplyMaterialsGrid);
+
                                         container.append(
                                             $('<div class="supply-planning-details">').dxTabPanel({
                                                 items: [
                                                     {
                                                         title: "Наличие на объектах",
                                                         template: () => {
-                                                            return $(`<div class="supply-planning-details-tab-grid">`).dxDataGrid({
+                                                            let isFirstLoad = true;
+                                                            let materialsForSupplyPlanning = $(`<div class="supply-planning-details-tab-grid">`).dxDataGrid({
                                                                 dataSource: new DevExpress.data.DataSource({
                                                                     store: new DevExpress.data.CustomStore({
                                                                         key: "id",
@@ -368,8 +664,21 @@
                                                                             }
 
                                                                             return $.getJSON("{{route('materials.supply-planning.get-materials-for-supply-planning-details')}}",
-                                                                                loadParameters);
+                                                                                loadParameters)
                                                                         },
+                                                                        onLoaded: (data) => {
+                                                                            if (isFirstLoad) {
+                                                                                isFirstLoad = false;
+                                                                                let selectedRows = [];
+                                                                                data.forEach((rowData) => {
+                                                                                    if (rowData.id === rowData.supply_material_id) {
+                                                                                        selectedRows.push(rowData.id)
+                                                                                    }
+
+                                                                                    materialsForSupplyPlanning.dxDataGrid("instance").option("selectedRowKeys", selectedRows);
+                                                                                })
+                                                                            }
+                                                                        }
                                                                     }),
                                                                 }),
                                                                 showBorders: true,
@@ -573,10 +882,69 @@
                                                                     }
                                                                 ],
                                                                 onSelectionChanged(e) {
-                                                                    //e.component.refresh(true);
-                                                                    e.component.repaint();
+                                                                    let selectedDataArray = [];
+                                                                    let deselectedDataArray = [];
+                                                                    e.currentSelectedRowKeys.forEach((selectedItem) => {
+                                                                        selectedDataArray.push({
+                                                                            material_id: selectedItem,
+                                                                            supply_planning_id: info.data.id
+                                                                        })
+                                                                    });
+
+                                                                    if (selectedDataArray.length > 0) {
+                                                                        $.ajax({
+                                                                            url: "{{route('materials.supply-planning.materials.store')}}",
+                                                                            method: "POST",
+                                                                            headers: {
+                                                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                                            },
+                                                                            data: {
+                                                                                data: JSON.stringify(selectedDataArray)
+                                                                            },
+
+                                                                            success: function (data, textStatus, jqXHR) {
+                                                                                //
+                                                                            },
+                                                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                                                DevExpress.ui.notify("При обновлении данных произошла ошибка", "error", 5000);
+                                                                            }
+                                                                        })
+                                                                    }
+
+                                                                    e.currentDeselectedRowKeys.forEach((deselectedItem) => {
+                                                                        deselectedDataArray.push({
+                                                                            material_id: deselectedItem,
+                                                                            supply_planning_id: info.data.id
+                                                                        })
+                                                                    });
+
+                                                                    if (deselectedDataArray.length > 0) {
+                                                                        $.ajax({
+                                                                            url: "{{route('materials.supply-planning.materials.delete')}}",
+                                                                            method: "DELETE",
+                                                                            headers: {
+                                                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                                            },
+                                                                            data: {
+                                                                                data: JSON.stringify(deselectedDataArray)
+                                                                            },
+
+                                                                            success: function (data, textStatus, jqXHR) {
+                                                                                //
+                                                                            },
+                                                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                                                DevExpress.ui.notify("При обновлении данных произошла ошибка", "error", 5000);
+                                                                            }
+                                                                        })
+                                                                    }
+
+                                                                    supplyMaterialsGrid.dxDataGrid("instance").getDataSource().reload();
+
+                                                                    e.component.refresh(true);
                                                                 },
                                                             });
+
+                                                            return materialsForSupplyPlanning;
                                                         }
                                                     },
                                                     {
@@ -861,6 +1229,7 @@
                                                                         },
                                                                         update: function (key, values) {
                                                                             values.supply_planning_id = info.data.id;
+                                                                            delete values.computed_weight;
                                                                             return $.ajax({
                                                                                 url: "{{route('materials.supply-planning.expected-delivery.update')}}",
                                                                                 method: "PUT",

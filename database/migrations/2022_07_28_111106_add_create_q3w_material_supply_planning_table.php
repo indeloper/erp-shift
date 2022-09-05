@@ -60,6 +60,21 @@ class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
         });
 
         DB::statement("ALTER TABLE q3w_material_supply_planning COMMENT 'Планирование поставок материалов на объекты'");
+
+        Schema::create('q3w_material_supply_materials', function (Blueprint $table) {
+            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+            $table->bigInteger('supply_planning_id')->unsigned()->comment('Запланированный материал');
+            $table->bigInteger('material_id')->unsigned()->comment('Выбранный материал');
+            $table->integer('amount')->unsigned()->comment('Количество выбранного материала');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('supply_planning_id')->references('id')->on('q3w_material_supply_planning');
+            $table->foreign('material_id')->references('id')->on('q3w_materials');
+        });
+
+        DB::statement("ALTER TABLE q3w_material_supply_materials COMMENT 'План по материалам на объекте'");
     }
 
     /**
@@ -69,6 +84,7 @@ class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('q3w_material_supply_materials');
         Schema::dropIfExists('q3w_material_supply_expected_deliveries');
         Schema::dropIfExists('q3w_material_supply_planning');
 

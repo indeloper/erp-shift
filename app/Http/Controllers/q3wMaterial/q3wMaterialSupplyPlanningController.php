@@ -37,12 +37,15 @@ class q3wMaterialSupplyPlanningController extends Controller
         $quantity = $request->quantity;
         $detailType = $request->detailType;
 
+        $brandTypeId = q3wMaterialBrand::find($brandId)->brand_type_id;
+        $brandsWithSameType = q3wMaterialBrand::where('brand_type_id', $brandTypeId)->pluck('id')->toArray();
+
         return (new q3wMaterial())
             ->dxLoadOptions($loadOptions)
             ->leftJoin('q3w_material_standards', 'q3w_material_standards.id', '=', 'q3w_materials.standard_id')
             ->leftJoin('q3w_material_comments', 'q3w_material_comments.id', '=', 'q3w_materials.comment_id')
-            ->whereBetween('quantity', [$quantity - SUPPLY_PLANNING_QUANTITY_DELTA, $quantity + SUPPLY_PLANNING_QUANTITY_DELTA])
-
+            ->leftJoin('q3w_material_supply_materials', 'q3w_materials.id', '=', 'q3w_material_supply_materials.material_id')
+            ->whereBetween('q3w_materials.quantity', [$quantity - SUPPLY_PLANNING_QUANTITY_DELTA, $quantity + SUPPLY_PLANNING_QUANTITY_DELTA])
             ->where(function($query) use ($detailType, $projectObject) {
                 switch ($detailType) {
                     case "otherRemains":
@@ -53,11 +56,12 @@ class q3wMaterialSupplyPlanningController extends Controller
                         break;
                 }
             })
-            ->whereIn('q3w_materials.standard_id', q3wMaterialBrandsRelation::where('brand_id', $brandId)->pluck('standard_id')->toArray())
-            ->where('amount', '>', 0)
-            ->orderBy('quantity')
+            ->whereIn('q3w_materials.standard_id', q3wMaterialBrandsRelation::whereIn('brand_id', $brandsWithSameType)->pluck('standard_id')->toArray())
+            ->where('q3w_materials.amount', '>', 0)
+            ->whereNull('q3w_material_supply_materials.deleted_at')
+            ->orderBy('q3w_materials.quantity')
             ->orderBy('q3w_material_standards.name')
-            ->orderBy('amount')
+            ->orderBy('q3w_materials.amount')
             ->get([
                 'q3w_materials.id',
                 'q3w_materials.standard_id',
@@ -66,7 +70,8 @@ class q3wMaterialSupplyPlanningController extends Controller
                 'q3w_materials.quantity',
                 'q3w_material_standards.name as standard_name',
                 'q3w_material_standards.weight',
-                'q3w_material_comments.comment'
+                'q3w_material_comments.comment',
+                'q3w_material_supply_materials.material_id as supply_material_id'
 
             ])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
@@ -146,8 +151,10 @@ class q3wMaterialSupplyPlanningController extends Controller
         $id = $request->all()["key"];
         $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY);
 
-        $materialSupplyPlanningRow = q3wMaterialSupplyPlanning::findOrFail($id);
+        unset($modifiedData['computed_weight']);
+        unset($modifiedData['planned_project_weight']);
 
+        $materialSupplyPlanningRow = q3wMaterialSupplyPlanning::findOrFail($id);
         $materialSupplyPlanningRow->update($modifiedData);
 
         return response()->json([
