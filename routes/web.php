@@ -264,8 +264,6 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/material/operations/route-stages-without-notifications/list', 'q3wMaterial\q3wCommonController@operationRouteStagesWithoutNotificationsList')->name('material.operation.route-stages-without-notifications.list');
     Route::get('/material/types/lookup-list', 'q3wMaterial\q3wCommonController@materialTypesLookupList')->name('material.types.lookup-list');
     Route::get('/material/transformation-types/lookup-list', 'q3wMaterial\q3wCommonController@materialTransformationTypesLookupList')->name('material.transformation-types.lookup-list');
-    Route::get('/material/brand-types/list', 'q3wMaterial\q3wCommonController@materialBrandTypesList')->name('material.brand-types.list');
-    Route::get('/material/brands/list', 'q3wMaterial\q3wCommonController@materialBrandsList')->name('material.brands.list');
 
     //Materials
     Route::get('/materials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
@@ -362,9 +360,6 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::put('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@update')->name('materials.supply-planning.expected-delivery.update')->middleware('can:material_supply_planning_editing');
     Route::post('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@store')->name('materials.supply-planning.expected-delivery.store')->middleware('can:material_supply_planning_editing');
     Route::delete('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@delete')->name('materials.supply-planning.expected-delivery.delete')->middleware('can:material_supply_planning_editing');
-
-    require base_path('routes/modules/labor-safety/labor-safety.php');
-    require base_path('routes/modules/common/company.php');
 });
 
 
