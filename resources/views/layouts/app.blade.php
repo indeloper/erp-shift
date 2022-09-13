@@ -761,7 +761,8 @@
 
     DevExpress.localization.locale(navigator.language);
     DevExpress.config({
-        editorStylingMode: "outlined"
+        editorStylingMode: "outlined",
+        forceIsoDateParsing: true
     })
 
     function iOS() {

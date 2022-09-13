@@ -6,15 +6,9 @@ use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class LaborSafetyRequest extends Model
+class LaborSafetyRequestOrder extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable;
 
     protected $guarded = array('id');
-
-    protected $appends = ['orders_data'];
-
-    public function getOrdersDataAttribute () {
-        return LaborSafetyRequestOrder::where('request_id', '=', $this->id)->get();
-    }
 }

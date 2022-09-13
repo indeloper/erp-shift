@@ -4,6 +4,8 @@
     Route::get('/card/{id}', 'ContractorController@card')->name('card');
 });*/
 
+Route::get('/labor-safety/statuses-list', 'LaborSafety\LaborSafetyRequestController@statusesList')->name('labor-safety.statuses.list');
+
 Route::get('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@index')->name('labor-safety.order-types.index');
 Route::get('/labor-safety/templates/list', 'LaborSafety\LaborSafetyOrderTypeController@list')->name('labor-safety.order-types.list');
 Route::put('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@update')->name('labor-safety.order-types.update');
@@ -13,3 +15,5 @@ Route::get('/labor-safety/orders-and-requests/list', 'LaborSafety\LaborSafetyReq
 Route::post('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@store')->name('labor-safety.orders-and-requests.store');
 Route::put('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@update')->name('labor-safety.orders-and-requests.update');
 Route::delete('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@update')->name('labor-safety.orders-and-requests.delete');
+
+Route::post('/labor-safety/orders-and-requests/download', 'LaborSafety\LaborSafetyRequestController@download')->name('labor-safety.orders-and-requests.download');

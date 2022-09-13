@@ -54,6 +54,10 @@
 @section('content')
     <div id="formContainer"></div>
     <div id="gridContainer"></div>
+    <form id="downloadRequest" target="_blank" method="post" action="{{route('labor-safety.orders-and-requests.download')}}">
+        @csrf
+        <input id="requestId" type="hidden" name="requestId">
+    </form>
 @endsection
 
 @section('js_footer')
@@ -61,6 +65,59 @@
         let dataSourceLoadOptions = {};
         let currentSelectedOrder = {};
         let ordersData = new Map();
+        let currentEditingRowIndex;
+        let currentEditingRowKey;
+
+        let usersStore = new DevExpress.data.CustomStore({
+            key: "id",
+            loadMode: "raw",
+            load: function (loadOptions) {
+                return $.getJSON("{{route('users.list')}}",
+                    {data: JSON.stringify(loadOptions)});
+            },
+        });
+
+        let employeesStore = new DevExpress.data.CustomStore({
+            key: "id",
+            loadMode: "raw",
+            load: function (loadOptions) {
+                return $.getJSON("{{route('users.list')}}",
+                    {data: JSON.stringify(loadOptions)});
+            },
+        });
+
+        let statusesStore = new DevExpress.data.CustomStore({
+            key: "id",
+            loadMode: "raw",
+            load: function (loadOptions) {
+                return $.getJSON("{{route('labor-safety.statuses.list')}}",
+                    {data: JSON.stringify(loadOptions)});
+            },
+        });
+
+        let companiesStore = new DevExpress.data.CustomStore({
+            key: "id",
+            loadMode: "raw",
+            load: function (loadOptions) {
+                return $.getJSON("{{route('companies.list')}}",
+                    {
+                        loadOptions: JSON.stringify(loadOptions),
+                    });
+            },
+        });
+
+        let projectObjectsStore = new DevExpress.data.CustomStore({
+            key: "id",
+            loadMode: "raw",
+            load: function (loadOptions) {
+                return $.getJSON("{{route('project-objects.list')}}",
+                    {data: JSON.stringify(loadOptions)});
+            },
+        })
+
+        let projectObjectsDataSource = new DevExpress.data.DataSource({
+            store: projectObjectsStore
+        });
 
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
@@ -70,10 +127,8 @@
             console.log(currentSelectedOrder);
             let formItems;
             let orderAttributes = {};
-            if (ordersData.has(currentSelectedOrder.order_type_category_id)) {
-                orderAttributes = ordersData.get(currentSelectedOrder.order_type_category_id);
-            } else {
-                orderAttributes = {};
+            if (ordersData.has(currentSelectedOrder.id)) {
+                orderAttributes = ordersData.get(currentSelectedOrder.id);
             }
 
             switch(currentSelectedOrder.order_type_category_id) {
@@ -146,13 +201,18 @@
                     break;
             }
 
-            let attributesFormDiv = $(`<div>`).dxForm({
-                colCount: 2,
-                fromData: ordersData,
-                items: formItems
-            })
 
-            //console.log(attributesFormDiv.dxForm("instance").options("fromData"));
+
+            let attributesFormDiv = $(`<div>`);
+            let attributesForm = attributesFormDiv.dxForm({
+                colCount: 2,
+                formData: orderAttributes,
+                items: formItems
+            }).dxForm("instance");
+
+            ordersData.set(currentSelectedOrder.id, attributesForm.option("formData"));
+
+            console.log("ordersData", ordersData)
 
             return(attributesFormDiv)
         }
@@ -181,7 +241,7 @@
                             });
                     },
                     insert: function (values) {
-                        console.log(values);
+                        values.ordersData = Array.from(ordersData.entries());
                         return $.ajax({
                             url: "{{route('labor-safety.orders-and-requests.store')}}",
                             method: "POST",
@@ -202,6 +262,7 @@
                         })
                     },
                     update: function (key, values) {
+                        values.ordersData = Array.from(ordersData.entries());
                         return $.ajax({
                             url: "{{route('labor-safety.orders-and-requests.update')}}",
                             method: "PUT",
@@ -228,7 +289,10 @@
                         label: {
                             text: "Дата приказа"
                         },
-                        editorType: "dxDateBox"
+                        editorType: "dxDateBox",
+                        editorOptions: {
+                            dateSerializationFormat: "yyyy-MM-ddTHH:mm:ss"
+                        }
                     },
                     {
                         dataField: "company_id",
@@ -237,6 +301,14 @@
                         },
                         itemType: "simpleItem",
                         editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: {
+                                store: companiesStore
+                            },
+                            displayExpr: "name",
+                            valueExpr: "id",
+                            searchEnabled: true,
+                        }
                     },
                     {
                         dataField: "project_object_id",
@@ -244,7 +316,17 @@
                             text: "Адрес объекта"
                         },
                         itemType: "simpleItem",
-                        editorType: "dxTextBox",
+                        editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: {
+                                store: projectObjectsStore,
+                                paginate: true,
+                                pageSize: 25,
+                            },
+                            displayExpr: 'short_name',
+                            valueExpr: 'id',
+                            searchEnabled: true
+                        }
                     },
                     {
                         label: {
@@ -258,6 +340,17 @@
                             height: "60vh",
                             focusedRowEnabled: true,
                             dataSource: orderTypesDataSource,
+                            showColumnHeaders: false,
+                            selection: {
+                                allowSelectAll: false,
+                                deferred: false,
+                                mode: "multiple",
+                                selectAllMode: "allPages",
+                                showCheckBoxesMode: "always"
+                            },
+                            paging: {
+                                enabled: false
+                            },
                             columns: [
                                 {
                                     dataField: "short_name",
@@ -268,9 +361,40 @@
                                     }
                                 }
                             ],
+                            onSelectionChanged: (e) => {
+                                if (e.currentSelectedRowKeys.length > 0) {
+                                    e.currentSelectedRowKeys.forEach((key) => {
+                                        e.component.byKey(key).done((data) => {
+                                            if (!ordersData.has(data.id)) {
+                                                ordersData.set(data.id, {});
+                                            } else {
+                                                ordersData.get(data.id).include_in_formation = true;
+                                            }
+                                        })
+                                    })
+                                }
+
+                                if (e.currentDeselectedRowKeys.length > 0) {
+                                    e.currentDeselectedRowKeys.forEach((key) => {
+                                        e.component.byKey(key).done((data) => {
+                                            if (!ordersData.has(data.id)) {
+                                                ordersData.set(data.id, {});
+                                            } else {
+                                                ordersData.get(data.id).include_in_formation = true;
+                                            }
+                                        })
+                                    })
+                                }
+
+                                $(".dx-tabpanel").dxTabPanel("instance").repaint();
+                            },
                             onFocusedRowChanged: (e) => {
+                                console.log("onFocusedRowChanged", e);
                                 currentSelectedOrder = e.row.data;
                                 $(".dx-tabpanel").dxTabPanel("instance").repaint();
+                            },
+                            onSaving: (e) => {
+                                console.log("saving", e);
                             }
                         }
                     },
@@ -381,7 +505,79 @@
                                             my: "center",
                                             at: "center",
                                             of: window
-                                        }
+                                        },
+                                        toolbarItems:[
+                                            {
+                                                toolbar:'bottom',
+                                                location: 'before',
+                                                widget: "dxButton",
+                                                //visible:
+                                                options: {
+                                                    text: "Отменить заявку",
+                                                    type: 'danger',
+                                                    stylingMode: 'contained',
+                                                    onClick: function(e){
+                                                        //requestsForm.getEditor("requestsGrid").saveEditData();
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                toolbar:'bottom',
+                                                location: 'before',
+                                                widget: "dxButton",
+                                                options: {
+                                                    text: "Сформировать документы",
+                                                    type: 'default',
+                                                    stylingMode: 'contained',
+                                                    onClick: function(e){
+                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
+                                                            requestsForm.getEditor("requestsGrid").cellValue(
+                                                                currentEditingRowIndex,
+                                                                "perform_orders",
+                                                                true
+                                                            )
+                                                        }
+                                                        requestsForm.getEditor("requestsGrid").saveEditData();
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                toolbar:'bottom',
+                                                location: 'after',
+                                                widget: "dxButton",
+                                                options: {
+                                                    text: "Сохранить",
+                                                    type: 'normal',
+                                                    stylingMode: 'contained',
+                                                    onClick: function(e){
+                                                        console.log("currentEditingRowIndex", currentEditingRowIndex)
+                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
+                                                            requestsForm.getEditor("requestsGrid").cellValue(
+                                                                currentEditingRowIndex,
+                                                                "perform_orders",
+                                                                false
+                                                            )
+                                                        }
+                                                        requestsForm.getEditor("requestsGrid").saveEditData();
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                toolbar:'bottom',
+                                                location: 'after',
+                                                widget: "dxButton",
+                                                options: {
+                                                    text: "Отменить редактирование",
+                                                    type: 'normal',
+                                                    stylingMode: 'contained',
+                                                    onClick: function(e){
+                                                        console.log("e", e);
+                                                        console.log("this", this);
+                                                        requestsForm.getEditor("requestsGrid").cancelEditData();
+                                                    }
+                                                }
+                                            }
+                                        ]
                                     },
                                     form: editForm,
                                 },
@@ -394,45 +590,116 @@
                                     {
                                         dataField: "order_date",
                                         caption: "Дата приказа",
-                                        width: 120
+                                        dataType: "date",
+                                        width: 120,
+                                        validationRules: [{type: "required"}]
                                     },
                                     {
                                         dataField: "project_object_id",
-                                        caption: "Объект"
+                                        caption: "Объект",
+                                        lookup: {
+                                            dataSource: {
+                                                store: projectObjectsStore,
+                                                paginate: true,
+                                                pageSize: 25,
+                                            },
+                                            displayExpr: 'short_name',
+                                            valueExpr: 'id'
+                                        },
+                                        validationRules: [{type: "required"}]
                                     },
                                     {
                                         dataField: "company_id",
                                         caption: "Организация",
-                                        width: 200
+                                        width: 200,
+                                        lookup: {
+                                            dataSource: {
+                                                store: companiesStore,
+                                                paginate: true,
+                                                pageSize: 25,
+                                            },
+                                            displayExpr: 'name',
+                                            valueExpr: 'id'
+                                        },
+                                        validationRules: [{type: "required"}]
                                     },
                                     {
                                         dataField: "author_user_id",
-                                        caption: "Автор"
+                                        caption: "Автор",
+                                        lookup: {
+                                            dataSource: {
+                                                store: usersStore,
+                                                paginate: true,
+                                                pageSize: 25,
+                                            },
+                                            displayExpr: 'full_name',
+                                            valueExpr: 'id'
+                                        },
                                     },
                                     {
                                         dataField: "implementer_user_id",
-                                        caption: "Ответственный"
+                                        caption: "Ответственный",
+                                        lookup: {
+                                            dataSource: {
+                                                store: usersStore,
+                                                paginate: true,
+                                                pageSize: 25,
+                                            },
+                                            displayExpr: 'full_name',
+                                            valueExpr: 'id'
+                                        },
                                     },
                                     {
                                         dataField: "request_status_id",
-                                        caption: "Статус"
+                                        caption: "Статус",
+                                        lookup: {
+                                            dataSource: {
+                                                store: statusesStore,
+                                                paginate: true,
+                                                pageSize: 25,
+                                            },
+                                            displayExpr: 'name',
+                                            valueExpr: 'id'
+                                        },
+                                    },
+                                    {
+                                        dataField: "perform_orders",
+                                        dataType: "boolean",
+                                        visible: false
+                                    },
+                                    {
+                                        type: 'buttons',
+                                        width: 110,
+                                        buttons: [
+                                            'edit',
+                                            {
+                                                hint: 'Скачать',
+                                                icon: 'download',
+                                                onClick: (e) => {
+                                                    $('#requestId').val(JSON.stringify(e.row.key));
+                                                    $('#downloadRequest').get(0).submit();
+                                                }
+                                            }
+                                        ]
                                     }
                                 ],
                                 onRowDblClick: function (e) {
-                                    e.component.editRow(e.RowIndex);
+                                    e.component.editRow(e.rowIndex);
                                 },
-                                onSaving(e) {
-                                    console.log("saving", e)
+                                onEditingStart: (e) => {
+                                    console.log("onEditingStart", e);
+                                    ordersData = new Map();
+                                    e.data.orders_data.forEach((dataItem) => {
+                                        ordersData.set(dataItem.order_type_id, dataItem);
+                                    })
+                                    currentEditingRowKey = e.key;
+                                    currentEditingRowIndex = e.component.getRowIndexByKey(e.key);
                                 }
                             }
                         }]
                     }
                 ]
             }).dxForm('instance')
-
-            function getSelectedEditFormTabIndex(){
-
-            }
 
             function createGridGroupHeaderButtons() {
                 let groupCaption = $('.requests-grid').find('.dx-form-group-with-caption');
