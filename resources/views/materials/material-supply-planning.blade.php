@@ -529,7 +529,9 @@
                                                         showInColumn: "computed_weight",
                                                         column: "computed_weight",
                                                         summaryType: "sum",
-                                                        displayFormat: "Итого: {0} т",
+                                                        customizeText: function (data) {
+                                                            return "Итого: " + Math.round(data.value * 1000) / 1000 + " т"
+                                                        },
                                                         showInGroupFooter: false,
                                                         alignByColumn: true
                                                     }

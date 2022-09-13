@@ -64,13 +64,16 @@ class q3wMaterialSupplyMaterialController extends Controller
         $data = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY);
 
         foreach ($data as $dataValue) {
+            $sourceMaterial = q3wMaterial::findOrFail($dataValue['material_id']);
+
             $materialSupplyMaterial = q3wMaterialSupplyMaterial::where('supply_planning_id', '=', $dataValue['supply_planning_id'])
                 ->where('material_id', '=', $dataValue['material_id'])
                 ->first();
             if (!isset($materialSupplyMaterial)) {
                 $materialSupplyMaterial = new q3wMaterialSupplyMaterial([
                         'supply_planning_id' => $dataValue['supply_planning_id'],
-                        'material_id' => $dataValue['material_id']
+                        'material_id' => $dataValue['material_id'],
+                        'amount' => $sourceMaterial->amount
                     ]
                 );
                 $materialSupplyMaterial->save();
