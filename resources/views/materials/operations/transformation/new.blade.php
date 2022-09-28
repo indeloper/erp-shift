@@ -81,8 +81,9 @@
             justify-content: center;
             align-items: center;
         }
-        .dx-datagrid-rowsview .dx-texteditor-input {
+        .dx-datagrid-rowsview .dx-texteditor.dx-editor-outlined .dx-texteditor-input {
             text-align: right;
+            padding-right: 0;
         }
 
         .dx-datagrid-rowsview .dx-placeholder {
@@ -90,8 +91,26 @@
             width: 100%;
         }
 
-        .computed-weight {
+        .dx-datagrid-rowsview .dx-texteditor.dx-editor-outlined .dx-placeholder::before {
+            padding-right: 0;
+        }
+
+        .computed-weight, .quantity-total-summary, .amount-total-summary, .weight-total-summary {
             text-align: right;
+        }
+
+        div.footer-row-validation {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-row-validation-indicator {
+            float: left;
+            margin-right: 8px;
+        }
+
+        .footer-row-validation-message {
+            font-weight: 500;
         }
     </style>
 @endsection
@@ -119,16 +138,14 @@
                 transformationTypesSelection: Symbol("transformationTypesSelection"),
                 fillingMaterialsToTransform: Symbol("fillingMaterialsToTransform"),
                 fillingMaterialsAfterTransform: Symbol("fillingMaterialsAfterTransform"),
-                fillingMaterialsRemainsAndTechnologicalLosses: Symbol("fillingMaterialsRemainsAndTechnologicalLosses"),
+                fillingMaterialsRemains: Symbol("fillingMaterialsRemains"),
+                fillingMaterialsTechnologicalLosses: Symbol("fillingMaterialsTechnologicalLosses"),
             });
 
             const rowTypes = Object.freeze({
                 rowHeader: Symbol("rowHeader"),
-                rowFooter: Symbol("rowHeader"),
-                rowMaterialsToTransform: Symbol("rowMaterialsToTransform"),
-                rowMaterialsAfterTransform: Symbol("rowMaterialsToTransform"),
-                rowMaterialsRemains: Symbol("rowMaterialsRemains"),
-                rowMaterialsTechnologicalLosses: Symbol("rowMaterialsTechnologicalLosses")
+                rowFooter: Symbol("rowFooter"),
+                rowData: Symbol("fillingMaterialsTechnologicalLosses"),
             });
 
             let materialTypesData = {!!$materialTypes!!};
@@ -273,7 +290,7 @@
                                         let words = filterValue.split(" ");
                                         let filter = [];
 
-                                        columnsNames.forEach(function (column, index) {
+                                        columnsNames.forEach(function (column) {
                                             filter.push([]);
                                             words.forEach(function (word) {
                                                 filter[filter.length - 1].push([column, "contains", word]);
@@ -429,11 +446,11 @@
                                             let sortIndex;
                                             switch (currentTransformationStage) {
                                                 case transformationStages.fillingMaterialsToTransform:
-                                                    rowType = rowTypes.rowMaterialsToTransform;
+                                                    rowType = rowTypes.rowData;
                                                     sortIndex = 2;
                                                     break;
                                                 case transformationStages.fillingMaterialsAfterTransform:
-                                                    rowType = rowTypes.rowMaterialsAfterTransform;
+                                                    rowType = rowTypes.rowData;
                                                     sortIndex = 5;
                                                     break;
                                             }
@@ -458,6 +475,7 @@
                                                 total_amount: material.amount,
                                                 brands: material.standard_brands,
                                                 rowType: rowType,
+                                                rowTransformationStage: currentTransformationStage,
                                                 sortIndex: sortIndex,
                                                 validationUid: validationUid,
                                                 validationState: "unvalidated",
@@ -468,14 +486,14 @@
                                             insertTransformationRow(data, currentTransformationStage);
 
                                             validateMaterialList(data.validationUid);
-
+                                            validateStages(null);
                                             break;
                                         /*case "fillingMaterialsRemains":
                                             break;*/
                                     }
                                 })
 
-                                updateRowFooter();
+                                //updateRowFooter();
 
                                 /*switch(currentTransformationStage) {
                                     case "fillingMaterialsToTransform":
@@ -690,18 +708,21 @@
                                                         {
                                                             type: "buttons",
                                                             width: 130,
+                                                            allowSorting: false
                                                         },
                                                         {
                                                             dataField: "standard_name",
                                                             dataType: "string",
                                                             allowEditing: false,
                                                             width: "30%",
-                                                            caption: "Наименование"
+                                                            caption: "Наименование",
+                                                            allowSorting: false
                                                         },
                                                         {
                                                             dataField: "quantity",
                                                             dataType: "number",
                                                             caption: "Количество",
+                                                            allowSorting: false,
                                                             editorOptions: {
                                                                 min: 0
                                                             },
@@ -711,6 +732,7 @@
                                                             dataField: "amount",
                                                             dataType: "number",
                                                             caption: "Количество (шт)",
+                                                            allowSorting: false,
                                                             editorOptions: {
                                                                 min: 0,
                                                                 format: "#"
@@ -720,42 +742,10 @@
                                                             dataField: "computed_weight",
                                                             dataType: "number",
                                                             allowEditing: false,
+                                                            allowSorting: false,
                                                             caption: "Вес"
                                                         }
-                                                    ],
-                                                    summary: {
-                                                        groupItems: [{
-                                                            column: "standard_id",
-                                                            summaryType: "count",
-                                                            displayFormat: "Количество: {0}",
-                                                        },
-                                                            {
-                                                                column: "amount",
-                                                                summaryType: "sum",
-                                                                customizeText: function (data) {
-                                                                    return `Всего: ${data.value} шт`
-                                                                },
-                                                                showInGroupFooter: false,
-                                                                alignByColumn: true
-                                                            },
-                                                            {
-                                                                column: "computed_weight",
-                                                                summaryType: "sum",
-                                                                customizeText: function (data) {
-                                                                    return `Всего: ${data.value.toFixed(3)} т.`
-                                                                },
-                                                                showInGroupFooter: false,
-                                                                alignByColumn: true
-                                                            }],
-                                                        totalItems: [{
-                                                            column: "computed_weight",
-                                                            summaryType: "sum",
-                                                            cssClass: "computed-weight-total-summary",
-                                                            customizeText: function (data) {
-                                                                return `Итого: ${data.value.toFixed(3)} т.`
-                                                            }
-                                                        }]
-                                                    }
+                                                    ]
                                                 }
                                             },
 
@@ -863,15 +853,15 @@
                                             rowType: rowTypes.rowHeader,
                                             sortIndex: 7
                                         }
-                                        insertTransformationRow(data, transformationStages.fillingMaterialsRemainsAndTechnologicalLosses);
+                                        insertTransformationRow(data, transformationStages.fillingMaterialsRemains);
                                         insertMaterialsRemains();
 
                                         data = {
-                                            name: `Шаг 4: Укажите технологические потери`,
+                                            name: `Шаг 4: Укажите технологические потери (из-за резки или торцовки материала)`,
                                             rowType: rowTypes.rowHeader,
                                             sortIndex: 10
                                         }
-                                        insertTransformationRow(data, transformationStages.fillingMaterialsRemainsAndTechnologicalLosses);
+                                        insertTransformationRow(data, transformationStages.fillingMaterialsTechnologicalLosses);
                                         insertMaterialsTechnologicalLosses()
                                     }
                                 });
@@ -884,9 +874,7 @@
                         row.append(markup);
                         break;
 
-                    case rowTypes.rowMaterialsToTransform:
-                    case rowTypes.rowMaterialsAfterTransform:
-                    case rowTypes.rowMaterialsRemains:
+                    case rowTypes.rowData:
                         row.addClass("dx-row")
                             .addClass("dx-data-row")
                             .addClass("dx-row-lines")
@@ -906,9 +894,17 @@
                         break;
 
                     case rowTypes.rowFooter:
-                        row.addClass("dx-row")
-                            .addClass("dx-footer-row");
+                        let footerStageErrorLayer = $(`<td colspan ="2" class="footer-validation-cell" rowIndex="${rowIndex}"/>`).append(getFooterStageErrorLayer(rowIndex, data));
 
+                        row.addClass("dx-row")
+                            .addClass("dx-footer-row")
+                            .addClass("dx-row-lines")
+                            .addClass("dx-column-lines")
+                            .attr("uid", data.id)
+                            .append(footerStageErrorLayer)
+                            .append($(`<td><div class="dx-datagrid-summary-item dx-datagrid-text-content quantity-total-summary">${data.quantity} ${data.measure_unit_value}</div></td>`))
+                            .append($(`<td><div class="dx-datagrid-summary-item dx-datagrid-text-content amount-total-summary">${data.amount} шт</div></td>`))
+                            .append($(`<td><div class="dx-datagrid-summary-item dx-datagrid-text-content weight-total-summary">${data.weight} т</div></td>`))
                         break;
                 }
 
@@ -941,6 +937,14 @@
                 transformationData.store().insert(dataToInsert).done(() => {
                     currentTransformationStage = transformationStage;
                     transformationData.reload();
+
+                    if (dataToInsert.rowType === rowTypes.rowFooter) {
+                        validateStages(null);
+                    }
+
+                    if (dataToInsert.rowType === rowTypes.rowData) {
+                        updateRowFooter();
+                    }
                 })
             }
 
@@ -963,11 +967,11 @@
             function getQuantityLayer(rowIndex, data){
             let isReadOnly = false;
 
-            switch (currentTransformationStage) {
+            switch (data.rowTransformationStage) {
                 case transformationStages.fillingMaterialsToTransform:
                     isReadOnly = true;
                     break;//data.rowType === rowTypes.rowMaterialsToTransform;
-                }
+            }
 
                 let quantity = Math.round(data.quantity * 100) / 100;
 
@@ -996,6 +1000,7 @@
                                 .done(() => {
                                     updateComputedWeightLayer(rowIndex, data);
                                     validateMaterialList(data.validationUid);
+                                    validateStages(null);
                                 });
                             operationForm.getEditor("transformationGrid").endUpdate();
                         },
@@ -1041,6 +1046,7 @@
                                 .done(() => {
                                     updateComputedWeightLayer(rowIndex, data);
                                     validateMaterialList(data.validationUid);
+                                    validateStages(null);
                                 });
 
                         },
@@ -1098,7 +1104,7 @@
                                 validationDescription.dxPopover({
                                     position: "top",
                                     width: 300,
-                                    contentTemplate: "<ul>" + data.errorMessage + "</ul>",
+                                    contentTemplate: data.errorMessage,
                                     hideEvent: "mouseleave",
                                 })
                                     .dxPopover("instance")
@@ -1117,6 +1123,7 @@
                     operationForm.getEditor("transformationGrid").deleteRow(rowIndex);
 
                     validateMaterialList(data.validationUid);
+                    validateStages(null);
                     })
 
                 let duplicateRowDiv = $(`<div class=""><a href="#" class="dx-link dx-icon-copy dx-link-icon" title="Дублировать"></a></div>`)
@@ -1137,6 +1144,7 @@
                         transformationData.store().insert(clonedItem).done(() => {
                             transformationData.reload();
                             validateMaterialList(data.validationUid);
+                            validateStages(null);
                         });
                     })
 
@@ -1145,6 +1153,35 @@
                 controlRowLayer.append(duplicateRowDiv);
 
                 return controlRowLayer;
+            }
+
+            function getFooterStageErrorLayer(rowIndex, data){
+                let validationUid = data.validationUid;
+                let validationDiv = $(`<div class="footer-row-validation"/>`).attr("validation-uid", validationUid);
+                let validationIconDiv = $(`<div class="footer-row-validation-indicator"/>`);
+
+
+                let validationMessageDiv = $(`<div class="footer-row-validation-message"/>`);
+
+                switch(data.validationResult) {
+                    case "valid":
+                        let checkIcon = $(`<i/>`)
+                            .addClass(`dx-icon fas fa-check-circle`)
+                            .attr(`style`, `color: #8bc34a;font-size: 16px;`)
+                            .appendTo(validationIconDiv);
+
+                        validationMessageDiv.html("Проблемы не обнаружены");
+                        break;
+                    case "invalid":
+                        let exclamationTriangle = $(`<i/>`).addClass(`dx-icon fas fa-exclamation-triangle`)
+                            .attr(`style`, `color: #f15a5a;font-size: 16px;`)
+                            .appendTo(validationIconDiv);
+                            validationMessageDiv.html(data.errorMessage);
+                        break;
+                }
+                validationDiv.append(validationIconDiv);
+                validationDiv.append(validationMessageDiv);
+                return validationDiv;
             }
 
             function getValidationUid(material) {
@@ -1187,34 +1224,40 @@
 
             function validateMaterialList(validationUid) {
                 function validateQuantity(material) {
-                    if (!material.quantity) {
-                        return ({
-                            severity: 1000,
-                            codename: "null_quantity",
-                            message: "Количество в единицах измерения не заполнено",
-                            standard_name: material.standard_name
-                        })
+                    if (material.rowType === rowTypes.rowData) {
+                        if (!material.quantity) {
+                            return ({
+                                severity: 1000,
+                                codename: "null_quantity",
+                                message: "Количество в единицах измерения не заполнено",
+                                standard_name: material.standard_name
+                            })
+                        }
                     }
                 }
 
                 function validateAmount(material) {
-                    if (!material.amount) {
-                        return ({
-                            severity: 1000,
-                            codename: "null_amount",
-                            message: "Количество в штуках не заполнено",
-                            standard_name: material.standard_name
-                        })
+                    if (material.rowType === rowTypes.rowData) {
+                        if (!material.amount) {
+                            return ({
+                                severity: 1000,
+                                codename: "null_amount",
+                                message: "Количество в штуках не заполнено",
+                                standard_name: material.standard_name
+                            })
+                        }
                     }
                 }
 
                 function validateTotalRemains(material) {
-                    if (material.rowType !== rowTypes.rowMaterialsToTransform) {
+                    if (material.rowType !== rowTypes.rowData) {
                         return;
                     }
 
                     let filterArray = [];
-                    filterArray.push(["rowType", "=", rowTypes.rowMaterialsToTransform]);
+                    filterArray.push(["rowType", "=", rowTypes.rowData]);
+                    filterArray.push("and");
+                    filterArray.push(["rowTransformationStage", "=", material.rowTransformationStage])
                     filterArray.push("and");
                     filterArray.push(["standard_id", "=", material.standard_id]);
                     filterArray.push("and");
@@ -1254,10 +1297,6 @@
                     }
                 }
 
-                function validateStage() {
-
-                }
-
                 function updateValidationResult(validationData, validationResult, validationFunction) {
                     validationData.forEach((material) => {
                         let validationResponse = validationFunction(material);
@@ -1280,14 +1319,16 @@
 
                 let validationResult = {validationUid: validationUid, validationInfo: []};
 
-                updateValidationResult(validationData, validationResult, validateQuantity);
+                console.log('validationData', validationData);
 
-                updateValidationResult(validationData, validationResult, validateAmount);
+
+                if (validationData.rowTransformationStage === transformationStages.fillingMaterialsToTransform || validationData.rowTransformationStage === transformationStages.fillingMaterialsAfterTransform) {
+                    updateValidationResult(validationData, validationResult, validateQuantity);
+                    updateValidationResult(validationData, validationResult, validateAmount);
+                }
 
                 updateValidationResult(validationData, validationResult, validateTotalRemains);
 
-
-                validateStage()
                 validationResult.isValid = validationResult.validationInfo.length === 0;
 
                 if (!validationResult.isValid) {
@@ -1300,7 +1341,395 @@
                     validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
                 }
 
+                console.log("validationResult", validationResult);
+
                 updateValidationData(validationResult);
+            }
+
+            function validateStages() {
+                function getStageFooterValidationUid(transformationStage){
+                    let footerData = transformationData.store().createQuery()
+                        .filter([["rowTransformationStage", "=", transformationStage],
+                            "and",
+                            ["rowType", "=", rowTypes.rowFooter]])
+                        .toArray();
+
+                    if (footerData.length > 0) {
+                        return footerData[0].validationUid;
+                    }
+                }
+
+                function validateMaterialToTransformStage() {
+                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsToTransform);
+
+                    if (!footerValidationUid) {
+                        return;
+                    }
+
+                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
+
+                    let summary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands");
+
+                    let materialsToTransformMaterials = getMaterialsByStage(transformationStages.fillingMaterialsToTransform);
+
+                    let isAnyOfMaterialInvalid = false;
+
+                    materialsToTransformMaterials.forEach((material) => {
+                        if (material.validationResult === "invalid") {
+                            isAnyOfMaterialInvalid = true;
+                        }
+                    })
+
+                    if (isAnyOfMaterialInvalid) {
+                        validationResult.validationInfo.push({
+                            severity: 1000,
+                            codename: "some_materials_in_stage_invalid",
+                            message: `Данные у некоторых материалов введены некорректно`,
+                            //standard_name: material.standard_name
+                        })
+                    }
+
+                    validationResult.isValid = validationResult.validationInfo.length === 0;
+
+                    if (!validationResult.isValid) {
+                        let validationErrors = [];
+
+                        validationResult.validationInfo.forEach((validationError) => {
+                            validationErrors.push(validationError.message);
+                        })
+
+                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
+                    }
+
+                    updateValidationData(validationResult);
+
+                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands"), transformationStages.fillingMaterialsToTransform);
+                }
+
+                function validateMaterialAfterTransformStage() {
+                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsAfterTransform);
+
+                    if (!footerValidationUid) {
+                        return;
+                    }
+
+                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
+
+                    let materialsToTransform = getMaterialsByStage(transformationStages.fillingMaterialsToTransform, "brands");
+                    let materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
+
+                    materialsToTransform.forEach((toSummaryBrand) => {
+                        let isBrandFound = false;
+
+                        materialsAfterTransform.forEach((afterSummaryBrand) => {
+                            if (toSummaryBrand.key === afterSummaryBrand.key) {
+                                isBrandFound = true;
+                            }
+                        })
+
+                        if (!isBrandFound) {
+                            validationResult.validationInfo.push({
+                                severity: 1000,
+                                codename: "some_brands_not_found",
+                                message: `Не все марки материалов добавлены в список`,
+                                //standard_name: material.standard_name
+                            })
+                        }
+                    })
+
+                    let isAnyOfMaterialInvalid = false;
+
+                    materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform);
+
+                    materialsAfterTransform.forEach((material) => {
+                        if (material.validationResult === "invalid") {
+                            isAnyOfMaterialInvalid = true;
+                        }
+                    })
+
+                    if (isAnyOfMaterialInvalid) {
+                        validationResult.validationInfo.push({
+                            severity: 1000,
+                            codename: "some_materials_in_stage_invalid",
+                            message: `Данные у некоторых материалов введены некорректно`,
+                            //standard_name: material.standard_name
+                        })
+                    }
+
+                    validationResult.isValid = validationResult.validationInfo.length === 0;
+
+                    if (!validationResult.isValid) {
+                        let validationErrors = [];
+
+                        validationResult.validationInfo.forEach((validationError) => {
+                            validationErrors.push(validationError.message);
+                        })
+
+                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
+                    }
+
+                    updateValidationData(validationResult);
+
+                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsAfterTransform, "brands"), transformationStages.fillingMaterialsAfterTransform);
+                }
+
+                function validateFillingRemainsTransformStage() {
+                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsRemains);
+
+                    if (!footerValidationUid) {
+                        return;
+                    }
+
+                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
+
+                    let materialsToTransform = getMaterialsByStage(transformationStages.fillingMaterialsToTransform, "brands");
+                    let materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
+                    let materialsRemains = getMaterialsByStage(transformationStages.fillingMaterialsRemains, "brands");
+                    let materialsTechnologicalLosses = getMaterialsByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands");
+
+                    checkTotalMaterialSummaryAfterTransformation();
+
+                    let isAnyOfMaterialInvalid = false;
+
+
+                    let materialsToTransformSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands");
+                    let materialsAfterTransformSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
+                    let materialsRemainsSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsRemains, "brands");
+                    let materialsTechnologicalLossesSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands")
+
+
+                    console.log(`materialsToTransformSummary`, materialsToTransformSummary);
+                    console.log(`materialsRemainsSummary`, materialsRemainsSummary);
+
+                    let Total
+
+                    if (isAnyOfMaterialInvalid) {
+                        validationResult.validationInfo.push({
+                            severity: 1000,
+                            codename: "some_materials_in_stage_invalid",
+                            message: `Данные у некоторых материалов введены некорректно`,
+                            //standard_name: material.standard_name
+                        })
+                    }
+
+                    validationResult.isValid = validationResult.validationInfo.length === 0;
+
+                    if (!validationResult.isValid) {
+                        let validationErrors = [];
+
+                        validationResult.validationInfo.forEach((validationError) => {
+                            validationErrors.push(validationError.message);
+                        })
+
+                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
+                    }
+
+                    updateValidationData(validationResult);
+
+                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsRemains, "brands"), transformationStages.fillingMaterialsRemains);
+                }
+
+                function validateTechnologicalLossesTransformStage() {
+                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsTechnologicalLosses);
+
+                    if (!footerValidationUid) {
+                        return;
+                    }
+
+                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
+
+                    let materialsToTransform = getMaterialsByStage(transformationStages.fillingMaterialsToTransform, "brands");
+                    let materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
+                    let materialsRemains = getMaterialsByStage(transformationStages.fillingMaterialsRemains, "brands");
+                    let materialsTechnologicalLosses = getMaterialsByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands");
+
+                    let materialsTotalSummary = [];
+
+                    materialsAfterTransform.forEach((item) => {
+                        let isBrandFound = false;
+                        materialsTotalSummary.forEach((totalSummaryItem) => {
+                            if (totalSummaryItem.brand_id === item.brand_id) {
+                                isBrandFound = true;
+                                totalSummaryItem.quantity += item.quantity;
+                                totalSummaryItem.weight += item.weight;
+                            }
+                        })
+
+                        if (!isBrandFound) {
+                            materialsTotalSummary.push({quantity: item.quantity, weight: item.weight});
+                        }
+                    })
+
+                    console.log(`totalSummaryItem`, materialsTotalSummary)
+
+                    let isAnyOfMaterialInvalid = false;
+
+                    materialsTechnologicalLosses = getMaterialsByStage(transformationStages.fillingMaterialsTechnologicalLosses);
+
+                    materialsTechnologicalLosses.forEach((material) => {
+                        if (material.validationResult === "invalid") {
+                            isAnyOfMaterialInvalid = true;
+                        }
+                    })
+
+                    if (isAnyOfMaterialInvalid) {
+                        validationResult.validationInfo.push({
+                            severity: 1000,
+                            codename: "some_materials_in_stage_invalid",
+                            message: `Данные у некоторых материалов введены некорректно`,
+                            //standard_name: material.standard_name
+                        })
+                    }
+
+                    validationResult.isValid = validationResult.validationInfo.length === 0;
+
+                    if (!validationResult.isValid) {
+                        let validationErrors = [];
+
+                        validationResult.validationInfo.forEach((validationError) => {
+                            validationErrors.push(validationError.message);
+                        })
+
+                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
+                    }
+
+                    updateValidationData(validationResult);
+
+                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands"), transformationStages.fillingMaterialsTechnologicalLosses);
+                }
+
+                function checkTotalMaterialSummaryAfterTransformation() {
+                    let totalSummary = [];
+
+                    function addToTotalSummary(summaryArray) {
+                        summaryArray.forEach((itemAfterTransform) => {
+                            let isBrandFound = false;
+                            totalSummary.forEach((totalSummaryItem) => {
+                                if (totalSummaryItem.brands === itemAfterTransform.brands) {
+                                    isBrandFound = true;
+                                    totalSummaryItem.quantity += itemAfterTransform.quantity;
+                                    totalSummaryItem.weight += itemAfterTransform.weight;
+                                }
+                            })
+
+                            if (!isBrandFound) {
+                                totalSummary.push({quantity: itemAfterTransform.quantity, weight: itemAfterTransform.weight, brands: itemAfterTransform.brands});
+                            }
+                        })
+                    }
+
+                    let materialsToTransform = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands");
+                    let materialsAfterTransform = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
+                    let materialsRemains = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsRemains, "brands");
+                    let materialsTechnologicalLosses = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands");
+
+                    addToTotalSummary(materialsAfterTransform);
+                    addToTotalSummary(materialsRemains);
+                    addToTotalSummary(materialsTechnologicalLosses);
+
+                    materialsToTransform.forEach((item) => {
+                        totalSummary.forEach((totalSummaryItem) => {
+
+                        })
+                    })
+
+                    console.log(`addToTotalSummary`, totalSummary);
+
+
+                    return null;
+                }
+
+                function updateSummaries(summary, transformationStage) {
+                    let data = transformationData.store().createQuery()
+                        .filter([["rowTransformationStage", "=", transformationStage],
+                            "and",
+                            ["rowType", "=", rowTypes.rowFooter]])
+                        .toArray();
+
+                    if (data.length === 1){
+                        let totalStageSummary = {quantity: 0, amount: 0, weight: 0};
+                        summary.forEach((item) => {
+                            totalStageSummary.quantity += item.quantity;
+                            totalStageSummary.amount += item.amount;
+                            totalStageSummary.weight += item.weight;
+                        })
+
+                        if (!totalStageSummary.quantity) {
+                            totalStageSummary.quantity = 0;
+                        } else {
+                            totalStageSummary.quantity = Math.round(totalStageSummary.quantity * 100) / 100;
+                        }
+
+                        if (!totalStageSummary.amount) {
+                            totalStageSummary.amount = 0;
+                        }
+
+                        if (!totalStageSummary.weight) {
+                            totalStageSummary.weight = 0;
+                        } else {
+                            totalStageSummary.weight = Math.round(totalStageSummary.weight * 1000) / 1000;
+                        }
+
+                        transformationData.store().update(
+                            data[0].id,
+                            {
+                                quantity: totalStageSummary.quantity,
+                                amount: totalStageSummary.amount,
+                                weight: totalStageSummary.weight
+                            });
+                    }
+                }
+
+                function getMaterialsByStage(transformationStage, groupBy){
+                    let filterArray = [["rowTransformationStage", "=", transformationStage],
+                        "and",
+                        ["rowType", "=", rowTypes.rowData]];
+
+                    let dataToCalculate = transformationData.store().createQuery()
+                        .filter(filterArray);
+
+                    if (groupBy) {
+                        dataToCalculate = dataToCalculate.groupBy(groupBy)
+                    }
+
+                    return dataToCalculate.toArray();
+                }
+
+                function calculateMaterialSummariesByStage(transformationStage, groupBy) {
+                    let dataToCalculate = getMaterialsByStage(transformationStage, groupBy);
+
+                    let summaryResult = [];
+
+                    dataToCalculate.forEach((data) => {
+                        let summaryStructure = {quantity: 0, amount: 0, weight: 0}
+                        data.items.forEach((item) => {
+                            if (item.quantity && item.amount) {
+                                summaryStructure.quantity += item.quantity * item.amount;
+                            }
+
+                            if (item.amount) {
+                                summaryStructure.amount += item.amount;
+                            }
+
+                            if (item.quantity && item.amount) {
+                                summaryStructure.weight += item.quantity * item.amount * item.standard_weight;
+                            }
+
+                            if (groupBy) {
+                                summaryStructure[groupBy] = item[groupBy];
+                            }
+                        })
+
+                        summaryResult.push(summaryStructure);
+                    })
+
+                    return summaryResult;
+                }
+
+                validateMaterialToTransformStage();
+                validateMaterialAfterTransformStage();
+                validateFillingRemainsTransformStage();
+                validateTechnologicalLossesTransformStage();
             }
 
             function updateValidationData(validationData) {
@@ -1319,7 +1748,7 @@
                     }
 
                     transformationData.store().update(material.id, {validationState: validationState, validationResult: validationResult, errorMessage: validationData.errorMessage})
-                        .done((dataObj, key) => {
+                        .done(() => {
                             transformationData.reload();
                         });
                 })
@@ -1365,10 +1794,10 @@
                                         '=',
                                         item
                                     ]);
-                                    uniqueBrands.push('or');
+                                    brandsFilterArray.push('or');
                                 })
 
-                                uniqueBrands.pop();
+                                brandsFilterArray.pop();
 
                                 if (brandsFilterArray.length > 0) {
                                     filterArray.push(brandsFilterArray);
@@ -1378,6 +1807,8 @@
                                 filterArray.push(["standard_properties", "=", null])
                                 filterArray.push("and")
                                 filterArray.push(["accounting_type", "=", "2"])
+
+                                console.log('filterArray', filterArray);
                                 break;
                             default:
                                 filterArray = null
@@ -1390,11 +1821,13 @@
             function insertMaterialsRemains() {
                 let materialsRemains = [];
                 let standardFound = false;
-                let materialsToTransfer = transformationData.store().createQuery()
-                    .filter("rowType", "=", rowTypes.rowMaterialsToTransform)
+                let materialsToTransform = transformationData.store().createQuery()
+                    .filter(["rowType", "=", rowTypes.rowData],
+                        "and",
+                        ["rowTransformationStage", "=", transformationStages.fillingMaterialsToTransform])
                     .toArray()
 
-                materialsToTransfer.forEach((material) => {
+                materialsToTransform.forEach((material) => {
                     materialsRemains.forEach((remainMaterial) => {
                         if (remainMaterial.standard_id === material.standard_id) {
                             standardFound = true;
@@ -1410,7 +1843,7 @@
                             material_type: material.material_type,
                             measure_unit: material.measure_unit,
                             measure_unit_value: material.measure_unit_value,
-                            standard_weight: material.weight,
+                            standard_weight: material.standard_weight,
                             quantity: 0,
                             amount: 0,
                             comment: null,
@@ -1418,12 +1851,19 @@
                             initial_comment: null,
                             total_quantity: material.quantity,
                             total_amount: material.amount,
-                            brands: material.standard_brands,
-                            rowType: rowTypes.rowMaterialsRemains
-                        };
+                            brands: material.brands,
+                            validationUid: "uid-" + new DevExpress.data.Guid().toString(),
+                            validationState: "unvalidated",
+                            validationResult: "none",
+                            rowType: rowTypes.rowData,
+                            rowTransformationStage: transformationStages.fillingMaterialsRemains,
+                            sortIndex: 8
+                        }
+
                         materialsRemains.push(data);
-                        insertTransformationRow(data, transformationStages.fillingMaterialsRemainsAndTechnologicalLosses);
+                        insertTransformationRow(data, transformationStages.fillingMaterialsRemains);
                         standardFound = false;
+                        validateMaterialList(data.validationUid);
                     }
                 })
             }
@@ -1432,7 +1872,9 @@
                 let materialsTechnologicalLosses = [];
                 let standardFound = false;
                 let materialsToTransfer = transformationData.store().createQuery()
-                    .filter("rowType", "=", rowTypes.rowMaterialsToTransform)
+                    .filter(["rowType", "=", rowTypes.rowData],
+                        "and",
+                        ["rowTransformationStage", "=", transformationStages.fillingMaterialsToTransform])
                     .toArray()
 
                 materialsToTransfer.forEach((material) => {
@@ -1451,7 +1893,7 @@
                             material_type: material.material_type,
                             measure_unit: material.measure_unit,
                             measure_unit_value: material.measure_unit_value,
-                            standard_weight: material.weight,
+                            standard_weight: material.standard_weight,
                             quantity: 0,
                             amount: 0,
                             comment: null,
@@ -1459,51 +1901,86 @@
                             initial_comment: null,
                             total_quantity: material.quantity,
                             total_amount: material.amount,
-                            brands: material.standard_brands,
-                            rowType: rowTypes.rowMaterialsRemains
-                        };
+                            brands: material.brands,
+                            validationUid: "uid-" + new DevExpress.data.Guid().toString(),
+                            validationState: "unvalidated",
+                            validationResult: "none",
+                            rowType: rowTypes.rowData,
+                            rowTransformationStage: transformationStages.fillingMaterialsTechnologicalLosses,
+                            sortIndex: 11
+                        }
+
                         materialsTechnologicalLosses.push(data);
-                        insertTransformationRow(data, transformationStages.fillingMaterialsRemainsAndTechnologicalLosses);
+                        insertTransformationRow(data, transformationStages.fillingMaterialsTechnologicalLosses);
+                        validateMaterialList(data.validationUid);
                         standardFound = false;
                     }
                 })
             }
 
             function updateRowFooter() {
-                let rowType;
-                switch (currentTransformationStage) {
-                    case transformationStages.fillingMaterialsToTransform:
-                        rowType = rowTypes.rowMaterialsToTransform;
-                        break;
-                    }
+                console.log("updateRowFooter transformationData", transformationData.store().createQuery().toArray());
 
                 let data = transformationData.store().createQuery()
-                    .filter(["rowType", "=", rowType])
+                    .filter([["rowType", "=", rowTypes.rowData],
+                        "and",
+                        ["rowTransformationStage", "=", currentTransformationStage]
+                    ])
                     .toArray();
+
+                let footerData = transformationData.store().createQuery()
+                    .filter([["rowType", "=", rowTypes.rowFooter],
+                        "and",
+                        ["rowTransformationStage", "=", currentTransformationStage]
+                    ])
+                    .toArray();
+
+                let isFooterAlreadyInserted = footerData.length !== 0;
 
                 if (data.length === 0) {
                     deleteRowFooter()
                 } else {
-                    insertRowFooter();
+                    if (!isFooterAlreadyInserted) {
+                        insertFooterRow();
+                    }
                 }
             }
 
-            function insertRowFooter() {
+            function insertFooterRow() {
                 let sortIndex = 0;
                 switch (currentTransformationStage) {
                     case transformationStages.fillingMaterialsToTransform:
                         sortIndex = 3;
                         break;
+                    case transformationStages.fillingMaterialsAfterTransform:
+                        sortIndex = 6;
+                        break;
+                    case transformationStages.fillingMaterialsRemains:
+                        sortIndex = 9;
+                        break;
+                    case transformationStages.fillingMaterialsTechnologicalLosses:
+                        sortIndex = 12;
+                        break;
                 }
 
                 let data = {
+                    id: "uid-" + new DevExpress.data.Guid().toString(),
                     rowType: rowTypes.rowFooter,
-                    sortIndex: sortIndex
+                    quantity: 0,
+                    amount: 0,
+                    weight: 0,
+                    measure_unit_value: 'м.п',
+                    rowTransformationStage: currentTransformationStage,
+                    sortIndex: sortIndex,
+                    validationUid: "uid-" + new DevExpress.data.Guid().toString(),
+                    validationState: "unvalidated",
+                    validationResult: "none",
+                    errorMessage: ""
                 }
 
                 insertTransformationRow(data, currentTransformationStage);
 
-                console.log(transformationData.store().createQuery().toArray());
+                console.log('transformationData array', transformationData.store().createQuery().toArray());
             }
 
             function deleteRowFooter() {
