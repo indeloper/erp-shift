@@ -27,10 +27,19 @@ class LaborSafetyOrderTypeController extends Controller
     public function list(Request $request)
     {
         $loadOptions = json_decode($request['loadOptions']);
+        $requestId = json_decode($request['requestId']);
 
-        return (new LaborSafetyOrderType())
-            ->dxLoadOptions($loadOptions)
-            ->get()
+        $query = (new LaborSafetyOrderType())
+            ->dxLoadOptions($loadOptions);
+
+        if (!empty($requestId)) {
+            $query->addSelect([
+                'labor_safety_order_types.*',
+                DB::Raw('(SELECT `order_type_id` from `labor_safety_request_orders` where `include_in_formation` = 1 and `request_id` = ' . $requestId . ' and  `order_type_id` = `labor_safety_order_types`.`id`) as selected_order_type')
+            ]);
+        }
+
+        return $query->get()
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 

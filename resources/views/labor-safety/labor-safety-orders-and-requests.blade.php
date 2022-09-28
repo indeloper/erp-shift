@@ -48,6 +48,27 @@
             margin-top: 6px;
             margin-right: 8px;
         }
+
+        .dx-tabpanel-tabs {
+            display: none;
+        }
+
+        .order-types-grid {
+            border-right: #e5e5e5 1px dashed;
+        }
+
+        .orders-header {
+            color: #212121;
+            font-size: larger;
+            font-weight: bold;
+            border-bottom: #e5e5e5 1px solid;
+            padding-bottom: 10px;
+            margin-bottom: -8px;
+        }
+
+        .order-types-panel {
+            padding-top: 0 !important;
+        }
     </style>
 @endsection
 
@@ -64,9 +85,11 @@
     <script>
         let dataSourceLoadOptions = {};
         let currentSelectedOrder = {};
-        let ordersData = new Map();
+        let employeesData = new Map();
         let currentEditingRowIndex;
         let currentEditingRowKey;
+        let selectedOrderTypes = [];
+        let requestWorkersGrid;
 
         let usersStore = new DevExpress.data.CustomStore({
             key: "id",
@@ -81,7 +104,7 @@
             key: "id",
             loadMode: "raw",
             load: function (loadOptions) {
-                return $.getJSON("{{route('users.list')}}",
+                return $.getJSON("{{route('employees.list')}}",
                     {data: JSON.stringify(loadOptions)});
             },
         });
@@ -119,117 +142,23 @@
             store: projectObjectsStore
         });
 
+        let requestWorkersStoreData = [];
+
+        let requestWorkersStore = new DevExpress.data.ArrayStore({
+            key: "id",
+            data: requestWorkersStoreData,
+        });
+
+        let requestWorkersDataSource = new DevExpress.data.DataSource({
+            store: requestWorkersStore
+        })
+
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
         });
 
-        function getEditFormAttributesTemplate() {
-            console.log(currentSelectedOrder);
-            let formItems;
-            let orderAttributes = {};
-            if (ordersData.has(currentSelectedOrder.id)) {
-                orderAttributes = ordersData.get(currentSelectedOrder.id);
-            }
-
-            switch(currentSelectedOrder.order_type_category_id) {
-                case 1:
-                    formItems = [
-                        {
-                            dataField: "responsible_employee_id",
-                            label: {
-                                text: "Ответственный сотрудник",
-                            },
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.CustomStore({
-                                        key: "id",
-                                        loadMode: "raw",
-                                        load: function (loadOptions) {
-                                            return $.getJSON("{{route('users.list')}}",
-                                                {data: JSON.stringify(loadOptions)});
-                                        },
-                                    })
-                                }),
-                                displayExpr: "full_name",
-                                valueExpr: "id",
-                                searchEnabled: true
-                            }
-                        },
-                        {
-                            dataField: "sub_responsible_employee_id",
-                            label: {
-                                text: "Замещающий ответственного",
-                            },
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.CustomStore({
-                                        key: "id",
-                                        loadMode: "raw",
-                                        load: function (loadOptions) {
-                                            return $.getJSON("{{route('users.list')}}",
-                                                {data: JSON.stringify(loadOptions)});
-                                        },
-                                    })
-                                }),
-                                displayExpr: "full_name",
-                                valueExpr: "id",
-                                searchEnabled: true
-                            }
-                        },
-
-                    ]
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                case 5:
-                    break;
-                case 6:
-                    break;
-                case 7:
-                    break;
-                case 8:
-                    break;
-                case 9:
-                    break;
-                case 10:
-                    break;
-            }
-
-
-
-            let attributesFormDiv = $(`<div>`);
-            let attributesForm = attributesFormDiv.dxForm({
-                colCount: 2,
-                formData: orderAttributes,
-                items: formItems
-            }).dxForm("instance");
-
-            ordersData.set(currentSelectedOrder.id, attributesForm.option("formData"));
-
-            console.log("ordersData", ordersData)
-
-            return(attributesFormDiv)
-        }
-
         $(function () {
             //<editor-fold desc="JS: DataSources">
-            let orderTypesDataSource = new DevExpress.data.DataSource({
-                store: new DevExpress.data.CustomStore({
-                    key: "id",
-                    load: function (loadOptions) {
-                        return $.getJSON("{{route('labor-safety.order-types.list')}}",
-                            {
-                                loadOptions: JSON.stringify(loadOptions),
-                            });
-                    },
-                })
-            })
 
             let requestsDataSource = new DevExpress.data.DataSource({
                 store: new DevExpress.data.CustomStore({
@@ -241,7 +170,7 @@
                             });
                     },
                     insert: function (values) {
-                        values.ordersData = Array.from(ordersData.entries());
+                        values.workers = requestWorkersGrid.getDataSource().store().createQuery().toArray();
                         return $.ajax({
                             url: "{{route('labor-safety.orders-and-requests.store')}}",
                             method: "POST",
@@ -255,14 +184,10 @@
                             success: function (data, textStatus, jqXHR){
                                 DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
                             },
-
-                            /*error: function(jqXHR, textStatus, errorThrown) {
-                                DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
-                            }*/
                         })
                     },
                     update: function (key, values) {
-                        values.ordersData = Array.from(ordersData.entries());
+                        values.workers = requestWorkersGrid.getDataSource().store().createQuery().toArray();
                         return $.ajax({
                             url: "{{route('labor-safety.orders-and-requests.update')}}",
                             method: "PUT",
@@ -281,7 +206,7 @@
                 })
             });
 
-            let editForm = {
+            let requestEditForm = {
                 colCount: 3,
                 items: [
                     {
@@ -329,130 +254,152 @@
                         }
                     },
                     {
+                        dataField: "responsible_employee_id",
                         label: {
-                            text: "Приказ",
+                            text: "Ответственный сотрудник",
+                        },
+                        editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: new DevExpress.data.DataSource({
+                                store: new DevExpress.data.CustomStore({
+                                    key: "id",
+                                    loadMode: "raw",
+                                    load: function (loadOptions) {
+                                        return $.getJSON("{{route('employees.list')}}",
+                                            {data: JSON.stringify(loadOptions)});
+                                    },
+                                })
+                            }),
+                            displayExpr: "employee_1c_name",
+                            valueExpr: "id",
+                            searchEnabled: true
+                        }
+                    },
+                    {
+                        dataField: "sub_responsible_employee_id",
+                        label: {
+                            text: "Замещающий ответственного",
+                        },
+                        editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: new DevExpress.data.DataSource({
+                                store: new DevExpress.data.CustomStore({
+                                    key: "id",
+                                    loadMode: "raw",
+                                    load: function (loadOptions) {
+                                        return $.getJSON("{{route('employees.list')}}",
+                                            {data: JSON.stringify(loadOptions)});
+                                    },
+                                })
+                            }),
+                            displayExpr: "employee_1c_name",
+                            valueExpr: "id",
+                            searchEnabled: true
+                        }
+                    },
+                    {
+                        itemType: "empty"
+                    },
+                    {
+                        colSpan: 3,
+                        itemType: "simpleItem",
+                        dataField: "workers",
+                        name: 'workers',
+                        cssClass: 'request-workers-grid',
+                        label: {
+                            text: "Персонал",
                             visible: false
                         },
-                        itemType: "simpleItem",
-                        name: "orderTypesGrid",
                         editorType: "dxDataGrid",
                         editorOptions: {
-                            height: "60vh",
-                            focusedRowEnabled: true,
-                            dataSource: orderTypesDataSource,
-                            showColumnHeaders: false,
-                            selection: {
-                                allowSelectAll: false,
-                                deferred: false,
-                                mode: "multiple",
-                                selectAllMode: "allPages",
-                                showCheckBoxesMode: "always"
+                            onInitialized: (e) => {
+                                requestWorkersGrid = e.component;
+                                requestWorkersGrid.getDataSource().store().createQuery().toArray().forEach((item) => {
+                                    requestWorkersGrid.getDataSource().store().push([{type: "remove", key: item.id}]);
+                                });
+                            },
+                            onDisposing: (e) => {
+                                requestWorkersGrid = undefined;
+                            },
+                            editing: {
+                                mode: 'popup',
+                                allowUpdating: true,
+                                allowAdding: false,
+                                allowDeleting: true,
+                                selectTextOnEditStart: true,
+                                newRowPosition: "last",
+                                popup: {
+                                    title: "Сотрудник",
+                                    showTitle: false,
+                                    width: "800",
+                                    height: "auto",
+                                    position: {
+                                        my: "center",
+                                        at: "center",
+                                        of: window
+                                    }
+                                },
+                                form: {
+                                    colCount: 1
+                                }
+                            },
+                            height: "40vh",
+                            dataSource: requestWorkersDataSource,
+                            hoverStateEnabled: true,
+                            columnAutoWidth: true,
+                            showBorders: true,
+                            showColumnLines: true,
+                            filterRow: {
+                                visible: false,
+                                applyFilter: "auto"
+                            },
+                            toolbar: {
+                                visible: false
+                            },
+                            grouping: {
+                                autoExpandAll: true,
+                            },
+                            groupPanel: {
+                                visible: false
                             },
                             paging: {
                                 enabled: false
                             },
                             columns: [
                                 {
-                                    dataField: "short_name",
-                                    cellTemplate: (container, options) => {
-                                        let orderTypeName = `[${options.data.short_name}] ${options.data.name}`;
-                                        $(`<div>${orderTypeName}</div>`)
-                                            .appendTo(container);
-                                    }
-                                }
-                            ],
-                            onSelectionChanged: (e) => {
-                                if (e.currentSelectedRowKeys.length > 0) {
-                                    e.currentSelectedRowKeys.forEach((key) => {
-                                        e.component.byKey(key).done((data) => {
-                                            if (!ordersData.has(data.id)) {
-                                                ordersData.set(data.id, {});
-                                            } else {
-                                                ordersData.get(data.id).include_in_formation = true;
-                                            }
-                                        })
-                                    })
-                                }
-
-                                if (e.currentDeselectedRowKeys.length > 0) {
-                                    e.currentDeselectedRowKeys.forEach((key) => {
-                                        e.component.byKey(key).done((data) => {
-                                            if (!ordersData.has(data.id)) {
-                                                ordersData.set(data.id, {});
-                                            } else {
-                                                ordersData.get(data.id).include_in_formation = true;
-                                            }
-                                        })
-                                    })
-                                }
-
-                                $(".dx-tabpanel").dxTabPanel("instance").repaint();
-                            },
-                            onFocusedRowChanged: (e) => {
-                                console.log("onFocusedRowChanged", e);
-                                currentSelectedOrder = e.row.data;
-                                $(".dx-tabpanel").dxTabPanel("instance").repaint();
-                            },
-                            onSaving: (e) => {
-                                console.log("saving", e);
-                            }
-                        }
-                    },
-                    {
-                        colSpan: 2,
-                        label: {
-                            visible: false
-                        },
-                        itemType: "simpleItem",
-                        editorType: "dxTabPanel",
-                        name: "orderTabPanel",
-                        editorOptions: {
-                            height: "60vh",
-                            items: [
-                                {
-                                    title: "Атрибуты",
-                                    template: (itemData, itemIndex, element) => {
-                                        const attributesTemplate = getEditFormAttributesTemplate();
-                                        console.log('templateRepainted');
-                                        attributesTemplate.appendTo(element);
-                                    }
+                                    dataField: "worker_employee_id",
+                                    caption: "Сотрудники",
+                                    lookup: {
+                                        dataSource: {
+                                            store: employeesStore,
+                                            paginate: true,
+                                            pageSize: 25,
+                                        },
+                                        displayExpr: 'employee_extended_name',
+                                        valueExpr: 'id'
+                                    },
+                                    validationRules: [{type: "required"}]
                                 },
-                                /*{
-                                    title: "Приказ",
-                                    template: (itemData, itemIndex, element) => {
-                                        const htmlEditorDiv = $(`<div style="padding-top:15px; padding-left:15px; padding-right:15px; height: 100%">`)
-                                        htmlEditorDiv.dxHtmlEditor({
-                                            toolbar: {
-                                                items: [
-                                                    'undo', 'redo', 'separator',
-                                                    {
-                                                        name: 'size',
-                                                        acceptedValues: ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'],
-                                                    },
-                                                    {
-                                                        name: 'font',
-                                                        acceptedValues: ['Arial', 'Calibri', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'],
-                                                    },
-                                                    'separator', 'bold', 'italic', 'strike', 'underline', 'separator',
-                                                    'alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'separator',
-                                                    'orderedList', 'bulletList', 'separator',
-                                                    {
-                                                        name: 'header',
-                                                        acceptedValues: [false, 1, 2, 3, 4, 5],
-                                                    }, 'separator',
-                                                    'color', 'background', 'separator',
-                                                    'link', 'image', 'separator',
-                                                    'clear', 'codeBlock', 'blockquote', 'separator',
-                                                    'insertTable', 'deleteTable',
-                                                    'insertRowAbove', 'insertRowBelow', 'deleteRow',
-                                                    'insertColumnLeft', 'insertColumnRight', 'deleteColumn',
-                                                ],
-                                            }
-                                        })
-                                        htmlEditorDiv.appendTo(element);
+                                {
+                                    type: 'buttons',
+                                    width: 150,
+                                    buttons: [
+                                        'edit',
+                                        'delete',
+                                    ],
+                                    headerCellTemplate: (container, options) => {
+                                        $('<div>')
+                                            .appendTo(container)
+                                            .dxButton({
+                                                text: "Добавить",
+                                                icon: "fas fa-plus",
+                                                onClick: (e) => {
+                                                    options.component.addRow();
+                                                }
+                                            })
                                     }
-                                }*/
-                            ],
+                                }
+                            ]
                         }
                     }
                 ]
@@ -500,6 +447,7 @@
                                         title: "Заявка",
                                         showTitle: true,
                                         width: "60%",
+                                        //height: "75vh",
                                         height: "auto",
                                         position: {
                                             my: "center",
@@ -517,7 +465,7 @@
                                                     type: 'danger',
                                                     stylingMode: 'contained',
                                                     onClick: function(e){
-                                                        //requestsForm.getEditor("requestsGrid").saveEditData();
+                                                        //getRequestsGrid().saveEditData();
                                                     }
                                                 }
                                             },
@@ -530,14 +478,14 @@
                                                     type: 'default',
                                                     stylingMode: 'contained',
                                                     onClick: function(e){
-                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
-                                                            requestsForm.getEditor("requestsGrid").cellValue(
+                                                        if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
+                                                            getRequestsGrid().cellValue(
                                                                 currentEditingRowIndex,
                                                                 "perform_orders",
                                                                 true
                                                             )
                                                         }
-                                                        requestsForm.getEditor("requestsGrid").saveEditData();
+                                                        getRequestsGrid().saveEditData();
                                                     }
                                                 }
                                             },
@@ -549,16 +497,16 @@
                                                     text: "Сохранить",
                                                     type: 'normal',
                                                     stylingMode: 'contained',
-                                                    onClick: function(e){
-                                                        console.log("currentEditingRowIndex", currentEditingRowIndex)
-                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
-                                                            requestsForm.getEditor("requestsGrid").cellValue(
+                                                    onClick: function(e) {
+                                                        if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
+                                                            getRequestsGrid().cellValue(
                                                                 currentEditingRowIndex,
                                                                 "perform_orders",
                                                                 false
                                                             )
                                                         }
-                                                        requestsForm.getEditor("requestsGrid").saveEditData();
+
+                                                        getRequestsGrid().saveEditData();
                                                     }
                                                 }
                                             },
@@ -573,13 +521,13 @@
                                                     onClick: function(e){
                                                         console.log("e", e);
                                                         console.log("this", this);
-                                                        requestsForm.getEditor("requestsGrid").cancelEditData();
+                                                        getRequestsGrid().cancelEditData();
                                                     }
                                                 }
                                             }
                                         ]
                                     },
-                                    form: editForm,
+                                    form: requestEditForm,
                                 },
                                 columns: [
                                     {
@@ -650,6 +598,14 @@
                                         },
                                     },
                                     {
+                                        dataField: "responsible_employee_id",
+                                        visible: false
+                                    },
+                                    {
+                                        dataField: "sub_responsible_employee_id",
+                                        visible: false
+                                    },
+                                    {
                                         dataField: "request_status_id",
                                         caption: "Статус",
                                         lookup: {
@@ -668,11 +624,19 @@
                                         visible: false
                                     },
                                     {
+                                        dataField: "workers",
+                                        dataType: "boolean",
+                                        visible: false
+                                    },
+                                    {
                                         type: 'buttons',
                                         width: 110,
                                         buttons: [
                                             'edit',
                                             {
+                                                visible: (e) => {
+                                                    return e.row.data.generated_html;
+                                                },
                                                 hint: 'Скачать',
                                                 icon: 'download',
                                                 onClick: (e) => {
@@ -687,13 +651,25 @@
                                     e.component.editRow(e.rowIndex);
                                 },
                                 onEditingStart: (e) => {
-                                    console.log("onEditingStart", e);
-                                    ordersData = new Map();
-                                    e.data.orders_data.forEach((dataItem) => {
-                                        ordersData.set(dataItem.order_type_id, dataItem);
-                                    })
                                     currentEditingRowKey = e.key;
                                     currentEditingRowIndex = e.component.getRowIndexByKey(e.key);
+
+                                    $.getJSON("{{route('labor-safety.request-workers.list')}}",
+                                        {requestId: currentEditingRowKey})
+                                        .done((data) => {
+                                            data.forEach((item) => {
+                                                console.log(item);
+                                                requestWorkersGrid.getDataSource().store().push([{type: "insert", data: item}]);
+
+                                            })
+
+                                            console.log('data loaded');
+                                        })
+                                        .always(() => {
+                                            console.log('end update');
+                                            requestWorkersGrid.getDataSource().reload();
+                                            requestWorkersGrid.endCustomLoading();
+                                        });
                                 }
                             }
                         }]
@@ -701,6 +677,7 @@
                 ]
             }).dxForm('instance')
 
+            @can('labor_safety_order_creation')
             function createGridGroupHeaderButtons() {
                 let groupCaption = $('.requests-grid').find('.dx-form-group-with-caption');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
@@ -712,15 +689,21 @@
                         text: "Добавить",
                         icon: "fas fa-plus",
                         onClick: (e) => {
-                            requestsForm.getEditor("requestsGrid").addRow();
+                            getRequestsGrid().addRow();
+                            currentEditingRowKey = undefined;
+                            currentEditingRowIndex = undefined;
+                            //getRequestWorkersDataSource().reload();
                         }
                     })
                     .addClass('dx-form-group-caption-button')
                     .prependTo(groupCaptionButtonsDiv)
             }
-
             createGridGroupHeaderButtons();
+            @endcan
 
+            function getRequestsGrid() {
+                return requestsForm.getEditor("requestsGrid");
+            }
         });
     </script>
 @endsection

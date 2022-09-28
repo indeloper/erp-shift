@@ -6,6 +6,7 @@ use App\Models\LaborSafety\LaborSafetyOrderType;
 use App\Models\OneC\Employee;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class EmployeesController extends Controller
 {
@@ -30,7 +31,18 @@ class EmployeesController extends Controller
 
         return (new Employee())
             ->dxLoadOptions($loadOptions)
-            ->get()
+            ->leftJoin('companies', 'employees.company_id', '=', 'companies.id')
+            ->leftJoin('employees_1c_posts', 'employees.employee_1c_post_id', '=', 'employees_1c_posts.id')
+            ->orderBy('employee_1c_name')
+            ->get(
+                [
+                    'employees.id',
+                    'employee_1c_name',
+                    'companies.name as company_name',
+                    'employees_1c_posts.name as post_name',
+                    DB::Raw("CONCAT(`employee_1c_name`, ' (', `companies`.`name`, ' | ', `employees_1c_posts`.`name`, ')') as `employee_extended_name`")
+                ]
+            )
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 

@@ -432,8 +432,11 @@
                         </div>
                     </li>
                 @endif
-                @if(Auth::user()->is_su)
-                    <li class="nav-item @if(Request::is('admin') || Request::is('admin/*')) active @endif">
+                @if(Auth::user()->is_su ||
+                    Gate::check('labor_safety_order_creation') ||
+                    Gate::check('labor_safety_order_list_access') ||
+                    Gate::check('labor_safety_order_types_editing'))
+                    <li class="nav-item @if(Request::is('labor-safety') || Request::is('labor-safety/*')) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#labor-safety">
                             <i class="pe-7s-folder"></i>
                             <p>Охрана труда
@@ -444,18 +447,22 @@
                             class="collapse @if(Request::is('labor-safety/') || Request::is('labor-safety/*')) show @endif"
                             id="labor-safety">
                             <ul class="nav">
-                                <li class="nav-item @if (Request::is('labor-safety/orders-and-requests')) active @endif">
-                                    <a class="nav-link" href="{{ route('labor-safety.orders-and-requests.index') }}">
-                                        <span class="sidebar-mini"><i class="fas fa-envelope"></i></span>
-                                        <span class="sidebar-normal">Заявки и приказы</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item @if (Request::is('labor-safety/templates')) active @endif">
-                                    <a class="nav-link" href="{{ route('labor-safety.order-types.index') }}">
-                                        <span class="sidebar-mini"><i class="fas fa-envelope"></i></span>
-                                        <span class="sidebar-normal">Шаблоны приказов</span>
-                                    </a>
-                                </li>
+                                @can('labor_safety_order_creation')
+                                    <li class="nav-item @if (Request::is('labor-safety/orders-and-requests')) active @endif">
+                                        <a class="nav-link" href="{{ route('labor-safety.orders-and-requests.index') }}">
+                                            <span class="sidebar-mini"><i class="fas fa-envelope"></i></span>
+                                            <span class="sidebar-normal">Заявки и приказы</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('labor_safety_order_types_editing')
+                                    <li class="nav-item @if (Request::is('labor-safety/templates')) active @endif">
+                                        <a class="nav-link" href="{{ route('labor-safety.order-types.index') }}">
+                                            <span class="sidebar-mini"><i class="fas fa-envelope"></i></span>
+                                            <span class="sidebar-normal">Шаблоны приказов</span>
+                                        </a>
+                                    </li>
+                                @endcan
                             </ul>
                         </div>
                     </li>
