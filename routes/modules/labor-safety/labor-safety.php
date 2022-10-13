@@ -8,6 +8,7 @@ Route::get('/labor-safety/statuses-list', 'LaborSafety\LaborSafetyRequestControl
 
 Route::get('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@index')->name('labor-safety.order-types.index');
 Route::get('/labor-safety/templates/list', 'LaborSafety\LaborSafetyOrderTypeController@list')->name('labor-safety.order-types.list');
+Route::get('/labor-safety/templates/short-names-list', 'LaborSafety\LaborSafetyOrderTypeController@shortNameList')->name('labor-safety.order-types.short-name-list');
 Route::put('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@update')->name('labor-safety.order-types.update');
 
 Route::get('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@index')->name('labor-safety.orders-and-requests.index');

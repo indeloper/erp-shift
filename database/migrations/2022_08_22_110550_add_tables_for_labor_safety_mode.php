@@ -1,8 +1,11 @@
 <?php
 
+use App\Models\Company\CompanyReportTemplate;
+use App\Models\Company\CompanyReportTemplateType;
 use App\Models\LaborSafety\LaborSafetyOrderType;
 use App\Models\LaborSafety\LaborSafetyOrderTypeCategory;
 use App\Models\LaborSafety\LaborSafetyRequestStatus;
+use App\Models\LaborSafety\LaborSafetyWorkerType;
 use App\Models\Permission;
 use App\Models\Company\Company;
 use App\Models\Timesheet\EmployeesReportGroup;
@@ -21,13 +24,6 @@ class AddTablesForLaborSafetyMode extends Migration
      */
     public function up()
     {
-        /*if (!Schema::hasColumn('employees_report_groups', 'individual_1c_uid')) {
-            Schema::table('users', function (Blueprint $table) {
-                $table->string('individual_1c_uid')->nullable()->comment('Уникальный идентификатор физического лица в 1С');
-            });
-            DB::statement("ALTER TABLE users COMMENT 'Список пользователей системы'");
-        }*/
-
         if (!Schema::hasTable('employees_report_groups')) {
             Schema::create('employees_report_groups', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
@@ -70,7 +66,7 @@ class AddTablesForLaborSafetyMode extends Migration
                 'company_1c_uid' => 'empty',
                 'name' => 'ООО «СК ГОРОД»',
                 'full_name' => 'Общество с ограниченной ответственностью «СК ГОРОД»',
-                'legal_address' => '',
+                'legal_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
                 'actual_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
                 'phone' => '+7 (812) 335-90-90',
                 'ogrn' => '1107847027045',
@@ -81,7 +77,7 @@ class AddTablesForLaborSafetyMode extends Migration
             $company->save();
 
             $company = new Company([
-                'company_1c_uid' => 'empty',
+                'company_1c_uid' => 'a5f0bc19-9bf1-11e9-812f-00155d630402',
                 'name' => 'ООО «ГОРОД»',
                 'full_name' => 'Общество с ограниченной ответственностью «ГОРОД»',
                 'legal_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, помещ. 56-н, каб. 406',
@@ -91,20 +87,6 @@ class AddTablesForLaborSafetyMode extends Migration
                 'inn' => '7807115228',
                 'web_site' => 'www.sk-gorod.com',
                 'email' => 'info@sk-gorod.com'
-            ]);
-            $company->save();
-
-            $company = new Company([
-                'company_1c_uid' => 'empty',
-                'name' => 'ООО «РЕНТМАСТЕР»',
-                'full_name' => 'Общество с ограниченной ответственностью «РЕНТМАСТЕР»',
-                'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
-                'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
-                'phone' => '',
-                'ogrn' => '1197847099229',
-                'inn' => '7807227475',
-                'web_site' => '',
-                'email' => 'rentmaster10@yandex.ru'
             ]);
             $company->save();
 
@@ -121,6 +103,20 @@ class AddTablesForLaborSafetyMode extends Migration
                 'email' => 'stroymaster9@yandex.ru'
             ]);
             $company->save();
+
+            $company = new Company([
+                'company_1c_uid' => 'empty',
+                'name' => 'ООО «РЕНТМАСТЕР»',
+                'full_name' => 'Общество с ограниченной ответственностью «РЕНТМАСТЕР»',
+                'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
+                'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
+                'phone' => '',
+                'ogrn' => '1197847099229',
+                'inn' => '7807227475',
+                'web_site' => '',
+                'email' => 'rentmaster10@yandex.ru'
+            ]);
+            $company->save();
         }
 
         if (!Schema::hasTable('company_report_template_types')) {
@@ -135,7 +131,7 @@ class AddTablesForLaborSafetyMode extends Migration
 
             $reportTemplateTypeArray = ['header', 'footer'];
             foreach ($reportTemplateTypeArray as $reportTemplateTypeElement) {
-                $reportTemplateType = new EmployeesReportGroup([
+                $reportTemplateType = new CompanyReportTemplateType([
                     'name' => $reportTemplateTypeElement
                 ]);
                 $reportTemplateType->save();
@@ -157,26 +153,26 @@ class AddTablesForLaborSafetyMode extends Migration
             });
             DB::statement("ALTER TABLE company_report_templates COMMENT 'Шаблоны для отчетов по компаниям'");
 
-            $companiesReportTemplateArray = ['1|1|<table style="height: 142px; width: 100%; border-collapse: collapse;" border="1"><tbody><tr style="height: 142px;"><td style="width: 50%;"><img src="https://erp.sk-gorod.com/img/sk-gorod-logo.png" /></td><td style="width: 50%;"><p style="text-align: right;">{company_requisites}</p></td></tr></tbody></table>',
+            $companiesReportTemplateArray = [
+                '1|1|<table style="width: 100%; height: 120px; border-collapse: collapse;"><tbody><tr><td style="width: 50%;"><img src="https://erp.sk-gorod.com/img/sk-gorod-logo.png" width="286"/></td><td style="width: 50%;"><p style="text-align: right;">{company_name}</p><p style="text-align: right;">{company_legal_address}</p><p style="text-align: right;">Тел.: {company_phone}</p><p style="text-align: right;">{company_web_site}</p><p style="text-align: right;">{company_email}</p></td></tr></tbody></table>',
             ];
 
             foreach ($companiesReportTemplateArray as $companiesReportTemplateElement) {
-                $laborSafetyOrderType = new LaborSafetyOrderType([
+                $companiesReportTemplate = new CompanyReportTemplate([
                     'company_id' => explode('|', $companiesReportTemplateElement)[0],
                     'template_type' => explode('|', $companiesReportTemplateElement)[1],
                     'template' => explode('|', $companiesReportTemplateElement)[2],
-
                 ]);
-                $laborSafetyOrderType->save();
+                $companiesReportTemplate->save();
             }
         }
 
         if (!Schema::hasTable('employees_1c_subdivisions')) {
             Schema::create('employees_1c_subdivisions', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
-                $table->integer('subdivision_parent_id')->unsigned()->comment('Уникальный идентификатор');
+                $table->integer('subdivision_parent_id')->nullable()->unsigned()->comment('Уникальный идентификатор');
                 $table->string('name')->comment('Наименование должности');
-                $table->string('subdivisions_1c_uid')->comment('Уникальный идентификатор 1С');
+                $table->string('subdivision_1c_uid')->comment('Уникальный идентификатор 1С');
                 $table->integer('company_id')->unsigned()->comment('ID организации');
 
                 $table->foreign('company_id')->references('id')->on('companies');
@@ -184,24 +180,23 @@ class AddTablesForLaborSafetyMode extends Migration
                 $table->timestamps();
                 $table->softDeletes();
             });
-            DB::statement("ALTER TABLE employees_1c_subdivisions COMMENT 'Список подразделений, синхронизировано с 1С'");
+            DB::statement("ALTER TABLE employees_1c_subdivisions COMMENT 'Список подразделений, синхронизированных с 1С'");
         }
 
         if (!Schema::hasTable('employees_1c_posts')) {
             Schema::create('employees_1c_posts', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('name')->comment('Наименование должности');
+                $table->string('declination_format')->comment('Формат склонения');
                 $table->string('post_1c_uid')->comment('Наименование отчетной группы');
-                $table->integer('subdivision_id')->unsigned()->comment('ID подразделения');
                 $table->integer('company_id')->unsigned()->comment('ID организации');
 
-                $table->foreign('subdivision_id')->references('id')->on('employees_1c_subdivisions');
                 $table->foreign('company_id')->references('id')->on('companies');
 
                 $table->timestamps();
                 $table->softDeletes();
             });
-            DB::statement("ALTER TABLE employees_1c_posts COMMENT 'Должности сотрудников, синхронизированные c 1С'");
+            DB::statement("ALTER TABLE employees_1c_posts COMMENT 'Должности сотрудников, синхронизированных c 1С'");
         }
 
         if (!Schema::hasTable('employees')) {
@@ -210,7 +205,6 @@ class AddTablesForLaborSafetyMode extends Migration
                 $table->integer('user_id')->unsigned()->comment('Пользователь');
 
                 $table->string('employee_1c_name')->comment('Имя сотрудника в 1С');
-
                 $table->string('personnel_number')->comment('Табельный номер сотрудника');
                 $table->string('employee_1c_uid')->comment('Уникальный идентификатор сотрудника в 1С');
                 $table->integer('employee_1c_post_id')->unsigned()->comment('Уникальный идентификатор должности сотрудника в 1С');
@@ -220,7 +214,14 @@ class AddTablesForLaborSafetyMode extends Migration
                 $table->date('employment_date')->comment('Дата приема на работу');
                 $table->date('dismissal_date')->comment('Дата увольнения');
 
-                $table->integer('report_group_id')->unsigned()->comment('Наименование отчетной группы');
+                $table->integer('report_group_id')->unsigned()->nullable()->comment('Отчетная группа');
+
+                $table->string('temp_last_name')->comment('Фамилия сотрудника (для первичной синхронизации сотрудников)');
+                $table->string('temp_first_name')->comment('Имя сотрудника (для первичной синхронизации сотрудников)');
+                $table->string('temp_patronymic')->comment('Отчество сотрудника (для первичной синхронизации сотрудников)');
+
+                $table->date('temp_birthday')->comment('Дата рождения сотрудника (для первичной синхронизации сотрудников)');
+
 
                 $table->timestamps();
                 $table->softDeletes();
@@ -230,7 +231,7 @@ class AddTablesForLaborSafetyMode extends Migration
                 $table->foreign('company_id')->references('id')->on('companies');
                 $table->foreign('employee_1c_subdivision_id')->references('id')->on('employees_1c_subdivisions');
             });
-            DB::statement("ALTER TABLE employees COMMENT 'Список сотрудников организаций, синхронизированный с 1С.'");
+            DB::statement("ALTER TABLE employees COMMENT 'Список сотрудников организаций, синхронизированных с 1С.'");
         }
 
         $permission = new Permission();
@@ -365,7 +366,7 @@ class AddTablesForLaborSafetyMode extends Migration
         if (!Schema::hasTable('labor_safety_requests')) {
             Schema::create('labor_safety_requests', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
-
+                $table->integer('order_number')->unsigned()->comment('Номер приказа');
                 $table->date('order_date')->index()->comment('Дата приказа');
                 $table->integer('company_id')->unsigned()->comment('ID компании');
                 $table->integer('project_object_id')->unsigned()->comment('ID объекта');
@@ -374,6 +375,7 @@ class AddTablesForLaborSafetyMode extends Migration
                 $table->bigInteger('responsible_employee_id')->unsigned()->comment('ID ответственного сотрудника');
                 $table->bigInteger('sub_responsible_employee_id')->unsigned()->nullable()->comment('ID замещающего ответственного сотрудника');
                 $table->integer('request_status_id')->unsigned()->comment('ID статуса заявки');
+                $table->mediumText('generated_html')->nullable()->comment('Сформированные приказы');
                 $table->text('comment')->comment('Комментарий');
 
                 $table->foreign('company_id')->references('id')->on('companies');
@@ -404,14 +406,39 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE labor_safety_request_orders COMMENT 'Приказы для заявок на формирование приказов в модуле «Охрана труда»'");
         }
 
+        if (!Schema::hasTable('labor_safety_worker_types')) {
+            Schema::create('labor_safety_worker_types', function (Blueprint $table) {
+                $table->increments('id')->comment('Уникальный идентификатор');
+                $table->string('name')->comment('Значение');
+
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+        DB::statement("ALTER TABLE labor_safety_worker_types COMMENT 'Типы сотрудников (рабочих), для формирования приказов в модуле «Охрана труда»'");
+
+        $laborSafetyWorkerTypesArray = ['Ответственный',
+            'Зам. ответственного',
+            'Сотрудник'
+        ];
+
+        foreach ($laborSafetyWorkerTypesArray as $laborSafetyWorkerTypesElement) {
+            $laborSafetyWorkerTypes = new LaborSafetyWorkerType([
+                'name' => $laborSafetyWorkerTypesElement
+            ]);
+            $laborSafetyWorkerTypes->save();
+        }
+
         if (!Schema::hasTable('labor_safety_request_workers')) {
             Schema::create('labor_safety_request_workers', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('request_id')->unsigned()->comment('ID Заявки');
                 $table->bigInteger('worker_employee_id')->unsigned()->comment('ID сотрудника');
+                $table->integer('worker_type_id')->unsigned()->comment('ID типа сотрудника');
 
                 $table->foreign('request_id')->references('id')->on('labor_safety_requests');
                 $table->foreign('worker_employee_id', 'l_s_r_worker_employee_id_foreign')->references('id')->on('employees');
+                $table->foreign('worker_type_id')->references('id')->on('labor_safety_worker_types');
 
                 $table->timestamps();
                 $table->softDeletes();
@@ -422,17 +449,23 @@ class AddTablesForLaborSafetyMode extends Migration
         if (!Schema::hasTable('labor_safety_order_workers')) {
             Schema::create('labor_safety_order_workers', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
-                $table->integer('order_id')->unsigned()->comment('ID приказа');
+                $table->integer('request_id')->unsigned()->comment('ID заявки');
+                $table->integer('order_type_id')->unsigned()->comment('ID типа приказа');
                 $table->integer('requests_worker_id')->unsigned()->comment('ID записи со ссылкой на сотрудника, сформированному при подаче заявки');
 
-                $table->foreign('order_id')->references('id')->on('labor_safety_request_orders');
-                $table->foreign('requests_worker_id', 'order_worker_employee_id_foreign')->references('id')->on('labor_safety_request_workers');
+                $table->foreign('request_id')->references('id')->on('labor_safety_requests');
+                $table->foreign('order_type_id')->references('id')->on('labor_safety_order_types');
+                $table->foreign('requests_worker_id')->references('id')->on('labor_safety_request_workers');
 
                 $table->timestamps();
                 $table->softDeletes();
             });
             DB::statement("ALTER TABLE labor_safety_order_workers COMMENT 'Список сотрудников (рабочих), которые участвуют при формировании приказов в модуле «Охрана труда»'");
         }
+
+        (new employeeSubdivisionsSeeder)->run();
+        (new employeePostsSeeder)->run();
+        (new employeesSeeder)->run();
     }
 
     /**
@@ -466,22 +499,24 @@ class AddTablesForLaborSafetyMode extends Migration
             $permission->forceDelete();
         }
 
-        /*        Schema::dropIfExists('employees');
-                Schema::dropIfExists('employees_1c_posts');
-                Schema::dropIfExists('employees_1c_subdivisions');
-                Schema::dropIfExists('employees_report_groups');*/
-
-        /*Schema::dropIfExists('labor_safety_order_workers');
+        Schema::dropIfExists('labor_safety_order_workers');
         Schema::dropIfExists('labor_safety_request_workers');
+        Schema::dropIfExists('labor_safety_worker_types');
         Schema::dropIfExists('labor_safety_request_orders');
         Schema::dropIfExists('labor_safety_requests');
-        /*Schema::dropIfExists('labor_safety_request_statuses');
-              Schema::dropIfExists('labor_safety_order_types');
-               Schema::dropIfExists('labor_safety_order_type_categories');
 
-               Schema::dropIfExists('company_report_templates');
-               Schema::dropIfExists('company_report_template_types');
-               Schema::dropIfExists('companies');*/
+        Schema::dropIfExists('employees');
+        Schema::dropIfExists('employees_1c_posts');
+        Schema::dropIfExists('employees_1c_subdivisions');
+        Schema::dropIfExists('employees_report_groups');
+
+        Schema::dropIfExists('company_report_templates');
+        Schema::dropIfExists('company_report_template_types');
+        Schema::dropIfExists('companies');
+
+        /*Schema::dropIfExists('labor_safety_request_statuses');
+        Schema::dropIfExists('labor_safety_order_types');
+        Schema::dropIfExists('labor_safety_order_type_categories');*/
 
         /*Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('individual_1c_uid');

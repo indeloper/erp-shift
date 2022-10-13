@@ -19,8 +19,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use PhpOffice\PhpWord\ComplexType\ProofState;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
+use PhpOffice\PhpWord\Style\Language;
+use function morphos\Russian\inflectName;
+
+class LaborSafetyHtml extends Html
+{
+
+}
 
 class LaborSafetyRequestController extends Controller
 {
@@ -28,6 +36,12 @@ class LaborSafetyRequestController extends Controller
     //const PAGE_BREAK_DELIMITER = '&#12';
     const PAGE_BREAK_DELIMITER = '<pagebreak></pagebreak>'; // Needs to modify vendor component https://github.com/PHPOffice/PHPWord/issues/1601
 
+
+    private function mb_lcfirst($string, $charset = 'UTF-8'): string
+    {
+        return mb_strtolower(mb_substr($string, 0, 1, $charset), $charset) .
+            mb_substr($string, 1, mb_strlen($string, $charset), $charset);
+    }
 
     /**
      * Display a view of the resource.
@@ -49,14 +63,28 @@ class LaborSafetyRequestController extends Controller
         $loadOptions = json_decode($request['loadOptions']);
 
         $query = (new LaborSafetyRequest())
-            ->dxLoadOptions($loadOptions);
+            ->dxLoadOptions($loadOptions)
+            ->get(
+                [
+                    'id',
+                    'order_date',
+                    'company_id',
+                    'project_object_id',
+                    'author_user_id',
+                    'implementer_user_id',
+                    'responsible_employee_id',
+                    'sub_responsible_employee_id',
+                    'request_status_id',
+                    DB::raw("IF(ISNULL(`generated_html`), 0, 1) as `is_orders_generated`"),
+                    'comment'
+                ]
+            );
 
         if (!Auth::user()->can('labor_safety_order_list_access') || !Auth::user()->is_su) {
             $query->where('author_user_id', '=', Auth::id());
         }
 
         return $query
-            ->get()
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
@@ -85,11 +113,34 @@ class LaborSafetyRequestController extends Controller
         $laborSafetyRequestRow->save();
 
         if (isset($workers)) {
+            if (isset($laborSafetyRequestRow->responsible_employee_id)){
+                $newWorker = new LaborSafetyRequestWorker(
+                    [
+                        'request_id' => $laborSafetyRequestRow->id,
+                        'worker_employee_id' => $laborSafetyRequestRow->responsible_employee_id,
+                        'worker_type_id' => 1
+                    ]
+                );
+                $newWorker->save();
+            }
+
+            if (isset($laborSafetyRequestRow->sub_responsible_employee_id)){
+                $newWorker = new LaborSafetyRequestWorker(
+                    [
+                        'request_id' => $laborSafetyRequestRow->id,
+                        'worker_employee_id' => $laborSafetyRequestRow->sub_responsible_employee_id,
+                        'worker_type_id' => 2
+                    ]
+                );
+                $newWorker->save();
+            }
+
             foreach ($workers as $worker) {
                 $newWorker = new LaborSafetyRequestWorker(
                     [
                         'request_id' => $laborSafetyRequestRow->id,
-                        'worker_employee_id' => $worker["worker_employee_id"]
+                        'worker_employee_id' => $worker["worker_employee_id"],
+                        'worker_type_id' => 3
                     ]
                 );
                 $newWorker->save();
@@ -114,18 +165,35 @@ class LaborSafetyRequestController extends Controller
         $id = $request->all()["key"];
 
         $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY);
-        $orders = $modifiedData["ordersData"];
+        $workers = $modifiedData["workers"];
 
-        $generateOrders = $modifiedData["perform_orders"];
-
-        unset($modifiedData["ordersData"]);
+        unset($modifiedData["workers"]);
         unset($modifiedData["perform_orders"]);
 
         $requestRow = LaborSafetyRequest::findOrFail($id);
 
         DB::beginTransaction();
 
-        $this->insertOrUpdateOrdersData($orders, $id);
+        LaborSafetyOrderWorker::where('request_id', '=' , $id)->forceDelete();
+
+        if (isset($workers)) {
+            foreach ($workers as $worker){
+                if (isset($worker['orders'])) {
+                    foreach ($worker['orders'] as $orderType) {
+                        $orderWorker = new LaborSafetyOrderWorker([
+                            'request_id' => $id,
+                            'order_type_id' => $orderType,
+                            'requests_worker_id' => $worker['id']
+                        ]);
+                        $orderWorker->save();
+                    }
+                }
+            }
+        }
+
+        $requestRow->update($modifiedData);
+
+        $generateOrders = Auth::user()->can('labor_safety_generate_documents_access');
 
         if ($generateOrders) {
             $modifiedData["generated_html"] = $this->generateRequestHtmlData($requestRow);
@@ -143,16 +211,12 @@ class LaborSafetyRequestController extends Controller
 
     public function generateRequestHtmlData($request)
     {
-        $orders = LaborSafetyRequestOrder::join('labor_safety_order_types', 'labor_safety_request_orders.order_type_id', '=', 'labor_safety_order_types.id')
-            ->where('labor_safety_request_orders.request_id', '=', $request->id)
-            ->where('labor_safety_request_orders.include_in_formation', '=', 1)
+        $orders = LaborSafetyOrderWorker::join('labor_safety_order_types', 'labor_safety_order_workers.order_type_id', '=', 'labor_safety_order_types.id')
+            ->where('labor_safety_order_workers.request_id', '=', $request->id)
+            ->distinct()
+            ->orderBy('labor_safety_order_workers.order_type_id')
             ->get([
-                'labor_safety_request_orders.id',
-                'labor_safety_request_orders.request_id',
-                'labor_safety_request_orders.order_type_id',
-                'labor_safety_request_orders.responsible_employee_id',
-                'labor_safety_request_orders.sub_responsible_employee_id',
-                'labor_safety_request_orders.include_in_formation',
+                'labor_safety_order_workers.order_type_id',
                 'labor_safety_order_types.order_type_category_id',
                 'labor_safety_order_types.name',
                 'labor_safety_order_types.short_name',
@@ -163,7 +227,6 @@ class LaborSafetyRequestController extends Controller
         $resultHtml = '';
 
         foreach ($orders as $order) {
-
             $orderTemplate = $this->fillTemplateData($request, $order, $order->template);
 
             $resultHtml .= $this->getCompanyHeaderTemplateWithData($request) . $orderTemplate . self::PAGE_BREAK_DELIMITER;
@@ -172,12 +235,28 @@ class LaborSafetyRequestController extends Controller
         return $resultHtml;
     }
 
+    /**
+     * @throws \Exception
+     */
     function fillTemplateData($request, $order, $orderTemplate)
     {
         $variables = $this->getArrayOfTemplateVariables($orderTemplate);
         $projectObject = ProjectObject::find($request->project_object_id);
-        $responsibleEmployee = Employee::find($order->responsible_employee_id);
-        $subResponsibleEmployee = Employee::find($order->sub_responsible_employee_id);
+
+        $responsibleEmployee = Employee::find(LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+            ->where('worker_type_id', '=', 1)
+            ->get()
+            ->first()
+            ->worker_employee_id);
+
+        $subResponsibleWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+            ->where('worker_type_id', '=', 2)
+            ->get()
+            ->first();
+        if (isset($subResponsibleWorker)) {
+            $subResponsibleEmployee = Employee::find($subResponsibleWorker->worker_employee_id);
+        }
+
         $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
         $prettyOrderDate = Carbon::parse($request->order_date)->format('«d»') .
@@ -201,28 +280,50 @@ class LaborSafetyRequestController extends Controller
                     $orderTemplate = str_replace($variable, $prettyOrderDate, $orderTemplate);
                     break;
                 case "{responsible_employee_name_initials_before}":
+                    if (isset($responsibleEmployee)) {
+                        $responsibleEmployeeName = $responsibleEmployee->format('f. p. L', 'именительный');
+                        $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
+                    }
+                    break;
                 case "{responsible_employee_name_initials_after}":
+                    if (isset($responsibleEmployee)) {
+                        $responsibleEmployeeName = $responsibleEmployee->format('L f. p.', 'винительный');
+                        $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
+                    }
+                    break;
                 case "{responsible_employee_full_name}":
                     if (isset($responsibleEmployee)) {
-                        $orderTemplate = str_replace($variable, $responsibleEmployee->employee_1c_name, $orderTemplate);
+                        $responsibleEmployeeName = $responsibleEmployee->format('L F P', 'винительный');
+                        $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
                     }
                     break;
                 case "{responsible_employee_post}":
                     if (isset($responsibleEmployee)) {
-                        $employeePostName = Employees1cPost::find($responsibleEmployee->employee_1c_post_id)->name;
+                        $employeePostName = $this->mb_lcfirst(Employees1cPost::find($responsibleEmployee->employee_1c_post_id)->name);
                         $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
                     }
                     break;
                 case "{subresponsible_employee_name_initials_after}":
+                    if (isset($subResponsibleEmployee)) {
+                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('L f. p.', 'винительный');
+                        $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
+                    }
+                    break;
                 case "{subresponsible_employee_name_initials_before}":
+                    if (isset($subResponsibleEmployee)) {
+                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('f. p. L', 'именительный');
+                        $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
+                    }
+                    break;
                 case "{subresponsible_employee_full_name}":
                     if (isset($subResponsibleEmployee)) {
-                        $orderTemplate = str_replace($variable, $subResponsibleEmployee->employee_1c_name, $orderTemplate);
+                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('L F P', 'винительный');
+                        $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
                     }
                     break;
                 case "{subresponsible_employee_post}":
                     if (isset($subResponsibleEmployee)) {
-                        $employeePostName = Employees1cPost::find($subResponsibleEmployee->employee_1c_post_id)->name;
+                        $employeePostName = $this->mb_lcfirst(Employees1cPost::find($subResponsibleEmployee->employee_1c_post_id)->name);
                         $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
                     }
                     break;
@@ -236,16 +337,16 @@ class LaborSafetyRequestController extends Controller
                     $orderTemplate = str_replace($variable, $projectObject->cadastral_number, $orderTemplate);
                     break;
                 case "{workers_list}":
-                    $orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($order), $orderTemplate);
+                    $orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
                     break;
                 case "{sign_list}":
-                    $this->getSignList($order);
+                    $orderTemplate = str_replace($variable, $this->getSignList($request, $order), $orderTemplate);
                     break;
             }
         }
 
-        if (!isset($responsibleEmployee)) {
-            $pattern = '/\[optional-section-start\|subresponsible_employee].+\[optional-section-end\|subresponsible_employee]/';
+        if (!isset($subResponsibleEmployee)) {
+            $pattern = '/\[optional-section-start\|subresponsible_employee].*?\[optional-section-end\|subresponsible_employee]/s';
             $orderTemplate = preg_replace($pattern, '', $orderTemplate);
         } else {
             $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
@@ -262,14 +363,16 @@ class LaborSafetyRequestController extends Controller
         return array_unique($variables[0]);
     }
 
-    function getWorkersListForTemplate($order)
+    function getWorkersListForTemplate($request, $order)
     {
         $workersList = '<ol style="list-style-type: disc;">';
 
-        $workers = LaborSafetyOrderWorker::where('request_order_id', '=', $order->id)->get();
+        $workers = LaborSafetyOrderWorker::where('request_id', '=', $request->id)
+            ->where('order_type_id', '=', $order->order_type_id)
+            ->get();
 
         foreach ($workers as $worker) {
-            $employeeId = $worker->worker_employee_id;
+            $employeeId = LaborSafetyRequestWorker::find($worker->requests_worker_id)->worker_employee_id;
             $employee = Employee::find($employeeId);
             $postName = Employees1cPost::find($employee->employee_1c_post_id)->name;
 
@@ -280,24 +383,22 @@ class LaborSafetyRequestController extends Controller
         return $workersList;
     }
 
-    function getSignList($order)
+    function getSignList($request, $order)
     {
-        $signList = '<table style="width: 100%; height: 28px;"><tbody>';
+        $signList = '<table style="width: 100%;"><tbody>';
 
-        if (isset($order->responsible_employee_id)) {
-            $employeeName = Employee::find($order->responsible_employee_id)->employee_1c_name;
-            $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
-        }
-
-        if (isset($order->sub_responsible_employee_id)) {
-            $employeeName = Employee::find($order->sub_responsible_employee_id)->employee_1c_name;
-            $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
-        }
-
-        $workers = LaborSafetyOrderWorker::where('request_order_id', '=', $order->id)->get();
+        $workers = LaborSafetyOrderWorker::join('labor_safety_request_workers', 'requests_worker_id', '=', 'labor_safety_request_workers.id')
+            ->where('labor_safety_order_workers.request_id', '=', $request->id)
+            ->where('order_type_id', '=', $order->order_type_id)
+            ->orderBy('worker_type_id')
+            ->get(
+                [
+                    'worker_employee_id'
+                ]
+            );
 
         foreach ($workers as $worker) {
-            $employeeName = Employee::find($worker->worker_employee_id)->employee_1c_name;
+            $employeeName = Employee::find($worker->worker_employee_id)->format(' f. p. L');
             $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
         }
 
@@ -331,6 +432,9 @@ class LaborSafetyRequestController extends Controller
                 case "{company_email}":
                     $companyTemplate = str_replace($variable, $company->email, $companyTemplate);
                     break;
+                case "{company_name}":
+                    $companyTemplate = str_replace($variable, $company->name, $companyTemplate);
+                    break;
             }
         }
 
@@ -344,41 +448,34 @@ class LaborSafetyRequestController extends Controller
         $request = LaborSafetyRequest::find($requestId);
         $responsibleEmployees = [];
 
-        if (Auth::user()->can('labor_safety_generate_documents_access')) {
-            $responsibleEmployees[] = [
-                'id' => (string)Str::uuid(),
-                'worker_employee_id' => $request->responsible_employee_id,
-                'employee_role' => 'Ответственный'
-            ];
-
-            if (isset($request->sub_responsible_employee_id)) {
-                $responsibleEmployees[] = [
-                    'id' => (string)Str::uuid(),
-                    'worker_employee_id' => $request->responsible_employee_id,
-                    'employee_role' => 'Замещающий ответственного'
-                ];
-            }
-        }
-
         $workers = LaborSafetyRequestWorker::where('request_id', '=', $requestId)
-            ->leftJoin('labor_safety_order_workers', 'labor_safety_request_workers.id', '=', 'labor_safety_order_workers.requests_worker_id')
+            ->leftJoin('employees', 'labor_safety_request_workers.worker_employee_id', 'employees.id')
+            ->leftJoin('companies', 'employees.company_id', '=', 'companies.id')
+            ->leftJoin('employees_1c_posts', 'employees.employee_1c_post_id', '=', 'employees_1c_posts.id')
+            ->leftJoin('labor_safety_worker_types', 'labor_safety_request_workers.worker_type_id', '=', 'labor_safety_worker_types.id')
+            ->where(function ($query) {
+                if (!Auth::user()->can('labor_safety_generate_documents_access')) {
+                    $query->where('worker_type_id', '=', 3);
+                }
+            })
+            ->orderBy('labor_safety_request_workers.worker_type_id')
             ->get(
                 [
                     'labor_safety_request_workers.id',
                     'labor_safety_request_workers.worker_employee_id',
-                    DB::Raw("'Сотрудник' as `employee_role`")
+                    'labor_safety_worker_types.name as employee_role',
+                    'employees.id as employee_id',
+                    'employee_1c_name',
+                    'companies.name as company_name',
+                    'employees_1c_posts.name as post_name'
                 ]
             )
             ->toArray();
 
-        $workers = array_merge($responsibleEmployees, $workers);
-
-        $orderTypesList = LaborSafetyOrderType::all();
-
-        foreach ($workers as $worker) {
-            forEach($orderTypesList as $orderType) {
-
-            }
+        foreach ($workers as $key => $value) {
+            $workers[$key]['orders'] = LaborSafetyOrderWorker::where('request_id', '=', $requestId)
+                ->where('requests_worker_id', '=', $value['id'])
+                ->pluck('order_type_id');
         }
 
         return json_encode($workers);
@@ -404,11 +501,21 @@ class LaborSafetyRequestController extends Controller
 
         $phpWord = new PhpWord();
 
+        $phpWord->setDefaultParagraphStyle(["spaceBefore" => 0, "spaceAfter" => 0]);
+        $phpWord->setDefaultFontName('Calibri');
+
+        $proofState = new ProofState();
+        $proofState->setGrammar(ProofState::CLEAN);
+        $proofState->setSpelling(ProofState::CLEAN);
+        $phpWord->getSettings()->setDecimalSymbol(',');
+        $phpWord->getSettings()->setThemeFontLang(new Language(Language::RU_RU));
+        $phpWord->getSettings()->setProofState($proofState);
+
         $section = $phpWord->addSection();
 
         Html::addHtml($section, $html, false, false);
 
-        $phpWord->save('File.docx', 'Word2007', true);
+        $phpWord->save('Список приказов.docx', 'Word2007', true);
         exit;
     }
 }

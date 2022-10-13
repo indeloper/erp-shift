@@ -18,6 +18,24 @@ class LaborSafetyOrderTypeController extends Controller
     {
         return view('labor-safety.labor-safety-order-types');
     }
+    /**
+     * Returns the JSON of data.
+     *
+     * @return string
+     */
+    public function shortNameList(Request $request) {
+        $loadOptions = json_decode($request['loadOptions']);
+
+        return (new LaborSafetyOrderType())
+            ->dxLoadOptions($loadOptions)
+            ->get(
+                [
+                    'id',
+                    'short_name'
+                ]
+            )
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
 
     /**
      * Returns the JSON of data.
