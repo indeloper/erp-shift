@@ -214,8 +214,12 @@ class q3wMaterialController extends Controller
                         }
                         break;
                     default:
-                        if ($operationMaterial->standard_id == $material->standard_id) {
+                        if (($operationMaterial->standard_id == $material->standard_id)
+                            and ($operationMaterial->comment == $material->comment)) {
                             $material->quantity -= $operationMaterial->quantity * $operationMaterial->amount;
+                            if ($material->quantity <= 0) {
+                                unset($material);
+                            }
                         }
                 }
             }
