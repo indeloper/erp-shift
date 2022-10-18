@@ -110,6 +110,9 @@
         let currentEditingRowKey;
         let selectedOrderTypes = [];
         let requestWorkersGrid;
+        let isOrderNumberVisible = false;
+        let editAction = "";
+
 
         let usersStore = new DevExpress.data.CustomStore({
             key: "id",
@@ -194,8 +197,6 @@
             store: requestWorkersStore
         })
 
-
-
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
         });
@@ -231,6 +232,7 @@
                     },
                     update: function (key, values) {
                         values.workers = requestWorkersGrid.getDataSource().store().createQuery().toArray();
+                        values.editAction = editAction;
                         return $.ajax({
                             url: "{{route('labor-safety.orders-and-requests.update')}}",
                             method: "PUT",
@@ -253,6 +255,18 @@
                 return {
                     colCount: 4,
                     items: [
+                        {
+                            dataField: "order_number",
+                            label: {
+                                text: "Номер приказа"
+                            },
+                            visible: typeof(currentEditingRowKey) !== "undefined",
+                            editorType: "dxTextBox",
+                            editorOptions: {
+                                visible: typeof(currentEditingRowKey) !== "undefined",
+                                readOnly: isRowReadOnly(requestStatusId)
+                            }
+                        },
                         {
                             dataField: "order_date",
                             label: {
@@ -353,11 +367,7 @@
                             visible: typeof(currentEditingRowKey) === 'undefined',
                         },
                         getWorkersSectionConfig(requestStatusId)
-                    ],
-                    onInitialized: (e) => {
-                        console.log("form onContentReady", e)
-                        //e.component.repaint();
-                    }
+                    ]
                 };
             }
 
@@ -407,6 +417,12 @@
                                         dataField: "id",
                                         caption: "Идентификатор",
                                         width: 70
+                                    },
+                                    {
+                                        dataField: "order_number",
+                                        caption: "Номер приказа",
+                                        dataType: "string",
+                                        width: 90
                                     },
                                     {
                                         dataField: "order_date",
@@ -544,21 +560,26 @@
                                     e.component.option("editing.form", getRequestEditForm(e.data.request_status_id));
                                     e.component.option("editing.popup", getRequestEditingPopup(e.data.request_status_id));
 
+                                    isOrderNumberVisible = true;
+
                                     $.getJSON("{{route('labor-safety.request-workers.list')}}",
                                         {requestId: currentEditingRowKey})
                                         .done((data) => {
+                                            requestWorkersStore.createQuery().toArray().forEach((item) => {
+                                                requestWorkersGrid.getDataSource().store().push([{
+                                                    type: "remove",
+                                                    key: item.id
+                                                }]);
+                                            });
+
                                             data.forEach((item) => {
                                                 console.log(item);
                                                 requestWorkersGrid.getDataSource().store().push([{type: "insert", data: item}]);
 
                                             })
-
-                                            console.log('data loaded');
                                         })
                                         .always(() => {
-                                            console.log('end update');
                                             requestWorkersGrid.getDataSource().reload();
-                                            requestWorkersGrid.endCustomLoading();
                                         });
                                 }
                             }
@@ -581,6 +602,16 @@
                         onClick: () => {
                             currentEditingRowKey = undefined;
                             currentEditingRowIndex = undefined;
+
+                            isOrderNumberVisible = false;
+
+                            requestWorkersStore.createQuery().toArray().forEach((item) => {
+                                requestWorkersGrid.getDataSource().store().push([{
+                                    type: "remove",
+                                    key: item.id
+                                }]);
+                            });
+
                             getRequestsGrid().addRow();
                             getRequestsGrid().option("editing.popup", getRequestEditingPopup());
                             getRequestsGrid().option("editing.form", getRequestEditForm());
@@ -602,7 +633,7 @@
 
                 if ((typeof(currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
                     config.editorOptions.columns = getWorkersColumnsForDocumentGeneration();
-                    config.editorOptions.editing.allowUpdating = true;
+                    config.editorOptions.editing.allowUpdating = !isRowReadOnly(requestStatusId);
                     config.editorOptions.editing.allowDeleting = false;
                     config.editorOptions.editing.mode = 'cell';
                 } else {
@@ -628,13 +659,16 @@
                     },
                     editorType: "dxDataGrid",
                     editorOptions: {
+                        onContentReady: (e) => {
+                            console.log("On requestWorkersGrid content ready", e)
+                        },
                         onInitialized: (e) => {
+                            console.log("On requestWorkersGrid initialized");
                             requestWorkersGrid = e.component;
-                            requestWorkersGrid.getDataSource().store().createQuery().toArray().forEach((item) => {
-                                requestWorkersGrid.getDataSource().store().push([{type: "remove", key: item.id}]);
-                            });
+                            requestWorkersGrid.getDataSource().reload();
                         },
                             onDisposing: (e) => {
+                            console.log("On disposing initialized");
                             requestWorkersGrid = undefined;
                         },
                         editing: {
@@ -857,8 +891,38 @@
                             text: "Отменить заявку",
                             type: 'danger',
                             stylingMode: 'contained',
+                            onClick: (e) => {
+                                editAction = "cancelRequest";
+                                if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
+                                    getRequestsGrid().cellValue(
+                                        currentEditingRowIndex,
+                                        "perform_orders",
+                                        isUserCanGenerateOrders()
+                                    )
+                                }
+                                getRequestsGrid().saveEditData();
+                            }
+                        }
+                    },
+                    {
+                        toolbar: 'bottom',
+                        location: 'before',
+                        widget: "dxButton",
+                        visible: isInEditing && !isRowReadOnly(requestStatus),
+                        options: {
+                            text: "Завершить",
+                            type: 'default',
+                            stylingMode: 'contained',
                             onClick: function(e){
-                                //getRequestsGrid().saveEditData();
+                                editAction = "completeRequest";
+                                if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
+                                    getRequestsGrid().cellValue(
+                                        currentEditingRowIndex,
+                                        "perform_orders",
+                                        isUserCanGenerateOrders()
+                                    )
+                                }
+                                getRequestsGrid().saveEditData();
                             }
                         }
                     },
@@ -872,6 +936,10 @@
                             type: 'normal',
                             stylingMode: 'contained',
                             onClick: function() {
+                                console.log("before requestWorkersGrid.saveEditData();");
+                                requestWorkersGrid.saveEditData();
+                                console.log("after requestWorkersGrid.saveEditData();");
+
                                 if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
                                     getRequestsGrid().cellValue(
                                         currentEditingRowIndex,
@@ -879,8 +947,10 @@
                                         isUserCanGenerateOrders()
                                     )
                                 }
-
+                                console.log("before getRequestsGrid().saveEditData() onClick");
+                                editAction = "saveRequest";
                                 getRequestsGrid().saveEditData();
+                                console.log("after onClick");
                             }
                         }
                     },

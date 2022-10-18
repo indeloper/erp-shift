@@ -10,9 +10,12 @@ use App\Models\LaborSafety\LaborSafetyRequest;
 use App\Models\LaborSafety\LaborSafetyRequestOrder;
 use App\Models\LaborSafety\LaborSafetyRequestStatus;
 use App\Models\LaborSafety\LaborSafetyRequestWorker;
+use App\Models\Notification;
 use App\Models\OneC\Employee;
 use App\Models\OneC\Employees1cPost;
+use App\Models\Permission;
 use App\Models\ProjectObject;
+use App\Models\UserPermission;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -32,8 +35,6 @@ class LaborSafetyHtml extends Html
 
 class LaborSafetyRequestController extends Controller
 {
-    //const PAGE_BREAK_DELIMITER = '<br style="page-break-after: always"/>';
-    //const PAGE_BREAK_DELIMITER = '&#12';
     const PAGE_BREAK_DELIMITER = '<pagebreak></pagebreak>'; // Needs to modify vendor component https://github.com/PHPOffice/PHPWord/issues/1601
 
 
@@ -63,10 +64,17 @@ class LaborSafetyRequestController extends Controller
         $loadOptions = json_decode($request['loadOptions']);
 
         $query = (new LaborSafetyRequest())
-            ->dxLoadOptions($loadOptions)
+            ->dxLoadOptions($loadOptions);
+
+        if (!Auth::user()->can('labor_safety_order_list_access') && !Auth::user()->is_su) {
+            $query->where('author_user_id', '=', Auth::id());
+        }
+
+        return $query
             ->get(
                 [
                     'id',
+                    'order_number',
                     'order_date',
                     'company_id',
                     'project_object_id',
@@ -75,16 +83,10 @@ class LaborSafetyRequestController extends Controller
                     'responsible_employee_id',
                     'sub_responsible_employee_id',
                     'request_status_id',
-                    DB::raw("IF(ISNULL(`generated_html`), 0, 1) as `is_orders_generated`"),
+                    DB::raw("IF(ISNULL(`generated_html`) OR `generated_html` = '', 0, 1) as `is_orders_generated`"),
                     'comment'
                 ]
-            );
-
-        if (!Auth::user()->can('labor_safety_order_list_access') || !Auth::user()->is_su) {
-            $query->where('author_user_id', '=', Auth::id());
-        }
-
-        return $query
+            )
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
@@ -166,9 +168,11 @@ class LaborSafetyRequestController extends Controller
 
         $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY);
         $workers = $modifiedData["workers"];
+        $editAction = $modifiedData["editAction"];
 
         unset($modifiedData["workers"]);
         unset($modifiedData["perform_orders"]);
+        unset($modifiedData["editAction"]);
 
         $requestRow = LaborSafetyRequest::findOrFail($id);
 
@@ -199,11 +203,22 @@ class LaborSafetyRequestController extends Controller
             $modifiedData["generated_html"] = $this->generateRequestHtmlData($requestRow);
             $modifiedData["request_status_id"] = 2;
             $modifiedData["implementer_user_id"] = Auth::id();
+        };
+
+        switch ($editAction) {
+            case "cancelRequest":
+                $modifiedData["request_status_id"] = 3;
+                break;
+            case "completeRequest":
+                $modifiedData["request_status_id"] = 4;
+                break;
         }
 
         $requestRow->update($modifiedData);
 
         DB::commit();
+
+        $this->sendRequestNotification($requestRow);
         return response()->json([
             'result' => 'ok'
         ], 200);
@@ -496,8 +511,10 @@ class LaborSafetyRequestController extends Controller
     {
         $requestId = json_decode($request->input('requestId'));
         $html = LaborSafetyRequest::findOrFail($requestId)->generated_html;
+
         $html = str_replace('<br>', '<br/>', $html);
         $html = str_replace('<hr>', '<hr/>', $html);
+        $html = str_replace('<p>{sign_list}</p>', '{sign_list}', $html);
 
         $phpWord = new PhpWord();
 
@@ -517,5 +534,42 @@ class LaborSafetyRequestController extends Controller
 
         $phpWord->save('Список приказов.docx', 'Word2007', true);
         exit;
+    }
+
+    private function sendRequestNotification($requestRow)
+    {
+        $notificationText = '';
+        $users = [];
+
+        switch ($requestRow->request_status_id)
+        {
+            case 1:
+                $permissionId = Permission::where('codename', 'labor_safety_generate_documents_access')->first()->id;
+                $users = UserPermission::where('permission_id', $permissionId)->get();
+                $notificationText = "Поступила новая заявка на формирование приказов (#$requestRow->id).";
+            break;
+            case 3:
+                $users = [$requestRow->author_id];
+                $notificationText = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
+                break;
+            case 4:
+                $users = [$requestRow->author_id];
+                $notificationText = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
+                break;
+        }
+
+        foreach ($users as $userId)
+        {
+            $notification = new Notification();
+            $notification->save();
+            $notification->update([
+                'name' => $notificationText,
+                'target_id' => $requestRow->id,
+                'user_id' => $userId,
+                'created_at' => now(),
+                'type' => 7,
+                'status' => 7
+            ]);
+        }
     }
 }

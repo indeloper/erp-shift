@@ -24,6 +24,18 @@ class AddTablesForLaborSafetyMode extends Migration
      */
     public function up()
     {
+        if (!Schema::hasColumn('users', 'inn')){
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('INN')->nullable()->unique()->comment('ИНН пользователя');
+            });
+        }
+
+        if (!Schema::hasColumn('users', 'gender')){
+            Schema::table('users', function (Blueprint $table) {
+                $table->char('gender')->nullable()->comment('Пол пользователя (M - мужской, F - женский)');
+            });
+        }
+
         if (!Schema::hasTable('employees_report_groups')) {
             Schema::create('employees_report_groups', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
@@ -63,7 +75,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE companies COMMENT 'Список организаций'");
 
             $company = new Company([
-                'company_1c_uid' => 'empty',
+                'company_1c_uid' => '4be56ff8-3a11-11e2-a4d2-0019d11ffeaf',
                 'name' => 'ООО «СК ГОРОД»',
                 'full_name' => 'Общество с ограниченной ответственностью «СК ГОРОД»',
                 'legal_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
@@ -91,7 +103,7 @@ class AddTablesForLaborSafetyMode extends Migration
             $company->save();
 
             $company = new Company([
-                'company_1c_uid' => 'empty',
+                'company_1c_uid' => '2803b065-65a3-11e5-84a7-50465d8f7441',
                 'name' => 'ООО «СТРОЙМАСТЕР»',
                 'full_name' => 'Общество с ограниченной ответственностью «СТРОЙМАСТЕР»',
                 'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№18)',
@@ -366,7 +378,7 @@ class AddTablesForLaborSafetyMode extends Migration
         if (!Schema::hasTable('labor_safety_requests')) {
             Schema::create('labor_safety_requests', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
-                $table->integer('order_number')->unsigned()->comment('Номер приказа');
+                $table->string('order_number')->default('б/н')->comment('Номер приказа');
                 $table->date('order_date')->index()->comment('Дата приказа');
                 $table->integer('company_id')->unsigned()->comment('ID компании');
                 $table->integer('project_object_id')->unsigned()->comment('ID объекта');
@@ -518,8 +530,9 @@ class AddTablesForLaborSafetyMode extends Migration
         Schema::dropIfExists('labor_safety_order_types');
         Schema::dropIfExists('labor_safety_order_type_categories');*/
 
-        /*Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('individual_1c_uid');
-        });*/
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('inn');
+            $table->dropColumn('gender');
+        });
     }
 }
