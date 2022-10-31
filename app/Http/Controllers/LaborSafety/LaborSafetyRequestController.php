@@ -391,7 +391,7 @@ class LaborSafetyRequestController extends Controller
             $employee = Employee::find($employeeId);
             $postName = Employees1cPost::find($employee->employee_1c_post_id)->name;
 
-            $workersList .= '<li>' . $postName . ' – ' . $employee->employee_1c_name . '</li>';
+            $workersList .= '<li>' . $postName . ' – ' . $employee->employee_1c_name . ';</li>';
         }
 
         $workersList .= '</ol>';
