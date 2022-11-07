@@ -248,7 +248,7 @@
                                         },
                                         validationRules: [{type: "required"}]
                                     },
-                                    {
+                                    /*{
                                         caption: "Планирование",
                                         alignment: 'center',
                                         columns: [
@@ -291,7 +291,7 @@
                                                 }
                                             }
                                         ]
-                                    },
+                                    },*/
                                     {
                                         caption: "Потребности",
                                         alignment: 'center',
