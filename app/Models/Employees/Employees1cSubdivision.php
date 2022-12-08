@@ -1,6 +1,6 @@
 <?php
 /**  * @mixin ..\Eloquent  */
-namespace App\Models\OneC;
+namespace App\Models\Employees;
 
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;

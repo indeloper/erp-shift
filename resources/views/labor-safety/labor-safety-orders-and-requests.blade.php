@@ -76,6 +76,12 @@
             color: #9b9797;
         }
 
+        .employee-post {
+            font-size: smaller;
+            font-style: oblique;
+            color: #9b9797;
+        }
+
         .tag-cell-editor {
             padding-left: 11px !important;
             padding-right: 11px !important;
@@ -95,7 +101,8 @@
 @section('content')
     <div id="formContainer"></div>
     <div id="gridContainer"></div>
-    <form id="downloadRequest" target="_blank" method="post" action="{{route('labor-safety.orders-and-requests.download')}}">
+    <form id="downloadRequest" target="_blank" method="post"
+          action="{{route('labor-safety.orders-and-requests.download')}}">
         @csrf
         <input id="requestId" type="hidden" name="requestId">
     </form>
@@ -132,6 +139,12 @@
             }
         });
 
+        let employeesDataSource = new DevExpress.data.DataSource({
+            store: employeesStore
+        })
+
+        employeesDataSource.load();
+
         let statusesStore = new DevExpress.data.CustomStore({
             key: "id",
             loadMode: "raw",
@@ -159,6 +172,19 @@
                 return $.getJSON("{{route('project-objects.list')}}",
                     {data: JSON.stringify(loadOptions)});
             },
+        })
+
+        let workersTypesStore = new DevExpress.data.CustomStore({
+            key: "id",
+            loadMode: "raw",
+            load: function (loadOptions) {
+                return $.getJSON("{{route('labor-safety.request-workers.worker-types')}}",
+                    {data: JSON.stringify(loadOptions)});
+            },
+        })
+
+        let workersTypesDataSource = new DevExpress.data.DataSource({
+            store: workersTypesStore
         })
 
         let orderTypesData = [];
@@ -225,7 +251,7 @@
                                 data: JSON.stringify(values),
                                 options: null
                             },
-                            success: function (data, textStatus, jqXHR){
+                            success: function (data, textStatus, jqXHR) {
                                 DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
                             },
                         })
@@ -251,6 +277,49 @@
                 })
             });
 
+            function getWorkersListEditForm() {
+                return {
+                    colCount: 1,
+                    items: [
+                        {
+                            dataField: "worker_employee_id",
+                            label: {
+                                text: "Сотрудник",
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: employeesStore,
+                                    paginate: true,
+                                    pageSize: 25,
+                                }),
+                                displayExpr: 'employee_extended_name',
+                                valueExpr: 'id',
+                                searchEnabled: true
+                            }
+                        },
+                        {
+                            dataField: "employee_role_id",
+                            label: {
+                                text: "Роль",
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: workersTypesStore,
+                                    paginate: true,
+                                    pageSize: 25,
+                                    filter: ["id", ">", 2]
+                                }),
+                                displayExpr: 'name',
+                                valueExpr: 'id',
+                                searchEnabled: true
+                            }
+                        }
+                    ]
+                }
+            }
+
             function getRequestEditForm(requestStatusId) {
                 return {
                     colCount: 4,
@@ -260,10 +329,10 @@
                             label: {
                                 text: "Номер приказа"
                             },
-                            visible: typeof(currentEditingRowKey) !== "undefined",
+                            visible: typeof (currentEditingRowKey) !== "undefined",
                             editorType: "dxTextBox",
                             editorOptions: {
-                                visible: typeof(currentEditingRowKey) !== "undefined",
+                                visible: typeof (currentEditingRowKey) !== "undefined",
                                 readOnly: isRowReadOnly(requestStatusId)
                             }
                         },
@@ -321,7 +390,7 @@
                                 text: "Ответственный сотрудник",
                             },
                             editorType: "dxSelectBox",
-                            visible: typeof(currentEditingRowKey) === 'undefined',
+                            visible: typeof (currentEditingRowKey) === 'undefined',
                             editorOptions: {
                                 dataSource: new DevExpress.data.DataSource({
                                     store: new DevExpress.data.CustomStore({
@@ -343,7 +412,7 @@
                             label: {
                                 text: "Замещающий ответственного",
                             },
-                            visible: typeof(currentEditingRowKey) === 'undefined',
+                            visible: typeof (currentEditingRowKey) === 'undefined',
                             editorType: "dxSelectBox",
                             editorOptions: {
                                 dataSource: new DevExpress.data.DataSource({
@@ -364,7 +433,7 @@
                         {
                             colSpan: 2,
                             itemType: "empty",
-                            visible: typeof(currentEditingRowKey) === 'undefined',
+                            visible: typeof (currentEditingRowKey) === 'undefined',
                         },
                         getWorkersSectionConfig(requestStatusId)
                     ]
@@ -574,7 +643,10 @@
 
                                             data.forEach((item) => {
                                                 console.log(item);
-                                                requestWorkersGrid.getDataSource().store().push([{type: "insert", data: item}]);
+                                                requestWorkersGrid.getDataSource().store().push([{
+                                                    type: "insert",
+                                                    data: item
+                                                }]);
 
                                             })
                                         })
@@ -620,21 +692,22 @@
                     .addClass('dx-form-group-caption-button')
                     .prependTo(groupCaptionButtonsDiv)
             }
+
             createGridGroupHeaderButtons();
             @endcan
 
-            function getWorkersSectionConfig(requestStatusId){
+            function getWorkersSectionConfig(requestStatusId) {
                 let canGenerateDocuments = false;
                 @can('labor_safety_generate_documents_access')
-                canGenerateDocuments = true;
+                    canGenerateDocuments = true;
                 @endcan
 
                 let config = getWorkersSectionConfigForWorkersEditing(requestStatusId);
 
-                if ((typeof(currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
+                if ((typeof (currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
                     config.editorOptions.columns = getWorkersColumnsForDocumentGeneration();
                     config.editorOptions.editing.allowUpdating = !isRowReadOnly(requestStatusId);
-                    config.editorOptions.editing.allowDeleting = false;
+                    config.editorOptions.editing.allowDeleting = !isRowReadOnly(requestStatusId);
                     config.editorOptions.editing.mode = 'cell';
                 } else {
                     config.editorOptions.columns = getWorkersColumnsForEditing(requestStatusId);
@@ -649,13 +722,13 @@
             function getWorkersSectionConfigForWorkersEditing(requestStatusId) {
                 return {
                     colSpan: 4,
-                        itemType: "simpleItem",
+                    itemType: "simpleItem",
                     dataField: "workers",
                     name: 'workers',
                     cssClass: 'request-workers-grid',
                     label: {
                         text: "Персонал",
-                            visible: false
+                        visible: false
                     },
                     editorType: "dxDataGrid",
                     editorOptions: {
@@ -667,9 +740,51 @@
                             requestWorkersGrid = e.component;
                             requestWorkersGrid.getDataSource().reload();
                         },
-                            onDisposing: (e) => {
+                        onDisposing: (e) => {
                             console.log("On disposing initialized");
                             requestWorkersGrid = undefined;
+                        },
+                        onSaving: (e) => {
+                            if (e.changes.length !== 0) {
+                                employeesDataSource.store().byKey(e.changes[0].data.worker_employee_id).then(
+                                    (dataItem => {
+                                        e.changes[0].data.employee_1c_name = dataItem.employee_1c_name;
+                                        e.changes[0].data.company_name = dataItem.company_name;
+                                        e.changes[0].data.post_name = dataItem.post_name;
+                                    })
+                                )
+
+                                workersTypesDataSource.store().byKey(e.changes[0].data.employee_role_id).then(
+                                    (dataItem => {
+                                        console.log(dataItem)
+                                        e.changes[0].data.employee_role = dataItem.name;
+                                        if (!e.changes[0].data.orders){
+                                            e.changes[0].data.orders = [];
+                                        }
+
+                                        switch (e.changes[0].data.employee_role_id) {
+                                            case 4:
+                                                e.changes[0].data.orders.push(16);
+                                                break;
+                                            case 5:
+                                                e.changes[0].data.orders.push(17);
+                                                break;
+                                            case 6:
+                                                e.changes[0].data.orders.push(20);
+                                                break;
+                                            case 7:
+                                                e.changes[0].data.orders.push(22);
+                                                break;
+                                            case 8:
+                                                e.changes[0].data.orders.push(24);
+                                                break;
+                                        }
+                                    })
+                                )
+                            }
+                        },
+                        onSaved: (e) => {
+                            e.component.option("editing.mode", "cell");
                         },
                         editing: {
                             allowAdding: false,
@@ -677,13 +792,13 @@
                             newRowPosition: "last",
                             popup: {
                                 title: "Сотрудник",
-                                    showTitle: false,
-                                    width: "800",
-                                    height: "auto",
-                                    position: {
+                                showTitle: false,
+                                width: "800",
+                                height: "auto",
+                                position: {
                                     my: "center",
-                                        at: "center",
-                                        of: window
+                                    at: "center",
+                                    of: window
                                 }
                             },
                             form: {
@@ -698,7 +813,7 @@
                         showColumnLines: true,
                         filterRow: {
                             visible: false,
-                                applyFilter: "auto"
+                            applyFilter: "auto"
                         },
                         toolbar: {
                             visible: false
@@ -723,13 +838,16 @@
                         dataType: "string",
                         caption: "Сотрудники",
                         width: "40%",
-                        allowEditing: false,
+                        allowEditing: true,
                         cellTemplate: (container, options) => {
                             console.log(options);
                             $(`<div class="employee-name">${options.data.employee_1c_name}</div>`)
                                 .appendTo(container);
 
-                            $(`<div class="employee-role">${options.data.post_name} (${options.data.company_name}) — ${options.data.employee_role}</div>`)
+                            $(`<div class="employee-role">${options.data.employee_role}</div>`)
+                                .appendTo(container);
+
+                            $(`<div class="employee-post">${options.data.post_name} (${options.data.company_name})</div>`)
                                 .appendTo(container);
 
                         },
@@ -771,29 +889,62 @@
 
                             let valueArray = options.value;
 
-                            valueArray.sort((a, b) => {
-                                if (a > b) return 1;
-                                if (a === b) return 0;
-                                if (a < b) return -1;
-                            })
+                            if (valueArray) {
+                                valueArray.sort((a, b) => {
+                                    if (a > b) return 1;
+                                    if (a === b) return 0;
+                                    if (a < b) return -1;
+                                })
 
-                            valueArray.forEach((item) => {
-                                textValues += `<div class="dx-tag">
+
+                                valueArray.forEach((item) => {
+                                    textValues += `<div class="dx-tag">
                                                 <div class="dx-tag-content-without-delete dx-tag-content">
                                                     <span>
                                                         ${options.column.lookup.calculateCellValue(item)}
                                                     </span>
                                                 </div>
                                                </div>`
-                            });
+                                });
+                            }
 
                             container.append($(`<div class="tag-cell-value">${textValues}</div>`))
+                        }
+                    },
+                    {
+                        dataField: "employee_role_id",
+                        visible: false,
+                    },
+                    {
+                        type: 'buttons',
+                        width: 150,
+                        visible: true,
+                        buttons: [
+                            {
+                                name: 'delete'
+                            }
+                        ],
+                        headerCellTemplate: (container, options) => {
+                            //if (!isRowReadOnly(requestStatusId)) {
+                            $('<div>')
+                                .appendTo(container)
+                                .dxButton({
+                                    text: "Добавить",
+                                    icon: "fas fa-plus",
+                                    onClick: (e) => {
+                                        options.component.option('editing.mode', 'popup');
+                                        options.component.option('editing.form', getWorkersListEditForm());
+                                        options.component.option('editing.popup', getWorkersEditingPopup());
+                                        options.component.addRow();
+                                    }
+                                })
+                            //}
                         }
                     }
                 ]
             }
 
-            function getWorkersColumnsForEditing (requestStatusId) {
+            function getWorkersColumnsForEditing(requestStatusId) {
                 return [
                     {
                         dataField: "worker_employee_id",
@@ -856,11 +1007,27 @@
                     height: "auto",
                     showCloseButton: true,
                     position: {
-                    my: "center",
+                        my: "center",
                         at: "center",
                         of: window
                     },
                     toolbarItems: getEditFormToolbarOptions(requestStatus)
+                }
+            }
+
+            function getWorkersEditingPopup() {
+                return {
+                    title: "Заявка",
+                    showTitle: true,
+                    width: "60%",
+                    height: "auto",
+                    showCloseButton: true,
+                    position: {
+                        my: "center",
+                        at: "center",
+                        of: window
+                    },
+                    //toolbarItems: getEditFormToolbarOptions()
                 }
             }
 
@@ -871,7 +1038,7 @@
                     result = true;
                 @endcan
 
-                return result;
+                    return result;
             }
 
             function isRowReadOnly(requestStatus) {
@@ -879,7 +1046,7 @@
             }
 
             function getEditFormToolbarOptions(requestStatus) {
-                const isInEditing = typeof(currentEditingRowIndex) !== "undefined";
+                const isInEditing = typeof (currentEditingRowIndex) !== "undefined";
 
                 return [
                     {
@@ -913,7 +1080,7 @@
                             text: "Завершить",
                             type: 'default',
                             stylingMode: 'contained',
-                            onClick: function(e){
+                            onClick: function (e) {
                                 editAction = "completeRequest";
                                 if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
                                     getRequestsGrid().cellValue(
@@ -927,7 +1094,7 @@
                         }
                     },
                     {
-                        toolbar:'bottom',
+                        toolbar: 'bottom',
                         location: 'after',
                         widget: "dxButton",
                         visible: !isRowReadOnly(requestStatus),
@@ -935,7 +1102,7 @@
                             text: "Сохранить",
                             type: 'normal',
                             stylingMode: 'contained',
-                            onClick: function() {
+                            onClick: function () {
                                 console.log("before requestWorkersGrid.saveEditData();");
                                 requestWorkersGrid.saveEditData();
                                 console.log("after requestWorkersGrid.saveEditData();");
@@ -955,7 +1122,7 @@
                         }
                     },
                     {
-                        toolbar:'bottom',
+                        toolbar: 'bottom',
                         location: 'after',
                         widget: "dxButton",
                         visible: !isRowReadOnly(requestStatus),
@@ -963,7 +1130,7 @@
                             text: "Отменить редактирование",
                             type: 'normal',
                             stylingMode: 'contained',
-                            onClick: function(e){
+                            onClick: function (e) {
                                 getRequestsGrid().cancelEditData();
                             }
                         }

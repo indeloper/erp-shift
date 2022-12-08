@@ -827,7 +827,7 @@ class User extends Authenticatable
      * @return array|string|string[]
      * @throws Exception
      */
-    public function format(string $format = 'L F P', $declension = null) {
+    public function format(string $format = 'LFP', $declension = null) {
         $fullName = $this->long_full_name;
         if (!empty($declension)) {
             $fullName = inflectName($fullName, $declension);
@@ -835,7 +835,11 @@ class User extends Authenticatable
 
         $lastName = explode(' ', $fullName)[0];
         $firstName = explode(' ', $fullName)[1];
-        $patronymic = explode(' ', $fullName)[2];
+        if (isset(explode(' ', $fullName)[2])) {
+            $patronymic = explode(' ', $fullName)[2];
+        } else {
+            $patronymic = '';
+        }
 
         $result = $format;
 
@@ -853,12 +857,18 @@ class User extends Authenticatable
             $result = str_replace('F', $firstName, $result);
         }
 
-        if (mb_strpos($result, 'p') > 0){
-            $patronymic = mb_substr($patronymic, 0, 1, 'UTF-8');
-            $result = str_replace('p', $patronymic, $result);
+        if (!empty($patronymic)) {
+            if (mb_strpos($result, 'p') > 0) {
+                $patronymic = mb_substr($patronymic, 0, 1, 'UTF-8');
+                $result = str_replace('p', $patronymic, $result);
+            } else {
+                $result = str_replace('P', $patronymic, $result);
+            }
         } else {
-            $result = str_replace('P', $patronymic, $result);
+            $result = str_replace('p', '', $result);
+            $result = str_replace('P', '', $result);
         }
+
         return $result;
     }
 }

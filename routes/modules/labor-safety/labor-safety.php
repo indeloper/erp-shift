@@ -19,5 +19,6 @@ Route::delete('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyReque
 
 Route::post('/labor-safety/orders-and-requests/download', 'LaborSafety\LaborSafetyRequestController@download')->name('labor-safety.orders-and-requests.download');
 
-
 Route::get('/labor-safety/request-workers/list', 'LaborSafety\LaborSafetyRequestController@getRequestWorkers')->name('labor-safety.request-workers.list');
+Route::get('/labor-safety/request-workers/worker-types', 'LaborSafety\LaborSafetyRequestController@getRequestWorkersTypes')->name('labor-safety.request-workers.worker-types');
+
