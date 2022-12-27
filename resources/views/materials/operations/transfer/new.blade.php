@@ -808,6 +808,7 @@
                         }
                     }
                 },
+
                 onRowUpdating: (e) => {
                     e.newData.validationUid = getValidationUid(e.oldData.standard_id, e.oldData.accounting_type, e.oldData.quantity, e.newData.amount, e.oldData.initial_comment_id);
                     e.newData.validationState = "unvalidated";
