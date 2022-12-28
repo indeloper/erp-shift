@@ -387,6 +387,8 @@ class LaborSafetyRequestController extends Controller
             ' ' .
             Carbon::parse($request->order_date)->format('Y г.');
 
+        $orderTemplate = str_replace('<p>{sign_list}</p>', '{sign_list}', $orderTemplate);
+
         foreach ($variables as $variable) {
             switch ($variable) {
                 case "{request_id}":
@@ -456,7 +458,11 @@ class LaborSafetyRequestController extends Controller
                     $orderTemplate = str_replace($variable, $projectObject->address, $orderTemplate);
                     break;
                 case "{project_object_cadastral_number}":
-                    $orderTemplate = str_replace($variable, $projectObject->cadastral_number, $orderTemplate);
+                    if (!empty($projectObject->cadastral_number)){
+                       $orderTemplate = str_replace($variable, ', на земельном участке с кадастровым номером ' . $projectObject->cadastral_number, $orderTemplate);
+                    } else {
+                       $orderTemplate = str_replace($variable, '', $orderTemplate);
+                    }
                     break;
                 case "{object_responsible_users}":
                     $objectResponsibleEmployees = $this->getObjectResponsibleEmployees($request);
@@ -577,11 +583,11 @@ class LaborSafetyRequestController extends Controller
             }
         }
 
-        if (!isset($subResponsibleEmployee) and ($this->isEmployeeParticipatesInOrder($subResponsibleEmployee->id, $order->order_type_id))) {
+        if (isset($subResponsibleEmployee) and ($this->isEmployeeParticipatesInOrder($request->id, $subResponsibleEmployee->id, $order->order_type_id))) {
+            $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
+        } else {
             $pattern = '/\[optional-section-start\|subresponsible_employee].*?\[optional-section-end\|subresponsible_employee]/s';
             $orderTemplate = preg_replace($pattern, '', $orderTemplate);
-        } else {
-            $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
         }
 
         return $orderTemplate;
@@ -697,9 +703,13 @@ class LaborSafetyRequestController extends Controller
         return $ordersListHtml;
     }
 
-    function isEmployeeParticipatesInOrder($employeeId, $orderTypeId)
+    function isEmployeeParticipatesInOrder($requestId, $employeeId, $orderTypeId)
     {
-
+        return LaborSafetyOrderWorker::where('worker_employee_id', '=', $employeeId)
+            ->where('labor_safety_order_workers.order_type_id', '=', $orderTypeId)
+            ->where('labor_safety_order_workers.request_id', '=', $requestId)
+            ->leftJoin('labor_safety_request_workers', 'requests_worker_id', '=', 'labor_safety_request_workers.id')
+            ->exists();
     }
 
     function getCompanyHeaderTemplateWithData($request)
@@ -838,7 +848,6 @@ class LaborSafetyRequestController extends Controller
 
         $html = str_replace('<br>', '<br/>', $html);
         $html = str_replace('<hr>', '<hr/>', $html);
-        $html = str_replace('<p>{sign_list}</p>', '{sign_list}', $html);
 
         $phpWord = new PhpWord();
 
