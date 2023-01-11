@@ -534,6 +534,9 @@
                                         paging: {
                                             enabled: false
                                         },
+                                        scrolling: {
+                                            mode: 'virtual',
+                                        },
                                         columns: materialColumns,
                                         onRowPrepared: function (e) {
                                             if (e.rowType === "data") {

@@ -29,13 +29,69 @@ use Illuminate\Support\Str;
 use morphos\English\NounPluralization;
 use morphos\Russian\NounDeclension;
 use PhpOffice\PhpWord\ComplexType\ProofState;
+use PhpOffice\PhpWord\Element\AbstractContainer;
+use PhpOffice\PhpWord\Element\Row;
+use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
+use PhpOffice\PhpWord\SimpleType\NumberFormat;
 use PhpOffice\PhpWord\Style\Language;
 use function morphos\Russian\inflectName;
 
 class LaborSafetyHtml extends Html
 {
+
+    /**
+     * Add HTML parts.
+     *
+     * Note: $stylesheet parameter is removed to avoid PHPMD error for unused parameter
+     * Warning: Do not pass user-generated HTML here, as that would allow an attacker to read arbitrary
+     * files or perform server-side request forgery by passing local file paths or URLs in <img>.
+     *
+     * @param \PhpOffice\PhpWord\Element\AbstractContainer $element Where the parts need to be added
+     * @param string $html The code to parse
+     * @param bool $fullHTML If it's a full HTML, no need to add 'body' tag
+     * @param bool $preserveWhiteSpace If false, the whitespaces between nodes will be removed
+     * @param array $options:
+     *                + IMG_SRC_SEARCH: optional to speed up images loading from remote url when files can be found locally
+     *                + IMG_SRC_REPLACE: optional to speed up images loading from remote url when files can be found locally
+     */
+    public static function addHtml($element, $html, $fullHTML = false, $preserveWhiteSpace = true, $options = null)
+    {
+        /*
+         * @todo parse $stylesheet for default styles.  Should result in an array based on id, class and element,
+         * which could be applied when such an element occurs in the parseNode function.
+         */
+        self::$options = $options;
+
+        // Preprocess: remove all line ends, decode HTML entity,
+        // fix ampersand and angle brackets and add body tag for HTML fragments
+        $html = str_replace(array("\n", "\r"), '', $html);
+        $html = str_replace(array('&lt;', '&gt;', '&amp;', '&quot;'), array('_lt_', '_gt_', '_amp_', '_quot_'), $html);
+        $html = html_entity_decode($html, ENT_QUOTES, 'UTF-8');
+        $html = str_replace('&', '&amp;', $html);
+        $html = str_replace(array('_lt_', '_gt_', '_amp_', '_quot_'), array('&lt;', '&gt;', '&amp;', '&quot;'), $html);
+
+        if (false === $fullHTML) {
+            $html = '<body>' . $html . '</body>';
+        }
+
+        // Load DOM
+        if (\PHP_VERSION_ID < 80000) {
+            $orignalLibEntityLoader = libxml_disable_entity_loader(true);
+        }
+        $dom = new \DOMDocument();
+        $dom->preserveWhiteSpace = $preserveWhiteSpace;
+        $dom->loadXML($html);
+        self::$xpath = new \DOMXPath($dom);
+        $node = $dom->getElementsByTagName('body');
+
+        self::parseNode($node->item(0), $element);
+        if (\PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader($orignalLibEntityLoader);
+        }
+    }
+
     /**
      * Parse a node and add a corresponding element to the parent element.
      *
@@ -104,7 +160,7 @@ class LaborSafetyHtml extends Html
                 }
             }
             $method = "parse{$method}";
-            $newElement = call_user_func_array(array('PhpOffice\PhpWord\Shared\Html', $method), array_values($arguments));
+            $newElement = call_user_func_array(array('self', $method), array_values($arguments));
 
             // Retrieve back variables from arguments
             foreach ($keys as $key) {
@@ -122,6 +178,28 @@ class LaborSafetyHtml extends Html
     }
 
     /**
+     * Parse child nodes.
+     *
+     * @param \DOMNode $node
+     * @param \PhpOffice\PhpWord\Element\AbstractContainer $element
+     * @param array $styles
+     * @param array $data
+     */
+    protected static function parseChildNodes($node, $element, $styles, $data)
+    {
+        if ('li' != $node->nodeName) {
+            $cNodes = $node->childNodes;
+            if (!empty($cNodes)) {
+                foreach ($cNodes as $cNode) {
+                    if ($element instanceof AbstractContainer || $element instanceof Table || $element instanceof Row) {
+                        self::parseNode($cNode, $element, $styles, $data);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Parse page break
      *
      * @param \PhpOffice\PhpWord\Element\AbstractContainer $element
@@ -129,6 +207,103 @@ class LaborSafetyHtml extends Html
     protected static function parsePageBreak($element)
     {
         $element->addPageBreak();
+    }
+
+    /**
+     * Parse line break
+     *
+     * @param \PhpOffice\PhpWord\Element\AbstractContainer $element
+     */
+    protected static function parseWordBreak($element)
+    {
+        $element->addTextBreak();
+    }
+
+    /**
+     * Parse list node
+     *
+     * @param \DOMNode $node
+     * @param \PhpOffice\PhpWord\Element\AbstractContainer $element
+     * @param array &$styles
+     * @param array &$data
+     */
+    protected static function parseList($node, $element, &$styles, &$data)
+    {
+        $isOrderedList = $node->nodeName === 'ol';
+        if (isset($data['listdepth'])) {
+            $data['listdepth']++;
+        } else {
+            $data['listdepth'] = 0;
+            $styles['list'] = 'listStyle_' . self::$listIndex++;
+            $style = $element->getPhpWord()->addNumberingStyle($styles['list'], self::getListStyle($isOrderedList));
+
+            // extract attributes start & type e.g. <ol type="A" start="3">
+            $start = 0;
+            $type = '';
+            foreach ($node->attributes as $attribute) {
+                switch ($attribute->name) {
+                    case 'start':
+                        $start = (int) $attribute->value;
+                        break;
+                    case 'type':
+                        $type = $attribute->value;
+                        break;
+                }
+            }
+
+            $levels = $style->getLevels();
+            /** @var \PhpOffice\PhpWord\Style\NumberingLevel */
+            $level = $levels[0];
+            if ($start > 0) {
+                $level->setStart($start);
+            }
+            $type = $type ? self::mapListType($type) : null;
+            if ($type) {
+                $level->setFormat($type);
+            }
+        }
+        if ($node->parentNode->nodeName === 'li') {
+            return $element->getParent();
+        }
+    }
+
+    /**
+     * @param bool $isOrderedList
+     * @return array
+     */
+    protected static function getListStyle($isOrderedList)
+    {
+        if ($isOrderedList) {
+            return array(
+                'type'   => 'multilevel',
+                'levels' => array(
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%1.', 'alignment' => 'left',  'tabPos' => 720,  'left' => 720,  'hanging' => 360),
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%1.%2.', 'alignment' => 'left',  'tabPos' => 1440, 'left' => 1440, 'hanging' => 360),
+                    array('format' => NumberFormat::BULLET,  'text' => '— ', 'alignment' => 'right', 'tabPos' => 2160, 'left' => 2160, 'hanging' => 180),
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%4.', 'alignment' => 'left',  'tabPos' => 2880, 'left' => 2880, 'hanging' => 360),
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%5.', 'alignment' => 'left',  'tabPos' => 3600, 'left' => 3600, 'hanging' => 360),
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%6.', 'alignment' => 'right', 'tabPos' => 4320, 'left' => 4320, 'hanging' => 180),
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%7.', 'alignment' => 'left',  'tabPos' => 5040, 'left' => 5040, 'hanging' => 360),
+                    array('format' => NumberFormat::LOWER_LETTER, 'text' => '%8.', 'alignment' => 'left',  'tabPos' => 5760, 'left' => 5760, 'hanging' => 360),
+                    array('format' => NumberFormat::LOWER_ROMAN,  'text' => '%9.', 'alignment' => 'right', 'tabPos' => 6480, 'left' => 6480, 'hanging' => 180),
+                ),
+            );
+        }
+
+        return array(
+            'type'   => 'hybridMultilevel',
+            'levels' => array(
+                array('format' => NumberFormat::BULLET, 'text' => '', 'alignment' => 'left', 'tabPos' => 720,  'left' => 720,  'hanging' => 360, 'font' => 'Symbol',      'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => 'o',  'alignment' => 'left', 'tabPos' => 1440, 'left' => 1440, 'hanging' => 360, 'font' => 'Courier New', 'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => '', 'alignment' => 'left', 'tabPos' => 2160, 'left' => 2160, 'hanging' => 360, 'font' => 'Wingdings',   'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => '', 'alignment' => 'left', 'tabPos' => 2880, 'left' => 2880, 'hanging' => 360, 'font' => 'Symbol',      'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => 'o',  'alignment' => 'left', 'tabPos' => 3600, 'left' => 3600, 'hanging' => 360, 'font' => 'Courier New', 'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => '', 'alignment' => 'left', 'tabPos' => 4320, 'left' => 4320, 'hanging' => 360, 'font' => 'Wingdings',   'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => '', 'alignment' => 'left', 'tabPos' => 5040, 'left' => 5040, 'hanging' => 360, 'font' => 'Symbol',      'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => 'o',  'alignment' => 'left', 'tabPos' => 5760, 'left' => 5760, 'hanging' => 360, 'font' => 'Courier New', 'hint' => 'default'),
+                array('format' => NumberFormat::BULLET, 'text' => '', 'alignment' => 'left', 'tabPos' => 6480, 'left' => 6480, 'hanging' => 360, 'font' => 'Wingdings',   'hint' => 'default'),
+            ),
+        );
     }
 }
 
@@ -844,7 +1019,8 @@ class LaborSafetyRequestController extends Controller
     function download(Request $request)
     {
         $requestId = json_decode($request->input('requestId'));
-        $html = LaborSafetyRequest::findOrFail($requestId)->generated_html;
+        $request = LaborSafetyRequest::findOrFail($requestId);
+        $html = $request->generated_html;
 
         $html = str_replace('<br>', '<br/>', $html);
         $html = str_replace('<hr>', '<hr/>', $html);
@@ -863,9 +1039,9 @@ class LaborSafetyRequestController extends Controller
 
         $section = $phpWord->addSection();
 
-        LaborSafetyHtml::addHtml($section, $html, false, false);
-
-        $phpWord->save('Список приказов.docx', 'Word2007', true);
+        $LaborSafetyHtml = new LaborSafetyHtml();
+        $LaborSafetyHtml->addHtml($section, $html, false, false);
+        $phpWord->save('Список приказов №' . $request-> order_number. '.docx', 'Word2007', true);
         exit;
     }
 }

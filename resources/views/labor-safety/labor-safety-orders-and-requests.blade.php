@@ -197,7 +197,6 @@
                     {data: JSON.stringify(loadOptions)});
             },
             onLoaded: (data) => {
-                console.log("orderTypesStore loaded. Data:", data);
                 orderTypesData = data;
             }
         })
@@ -642,7 +641,6 @@
                                             });
 
                                             data.forEach((item) => {
-                                                console.log(item);
                                                 requestWorkersGrid.getDataSource().store().push([{
                                                     type: "insert",
                                                     data: item
@@ -684,9 +682,9 @@
                                 }]);
                             });
 
-                            getRequestsGrid().addRow();
                             getRequestsGrid().option("editing.popup", getRequestEditingPopup());
                             getRequestsGrid().option("editing.form", getRequestEditForm());
+                            getRequestsGrid().addRow();
                         }
                     })
                     .addClass('dx-form-group-caption-button')
@@ -732,16 +730,11 @@
                     },
                     editorType: "dxDataGrid",
                     editorOptions: {
-                        onContentReady: (e) => {
-                            console.log("On requestWorkersGrid content ready", e)
-                        },
                         onInitialized: (e) => {
-                            console.log("On requestWorkersGrid initialized");
                             requestWorkersGrid = e.component;
                             requestWorkersGrid.getDataSource().reload();
                         },
                         onDisposing: (e) => {
-                            console.log("On disposing initialized");
                             requestWorkersGrid = undefined;
                         },
                         onSaving: (e) => {
@@ -756,7 +749,6 @@
 
                                 workersTypesDataSource.store().byKey(e.changes[0].data.employee_role_id).then(
                                     (dataItem => {
-                                        console.log(dataItem)
                                         e.changes[0].data.employee_role = dataItem.name;
                                         if (!e.changes[0].data.orders){
                                             e.changes[0].data.orders = [];
@@ -784,7 +776,16 @@
                             }
                         },
                         onSaved: (e) => {
-                            e.component.option("editing.mode", "cell");
+                            let canGenerateDocuments = false;
+                            @can('labor_safety_generate_documents_access')
+                                canGenerateDocuments = true;
+                            @endcan
+
+                            if ((typeof (currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
+                                e.component.option("editing.mode", "cell");
+                            } else {
+                                e.component.option("editing.mode", "popup");
+                            }
                         },
                         editing: {
                             allowAdding: false,
@@ -840,7 +841,6 @@
                         width: "40%",
                         allowEditing: true,
                         cellTemplate: (container, options) => {
-                            console.log(options);
                             $(`<div class="employee-name">${options.data.employee_1c_name}</div>`)
                                 .appendTo(container);
 
@@ -925,7 +925,8 @@
                             }
                         ],
                         headerCellTemplate: (container, options) => {
-                            //if (!isRowReadOnly(requestStatusId)) {
+                            console.log('headerCellTemplate', options);
+                            //if (options.data.requestStatusId && !isRowReadOnly(options.data.requestStatusId)) {
                             $('<div>')
                                 .appendTo(container)
                                 .dxButton({
@@ -986,6 +987,8 @@
                                         text: "Добавить",
                                         icon: "fas fa-plus",
                                         onClick: (e) => {
+                                            options.component.option("editing.popup", getWorkersEditingPopup());
+                                            options.component.option("editing.form", getWorkersListEditForm());
                                             options.component.addRow();
                                         }
                                     })
@@ -1103,9 +1106,7 @@
                             type: 'normal',
                             stylingMode: 'contained',
                             onClick: function () {
-                                console.log("before requestWorkersGrid.saveEditData();");
                                 requestWorkersGrid.saveEditData();
-                                console.log("after requestWorkersGrid.saveEditData();");
 
                                 if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
                                     getRequestsGrid().cellValue(
@@ -1114,10 +1115,8 @@
                                         isUserCanGenerateOrders()
                                     )
                                 }
-                                console.log("before getRequestsGrid().saveEditData() onClick");
                                 editAction = "saveRequest";
                                 getRequestsGrid().saveEditData();
-                                console.log("after onClick");
                             }
                         }
                     },

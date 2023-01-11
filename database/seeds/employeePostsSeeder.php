@@ -2415,7 +2415,7 @@ class employeePostsSeeder extends Seeder
 
             $company = Company::where('company_1c_uid', $post->organizationUID)->get()->first();
             if (isset($company)) {
-                $employeePost = Employees1cpost::updateOrCreate(
+                $employeePost = Employees1cPost::updateOrCreate(
                     [
                         'post_1c_uid' => $post->postUID,
                     ],
