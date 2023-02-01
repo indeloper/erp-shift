@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Company\Company;
-use App\Models\Employees\Employees1cpost;
+use App\Models\Employees\Employees1cPost;
 use App\Models\Employees\Employees1cPostInflection;
 use App\Models\Employees\Employees1cSubdivision;
 use Illuminate\Database\Seeder;
@@ -2402,6 +2402,834 @@ class employeePostsSeeder extends Seeder
 "accusative": "Главного механика",
 "ablative": "Главным механиком",
 "prepositional": "Главном механике"
+}
+},
+{
+"postUID": "32a3e7b1-e427-11e9-8132-00155d630402",
+"postName": "Инженер ПТО",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Инженер ПТО",
+"genitive": "Инженер ПТО",
+"dative": "Инженер ПТО",
+"accusative": "Инженер ПТО",
+"ablative": "Инженер ПТО",
+"prepositional": "Инженер ПТО"
+}
+},
+{
+"postUID": "4983b011-9010-11ed-80bb-000c29565159",
+"postName": "Специалист по охране труда и промышленной безопасности",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Специалист по охране труда и промышленной безопасности",
+"genitive": "Специалиста по охране труда и промышленной безопасности",
+"dative": "Специалисту по охране труда и промышленной безопасности",
+"accusative": "Специалиста по охране труда и промышленной безопасности",
+"ablative": "Специалистом по охране труда и промышленной безопасности",
+"prepositional": "Специалисте по охране труда и промышленной безопасности"
+}
+},
+{
+"postUID": "85db1cf5-9d6d-11e9-812f-00155d630402",
+"postName": "Генеральный директор",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Генеральный директор",
+"genitive": "Генеральный директор",
+"dative": "Генеральный директор",
+"accusative": "Генеральный директор",
+"ablative": "Генеральный директор",
+"prepositional": "Генеральный директор"
+}
+},
+{
+"postUID": "a092b52a-8c9f-11eb-8100-1831bfcfda3c",
+"postName": "Помощник машиниста буровой установки",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Помощник машиниста буровой установки",
+"genitive": "Помощника машиниста буровой установки",
+"dative": "Помощнику машиниста буровой установки",
+"accusative": "Помощника машиниста буровой установки",
+"ablative": "Помощником машиниста буровой установки",
+"prepositional": "Помощнике машиниста буровой установки"
+}
+},
+{
+"postUID": "77b66264-4c4f-11ec-8107-1831bfcfda3c",
+"postName": "Менеджер проектов",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Менеджер проектов",
+"genitive": "Менеджера проектов",
+"dative": "Менеджеру проектов",
+"accusative": "Менеджер проектов",
+"ablative": "Менеджером проектов",
+"prepositional": "Менеджере проектов"
+}
+},
+{
+"postUID": "",
+"postName": "",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "c68964c9-5f34-11ec-8107-1831bfcfda3c",
+"postName": "Начальник сметно-экономического отдела",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Начальник сметно-экономического отдела",
+"genitive": "Начальника сметно-экономического отдела",
+"dative": "Начальнику сметно-экономического отдела",
+"accusative": "Начальника сметно-экономического отдела",
+"ablative": "Начальником сметно-экономического отдела",
+"prepositional": "Начальнике сметно-экономического отдела"
+}
+},
+{
+"postUID": "d678693f-8ca0-11eb-8100-1831bfcfda3c",
+"postName": "Машинист буровой установки",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Машинист буровой установки",
+"genitive": "Машиниста буровой установки",
+"dative": "Машинисту буровой установки",
+"accusative": "Машиниста буровой установки",
+"ablative": "Машинистом буровой установки",
+"prepositional": "Машинисте буровой установки"
+}
+},
+{
+"postUID": "e0b0526e-9d8e-11e9-812f-00155d630402",
+"postName": "Руководитель проектов",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Руководитель проектов",
+"genitive": "Руководителя проектов",
+"dative": "Руководителю проектов",
+"accusative": "Руководителя проектов",
+"ablative": "Руководителем проектов",
+"prepositional": "Руководителе проектов"
+}
+},
+{
+"postUID": "d3dc5e62-9e35-11e9-812f-00155d630402",
+"postName": "Стропальщик",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "ad831a46-fd05-11ec-810a-1831bfcfda3c",
+"postName": "Начальник тендерного отдела",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Начальник тендерного отдела",
+"genitive": "Начальника тендерного отдела",
+"dative": "Начальнику тендерного отдела",
+"accusative": "Начальника тендерного отдела",
+"ablative": "Начальником тендерного отдела",
+"prepositional": "Начальнике тендерного отдела"
+}
+},
+{
+"postUID": "d3dc5e61-9e35-11e9-812f-00155d630402",
+"postName": "Геодезист",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "d3dc5e5e-9e35-11e9-812f-00155d630402",
+"postName": "Главный бухгалтер",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "ffb35dd2-d288-11ec-810a-1831bfcfda3c",
+"postName": "Машинист копра",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Машинист копра",
+"genitive": "Машиниста копра",
+"dative": "Машинисту копра",
+"accusative": "Машиниста копра",
+"ablative": "Машинистом копра",
+"prepositional": "Машинисте копра"
+}
+},
+{
+"postUID": "7e44eae7-2ff1-11ec-8107-1831bfcfda3c",
+"postName": "Директор по строительству",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Директор по строительству",
+"genitive": "Директора по строительству",
+"dative": "Директору по строительству",
+"accusative": "Директора по строительству",
+"ablative": "Директором по строительству",
+"prepositional": "Директоре по строительству"
+}
+},
+{
+"postUID": "e0b0526a-9d8e-11e9-812f-00155d630402",
+"postName": "Машинист крана (крановщик)",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "e0b0526d-9d8e-11e9-812f-00155d630402",
+"postName": "Производитель работ",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Производитель работ",
+"genitive": "Производителя работ",
+"dative": "Производителю работ",
+"accusative": "Производителя работ",
+"ablative": "Производителем работ",
+"prepositional": "Производителе работ"
+}
+},
+{
+"postUID": "e0b0526b-9d8e-11e9-812f-00155d630402",
+"postName": "Электрогазосварщик",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "ab42520f-f379-11eb-8104-1831bfcfda3c",
+"postName": "Экономист по материально-техническому снабжению",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Экономист по материально-техническому снабжению",
+"genitive": "Экономиста по материально-техническому снабжению",
+"dative": "Экономисту по материально-техническому снабжению",
+"accusative": "Экономиста по материально-техническому снабжению",
+"ablative": "Экономистом по материально-техническому снабжению",
+"prepositional": "Экономисте по материально-техническому снабжению"
+}
+},
+{
+"postUID": "d42d8293-ebdf-11e9-8132-00155d630402",
+"postName": "Специалист по охране труда",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Специалист по охране труда",
+"genitive": "Специалиста по охране труда",
+"dative": "Специалисту по охране труда",
+"accusative": "Специалиста по охране труда",
+"ablative": "Специалистом по охране труда",
+"prepositional": "Специалисте по охране труда"
+}
+},
+{
+"postUID": "5b08356e-20f2-11ec-8105-1831bfcfda3c",
+"postName": "Менеджер по персоналу",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Менеджер по персоналу",
+"genitive": "Менеджера по персоналу",
+"dative": "Менеджеру по персоналу",
+"accusative": "Менеджер по персоналу",
+"ablative": "Менеджером по персоналу",
+"prepositional": "Менеджере по персоналу"
+}
+},
+{
+"postUID": "73a97e6c-f364-11ea-80fe-1831bfcfda3c",
+"postName": "Главный инженер",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "89bdad49-d283-11ec-810a-1831bfcfda3c",
+"postName": "Юрист",
+"organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
+"organizationINN": "7807115228",
+"inflection": {
+"nominative": "Юрист",
+"genitive": "Юриста",
+"dative": "Юристу",
+"accusative": "Юриста",
+"ablative": "Юристом",
+"prepositional": "Юристе"
+}
+},
+{
+"postUID": "",
+"postName": "",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "76680894-9cd3-11e9-812f-00155d630402",
+"postName": "Генеральный директор",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Генеральный директор",
+"genitive": "Генеральный директор",
+"dative": "Генеральный директор",
+"accusative": "Генеральный директор",
+"ablative": "Генеральный директор",
+"prepositional": "Генеральный директор"
+}
+},
+{
+"postUID": "6218af05-e031-11e9-8132-00155d630402",
+"postName": "Геодезист",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Геодезист",
+"genitive": "Геодезиста",
+"dative": "Геодезисту",
+"accusative": "Геодезиста",
+"ablative": "Геодезистом",
+"prepositional": "Геодезисте"
+}
+},
+{
+"postUID": "c6256cb6-5157-11ed-8179-00155d630402",
+"postName": "Главный бухгалтер",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Главный бухгалтер",
+"genitive": "Главного бухгалтера",
+"dative": "Главному бухгалтеру",
+"accusative": "Главного бухгалтера",
+"ablative": "Главным бухгалтером",
+"prepositional": "Главном бухгалтере"
+}
+},
+{
+"postUID": "6218aee5-e031-11e9-8132-00155d630402",
+"postName": "Главный инженер",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Главный инженер",
+"genitive": "Главный инженер",
+"dative": "Главный инженер",
+"accusative": "Главный инженер",
+"ablative": "Главный инженер",
+"prepositional": "Главный инженер"
+}
+},
+{
+"postUID": "6218aecd-e031-11e9-8132-00155d630402",
+"postName": "Главный механик",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Главный механик",
+"genitive": "Главный механик",
+"dative": "Главный механик",
+"accusative": "Главный механик",
+"ablative": "Главный механик",
+"prepositional": "Главный механик"
+}
+},
+{
+"postUID": "1aab6405-f2d1-11ec-8173-00155d630402",
+"postName": "Главный специалист по охране труда и промышленной безопасности",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Главный специалист по охране труда и промышленной безопасности",
+"genitive": "Главного специалиста по охране труда и промышленной безопасности",
+"dative": "Главному специалисту по охране труда и промышленной безопасности",
+"accusative": "Главного специалиста по охране труда и промышленной безопасности",
+"ablative": "Главным специалистом по охране труда и промышленной безопасности",
+"prepositional": "Главном специалисте по охране труда и промышленной безопасности"
+}
+},
+{
+"postUID": "6218aef7-e031-11e9-8132-00155d630402",
+"postName": "Инженер производственно-технического отдела (ПТО)",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Инженер производственно-технического отдела (ПТО)",
+"genitive": "Инженер производственно-технического отдела (ПТО)",
+"dative": "Инженер производственно-технического отдела (ПТО)",
+"accusative": "Инженер производственно-технического отдела (ПТО)",
+"ablative": "Инженер производственно-технического отдела (ПТО)",
+"prepositional": "Инженер производственно-технического отдела (ПТО)"
+}
+},
+{
+"postUID": "4ad96aee-3e96-11eb-80ff-1831bfcfda3c",
+"postName": "Машинист буровой установки",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Машинист буровой установки",
+"genitive": "Машиниста буровой установки",
+"dative": "Машинисту буровой установки",
+"accusative": "Машиниста буровой установки",
+"ablative": "Машинистом буровой установки",
+"prepositional": "Машинисте буровой установки"
+}
+},
+{
+"postUID": "76680895-9cd3-11e9-812f-00155d630402",
+"postName": "Машинист копра",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Машинист копра",
+"genitive": "Машинист копра",
+"dative": "Машинист копра",
+"accusative": "Машинист копра",
+"ablative": "Машинист копра",
+"prepositional": "Машинист копра"
+}
+},
+{
+"postUID": "76680896-9cd3-11e9-812f-00155d630402",
+"postName": "Машинист крана (крановщик)",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "a8ab12cc-ebde-11e9-8132-00155d630402",
+"postName": "Механик",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Механик",
+"genitive": "Механика",
+"dative": "Механику",
+"accusative": "Механика",
+"ablative": "Механиком",
+"prepositional": "Механике"
+}
+},
+{
+"postUID": "55230234-3e97-11eb-80ff-1831bfcfda3c",
+"postName": "Помощник машиниста буровой установки",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Помощник машиниста буровой установки",
+"genitive": "Помощника машиниста буровой установки",
+"dative": "Помощнику машиниста буровой установки",
+"accusative": "Помощника машиниста буровой установки",
+"ablative": "Помощником машиниста буровой установки",
+"prepositional": "Помощнике машиниста буровой установки"
+}
+},
+{
+"postUID": "95c9a1da-00b4-11ec-8104-1831bfcfda3c",
+"postName": "Производитель работ",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Производитель работ",
+"genitive": "Производителя работ",
+"dative": "Производителю работ",
+"accusative": "Производителя работ",
+"ablative": "Производителем работ",
+"prepositional": "Производителе работ"
+}
+},
+{
+"postUID": "381528a0-998e-11ea-80fc-1831bfcfda3c",
+"postName": "Специалист по охране труда и промышленной безопасности",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Специалист по охране труда и промышленной безопасности",
+"genitive": "Специалиста по охране труда и промышленной безопасности",
+"dative": "Специалисту по охране труда и промышленной безопасности",
+"accusative": "Специалиста по охране труда и промышленной безопасности",
+"ablative": "Специалистом по охране труда и промышленной безопасности",
+"prepositional": "Специалисте по охране труда и промышленной безопасности"
+}
+},
+{
+"postUID": "a8ab12ba-ebde-11e9-8132-00155d630402",
+"postName": "Специалист по промышленной безопасности",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Специалист по промышленной безопасности",
+"genitive": "Специалист по промышленной безопасности",
+"dative": "Специалист по промышленной безопасности",
+"accusative": "Специалист по промышленной безопасности",
+"ablative": "Специалист по промышленной безопасности",
+"prepositional": "Специалист по промышленной безопасности"
+}
+},
+{
+"postUID": "60e6be58-e065-11e9-8132-00155d630402",
+"postName": "Экономист по договорной и претензионной работе",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "Экономист по договорной и претензионной работе",
+"genitive": "Экономист по договорной и претензионной работе",
+"dative": "Экономист по договорной и претензионной работе",
+"accusative": "Экономист по договорной и претензионной работе",
+"ablative": "Экономист по договорной и претензионной работе",
+"prepositional": "Экономист по договорной и претензионной работе"
+}
+},
+{
+"postUID": "bc3d9fa4-1216-11eb-80ff-1831bfcfda3c",
+"postName": "Электромонтер по ремонту и обслуживанию электрооборудования",
+"organizationUID": "3e7ef6e7-9c13-11e9-812f-00155d630402",
+"organizationINN": "7807227475",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+
+
+{
+"postUID": "",
+"postName": "",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "",
+"genitive": "",
+"dative": "",
+"accusative": "",
+"ablative": "",
+"prepositional": ""
+}
+},
+{
+"postUID": "db46bb19-23a8-11e9-8111-00155d630402",
+"postName": "Бухгалтер",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Бухгалтер",
+"genitive": "Бухгалтера",
+"dative": "Бухгалтеру",
+"accusative": "Бухгалтера",
+"ablative": "Бухгалтером",
+"prepositional": "Бухгалтере"
+}
+},
+{
+"postUID": "db46bb16-23a8-11e9-8111-00155d630402",
+"postName": "Генеральный директор",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Генеральный директор",
+"genitive": "Генеральный директор",
+"dative": "Генеральный директор",
+"accusative": "Генеральный директор",
+"ablative": "Генеральный директор",
+"prepositional": "Генеральный директор"
+}
+},
+{
+"postUID": "84923926-5151-11ed-8179-00155d630402",
+"postName": "Главный бухгалтер",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Главный бухгалтер",
+"genitive": "Главного бухгалтера",
+"dative": "Главному бухгалтеру",
+"accusative": "Главного бухгалтера",
+"ablative": "Главным бухгалтером",
+"prepositional": "Главном бухгалтере"
+}
+},
+{
+"postUID": "c9497085-f2c1-11ec-8173-00155d630402",
+"postName": "Главный специалист по охране труда и промышленной безопасности",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Главный специалист по охране труда и промышленной безопасности",
+"genitive": "Главного специалиста по охране труда и промышленной безопасности",
+"dative": "Главному специалисту по охране труда и промышленной безопасности",
+"accusative": "Главного специалиста по охране труда и промышленной безопасности",
+"ablative": "Главным специалистом по охране труда и промышленной безопасности",
+"prepositional": "Главном специалисте по охране труда и промышленной безопасности"
+}
+},
+{
+"postUID": "db46bb17-23a8-11e9-8111-00155d630402",
+"postName": "Заместитель генерального директора",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Заместитель генерального директора",
+"genitive": "Заместитель генерального директора",
+"dative": "Заместитель генерального директора",
+"accusative": "Заместитель генерального директора",
+"ablative": "Заместитель генерального директора",
+"prepositional": "Заместитель генерального директора"
+}
+},
+{
+"postUID": "9c42913f-5e40-11ec-8165-00155d630402",
+"postName": "Заместитель главного бухгалтера",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Заместитель главного бухгалтера",
+"genitive": "Заместителя главного бухгалтера",
+"dative": "Заместителю главного бухгалтера",
+"accusative": "Заместителя главного бухгалтера",
+"ablative": "Заместителем главного бухгалтера",
+"prepositional": "Заместителе главного бухгалтера"
+}
+},
+{
+"postUID": "db46bb1b-23a8-11e9-8111-00155d630402",
+"postName": "Копровщик",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Копровщик",
+"genitive": "Копровщика",
+"dative": "Копровщику",
+"accusative": "Копровщика",
+"ablative": "Копровщиком",
+"prepositional": "Копровщике"
+}
+},
+{
+"postUID": "db46bb1c-23a8-11e9-8111-00155d630402",
+"postName": "Машинист копра",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Машинист копра",
+"genitive": "Машинист копра",
+"dative": "Машинист копра",
+"accusative": "Машинист копра",
+"ablative": "Машинист копра",
+"prepositional": "Машинист копра"
+}
+},
+{
+"postUID": "db46bb1d-23a8-11e9-8111-00155d630402",
+"postName": "Машинист крана",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Машинист крана",
+"genitive": "Машинист крана",
+"dative": "Машинист крана",
+"accusative": "Машинист крана",
+"ablative": "Машинист крана",
+"prepositional": "Машинист крана"
+}
+},
+{
+"postUID": "db46bb1e-23a8-11e9-8111-00155d630402",
+"postName": "Машинист экскаватора",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Машинист экскаватора",
+"genitive": "Машинист экскаватора",
+"dative": "Машинист экскаватора",
+"accusative": "Машинист экскаватора",
+"ablative": "Машинист экскаватора",
+"prepositional": "Машинист экскаватора"
+}
+},
+{
+"postUID": "db46bb1a-23a8-11e9-8111-00155d630402",
+"postName": "Механик",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Механик",
+"genitive": "Механика",
+"dative": "Механику",
+"accusative": "Механика",
+"ablative": "Механиком",
+"prepositional": "Механике"
+}
+},
+{
+"postUID": "109705ce-836d-11e9-8123-00155d630402",
+"postName": "Начальник лаборатории неразрушающего контроля",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Начальник лаборатории неразрушающего контроля",
+"genitive": "Начальник лаборатории неразрушающего контроля",
+"dative": "Начальник лаборатории неразрушающего контроля",
+"accusative": "Начальник лаборатории неразрушающего контроля",
+"ablative": "Начальник лаборатории неразрушающего контроля",
+"prepositional": "Начальник лаборатории неразрушающего контроля"
+}
+},
+{
+"postUID": "5ada13de-bcd2-11e9-8130-00155d630402",
+"postName": "Начальник участка",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Начальник участка",
+"genitive": "Начальник участка",
+"dative": "Начальник участка",
+"accusative": "Начальник участка",
+"ablative": "Начальник участка",
+"prepositional": "Начальник участка"
+}
+},
+{
+"postUID": "f56c9791-9a66-11ea-8141-00155d630402",
+"postName": "Специалист по охране труда и промышленной безопасности",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Специалист по охране труда и промышленной безопасности",
+"genitive": "Специалиста по охране труда и промышленной безопасности",
+"dative": "Специалисту по охране труда и промышленной безопасности",
+"accusative": "Специалиста по охране труда и промышленной безопасности",
+"ablative": "Специалистом по охране труда и промышленной безопасности",
+"prepositional": "Специалисте по охране труда и промышленной безопасности"
+}
+},
+{
+"postUID": "db46bb18-23a8-11e9-8111-00155d630402",
+"postName": "Технический директор",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Технический директор",
+"genitive": "Технический директор",
+"dative": "Технический директор",
+"accusative": "Технический директор",
+"ablative": "Технический директор",
+"prepositional": "Технический директор"
+}
+},
+{
+"postUID": "233a66e8-23c0-11e9-8111-00155d630402",
+"postName": "Электрослесарь по ремонту электрооборудования",
+"organizationUID": "db46bb0f-23a8-11e9-8111-00155d630402",
+"organizationINN": "7842528806",
+"inflection": {
+"nominative": "Электрослесарь по ремонту электрооборудования",
+"genitive": "Электрослесарь по ремонту электрооборудования",
+"dative": "Электрослесарь по ремонту электрооборудования",
+"accusative": "Электрослесарь по ремонту электрооборудования",
+"ablative": "Электрослесарь по ремонту электрооборудования",
+"prepositional": "Электрослесарь по ремонту электрооборудования"
+}
+},
+{
+"postUID": "7fc0bc2e-8fea-11ed-80bb-000c29565159",
+"postName": "Машинист крана автомобильного",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"inflection": {
+"nominative": "Машинист крана автомобильного",
+"genitive": "Машиниста крана автомобильного",
+"dative": "Машинисту крана автомобильного",
+"accusative": "Машиниста крана автомобильного",
+"ablative": "Машинистом крана автомобильного",
+"prepositional": "Машинисте крана автомобильного"
 }
 }
 ]

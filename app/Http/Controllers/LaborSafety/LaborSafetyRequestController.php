@@ -277,8 +277,8 @@ class LaborSafetyHtml extends Html
             return array(
                 'type'   => 'multilevel',
                 'levels' => array(
-                    array('format' => NumberFormat::DECIMAL, 'text' => '%1.', 'alignment' => 'left',  'tabPos' => 720,  'left' => 720,  'hanging' => 360),
-                    array('format' => NumberFormat::DECIMAL, 'text' => '%1.%2.', 'alignment' => 'left',  'tabPos' => 1440, 'left' => 1440, 'hanging' => 360),
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%1.', 'alignment' => 'right',  'tabPos' => 720,  'left' => 720,  'hanging' => 180),
+                    array('format' => NumberFormat::DECIMAL, 'text' => '%1.%2.', 'alignment' => 'right',  'tabPos' => 1440, 'left' => 1440, 'hanging' => 180),
                     array('format' => NumberFormat::BULLET,  'text' => '— ', 'alignment' => 'right', 'tabPos' => 2160, 'left' => 2160, 'hanging' => 180),
                     array('format' => NumberFormat::DECIMAL, 'text' => '%4.', 'alignment' => 'left',  'tabPos' => 2880, 'left' => 2880, 'hanging' => 360),
                     array('format' => NumberFormat::DECIMAL, 'text' => '%5.', 'alignment' => 'left',  'tabPos' => 3600, 'left' => 3600, 'hanging' => 360),
@@ -304,6 +304,27 @@ class LaborSafetyHtml extends Html
                 array('format' => NumberFormat::BULLET, 'text' => '', 'alignment' => 'left', 'tabPos' => 6480, 'left' => 6480, 'hanging' => 360, 'font' => 'Wingdings',   'hint' => 'default'),
             ),
         );
+    }
+
+    /**
+     * Parse list item node
+     *
+     * @param \DOMNode $node
+     * @param \PhpOffice\PhpWord\Element\AbstractContainer $element
+     * @param array &$styles
+     * @param array $data
+     */
+    protected static function parseListItem($node, $element, &$styles, $data)
+    {
+        $styles['paragraph'] = ['align' => 'both'];
+
+        $cNodes = $node->childNodes;
+        if (!empty($cNodes)) {
+            $listRun = $element->addListItemRun($data['listdepth'], $styles['list'], $styles['paragraph']);
+            foreach ($cNodes as $cNode) {
+                self::parseNode($cNode, $listRun, $styles, $data);
+            }
+        }
     }
 }
 
@@ -404,6 +425,28 @@ class LaborSafetyRequestController extends Controller
                 $newWorker->save();
             }
 
+            if (isset($laborSafetyRequestRow->project_manager_employee_id)) {
+                $newWorker = new LaborSafetyRequestWorker(
+                    [
+                        'request_id' => $laborSafetyRequestRow->id,
+                        'worker_employee_id' => $laborSafetyRequestRow->project_manager_employee_id,
+                        'worker_type_id' => 9
+                    ]
+                );
+                $newWorker->save();
+            }
+
+            if (isset($laborSafetyRequestRow->sub_project_manager_employee_id)) {
+                $newWorker = new LaborSafetyRequestWorker(
+                    [
+                        'request_id' => $laborSafetyRequestRow->id,
+                        'worker_employee_id' => $laborSafetyRequestRow->sub_project_manager_employee_id,
+                        'worker_type_id' => 10
+                    ]
+                );
+                $newWorker->save();
+            }
+
             foreach ($workers as $worker) {
                 $newWorker = new LaborSafetyRequestWorker(
                     [
@@ -447,7 +490,6 @@ class LaborSafetyRequestController extends Controller
 
         LaborSafetyOrderWorker::where('request_id', '=', $id)->forceDelete();
         LaborSafetyRequestWorker::where('request_id', '=', $id)->forceDelete();
-
 
         if (isset($workers)) {
             foreach ($workers as $worker) {
@@ -532,6 +574,22 @@ class LaborSafetyRequestController extends Controller
         return $resultHtml;
     }
 
+    public function getResponsibleEmployeeForOrder($request, $order, $isSubresponsible) {
+        $workerTypes = !$isSubresponsible ? [1,9] : [2,10];
+
+        $orderWorker = LaborSafetyOrderWorker::leftJoin('labor_safety_request_workers', 'labor_safety_order_workers.requests_worker_id', '=', 'labor_safety_request_workers.id')
+            ->where('labor_safety_order_workers.request_id', '=', $request->id)
+            ->where('labor_safety_order_workers.order_type_id', '=', $order->order_type_id)
+            ->whereIn('labor_safety_request_workers.worker_type_id', $workerTypes)
+            ->orderByDesc('labor_safety_request_workers.worker_type_id')
+            ->select(['worker_employee_id'])
+            ->first();
+
+        if (isset($orderWorker)) {
+            return Employee::find($orderWorker->worker_employee_id);
+        }
+    }
+
     /**
      * @throws \Exception
      */
@@ -540,19 +598,9 @@ class LaborSafetyRequestController extends Controller
         $variables = $this->getArrayOfTemplateVariables($orderTemplate);
         $projectObject = ProjectObject::find($request->project_object_id);
 
-        $responsibleEmployee = Employee::find(LaborSafetyRequestWorker::where('request_id', '=', $request->id)
-            ->where('worker_type_id', '=', 1)
-            ->get()
-            ->first()
-            ->worker_employee_id);
+        $responsibleEmployee = $this->getResponsibleEmployeeForOrder($request, $order, false);
 
-        $subResponsibleWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
-            ->where('worker_type_id', '=', 2)
-            ->get()
-            ->first();
-        if (isset($subResponsibleWorker)) {
-            $subResponsibleEmployee = Employee::find($subResponsibleWorker->worker_employee_id);
-        }
+        $subResponsibleEmployee = $this->getResponsibleEmployeeForOrder($request, $order, true);
 
         $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
@@ -809,10 +857,18 @@ class LaborSafetyRequestController extends Controller
 
         foreach ($workers as $worker) {
             switch ($order->order_type_id) {
+                case 10: //СВ
+                case 11: //Б-ОТ
+                case 12: //ПС
+                    if ($worker->worker_type_id != 3) {
+                        continue 2;
+                    }
+                    break;
                 case 20:
                     if ($worker->worker_type_id == 6) {
                         continue 2;
                     }
+                    break;
             }
 
             $employeeId = LaborSafetyRequestWorker::find($worker->requests_worker_id)->worker_employee_id;
@@ -1027,21 +1083,27 @@ class LaborSafetyRequestController extends Controller
 
         $phpWord = new PhpWord();
 
+        $title = 'Список приказов №' . $request-> order_number;
+
         $phpWord->setDefaultParagraphStyle(["spaceBefore" => 0, "spaceAfter" => 0]);
         $phpWord->setDefaultFontName('Calibri');
 
         $proofState = new ProofState();
         $proofState->setGrammar(ProofState::CLEAN);
         $proofState->setSpelling(ProofState::CLEAN);
+
         $phpWord->getSettings()->setDecimalSymbol(',');
         $phpWord->getSettings()->setThemeFontLang(new Language(Language::RU_RU));
         $phpWord->getSettings()->setProofState($proofState);
+
+        $phpWord->getDocInfo()->setCreator(Auth::user()->full_name);
+        $phpWord->getDocInfo()->setCompany(Company::find($request->company_id)->name);
 
         $section = $phpWord->addSection();
 
         $LaborSafetyHtml = new LaborSafetyHtml();
         $LaborSafetyHtml->addHtml($section, $html, false, false);
-        $phpWord->save('Список приказов №' . $request-> order_number. '.docx', 'Word2007', true);
+        $phpWord->save($title. '.docx', 'Word2007', true);
         exit;
     }
 }

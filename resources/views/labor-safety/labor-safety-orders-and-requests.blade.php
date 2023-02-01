@@ -303,6 +303,7 @@
                                 text: "Роль",
                             },
                             editorType: "dxSelectBox",
+                            value: 3,
                             editorOptions: {
                                 dataSource: new DevExpress.data.DataSource({
                                     store: workersTypesStore,
@@ -384,6 +385,52 @@
                             }
                         },
                         {
+                            dataField: "project_manager_employee_id",
+                            label: {
+                                text: "Руководитель проекта",
+                            },
+                            editorType: "dxSelectBox",
+                            visible: typeof (currentEditingRowKey) === 'undefined',
+                            editorOptions: {
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: new DevExpress.data.CustomStore({
+                                        key: "id",
+                                        loadMode: "raw",
+                                        load: function (loadOptions) {
+                                            return $.getJSON("{{route('employees.list')}}",
+                                                {data: JSON.stringify(loadOptions)});
+                                        },
+                                    })
+                                }),
+                                displayExpr: "employee_1c_name",
+                                valueExpr: "id",
+                                searchEnabled: true
+                            }
+                        },
+                        {
+                            dataField: "sub_project_manager_employee_id",
+                            label: {
+                                text: "Зам. руководителя проекта",
+                            },
+                            editorType: "dxSelectBox",
+                            visible: typeof (currentEditingRowKey) === 'undefined',
+                            editorOptions: {
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: new DevExpress.data.CustomStore({
+                                        key: "id",
+                                        loadMode: "raw",
+                                        load: function (loadOptions) {
+                                            return $.getJSON("{{route('employees.list')}}",
+                                                {data: JSON.stringify(loadOptions)});
+                                        },
+                                    })
+                                }),
+                                displayExpr: "employee_1c_name",
+                                valueExpr: "id",
+                                searchEnabled: true
+                            }
+                        },
+                        {
                             dataField: "responsible_employee_id",
                             label: {
                                 text: "Ответственный сотрудник",
@@ -430,7 +477,7 @@
                             }
                         },
                         {
-                            colSpan: 2,
+                            colSpan: 4,
                             itemType: "empty",
                             visible: typeof (currentEditingRowKey) === 'undefined',
                         },
@@ -560,6 +607,14 @@
                                     },
                                     {
                                         dataField: "sub_responsible_employee_id",
+                                        visible: false
+                                    },
+                                    {
+                                        dataField: "project_manager_employee_id",
+                                        visible: false
+                                    },
+                                    {
+                                        dataField: "sub_project_manager_employee_id",
                                         visible: false
                                     },
                                     {
@@ -703,7 +758,7 @@
                 let config = getWorkersSectionConfigForWorkersEditing(requestStatusId);
 
                 if ((typeof (currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
-                    config.editorOptions.columns = getWorkersColumnsForDocumentGeneration();
+                    config.editorOptions.columns = getWorkersColumnsForDocumentGeneration(requestStatusId);
                     config.editorOptions.editing.allowUpdating = !isRowReadOnly(requestStatusId);
                     config.editorOptions.editing.allowDeleting = !isRowReadOnly(requestStatusId);
                     config.editorOptions.editing.mode = 'cell';
@@ -737,8 +792,24 @@
                         onDisposing: (e) => {
                             requestWorkersGrid = undefined;
                         },
+                        onSaved: (e) => {
+                            let canGenerateDocuments = false;
+                            @can('labor_safety_generate_documents_access')
+                                canGenerateDocuments = true;
+                            @endcan
+
+                            if ((typeof (currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
+                                e.component.option("editing.mode", "cell");
+                            } else {
+                                e.component.option("editing.mode", "popup");
+                            }
+                        },
                         onSaving: (e) => {
                             if (e.changes.length !== 0) {
+                                if (e.changes[0].type === "remove") {
+                                    return;
+                                }
+
                                 employeesDataSource.store().byKey(e.changes[0].data.worker_employee_id).then(
                                     (dataItem => {
                                         e.changes[0].data.employee_1c_name = dataItem.employee_1c_name;
@@ -773,18 +844,6 @@
                                         }
                                     })
                                 )
-                            }
-                        },
-                        onSaved: (e) => {
-                            let canGenerateDocuments = false;
-                            @can('labor_safety_generate_documents_access')
-                                canGenerateDocuments = true;
-                            @endcan
-
-                            if ((typeof (currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
-                                e.component.option("editing.mode", "cell");
-                            } else {
-                                e.component.option("editing.mode", "popup");
                             }
                         },
                         editing: {
@@ -832,7 +891,7 @@
                 }
             }
 
-            function getWorkersColumnsForDocumentGeneration() {
+            function getWorkersColumnsForDocumentGeneration(requestStatusId) {
                 return [
                     {
                         dataField: "worker_employee_id",
@@ -921,7 +980,10 @@
                         visible: true,
                         buttons: [
                             {
-                                name: 'delete'
+                                name: 'delete',
+                                visible: (e) => {
+                                    return !isRowReadOnly(requestStatusId) && ![1,2,9,10].includes(e.row.data.employee_role_id)
+                                }
                             }
                         ],
                         headerCellTemplate: (container, options) => {

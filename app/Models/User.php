@@ -828,7 +828,10 @@ class User extends Authenticatable
      * @throws Exception
      */
     public function format(string $format = 'LFP', $declension = null) {
-        $fullName = $this->long_full_name;
+        $patronymicExcludes = ['Угли', 'Оглы', 'Оглу'];
+
+        $fullName = str_replace($patronymicExcludes, '', $this->long_full_name);
+
         if (!empty($declension)) {
             $fullName = inflectName($fullName, $declension);
         }
