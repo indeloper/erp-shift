@@ -872,6 +872,8 @@ class User extends Authenticatable
             $result = str_replace('P', '', $result);
         }
 
+        $result = str_replace('. .', '.', $result);
+
         return $result;
     }
 }

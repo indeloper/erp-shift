@@ -19,6 +19,7 @@ use App\Models\Employees\Employees1cPost;
 use App\Models\Permission;
 use App\Models\Project;
 use App\Models\ProjectObject;
+use App\Models\User;
 use App\Models\UserPermission;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -575,7 +576,13 @@ class LaborSafetyRequestController extends Controller
     }
 
     public function getResponsibleEmployeeForOrder($request, $order, $isSubresponsible) {
-        $workerTypes = !$isSubresponsible ? [1,9] : [2,10];
+        switch ($order->order_type_id) {
+            case 5:
+                $workerTypes = !$isSubresponsible ? [1] : [2];
+                break;
+            default:
+                $workerTypes = !$isSubresponsible ? [1,9] : [2,10];
+        }
 
         $orderWorker = LaborSafetyOrderWorker::leftJoin('labor_safety_request_workers', 'labor_safety_order_workers.requests_worker_id', '=', 'labor_safety_request_workers.id')
             ->where('labor_safety_order_workers.request_id', '=', $request->id)
@@ -640,7 +647,7 @@ class LaborSafetyRequestController extends Controller
                     break;
                 case "{responsible_employee_full_name}":
                     if (isset($responsibleEmployee)) {
-                        $responsibleEmployeeName = $responsibleEmployee->format('L F P', 'винительный');
+                        $responsibleEmployeeName = $responsibleEmployee->format('L F P', 'винительный');
                         $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
                     }
                     break;
@@ -664,7 +671,7 @@ class LaborSafetyRequestController extends Controller
                     break;
                 case "{subresponsible_employee_full_name}":
                     if (isset($subResponsibleEmployee)) {
-                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('L F P', 'винительный');
+                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('L F P', 'винительный');
                         $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
                     }
                     break;
@@ -688,10 +695,10 @@ class LaborSafetyRequestController extends Controller
                     }
                     break;
                 case "{object_responsible_users}":
-                    $objectResponsibleEmployees = $this->getObjectResponsibleEmployees($request);
+                    $objectResponsibleEmployees = $this->getObjectResponsibleEmployees($request, $order);
                     $objectResponsibleEmployeesHtml = '';
                     foreach ($objectResponsibleEmployees as $objectResponsibleEmployee) {
-                        $objectResponsibleEmployeePost = Employees1cPost::find($objectResponsibleEmployee->employee_1c_post_id)->name;
+                        $objectResponsibleEmployeePost = Employees1cPost::find($objectResponsibleEmployee->employee_1c_post_id)->getInflection('винительный');
                         $objectResponsibleEmployeesHtml .= ' — ' . $objectResponsibleEmployeePost . ' ' . $objectResponsibleEmployee->format('L F P', 'родительный');
                         $objectResponsibleEmployeesHtml .= '<br/>';
                     }
@@ -715,13 +722,60 @@ class LaborSafetyRequestController extends Controller
                     //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
                     break;
                 case "{main_labor_safety_employee_post}":
-                    //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 5)
+                        ->first();
+
+                    if (isset($laborSafetyRequestWorker)) {
+                        $responsibleMainLaborSafetyEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+
+                        $responsibleMainLaborSafetyPost = Employees1cPost::find($responsibleMainLaborSafetyEmployee->employee_1c_post_id);
+
+                        $orderTemplate = str_replace($variable, $this->mb_lcfirst($responsibleMainLaborSafetyPost->getInflection('винительный')), $orderTemplate);
+                    }
                     break;
                 case "{main_labor_safety_employee_full_name}":
-                    //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 5)
+                        ->first();
+
+                    if (isset($laborSafetyRequestWorker)) {
+                        $responsibleMainLaborSafetyEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+                        $orderTemplate = str_replace($variable, $responsibleMainLaborSafetyEmployee->format('L F P', 'винительный'), $orderTemplate);
+                    }
                     break;
                 case "{main_labor_safety_employee_phone}":
-                    //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 5)
+                        ->first();
+
+                    if (isset($laborSafetyRequestWorker)) {
+                        $responsibleMainLaborSafetyUser = User::find(Employee::find($laborSafetyRequestWorker->worker_employee_id)->user_id);
+                        $orderTemplate = str_replace($variable, $responsibleMainLaborSafetyUser->person_phone, $orderTemplate);
+                    }
+                    break;
+                case "{responsible_geodesist_post}":
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 11)
+                        ->first();
+
+                    if (isset($laborSafetyRequestWorker)) {
+                        $responsibleEngineerEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+
+                        $responsibleEngineerEmployeePost = Employees1cPost::find($responsibleEngineerEmployee->employee_1c_post_id);
+
+                        $orderTemplate = str_replace($variable, $this->mb_lcfirst($responsibleEngineerEmployeePost->getInflection('винительный')), $orderTemplate);
+                    }
+                    break;
+                case "{responsible_geodesist_full_name}":
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 11)
+                        ->first();
+
+                    if (isset($laborSafetyRequestWorker)) {
+                        $responsibleEngineerEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+                        $orderTemplate = str_replace($variable, $responsibleEngineerEmployee->format('L F P', 'винительный'), $orderTemplate);
+                    }
                     break;
                 case "{responsible_engineer_post}":
                     $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
@@ -830,14 +884,17 @@ class LaborSafetyRequestController extends Controller
             mb_substr($string, 1, mb_strlen($string, $charset), $charset);
     }
 
-    function getObjectResponsibleEmployees($request)
+    function getObjectResponsibleEmployees($request, $order)
     {
-        return Employee::where('object_id', $request->project_object_id)
-            ->rightJoin('object_responsible_users', 'object_responsible_users.user_id', '=', 'employees.user_id')
+        return Employee::rightJoin('labor_safety_request_workers', 'labor_safety_request_workers.worker_employee_id', '=', 'employees.id')
+            ->rightJoin('labor_safety_order_workers', 'labor_safety_order_workers.requests_worker_id', '=', 'labor_safety_request_workers.id')
             ->rightJoin('users', function ($join) {
                 $join->on('employees.user_id', '=', 'users.id');
                 $join->on('company_id', '=', 'users.company');
             })
+            ->where('labor_safety_order_workers.request_id', '=', $request->id)
+            ->whereIn('labor_safety_request_workers.worker_type_id', [9, 10])
+            ->where('labor_safety_order_workers.order_type_id', '=', $order->order_type_id)
             ->get('employees.*');
     }
 

@@ -405,7 +405,8 @@
                                 displayExpr: "employee_1c_name",
                                 valueExpr: "id",
                                 searchEnabled: true
-                            }
+                            },
+                            validationRules: [{type: "required"}]
                         },
                         {
                             dataField: "sub_project_manager_employee_id",
@@ -451,7 +452,8 @@
                                 displayExpr: "employee_1c_name",
                                 valueExpr: "id",
                                 searchEnabled: true
-                            }
+                            },
+                            validationRules: [{type: "required"}]
                         },
                         {
                             dataField: "sub_responsible_employee_id",
@@ -841,6 +843,9 @@
                                             case 8:
                                                 e.changes[0].data.orders.push(24);
                                                 break;
+                                            case 11:
+                                                e.changes[0].data.orders.push(14);
+                                                break;
                                         }
                                     })
                                 )
@@ -886,6 +891,14 @@
                         },
                         paging: {
                             enabled: false
+                        },
+                        onEditorPreparing: (e) => {
+                            if (e.dataField === "quantity" && e.parentType === "dataRow") {
+                                if (e.row.data.accounting_type === 2 && e.row.data.edit_states.indexOf("addedByRecipient") === -1) {
+                                    e.cancel = true;
+                                    e.editorElement.append($(`<div>${e.row.data.quantity} ${e.row.data.measure_unit_value}</div>`))
+                                }
+                            }
                         }
                     }
                 }
@@ -898,7 +911,6 @@
                         dataType: "string",
                         caption: "Сотрудники",
                         width: "40%",
-                        allowEditing: true,
                         cellTemplate: (container, options) => {
                             $(`<div class="employee-name">${options.data.employee_1c_name}</div>`)
                                 .appendTo(container);
