@@ -575,10 +575,13 @@ class LaborSafetyRequestController extends Controller
         return $resultHtml;
     }
 
-    public function getResponsibleEmployeeForOrder($request, $order, $isSubresponsible) {
+    public function getResponsibleEmployeeForOrder($request, $order, $isSubresponsible, $isForeman = false) {
         switch ($order->order_type_id) {
             case 5:
                 $workerTypes = !$isSubresponsible ? [1] : [2];
+                break;
+            case 27:
+                $workerTypes = !$isSubresponsible ? ($isForeman ? [1] : [9]) : ($isForeman ? [2] : [10]);
                 break;
             default:
                 $workerTypes = !$isSubresponsible ? [1,9] : [2,10];
@@ -681,6 +684,64 @@ class LaborSafetyRequestController extends Controller
                         $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
                     }
                     break;
+                case "{object_responsible_user_post_name}":
+                case "{object_responsible_user_full_name}":
+                case "{object_responsible_user_post_name_initials_after}":
+                    $objectResponsibleEmployee = $this->getResponsibleEmployeeForOrder($request, $order, false, false);
+                    if (isset($objectResponsibleEmployee)) {
+                        switch ($variable) {
+                            case "{object_responsible_user_post_name}":
+                                $objectResponsibleEmployeePostName = $this->mb_lcfirst(Employees1cPost::find($objectResponsibleEmployee->employee_1c_post_id)->getInflection('винительный'));
+                                $orderTemplate = str_replace($variable, $objectResponsibleEmployeePostName, $orderTemplate);
+                                break;
+                            case "{object_responsible_user_full_name}":
+                                $objectResponsibleEmployeeName = $objectResponsibleEmployee->format('L F P', 'винительный');
+                                $orderTemplate = str_replace($variable, $objectResponsibleEmployeeName, $orderTemplate);
+                                break;
+                            case "{object_responsible_user_post_name_initials_after}":
+                                $objectResponsibleEmployeeName = $objectResponsibleEmployee->format('L f. p.', 'винительный');
+                                $orderTemplate = str_replace($variable, $objectResponsibleEmployeeName, $orderTemplate);
+                                break;
+                        }
+                    }
+                    break;
+                case "{foreman_user_post_name}":
+                case "{foreman_user_full_name}":
+                    $foremanEmployee = $this->getResponsibleEmployeeForOrder($request, $order, false, true);
+                    switch ($variable) {
+                        case "{foreman_user_post_name}":
+                            $foremanEmployeePostName = $this->mb_lcfirst(Employees1cPost::find($foremanEmployee->employee_1c_post_id)->getInflection('винительный'));
+                            $orderTemplate = str_replace($variable, $foremanEmployeePostName, $orderTemplate);
+                            break;
+                        case "{foreman_user_full_name}":
+                            $foremanEmployeeName = $foremanEmployee->format('L F P', 'винительный');
+                            $orderTemplate = str_replace($variable, $foremanEmployeeName, $orderTemplate);
+                            break;
+                    }
+                    break;
+                case "{sub_foreman_user_post_name}":
+                case "{sub_foreman_user_full_name}":
+                    $subForemanEmployee = $this->getResponsibleEmployeeForOrder($request, $order, true, true);
+                    if (isset($subForemanEmployee)) {
+                        switch ($variable) {
+                            case "{sub_foreman_user_post_name}":
+                                $subForemanEmployeePostName = $this->mb_lcfirst(Employees1cPost::find($subForemanEmployee->employee_1c_post_id)->getInflection('винительный'));
+                                $orderTemplate = str_replace($variable, $subForemanEmployeePostName, $orderTemplate);
+                                break;
+                            case "{sub_foreman_user_full_name}":
+                                $subForemanEmployeeName = $subForemanEmployee->format('L F P', 'винительный');
+                                $orderTemplate = str_replace($variable, $subForemanEmployeeName, $orderTemplate);
+                                break;
+                        }
+                    }
+
+                    if (isset($subForemanEmployee) && ($this->isEmployeeParticipatesInOrder($request->id, $subForemanEmployee->id, $order->order_type_id))) {
+                        $orderTemplate = str_replace(['[optional-section-start|subresponsible_foreman]', '[optional-section-end|subresponsible_foreman]'], '', $orderTemplate);
+                    } else {
+                        $pattern = '/\[optional-section-start\|subresponsible_foreman].*?\[optional-section-end\|subresponsible_foreman]/s';
+                        $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+                    }
+                    break;
                 case "{project_object_name}":
                     $orderTemplate = str_replace($variable, $projectObject->name, $orderTemplate);
                     break;
@@ -717,9 +778,6 @@ class LaborSafetyRequestController extends Controller
                     $company = Company::find($request->company_id);
 
                     $orderTemplate = str_replace($variable, $company->name, $orderTemplate);
-                    break;
-                case "{object_responsible_employee_post}":
-                    //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
                     break;
                 case "{main_labor_safety_employee_post}":
                     $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
@@ -850,7 +908,14 @@ class LaborSafetyRequestController extends Controller
                     //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
                     break;
                 case "{workers_list}":
-                    $orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
+                    $workersList = $this->getWorkersListForTemplate($request, $order);
+                    if (!empty($workersList)) {
+                        $orderTemplate = str_replace($variable, $workersList, $orderTemplate);
+                        $orderTemplate = str_replace(['[workers_list_section_start]', '[workers_list_section_end]'], '', $orderTemplate);
+                    } else {
+                        $pattern = '/\[workers_list_section_start].*?\[workers_list_section_end]/s';
+                        $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+                    }
                     break;
                 case "{sign_list}":
                     $orderTemplate = str_replace($variable, $this->getSignList($request, $order), $orderTemplate);
@@ -900,7 +965,7 @@ class LaborSafetyRequestController extends Controller
 
     function getWorkersListForTemplate($request, $order)
     {
-        $workersList = '<ol style="list-style-type: disc;">';
+        $workersList = "";
 
         $workers = LaborSafetyOrderWorker::where('labor_safety_order_workers.request_id', '=', $request->id)
             ->where('labor_safety_order_workers.order_type_id', '=', $order->order_type_id)
@@ -917,6 +982,7 @@ class LaborSafetyRequestController extends Controller
                 case 10: //СВ
                 case 11: //Б-ОТ
                 case 12: //ПС
+                case 27: //В
                     if ($worker->worker_type_id != 3) {
                         continue 2;
                     }
@@ -935,8 +1001,12 @@ class LaborSafetyRequestController extends Controller
             $workersList .= '<li>' . $postName . ' — ' . $employee->format('L F P', 'винительный') . ';</li>';
         }
 
-        $workersList .= '</ol>';
-        return $workersList;
+
+        if (!empty($workersList)) {
+            return '<ol style="list-style-type: disc;">' . $workersList . '</ol>';
+        } else {
+            return null;
+        }
     }
 
     function getSignList($request, $order)

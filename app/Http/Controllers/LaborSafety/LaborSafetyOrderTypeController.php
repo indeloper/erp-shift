@@ -28,10 +28,12 @@ class LaborSafetyOrderTypeController extends Controller
 
         return (new LaborSafetyOrderType())
             ->dxLoadOptions($loadOptions)
-            ->whereIn('order_type_category_id', [1,2,3,4,5,6,7,8,9,10,11])
+            ->whereNotIn('order_type_category_id', [11, 12])
+            ->orderBy("sort_order")
             ->get(
                 [
                     'id',
+                    'name',
                     'short_name'
                 ]
             )
