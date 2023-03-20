@@ -76,11 +76,19 @@
             color: #9b9797;
         }
 
+        .employee-name {
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
         .employee-post {
             font-size: smaller;
             font-style: oblique;
             color: #9b9797;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
+
 
         .tag-cell-editor {
             padding-left: 11px !important;
@@ -110,16 +118,12 @@
 
 @section('js_footer')
     <script>
-        let dataSourceLoadOptions = {};
-        let currentSelectedOrder = {};
         let employeesData = new Map();
         let currentEditingRowIndex;
         let currentEditingRowKey;
-        let selectedOrderTypes = [];
         let requestWorkersGrid;
         let isOrderNumberVisible = false;
         let editAction = "";
-
 
         let usersStore = new DevExpress.data.CustomStore({
             key: "id",
@@ -143,7 +147,21 @@
             store: employeesStore
         })
 
-        employeesDataSource.load();
+        let employeesStoreForSelectors = new DevExpress.data.CustomStore({
+            key: "id",
+            loadMode: "raw",
+            load: function (loadOptions) {
+                return $.getJSON("{{route('employees.list')}}",
+                    {data: JSON.stringify(loadOptions)});
+            }
+        });
+
+        let employeesDataSourceForSelectors = new DevExpress.data.DataSource({
+            store: employeesStoreForSelectors
+        })
+
+        employeesStore.load();
+        employeesStoreForSelectors.load();
 
         let statusesStore = new DevExpress.data.CustomStore({
             key: "id",
@@ -186,6 +204,7 @@
         let workersTypesDataSource = new DevExpress.data.DataSource({
             store: workersTypesStore
         })
+        workersTypesDataSource.load();
 
         let orderTypesData = [];
 
@@ -282,39 +301,9 @@
                     items: [
                         {
                             dataField: "worker_employee_id",
-                            label: {
-                                text: "Сотрудник",
-                            },
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: employeesStore,
-                                    paginate: true,
-                                    pageSize: 25,
-                                }),
-                                displayExpr: 'employee_extended_name',
-                                valueExpr: 'id',
-                                searchEnabled: true
-                            }
                         },
                         {
                             dataField: "employee_role_id",
-                            label: {
-                                text: "Роль",
-                            },
-                            editorType: "dxSelectBox",
-                            value: 3,
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: workersTypesStore,
-                                    paginate: true,
-                                    pageSize: 25,
-                                    filter: ["id", ">", 2]
-                                }),
-                                displayExpr: 'name',
-                                valueExpr: 'id',
-                                searchEnabled: true
-                            }
                         }
                     ]
                 }
@@ -356,12 +345,6 @@
                             editorType: "dxSelectBox",
                             editorOptions: {
                                 readOnly: isRowReadOnly(requestStatusId),
-                                dataSource: {
-                                    store: companiesStore
-                                },
-                                displayExpr: "name",
-                                valueExpr: "id",
-                                searchEnabled: true,
                             }
                         },
                         {
@@ -386,97 +369,19 @@
                         },
                         {
                             dataField: "project_manager_employee_id",
-                            label: {
-                                text: "Руководитель проекта",
-                            },
-                            editorType: "dxSelectBox",
                             visible: typeof (currentEditingRowKey) === 'undefined',
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.CustomStore({
-                                        key: "id",
-                                        loadMode: "raw",
-                                        load: function (loadOptions) {
-                                            return $.getJSON("{{route('employees.list')}}",
-                                                {data: JSON.stringify(loadOptions)});
-                                        },
-                                    })
-                                }),
-                                displayExpr: "employee_1c_name",
-                                valueExpr: "id",
-                                searchEnabled: true
-                            },
-                            validationRules: [{type: "required"}]
                         },
                         {
                             dataField: "sub_project_manager_employee_id",
-                            label: {
-                                text: "Зам. руководителя проекта",
-                            },
-                            editorType: "dxSelectBox",
                             visible: typeof (currentEditingRowKey) === 'undefined',
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.CustomStore({
-                                        key: "id",
-                                        loadMode: "raw",
-                                        load: function (loadOptions) {
-                                            return $.getJSON("{{route('employees.list')}}",
-                                                {data: JSON.stringify(loadOptions)});
-                                        },
-                                    })
-                                }),
-                                displayExpr: "employee_1c_name",
-                                valueExpr: "id",
-                                searchEnabled: true
-                            }
                         },
                         {
                             dataField: "responsible_employee_id",
-                            label: {
-                                text: "Ответственный сотрудник",
-                            },
-                            editorType: "dxSelectBox",
-                            visible: typeof (currentEditingRowKey) === 'undefined',
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.CustomStore({
-                                        key: "id",
-                                        loadMode: "raw",
-                                        load: function (loadOptions) {
-                                            return $.getJSON("{{route('employees.list')}}",
-                                                {data: JSON.stringify(loadOptions)});
-                                        },
-                                    })
-                                }),
-                                displayExpr: "employee_1c_name",
-                                valueExpr: "id",
-                                searchEnabled: true
-                            },
-                            validationRules: [{type: "required"}]
+                            visible: typeof (currentEditingRowKey) === 'undefined'
                         },
                         {
                             dataField: "sub_responsible_employee_id",
-                            label: {
-                                text: "Замещающий ответственного",
-                            },
                             visible: typeof (currentEditingRowKey) === 'undefined',
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                dataSource: new DevExpress.data.DataSource({
-                                    store: new DevExpress.data.CustomStore({
-                                        key: "id",
-                                        loadMode: "raw",
-                                        load: function (loadOptions) {
-                                            return $.getJSON("{{route('employees.list')}}",
-                                                {data: JSON.stringify(loadOptions)});
-                                        },
-                                    })
-                                }),
-                                displayExpr: "employee_1c_name",
-                                valueExpr: "id",
-                                searchEnabled: true
-                            }
                         },
                         {
                             colSpan: 4,
@@ -517,9 +422,6 @@
                                 groupPanel: {
                                     visible: false
                                 },
-                                paging: {
-                                    enabled: false
-                                },
                                 editing: {
                                     mode: 'popup',
                                     allowUpdating: true,
@@ -529,11 +431,26 @@
                                     popup: getRequestEditingPopup(),
                                     form: getRequestEditForm(),
                                 },
+                                remoteOperations: true,
+                                scrolling: {
+                                    mode: "virtual",
+                                    rowRenderingMode: "virtual",
+                                    useNative: false,
+                                    scrollByContent: true,
+                                    scrollByThumb: true,
+                                    showScrollbar: "onHover"
+                                },
+                                paging: {
+                                    enabled: true,
+                                    pageSize: 50
+                                },
                                 columns: [
                                     {
                                         dataField: "id",
                                         caption: "Идентификатор",
-                                        width: 70
+                                        width: 70,
+                                        sortIndex: 0,
+                                        sortOrder: "desc"
                                     },
                                     {
                                         dataField: "order_number",
@@ -605,19 +522,73 @@
                                     },
                                     {
                                         dataField: "responsible_employee_id",
-                                        visible: false
+                                        visible: false,
+                                        formItem: {
+                                            label: {
+                                                text: "Ответственный",
+                                            },
+                                            editorType: "dxSelectBox",
+                                            editorOptions: {
+                                                dataSource: employeesDataSourceForSelectors,
+                                                displayExpr: "employee_1c_name",
+                                                valueExpr: "id",
+                                                searchEnabled: true,
+                                                itemTemplate: getEmployeesSelectBoxTemplate
+                                            },
+                                            validationRules: [{type: "required"}]
+                                        }
                                     },
                                     {
                                         dataField: "sub_responsible_employee_id",
-                                        visible: false
+                                        visible: false,
+                                        formItem: {
+                                            label: {
+                                                text: "Замещающий ответственного",
+                                            },
+                                            editorType: "dxSelectBox",
+                                            editorOptions: {
+                                                dataSource: employeesDataSourceForSelectors,
+                                                displayExpr: "employee_1c_name",
+                                                valueExpr: "id",
+                                                searchEnabled: true,
+                                                itemTemplate: getEmployeesSelectBoxTemplate
+                                            }
+                                        }
                                     },
                                     {
                                         dataField: "project_manager_employee_id",
-                                        visible: false
+                                        visible: false,
+                                        formItem: {
+                                            label: {
+                                                text: "Руководитель проекта",
+                                            },
+                                            editorType: "dxSelectBox",
+                                            editorOptions: {
+                                                dataSource: employeesDataSourceForSelectors,
+                                                displayExpr: "employee_1c_name",
+                                                valueExpr: "id",
+                                                searchEnabled: true,
+                                                itemTemplate: getEmployeesSelectBoxTemplate
+                                            },
+                                            validationRules: [{type: "required"}]
+                                        }
                                     },
                                     {
                                         dataField: "sub_project_manager_employee_id",
-                                        visible: false
+                                        visible: false,
+                                        formItem: {
+                                            label: {
+                                                text: "Зам. Руководителя проекта",
+                                            },
+                                            editorType: "dxSelectBox",
+                                            editorOptions: {
+                                                dataSource: employeesDataSourceForSelectors,
+                                                displayExpr: "employee_1c_name",
+                                                valueExpr: "id",
+                                                searchEnabled: true,
+                                                itemTemplate: getEmployeesSelectBoxTemplate
+                                            }
+                                        }
                                     },
                                     {
                                         dataField: "request_status_id",
@@ -650,6 +621,12 @@
                                                 name: 'edit',
                                                 visible: (e) => {
                                                     return !isRowReadOnly(e.row.data.request_status_id)
+                                                },
+                                                onClick: (e) => {
+                                                    employeesDataSourceForSelectors.filter(["company_id", "=", e.row.data.company_id]);
+                                                    employeesDataSourceForSelectors.load()
+
+                                                    getRequestsGrid().editRow(e.row.rowIndex);
                                                 }
                                             },
                                             {
@@ -676,7 +653,20 @@
                                         ]
                                     }
                                 ],
+                                onEditorPreparing: function(e) {
+                                    if (e.dataField === "company_id" && e.parentType === "dataRow") {
+                                        e.editorOptions.onValueChanged = (args) => {
+                                            employeesDataSourceForSelectors.filter(["company_id", "=", args.value]);
+                                            employeesDataSourceForSelectors.load()
+
+                                            e.setValue(args.value)
+                                        }
+                                    }
+                                },
                                 onRowDblClick: function (e) {
+                                    employeesDataSourceForSelectors.filter(["company_id", "=", e.data.company_id]);
+                                    employeesDataSourceForSelectors.load()
+
                                     e.component.editRow(e.rowIndex);
                                 },
                                 onEditingStart: (e) => {
@@ -727,6 +717,9 @@
                         text: "Добавить",
                         icon: "fas fa-plus",
                         onClick: () => {
+                            employeesDataSourceForSelectors.filter(null);
+                            employeesDataSourceForSelectors.load();
+
                             currentEditingRowKey = undefined;
                             currentEditingRowIndex = undefined;
 
@@ -829,22 +822,22 @@
 
                                         switch (e.changes[0].data.employee_role_id) {
                                             case 4:
-                                                e.changes[0].data.orders.push(16);
+                                                e.changes[0].data.orders = [16];
                                                 break;
                                             case 5:
-                                                e.changes[0].data.orders.push(17);
+                                                e.changes[0].data.orders = [17];
                                                 break;
                                             case 6:
-                                                e.changes[0].data.orders.push(20);
+                                                e.changes[0].data.orders = [20];
                                                 break;
                                             case 7:
-                                                e.changes[0].data.orders.push(22);
+                                                e.changes[0].data.orders = [22];
                                                 break;
                                             case 8:
-                                                e.changes[0].data.orders.push(24);
+                                                e.changes[0].data.orders = [24];
                                                 break;
                                             case 11:
-                                                e.changes[0].data.orders.push(14);
+                                                e.changes[0].data.orders = [14];
                                                 break;
                                         }
                                     })
@@ -899,6 +892,9 @@
                                     e.editorElement.append($(`<div>${e.row.data.quantity} ${e.row.data.measure_unit_value}</div>`))
                                 }
                             }
+                        },
+                        onInitNewRow: (e) => {
+                            e.data.employee_role_id = 3
                         }
                     }
                 }
@@ -909,7 +905,7 @@
                     {
                         dataField: "worker_employee_id",
                         dataType: "string",
-                        caption: "Сотрудники",
+                        caption: "Сотрудник",
                         width: "40%",
                         cellTemplate: (container, options) => {
                             $(`<div class="employee-name">${options.data.employee_1c_name}</div>`)
@@ -921,6 +917,18 @@
                             $(`<div class="employee-post">${options.data.post_name} (${options.data.company_name})</div>`)
                                 .appendTo(container);
 
+                        },
+                        formItem: {
+                            label: {
+                                text: "Сотрудник",
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: employeesDataSourceForSelectors,
+                                displayExpr: 'employee_extended_name',
+                                valueExpr: 'id',
+                                searchEnabled: true
+                            }
                         },
                         validationRules: [{type: "required"}]
                     },
@@ -985,6 +993,31 @@
                     {
                         dataField: "employee_role_id",
                         visible: false,
+                        formItem: {
+                            label: {
+                                text: "Роль",
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: workersTypesStore,
+                                    paginate: true,
+                                    pageSize: 25,
+                                    filter: [
+                                        ["id", "<>", 1],
+                                        "and",
+                                        ["id", "<>", 2],
+                                        "and",
+                                        ["id", "<>", 9],
+                                        "and",
+                                        ["id", "<>", 10],
+                                    ]
+                                }),
+                                displayExpr: 'name',
+                                valueExpr: 'id',
+                                searchEnabled: true
+                            }
+                        }
                     },
                     {
                         type: 'buttons',
@@ -1023,17 +1056,62 @@
                 return [
                     {
                         dataField: "worker_employee_id",
-                        caption: "Сотрудники",
-                        lookup: {
-                            dataSource: {
-                                store: employeesStore,
-                                paginate: true,
-                                pageSize: 25,
+                        dataType: "string",
+                        caption: "Сотрудник",
+                        width: "40%",
+                        cellTemplate: (container, options) => {
+                            $(`<div class="employee-name">${options.data.employee_1c_name}</div>`)
+                                .appendTo(container);
+
+                            $(`<div class="employee-role">${options.data.employee_role}</div>`)
+                                .appendTo(container);
+
+                            $(`<div class="employee-post">${options.data.post_name} (${options.data.company_name})</div>`)
+                                .appendTo(container);
+
+                        },
+                        formItem: {
+                            label: {
+                                text: "Сотрудник",
                             },
-                            displayExpr: 'employee_extended_name',
-                            valueExpr: 'id'
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: employeesDataSourceForSelectors,
+                                displayExpr: 'employee_extended_name',
+                                valueExpr: 'id',
+                                searchEnabled: true
+                            }
                         },
                         validationRules: [{type: "required"}]
+                    },
+                    {
+                        dataField: "employee_role_id",
+                        visible: false,
+                        formItem: {
+                            label: {
+                                text: "Роль",
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: workersTypesStore,
+                                    paginate: true,
+                                    pageSize: 25,
+                                    filter: [
+                                        ["id", "<>", 1],
+                                        "and",
+                                        ["id", "<>", 2],
+                                        "and",
+                                        ["id", "<>", 9],
+                                        "and",
+                                        ["id", "<>", 10],
+                                    ]
+                                }),
+                                displayExpr: 'name',
+                                valueExpr: 'id',
+                                searchEnabled: true
+                            }
+                        }
                     },
                     {
                         type: 'buttons',
@@ -1042,14 +1120,14 @@
                         buttons: [
                             {
                                 name: 'edit',
-                                visible: () => {
-                                    return !isRowReadOnly(requestStatusId)
+                                visible: (e) => {
+                                    return !isRowReadOnly(requestStatusId) && ![1,2,9,10].includes(e.row.data.employee_role_id)
                                 }
                             },
                             {
                                 name: 'delete',
-                                visible: () => {
-                                    return !isRowReadOnly(requestStatusId)
+                                visible: (e) => {
+                                    return !isRowReadOnly(requestStatusId) && ![1,2,9,10].includes(e.row.data.employee_role_id)
                                 }
                             }
                         ],
@@ -1094,9 +1172,9 @@
 
             function getWorkersEditingPopup() {
                 return {
-                    title: "Заявка",
+                    title: "Сотрудник",
                     showTitle: true,
-                    width: "60%",
+                    width: "40%",
                     height: "auto",
                     showCloseButton: true,
                     position: {
@@ -1115,7 +1193,7 @@
                     result = true;
                 @endcan
 
-                    return result;
+                return result;
             }
 
             function isRowReadOnly(requestStatus) {
@@ -1130,7 +1208,7 @@
                         toolbar: 'bottom',
                         location: 'before',
                         widget: "dxButton",
-                        visible: isInEditing && !isRowReadOnly(requestStatus),
+                        visible: isInEditing && !isRowReadOnly(requestStatus) && isUserCanGenerateOrders(),
                         options: {
                             text: "Отменить заявку",
                             type: 'danger',
@@ -1152,7 +1230,7 @@
                         toolbar: 'bottom',
                         location: 'before',
                         widget: "dxButton",
-                        visible: isInEditing && !isRowReadOnly(requestStatus),
+                        visible: isInEditing && !isRowReadOnly(requestStatus) && isUserCanGenerateOrders(),
                         options: {
                             text: "Завершить",
                             type: 'default',
@@ -1180,16 +1258,14 @@
                             type: 'normal',
                             stylingMode: 'contained',
                             onClick: function () {
-                                requestWorkersGrid.saveEditData();
-
-                                if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
-                                    getRequestsGrid().cellValue(
-                                        currentEditingRowIndex,
-                                        "perform_orders",
-                                        isUserCanGenerateOrders()
-                                    )
-                                }
                                 editAction = "saveRequest";
+
+                                getRequestsGrid().cellValue(
+                                    currentEditingRowIndex,
+                                    "perform_orders",
+                                    isUserCanGenerateOrders() && currentEditingRowKey !== undefined
+                                )
+
                                 getRequestsGrid().saveEditData();
                             }
                         }
@@ -1209,6 +1285,11 @@
                         }
                     }
                 ]
+            }
+
+            function getEmployeesSelectBoxTemplate(data) {
+                return `<div class="employee-name">${data.employee_1c_name}</div>` +
+                `<div class="employee-post">${data.post_name} (${data.company_name})</div>`;
             }
         });
     </script>

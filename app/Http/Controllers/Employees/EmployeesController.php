@@ -38,6 +38,7 @@ class EmployeesController extends Controller
                 [
                     'employees.id',
                     'employee_1c_name',
+                    'companies.id as company_id',
                     'companies.name as company_name',
                     'employees_1c_posts.name as post_name',
                     DB::Raw("CONCAT(`employee_1c_name`, ' (', `companies`.`name`, ' | ', `employees_1c_posts`.`name`, ')') as `employee_extended_name`")
