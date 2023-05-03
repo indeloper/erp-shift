@@ -663,6 +663,8 @@ class LaborSafetyRequestController extends Controller
                     if (isset($responsibleEmployee)) {
                         $responsibleEmployeeName = $responsibleEmployee->format('f. p. L', 'именительный');
                         $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Ответственный не указан]</div>', $orderTemplate);
                     }
                     break;
                 case "{responsible_employee_name_initials_after}":
@@ -670,41 +672,57 @@ class LaborSafetyRequestController extends Controller
                         $responsibleEmployeeName = $responsibleEmployee->format('L f. p.', 'винительный');
                         $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
                     }
+                    else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Ответственный не указан]</div>', $orderTemplate);
+                    }
                     break;
                 case "{responsible_employee_full_name}":
                     if (isset($responsibleEmployee)) {
                         $responsibleEmployeeName = $responsibleEmployee->format('L F P', 'винительный');
                         $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
                     }
+                    else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Ответственный не указан]</div>', $orderTemplate);
+                    }
                     break;
                 case "{responsible_employee_post}":
                     if (isset($responsibleEmployee)) {
                         $employeePostName = $this->mb_lcfirst(Employees1cPost::find($responsibleEmployee->employee_1c_post_id)->getInflection('винительный'));
                         $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '', $orderTemplate);
                     }
                     break;
                 case "{subresponsible_employee_name_initials_after}":
                     if (isset($subResponsibleEmployee)) {
                         $subResponsibleEmployeeName = $subResponsibleEmployee->format('L f. p.', 'винительный');
                         $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Заместитель ответственного не указан]</div>', $orderTemplate);
                     }
                     break;
                 case "{subresponsible_employee_name_initials_before}":
                     if (isset($subResponsibleEmployee)) {
                         $subResponsibleEmployeeName = $subResponsibleEmployee->format('f. p. L', 'именительный');
                         $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Заместитель ответственного не указан]</div>', $orderTemplate);
                     }
                     break;
                 case "{subresponsible_employee_full_name}":
                     if (isset($subResponsibleEmployee)) {
                         $subResponsibleEmployeeName = $subResponsibleEmployee->format('L F P', 'винительный');
                         $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Заместитель ответственного не указан]</div>', $orderTemplate);
                     }
                     break;
                 case "{subresponsible_employee_post}":
                     if (isset($subResponsibleEmployee)) {
                         $employeePostName = $this->mb_lcfirst(Employees1cPost::find($subResponsibleEmployee->employee_1c_post_id)->getInflection('винительный'));
                         $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '', $orderTemplate);
                     }
                     break;
                 case "{object_responsible_user_post_name}":
@@ -726,20 +744,27 @@ class LaborSafetyRequestController extends Controller
                                 $orderTemplate = str_replace($variable, $objectResponsibleEmployeeName, $orderTemplate);
                                 break;
                         }
+                    } else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Заместитель ответственного не указан]</div>', $orderTemplate);
                     }
                     break;
                 case "{foreman_user_post_name}":
                 case "{foreman_user_full_name}":
                     $foremanEmployee = $this->getResponsibleEmployeeForOrder($request, $order, false, true);
-                    switch ($variable) {
-                        case "{foreman_user_post_name}":
-                            $foremanEmployeePostName = $this->mb_lcfirst(Employees1cPost::find($foremanEmployee->employee_1c_post_id)->getInflection('винительный'));
-                            $orderTemplate = str_replace($variable, $foremanEmployeePostName, $orderTemplate);
-                            break;
-                        case "{foreman_user_full_name}":
-                            $foremanEmployeeName = $foremanEmployee->format('L F P', 'винительный');
-                            $orderTemplate = str_replace($variable, $foremanEmployeeName, $orderTemplate);
-                            break;
+                    if (isset($foremanEmployee)) {
+                        switch ($variable) {
+                            case "{foreman_user_post_name}":
+                                $foremanEmployeePostName = $this->mb_lcfirst(Employees1cPost::find($foremanEmployee->employee_1c_post_id)->getInflection('винительный'));
+                                $orderTemplate = str_replace($variable, $foremanEmployeePostName, $orderTemplate);
+                                break;
+                            case "{foreman_user_full_name}":
+                                $foremanEmployeeName = $foremanEmployee->format('L F P', 'винительный');
+                                $orderTemplate = str_replace($variable, $foremanEmployeeName, $orderTemplate);
+                                break;
+                        }
+                    } else {
+                        $orderTemplate = str_replace('{foreman_user_post_name}', '', $orderTemplate);
+                        $orderTemplate = str_replace('{foreman_user_full_name}', '<div style="color: #eb975c">[Ответственный не указан]</div>', $orderTemplate);
                     }
                     break;
                 case "{sub_foreman_user_post_name}":
@@ -801,10 +826,20 @@ class LaborSafetyRequestController extends Controller
                         $orderTemplate = str_replace($variable, '<div style="color: #eb975c">Контрагент не указан</div>', $orderTemplate);
                     }
                     break;
-                case "{company_name}":
+                case "{main_engineer_post}":
                     $company = Company::find($request->company_id);
-
-                    $orderTemplate = str_replace($variable, $company->name, $orderTemplate);
+                    $mainEngineerEmployee = Employee::find($company->chief_engineer_employee_id);
+                    if (isset($mainEngineerEmployee)) {
+                        $mainEngineerEmployeePost = Employees1cPost::find($mainEngineerEmployee->employee_1c_post_id);
+                        $orderTemplate = str_replace($variable, $this->mb_lcfirst($mainEngineerEmployeePost->getInflection('винительный')), $orderTemplate);
+                    }
+                    break;
+                case "{main_engineer_full_name}":
+                    $company = Company::find($request->company_id);
+                    $mainEngineerEmployee = Employee::find($company->chief_engineer_employee_id);
+                    if (isset($mainEngineerEmployee)) {
+                        $orderTemplate = str_replace($variable, $mainEngineerEmployee->format('L F P', 'винительный'), $orderTemplate);
+                    }
                     break;
                 case "{main_labor_safety_employee_post}":
                     $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
@@ -839,6 +874,7 @@ class LaborSafetyRequestController extends Controller
                         $orderTemplate = str_replace($variable, $responsibleMainLaborSafetyUser->person_phone, $orderTemplate);
                     }
                     break;
+
                 case "{responsible_geodesist_post}":
                     $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
                         ->where('worker_type_id', '=', 11)
@@ -858,8 +894,37 @@ class LaborSafetyRequestController extends Controller
                         ->first();
 
                     if (isset($laborSafetyRequestWorker)) {
-                        $responsibleEngineerEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
-                        $orderTemplate = str_replace($variable, $responsibleEngineerEmployee->format('L F P', 'винительный'), $orderTemplate);
+                        $responsibleGeodesistEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+                        $orderTemplate = str_replace($variable, $responsibleGeodesistEmployee->format('L F P', 'винительный'), $orderTemplate);
+                    }
+                    break;
+                case "{subresponsible_geodesist_post}":
+                case "{subresponsible_geodesist_full_name}":
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 12)
+                        ->first();
+                    if (isset($laborSafetyRequestWorker)) {
+                        $subResponsibleGeodesistEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+                    }
+
+                    if (isset($subResponsibleGeodesistEmployee)) {
+                        switch ($variable) {
+                            case "{subresponsible_geodesist_post}":
+                                $subResponsibleGeodesistEmployeePostName = $this->mb_lcfirst(Employees1cPost::find($subResponsibleGeodesistEmployee->employee_1c_post_id)->getInflection('винительный'));
+                                $orderTemplate = str_replace($variable, $subResponsibleGeodesistEmployeePostName, $orderTemplate);
+                                break;
+                            case "{subresponsible_geodesist_full_name}":
+                                $subResponsibleGeodesistEmployeeName = $subResponsibleGeodesistEmployee->format('L F P', 'винительный');
+                                $orderTemplate = str_replace($variable, $subResponsibleGeodesistEmployeeName, $orderTemplate);
+                                break;
+                        }
+                    }
+
+                    if (isset($subResponsibleGeodesistEmployee) && ($this->isEmployeeParticipatesInOrder($request->id, $subResponsibleGeodesistEmployee->id, $order->order_type_id))) {
+                        $orderTemplate = str_replace(['[optional-section-start|subresponsible_geodesist_employee]', '[optional-section-end|subresponsible_geodesist_employee]'], '', $orderTemplate);
+                    } else {
+                        $pattern = '/\[optional-section-start\|subresponsible_geodesist_employee].*?\[optional-section-end\|subresponsible_geodesist_employee]/s';
+                        $orderTemplate = preg_replace($pattern, '', $orderTemplate);
                     }
                     break;
                 case "{responsible_engineer_post}":
@@ -888,6 +953,36 @@ class LaborSafetyRequestController extends Controller
                     } else {
                         $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Ответственный за исполнительную документацию не указан]</div>', $orderTemplate);
                     }
+                    break;
+                case "{object_sro_employee_post}":
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 4)
+                        ->first();
+
+                    if (isset($laborSafetyRequestWorker)) {
+                        $responsibleSROEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+
+                        $responsibleSROEmployeePost = Employees1cPost::find($responsibleSROEmployee->employee_1c_post_id);
+
+                        $orderTemplate = str_replace($variable, $this->mb_lcfirst($responsibleSROEmployeePost->getInflection('винительный')), $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '', $orderTemplate);
+                    }
+                    break;
+                case "{object_sro_employee_full_name}":
+                    $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                        ->where('worker_type_id', '=', 4)
+                        ->first();
+
+                    if (isset($laborSafetyRequestWorker)) {
+                        $responsibleSROEmployee = Employee::find($laborSafetyRequestWorker->worker_employee_id);
+                        $orderTemplate = str_replace($variable, $responsibleSROEmployee->format('L F P', 'винительный'), $orderTemplate);
+                    } else {
+                        $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Ответственный за приемку работ не указан]</div>', $orderTemplate);
+                    }
+                    break;
+                case "{object_sro_employee_sro_number}":
+                    $orderTemplate = str_replace($variable, '<div style="color: #eb975c">[Номер не указан]</div>', $orderTemplate);
                     break;
                 case "{responsible_labor_safety_employee_post}":
                     $laborSafetyRequestWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)

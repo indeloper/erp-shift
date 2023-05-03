@@ -556,6 +556,13 @@
                                                 displayFormat: "Количество: {0}",
                                             },
                                             {
+                                                summaryType: "custom",
+                                                name: "totalQuantitySummary",
+                                                showInGroupFooter: false,
+                                                alignByColumn: true,
+                                                showInColumn: "quantity",
+                                            },
+                                            {
                                                 column: "amount",
                                                 summaryType: "sum",
                                                 displayFormat: "Всего: {0} шт",
@@ -566,18 +573,41 @@
                                                 column: "computed_weight",
                                                 summaryType: "sum",
                                                 customizeText: function (data) {
-                                                    return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
+                                                    data.value = Math.round(data.value * 1000) / 1000;
+                                                    data.value = new Intl.NumberFormat('ru-RU').format(data.value);
+                                                    return "Всего: " + data.value + " т"
                                                 },
                                                 showInGroupFooter: false,
                                                 alignByColumn: true
-                                            }],
-                                            totalItems: [{
+                                            }
+                                            ],
+                                            totalItems: [
+                                                {
                                                 column: "computed_weight",
                                                 summaryType: "sum",
                                                 customizeText: function (data) {
-                                                    return "Итого: " + Math.round(data.value * 1000) / 1000 + " т"
+                                                    data.value = Math.round(data.value * 1000) / 1000;
+                                                    data.value = new Intl.NumberFormat('ru-RU').format(data.value);
+                                                    return "Итого: " + data.value + " т"
                                                 }
-                                            }]
+                                            }],
+                                            calculateCustomSummary: (options) => {
+                                                if (options.name === 'totalQuantitySummary') {
+                                                    if (options.summaryProcess === 'start') {
+                                                        options.totalValue = 0;
+                                                    }
+                                                    if (options.summaryProcess === 'calculate') {
+                                                        options.totalValue += options.value.amount * options.value.quantity;
+                                                        options.measureUnit = options.value.measure_unit_value;
+                                                    }
+
+                                                    if (options.summaryProcess === 'finalize') {
+                                                        options.totalValue = Math.round(options.totalValue * 100) / 100
+                                                        options.totalValue = new Intl.NumberFormat('ru-RU').format(options.totalValue);
+                                                        options.totalValue = `Всего: ${options.totalValue} ${options.measureUnit}`;
+                                                    }
+                                                }
+                                            },
                                         },
                                         masterDetail: {
                                             enabled: true,

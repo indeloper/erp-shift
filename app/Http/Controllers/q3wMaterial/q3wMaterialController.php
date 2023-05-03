@@ -560,6 +560,7 @@ class q3wMaterialController extends Controller
                                         AND DATE(`operation_date`) <= DATE('$date')
                                         AND NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)
                                         AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
+                                        and `quantity` > 0 and `amount` > 0
                                         GROUP BY
                                                  `standard_id`) AS `coming_to_materials`"), 'coming_to_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin(DB::Raw("(SELECT
@@ -583,6 +584,7 @@ class q3wMaterialController extends Controller
                                         AND DATE(`operation_date`) <= DATE('$date')
                                         AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
                                         AND NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)
+                                        and `quantity` > 0 and `amount` > 0
                                         GROUP BY
                                                  `standard_id`) AS `outgoing_materials`"), 'outgoing_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin('q3w_material_types', 'q3w_material_types.id', '=', 'q3w_material_standards.material_type')
