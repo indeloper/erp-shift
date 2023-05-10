@@ -23,7 +23,10 @@
         "maatwebsite/excel": "^3.1",
         "niklasravnsborg/laravel-pdf": "^3.1",
         "pusher/pusher-php-server": "^3.4",
-        "ext-json": "*"
+        "ext-json": "*",
+        "phpoffice/phpword": "v0.18.*",
+        "wapmorgan/morphos": "*"
+
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
@@ -36,13 +39,16 @@
         "phpunit/phpunit": "^7.0"
     },
     "config": {
+        "platform-check": false,
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "barryvdh/laravel-ide-helper"
+            ]
         }
     },
     "autoload": {

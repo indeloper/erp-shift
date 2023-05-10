@@ -601,7 +601,7 @@ class q3wMaterialTransformationOperationController extends Controller
             }
 
             if ( $material->quantity < 0){
-                abort(400, 'Negative quantity quantity after transformation');
+                abort(400, 'Negative quantity after transformation');
             }
 
             $material->save();

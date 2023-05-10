@@ -14,11 +14,11 @@ class AddNewTransformationTypes extends Migration
      */
     public function up()
     {
-        Schema::table('q3w_material_transformation_types', function($table) {
+        /*Schema::table('q3w_material_transformation_types', function($table) {
             $table->string('codename')->comment("Кодовое наименование");
-        });
+        });*/
 
-        $transformationType = new q3wMaterialTransformationType();
+        /*$transformationType = new q3wMaterialTransformationType();
         $transformationType -> value = "Роспуск угловых";
         $transformationType -> codename = "CORNING_DISSOLUTION";
         $transformationType -> save();
@@ -47,11 +47,11 @@ class AddNewTransformationTypes extends Migration
 
         $transformationType = q3wMaterialTransformationType::where("value", "like", "Изготовление клиновидного")->first();
         $transformationType -> codename = "WEDGE_SHAPE_PRODUCTION";
-        $transformationType -> save();
+        $transformationType -> save();*/
 
-        Schema::table('q3w_material_transformation_types', function($table) {
+        /*Schema::table('q3w_material_transformation_types', function($table) {
             $table->string('codename')->unique()->string('codename')->comment("Кодовое наименование")->change();
-        });
+        });*/
     }
 
     /**

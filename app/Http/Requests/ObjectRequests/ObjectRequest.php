@@ -34,7 +34,7 @@ class ObjectRequest extends FormRequest
              'address.max' => 'Максимальное число символов : 250',
 
              'cadastral_number.max' => 'Максимальное число символов : 19',
-             'cadastral_number.regex' => 'Кадастровый номер не соотвутствует стандарту',
+             'cadastral_number.regex' => 'Кадастровый номер не соответствует стандарту',
 
              'material_accounting_type.required' => 'Поле обязательно для заполнения',
          ];
@@ -43,8 +43,8 @@ class ObjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|max:150',
-            'address' => 'required|max:250',
+            'name' => 'required',
+            'address' => 'required',
             'cadastral_number' => 'nullable|max:19|regex:/[0-9]{2}:[0-9]{2}:[0-9]{6,7}:[0-9]{1,5}/',
             'material_accounting_type' => 'required'
         ];

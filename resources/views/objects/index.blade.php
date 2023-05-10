@@ -24,6 +24,15 @@
                         <input class="form-control" type="text" value="{{ Request::get('search') }}" name="search" placeholder="Поиск">
                     </form>
                 </div>
+                @can('objects_create')
+                <div class="pull-right">
+                    <a href="#">
+                    </a><a class="btn btn-round btn-outline btn-sm add-btn" onclick="createObject()">
+                        <i class="glyphicon fa fa-plus"></i>
+                        Добавить
+                    </a>
+                </div>
+                @endcan
             </div>
 
         @if(!$objects->isEmpty())
@@ -220,7 +229,7 @@
                                <div class="row">
                                    <label class="col-sm-3 col-form-label">Название<star class="star">*</star></label>
                                    <div class="col-sm-9">
-                                       <input class="form-control" id="update_name" type="text" name="name" required maxlength="150">
+                                       <input class="form-control" id="update_name" type="text" name="name" required>
                                    </div>
                                </div>
                            </div>
@@ -234,7 +243,7 @@
                                        </button>
                                    </label>
                                    <div class="col-sm-9">
-                                       <input class="form-control" id="update_short_name" type="text" name="short_name" maxlength="500">
+                                       <input class="form-control" id="update_short_name" type="text" name="short_name">
                                    </div>
                                </div>
                            </div>
@@ -242,7 +251,7 @@
                                <div class="row">
                                    <label class="col-sm-3 col-form-label">Адрес объекта<star class="star">*</star></label>
                                    <div class="col-sm-9">
-                                       <input class="form-control" id="update_address" type="text" name="address" required maxlength="250">
+                                       <input class="form-control" id="update_address" type="text" name="address" required>
                                    </div>
                                </div>
                            </div>
@@ -294,6 +303,74 @@
     </div>
 </div>
 @endcan
+
+<!-- Модалка на добавление объекта -->
+@can('objects_create')
+    <div class="modal fade bd-example-modal-lg show" id="create-new-project" role="dialog" aria-labelledby="modal-search" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Создать новый объект</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card" style="border: none;">
+                        <div class="card-body">
+                            <form id="form_create_object" class="form-horizontal" method="post">
+                                @csrf
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label">Название<star class="star">*</star></label>
+                                        <div class="col-sm-9">
+                                            <input class="form-control" id="object_name" type="text" name="name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label">
+                                            Сокращенное наименование
+                                            <button type="button" name="button" class="btn btn-link btn-primary btn-xs mn-0 pd-0" data-container="body"
+                                                    data-toggle="popover" data-placement="top" data-content="Поле необходимо для улучшения формирования материального отчёта">
+                                                <i class="fa fa-info-circle"></i>
+                                            </button>
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <input class="form-control" id="short_name" type="text" name="short_name">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label">Адрес объекта<star class="star">*</star></label>
+                                        <div class="col-sm-9">
+                                            <input class="form-control" id="set_address" type="text" name="address" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label">Кадастровый номер</label>
+                                        <div class="col-sm-9">
+                                            <input class="form-control cadastral_number" id="cadastral_number" pattern="[0-9]{2}:[0-9]{2}:[0-9]{6,7}:[0-9]{1,5}" type="text" name="cadastral_number" minlength="14" maxlength="19">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="submit" form="form_create_object" class="btn btn-info pull-right">Создать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endcan
+
 @endsection
 
 @section('js_footer')
@@ -330,6 +407,42 @@
 
     $('#resp_users_role_one').select2();
     $('#material_accounting_type').select2();
+
+    @can('objects_create')
+        function createObject() {
+            $('#create-new-project').modal();
+        }
+    @endcan
+
+    @can('objects_create')
+    $("#form_create_object").on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            url:"{{ route('objects::store') }}",
+            type: 'POST',
+            data: {
+                _token: CSRF_TOKEN,
+                name: $('#object_name').val(),
+                cadastral_number: $('#cadastral_number').val(),
+                address: $('#set_address').val(),
+                short_name: $('#short_name').val(),
+                material_accounting_type: 1,
+                task_id: 1
+            },
+            dataType: 'JSON',
+            success: function (data) {
+                var new_option = $("<option selected='selected'></option>").val(data).text($('#object_name').val() + '. Адрес: ' + $('#set_address').val());
+                $('#js-select-objects').append(new_option).trigger('change');
+
+                $('#object_name').val('');
+                $('#cadastral_number').val('');
+                $('#set_address').val('');
+                $('#short_name').val('');
+                $('.close').click();
+            }
+        });
+    });
+    @endcan
 
     function edit_object(data) {
         $('#resp_users_role_one').select2('destroy');

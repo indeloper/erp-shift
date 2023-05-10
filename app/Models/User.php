@@ -4,7 +4,11 @@ namespace App\Models;
 
 use App\Models\HumanResources\{Appointment, Brigade, JobCategory, ReportGroup, Timecard};
 use App\Models\MatAcc\MaterialAccountingOperation;
+use Exception;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use morphos\Russian\FirstNamesInflection;
+use morphos\Russian\LastNamesInflection;
+use morphos\Russian\MiddleNamesInflection;
 use App\Models\Notifications\{NotificationsForUsers, NotificationTypes, UserDisabledNotifications};
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\Vacation\{
@@ -18,6 +22,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use function morphos\Russian\inflectName;
+
 class User extends Authenticatable
 {
     use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, Appointmentable, DevExtremeDataSourceLoadable;
@@ -418,11 +424,11 @@ class User extends Authenticatable
      * can create only drafts of operations and cannot
      * create real operations of given $type
      * @param string $type
-     * @return bool | \Exception
+     * @return bool | Exception
      */
     public function isOperationDrafter(string $type)
     {
-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new \Exception("Given Operation type doesn't exist");
+        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new Exception("Given Operation type doesn't exist");
 
         return boolval($this->can("mat_acc_{$type}_draft_create") and $this->cannot("mat_acc_{$type}_create"));
     }
@@ -431,11 +437,11 @@ class User extends Authenticatable
      * This function will return true if given user
      * can create operations of given $type
      * @param string $type
-     * @return bool | \Exception
+     * @return bool | Exception
      */
     public function isOperationCreator(string $type)
     {
-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new \Exception("Given Operation type doesn't exist");
+        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new Exception("Given Operation type doesn't exist");
 
         return boolval($this->can("mat_acc_{$type}_create"));
     }
@@ -807,5 +813,67 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    /**
+     * @param string $format
+     * F - Full firstname;
+     * f - Fist letter of firstName;
+     * L - Full lastname;
+     * l - Fist letter of lastname;
+     * P - Full patronymic;
+     * p - Fist letter of patronymic;
+     * @param $declension
+     * @return array|string|string[]
+     * @throws Exception
+     */
+    public function format(string $format = 'LFP', $declension = null) {
+        $patronymicExcludes = ['Угли','угли', 'Оглы', 'оглы', 'Оглу', 'оглу'];
+
+        $fullName = str_replace($patronymicExcludes, '', $this->long_full_name);
+
+        if (!empty($declension)) {
+            $fullName = inflectName($fullName, $declension);
+        }
+
+        $lastName = explode(' ', $fullName)[0];
+        $firstName = explode(' ', $fullName)[1];
+        if (isset(explode(' ', $fullName)[2])) {
+            $patronymic = explode(' ', $fullName)[2];
+        } else {
+            $patronymic = '';
+        }
+
+        $result = $format;
+
+        if (mb_strpos($result, 'l') > 0){
+            $lastName = mb_substr($lastName, 0, 1, 'UTF-8');
+            $result = str_replace('l', $lastName, $result);
+        } else {
+            $result = str_replace('L', $lastName, $result);
+        }
+
+        if (mb_strpos($result, 'f') > 0){
+            $firstName = mb_substr($firstName, 0, 1, 'UTF-8');
+            $result = str_replace('f', $firstName, $result);
+        } else {
+            $result = str_replace('F', $firstName, $result);
+        }
+
+        if (!empty($patronymic)) {
+            if (mb_strpos($result, 'p') > 0) {
+                $patronymic = mb_substr($patronymic, 0, 1, 'UTF-8');
+                $result = str_replace('p', $patronymic, $result);
+            } else {
+                $result = str_replace('P', $patronymic, $result);
+            }
+        } else {
+            $result = str_replace('p', '', $result);
+            $result = str_replace('P', '', $result);
+        }
+
+        $result = str_replace('. .', '.', $result);
+
+        return $result;
     }
 }
