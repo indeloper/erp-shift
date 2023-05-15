@@ -128,7 +128,6 @@ class q3wMaterialSupplyPlanningController extends Controller
                 'project_object_id' => $data['project_object_id'],
                 'brand_id' => $data['brand_id'],
                 'quantity' => $data['quantity'],
-                'amount' => $data['amount']
             ]
         );
 

@@ -58,11 +58,14 @@
 @section('content')
     <div id="formContainer"></div>
     <div id="gridContainer"></div>
+    <div id="addNewProjectObjectPopupContainer">
 @endsection
 
 @section('js_footer')
     <script>
         let dataSourceLoadOptions = {};
+
+        let objectsList = [];
 
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
@@ -187,16 +190,35 @@
                 return weight;
             }
 
-            let supplyPlanningForm = $("#formContainer").dxForm({
-                items: [
-                    {
-                        itemType: "group",
-                        caption: "Планирование поставок материалов",
-                        cssClass: "material-supply-planning-grid",
-                        items: []
-                    }
-                ]
-            }).dxForm('instance')
+            function createSupplyPlanningForm() {
+                let supplyPlanningForm = $("#formContainer").dxForm({
+                    items: [
+                        {
+                            itemType: "group",
+                            caption: "Планирование поставок материалов",
+                            cssClass: "material-supply-planning-grid",
+                            items: [
+                                {
+                                    itemType: "tabbed",
+                                    tabs: getPlanningObjectsTabArray(),
+                                    tabPanelOptions: {
+                                        deferRendering: false,
+                                        // onTitleClick: (e) => {
+                                        //     //createObjectContent(objectId);
+                                        // },
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }).dxForm('instance');
+
+                @if(Auth::user()->can('material_supply_planning_editing'))
+                createGridGroupHeaderButtons();
+                @endcan
+
+                return supplyPlanningForm;
+            }
 
             function createGridGroupHeaderButtons() {
                 let groupCaption = $('.material-supply-planning-grid').find('.dx-form-group-with-caption');
@@ -206,19 +228,15 @@
 
                 $('<div>')
                     .dxButton({
-                        text: "Добавить",
+                        text: "Добавить объект",
                         icon: "fas fa-plus",
                         onClick: (e) => {
-                            supplyPlanningForm.getEditor("materialsSupplyPlanningGrid").addRow();
+                            showProjectObjectNamePopup(true, {});
                         }
                     })
                     .addClass('dx-form-group-caption-button')
                     .prependTo(groupCaptionButtonsDiv)
             }
-
-            @if(Auth::user()->can('material_supply_planning_editing'))
-            createGridGroupHeaderButtons();
-            @endcan
 
             function calculateNeededWeight(rowData) {
                 let weight = rowData.amount * rowData.quantity * rowData.standard_weight;
@@ -231,6 +249,250 @@
                     return Math.round((weight - rowData.remains_weight) * 1000) / 1000;
                 }
             }
+
+            function getPlanningObjectsTabArray() {
+               let summaryTab = {
+                   title: "Сводка",
+                   icon: "fas fa-table",
+                   type: "summaryTab"
+               }
+
+               console.log("[summaryTab, ...objectsList]", [summaryTab, ...objectsList])
+               return [summaryTab, ...objectsList];
+            }
+
+            const newObjectValidationGroupName = "newObjectValidationForm";
+
+            const createPopupTemplate = (formData) => () => {
+                const labelTemplate = (iconName) => (data) => $(`<div><i class="dx-icon dx-icon-${iconName}"></i>${data.text}</div>`);
+                return $("<div>").dxForm({
+                    formData: formData,
+                    validationGroup: newObjectValidationGroupName,
+                    showColonAfterLabel: true,
+                    items: [
+                        {
+                            dataField: "object_name",
+                            validationRules: [{type: "required", message: `Поле "Наименование объекта" обязательно для заполнения`}],
+                            label: {
+                                template: labelTemplate("far far-kaaba"),
+                                text: "Наименование объекта"
+                            },
+                        },
+                    ],
+                });
+            };
+
+            const projectObjectNamePopup = $("#addNewProjectObjectPopupContainer").dxPopup({
+                hideOnOutsideClick: true,
+                showCloseButton: true,
+                height: "auto",
+            }).dxPopup("instance");
+
+            const confirmItem = {
+                widget: "dxButton",
+                location: "after",
+                toolbar: "bottom",
+                options: {
+                    text: "ОК",
+                    type: "normal",
+                },
+            };
+
+            const cancelItem = {
+                widget: "dxButton",
+                location: "after",
+                toolbar: "bottom",
+                options: {
+                    text: "Отмена",
+                    onClick: () => {
+                        projectObjectNamePopup.hide();
+                    },
+                },
+            };
+
+            const showProjectObjectNamePopup = (isNewRecord, data) => {
+                const contentTemplate = createPopupTemplate(data);
+                projectObjectNamePopup.option({
+                    title: isNewRecord ? "Добавить планируемый объект" : "Редактировать планируемый объект",
+                    contentTemplate,
+                    toolbarItems: [
+                        {
+                            ...confirmItem,
+                            onClick: () => {
+                                let result = DevExpress.validationEngine.validateGroup(newObjectValidationGroupName);
+
+                                if (!result.isValid)
+                                    return;
+
+                                objectsList.push(
+                                    {
+                                        title: data.object_name,
+                                        type: "objectTab",
+                                        template: (data, index, container) => {
+                                            console.log("data", data);
+                                            console.log("index", index);
+                                            console.log("container", container);
+                                            return getObjectContentTemplate(data);
+                                        }
+                                    }
+                                );
+
+                                projectObjectNamePopup.hide();
+
+                                createSupplyPlanningForm();
+                            },
+                        },
+                        cancelItem,
+                    ],
+                    visible: true,
+                });
+            };
+
+            function getObjectContentTemplate(data) {
+                let objectDataSource = new DevExpress.data.DataSource({
+                    store: new DevExpress.data.CustomStore({
+                        key: "id",
+                        load: function (loadOptions) {
+                            return $.getJSON("{{route('labor-safety.orders-and-requests.list')}}",
+                                {
+                                    loadOptions: JSON.stringify(loadOptions),
+                                });
+                        },
+                        insert: function (values) {
+                            return $.ajax({
+                                url: "{{route('labor-safety.orders-and-requests.store')}}",
+                                method: "POST",
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                data: {
+                                    data: JSON.stringify(values),
+                                    options: null
+                                },
+                                success: function (data, textStatus, jqXHR) {
+                                    DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
+                                },
+                            })
+                        },
+                        update: function (key, values) {
+                            return $.ajax({
+                                url: "{{route('labor-safety.orders-and-requests.update')}}",
+                                method: "PUT",
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                data: {
+                                    key: key,
+                                    modifiedData: JSON.stringify(values)
+                                },
+                                success: function (data, textStatus, jqXHR) {
+                                    DevExpress.ui.notify("Данные успешно изменены", "success", 1000)
+                                }
+                            });
+                        }
+                    })
+                });
+
+                return $(`<div>`).dxDataGrid({
+                    dataSource: objectDataSource,
+                    focusedRowEnabled: false,
+                    hoverStateEnabled: true,
+                    columnAutoWidth: false,
+                    showBorders: true,
+                    showColumnLines: true,
+                    filterRow: {
+                        visible: true,
+                        applyFilter: "auto"
+                    },
+                    toolbar: {
+                        visible: false
+                    },
+                    grouping: {
+                        autoExpandAll: true,
+                    },
+                    groupPanel: {
+                        visible: false
+                    },
+                    editing: {
+                        mode: 'popup',
+                        allowUpdating: true,
+                        allowAdding: false,
+                        allowDeleting: false,
+                        selectTextOnEditStart: true,
+                        //popup: getRequestEditingPopup(),
+                        //form: getRequestEditForm(),
+                    },
+                    remoteOperations: true,
+                    scrolling: {
+                        mode: "virtual",
+                        rowRenderingMode: "virtual",
+                        useNative: false,
+                        scrollByContent: true,
+                        scrollByThumb: true,
+                        showScrollbar: "onHover"
+                    },
+                    paging: {
+                        enabled: true,
+                        pageSize: 50
+                    },
+                    columns: [
+                        {
+                            dataField: "planned_tongue",
+                            caption: "Шпунт",
+                            groupIndex: 0
+                        },
+                        {
+                            dataField: "project_object",
+                            caption: "Объект"
+                        },
+                        {
+                            dataField: "planned_length",
+                            caption: "Планируемая длина (м.п)"
+                        },
+                        {
+                            dataField: "planned_weight",
+                            caption: "Планируемый вес (тн)"
+                        },
+                        {
+                            type: 'buttons',
+                            width: 150,
+                            //visible: !isRowReadOnly(requestStatusId),
+                            buttons: [
+                                {
+                                    name: 'edit',
+                                    visible: (e) => {
+                                        //
+                                    }
+                                },
+                                {
+                                    name: 'delete',
+                                    visible: (e) => {
+                                        //
+                                    }
+                                }
+                            ],
+                            headerCellTemplate: (container, options) => {
+                                //if (!isRowReadOnly(requestStatusId)) {
+                                    $('<div>')
+                                        .appendTo(container)
+                                        .dxButton({
+                                            text: "Добавить",
+                                            icon: "fas fa-plus",
+                                            onClick: (e) => {
+                                                //options.component.option("editing.popup", getWorkersEditingPopup());
+                                                //options.component.option("editing.form", getWorkersListEditForm());
+                                                options.component.addRow();
+                                            }
+                                        })
+                                //}
+                            }
+                        }
+                    ]
+                })
+            }
+
+            createSupplyPlanningForm();
+
         });
     </script>
 @endsection
