@@ -9,6 +9,7 @@ use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialComment;
 use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
+use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
@@ -87,6 +88,25 @@ class q3wMaterialController extends Controller
             'requestedDate' => $requestedDate
         ]);
     }
+
+    public function objectsRemains(Request $request)
+    {
+        $projectObjectId = $request->projectObjectId ?? ProjectObject::whereNotNull('short_name')
+                ->orderBy("short_name")
+                ->get(['id'])
+                ->first()->id;
+
+        if (isset($request->requestedDate)) {
+            $requestedDate = $request->requestedDate;
+        } else {
+            $requestedDate = Carbon::today()->format('Y-m-d');
+        }
+        return view('materials.material-objects-remains')->with([
+            'projectObjectId' => $projectObjectId,
+            'requestedDate' => $requestedDate
+        ]);
+    }
+    
 
     /**
      * @param Request $request
@@ -609,6 +629,26 @@ class q3wMaterialController extends Controller
             ->orderBy('q3w_material_standards.name');
     }
 
+    function getObjectsRemainsQuery() 
+    {
+        return (new q3wMaterial)
+        //->dxLoadOptions()
+        ->leftJoin('q3w_material_standards', 'q3w_materials.standard_id', '=', 'q3w_material_standards.id')
+        ->leftJoin('project_objects', 'q3w_materials.project_object', '=', 'project_objects.id')
+        ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
+        ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
+        ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
+        ->select([
+            'q3w_materials.*',
+            'q3w_material_standards.name as standard_name',
+            'project_objects.name as object_name',
+            'q3w_measure_units.value as unit_measure_value',
+            'q3w_material_comments.comment as comment',
+            DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
+        ])
+        ->where([['amount', '>', 0], ['quantity', '>', 0]]);
+    }
+
     public function materialRemainsList(Request $request): string
     {
         $options = json_decode($request['data']);
@@ -618,6 +658,20 @@ class q3wMaterialController extends Controller
         $materialsList = $this->getMaterialRemainsQuery($projectObjectId, $requestedDate, $options)
             ->get();
 
+        return json_encode(array(
+            "data" => $materialsList,
+            "totalCount" => $materialsList->count()
+            ),
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+
+    public function objectsRemainsList(Request $request): string
+    {
+
+        $materialsList = $this->getObjectsRemainsQuery()
+            ->get();
+        
         return json_encode(array(
             "data" => $materialsList,
             "totalCount" => $materialsList->count()
