@@ -188,8 +188,9 @@
                                     },
                                     {
                                         caption: "Наименование",
+                                        dataField: "standard_name",
                                         cellTemplate: function (container, options) {
-                                            $(`<div class="standard-name">${options.data.standard_name}</div>`)
+                                            $(`<div class="">${options.data.standard_name}</div>`)
                                                 .appendTo(container);
 
                                             if (options.data.comment) {
@@ -202,14 +203,15 @@
                                     },
                                     {
                                         caption: "Количество",
-                                        dataField: "amountId",
+                                        dataField: "quantity",
                                         calculateDisplayValue: function (rowData) { 
-                                            return rowData.quantity + " " + rowData.unit_measure_value;
+                                            return new Intl.NumberFormat('ru-RU').format(rowData.quantity.toFixed(2)) + " " + rowData.unit_measure_value;
                                         },
                                         width: 150
                                     },
                                     {
                                         caption: "Количество (шт.)",
+                                        dataField: "amount",
                                         calculateCellValue: function(rowData) {
                                             return new Intl.NumberFormat('ru-RU').format(rowData.amount.toFixed(2));
                                         },
@@ -217,6 +219,7 @@
                                     },
                                     {
                                         caption: "Вес",
+                                        dataField: "summary_weight",
                                         calculateCellValue: function(rowData) {
                                             return new Intl.NumberFormat('ru-RU').format(rowData.summary_weight.toFixed(3));
                                         },
