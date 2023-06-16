@@ -630,10 +630,10 @@ class q3wMaterialController extends Controller
             ->orderBy('q3w_material_standards.name');
     }
 
-    function getObjectsRemainsQuery() 
+    function getObjectsRemainsQuery($filterOptions) 
     {
         return (new q3wMaterial)
-        //->dxLoadOptions()
+        ->dxLoadOptions($filterOptions, true)
         ->leftJoin('q3w_material_standards', 'q3w_materials.standard_id', '=', 'q3w_material_standards.id')
         ->leftJoin('project_objects', 'q3w_materials.project_object', '=', 'project_objects.id')
         ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
@@ -672,8 +672,9 @@ class q3wMaterialController extends Controller
 
     public function objectsRemainsList(Request $request): string
     {
+        $options = json_decode($request['data']);
 
-        $materialsList = $this->getObjectsRemainsQuery()
+        $materialsList = $this->getObjectsRemainsQuery($options)
             ->get();
         
         return json_encode(array(
@@ -704,7 +705,7 @@ class q3wMaterialController extends Controller
         $projectObjectId = json_decode($request["projectObjectId"]);
         $requestedDate = json_decode($request["requestedDate"]);
 
-        $materialsList = $this->getObjectsRemainsQuery()
+        $materialsList = $this->getObjectsRemainsQuery($options)
             ->get()
             ->toArray();
 
