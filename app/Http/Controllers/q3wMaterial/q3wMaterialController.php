@@ -647,7 +647,10 @@ class q3wMaterialController extends Controller
             'q3w_material_comments.comment as comment',
             DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
         ])
-        ->where([['amount', '>', 0], ['quantity', '>', 0]]);
+        ->where([['amount', '>', 0], ['quantity', '>', 0]])
+        ->orderBy('object_name')
+        ->orderBy('standard_name');
+            
     }
 
     public function materialRemainsList(Request $request): string
