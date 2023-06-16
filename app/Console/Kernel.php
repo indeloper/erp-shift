@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        Commands\MakePermission::class,
         Commands\MakeUser::class,
         Commands\MakeTestCall::class,
         Commands\CheckExTasks::class,
