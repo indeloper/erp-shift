@@ -204,14 +204,14 @@
                                         caption: "Количество",
                                         dataField: "amountId",
                                         calculateDisplayValue: function (rowData) { 
-                                            return rowData.amount + " " + rowData.unit_measure_value;
+                                            return rowData.quantity + " " + rowData.unit_measure_value;
                                         },
                                         width: 150
                                     },
                                     {
                                         caption: "Количество (шт.)",
                                         calculateCellValue: function(rowData) {
-                                            return new Intl.NumberFormat('ru-RU').format(rowData.quantity.toFixed(2));
+                                            return new Intl.NumberFormat('ru-RU').format(rowData.amount.toFixed(2));
                                         },
                                         width: 150
                                     },
