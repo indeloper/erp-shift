@@ -648,7 +648,7 @@ class q3wMaterialController extends Controller
             DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
         ])
         ->where([['amount', '>', 0], ['quantity', '>', 0]])
-        ->orderBy('object_name')
+        ->orderBy('q3w_materials.project_object')
         ->orderBy('standard_name');
             
     }
