@@ -100,6 +100,7 @@
         @csrf
         <input id="projectObjectId" type="hidden" name="projectObjectId">
         <input id="requestedDate" type="hidden" name="requestedDate">
+        <input id="detalization" type="hidden" name="detalization">
         <input id="filterOptions" type="hidden" name="filterOptions">
         <input id="filterList" type="hidden" name="filterList">
     </form>
@@ -109,7 +110,9 @@
     <script>
         let projectObject = {{$projectObjectId}};
         let requestedDate = new Date('{{$requestedDate}}');
+        let detalization = '';
         let filterText = '';
+        
 
         let dataSourceLoadOptions = {};
 
@@ -139,7 +142,8 @@
                             {
                                 data: JSON.stringify(loadOptions),
                                 projectObjectId: projectObject,
-                                requestedDate: new Date(requestedDate).toISOString().split("T")[0]
+                                requestedDate: new Date(requestedDate).toISOString().split("T")[0],
+                                detalization: detalization
                             });
                     },
                 })
@@ -204,8 +208,8 @@
                                     {
                                         caption: "Количество",
                                         dataField: "quantity",
-                                        calculateDisplayValue: function (rowData) { 
-                                            return new Intl.NumberFormat('ru-RU').format(rowData.quantity.toFixed(2)) + " " + rowData.unit_measure_value;
+                                        calculateCellValue: function (rowData) { 
+                                            return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.quantity * 100) / 100 ) + " " + rowData.unit_measure_value;
                                         },
                                         width: 150
                                     },
@@ -213,7 +217,7 @@
                                         caption: "Количество (шт.)",
                                         dataField: "amount",
                                         calculateCellValue: function(rowData) {
-                                            return new Intl.NumberFormat('ru-RU').format(rowData.amount.toFixed(2));
+                                            return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.amount * 100) / 100) + ' шт';
                                         },
                                         width: 150
                                     },
@@ -221,7 +225,7 @@
                                         caption: "Вес",
                                         dataField: "summary_weight",
                                         calculateCellValue: function(rowData) {
-                                            return new Intl.NumberFormat('ru-RU').format(rowData.summary_weight.toFixed(3));
+                                            return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.summary_weight * 1000) / 1000) + ' тн';
                                         },
                                         width: 150
                                     }
@@ -244,19 +248,35 @@
                     .dxButtonGroup({
                         items: [
                             {
-                                icon: 'alignleft',
+                                icon: '<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg>',
                                 alignment: 'left',
-                                hint: '',
+                                hint: 'Максимальная детализация',
+                                onClick() {
+                                    detalization = 'high';
+                                    materialsRemainsDataSource.reload();
+                                    window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
+                                },
                             },
                             {
-                                icon: 'alignleft',
+                                icon: 'menu',
+                                html: 'rugrewoughou',
                                 alignment: 'left',
-                                hint: '',
+                                hint: 'Средняя детализация',
+                                onClick() {
+                                    detalization = 'medium';
+                                    materialsRemainsDataSource.reload();
+                                    window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
+                                },
                             },
                             {
-                                icon: 'alignleft',
+                                icon: 'doc',
                                 alignment: 'left',
-                                hint: '',
+                                hint: 'Минимальная детализация',
+                                onClick() {
+                                    detalization = 'low';
+                                    materialsRemainsDataSource.reload();
+                                    window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
+                                },
                             }
                         ]
                 })
@@ -276,6 +296,7 @@
 
                             $('#projectObjectId').val(JSON.stringify(projectObject));
                             $('#requestedDate').val(JSON.stringify(new Date(requestedDate).toISOString().split("T")[0]));
+                            $('#detalization').val(JSON.stringify(detalization));
                             $('#filterList').val(JSON.stringify(filterText));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
                             $('#printMaterialRemains').get(0).submit();
@@ -289,7 +310,9 @@
             createGridReportButtons();
 
             function getUrlParameters(projectObject, requestedDate){
-                return '?projectObjectId=' + projectObject + '&requestedDate=' + new Date(requestedDate).toISOString().split("T")[0];
+                return '?projectObjectId=' + projectObject 
+                    + '&requestedDate=' + new Date(requestedDate).toISOString().split("T")[0] 
+                    + '&detalization=' + detalization;
             }
 
             function getCellTemplate(container, options) {

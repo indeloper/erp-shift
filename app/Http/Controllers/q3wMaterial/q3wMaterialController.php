@@ -630,8 +630,9 @@ class q3wMaterialController extends Controller
             ->orderBy('q3w_material_standards.name');
     }
 
-    function getObjectsRemainsQuery($filterOptions) 
+    function getObjectsRemainsQuery($filterOptions, $detalization) 
     {
+
         return (new q3wMaterial)
         ->dxLoadOptions($filterOptions, true)
         ->leftJoin('q3w_material_standards', 'q3w_materials.standard_id', '=', 'q3w_material_standards.id')
@@ -647,6 +648,15 @@ class q3wMaterialController extends Controller
             'q3w_material_comments.comment as comment',
             DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
         ])
+        ->when($detalization=='high', function($query){
+            return $query->where('amount', 1);
+        })
+        ->when($detalization=='medium', function($query){
+            return $query->where('amount', 2);
+        })
+        ->when($detalization=='low', function($query){
+            return $query->where('amount', 3);
+        })
         ->where([['amount', '>', 0], ['quantity', '>', 0]])
         ->orderBy('q3w_materials.project_object')
         ->orderBy('standard_name');
@@ -673,8 +683,9 @@ class q3wMaterialController extends Controller
     public function objectsRemainsList(Request $request): string
     {
         $options = json_decode($request['data']);
+        $detalization = $request['detalization'];
 
-        $materialsList = $this->getObjectsRemainsQuery($options)
+        $materialsList = $this->getObjectsRemainsQuery($options, $detalization)
             ->get();
         
         return json_encode(array(
@@ -702,10 +713,11 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
+        $detalization = $request['detalization'];
         $projectObjectId = json_decode($request["projectObjectId"]);
         $requestedDate = json_decode($request["requestedDate"]);
 
-        $materialsList = $this->getObjectsRemainsQuery($options)
+        $materialsList = $this->getObjectsRemainsQuery($options, $detalization)
             ->get()
             ->toArray();
 
