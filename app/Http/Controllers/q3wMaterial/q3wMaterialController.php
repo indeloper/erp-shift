@@ -15,6 +15,7 @@ use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\UsersSetting;
 use App\Services\q3wMaterialAccounting\Reports\MaterialRemainsXLSXReport;
+use App\Services\q3wMaterialAccounting\Reports\MaterialObjectsRemainsXLSXReport;
 use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -691,5 +692,19 @@ class q3wMaterialController extends Controller
             ->toArray();
 
         return (new MaterialRemainsXLSXReport($projectObjectId, $materialsList, $filterText, $requestedDate))->export();
+    }
+
+    public function exportObjectsRemains(Request $request)
+    {
+        $filterText = json_decode($request->input('filterList'));
+        $options = json_decode($request['filterOptions']);
+        $projectObjectId = json_decode($request["projectObjectId"]);
+        $requestedDate = json_decode($request["requestedDate"]);
+
+        $materialsList = $this->getObjectsRemainsQuery()
+            ->get()
+            ->toArray();
+
+        return (new MaterialObjectsRemainsXLSXReport($projectObjectId, $materialsList, $filterText, $requestedDate))->export();
     }
 }
