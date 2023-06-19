@@ -191,6 +191,9 @@
                                 paging: {
                                     enabled: false
                                 },
+                                scrolling: {
+                                    mode: 'infinite',
+                                },
                                 columns: [
                                     {
                                         caption: "Объект",
@@ -252,36 +255,27 @@
                 
                 $('<div>')
                     .dxButtonGroup({
+                        keyExpr: "hint",
+                        selectedItemKeys: [ "Максимальная детализация" ],
+                        onSelectionChanged: function (e) {
+                            if(e.addedItems[0]) {
+                                detalization = e.addedItems[0].hint;
+                                materialsRemainsDataSource.reload();
+                                window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
+                            }
+                        },
                         items: [
                             {
                                 icon: 'fa fa-bars',
                                 hint: 'Максимальная детализация',
-                                onClick() {
-                                    detalization = 'high';
-                                    materialsRemainsDataSource.reload();
-                                    window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
-                                },
                             },
                             {
-                                icon: 'fa fa-toggle-large-on',
-                                html: 'rugrewoughou',
-                                alignment: 'left',
+                                icon: 'far fa-file-alt',
                                 hint: 'Средняя детализация',
-                                onClick() {
-                                    detalization = 'medium';
-                                    materialsRemainsDataSource.reload();
-                                    window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
-                                },
                             },
                             {
-                                icon: 'fa fa-horizontal-rule',
-                                alignment: 'left',
-                                hint: 'Минимальная детализация',
-                                onClick() {
-                                    detalization = 'low';
-                                    materialsRemainsDataSource.reload();
-                                    window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
-                                },
+                                icon: 'far fa-file',
+                                hint: 'Минимальная детализация',   
                             }
                         ]
                 })

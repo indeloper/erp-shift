@@ -648,13 +648,10 @@ class q3wMaterialController extends Controller
             'q3w_material_comments.comment as comment',
             DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
         ])
-        ->when($detalization=='high', function($query){
-            return $query->where('amount', 1);
-        })
-        ->when($detalization=='medium', function($query){
+        ->when($detalization=='Средняя детализация', function($query){
             return $query->where('amount', 2);
         })
-        ->when($detalization=='low', function($query){
+        ->when($detalization=='Минимальная детализация', function($query){
             return $query->where('amount', 3);
         })
         ->where([['amount', '>', 0], ['quantity', '>', 0]])
