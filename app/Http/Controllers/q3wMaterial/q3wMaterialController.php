@@ -640,23 +640,40 @@ class q3wMaterialController extends Controller
         ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
         ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
         ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
-        ->select([
-            'q3w_materials.*',
-            'q3w_material_standards.name as standard_name',
-            'project_objects.name as object_name',
-            'q3w_measure_units.value as unit_measure_value',
-            'q3w_material_comments.comment as comment',
-            DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
-        ])
-        ->when($detalization=='Средняя детализация', function($query){
-            return $query->where('amount', 2);
+        
+        ->when($detalization=='Максимальная детализация' || !$detalization, function($query){
+            return $query
+            ->select([
+                'q3w_materials.*',
+                'q3w_material_standards.name as standard_name',
+                'project_objects.name as object_name',
+                'q3w_measure_units.value as unit_measure_value',
+                'q3w_material_comments.comment as comment',
+                DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
+            ]);            
         })
-        ->when($detalization=='Минимальная детализация', function($query){
-            return $query->where('amount', 3);
+        
+        ->when($detalization=='Средняя детализация' || $detalization=='Минимальная детализация', function($query){
+            return $query
+            ->select([
+                'q3w_materials.id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
+                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), quantity) as quantity'),
+                'q3w_material_standards.name as standard_name',
+                'project_objects.name as object_name',
+                'q3w_measure_units.value as unit_measure_value',
+                DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
+            ])
+            ->groupBy([
+                'project_object',
+                'standard_id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity)')
+            ]);
         })
+
         ->where([['amount', '>', 0], ['quantity', '>', 0]])
         ->orderBy('q3w_materials.project_object')
-        ->orderBy('standard_name');
+        ->orderBy('q3w_material_standards.name');
             
     }
 
