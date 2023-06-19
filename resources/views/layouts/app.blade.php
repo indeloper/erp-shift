@@ -278,7 +278,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(Auth::user()->can('material_accounting_material_remains_report_access'))
+                                @if(Auth::user()->can('material_accounting_objects_remains_report_access'))
                                     <li class="nav-item @if (Request::is('/materials/objects-remains') || Request::is('/materials/objects-remains/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.objects.remains') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-note2 pe-7s-mini"></i></span>
