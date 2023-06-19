@@ -710,7 +710,7 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        $detalization = $request['detalization'];
+        $detalization = json_decode($request['detalization']);
         $projectObjectId = json_decode($request["projectObjectId"]);
         $requestedDate = json_decode($request["requestedDate"]);
 
