@@ -646,6 +646,7 @@ class q3wMaterialController extends Controller
             ->select([
                 'q3w_materials.*',
                 'q3w_material_standards.name as standard_name',
+                'q3w_material_types.accounting_type as accounting_type',
                 'project_objects.name as object_name',
                 'q3w_measure_units.value as unit_measure_value',
                 'q3w_material_comments.comment as comment',
@@ -659,6 +660,7 @@ class q3wMaterialController extends Controller
                 'q3w_materials.id',
                 DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
                 DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), quantity) as quantity'),
+                'q3w_material_types.accounting_type as accounting_type',
                 'q3w_material_standards.name as standard_name',
                 'project_objects.name as object_name',
                 'q3w_measure_units.value as unit_measure_value',
@@ -670,6 +672,7 @@ class q3wMaterialController extends Controller
                 DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity)')
             ]);
         })
+
 
         ->where([['amount', '>', 0], ['quantity', '>', 0]])
         ->orderBy('q3w_materials.project_object')

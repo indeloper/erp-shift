@@ -121,8 +121,8 @@
         
         let dataSourceLoadOptions = {};
 
-        function roundQuantity(value) {
-            if(detalization != "Минимальная детализация")
+        function roundQuantity(value, accounting_type) {
+            if(accounting_type != 2 || detalization != "Минимальная детализация")
             return new Intl.NumberFormat('ru-RU').format( Math.round(value * 100) / 100 );
 
             var rem = Number('0.' + String(value).split('.')[1])
@@ -229,7 +229,7 @@
                                         caption: "Количество",
                                         dataField: "quantity",
                                         calculateCellValue: function (rowData) { 
-                                            return roundQuantity(rowData.quantity) + " " + rowData.unit_measure_value;
+                                            return roundQuantity(rowData.quantity, rowData.accounting_type) + " " + rowData.unit_measure_value;
                                         },
                                         width: 150
                                     },
