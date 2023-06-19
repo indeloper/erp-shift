@@ -119,8 +119,19 @@
         let detalization = '';
         let filterText = '';
         
-
         let dataSourceLoadOptions = {};
+
+        function roundQuantity(value) {
+            if(detalization != "Минимальная детализация")
+            return new Intl.NumberFormat('ru-RU').format( Math.round(value * 100) / 100 );
+
+            var rem = Number('0.' + String(value).split('.')[1])
+            
+            if(rem < 0.51) 
+            return new Intl.NumberFormat('ru-RU').format(Math.floor(value));
+            else 
+            return new Intl.NumberFormat('ru-RU').format(Math.ceil(value));            
+        }
 
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
@@ -218,7 +229,7 @@
                                         caption: "Количество",
                                         dataField: "quantity",
                                         calculateCellValue: function (rowData) { 
-                                            return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.quantity * 100) / 100 ) + " " + rowData.unit_measure_value;
+                                            return roundQuantity(rowData.quantity) + " " + rowData.unit_measure_value;
                                         },
                                         width: 150
                                     },
