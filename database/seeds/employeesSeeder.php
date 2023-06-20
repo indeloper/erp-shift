@@ -359,6 +359,34 @@ class employeesSeeder extends Seeder
 }
 },
 {
+"employeeUID": "a7c3d6e3-f2e9-11ed-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00371",
+"employeeINN": "100604768278",
+"employeeGender": "M",
+"employeeName": "Барсов Виталий Владимирович",
+"employeeLastName": "Барсов",
+"employeeFirstName": "Виталий",
+"employeePatronymic": "Владимирович",
+"employeePhone": "89669223918",
+"employee1CPostUID": "8094d88f-717f-11e9-811d-00155d630402",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "f5467e1c-ff45-11e7-80c5-00155d4c1e00",
+"individual1CCode": "ЗК-0000334",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "1995-05-06",
+"dateReceived": "2023-05-15",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Барсов Виталий Владимирович",
+"genitive": "Барсова Виталия Владимировича",
+"dative": "Барсову Виталию Владимировичу",
+"accusative": "Барсова Виталия Владимировича",
+"ablative": "Барсовым Виталием Владимировичем",
+"prepositional": "Барсове Виталии Владимировиче"
+}
+},
+{
 "employeeUID": "dfd829cd-9aca-11ec-810a-1831bfcfda3c",
 "personnelNumber": "ГОЗК-00233",
 "employeeINN": "531802001941",
@@ -572,7 +600,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1978-10-10",
 "dateReceived": "2022-10-26",
-"dismissalDate": "",
+"dismissalDate": "2023-05-31",
 "inflection": {
 "nominative": "Быценко Александр Александрович",
 "genitive": "Быценко Александра Александровича",
@@ -636,6 +664,34 @@ class employeesSeeder extends Seeder
 "accusative": "Васильева Александра Борисовича",
 "ablative": "Васильевым Александром Борисовичем",
 "prepositional": "Васильеве Александре Борисовиче"
+}
+},
+{
+"employeeUID": "8121842f-f3d8-11ed-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00372",
+"employeeINN": "245714523158",
+"employeeGender": "M",
+"employeeName": "Васильев Вячеслав Александрович",
+"employeeLastName": "Васильев",
+"employeeFirstName": "Вячеслав",
+"employeePatronymic": "Александрович",
+"employeePhone": "89110097474",
+"employee1CPostUID": "51f32951-3a11-11e2-a4d2-0019d11ffeaf",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "fe11f0dd-abbf-11e6-9641-50465d8f7441",
+"individual1CCode": "ЗК-0000335",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "1987-07-04",
+"dateReceived": "2023-05-17",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Васильев Вячеслав Александрович",
+"genitive": "Васильева Вячеслава Александровича",
+"dative": "Васильеву Вячеславу Александровичу",
+"accusative": "Васильева Вячеслава Александровича",
+"ablative": "Васильевым Вячеславом Александровичем",
+"prepositional": "Васильеве Вячеславе Александровиче"
 }
 },
 {
@@ -863,34 +919,6 @@ class employeesSeeder extends Seeder
 }
 },
 {
-"employeeUID": "a19fb12a-25a6-11ec-8105-1831bfcfda3c",
-"personnelNumber": "ГОЗК-00204",
-"employeeINN": "780741661051",
-"employeeGender": "M",
-"employeeName": "Ганиев Кувончбек Мусирмон Угли",
-"employeeLastName": "Ганиев",
-"employeeFirstName": "Кувончбек",
-"employeePatronymic": "Мусирмон Угли",
-"employeePhone": "8-921-552-4960",
-"employee1CPostUID": "51f32938-3a11-11e2-a4d2-0019d11ffeaf",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
-"individual1CCode": "ЗК-0000197",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "2001-06-14",
-"dateReceived": "2021-10-06",
-"dismissalDate": "2023-04-06",
-"inflection": {
-"nominative": "Ганиев Кувончбек Мусирмон Угли",
-"genitive": "Ганиева Кувончбека Мусирмона Угли",
-"dative": "Ганиеву Кувончбеку Мусирмону Угли",
-"accusative": "Ганиева Кувончбека Мусирмона Угли",
-"ablative": "Ганиевым Кувончбеком Мусирмоном Угли",
-"prepositional": "Ганиеве Кувончбеке Мусирмоне Угли"
-}
-},
-{
 "employeeUID": "6c92d3e7-bfbf-11ec-810a-1831bfcfda3c",
 "personnelNumber": "ГОЗК-00243",
 "employeeINN": "780153951500",
@@ -1012,7 +1040,7 @@ class employeesSeeder extends Seeder
 "employeeFirstName": "Артем",
 "employeePatronymic": "",
 "employeePhone": "+79119133029",
-"employee1CPostUID": "51f3294a-3a11-11e2-a4d2-0019d11ffeaf",
+"employee1CPostUID": "322c3e2c-09ce-11e5-a5b3-50465d8f7441",
 "employeeAdditional1CPostUID": "",
 "employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
 "individual1CCode": "ЗК-0000287",
@@ -1076,7 +1104,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1984-02-01",
 "dateReceived": "2023-02-15",
-"dismissalDate": "",
+"dismissalDate": "2023-05-30",
 "inflection": {
 "nominative": "Гришин Сергей Павлович",
 "genitive": "Гришина Сергея Павловича",
@@ -1356,7 +1384,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1991-06-05",
 "dateReceived": "2019-02-11",
-"dismissalDate": "",
+"dismissalDate": "2023-06-09",
 "inflection": {
 "nominative": "Задорожный Артём Олегович",
 "genitive": "Задорожного Артёма Олеговича",
@@ -1392,6 +1420,34 @@ class employeesSeeder extends Seeder
 "accusative": "Зайко Анастасию Владимировну",
 "ablative": "Зайко Анастасией Владимировной",
 "prepositional": "Зайко Анастасии Владимировне"
+}
+},
+{
+"employeeUID": "7986552d-0530-11ee-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00379",
+"employeeINN": "781448497965",
+"employeeGender": "M",
+"employeeName": "Зайцев Андрей Михайлович",
+"employeeLastName": "Зайцев",
+"employeeFirstName": "Андрей",
+"employeePatronymic": "Михайлович",
+"employeePhone": "89052614169",
+"employee1CPostUID": "51f32938-3a11-11e2-a4d2-0019d11ffeaf",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
+"individual1CCode": "ЗК-0000339",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "1978-03-27",
+"dateReceived": "2023-06-08",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Зайцев Андрей Михайлович",
+"genitive": "Зайцева Андрея Михайловича",
+"dative": "Зайцеву Андрею Михайловичу",
+"accusative": "Зайцева Андрея Михайловича",
+"ablative": "Зайцевым Андреем Михайловичем",
+"prepositional": "Зайцеве Андрее Михайловиче"
 }
 },
 {
@@ -1560,6 +1616,34 @@ class employeesSeeder extends Seeder
 "accusative": "Иванова Сергея Александровича",
 "ablative": "Ивановым Сергеем Александровичем",
 "prepositional": "Иванове Сергее Александровиче"
+}
+},
+{
+"employeeUID": "79e16faa-0399-11ee-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00378",
+"employeeINN": "291801934857",
+"employeeGender": "F",
+"employeeName": "Иглина Ангелина Александровна",
+"employeeLastName": "Иглина",
+"employeeFirstName": "Ангелина",
+"employeePatronymic": "Александровна",
+"employeePhone": "8-921-372-76-28",
+"employee1CPostUID": "64230fa8-fde2-11ec-810a-1831bfcfda3c",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "f75d8be9-a6a8-11ec-810a-1831bfcfda3c",
+"individual1CCode": "0000000195",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "1994-02-23",
+"dateReceived": "2023-06-05",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Иглина Ангелина Александровна",
+"genitive": "Иглиной Ангелины Александровны",
+"dative": "Иглиной Ангелине Александровне",
+"accusative": "Иглину Ангелину Александровну",
+"ablative": "Иглиной Ангелиной Александровной",
+"prepositional": "Иглиной Ангелине Александровне"
 }
 },
 {
@@ -2347,6 +2431,34 @@ class employeesSeeder extends Seeder
 }
 },
 {
+"employeeUID": "b1cf0c65-f4a9-11ed-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00373",
+"employeeINN": "780401742352",
+"employeeGender": "M",
+"employeeName": "Кравченко Андрей Валерьевич",
+"employeeLastName": "Кравченко",
+"employeeFirstName": "Андрей",
+"employeePatronymic": "Валерьевич",
+"employeePhone": "89218652546",
+"employee1CPostUID": "51f32938-3a11-11e2-a4d2-0019d11ffeaf",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
+"individual1CCode": "ЗК-0000336",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "1980-09-14",
+"dateReceived": "2023-05-18",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Кравченко Андрей Валерьевич",
+"genitive": "Кравченко Андрея Валерьевича",
+"dative": "Кравченко Андрею Валерьевичу",
+"accusative": "Кравченко Андрея Валерьевича",
+"ablative": "Кравченко Андреем Валерьевичем",
+"prepositional": "Кравченко Андрее Валерьевиче"
+}
+},
+{
 "employeeUID": "03b2fde6-ac31-11ec-810a-1831bfcfda3c",
 "personnelNumber": "ГОЗК-00239",
 "employeeINN": "781447183130",
@@ -2655,6 +2767,34 @@ class employeesSeeder extends Seeder
 }
 },
 {
+"employeeUID": "f871c7d7-0050-11ee-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00377",
+"employeeINN": "212810421355",
+"employeeGender": "M",
+"employeeName": "Леонтьев Максим Геннадьевич",
+"employeeLastName": "Леонтьев",
+"employeeFirstName": "Максим",
+"employeePatronymic": "Геннадьевич",
+"employeePhone": "+7 (951) 997-65-25",
+"employee1CPostUID": "de94c1ab-3d13-11e2-afa6-0019d11ffeaf",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
+"individual1CCode": "ЗК-0000338",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "2002-07-04",
+"dateReceived": "2023-06-01",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Леонтьев Максим Геннадьевич",
+"genitive": "Леонтьева Максима Геннадьевича",
+"dative": "Леонтьеву Максиму Геннадьевичу",
+"accusative": "Леонтьева Максима Геннадьевича",
+"ablative": "Леонтьевым Максимом Геннадьевичем",
+"prepositional": "Леонтьеве Максиме Геннадьевиче"
+}
+},
+{
 "employeeUID": "78424527-eea9-11e6-b6c0-50465d8f7441",
 "personnelNumber": "0000000118",
 "employeeINN": "780623052342",
@@ -2708,34 +2848,6 @@ class employeesSeeder extends Seeder
 "accusative": "Липатова Алексея Геннадьевича",
 "ablative": "Липатовым Алексеем Геннадьевичем",
 "prepositional": "Липатове Алексее Геннадьевиче"
-}
-},
-{
-"employeeUID": "4e4629c3-8feb-11ed-80bb-000c29565159",
-"personnelNumber": "ГОЗК-00340",
-"employeeINN": "519015616470",
-"employeeGender": "M",
-"employeeName": "Лукманов Ярослав Эрнстович",
-"employeeLastName": "Лукманов",
-"employeeFirstName": "Ярослав",
-"employeePatronymic": "Эрнстович",
-"employeePhone": "+7 (925) 347-47-22",
-"employee1CPostUID": "99884c42-66c3-11e7-a358-50465d8f7441",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "5889fc1d-7606-11e9-8123-00155d630402",
-"individual1CCode": "ЗК-0000308",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "1978-08-02",
-"dateReceived": "2023-01-09",
-"dismissalDate": "2023-04-28",
-"inflection": {
-"nominative": "Лукманов Ярослав Эрнстович",
-"genitive": "Лукманова Ярослава Эрнстовича",
-"dative": "Лукманову Ярославу Эрнстовичу",
-"accusative": "Лукманова Ярослава Эрнстовича",
-"ablative": "Лукмановым Ярославом Эрнстовичем",
-"prepositional": "Лукманове Ярославе Эрнстовиче"
 }
 },
 {
@@ -2804,7 +2916,7 @@ class employeesSeeder extends Seeder
 "employeeFirstName": "Никита",
 "employeePatronymic": "Викторович",
 "employeePhone": "8-981-122-01-19",
-"employee1CPostUID": "3b0223f2-d751-11e8-8110-00155d630402",
+"employee1CPostUID": "322c3e2c-09ce-11e5-a5b3-50465d8f7441",
 "employeeAdditional1CPostUID": "",
 "employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
 "individual1CCode": "ЗК-0000087",
@@ -3075,34 +3187,6 @@ class employeesSeeder extends Seeder
 }
 },
 {
-"employeeUID": "eb50f15f-489e-11ed-810c-1831bfcfda3c",
-"personnelNumber": "ГОЗК-00314",
-"employeeINN": "780616868764",
-"employeeGender": "F",
-"employeeName": "Манукян Наталия Сергеевна",
-"employeeLastName": "Манукян",
-"employeeFirstName": "Наталия",
-"employeePatronymic": "Сергеевна",
-"employeePhone": "89215749069",
-"employee1CPostUID": "cc5a890d-b7e4-11e7-80bf-00155d4c1e00",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "7a0656da-dfe6-11e7-80c3-00155d4c1e00",
-"individual1CCode": "ЗК-0000284",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "1982-01-04",
-"dateReceived": "2022-10-11",
-"dismissalDate": "2023-04-14",
-"inflection": {
-"nominative": "Манукян Наталия Сергеевна",
-"genitive": "Манукян Наталии Сергеевны",
-"dative": "Манукян Наталии Сергеевне",
-"accusative": "Манукян Наталию Сергеевну",
-"ablative": "Манукян Наталией Сергеевной",
-"prepositional": "Манукян Наталии Сергеевне"
-}
-},
-{
 "employeeUID": "709b3dab-d67f-11ec-810a-1831bfcfda3c",
 "personnelNumber": "ГОЗК-00253",
 "employeeINN": "022201464577",
@@ -3204,7 +3288,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1996-08-09",
 "dateReceived": "2019-10-14",
-"dismissalDate": "",
+"dismissalDate": "2023-05-31",
 "inflection": {
 "nominative": "Махнева Александра Сергеевна",
 "genitive": "Махневой Александры Сергеевны",
@@ -3719,6 +3803,34 @@ class employeesSeeder extends Seeder
 }
 },
 {
+"employeeUID": "efdf1d2c-0049-11ee-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00376",
+"employeeINN": "232910725416",
+"employeeGender": "F",
+"employeeName": "Олейник Татьяна Александровна",
+"employeeLastName": "Олейник",
+"employeeFirstName": "Татьяна",
+"employeePatronymic": "Александровна",
+"employeePhone": "+7 (989) 2740748",
+"employee1CPostUID": "4d2b87de-25de-11e9-8111-00155d630402",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "70804c36-d74b-11ec-810a-1831bfcfda3c",
+"individual1CCode": "ЗК-0000337",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "2001-02-23",
+"dateReceived": "2023-06-01",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Олейник Татьяна Александровна",
+"genitive": "Олейник Татьяны Александровны",
+"dative": "Олейник Татьяне Александровне",
+"accusative": "Олейник Татьяну Александровну",
+"ablative": "Олейник Татьяной Александровной",
+"prepositional": "Олейник Татьяне Александровне"
+}
+},
+{
 "employeeUID": "8eca8d60-116e-11ed-810a-1831bfcfda3c",
 "personnelNumber": "ГОЗК-00274",
 "employeeINN": "780739196061",
@@ -3848,7 +3960,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1981-07-23",
 "dateReceived": "2023-04-11",
-"dismissalDate": "",
+"dismissalDate": "2023-06-07",
 "inflection": {
 "nominative": "Пархомчук Александр Михайлович",
 "genitive": "Пархомчука Александра Михайловича",
@@ -3932,7 +4044,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1979-07-03",
 "dateReceived": "2021-08-10",
-"dismissalDate": "",
+"dismissalDate": "2023-05-31",
 "inflection": {
 "nominative": "Пиягин Кирилл Алексеевич",
 "genitive": "Пиягина Кирилла Алексеевича",
@@ -4139,34 +4251,6 @@ class employeesSeeder extends Seeder
 }
 },
 {
-"employeeUID": "602904cc-1888-11ed-810a-1831bfcfda3c",
-"personnelNumber": "ГОЗК-00281",
-"employeeINN": "471100918024",
-"employeeGender": "M",
-"employeeName": "Рахманов Дмитрий Альбертович",
-"employeeLastName": "Рахманов",
-"employeeFirstName": "Дмитрий",
-"employeePatronymic": "Альбертович",
-"employeePhone": "8-981-724-20-97",
-"employee1CPostUID": "51f3294a-3a11-11e2-a4d2-0019d11ffeaf",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
-"individual1CCode": "ЗК-0000047",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "1971-05-04",
-"dateReceived": "2022-08-10",
-"dismissalDate": "2023-04-11",
-"inflection": {
-"nominative": "Рахманов Дмитрий Альбертович",
-"genitive": "Рахманова Дмитрия Альбертовича",
-"dative": "Рахманову Дмитрию Альбертовичу",
-"accusative": "Рахманова Дмитрия Альбертовича",
-"ablative": "Рахмановым Дмитрием Альбертовичем",
-"prepositional": "Рахманове Дмитрии Альбертовиче"
-}
-},
-{
 "employeeUID": "1c9981c1-7631-11e9-8123-00155d630402",
 "personnelNumber": "ГОЗК-00041",
 "employeeINN": "781718154432",
@@ -4335,34 +4419,6 @@ class employeesSeeder extends Seeder
 }
 },
 {
-"employeeUID": "4cca2b4b-37eb-11ed-810b-1831bfcfda3c",
-"personnelNumber": "ГОЗК-00299",
-"employeeINN": "781618451819",
-"employeeGender": "M",
-"employeeName": "Рыбакин Кирилл Юрьевич",
-"employeeLastName": "Рыбакин",
-"employeeFirstName": "Кирилл",
-"employeePatronymic": "Юрьевич",
-"employeePhone": "89312257444",
-"employee1CPostUID": "dba907d2-80db-11e8-80fb-00155d4c1e00",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "f5467e1c-ff45-11e7-80c5-00155d4c1e00",
-"individual1CCode": "ЗК-0000271",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "1987-04-03",
-"dateReceived": "2022-09-19",
-"dismissalDate": "2023-04-28",
-"inflection": {
-"nominative": "Рыбакин Кирилл Юрьевич",
-"genitive": "Рыбакина Кирилла Юрьевича",
-"dative": "Рыбакину Кириллу Юрьевичу",
-"accusative": "Рыбакина Кирилла Юрьевича",
-"ablative": "Рыбакиным Кириллом Юрьевичем",
-"prepositional": "Рыбакине Кирилле Юрьевиче"
-}
-},
-{
 "employeeUID": "3de3ea17-e63f-11e8-8111-00155d630402",
 "personnelNumber": "0000000288",
 "employeeINN": "782065109426",
@@ -4408,7 +4464,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1993-01-09",
 "dateReceived": "2018-08-15",
-"dismissalDate": "",
+"dismissalDate": "2023-05-05",
 "inflection": {
 "nominative": "Рыженко Антон Сергеевич",
 "genitive": "Рыженко Антона Сергеевича",
@@ -4783,34 +4839,6 @@ class employeesSeeder extends Seeder
 }
 },
 {
-"employeeUID": "06f1ba79-7088-11ed-810c-1831bfcfda3c",
-"personnelNumber": "ГОЗК-00325",
-"employeeINN": "781406351516",
-"employeeGender": "M",
-"employeeName": "Смирнов Евгений Алексеевич",
-"employeeLastName": "Смирнов",
-"employeeFirstName": "Евгений",
-"employeePatronymic": "Алексеевич",
-"employeePhone": "8(921) 981-93-77",
-"employee1CPostUID": "2529f0b0-3a20-11e2-a4d2-0019d11ffeaf",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "fe11f0dd-abbf-11e6-9641-50465d8f7441",
-"individual1CCode": "0000000103",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "1957-04-07",
-"dateReceived": "2022-12-01",
-"dismissalDate": "2023-04-28",
-"inflection": {
-"nominative": "Смирнов Евгений Алексеевич",
-"genitive": "Смирнова Евгения Алексеевича",
-"dative": "Смирнову Евгению Алексеевичу",
-"accusative": "Смирнова Евгения Алексеевича",
-"ablative": "Смирновым Евгением Алексеевичем",
-"prepositional": "Смирнове Евгении Алексеевиче"
-}
-},
-{
 "employeeUID": "e827d9e3-0cc6-11ed-810a-1831bfcfda3c",
 "personnelNumber": "ГОЗК-00273",
 "employeeINN": "780434116921",
@@ -4920,6 +4948,34 @@ class employeesSeeder extends Seeder
 "accusative": "Степанова Валентина Алексеевича",
 "ablative": "Степановым Валентином Алексеевичем",
 "prepositional": "Степанове Валентине Алексеевиче"
+}
+},
+{
+"employeeUID": "cb1c305e-f619-11ed-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00374",
+"employeeINN": "784390216306",
+"employeeGender": "M",
+"employeeName": "Столяров Денис Юрьевич",
+"employeeLastName": "Столяров",
+"employeeFirstName": "Денис",
+"employeePatronymic": "Юрьевич",
+"employeePhone": "8-953-175-73-30",
+"employee1CPostUID": "2529f0ae-3a20-11e2-a4d2-0019d11ffeaf",
+"employeeAdditional1CPostUID": "",
+"employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
+"individual1CCode": "00-0000025",
+"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
+"organizationINN": "7807348494",
+"birthday": "1989-05-26",
+"dateReceived": "2023-05-19",
+"dismissalDate": "",
+"inflection": {
+"nominative": "Столяров Денис Юрьевич",
+"genitive": "Столярова Дениса Юрьевича",
+"dative": "Столярову Денису Юрьевичу",
+"accusative": "Столярова Дениса Юрьевича",
+"ablative": "Столяровым Денисом Юрьевичем",
+"prepositional": "Столярове Денисе Юрьевиче"
 }
 },
 {
@@ -5091,34 +5147,6 @@ class employeesSeeder extends Seeder
 }
 },
 {
-"employeeUID": "2ae1f0e4-8161-11eb-8100-1831bfcfda3c",
-"personnelNumber": "ГОЗК-00161",
-"employeeINN": "781313353060",
-"employeeGender": "M",
-"employeeName": "Тошев Бердимурод Рузиевич",
-"employeeLastName": "Тошев",
-"employeeFirstName": "Бердимурод",
-"employeePatronymic": "Рузиевич",
-"employeePhone": "8-951-657-02-54",
-"employee1CPostUID": "51f32938-3a11-11e2-a4d2-0019d11ffeaf",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "f5467e1c-ff45-11e7-80c5-00155d4c1e00",
-"individual1CCode": "ЗК-0000160",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "1966-07-14",
-"dateReceived": "2021-03-10",
-"dismissalDate": "2023-04-24",
-"inflection": {
-"nominative": "Тошев Бердимурод Рузиевич",
-"genitive": "Тошева Бердимурода Рузиевича",
-"dative": "Тошеву Бердимуроду Рузиевичу",
-"accusative": "Тошева Бердимурода Рузиевича",
-"ablative": "Тошевым Бердимуродом Рузиевичем",
-"prepositional": "Тошеве Бердимуроде Рузиевиче"
-}
-},
-{
 "employeeUID": "08340071-42fd-11ed-810b-1831bfcfda3c",
 "personnelNumber": "ГОЗК-00312",
 "employeeINN": "784229902503",
@@ -5259,59 +5287,59 @@ class employeesSeeder extends Seeder
 }
 },
 {
-"employeeUID": "5bc8ed95-c789-11ec-810a-1831bfcfda3c",
-"personnelNumber": "ГОЗК-00251",
-"employeeINN": "784222734786",
+"employeeUID": "71536943-06b6-11ee-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00380",
+"employeeINN": "365205537955",
 "employeeGender": "M",
-"employeeName": "Хазраткулов Жушкин Мусирмонович",
-"employeeLastName": "Хазраткулов",
-"employeeFirstName": "Жушкин",
-"employeePatronymic": "Мусирмонович",
-"employeePhone": "8-921-552-15-67",
-"employee1CPostUID": "51f32938-3a11-11e2-a4d2-0019d11ffeaf",
+"employeeName": "Хабибулин Олег Равильевич",
+"employeeLastName": "Хабибулин",
+"employeeFirstName": "Олег",
+"employeePatronymic": "Равильевич",
+"employeePhone": "89507763632",
+"employee1CPostUID": "51f3294a-3a11-11e2-a4d2-0019d11ffeaf",
 "employeeAdditional1CPostUID": "",
 "employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
-"individual1CCode": "ЗК-0000070",
+"individual1CCode": "ЗК-0000340",
 "organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
 "organizationINN": "7807348494",
-"birthday": "1985-09-28",
-"dateReceived": "2022-05-16",
-"dismissalDate": "2023-04-06",
+"birthday": "1988-07-11",
+"dateReceived": "2023-06-13",
+"dismissalDate": "",
 "inflection": {
-"nominative": "Хазраткулов Жушкин Мусирмонович",
-"genitive": "Хазраткулова Жушкина Мусирмоновича",
-"dative": "Хазраткулову Жушкину Мусирмоновичу",
-"accusative": "Хазраткулова Жушкина Мусирмоновича",
-"ablative": "Хазраткуловым Жушкиным Мусирмоновичем",
-"prepositional": "Хазраткулове Жушкине Мусирмоновиче"
+"nominative": "Хабибулин Олег Равильевич",
+"genitive": "Хабибулина Олега Равильевича",
+"dative": "Хабибулину Олегу Равильевичу",
+"accusative": "Хабибулина Олега Равильевича",
+"ablative": "Хабибулиным Олегом Равильевичем",
+"prepositional": "Хабибулине Олеге Равильевиче"
 }
 },
 {
-"employeeUID": "77da15ff-be5f-11ed-80bb-000c29565159",
-"personnelNumber": "ГОЗК-00357",
-"employeeINN": "781316361982",
+"employeeUID": "b48ae6e8-f873-11ed-80bd-000c29565159",
+"personnelNumber": "ГОЗК-00375",
+"employeeINN": "783906004722",
 "employeeGender": "M",
-"employeeName": "Хазраткулов Санжар Мусирмонович",
+"employeeName": "Хазраткулов Кахрамон Мусурмонович",
 "employeeLastName": "Хазраткулов",
-"employeeFirstName": "Санжар",
-"employeePatronymic": "Мусирмонович",
-"employeePhone": "89990238886",
+"employeeFirstName": "Кахрамон",
+"employeePatronymic": "Мусурмонович",
+"employeePhone": "8-921-952-40-45",
 "employee1CPostUID": "51f32938-3a11-11e2-a4d2-0019d11ffeaf",
 "employeeAdditional1CPostUID": "",
 "employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
-"individual1CCode": "ЗК-0000320",
+"individual1CCode": "ЗК-0000174",
 "organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
 "organizationINN": "7807348494",
-"birthday": "1987-11-09",
-"dateReceived": "2023-03-10",
-"dismissalDate": "2023-04-03",
+"birthday": "1982-05-27",
+"dateReceived": "2023-05-23",
+"dismissalDate": "",
 "inflection": {
-"nominative": "Хазраткулов Санжар Мусирмонович",
-"genitive": "Хазраткулова Санжара Мусирмоновича",
-"dative": "Хазраткулову Санжару Мусирмоновичу",
-"accusative": "Хазраткулова Санжара Мусирмоновича",
-"ablative": "Хазраткуловым Санжаром Мусирмоновичем",
-"prepositional": "Хазраткулове Санжаре Мусирмоновиче"
+"nominative": "Хазраткулов Кахрамон Мусурмонович",
+"genitive": "Хазраткулова Кахрамона Мусурмоновича",
+"dative": "Хазраткулову Кахрамону Мусурмоновичу",
+"accusative": "Хазраткулова Кахрамона Мусурмоновича",
+"ablative": "Хазраткуловым Кахрамоном Мусурмоновичем",
+"prepositional": "Хазраткулове Кахрамоне Мусурмоновиче"
 }
 },
 {
@@ -5360,7 +5388,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1996-11-15",
 "dateReceived": "2021-12-01",
-"dismissalDate": "",
+"dismissalDate": "2023-05-22",
 "inflection": {
 "nominative": "Холбаев Сардор Уктам угли",
 "genitive": "Холбаева Сардора Уктама угли",
@@ -5640,7 +5668,7 @@ class employeesSeeder extends Seeder
 "organizationINN": "7807348494",
 "birthday": "1982-08-16",
 "dateReceived": "2023-01-10",
-"dismissalDate": "",
+"dismissalDate": "2023-05-15",
 "inflection": {
 "nominative": "Шатков Юрий Павлович",
 "genitive": "Шаткова Юрия Павловича",
@@ -5901,37 +5929,8 @@ class employeesSeeder extends Seeder
 "ablative": "Языджаном Сергеем Сергеевичем",
 "prepositional": "Языджане Сергее Сергеевиче"
 }
-},
-{
-"employeeUID": "3a8efaed-90c2-11ed-80bb-000c29565159",
-"personnelNumber": "ГОЗК-00342",
-"employeeINN": "470304852482",
-"employeeGender": "M",
-"employeeName": "Яковлев Алексей Сергеевич",
-"employeeLastName": "Яковлев",
-"employeeFirstName": "Алексей",
-"employeePatronymic": "Сергеевич",
-"employeePhone": "+7 (981) 797-23-68",
-"employee1CPostUID": "51f32938-3a11-11e2-a4d2-0019d11ffeaf",
-"employeeAdditional1CPostUID": "",
-"employee1CSubdivisionUID": "7a0656d7-dfe6-11e7-80c3-00155d4c1e00",
-"individual1CCode": "ЗК-0000310",
-"organizationUID": "4be56ff8-3a11-11e2-a4d2-0019d11ffeaf",
-"organizationINN": "7807348494",
-"birthday": "1978-01-05",
-"dateReceived": "2023-01-11",
-"dismissalDate": "2023-04-05",
-"inflection": {
-"nominative": "Яковлев Алексей Сергеевич",
-"genitive": "Яковлева Алексея Сергеевича",
-"dative": "Яковлеву Алексею Сергеевичу",
-"accusative": "Яковлева Алексея Сергеевича",
-"ablative": "Яковлевым Алексеем Сергеевичем",
-"prepositional": "Яковлеве Алексее Сергеевиче"
 }
-}
-]
-}', false);
+]}', false);
 
         foreach ($employees->data as $employee) {
             $company = Company::where('company_1c_uid', $employee->organizationUID)->get()->first();
@@ -5951,19 +5950,19 @@ class employeesSeeder extends Seeder
             }
 
             if (isset($company)) {
-                $user = User::withoutGlobalScopes()
+                /*$user = User::withoutGlobalScopes()
                     ->where('first_name', '=', trim($employee->employeeFirstName))
                     ->where('last_name', '=', trim($employee->employeeLastName))
                     ->where('patronymic', '=', trim($employee->employeePatronymic))
                     ->where('birthday', '=', trim($formattedBirthday))
                     ->get()
-                    ->first();
+                    ->first();*/
 
                 // Need to use that after first sync
-                /*$user = User::withoutGlobalScopes()
+                $user = User::withoutGlobalScopes()
                     ->where('inn', '=', trim($employee->employeeINN))
-                    ->first()
-                    ->get();*/
+                    ->get()
+                    ->first();
 
                     if (isset($user))
                     {

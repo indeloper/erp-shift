@@ -1038,9 +1038,15 @@ class LaborSafetyRequestController extends Controller
                     if (!empty($workersList)) {
                         $orderTemplate = str_replace($variable, $workersList, $orderTemplate);
                         $orderTemplate = str_replace(['[workers_list_section_start]', '[workers_list_section_end]'], '', $orderTemplate);
+
+                        $pattern = '/\[workers_list_optional_section_start].*?\[workers_list_optional_section_end]/s';
+                        $orderTemplate = preg_replace($pattern, '', $orderTemplate);
                     } else {
                         $pattern = '/\[workers_list_section_start].*?\[workers_list_section_end]/s';
                         $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+
+                        $orderTemplate = str_replace($variable, $workersList, $orderTemplate);
+                        $orderTemplate = str_replace(['[workers_list_optional_section_start]', '[workers_list_optional_section_end]'], '', $orderTemplate);
                     }
                     break;
                 case "{sign_list}":

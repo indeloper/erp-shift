@@ -58,20 +58,68 @@
 @section('content')
     <div id="formContainer"></div>
     <div id="gridContainer"></div>
-    <div id="addNewProjectObjectPopupContainer">
+    <div id="addNewPlanningObjectPopupContainer">
 @endsection
 
 @section('js_footer')
     <script>
-        let dataSourceLoadOptions = {};
-
-        let objectsList = [];
-
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
         });
 
         $(function () {
+            let dataSourceLoadOptions = {};
+            let availableMaterialsFilterOptions = {};
+            let currentSelectedProjectObject = {};
+
+
+            let supplyObjectsStore = new DevExpress.data.CustomStore({
+                key: 'id',
+                load: (loadOptions) => {
+                    dataSourceLoadOptions = loadOptions;
+                    return $.getJSON("{{route('materials.supply-planning.planning-objects.list')}}",
+                        {
+                            loadOptions: JSON.stringify(loadOptions),
+                        });
+                },
+                insert: function (values) {
+                    return $.ajax({
+                        url: "{{route('materials.supply-planning.planning-objects.store')}}",
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        data: {
+                            data: JSON.stringify(values),
+                            options: null
+                        },
+                        success: function (data, textStatus, jqXHR) {
+                            loadSupplyObjects();
+                            DevExpress.ui.notify("Данные успешно добавлены", "success", 1000);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
+                        }
+                    })
+                },
+                /*update(key, values) {
+                    return sendRequest(`${URL}/UpdateOrder`, 'PUT', {
+                        key,
+                        values: JSON.stringify(values),
+                    });
+                },
+                remove(key) {
+                    return sendRequest(`${URL}/DeleteOrder`, 'DELETE', {
+                        key,
+                    });
+                },*/
+            });
+
+            let supplyObjectsDataSource = new DevExpress.data.DataSource({
+                store: supplyObjectsStore,
+                loadMode: "raw"
+            });
+
             //<editor-fold desc="JS: DataSources">
             let projectObjectsStore = new DevExpress.data.CustomStore({
                 key: "id",
@@ -97,6 +145,19 @@
 
             let brandsDataSource = new DevExpress.data.DataSource({
                 store: brandsStore
+            })
+
+            let brandTypesStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('materials.brand-types.list')}}",
+                        {data: JSON.stringify(loadOptions)});
+                }
+            })
+
+            let brandTypesDataSource = new DevExpress.data.DataSource({
+                store: brandTypesStore
             })
 
             let contractorsStore = new DevExpress.data.CustomStore({
@@ -190,7 +251,7 @@
                 return weight;
             }
 
-            function createSupplyPlanningForm() {
+            function createSupplyPlanningForm(supplyObjects) {
                 let supplyPlanningForm = $("#formContainer").dxForm({
                     items: [
                         {
@@ -200,12 +261,12 @@
                             items: [
                                 {
                                     itemType: "tabbed",
-                                    tabs: getPlanningObjectsTabArray(),
+                                    tabs: getPlanningObjectsTabArray(supplyObjects),
                                     tabPanelOptions: {
-                                        deferRendering: false,
-                                        // onTitleClick: (e) => {
-                                        //     //createObjectContent(objectId);
-                                        // },
+                                        deferRendering: true,
+                                        onTitleClick: (e) => {
+                                            currentSelectedProjectObject = e.itemData.planningObjectData;
+                                        }
                                     }
                                 }
                             ]
@@ -214,13 +275,13 @@
                 }).dxForm('instance');
 
                 @if(Auth::user()->can('material_supply_planning_editing'))
-                createGridGroupHeaderButtons();
+                createGroupHeaderButtons();
                 @endcan
 
                 return supplyPlanningForm;
             }
 
-            function createGridGroupHeaderButtons() {
+            function createGroupHeaderButtons() {
                 let groupCaption = $('.material-supply-planning-grid').find('.dx-form-group-with-caption');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
                 groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
@@ -238,43 +299,41 @@
                     .prependTo(groupCaptionButtonsDiv)
             }
 
-            function calculateNeededWeight(rowData) {
-                let weight = rowData.amount * rowData.quantity * rowData.standard_weight;
-
-                if (isNaN(weight)) {
-                    weight = 0;
-                }
-
-                if (rowData.remains_weight <= weight) {
-                    return Math.round((weight - rowData.remains_weight) * 1000) / 1000;
-                }
-            }
-
-            function getPlanningObjectsTabArray() {
+            function getPlanningObjectsTabArray(supplyObjects) {
                let summaryTab = {
                    title: "Сводка",
                    icon: "fas fa-table",
                    type: "summaryTab"
                }
 
-               console.log("[summaryTab, ...objectsList]", [summaryTab, ...objectsList])
-               return [summaryTab, ...objectsList];
+                let objectsList = [];
+
+                supplyObjects.forEach((element) => {
+                    objectsList.push({
+                        title: element.name,
+                        type: "objectTab",
+                        planningObjectData: element,
+                        template: (data, index, container) => {
+                            return getObjectContentTemplate(data);
+                        }
+                    })
+                })
+
+                return [summaryTab, ...objectsList];
             }
 
             const newObjectValidationGroupName = "newObjectValidationForm";
 
             const createPopupTemplate = (formData) => () => {
-                const labelTemplate = (iconName) => (data) => $(`<div><i class="dx-icon dx-icon-${iconName}"></i>${data.text}</div>`);
                 return $("<div>").dxForm({
                     formData: formData,
                     validationGroup: newObjectValidationGroupName,
-                    showColonAfterLabel: true,
+                    showColonAfterLabel: false,
                     items: [
                         {
                             dataField: "object_name",
                             validationRules: [{type: "required", message: `Поле "Наименование объекта" обязательно для заполнения`}],
                             label: {
-                                template: labelTemplate("far far-kaaba"),
                                 text: "Наименование объекта"
                             },
                         },
@@ -282,11 +341,211 @@
                 });
             };
 
-            const projectObjectNamePopup = $("#addNewProjectObjectPopupContainer").dxPopup({
+            const planningObjectNamePopup = $("#addNewPlanningObjectPopupContainer").dxPopup({
                 hideOnOutsideClick: true,
                 showCloseButton: true,
                 height: "auto",
+                width: 400,
             }).dxPopup("instance");
+
+            function getSupplyPlanningPopup () {
+                return {
+                    hideOnOutsideClick: true,
+                    showCloseButton: true,
+                    height: "auto",
+                    width: 800,
+                }
+            }
+
+            function getSupplyPlanningEditForm() {
+                return {
+                    colCount: 3,
+                    items: [
+                        {
+                            dataField: "brand_type_id",
+                            label: {
+                                text: "Тип шпунта"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: brandTypesDataSource,
+                                displayExpr: 'name',
+                                valueExpr: 'id'
+                            },
+                            validationRules: [{ type: "required" }]
+                        },
+                        {
+                            dataField: "common_quantity",
+                            dataType: "number",
+                            label: {
+                                text: "Длина (м.п)"
+                            },
+                            validationRules: [{ type: "required" }]
+                            //editorType: "dxNumberBox",
+                            /*editorOptions: {
+                                items: [],
+                                openOnFieldClick: true,
+                                onKeyDown: function(e) {
+                                    console.log(e);
+                                    let key = e.event.key;
+
+                                    if (/^[0-9.,\b\t]$/.test(key)) {
+                                        let value = e.component.option("value");
+                                        if ((key === "." || key === ",") && (value.includes(",") || value.includes(".")) || (key === "." && value === "")) {
+                                            e.event.preventDefault();
+                                        }
+                                        return;
+                                    }
+                                    e.event.preventDefault();
+                                }
+                            }*/
+                        },
+                        {
+                            dataField: "supply_planned_weight",
+                            //editorType: "dxNumberBox",
+                            label: {
+                                text: "Планируемый объем поставки (т)"
+                            },
+                            validationRules: [{ type: "required" }]
+                        },
+                        {
+                            name: "materialInputGrid",
+                            colSpan: 3,
+                            label: {
+                                visible: false
+                            },
+                            editorType: "dxDataGrid",
+                            editorOptions: {
+                                height: 400,
+                                dataSource: new DevExpress.data.DataSource({
+                                    store: new DevExpress.data.CustomStore({
+                                        loadMode: "raw",
+                                        load: (loadOptions) => {
+                                            loadOptions.userData = availableMaterialsFilterOptions;
+                                            return $.getJSON(`{{route('materials.supply-planning.available-material-list')}}`,
+                                                {
+                                                    loadOptions: JSON.stringify(loadOptions),
+                                                });
+                                        }
+                                    }),
+                                    key: "id"
+                                }),
+                                focusedRowEnabled: false,
+                                hoverStateEnabled: true,
+                                columnAutoWidth: false,
+                                showBorders: true,
+                                showColumnLines: true,
+                                filterRow: {
+                                    visible: true,
+                                    applyFilter: "auto"
+                                },
+                                toolbar: {
+                                    visible: false
+                                },
+                                grouping: {
+                                    autoExpandAll: true,
+                                },
+                                groupPanel: {
+                                    visible: false
+                                },
+                                editing: {
+                                    allowUpdating: true,
+                                    allowAdding: false,
+                                    allowDeleting: false,
+                                    mode: "batch"
+                                },
+                                remoteOperations: false,
+                                scrolling: {
+                                    mode: "virtual",
+                                    rowRenderingMode: "virtual",
+                                    useNative: false,
+                                    scrollByContent: true,
+                                    scrollByThumb: true,
+                                    showScrollbar: "onHover"
+                                },
+                                /*selection: {
+                                    mode: "multiple",
+                                    allowSelectAll: false
+                                },*/
+                                paging: {
+                                    enabled: true,
+                                    pageSize: 50
+                                },
+                                columns: [
+                                    {
+                                        dataField: "short_name",
+                                        caption: "Объект",
+                                        groupIndex: 0,
+                                        allowEditing: false
+                                    },
+
+                                    {
+                                        dataField: "name",
+                                        caption: "Наименование",
+                                        allowEditing: false
+
+                                    },
+                                    {
+                                        dataField: "summary_amount",
+                                        caption: "Количество (шт)",
+                                        allowEditing: false
+                                    },
+                                    {
+                                        dataField: "summary_weight",
+                                        dataType: "number",
+                                        caption: "Доступный вес (т)",
+                                        allowEditing: false,
+                                        customizeText: (e) => {
+                                            return new Intl.NumberFormat('ru-RU').format(e.value);
+                                        },
+                                        editorOptions: {
+                                            min: 0,
+                                        }
+                                    },
+                                    {
+                                        dataField: "reserved_weight",
+                                        caption: "Бронируемый вес (т)",
+                                        customizeText: (e) => {
+                                            return new Intl.NumberFormat('ru-RU').format(e.value);
+                                        }
+                                    },
+                                ],
+                                summary: {
+                                    recalculateWhileEditing: true,
+                                    totalItems: [
+                                        {
+                                        column: 'summary_weight',
+                                        summaryType: 'sum',
+                                        customizeText: (e) => {
+                                            return `Доступно: ${new Intl.NumberFormat('ru-RU').format(e.value)} т`;
+                                            }
+                                        },
+                                        {
+                                            column: 'reserved_weight',
+                                            summaryType: 'sum',
+                                            customizeText: (e) => {
+                                                return `Забронировано: ${new Intl.NumberFormat('ru-RU').format(e.value)} т`;
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    onFieldDataChanged: (e) => {
+                        let formData = e.component.option("formData");
+
+                        if (formData.brand_type_id && formData.common_quantity) {
+                            availableMaterialsFilterOptions = {
+                                "brand_type_id":  formData.brand_type_id,
+                                "quantity":  formData.common_quantity
+                            }
+
+                            e.component.getEditor("materialInputGrid").refresh();
+                        }
+                    }
+                }
+            }
 
             const confirmItem = {
                 widget: "dxButton",
@@ -295,6 +554,7 @@
                 options: {
                     text: "ОК",
                     type: "normal",
+                    stylingMode: "outlined"
                 },
             };
 
@@ -304,15 +564,14 @@
                 toolbar: "bottom",
                 options: {
                     text: "Отмена",
-                    onClick: () => {
-                        projectObjectNamePopup.hide();
-                    },
+                    type: "normal",
+                    stylingMode: "outlined"
                 },
             };
 
             const showProjectObjectNamePopup = (isNewRecord, data) => {
                 const contentTemplate = createPopupTemplate(data);
-                projectObjectNamePopup.option({
+                planningObjectNamePopup.option({
                     title: isNewRecord ? "Добавить планируемый объект" : "Редактировать планируемый объект",
                     contentTemplate,
                     toolbarItems: [
@@ -324,43 +583,44 @@
                                 if (!result.isValid)
                                     return;
 
-                                objectsList.push(
-                                    {
-                                        title: data.object_name,
-                                        type: "objectTab",
-                                        template: (data, index, container) => {
-                                            console.log("data", data);
-                                            console.log("index", index);
-                                            console.log("container", container);
-                                            return getObjectContentTemplate(data);
-                                        }
-                                    }
-                                );
-
-                                projectObjectNamePopup.hide();
-
-                                createSupplyPlanningForm();
+                                supplyObjectsStore.insert({name: data.object_name}).done(() => {
+                                    planningObjectNamePopup.hide();
+                                    loadSupplyObjects();
+                                });
                             },
                         },
-                        cancelItem,
+                        {
+                            ...cancelItem,
+                            onClick: () => {
+                                planningObjectNamePopup.hide();
+                            },
+                        }
                     ],
                     visible: true,
                 });
             };
 
             function getObjectContentTemplate(data) {
-                let objectDataSource = new DevExpress.data.DataSource({
+                let planningObjectDataSource = new DevExpress.data.DataSource({
+                    loadMode: "raw",
+                    /*map: function (dataItem) {
+                        return {
+                            brand_with_quantity: dataItem.brand_type_name + " " + new Intl.NumberFormat('ru-RU').format(dataItem.quantity) + " м.п"
+                        }
+                    },*/
                     store: new DevExpress.data.CustomStore({
                         key: "id",
                         load: function (loadOptions) {
-                            return $.getJSON("{{route('labor-safety.orders-and-requests.list')}}",
+                            let url = "{{route('materials.supply-planning.get-materials-for-supply-planning', ['planningObjectId' => 'planningObjectIdValue'])}}";
+                            url = url.replace('planningObjectIdValue', data.planningObjectData.id);
+                            return $.getJSON(url,
                                 {
                                     loadOptions: JSON.stringify(loadOptions),
                                 });
                         },
                         insert: function (values) {
                             return $.ajax({
-                                url: "{{route('labor-safety.orders-and-requests.store')}}",
+                                url: "{{route('materials.supply-planning.store')}}",
                                 method: "POST",
                                 headers: {
                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -372,9 +632,12 @@
                                 success: function (data, textStatus, jqXHR) {
                                     DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
                                 },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
+                                }
                             })
                         },
-                        update: function (key, values) {
+                        /*update: function (key, values) {
                             return $.ajax({
                                 url: "{{route('labor-safety.orders-and-requests.update')}}",
                                 method: "PUT",
@@ -388,13 +651,15 @@
                                 success: function (data, textStatus, jqXHR) {
                                     DevExpress.ui.notify("Данные успешно изменены", "success", 1000)
                                 }
+                                error: function (jqXHR, textStatus, errorThrown) {
+                            DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
                             });
-                        }
+                        }*/
                     })
                 });
 
                 return $(`<div>`).dxDataGrid({
-                    dataSource: objectDataSource,
+                    dataSource: planningObjectDataSource,
                     focusedRowEnabled: false,
                     hoverStateEnabled: true,
                     columnAutoWidth: false,
@@ -419,10 +684,10 @@
                         allowAdding: false,
                         allowDeleting: false,
                         selectTextOnEditStart: true,
-                        //popup: getRequestEditingPopup(),
-                        //form: getRequestEditForm(),
+                        popup: getSupplyPlanningPopup(),
+                        form: getSupplyPlanningEditForm(),
                     },
-                    remoteOperations: true,
+                    remoteOperations: false,
                     scrolling: {
                         mode: "virtual",
                         rowRenderingMode: "virtual",
@@ -437,21 +702,44 @@
                     },
                     columns: [
                         {
-                            dataField: "planned_tongue",
-                            caption: "Шпунт",
-                            groupIndex: 0
+                            dataField: "brand_with_quantity",
+                            caption: "Тип марки материала",
+                            groupIndex: 0,
+                            groupCellTemplate: function(container, options) {
+                                $('<div>').text(`${options.column.caption}: ${options.value}`).appendTo(container);
+                                container.attr("colspan", 4);
+
+                                let commandGroupCell = $('<td class="dx-command-edit dx-command-edit-with-icons dx-cell-focus-disabled" role="gridcell" aria-colindex="6" style="text-align: center;" tabindex="0">')
+                                    .appendTo(container.parent());
+
+                                $('<a href="#" class="dx-link dx-link-edit dx-icon-edit dx-link-icon" title="Редактировать" aria-label="Редактировать">')
+                                    .on("click", () => {
+                                        options.component.editRow(1);
+                                    })
+                                    .appendTo(commandGroupCell);
+                            }
                         },
                         {
-                            dataField: "project_object",
+                            dataField: "short_name",
                             caption: "Объект"
                         },
                         {
-                            dataField: "planned_length",
-                            caption: "Планируемая длина (м.п)"
+                            dataField: "standard_name",
+                            caption: "Эталон"
                         },
                         {
-                            dataField: "planned_weight",
-                            caption: "Планируемый вес (тн)"
+                            dataField: "quantity",
+                            caption: "Планируемая длина",
+                            customizeText: (e) => {
+                                return new Intl.NumberFormat('ru-RU').format(e.value) + " м.п";
+                            },
+                        },
+                        {
+                            dataField: "weight",
+                            caption: "Забронированный вес",
+                            customizeText: (e) => {
+                                return new Intl.NumberFormat('ru-RU').format(e.value) + " т";
+                            },
                         },
                         {
                             type: 'buttons',
@@ -460,9 +748,9 @@
                             buttons: [
                                 {
                                     name: 'edit',
-                                    visible: (e) => {
+                                    /*visible: (e) => {
                                         //
-                                    }
+                                    }*/
                                 },
                                 {
                                     name: 'delete',
@@ -479,20 +767,78 @@
                                             text: "Добавить",
                                             icon: "fas fa-plus",
                                             onClick: (e) => {
-                                                //options.component.option("editing.popup", getWorkersEditingPopup());
-                                                //options.component.option("editing.form", getWorkersListEditForm());
                                                 options.component.addRow();
                                             }
                                         })
                                 //}
                             }
                         }
-                    ]
+                    ],
+                    summary: {
+                        groupItems: [
+                            {
+                                showInColumn: 'short_name',
+                                column: 'planned_project_weight',
+                                summaryType: 'max',
+                                showInGroupFooter: true,
+                                customizeText: (e) => {
+                                    return `Потребность: ${new Intl.NumberFormat('ru-RU').format(e.value)} т`;
+                                }
+                            },
+                            {
+                                column: 'weight',
+                                summaryType: 'sum',
+                                showInGroupFooter: true,
+                                customizeText: (e) => {
+                                    return `Забронировано: ${new Intl.NumberFormat('ru-RU').format(e.value)} т`;
+                                }
+                            },
+                            {
+                                column: 'quantity',
+                                summaryType: 'sum',
+                                showInGroupFooter: true,
+                                customizeText: (e) => {
+                                    return ``;
+                                }
+                            }
+                        ],
+                        /*totalItems: [
+                            {
+                                showInColumn: 'short_name',
+                                column: 'planned_project_weight',
+                                summaryType: 'max',
+                                customizeText: (e) => {
+                                    return `Требуемое количество: ${new Intl.NumberFormat('ru-RU').format(e.value)} т`;
+                                }
+                            },
+                            {
+                                column: 'weight',
+                                summaryType: 'max',
+                                customizeText: (e) => {
+                                    return `Забронировано: ${new Intl.NumberFormat('ru-RU').format(e.value)} т`;
+                                }
+                            }
+                        ]*/
+                    },
+                    onSaving: (e) => {
+                        let editForm = $(".dx-datagrid-edit-popup-form").dxForm("instance");
+                        console.log("editForm", editForm);
+                        e.changes[0].data.brand_type_id = editForm.getEditor("brand_type_id").option("value");
+                        e.changes[0].data.quantity = editForm.getEditor("common_quantity").option("value");
+                        e.changes[0].data.planned_weight = editForm.getEditor("supply_planned_weight").option("value");
+                        e.changes[0].data.materialsData = editForm.getEditor("materialInputGrid").option("editing.changes");
+                        e.changes[0].data.supply_object_id = currentSelectedProjectObject.id
+                    }
                 })
             }
 
-            createSupplyPlanningForm();
+            function loadSupplyObjects() {
+                supplyObjectsDataSource.load().done((result) => {
+                    createSupplyPlanningForm(result);
+                })
+            }
 
+            loadSupplyObjects();
         });
     </script>
 @endsection
