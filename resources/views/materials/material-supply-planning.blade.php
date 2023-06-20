@@ -718,13 +718,13 @@
 
                                         console.log("groupCellTemplate options", options);
 
-                                        options.component.editRow(4);
+                                        options.component.editRow(0);
 
-                                        let editForm = $(".dx-datagrid-edit-popup-form").dxForm("instance");
+                                        /*let editForm = $(".dx-datagrid-edit-popup-form").dxForm("instance");
                                         editForm.option("formData", {
                                             brand_type_id: options.data.items[0].brand_type_id,
                                             common_quantity: options.data.items[0].quantity
-                                        });
+                                        });*/
                                     })
                                     .appendTo(commandGroupCell);
                             }
