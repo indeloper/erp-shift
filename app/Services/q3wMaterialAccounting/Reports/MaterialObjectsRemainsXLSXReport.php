@@ -29,7 +29,6 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
     /**
      * @var string
      */
-    private $date;
 
     /**
      * @var array
@@ -45,15 +44,13 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
     /**
      * @var int
      */
-    private $projectObjectId;
+
     private $lastLineNumber;
 
-    public function __construct($projectObjectId, $materialRemains, $filterText, $date)
+    public function __construct($materialRemains, $filterText)
     {
         $this->materialRemains = $materialRemains;
         $this->filterText = $filterText;
-        $this->date = $date;
-        $this->projectObjectId = $projectObjectId;
         $this->lastColumn = array_key_exists('comment', $materialRemains[0]) ? 'G' : 'F';
     }
 

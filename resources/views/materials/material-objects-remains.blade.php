@@ -90,8 +90,6 @@
 
     <form id="printMaterialRemains" target="_blank" method="post" action="{{route('materials.objects.remains.print')}}">
         @csrf
-        <input id="projectObjectId" type="hidden" name="projectObjectId">
-        <input id="requestedDate" type="hidden" name="requestedDate">
         <input id="detailing_level" type="hidden" name="detailing_level">
         <input id="filterOptions" type="hidden" name="filterOptions">
         <input id="filterList" type="hidden" name="filterList">
@@ -100,8 +98,6 @@
 
 @section('js_footer')
     <script>
-        let projectObject = {{$projectObjectId}};
-        let requestedDate = new Date('{{$requestedDate}}');
         let detailing_level = {{$detailing_level}};
         let detailing_level_codes = {
             "Максимальная детализация" : 1,
@@ -126,9 +122,6 @@
         });
 
         $(function () {
-            //<editor-fold desc="JS: DataSources">
-            
-            // console.log(new URL(window.location.href).searchParams.get('detailing_level'));
             let projectObjectsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "processed",
@@ -151,8 +144,6 @@
                         return $.getJSON("{{route('materials.objects.remains.list')}}",
                             {
                                 data: JSON.stringify(loadOptions),
-                                projectObjectId: projectObject,
-                                requestedDate: new Date(requestedDate).toISOString().split("T")[0],
                                 detailing_level: getDetailingLevel() 
                             });
                     },
@@ -271,7 +262,7 @@
                             if(e.addedItems[0]) {
                                 detailing_level = e.addedItems[0].hint;
                                 materialsRemainsDataSource.reload();
-                                window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detailing_level));
+                                window.history.pushState("", "", getUrlParameters(detailing_level));
                             }
                         },
                         items: [
@@ -301,8 +292,6 @@
                             delete dataSourceLoadOptions.skip;
                             delete dataSourceLoadOptions.take;
 
-                            $('#projectObjectId').val(JSON.stringify(projectObject));
-                            $('#requestedDate').val(JSON.stringify(new Date(requestedDate).toISOString().split("T")[0]));
                             $('#detailing_level').val(JSON.stringify(getDetailingLevel()));
                             $('#filterList').val(JSON.stringify(filterText));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
@@ -316,12 +305,9 @@
 
             createGridReportButtons();
 
-            function getUrlParameters(projectObject, requestedDate){
-                return '?projectObjectId=' + projectObject 
-                    + '&requestedDate=' + new Date(requestedDate).toISOString().split("T")[0] 
-                    + '&detailing_level=' + detailing_level_codes[detailing_level];
+            function getUrlParameters(){
+                return '?detailing_level=' + detailing_level_codes[detailing_level];
             }
-
         });
     </script>
 @endsection

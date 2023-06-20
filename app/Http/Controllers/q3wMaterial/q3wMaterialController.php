@@ -763,15 +763,12 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        // $detailing_level = json_decode($request['detailing_level']);
-        $projectObjectId = json_decode($request["projectObjectId"]);
-        $requestedDate = json_decode($request["requestedDate"]);
         $detailing_level = $this->getDetailingLevel(json_decode($request['detailing_level'])); 
 
         $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
             ->get()
             ->toArray();
 
-        return (new MaterialObjectsRemainsXLSXReport($projectObjectId, $materialsList, $filterText, $requestedDate))->export();
+        return (new MaterialObjectsRemainsXLSXReport($materialsList, $filterText))->export();
     }
 }
