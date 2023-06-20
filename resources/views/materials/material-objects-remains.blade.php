@@ -74,21 +74,7 @@
         .dx-datagrid-filter-panel {
             display: none !important;
         }
-
-        .coming {
-            color: #335633;
-            background: #dbf7b1;
-        }
-
-        .outgoing {
-            color: #762828;
-            background: #fbb1b1;;
-        }
-
-        .remains {
-            background: #bdbdf7;
-            color: #20205a;
-        }
+        
         .material-name {
             text-overflow: ellipsis;
             overflow: hidden;
@@ -106,7 +92,7 @@
         @csrf
         <input id="projectObjectId" type="hidden" name="projectObjectId">
         <input id="requestedDate" type="hidden" name="requestedDate">
-        <input id="detalization" type="hidden" name="detalization">
+        <input id="detailing_level" type="hidden" name="detailing_level">
         <input id="filterOptions" type="hidden" name="filterOptions">
         <input id="filterList" type="hidden" name="filterList">
     </form>
@@ -116,21 +102,17 @@
     <script>
         let projectObject = {{$projectObjectId}};
         let requestedDate = new Date('{{$requestedDate}}');
-        let detalization = '';
+        let detailing_level = {{$detailing_level}};
+        let detailing_level_codes = {
+            "Максимальная детализация" : 1,
+            "Средняя детализация" : 2,
+            "Минимальная детализация" : 3,
+        }
         let filterText = '';
-        
         let dataSourceLoadOptions = {};
 
-        function roundQuantity(value, accounting_type) {
-            if(accounting_type != 2 || detalization != "Минимальная детализация")
-            return new Intl.NumberFormat('ru-RU').format( Math.round(value * 100) / 100 );
-
-            var rem = Number('0.' + String(value).split('.')[1])
-            
-            if(rem < 0.51) 
-            return new Intl.NumberFormat('ru-RU').format(Math.floor(value));
-            else 
-            return new Intl.NumberFormat('ru-RU').format(Math.ceil(value));            
+        function getKeyByValue(object, value) {
+            return Object.keys(object).find(key => object[key] === value);
         }
 
         $(function () {
@@ -160,7 +142,7 @@
                                 data: JSON.stringify(loadOptions),
                                 projectObjectId: projectObject,
                                 requestedDate: new Date(requestedDate).toISOString().split("T")[0],
-                                detalization: detalization
+                                detailing_level: detailing_level_codes[detailing_level]
                             });
                     },
                 })
@@ -205,14 +187,19 @@
                                 scrolling: {
                                     mode: 'infinite',
                                 },
+                                sorting: {
+                                    mode: 'multiple',
+                                },
                                 columns: [
                                     {
                                         caption: "Объект",
-                                        dataField: "object_name"
+                                        dataField: "object_name",
+                                        sortOrder: 'asc',
                                     },
                                     {
                                         caption: "Наименование",
                                         dataField: "standard_name",
+                                        sortOrder: 'asc',
                                         cellTemplate: function (container, options) {
                                             $(`<div class="material-name">${options.data.standard_name}</div>`)
                                                 .appendTo(container);
@@ -228,8 +215,9 @@
                                     {
                                         caption: "Количество",
                                         dataField: "quantity",
+                                        sortOrder: 'asc',
                                         calculateCellValue: function (rowData) { 
-                                            return roundQuantity(rowData.quantity, rowData.accounting_type) + " " + rowData.unit_measure_value;
+                                            return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.quantity * 100) / 100) + " " + rowData.unit_measure_value;
                                         },
                                         width: 150
                                     },
@@ -245,7 +233,7 @@
                                         caption: "Вес",
                                         dataField: "summary_weight",
                                         calculateCellValue: function(rowData) {
-                                            return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.summary_weight * 1000) / 1000) + ' тн';
+                                            return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.summary_weight * 1000) / 1000) + ' т';
                                         },
                                         width: 150
                                     }
@@ -267,12 +255,12 @@
                 $('<div>')
                     .dxButtonGroup({
                         keyExpr: "hint",
-                        selectedItemKeys: [ "Максимальная детализация" ],
+                        selectedItemKeys: [ getKeyByValue(detailing_level_codes, detailing_level) ],
                         onSelectionChanged: function (e) {
                             if(e.addedItems[0]) {
-                                detalization = e.addedItems[0].hint;
+                                detailing_level = e.addedItems[0].hint;
                                 materialsRemainsDataSource.reload();
-                                window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detalization));
+                                window.history.pushState("", "", getUrlParameters(projectObject, requestedDate, detailing_level));
                             }
                         },
                         items: [
@@ -294,8 +282,6 @@
                 .prependTo(groupCaptionButtonsDiv)
 
 
-                
-
                 $('<div>')
                     .dxButton({
                         text: "Скачать",
@@ -306,7 +292,7 @@
 
                             $('#projectObjectId').val(JSON.stringify(projectObject));
                             $('#requestedDate').val(JSON.stringify(new Date(requestedDate).toISOString().split("T")[0]));
-                            $('#detalization').val(JSON.stringify(detalization));
+                            $('#detailing_level').val(JSON.stringify(detailing_level_codes[detailing_level]));
                             $('#filterList').val(JSON.stringify(filterText));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
                             $('#printMaterialRemains').get(0).submit();
@@ -322,27 +308,9 @@
             function getUrlParameters(projectObject, requestedDate){
                 return '?projectObjectId=' + projectObject 
                     + '&requestedDate=' + new Date(requestedDate).toISOString().split("T")[0] 
-                    + '&detalization=' + detalization;
+                    + '&detailing_level=' + detailing_level_codes[detailing_level];
             }
 
-            function getCellTemplate(container, options) {
-                let cssClass;
-
-                switch(options.column.ownerBand) {
-                    case 1:
-                        cssClass = "coming";
-                        break;
-                    case 5:
-                        cssClass = "outgoing";
-                        break;
-                    case 9:
-                        cssClass = "remains";
-                        break;
-                }
-
-                container.addClass(cssClass);
-                container.append($(`<div>${Math.round(options.displayValue * 1000) / 1000}</div>`))
-            }
         });
     </script>
 @endsection

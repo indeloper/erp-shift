@@ -54,6 +54,7 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
         $this->filterText = $filterText;
         $this->date = $date;
         $this->projectObjectId = $projectObjectId;
+        $this->lastColumn = array_key_exists('comment', $materialRemains[0]) ? 'G' : 'F';
     }
 
     public function headings(): array
@@ -61,6 +62,18 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
         if (empty($this->filterText)) {
             $this->filterText = 'Не указаны';
         }
+
+        $tableHeaders = [
+            'Объект',
+            'Наименование',
+            'Количество',
+            'Ед.Изм.',
+            'Количество (шт.)',
+            'Вес'
+        ];
+
+        if($this->lastColumn == 'G')
+        $tableHeaders[] = 'Комментарий';
 
         return [
             [
@@ -72,16 +85,7 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
             [
 
             ],
-            [
-                'Объект',
-                'Наименование',
-                'Количество',
-                'Ед.Изм.',
-                'Количество (шт.)',
-                'Вес',
-                'Комментарий'
-            ]
-            
+            $tableHeaders         
         ];
 
     }
@@ -101,7 +105,7 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
                 $material['unit_measure_value'],
                 $material['amount'], 
                 $material['summary_weight'],
-                $material['comment']
+                $material['comment'] ?? NULL
             ]);
 
             $number++;
@@ -122,7 +126,7 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
                 $event->sheet->setAutoFilter('A4:F4');
 
                 //Main header styles
-                $event->sheet->getDelegate()->mergeCells('A1:G1');
+                $event->sheet->getDelegate()->mergeCells('A1:'.$this->lastColumn.'1');
                 
                 $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_LEFT);
                 $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_LEFT);
@@ -137,7 +141,7 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
 
                 
                 //Table headers
-                $event->sheet->getStyle('A4:G4')
+                $event->sheet->getStyle('A4:'.$this->lastColumn.'4')
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
@@ -151,7 +155,7 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
                         ]
                     ]);
 
-                    $event->sheet->getStyle('A' . self::startLineNumber . ':G' . $this->lastLineNumber)
+                    $event->sheet->getStyle('A' . self::startLineNumber . ':'.$this->lastColumn . $this->lastLineNumber)
                         ->applyFromArray([
                            
                             'borders' => [

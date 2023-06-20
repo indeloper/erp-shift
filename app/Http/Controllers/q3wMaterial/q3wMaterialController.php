@@ -92,6 +92,8 @@ class q3wMaterialController extends Controller
 
     public function objectsRemains(Request $request)
     {
+        $detailing_level = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access') ?: 1;
+
         $projectObjectId = $request->projectObjectId ?? ProjectObject::whereNotNull('short_name')
                 ->orderBy("short_name")
                 ->get(['id'])
@@ -104,7 +106,8 @@ class q3wMaterialController extends Controller
         }
         return view('materials.material-objects-remains')->with([
             'projectObjectId' => $projectObjectId,
-            'requestedDate' => $requestedDate
+            'requestedDate' => $requestedDate,
+            'detailing_level' => $detailing_level
         ]);
     }
     
@@ -630,7 +633,7 @@ class q3wMaterialController extends Controller
             ->orderBy('q3w_material_standards.name');
     }
 
-    function getObjectsRemainsQuery($filterOptions, $detalization) 
+    function getObjectsRemainsQuery($filterOptions, $detailing_level) 
     {
 
         return (new q3wMaterial)
@@ -641,42 +644,39 @@ class q3wMaterialController extends Controller
         ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
         ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
         
-        ->when($detalization=='Максимальная детализация' || !$detalization, function($query){
+        ->when($detailing_level==1 || !$detailing_level, function($query){
             return $query
             ->select([
                 'q3w_materials.*',
                 'q3w_material_standards.name as standard_name',
                 'q3w_material_types.accounting_type as accounting_type',
-                'project_objects.name as object_name',
+                'project_objects.short_name as object_name',
                 'q3w_measure_units.value as unit_measure_value',
                 'q3w_material_comments.comment as comment',
                 DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
             ]);            
         })
         
-        ->when($detalization=='Средняя детализация' || $detalization=='Минимальная детализация', function($query){
+        ->when($detailing_level==2 || $detailing_level==3, function($query){
             return $query
             ->select([
                 'q3w_materials.id',
                 DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
-                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), quantity) as quantity'),
+                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), IF( quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) )) as quantity'),
                 'q3w_material_types.accounting_type as accounting_type',
                 'q3w_material_standards.name as standard_name',
-                'project_objects.name as object_name',
+                'project_objects.short_name as object_name',
                 'q3w_measure_units.value as unit_measure_value',
                 DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
             ])
             ->groupBy([
                 'project_object',
                 'standard_id',
-                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity)')
+                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, IF( quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) ))')
             ]);
         })
 
-
-        ->where([['amount', '>', 0], ['quantity', '>', 0]])
-        ->orderBy('q3w_materials.project_object')
-        ->orderBy('q3w_material_standards.name');
+        ->where([['amount', '>', 0], ['quantity', '>', 0]]);
             
     }
 
@@ -700,9 +700,11 @@ class q3wMaterialController extends Controller
     public function objectsRemainsList(Request $request): string
     {
         $options = json_decode($request['data']);
-        $detalization = $request['detalization'];
+        $detailing_level = $request['detailing_level'] ?: 1;
 
-        $materialsList = $this->getObjectsRemainsQuery($options, $detalization)
+        (new UsersSetting)->setSetting('material_accounting_objects_remains_report_access', $detailing_level);
+
+        $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
             ->get();
         
         return json_encode(array(
@@ -730,11 +732,11 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        $detalization = json_decode($request['detalization']);
+        $detailing_level = json_decode($request['detailing_level']);
         $projectObjectId = json_decode($request["projectObjectId"]);
         $requestedDate = json_decode($request["requestedDate"]);
 
-        $materialsList = $this->getObjectsRemainsQuery($options, $detalization)
+        $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
             ->get()
             ->toArray();
 
