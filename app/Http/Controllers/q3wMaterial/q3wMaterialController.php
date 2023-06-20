@@ -93,22 +93,7 @@ class q3wMaterialController extends Controller
     public function objectsRemains(Request $request)
     {
         $detailing_level = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access') ?: 1;
-
-        $projectObjectId = $request->projectObjectId ?? ProjectObject::whereNotNull('short_name')
-                ->orderBy("short_name")
-                ->get(['id'])
-                ->first()->id;
-
-        if (isset($request->requestedDate)) {
-            $requestedDate = $request->requestedDate;
-        } else {
-            $requestedDate = Carbon::today()->format('Y-m-d');
-        }
-        return view('materials.material-objects-remains')->with([
-            'projectObjectId' => $projectObjectId,
-            'requestedDate' => $requestedDate,
-            'detailing_level' => $detailing_level
-        ]);
+        return view('materials.material-objects-remains', compact('detailing_level'));
     }
     
 
