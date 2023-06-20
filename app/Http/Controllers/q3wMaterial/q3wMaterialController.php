@@ -656,8 +656,27 @@ class q3wMaterialController extends Controller
                 DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
             ]);            
         })
+
+        ->when($detailing_level==2, function($query){
+            return $query
+            ->select([
+                'q3w_materials.id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
+                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), quantity) as quantity'),
+                'q3w_material_types.accounting_type as accounting_type',
+                'q3w_material_standards.name as standard_name',
+                'project_objects.short_name as object_name',
+                'q3w_measure_units.value as unit_measure_value',
+                DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`')
+            ])
+            ->groupBy([
+                'project_object',
+                'standard_id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity )')
+            ]);
+        })
         
-        ->when($detailing_level==2 || $detailing_level==3, function($query){
+        ->when($detailing_level==3, function($query){
             return $query
             ->select([
                 'q3w_materials.id',
@@ -667,17 +686,16 @@ class q3wMaterialController extends Controller
                 'q3w_material_standards.name as standard_name',
                 'project_objects.short_name as object_name',
                 'q3w_measure_units.value as unit_measure_value',
-                DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
+                DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`')
             ])
             ->groupBy([
                 'project_object',
                 'standard_id',
-                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, IF( quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) ))')
+                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, IF(quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) ))')
             ]);
         })
 
-        ->where([['amount', '>', 0], ['quantity', '>', 0]]);
-            
+        ->where([['amount', '>', 0], ['quantity', '>', 0]]);         
     }
 
     public function materialRemainsList(Request $request): string
