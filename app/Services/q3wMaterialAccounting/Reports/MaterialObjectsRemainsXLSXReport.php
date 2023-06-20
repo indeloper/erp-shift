@@ -79,15 +79,26 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
             [
                 'Остатки на объектах'
             ],
-            [
-                'Фильтры: ' . $this->filterText
-            ],
+                $this->getRow2Arr()
+            ,
             [
 
             ],
             $tableHeaders         
         ];
 
+    }
+
+    function getRow2Arr()
+    {
+        $content = ['Фильтры: ' . $this->filterText];
+        
+        $this->lastColumn == 'G' ? $emtyCells = 5 : $emtyCells = 4;
+        for($i=1; $i<=$emtyCells; $i++)
+        $content[] = '';
+
+        $content[] = now()->format('d.m.Y');
+        return $content;
     }
 
     public function collection()
@@ -128,14 +139,16 @@ class MaterialObjectsRemainsXLSXReport implements FromCollection, WithHeadings, 
                 //Main header styles
                 $event->sheet->getDelegate()->mergeCells('A1:'.$this->lastColumn.'1');
                 
-                $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_CENTER);
                 $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign($this->lastColumn.'2', Alignment::HORIZONTAL_RIGHT);
 
                 
                 $event->sheet->getStyle('A1')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
+                            'bold' => true,
+                            'size' => 18
                         ]
                     ]);
 
