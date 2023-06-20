@@ -713,8 +713,18 @@
                                     .appendTo(container.parent());
 
                                 $('<a href="#" class="dx-link dx-link-edit dx-icon-edit dx-link-icon" title="Редактировать" aria-label="Редактировать">')
-                                    .on("click", () => {
-                                        options.component.editRow(1);
+                                    .on("click", (e) => {
+                                        e.preventDefault();
+
+                                        console.log("groupCellTemplate options", options);
+
+                                        options.component.editRow(4);
+
+                                        let editForm = $(".dx-datagrid-edit-popup-form").dxForm("instance");
+                                        editForm.option("formData", {
+                                            brand_type_id: options.data.items[0].brand_type_id,
+                                            common_quantity: options.data.items[0].quantity
+                                        });
                                     })
                                     .appendTo(commandGroupCell);
                             }
@@ -748,14 +758,14 @@
                             buttons: [
                                 {
                                     name: 'edit',
-                                    /*visible: (e) => {
-                                        //
-                                    }*/
+                                    visible: (e) => {
+                                        return false;
+                                    }
                                 },
                                 {
                                     name: 'delete',
                                     visible: (e) => {
-                                        //
+                                        return false;
                                     }
                                 }
                             ],
