@@ -115,18 +115,30 @@
             return Object.keys(object).find(key => object[key] === value);
         }
 
+        function getDetailingLevel() {
+            return detailing_level_codes[detailing_level] 
+                ? detailing_level_codes[detailing_level] 
+                : new URL(window.location.href).searchParams.get('detailing_level')
+        }
+
         $(function () {
             $("div.content").children(".container-fluid.pd-0-360").removeClass();
         });
 
         $(function () {
             //<editor-fold desc="JS: DataSources">
+            
+            // console.log(new URL(window.location.href).searchParams.get('detailing_level'));
             let projectObjectsStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "processed",
                 load: function (loadOptions) {
                     return $.getJSON("{{route('project-objects.list')}}",
-                        {data: JSON.stringify(loadOptions)});
+                        {
+                            data: JSON.stringify(loadOptions),
+                            detailing_level: 3
+                        }
+                    );
                 }
             });
 
@@ -136,13 +148,12 @@
                     load: function (loadOptions) {
                         /*loadOptions.filter = getLoadOptionsFilterArray();*/
                         dataSourceLoadOptions = loadOptions;
-
                         return $.getJSON("{{route('materials.objects.remains.list')}}",
                             {
                                 data: JSON.stringify(loadOptions),
                                 projectObjectId: projectObject,
                                 requestedDate: new Date(requestedDate).toISOString().split("T")[0],
-                                detailing_level: detailing_level_codes[detailing_level]
+                                detailing_level: getDetailingLevel() 
                             });
                     },
                 })
@@ -265,15 +276,15 @@
                         },
                         items: [
                             {
-                                icon: 'fa fa-bars',
+                                icon: 'fas fa-th',
                                 hint: 'Максимальная детализация',
                             },
                             {
-                                icon: 'far fa-file-alt',
+                                icon: 'fas fa-th-large',
                                 hint: 'Средняя детализация',
                             },
                             {
-                                icon: 'far fa-file',
+                                icon: 'fas fa-square',
                                 hint: 'Минимальная детализация',   
                             }
                         ]
@@ -292,7 +303,7 @@
 
                             $('#projectObjectId').val(JSON.stringify(projectObject));
                             $('#requestedDate').val(JSON.stringify(new Date(requestedDate).toISOString().split("T")[0]));
-                            $('#detailing_level').val(JSON.stringify(detailing_level_codes[detailing_level]));
+                            $('#detailing_level').val(JSON.stringify(getDetailingLevel()));
                             $('#filterList').val(JSON.stringify(filterText));
                             $('#filterOptions').val(JSON.stringify(dataSourceLoadOptions));
                             $('#printMaterialRemains').get(0).submit();

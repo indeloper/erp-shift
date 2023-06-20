@@ -700,7 +700,7 @@ class q3wMaterialController extends Controller
     public function objectsRemainsList(Request $request): string
     {
         $options = json_decode($request['data']);
-        $detailing_level = $request['detailing_level'] ?: 1;
+        $detailing_level = $this->getDetailingLevel($request['detailing_level']); 
 
         (new UsersSetting)->setSetting('material_accounting_objects_remains_report_access', $detailing_level);
 
@@ -712,6 +712,19 @@ class q3wMaterialController extends Controller
             "totalCount" => $materialsList->count()
             ),
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    function getDetailingLevel($request_detailing_level)
+    {
+        if($request_detailing_level)
+        return $request_detailing_level;
+
+        $detailingLevelFromUserSettings = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access');
+
+        if($detailingLevelFromUserSettings)
+        return $detailingLevelFromUserSettings;
+
+        return 1;
     }
 
     public function exportMaterialRemains(Request $request)
@@ -732,9 +745,10 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        $detailing_level = json_decode($request['detailing_level']);
+        // $detailing_level = json_decode($request['detailing_level']);
         $projectObjectId = json_decode($request["projectObjectId"]);
         $requestedDate = json_decode($request["requestedDate"]);
+        $detailing_level = $this->getDetailingLevel(json_decode($request['detailing_level'])); 
 
         $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
             ->get()
