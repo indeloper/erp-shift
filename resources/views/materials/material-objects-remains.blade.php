@@ -218,6 +218,7 @@
                                         caption: "Количество",
                                         dataField: "quantity",
                                         sortOrder: 'asc',
+                                        dataType: "number",
                                         calculateCellValue: function (rowData) { 
                                             return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.quantity * 100) / 100) + " " + rowData.unit_measure_value;
                                         },
@@ -226,6 +227,7 @@
                                     {
                                         caption: "Количество (шт.)",
                                         dataField: "amount",
+                                        dataType: "number",
                                         calculateCellValue: function(rowData) {
                                             return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.amount * 100) / 100) + ' шт';
                                         },
@@ -234,6 +236,7 @@
                                     {
                                         caption: "Вес",
                                         dataField: "summary_weight",
+                                        dataType: "number",
                                         calculateCellValue: function(rowData) {
                                             return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.summary_weight * 1000) / 1000) + ' т';
                                         },
