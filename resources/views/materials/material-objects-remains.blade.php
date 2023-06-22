@@ -110,6 +110,12 @@
         let filterText = '';
         let dataSourceLoadOptions = {};
 
+        function getGridHeight() {
+            let contentDiv = document.querySelector('.content')
+            let footerDiv = document.querySelector('.footer')
+            return 0.85 * (contentDiv.clientHeight - footerDiv.clientHeight)
+        }
+
         function getKeyByValue(object, value) {
             return Object.keys(object).find(key => object[key] === value);
         }
@@ -167,7 +173,7 @@
                             name: "materialsRemainsGrid",
                             editorType: "dxDataGrid",
                             editorOptions: {
-                                height: '65vh',
+                                height: getGridHeight(),
                                 dataSource: materialsRemainsDataSource,
                                 remoteOperations: true,
                                 focusedRowEnabled: false,
@@ -357,7 +363,7 @@
 
         });
 
-
+       
         
     </script>
 @endsection
