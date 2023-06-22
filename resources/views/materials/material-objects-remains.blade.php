@@ -81,19 +81,22 @@
             width: 100%;
             white-space: nowrap;
         }
+        #formContainer{
+            height: 440px;
+        }
+
     </style>
 @endsection
 
 @section('content')
-    <div id="formContainer"></div>
-    <div id="gridContainer"></div>
+        <div id="formContainer"></div>
 
-    <form id="printMaterialRemains" target="_blank" method="post" action="{{route('materials.objects.remains.print')}}">
-        @csrf
-        <input id="detailing_level" type="hidden" name="detailing_level">
-        <input id="filterOptions" type="hidden" name="filterOptions">
-        <input id="filterList" type="hidden" name="filterList">
-    </form>
+        <form id="printMaterialRemains" target="_blank" method="post" action="{{route('materials.objects.remains.print')}}">
+            @csrf
+            <input id="detailing_level" type="hidden" name="detailing_level">
+            <input id="filterOptions" type="hidden" name="filterOptions">
+            <input id="filterList" type="hidden" name="filterList">
+        </form>
 @endsection
 
 @section('js_footer')
@@ -110,7 +113,7 @@
         function getKeyByValue(object, value) {
             return Object.keys(object).find(key => object[key] === value);
         }
-
+                        
         function getDetailingLevel() {
             return detailing_level_codes[detailing_level] 
                 ? detailing_level_codes[detailing_level] 
@@ -147,6 +150,10 @@
                                 detailing_level: getDetailingLevel() 
                             });
                     },
+                    onLoaded: function (result) {
+                        materialsRemainsDataSource.amountSum = result.amountSum
+                        materialsRemainsDataSource.amountSummaryWeight = result.amountSummaryWeight
+                    }
                 })
             });
 
@@ -160,6 +167,7 @@
                             name: "materialsRemainsGrid",
                             editorType: "dxDataGrid",
                             editorOptions: {
+                                height: '65vh',
                                 dataSource: materialsRemainsDataSource,
                                 remoteOperations: true,
                                 focusedRowEnabled: false,
@@ -183,14 +191,49 @@
                                 groupPanel: {
                                     visible: false
                                 },
-                                paging: {
-                                    enabled: false
-                                },
+                                // paging: {
+                                //     enabled: true,
+                                //     // pageSize: 10
+                                // },
                                 scrolling: {
+                                    rowRenderingMode: 'virtual',
                                     mode: 'infinite',
+                                },
+                                // paging: {
+                                //     pageSize: 10,
+                                // },
+                                pager: {
+                                    visible: false,
+                                    allowedPageSizes: 10,
+                                    showPageSizeSelector: false,
+                                    showInfo: false,
+                                    showNavigationButtons: false,
                                 },
                                 sorting: {
                                     mode: 'multiple',
+                                },
+                                summary: {
+                                    totalItems: [
+                                        {
+                                            column: 'quantity',
+                                            value: 'Итого:'
+                                        },
+                                        {
+                                            column: 'amount',
+                                            value: '',
+                                            customizeText: (data) => {
+                                                // return materialsRemainsDataSource.amountSum;
+                                                return new Intl.NumberFormat('ru-RU').format( Math.round(materialsRemainsDataSource.amountSum * 100) / 100);
+                                            }
+                                        },
+                                        {
+                                            column: 'summary_weight',
+                                            value: '',
+                                            customizeText: (data) => {
+                                                return new Intl.NumberFormat('ru-RU').format( Math.round(materialsRemainsDataSource.amountSummaryWeight * 1000) / 1000);
+                                            }
+                                        }
+                                    ]
                                 },
                                 columns: [
                                     {
@@ -249,7 +292,7 @@
                     }
                 ]
             }).dxForm("instance");
-
+  
             function createGridReportButtons(){
                 let groupCaption = $('.material-snapshot-grid').find('.dx-form-group-with-caption');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
@@ -311,6 +354,10 @@
             function getUrlParameters(){
                 return '?detailing_level=' + detailing_level_codes[detailing_level];
             }
+
         });
+
+
+        
     </script>
 @endsection

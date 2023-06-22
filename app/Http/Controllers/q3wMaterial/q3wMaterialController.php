@@ -709,9 +709,14 @@ class q3wMaterialController extends Controller
 
         $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
             ->get();
+
+        unset($options->take);
+        $fullList = $this->getObjectsRemainsQuery($options, $detailing_level)->get();
         
         return json_encode(array(
             "data" => $materialsList,
+            "amountSum" => $fullList->sum('amount'),
+            "amountSummaryWeight" => $fullList->sum('summary_weight'),
             "totalCount" => $materialsList->count()
             ),
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
