@@ -163,20 +163,28 @@ class UserController extends Controller
         $vacation = VacationsHistory::with('support_user')->where('vacation_user_id', $id)->where('is_actual', 1)->first();
 
         $group = Group::whereId($user->group_id)->with('users', 'group_permissions')->first();
-        $department = Department::findOrFail($group->department_id);
-        $department->load('groups');
+        if (isset($group)) {
+            $department = Department::find($group->department_id);
+            $department->load('groups');
+        }
         $permissions = Permission::all();
-
+        if (isset($department)) {
+            $departmentPermissions = $permissions->whereIn('id', $department->permission_ids($department->groups))->values();
+            $groupPermissions = $group->permissions()->whereNotIn('permission_id', $department->permission_ids($department->groups))->values();
+        } else {
+            $departmentPermissions = [];
+            $groupPermissions = [];
+        }
 
         return view('users.card', [
             'user' => $user,
-            'group' => Group::findOrFail($user->group_id),
-            'department' => Department::findOrFail($user->department_id),
+            'group' => Group::find($user->group_id),
+            'department' => Department::find($user->department_id),
             'projects' => $projects->concat(Project::getAllProjects()->where('projects.user_id', $id)->get())->unique(),
             'vacation' => $vacation,
             'permissions' => Permission::all(),
-            'department_perms' => $permissions->whereIn('id', $department->permission_ids($department->groups))->values(),
-            'group_permissions' => $group->permissions()->whereNotIn('permission_id', $department->permission_ids($department->groups))->values(),
+            'department_perms' => $departmentPermissions,
+            'group_permissions' => $groupPermissions,
             'companies' => User::$companies,
         ]);
     }
