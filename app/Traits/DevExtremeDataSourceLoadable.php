@@ -115,7 +115,7 @@ trait DevExtremeDataSourceLoadable
             $translatedFilterItem = array(
                 'fieldName' => $filterArray[0],
                 'operator' => $filterArray[1],
-                'value' => $filterArray[2]);
+                'value' => str_replace(' ', '%', $filterArray[2]));
 
             if ($useHaving){
                 $result->having(
