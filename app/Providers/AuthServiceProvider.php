@@ -20,7 +20,7 @@ use App\Policies\OurTechnicTicketActionsPolicy;
 use App\Policies\OurTechnicTicketReportPolicy;
 use App\Policies\FuelTankPolicy;
 use App\Policies\FuelTankOperationPolicy;
-
+use Illuminate\Http\Request;
 
 class AuthServiceProvider extends ServiceProvider
 {
