@@ -23,12 +23,6 @@ use App\Models\Notification;
 
 class UpdateEmployeesInfoFrom1cController extends Controller
 {
-    // const notificationRecipients = [
-    //     ["id" => 471, "name" => "Антон"],
-    //     ["id" => 277, "name" => "Сергей"],
-    // ];
-
-
     function uploadData(Request $request)  
     {
         // Проверка токена временно здесь, т.к. другие способы подразумевают аутентификацию пользователя. 
