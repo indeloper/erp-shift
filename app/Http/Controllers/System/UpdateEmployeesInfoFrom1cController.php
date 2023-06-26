@@ -23,10 +23,11 @@ use App\Models\Notification;
 
 class UpdateEmployeesInfoFrom1cController extends Controller
 {
-    const notificationRecipients = [
-        ["id" => 471, "name" => "Антон"],
-        ["id" => 277, "name" => "Сергей"],
-    ];
+    // const notificationRecipients = [
+    //     ["id" => 471, "name" => "Антон"],
+    //     ["id" => 277, "name" => "Сергей"],
+    // ];
+
 
     function uploadData(Request $request)  
     {
@@ -54,6 +55,8 @@ class UpdateEmployeesInfoFrom1cController extends Controller
 
     function employeesSync($employeeList)
     {
+        $notificationRecipients = User::where('is_su', 1)->get();   
+
         foreach ($employeeList as $employee) {
 
             $employee = (object)$employee;
@@ -75,15 +78,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             }
 
             if (isset($company)) {
-                /*$user = User::withoutGlobalScopes()
-                    ->where('first_name', '=', trim($employee->employeeFirstName))
-                    ->where('last_name', '=', trim($employee->employeeLastName))
-                    ->where('patronymic', '=', trim($employee->employeePatronymic))
-                    ->where('birthday', '=', trim($formattedBirthday))
-                    ->get()
-                    ->first();*/
-
-                // Need to use that after first sync
+                
                 $user = User::withoutGlobalScopes()
                     ->where('inn', '=', trim($employee->employeeINN))
                     ->get()
@@ -91,7 +86,6 @@ class UpdateEmployeesInfoFrom1cController extends Controller
 
                     if (isset($user))
                     {
-                        //if ($user->status != 0) { Think about that condition when employee has been already dismissed
                             DB::statement("update users set " .
                                 "first_name = '" . trim($employee->employeeFirstName) . "', " .
                                 "last_name = '" . trim($employee->employeeLastName) . "', " .
@@ -105,7 +99,6 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                                 "status = " . $userStatus . " " .
                                 "where id = '" . $user->id . "'");
                             Log::channel('stderr')->info('[info] Обновлен пользователь: ' . $employee->employeeLastName . ' ' . $employee->employeeFirstName . ' ' . trim($employee->employeePatronymic));
-                        //}
                     } else {
                         DB::statement('insert into users (first_name,' .
                                                                 'last_name,' .
@@ -135,11 +128,6 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                         ')');
 
                         Log::channel('stderr')->info('[info] Добавлен новый пользователь: ' . $employee->employeeLastName . ' ' . $employee->employeeFirstName . ' ' . trim($employee->employeePatronymic));
-
-                        /*Telegram::sendMessage([
-                            'chat_id' =>  config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
-                            'text' => "[info] Добавлен новый пользователь: " . $employee->employeeLastName . ' ' . $employee->employeeFirstName . ' ' . trim($employee->employeePatronymic)
-                        ]);*/
                     }
 
                 $user = User::withoutGlobalScopes()
@@ -165,12 +153,12 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                         'report_group_id' => null
                     ]
                 );
-
+                
                 if($updated_employee->id > $lastEmployeesId){
-                    foreach(self::notificationRecipients as $recipient){
+                    foreach($notificationRecipients as $recipient){
                         Notification::create([
                             'name' => 'Добавлен сотрудник: ' . $employee->employeeName . ' ' . $updated_employee->employee1cPost->name,
-                            'user_id' => $recipient["id"],
+                            'user_id' => $recipient->id,
                             'type' => 0,
                         ]);
                     }
