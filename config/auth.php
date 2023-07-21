@@ -2,6 +2,9 @@
 
 return [
 
+    //1c sync
+    'SYNC_1C_API_KEY' => env('SYNC_1C_API_KEY'),
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults

@@ -127,13 +127,13 @@
                     <div class="row info-string line-bottom">
                         <label class="col-sm-3 col-form-label label-info-card">Должность</label>
                         <div class="col-sm-9">
-                            <p class="p-info-card"> {{ $group->name }} </p>
+                            <p class="p-info-card"> {{ $group ? $group->name : 'Не указан'}} </p>
                         </div>
                     </div>
                     <div class="row info-string line-bottom">
                         <label class="col-sm-3 col-form-label label-info-card">Подразделение</label>
                         <div class="col-sm-9">
-                            <p class="p-info-card"> {{ $department->name }} </p>
+                            <p class="p-info-card"> {{ $department ? $department->name : 'Не указано'}} </p>
                         </div>
                     </div>
                     <div class="row info-string line-bottom">

@@ -9,11 +9,13 @@ use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialComment;
 use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
+use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\UsersSetting;
 use App\Services\q3wMaterialAccounting\Reports\MaterialRemainsXLSXReport;
+use App\Services\q3wMaterialAccounting\Reports\MaterialObjectsRemainsXLSXReport;
 use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -87,6 +89,13 @@ class q3wMaterialController extends Controller
             'requestedDate' => $requestedDate
         ]);
     }
+
+    public function objectsRemains(Request $request)
+    {
+        $detailing_level = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access') ?: 1;
+        return view('materials.material-objects-remains', compact('detailing_level'));
+    }
+    
 
     /**
      * @param Request $request
@@ -564,6 +573,7 @@ class q3wMaterialController extends Controller
                                         AND DATE(`operation_date`) <= DATE('$date')
                                         AND NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)
                                         AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
+                                        and `quantity` > 0 and `amount` > 0
                                         GROUP BY
                                                  `standard_id`) AS `coming_to_materials`"), 'coming_to_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin(DB::Raw("(SELECT
@@ -587,6 +597,7 @@ class q3wMaterialController extends Controller
                                         AND DATE(`operation_date`) <= DATE('$date')
                                         AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
                                         AND NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)
+                                        and `quantity` > 0 and `amount` > 0
                                         GROUP BY
                                                  `standard_id`) AS `outgoing_materials`"), 'outgoing_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin('q3w_material_types', 'q3w_material_types.id', '=', 'q3w_material_standards.material_type')
@@ -609,6 +620,71 @@ class q3wMaterialController extends Controller
             ->orderBy('q3w_material_standards.name');
     }
 
+    function getObjectsRemainsQuery($filterOptions, $detailing_level) 
+    {
+
+        return (new q3wMaterial)
+        ->dxLoadOptions($filterOptions, true)
+        ->leftJoin('q3w_material_standards', 'q3w_materials.standard_id', '=', 'q3w_material_standards.id')
+        ->leftJoin('project_objects', 'q3w_materials.project_object', '=', 'project_objects.id')
+        ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
+        ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
+        ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
+        
+        ->when($detailing_level==1 || !$detailing_level, function($query){
+            return $query
+            ->select([
+                'q3w_materials.*',
+                'q3w_material_standards.name as standard_name',
+                'q3w_material_types.accounting_type as accounting_type',
+                'project_objects.short_name as object_name',
+                'q3w_measure_units.value as unit_measure_value',
+                'q3w_material_comments.comment as comment',
+                DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
+            ]);            
+        })
+
+        ->when($detailing_level==2, function($query){
+            return $query
+            ->select([
+                'q3w_materials.id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
+                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), quantity) as quantity'),
+                'q3w_material_types.accounting_type as accounting_type',
+                'q3w_material_standards.name as standard_name',
+                'project_objects.short_name as object_name',
+                'q3w_measure_units.value as unit_measure_value',
+                DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`')
+            ])
+            ->groupBy([
+                'project_object',
+                'standard_id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity )')
+            ]);
+        })
+        
+        ->when($detailing_level==3, function($query){
+            return $query
+            ->select([
+                'q3w_materials.id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
+                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), IF( quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) )) as quantity'),
+                'q3w_material_types.accounting_type as accounting_type',
+                'q3w_material_standards.name as standard_name',
+                'project_objects.short_name as object_name',
+                'q3w_measure_units.value as unit_measure_value',
+                DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`')
+            ])
+            ->groupBy([
+                'project_object',
+                'standard_id',
+                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, IF(quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) ))')
+            ]);
+        })
+
+        ->where([['amount', '>', 0], ['quantity', '>', 0]]);         
+    }
+
     public function materialRemainsList(Request $request): string
     {
         $options = json_decode($request['data']);
@@ -625,6 +701,42 @@ class q3wMaterialController extends Controller
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
+
+    public function objectsRemainsList(Request $request): string
+    {
+        $options = json_decode($request['data']);
+        $detailing_level = $this->getDetailingLevel($request['detailing_level']); 
+
+        (new UsersSetting)->setSetting('material_accounting_objects_remains_report_access', $detailing_level);
+
+        $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
+            ->get();
+
+        unset($options->take);
+        $fullList = $this->getObjectsRemainsQuery($options, $detailing_level)->get();
+        
+        return json_encode(array(
+            "data" => $materialsList,
+            "amountSum" => $fullList->sum('amount'),
+            "amountSummaryWeight" => $fullList->sum('summary_weight'),
+            "totalCount" => $materialsList->count()
+            ),
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    function getDetailingLevel($request_detailing_level)
+    {
+        if($request_detailing_level)
+        return $request_detailing_level;
+
+        $detailingLevelFromUserSettings = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access');
+
+        if($detailingLevelFromUserSettings)
+        return $detailingLevelFromUserSettings;
+
+        return 1;
+    }
+
     public function exportMaterialRemains(Request $request)
     {
         $filterText = json_decode($request->input('filterList'));
@@ -637,5 +749,18 @@ class q3wMaterialController extends Controller
             ->toArray();
 
         return (new MaterialRemainsXLSXReport($projectObjectId, $materialsList, $filterText, $requestedDate))->export();
+    }
+
+    public function exportObjectsRemains(Request $request)
+    {
+        $filterText = json_decode($request->input('filterList'));
+        $options = json_decode($request['filterOptions']);
+        $detailing_level = $this->getDetailingLevel(json_decode($request['detailing_level'])); 
+
+        $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
+            ->get()
+            ->toArray();
+
+        return (new MaterialObjectsRemainsXLSXReport($materialsList, $filterText))->export();
     }
 }

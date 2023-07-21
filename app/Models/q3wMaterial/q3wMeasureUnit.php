@@ -9,7 +9,4 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class q3wMeasureUnit extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable;
-
-
-    //
 }

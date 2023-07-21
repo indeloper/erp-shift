@@ -168,7 +168,7 @@
                                 <div class="row">
                                     <label class="col-sm-3 col-form-label">Название<star class="star">*</star></label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" id="object_name" type="text" name="name" required maxlength="150">
+                                        <input class="form-control" id="object_name" type="text" name="name" required>
                                     </div>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@
                                         </button>
                                     </label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" id="short_name" type="text" name="short_name" maxlength="500">
+                                        <input class="form-control" id="short_name" type="text" name="short_name">
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +190,7 @@
                                 <div class="row">
                                     <label class="col-sm-3 col-form-label">Адрес объекта<star class="star">*</star></label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" id="set_address" type="text" name="address" required maxlength="250">
+                                        <input class="form-control" id="set_address" type="text" name="address" required>
                                     </div>
                                 </div>
                             </div>
