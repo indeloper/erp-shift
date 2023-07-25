@@ -549,6 +549,9 @@
                                                 }
                                             }
                                         },
+                                        onSelectionChanged: (e) => {
+                                            e.component.refresh();
+                                        },
                                         summary: {
                                             groupItems: [{
                                                 column: "standard_id",
@@ -563,48 +566,107 @@
                                                 showInColumn: "quantity",
                                             },
                                             {
-                                                column: "amount",
-                                                summaryType: "sum",
-                                                displayFormat: "Всего: {0} шт",
+                                                showInColumn: "amount",
+                                                name: "amountSummary",
+                                                summaryType: "custom",
                                                 showInGroupFooter: false,
                                                 alignByColumn: true
                                             },
                                             {
-                                                column: "computed_weight",
-                                                summaryType: "sum",
-                                                customizeText: function (data) {
-                                                    data.value = Math.round(data.value * 1000) / 1000;
-                                                    data.value = new Intl.NumberFormat('ru-RU').format(data.value);
-                                                    return "Всего: " + data.value + " т"
-                                                },
+                                                showInColumn: "computed_weight",
+                                                summaryType: "custom",
+                                                name: "computedWeightSummary",
                                                 showInGroupFooter: false,
                                                 alignByColumn: true
                                             }
                                             ],
                                             totalItems: [
                                                 {
-                                                column: "computed_weight",
-                                                summaryType: "sum",
-                                                customizeText: function (data) {
-                                                    data.value = Math.round(data.value * 1000) / 1000;
-                                                    data.value = new Intl.NumberFormat('ru-RU').format(data.value);
-                                                    return "Итого: " + data.value + " т"
-                                                }
+                                                showInColumn: "computed_weight",
+                                                summaryType: "custom",
+                                                name: "totalComputedWeightSummary",
                                             }],
                                             calculateCustomSummary: (options) => {
-                                                if (options.name === 'totalQuantitySummary') {
+                                                if (options.name === 'totalQuantitySummary' ||
+                                                    options.name === 'amountSummary' ||
+                                                    options.name === 'computedWeightSummary' ||
+                                                    options.name === 'totalComputedWeightSummary') {
                                                     if (options.summaryProcess === 'start') {
                                                         options.totalValue = 0;
+                                                        options.selectedValue = 0;
                                                     }
+
                                                     if (options.summaryProcess === 'calculate') {
-                                                        options.totalValue += options.value.amount * options.value.quantity;
+                                                        switch (options.name) {
+                                                            case 'totalQuantitySummary':
+                                                                options.totalValue += options.value.amount * options.value.quantity;
+                                                                break;
+                                                            case 'amountSummary':
+                                                                options.totalValue += options.value.amount;
+                                                                break;
+                                                            case 'computedWeightSummary':
+                                                            case 'totalComputedWeightSummary':
+                                                                options.totalValue += options.value.weight * options.value.amount * options.value.quantity;
+                                                                break;
+                                                        }
                                                         options.measureUnit = options.value.measure_unit_value;
+
+                                                        if (options.component.getSelectedRowKeys().includes(options.value.id)) {
+                                                            switch (options.name) {
+                                                                case 'totalQuantitySummary':
+                                                                    options.selectedValue += options.value.amount * options.value.quantity;
+                                                                    break;
+                                                                case 'amountSummary':
+                                                                    options.selectedValue += options.value.amount;
+                                                                    break;
+                                                                case 'computedWeightSummary':
+                                                                case 'totalComputedWeightSummary':
+                                                                    options.selectedValue += options.value.weight * options.value.amount * options.value.quantity;
+                                                                    break;
+                                                            }
+                                                        }
                                                     }
 
                                                     if (options.summaryProcess === 'finalize') {
-                                                        options.totalValue = Math.round(options.totalValue * 100) / 100
+                                                        let roundModificator = 100;
+
+                                                        if (options.name === 'computedWeightSummary' || options.name === 'totalComputedWeightSummary'){
+                                                            roundModificator = 1000
+                                                        }
+
+                                                        options.totalValue = Math.round(options.totalValue * roundModificator) / roundModificator
+                                                        options.selectedValue = Math.round(options.selectedValue * roundModificator) / roundModificator
+
                                                         options.totalValue = new Intl.NumberFormat('ru-RU').format(options.totalValue);
-                                                        options.totalValue = `Всего: ${options.totalValue} ${options.measureUnit}`;
+
+                                                        if (options.selectedValue === 0) {
+                                                            switch (options.name) {
+                                                                case 'totalQuantitySummary':
+                                                                    options.totalValue = `Всего: ${options.totalValue} ${options.measureUnit}`;
+                                                                    break;
+                                                                case 'amountSummary':
+                                                                    options.totalValue = `Всего: ${options.totalValue} шт`;
+                                                                    break;
+                                                                case 'computedWeightSummary':
+                                                                case 'totalComputedWeightSummary':
+                                                                    options.totalValue = `Всего: ${options.totalValue} т`;
+                                                                    break;
+                                                            }
+                                                        } else {
+                                                            switch (options.name) {
+                                                                case 'totalQuantitySummary':
+                                                                    options.totalValue = `Выбрано: ${new Intl.NumberFormat('ru-RU').format(options.selectedValue)} из ${options.totalValue} ${options.measureUnit}`;
+                                                                    break;
+                                                                case 'amountSummary':
+                                                                    options.totalValue = `Выбрано: ${options.selectedValue} из ${options.totalValue} шт`;
+                                                                    break;
+                                                                case 'computedWeightSummary':
+                                                                case 'totalComputedWeightSummary':
+                                                                    options.totalValue = `Выбрано: ${new Intl.NumberFormat('ru-RU').format(options.selectedValue)} из ${options.totalValue} т`;
+                                                                    break;
+                                                            }
+
+                                                        }
                                                     }
                                                 }
                                             },
