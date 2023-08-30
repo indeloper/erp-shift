@@ -1418,6 +1418,8 @@
                     let materialsToTransform = getMaterialsByStage(transformationStages.fillingMaterialsToTransform, "brands");
                     let materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
 
+                    let brandsList = [];
+
                     materialsToTransform.forEach((toSummaryBrand) => {
                         let isBrandFound = false;
 
@@ -1428,14 +1430,23 @@
                         })
 
                         if (!isBrandFound) {
-                            validationResult.validationInfo.push({
-                                severity: 1000,
-                                codename: "some_brands_not_found",
-                                message: `Не все марки материалов добавлены в список`,
-                                //standard_name: material.standard_name
+                            toSummaryBrand.items.forEach ((item) => {
+                                brandsList.push(item.standard_name);
                             })
+
+
                         }
                     })
+
+                    console.log("brandsList", brandsList);
+
+                    if (brandsList.length) {
+                        validationResult.validationInfo.push({
+                            severity: 1000,
+                            codename: "some_brands_not_found",
+                            message: `Не все марки материалов добавлены в список [${Array.from(new Set(brandsList)).join(', ')}]`,
+                        })
+                    }
 
                     let isAnyOfMaterialInvalid = false;
 
