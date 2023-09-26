@@ -14,7 +14,7 @@
         Object.keys(filesDataset).forEach(group => renderFilesGroup(group, filesDataset[group], filesOnServerListWrapper))
 
         addLightgalleryListenersImg()
-        addLightgalleryListenersPdf()
+        // addLightgalleryListenersPdf()
     }
 
     const renderFilesGroup = (group, groupItems, filesOnServerListWrapper) => {
@@ -58,7 +58,7 @@
                     fileOnServerDivWrapper = $('<a>')
                     .attr({'href':file.filename, 'target':'_blanc'})
                     .addClass(context ? 'fileOnServerDivWrapper' : 'fileOnServerDivWrapperInfoTab')
-                    
+
                     if(file.original_filename.includes('.xls') || file.original_filename.includes('.xlsx'))
                     fileSrc = 'img/fileIcons/xls-icon.png'
 
@@ -94,7 +94,7 @@
                 else {
                     fileImg.css('object-fit', 'scale-down')
                 }
-                    
+
 
                 // if(isFilePdf)
                 //     fileImg.addClass('fakeCoverPDF')
@@ -166,7 +166,7 @@
     //     if (fakeCoverPdfElems) {
     //         for (let index = 0; index <= fakeCoverPdfElems.length; index++) {
     //             const element = fakeCoverPdfElems[index];
-                
+
     //             lightGallery(element, {
     //                 selector: 'this',
     //             });

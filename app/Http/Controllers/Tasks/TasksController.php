@@ -511,6 +511,8 @@ class TasksController extends Controller
         $filterOptions = json_decode($request->input('filterOptions'));
         $reportType = json_decode($request->input('reportType'))->reportType;
 
+
+
         if ($reportType == "tasks") {
             $tasks = (new Task)
                 ->dxLoadOptions($filterOptions)
@@ -539,7 +541,7 @@ class TasksController extends Controller
                             ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())'));
                     });
                 })
-                ->where('tasks.responsible_user_id', '=', Auth::user()->id)
+                // ->where('tasks.responsible_user_id', '=', Auth::user()->id)
                 ->where('commercial_offers.status', '=', 5)
                 ->orderByDesc(DB::Raw('ISNULL(`tasks`.`revive_at`)'))
                 ->orderByDesc('tasks.revive_at')
@@ -579,7 +581,7 @@ class TasksController extends Controller
                             ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())'));
                     });
                 })
-                ->where('tasks.responsible_user_id', '=', Auth::user()->id)
+                // ->where('tasks.responsible_user_id', '=', Auth::user()->id)
                 ->where('commercial_offers.status', '=', 5)
                 ->orderByDesc(DB::Raw('ISNULL(`tasks`.`revive_at`)'))
                 ->orderByDesc('tasks.revive_at')
@@ -605,7 +607,7 @@ class TasksController extends Controller
         return (new Task)->dxLoadOptions($options)
             ->join('projects', 'projects.id', '=', 'tasks.project_id')
             ->join('project_objects', 'project_objects.id', '=', 'projects.object_id')
-            ->where('tasks.responsible_user_id', '=', Auth::id())
+            // ->where('tasks.responsible_user_id', '=', Auth::id())
             ->where('tasks.is_solved', '=', 0)
             ->orderBy('project_objects.name')
             ->distinct()
@@ -619,7 +621,7 @@ class TasksController extends Controller
 
         return (new Task)->dxLoadOptions($options)
             ->join('contractors', 'contractors.id', '=', 'tasks.contractor_id')
-            ->where('tasks.responsible_user_id', '=', Auth::id())
+            // ->where('tasks.responsible_user_id', '=', Auth::id())
             ->where('tasks.is_solved', '=', 0)
             ->orderBy('short_name')
             ->distinct()
@@ -637,7 +639,7 @@ class TasksController extends Controller
             ->leftJoin('commercial_offer_material_splits', 'commercial_offer_material_splits.com_offer_id', '=', 'commercial_offers.id')
             ->leftJoin('manual_materials', 'commercial_offer_material_splits.man_mat_id', '=', 'manual_materials.id')
             ->leftJoin('work_volume_material_complects', 'commercial_offer_material_splits.man_mat_id', '=', 'work_volume_material_complects.id')
-            ->where('tasks.responsible_user_id', '=', Auth::id())
+            // ->where('tasks.responsible_user_id', '=', Auth::id())
             ->where('tasks.is_solved', '=', 0)
             ->whereNotNull(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END"))
             ->orderBy(DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END"))

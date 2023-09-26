@@ -1,11 +1,12 @@
 <script>
     $(()=>{
         const dataGridInstance = $('#dataGridContainer').dxDataGrid({
+            dataSource: dataSourceList,
             ...dataGridSettings,
-            columns: dataGridColumns,    
+            columns: dataGridColumns,
         }).dxDataGrid('instance')
 
-        
+
         $('#responsiblesFilterSelect').dxTagBox({
             dataSource: responsibles_all,
             valueExpr: 'id',
@@ -73,10 +74,10 @@
                 dataGridInstance.option('grouping.autoExpandAll', false)
             }
         })
-        
+
         // бывают случаи, когда управление свойством disabled через option у downloadXlsButton зависает
         // сделал через перерисовку элемента при каждом обновлении данных
-        
+
         addToolbarDropDownButton()
 
     })

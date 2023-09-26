@@ -38,11 +38,12 @@
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.1.3/darkly/bootstrap.min.css"> -->
 
     <!-- lightgalleryjs.com  -->
-    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lightgallery.css')}}"/>
-    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lg-thumbnail.css')}}"/>
-    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lg-zoom.css')}}"/>
-    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lg-rotate.css')}}"/>
-    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lightgallery-bundle.css')}}"/>
+    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lightgallery.css')}}" />
+    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lg-thumbnail.css')}}" />
+    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lg-zoom.css')}}" />
+    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lg-rotate.css')}}" />
+    <link type="text/css" rel="stylesheet" href="{{ asset('css/lightgallery/lightgallery-bundle.css')}}" />
+
 
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
 
@@ -191,7 +192,7 @@
                                 @endcan
                                 @can('objects')
                                     <li class="nav-item @if (Request::is('objects') || Request::is('objects/*')) active @endif">
-                                        <a class="nav-link" href="{{ route('objects::index') }}">
+                                        <a class="nav-link" href="{{ route('objects::base-template') }}">
                                             <span class="sidebar-mini"><i class="pe-7s-culture pe-7s-mini"></i></span>
                                             <span class="sidebar-normal">Объекты</span>
                                         </a>
@@ -293,6 +294,7 @@
                                         </a>
                                     </li>
                                 @endif
+
                                 @if(Auth::user()->can('material_accounting_materials_standards_editing'))
                                     <li class="nav-item @if (Request::is('materials/material-standard') || Request::is('materials/material-standard/*')) active @endif">
                                         <a class="nav-link" href="{{ route('materials.standards.index') }}">
@@ -407,7 +409,7 @@
                             </p>
                         </a>
                         <div
-                            class="collapse @if(Request::is('project-object-documents') || Request::is('project_documents') || Request::is('project_documents') || Request::is('project_documents/*') || Request::is('commercial_offers') || Request::is('commercial_offers/*') || Request::is('contracts') || Request::is('contracts/*') || Request::is('work_volumes') || Request::is('work_volumes/*')) show @endif"
+                            class="collapse @if(Request::is('project-object-documents') || Request::is('project_documents') || Request::is('project_documents/*') || Request::is('commercial_offers') || Request::is('commercial_offers/*') || Request::is('contracts') || Request::is('contracts/*') || Request::is('work_volumes') || Request::is('work_volumes/*')) show @endif"
                             id="documentsExamples">
                             <ul class="nav">
                                 @can('project_object_documents_access')
@@ -449,8 +451,45 @@
                                             <span class="sidebar-normal">Объёмы работ</span>
                                         </a>
                                     </li>
+
                                 @endcan
+
                                 <hr>
+                            </ul>
+                        </div>
+                    </li>
+                @endif
+                @if(Auth::user()->is_su ||
+                    Gate::check('labor_safety_order_creation') ||
+                    Gate::check('labor_safety_order_list_access') ||
+                    Gate::check('labor_safety_order_types_editing'))
+                    <li class="nav-item @if(Request::is('labor-safety') || Request::is('labor-safety/*')) active @endif">
+                        <a class="nav-link" data-toggle="collapse" href="#labor-safety">
+                            <i class="pe-7s-folder"></i>
+                            <p>Охрана труда
+                                <b class="caret"></b>
+                            </p>
+                        </a>
+                        <div
+                            class="collapse @if(Request::is('labor-safety/') || Request::is('labor-safety/*')) show @endif"
+                            id="labor-safety">
+                            <ul class="nav">
+                                @can('labor_safety_order_creation')
+                                    <li class="nav-item @if (Request::is('labor-safety/orders-and-requests')) active @endif">
+                                        <a class="nav-link" href="{{ route('labor-safety.orders-and-requests.index') }}">
+                                            <span class="sidebar-mini"><i class="fas fa-envelope"></i></span>
+                                            <span class="sidebar-normal">Заявки и приказы</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('labor_safety_order_types_editing')
+                                    <li class="nav-item @if (Request::is('labor-safety/templates')) active @endif">
+                                        <a class="nav-link" href="{{ route('labor-safety.order-types.index') }}">
+                                            <span class="sidebar-mini"><i class="fas fa-envelope"></i></span>
+                                            <span class="sidebar-normal">Шаблоны приказов</span>
+                                        </a>
+                                    </li>
+                                @endcan
                             </ul>
                         </div>
                     </li>
@@ -477,12 +516,6 @@
                                     <a class="nav-link" href="{{ route('admin.validate-material-accounting_data') }}">
                                         <span class="sidebar-mini"><i class="fas fa-check"></i></span>
                                         <span class="sidebar-normal">Проверка мат. учета</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item @if (Request::is('/admin/permissions')) active @endif">
-                                    <a class="nav-link" href="{{ route('admin.permissions') }}">
-                                        <span class="sidebar-mini"><i class="fas fa-check"></i></span>
-                                        <span class="sidebar-normal">Управление доступами</span>
                                     </a>
                                 </li>
                             </ul>
@@ -745,17 +778,23 @@
 <script src="{{ asset('js/plugins/emojione.js') }}"></script>
 <script src="{{ asset('js/plugins/emojionearea.min.js') }}"></script>
 
+
 <!-- DevExtreme themes -->
 <link rel="stylesheet" href="{{ asset('css/devextreme/dx.common.css')}}">
-@if (Request::is('project-object-documents'))
+@if (Request::is('project-object-documents') || Request::is('objects'))
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.generic.light.css')}}">
 @else
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.material.blue.light.compact.css')}}">
 @endif
 
+
+
 <!-- DevExtreme library -->
 <script src="https://unpkg.com/devextreme-quill@1.5.16/dist/dx-quill.min.js"></script>
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.all.js')}}"></script>
+<!-- DevExtreme localization -->
+<script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
+
 <!-- DevExtreme localization -->
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
 
@@ -765,6 +804,7 @@
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-zoom.umd.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-rotate.umd.js')}}"></script>
 <!-- END lightgalleryjs.com -->
+
 
 <meta name="csrf-token" content="{{ csrf_token() }}"/>
 <script>

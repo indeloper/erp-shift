@@ -20,6 +20,7 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusOptions;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use App\Models\User;
+use App\Services\Common\FileSystemService;
 use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReport;
 use App\Services\ProjectObjectDocuments\Reports\TestDownload;
 use App\Services\SystemService;
@@ -41,33 +42,17 @@ class ProjectObjectDocumentsController extends Controller
         $this->commentElems = $commentElems;
         $this->components = $components;
     }
-    
+
     public function returnPageCore() {
         $clientDeviceType = SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]);
 
         if($clientDeviceType === 'desktop')
         return view('project_object_documents.desktop.index');
 
-        $this->scandirFunction(resource_path().'/views/project_object_documents/mobile/components');
-        return view('project_object_documents.mobile.index', ['components' => $this->components]);
-    }
-
-    public function scandirFunction($path) 
-    {
-        $dirElems = scanDir($path);
-
-        foreach($dirElems as $dirElem) {
-            if($dirElem === '.' || $dirElem === '..')
-            continue;
-
-            if(is_dir($path.'/'.$dirElem)) {
-                $this->scandirFunction($path.'/'.$dirElem);
-            } else {
-                $includeElem = str_replace(resource_path().'/views/', '',  $path.'/'.$dirElem );
-                $includeElem = str_replace('.blade.php', '', $includeElem );
-                $this->components[] = $includeElem;
-            }
-        }
+        $basePath = resource_path().'/views/project_object_documents';
+        $componentsPath = resource_path().'/views/project_object_documents/mobile/components';
+        $components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($componentsPath, $basePath);
+        return view('project_object_documents.mobile.index', compact('components'));
     }
 
     /**
@@ -87,8 +72,8 @@ class ProjectObjectDocumentsController extends Controller
 
         if(json_decode($request['projectObjectsFilter']))
         $options = $this->addCustomFilters(
-            ['project_object_id'], 
-            json_decode($request['projectObjectsFilter']), 
+            ['project_object_id'],
+            json_decode($request['projectObjectsFilter']),
             $options
         );
 
@@ -105,15 +90,15 @@ class ProjectObjectDocumentsController extends Controller
 
             $objectsIds = $objects->pluck('object_id')->toArray();
             $options = $this->addCustomFilters(
-                ['project_object_id'], 
-                $objectsIds, 
+                ['project_object_id'],
+                $objectsIds,
                 $options
             );
         }
 
         $documentArchivedOrDeletedStatusesIds = $this->getDocumentArchivedOrDeletedStatusesIds();
-       
-        $projectObjectDocuments = 
+
+        $projectObjectDocuments =
             $this->getProjectObjectDocumentsList($options)
             ->when(str_contains($request->customSearchParams, 'showArchive=1'), function($query) use($documentArchivedOrDeletedStatusesIds) {
                 return $query->whereIn('document_status_id', $documentArchivedOrDeletedStatusesIds )->withTrashed();
@@ -137,7 +122,7 @@ class ProjectObjectDocumentsController extends Controller
         return json_encode(array(
                 "data" => $projectObjectDocuments,
             ),
-            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);       
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function getDocumentArchivedOrDeletedStatusesIds() {
@@ -148,7 +133,7 @@ class ProjectObjectDocumentsController extends Controller
             ->toArray();
     }
 
-    public function indexMobile(Request $request) 
+    public function indexMobile(Request $request)
     {
         $options = json_decode($request['data']);
         unset($options->take);
@@ -166,13 +151,13 @@ class ProjectObjectDocumentsController extends Controller
 
             $objectsIds = $objects->pluck('object_id')->toArray();
             $options = $this->addCustomFilters(
-                ['project_object_id'], 
-                $objectsIds, 
+                ['project_object_id'],
+                $objectsIds,
                 $options
             );
         }
 
-        $projectObjectDocuments = 
+        $projectObjectDocuments =
             $this->getProjectObjectDocumentsList($options)
             ->orderByDesc('id')
             ->get();
@@ -193,8 +178,8 @@ class ProjectObjectDocumentsController extends Controller
         ->orderBy('sortOrder')
         ->with([
             'projectObject:id,short_name',
-            'type', 
-            'status.projectObjectDocumentsStatusType', 
+            'type',
+            'status.projectObjectDocumentsStatusType',
         ]);
     }
 
@@ -218,8 +203,8 @@ class ProjectObjectDocumentsController extends Controller
             $groupData->count = $projectObjectDocumentsGrouped->count();
             $groupData->items = null;
             $groupData->summary = [
-                'red' => $projectObjectDocuments->whereIn('document_status_id', $redStatusesIds)->where($groupBy, $groupKey)->count(), 
-                'orange' => $projectObjectDocuments->whereIn('document_status_id', $orangeStatusesIds)->where($groupBy, $groupKey)->count(), 
+                'red' => $projectObjectDocuments->whereIn('document_status_id', $redStatusesIds)->where($groupBy, $groupKey)->count(),
+                'orange' => $projectObjectDocuments->whereIn('document_status_id', $orangeStatusesIds)->where($groupBy, $groupKey)->count(),
                 'green' => $projectObjectDocuments->whereIn('document_status_id', $greenStatusesIds)->where($groupBy, $groupKey)->count(),
                 'grey' => $projectObjectDocuments->whereIn('document_status_id', $greenStatusesIds)->where($groupBy, $groupKey)->count(),
             ];
@@ -262,7 +247,7 @@ class ProjectObjectDocumentsController extends Controller
         DB::commit();
 
         return response()->json([
-            'result' => 'ok', 
+            'result' => 'ok',
             'id' => $id
         ], 200);
     }
@@ -280,7 +265,7 @@ class ProjectObjectDocumentsController extends Controller
         $toUpdateArr = $this->getDataToUpdate($data);
 
         DB::beginTransaction();
-        
+
         ProjectObjectDocument::findOrFail($id)->update($toUpdateArr);
 
         $this->syncCommentsAndFiles($data, $id);
@@ -292,7 +277,7 @@ class ProjectObjectDocumentsController extends Controller
         DB::commit();
 
         return response()->json([
-            'result' => 'ok', 
+            'result' => 'ok',
             'id' => $id
         ], 200);
     }
@@ -318,7 +303,7 @@ class ProjectObjectDocumentsController extends Controller
         $this->addDataToActionLog('delete', ['document_status_id'=>$deletedDocumentStatusId], $id);
 
         return response()->json([
-            'result' => 'ok', 
+            'result' => 'ok',
             'id' => $id
         ], 200);
     }
@@ -335,12 +320,12 @@ class ProjectObjectDocumentsController extends Controller
         $this->addDataToActionLog('restore', ['document_status_id'=>$lastDocumentActiveStatusId], $id);
 
         return response()->json([
-            'result' => 'ok', 
+            'result' => 'ok',
             'document' => $document
         ], 200);
     }
 
-    public function getLastDocumentActiveStatusId($id) 
+    public function getLastDocumentActiveStatusId($id)
     {
         $actionLog = ActionLog::where([
                 ['logable_id', $id],
@@ -349,7 +334,7 @@ class ProjectObjectDocumentsController extends Controller
                 ['actions', 'NOT LIKE', '%"event":"delete"%'],
                 ['actions', 'NOT LIKE', '%"event":"archive"%'],
             ])->orderBy('id', 'desc')->first();
-        
+
         $lastDocumentActiveStatusId = $actionLog->actions['new_values']['document_status_id'];
 
         return $lastDocumentActiveStatusId;
@@ -364,7 +349,7 @@ class ProjectObjectDocumentsController extends Controller
             $options->filter = [$options->filter];
             $options->filter[] = 'and';
         }
-        
+
         $newFilterParams = [];
         $i = 0;
         $filterArrLength = count($filterArr);
@@ -379,7 +364,7 @@ class ProjectObjectDocumentsController extends Controller
             }
         }
 
-        $options->filter[] = $newFilterParams;        
+        $options->filter[] = $newFilterParams;
 
         return $options;
     }
@@ -390,7 +375,7 @@ class ProjectObjectDocumentsController extends Controller
 
         $rolesIds = ObjectResponsibleUserRole::whereIn('slug', ['TONGUE_PTO_ENGINEER'])->pluck('id')->toArray();
 
-        $notificationRecipients = 
+        $notificationRecipients =
             ObjectResponsibleUser::query()
                 ->where('object_id', $document->project_object_id)
                 ->whereIn('object_responsible_user_role_id', $rolesIds)
@@ -415,7 +400,7 @@ class ProjectObjectDocumentsController extends Controller
                 }
             );
 
-            // 
+            //
             // event(new NotificationCreated($notification->name, $notification->user_id, $notification->type, $notification->id));
         }
     }
@@ -516,7 +501,7 @@ class ProjectObjectDocumentsController extends Controller
     public function addComment($id)
     {
         $comment = '';
-        for ($i=0; $i < count($this->commentElems); $i++) { 
+        for ($i=0; $i < count($this->commentElems); $i++) {
             if($i>0)
             $comment = $comment.' | ';
             $comment = $comment.$this->commentElems[$i];
@@ -548,7 +533,7 @@ class ProjectObjectDocumentsController extends Controller
             // Storage::disk('project_object_documents')->delete($fileEntry->filename);
             // $fileEntry->delete();
         }
-        
+
     }
 
 
@@ -583,12 +568,12 @@ class ProjectObjectDocumentsController extends Controller
         // }
         $documentArchivedOrDeletedStatusesIds = $this->getDocumentArchivedOrDeletedStatusesIds();
 
-        $statuses = 
+        $statuses =
             ProjectObjectDocumentStatus::with('projectObjectDocumentsStatusType')
             ->when($request->documentTypeId, function($query) use($request){
                 $typeStatuses = ProjectObjectDocumentStatusTypeRelation::query()
                 ->where('document_type_id', $request->documentTypeId)->pluck('document_status_id')->toArray();
-                
+
                 return $query->whereIn('id', $typeStatuses);
             })
             ->when(str_contains($request->customSearchParams, 'showArchive=1'), function($query) use($documentArchivedOrDeletedStatusesIds) {
@@ -601,20 +586,20 @@ class ProjectObjectDocumentsController extends Controller
 
         // if(!$this->checkCanInteractWithGreenStatus())
         // $statuses = $statuses->where('style', '!=', 'green');
-        
+
         return response()->json($statuses, 200);
     }
 
     public function getOptionsByTypeAndStatus(Request $request)
     {
         $optionsCollection = ProjectObjectDocumentStatusOptions::where([
-                ['document_type_id', $request->documentTypeId], 
+                ['document_type_id', $request->documentTypeId],
                 ['document_status_id', $request->statusId]])
             ->orWhere([
-                ['document_type_id', $request->documentTypeId], 
+                ['document_type_id', $request->documentTypeId],
                 ['document_status_id', NULL]])
             ->get();
-        
+
         $options = [];
         foreach($optionsCollection as $arrJson)
         {
@@ -622,7 +607,7 @@ class ProjectObjectDocumentsController extends Controller
             foreach($arrJsonOptions as $option)
             $options[] = $option;
         }
-            
+
         return response()->json(json_encode($options), 200);
     }
 
@@ -632,22 +617,22 @@ class ProjectObjectDocumentsController extends Controller
             ->whereIn('group_id', Group::PTO)
             ->orWhereIn('group_id', Group::PROJECT_MANAGERS)
             ->pluck('id')->toArray();
-    
-        return 
-            in_array(Auth::user()->id, $canInteractGreenStatus) || Auth::user()->is_su 
-            ? true 
+
+        return
+            in_array(Auth::user()->id, $canInteractGreenStatus) || Auth::user()->is_su
+            ? true
             : false;
     }
 
     public function getProjectObjects()
     {
-        $objects = ProjectObject::query()            
+        $objects = ProjectObject::query()
             ->withResponsibleUserNames()
             ->whereNotNull('short_name')
-            ->where('is_participates_in_material_accounting', '>', 0)            
+            ->where('is_participates_in_material_accounting', '>', 0)
             ->addSelect(['project_objects.id AS id',
-                'short_name', 'project_objects.name AS object_name'             
-                ])                        
+                'short_name', 'project_objects.name AS object_name'
+                ])
             ->orderBy('short_name')->get();
 
         return response()->json($objects, 200, [], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
@@ -687,21 +672,21 @@ class ProjectObjectDocumentsController extends Controller
         $objectResponsibles = ObjectResponsibleUser::where('object_id', $objectId);
 
         if($request->type == 'manager')
-            $responsiblesIds = 
+            $responsiblesIds =
                 $objectResponsibles
                     ->where('object_responsible_user_role_id', (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PROJECT_MANAGER'))
                     ->pluck('user_id')
                     ->toArray();
 
         if($request->type == 'pto')
-            $responsiblesIds = 
+            $responsiblesIds =
                 $objectResponsibles
                     ->where('object_responsible_user_role_id', (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'))
                     ->pluck('user_id')
                     ->toArray();
-            
+
         if($request->type == 'foreman')
-            $responsiblesIds = 
+            $responsiblesIds =
                 $objectResponsibles
                     ->where('object_responsible_user_role_id', (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_FOREMAN'))
                     ->pluck('user_id')
@@ -722,27 +707,27 @@ class ProjectObjectDocumentsController extends Controller
         return response()->json([], 200);
 
         $comments = Comment::where([
-                ['commentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'], 
+                ['commentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'],
                 ['commentable_id', $request->input('id')]
             ])->with('author')
             ->orderByDesc('id')
             ->get();
-        
+
         return response()->json($comments, 200);
     }
 
     public function getProjectObjectDocumentAttachments(Request $request)
-    {        
+    {
         if(!$request->input('id'))
         return response()->json([], 200);
 
         $attachments = FileEntry::where([
-            ['documentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'], 
+            ['documentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'],
             ['documentable_id', $request->input('id')]
         ])->with('author')
         ->orderByDesc('id')
         ->get();
-        
+
         $groupedAttachments = [];
         foreach ($attachments as $attachment) {
             $createdAtDate = Carbon::parse($attachment->updated_at)->format('d.m.Y H:i');
@@ -774,7 +759,7 @@ class ProjectObjectDocumentsController extends Controller
         ]);
 
         return response()->json([
-            'result' => 'ok', 
+            'result' => 'ok',
             'fileEntryId' => $fileEntry->id,
             'filename' =>  $fileName
         ], 200);
@@ -800,10 +785,10 @@ class ProjectObjectDocumentsController extends Controller
         ]);
 
         return response()->json([
-            'result' => 'ok', 
+            'result' => 'ok',
             'fileEntryId' => $fileEntry->id
         ], 200);
-        
+
     }
 
     public function cloneDocument(Request $request)
@@ -819,7 +804,7 @@ class ProjectObjectDocumentsController extends Controller
         ]);
 
         return response()->json([
-            'result' => 'ok', 
+            'result' => 'ok',
             'newDocument' => $newDocument
         ], 200);
     }
@@ -832,8 +817,8 @@ class ProjectObjectDocumentsController extends Controller
 
         if($projectObjectsFilter)
         $options = $this->addCustomFilters(
-            ['project_object_id'], 
-            $projectObjectsFilter, 
+            ['project_object_id'],
+            $projectObjectsFilter,
             $filterOptions
         );
 
@@ -849,8 +834,8 @@ class ProjectObjectDocumentsController extends Controller
 
             $objectsIds = $objects->pluck('object_id')->toArray();
             $options = $this->addCustomFilters(
-                ['project_object_id'], 
-                $objectsIds, 
+                ['project_object_id'],
+                $objectsIds,
                 $filterOptions
             );
         }
@@ -878,13 +863,13 @@ class ProjectObjectDocumentsController extends Controller
             ->orderBy('sortOrder')
             ->with([
                 'projectObject:id,short_name',
-                'type', 
-                'status.projectObjectDocumentsStatusType', 
+                'type',
+                'status.projectObjectDocumentsStatusType',
             ])
             ->get()->toArray();
 
         return (new ProjectObjectDocumentsXLSXReport($projectObjectDocuments))->export();
-        
+
     }
 
     public function getProjectObjectDocumentInfoByID(Request $request)
@@ -921,16 +906,16 @@ class ProjectObjectDocumentsController extends Controller
     public function downloadAttachments(Request $request)
     {
         if(!count($request->fliesIds))
-        return response()->json('no files recieved', 200); 
+        return response()->json('no files recieved', 200);
 
         $storagePath = config('filesystems.disks')['project_object_documents']['root'];
 
         $zip = new ZipArchive();
         $zipFileName = "file-". uniqid(). "-" . "archive.zip";
         $zipFilePath = $storagePath."/".$zipFileName ;
-        $zip->open($zipFilePath, ZIPARCHIVE::CREATE); 
-        
-        foreach($request->fliesIds as $fileId) 
+        $zip->open($zipFilePath, ZIPARCHIVE::CREATE);
+
+        foreach($request->fliesIds as $fileId)
         {
             $file = FileEntry::find($fileId);
             $filenameElems = explode('/', $file->filename);
@@ -941,13 +926,13 @@ class ProjectObjectDocumentsController extends Controller
         $zip->close();
 
         $response = ['zipFileLink'=>'storage/docs/project_object_documents/'.$zipFileName];
-        return response()->json($response, 200); 
+        return response()->json($response, 200);
     }
 
-    public function getPermissions() 
+    public function getPermissions()
     {
         $permissions = (new ProjectObjectDocument())->permissions;
-        return response()->json($permissions, 200); 
+        return response()->json($permissions, 200);
     }
 
 }

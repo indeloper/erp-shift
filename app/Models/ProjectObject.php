@@ -18,7 +18,8 @@ class ProjectObject extends Model
 {
     use DevExtremeDataSourceLoadable, Logable, SmartSearchable;
 
-    protected $fillable = ['name', 'address', 'cadastral_number', 'short_name', 'material_accounting_type'];
+    protected $guarded = ['id'];
+    // protected $fillable = ['name', 'address', 'cadastral_number', 'short_name', 'material_accounting_type'];
 
     protected $appends = ['location', 'name_tag'];
 
@@ -90,7 +91,7 @@ class ProjectObject extends Model
             ->addSelect([
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PROJECT_MANAGER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_project_manager_full_names`"),
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_pto_engineer_full_names`"),
-                DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_foreman_full_names`")                
+                DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_foreman_full_names`")
             ])
             ->groupBy(['project_objects.id']);
     }

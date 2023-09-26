@@ -11,6 +11,7 @@
 |
 */
 
+use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['activeuser', 'auth']], function () {
@@ -24,11 +25,15 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::any('contracts/get_contracts', 'Documents\ContractsController@get_contracts')->name('contracts::get_contracts');
 
     Route::group(['prefix' => 'objects', 'as' => 'objects::',  'namespace' => "Commerce", 'middleware' => 'can:objects'], function () {
-        Route::get('/', 'ObjectController@index')->name('index');
-	Route::get('/getPermissions', 'ObjectController@getPermissions')->name('getPermissions');
-        Route::post('/store', 'ObjectController@store')->name('store')->middleware('can:objects_create');
-        Route::post('/update', 'ObjectController@update')->name('update')->middleware('can:objects_edit');
+        Route::get('/', 'ObjectController@returnPageCore')->name('base-template');
 
+        Route::get('/index', 'ObjectController@index')->name('index');
+        Route::post('/store', 'ObjectController@store')->name('store')->middleware('can:objects_create');
+        Route::put('/update/{id}', 'ObjectController@update')->name('update')->middleware('can:objects_edit');
+
+        Route::get('/getMaterialAccountingTypes', 'ObjectController@getMaterialAccountingTypes')->name('getMaterialAccountingTypes');
+        Route::get('/getObjectInfoByID', 'ObjectController@getObjectInfoByID')->name('getObjectInfoByID');
+        Route::get('/getPermissions', 'ObjectController@getPermissions')->name('getPermissions');
         Route::get('/get_contractors', 'ObjectController@get_contractors')->name('get_contractors');
         Route::get('/get_object_projects', 'ObjectController@get_object_projects')->name('get_object_projects');
     });

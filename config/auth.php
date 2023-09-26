@@ -5,6 +5,9 @@ return [
     //1c sync
     'SYNC_1C_API_KEY' => env('SYNC_1C_API_KEY'),
 
+    //bitrix projects list
+    'BITRIX_PROJECTS_LIST_URL' => env('BITRIX_PROJECTS_LIST_URL'),
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults

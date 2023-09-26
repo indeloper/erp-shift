@@ -1,10 +1,10 @@
 <script>
     const dataGridSettings = {
         height: getGridHeight(),
-        dataSource: dataSourceList,
 
-        // remoteOperations 
-        // изменяли настройки, были вопросы в связи с группировкой по объектам и кастомным rowFilter 
+
+        // remoteOperations
+        // изменяли настройки, были вопросы в связи с группировкой по объектам и кастомным rowFilter
         remoteOperations: {
             filtering: true,
             groupPaging: false
@@ -104,7 +104,7 @@
             // downloadXlsButton (DropDownButton) бывают случаи, когда управление свойством disabled через option зависает
             // сделал через перерисовку элемента при каждом обновлении данных
             $('#toolbarDropDownButton').dxDropDownButton('dispose')
-            if(e.component.getDataSource().items().length) 
+            if(e.component.getDataSource().items().length)
                 addToolbarDropDownButton(isDownloadXlsDisabled = false)
             else
                 addToolbarDropDownButton(isDownloadXlsDisabled = true)
@@ -124,7 +124,7 @@
 
             // // Прогружаем за один запрос комментарии и файлы, и после этого перерисовываем форму (.repaint())
             // // комментарии и файлы содержатся в projectObjectDocumentInfoByID
-            // projectObjectDocumentInfoByID.reload().done((data)=>{            
+            // projectObjectDocumentInfoByID.reload().done((data)=>{
             //         getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', true);
             //         getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
             //         getFormInstance()?.repaint();
@@ -189,7 +189,7 @@
 
         },
 
-        onCellPrepared: function(e) {            
+        onCellPrepared: function(e) {
             // if (e.rowType === "data" && e.column.dataField === "status.name") {
             //     e.cellElement.css("color", e.data.status.style);
             // }

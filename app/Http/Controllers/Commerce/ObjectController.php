@@ -11,157 +11,261 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ProjectObject;
 use App\Models\Project;
 use App\Models\Building\ObjectResponsibleUser;
-
+use App\Services\SystemService;
 use App\Http\Requests\ObjectRequests\ObjectRequest;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUserRole;
+use App\Models\Contractors\Contractor;
+use App\Models\Group;
 use App\Models\Notification;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
+use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
+use App\Models\User;
+use App\Services\Common\FileSystemService;
 use Illuminate\Support\Facades\App;
 
 class ObjectController extends Controller
 {
+    private $components;
 
+    public function __construct ($components = [])
+    {
+        $this->components = $components;
+    }
+
+    public function returnPageCore()
+    {
+        $basePath = resource_path().'/views/objects';
+        $componentsPath = resource_path().'/views/objects/desktop/components';
+        $components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($componentsPath, $basePath);
+        return view('objects.desktop.index', compact('components'));
+    }
 
     public function index(Request $request)
     {
-        $objects = ProjectObject::with('resp_users.user')
-            ->with('material_accounting_type')
-            ->orderBy('id', 'desc');
+        $options = json_decode($request['data']);
+        // unset($options->take);
 
-        if(Auth::user()->hasLimitMode(0)) {
-            $objects->whereHas('resp_users', function ($users) {
-                return $users->where('user_id', Auth::id());
-            });
-        }
+        $objects = (new ProjectObject)
+            ->dxLoadOptions($options)
+            ->orderBy('id', 'desc')
+            ->get();
 
-        if ($request->search) {
-            $objects->getModel()->smartSearch($objects,
-                [
-                    'name',
-                    'address',
-                    'short_name',
-                    'cadastral_number'
-                ],
-                $request->search
-            );
-        }
-
-        $objects_ids = $objects->paginate(15)->pluck('id');
-
-        $projects = Project::getAllProjects()->whereIn('projects.object_id', $objects_ids);
-
-        return view('objects.index', [
-            'objects' => $objects->paginate(15),
-            'projects' => $projects->get()
-        ]);
+        return json_encode(array(
+            "data" => $objects
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
 
-    public function store(ObjectRequest $request)
+
+    public function getMaterialAccountingTypes()
     {
-        $object = new ProjectObject();
-
-        $object->name = $request->name;
-        $object->address = $request->address;
-        $object->cadastral_number = $request->cadastral_number;
-        $object->short_name = $request->short_name;
-        $object->material_accounting_type = $request->material_accounting_type;
-        if ($object->is_participates_in_material_accounting) {
-            $object->is_participates_in_material_accounting = $request->is_participates_in_material_accounting;
-        } else {
-            $object->is_participates_in_material_accounting = 0;
-        }
-        if ($object->is_participates_in_documents_flow) {
-            $object->is_participates_in_documents_flow = $request->is_participates_in_documents_flow;
-        } else {
-            $object->is_participates_in_documents_flow = 0;
-        }
-
-
-        $object->save();
-
-        if($request->task_id) {
-            return \GuzzleHttp\json_encode($object->id);
-        }
-
-        return redirect()->route('objects::index');
+        return q3wProjectObjectMaterialAccountingType::all();
     }
 
-
-    public function update(ObjectRequest $request)
+    public function getObjectInfoByID(Request $request)
     {
+        $allAvailableResponsibles = [
+            'pto' => User::query()->active()->whereIn('group_id', Group::PTO)
+                ->select(['id', 'user_full_name'])
+                ->orderBy('last_name')
+                ->get(),
+            'managers' => User::query()->active()->whereIn('group_id', Group::PROJECT_MANAGERS)
+                ->select(['id', 'user_full_name'])
+                ->orderBy('last_name')
+                ->get(),
+            'foremen' => User::query()->active()->whereIn('group_id', Group::FOREMEN)
+                ->select(['id', 'user_full_name'])
+                ->orderBy('last_name')
+                ->get(),
+        ];
+
+        $objectAllResponsibles = ObjectResponsibleUser::where('object_id', $request->id);
+        $objectResponsibleManagers = clone $objectAllResponsibles;
+        $objectResponsiblePTO = clone $objectAllResponsibles;
+        $objectResponsibleForemen = clone $objectAllResponsibles;
+
+        $objectResponsibleManagers =
+            $objectResponsibleManagers
+                ->where(
+                    'object_responsible_user_role_id',
+                    (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PROJECT_MANAGER'))
+                ->pluck('user_id')
+                ->toArray();
+
+        $objectResponsiblePTO =
+            $objectResponsiblePTO
+                ->where(
+                    'object_responsible_user_role_id',
+                    (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'))
+                ->pluck('user_id')
+                ->toArray();
+
+        $objectResponsibleForemen =
+            $objectResponsibleForemen
+                ->where(
+                    'object_responsible_user_role_id',
+                    (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_FOREMAN'))
+                ->pluck('user_id')
+                ->toArray();
+
+        $objectResponsibles = [
+            'pto' => $objectResponsiblePTO,
+            'managers' => $objectResponsibleManagers,
+            'foremen' => $objectResponsibleForemen,
+        ];
+
+        $contractors = Contractor::whereIn(
+                'id',
+                Project::where('object_id', $request->id)->pluck('id')->toArray()
+            )
+            ->select('id', 'short_name')
+            ->get();
+
+
+        return json_encode(array(
+            'contractors' => $contractors,
+            'allAvailableResponsibles' => $allAvailableResponsibles,
+            'objectResponsibles' => $objectResponsibles
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function store(Request $request)
+    {
+        $data = json_decode($request->input('data'));
+        if(empty($request->input('data')))
+        $data = $request;
+
+        $toUpdateArr = $this->getDataToUpdate($data);
+
+        $object = ProjectObject::create($toUpdateArr);
+
+        $this->syncResponsibles($data, $object->id);
+
+        if(!isset($data->is_participates_in_documents_flow)){
+            $this->handleCheckedParticipatesInDocumentsFlow($object->id);
+            $this->notifyResponsibleUsers($object->id);
+        }
+
+        $this->notifyNewResponsibleUser($object->id, $lastObjectResponsibleId = 0);
+
+        DB::commit();
+
+        return response()->json([
+            'result' => 'ok',
+            'object' => $object,
+        ], 200);
+
+
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = json_decode($request->input('data'));
+        $toUpdateArr = $this->getDataToUpdate($data);
+
         DB::beginTransaction();
 
-        $object = ProjectObject::findOrFail($request->object_id);
+        $object = ProjectObject::findOrFail($id);
 
         $checkedParticipatesInDocumentsFlow = false;
         $uncheckedParticipatesInDocumentsFlow = false;
 
         $lastObjectResponsibleId = ObjectResponsibleUser::orderByDesc('id')->first()->id;
 
-        if(isset($request->is_participates_in_documents_flow) && !$object->is_participates_in_documents_flow)
-        $checkedParticipatesInDocumentsFlow = true; 
+        if(isset($data->is_participates_in_documents_flow) && !$object->is_participates_in_documents_flow)
+        $checkedParticipatesInDocumentsFlow = true;
 
-        if(!isset($request->is_participates_in_documents_flow) && $object->is_participates_in_documents_flow)
-        $uncheckedParticipatesInDocumentsFlow = true; 
+        if(!isset($data->is_participates_in_documents_flow) && $object->is_participates_in_documents_flow)
+        $uncheckedParticipatesInDocumentsFlow = true;
 
-        $object->name = $request->name;
-        $object->address = $request->address;
-        $object->cadastral_number = $request->cadastral_number;
-        $object->short_name = $request->short_name;
-        $object->material_accounting_type = $request->material_accounting_type;
-        if (isset($request->is_participates_in_material_accounting)) {
-            $object->is_participates_in_material_accounting = 1;
-        } else {
-            $object->is_participates_in_material_accounting = 0;
-        }
-        if (isset($request->is_participates_in_documents_flow)) {
-            $object->is_participates_in_documents_flow = 1;
-        } else {
-            $object->is_participates_in_documents_flow = 0;
-        }
+        $object->update($toUpdateArr);
 
-        $object->save();
-
-        $this->syncResponsibles($request);
+        $this->syncResponsibles($data, $id);
 
         if($checkedParticipatesInDocumentsFlow){
-            $this->handleCheckedParticipatesInDocumentsFlow($request->object_id);
-            $this->notifyResponsibleUsers($request->object_id);
+            $this->handleCheckedParticipatesInDocumentsFlow($id);
+            $this->notifyResponsibleUsers($id);
         }
 
         if($uncheckedParticipatesInDocumentsFlow)
-            $this->addDocumentsToArchive($request->object_id);
+            $this->addDocumentsToArchive($id);
 
-        $this->notifyNewResponsibleUser($request->object_id, $lastObjectResponsibleId);
+        $this->notifyNewResponsibleUser($id, $lastObjectResponsibleId);
 
         DB::commit();
 
-        return redirect()->route('objects::index');
+        return response()->json([
+            'result' => 'ok',
+            'object' => $object,
+            'updated' => $toUpdateArr
+        ], 200);
     }
 
-    public function syncResponsibles($request)
+    public function getDataToUpdate($data)
     {
-        // if(Auth::user()->isProjectManager() or Auth::user()->isInGroup(43)/*8*/) 
+        $toUpdateArr = [];
+
+        if(!empty($data->bitrixId))
+        $toUpdateArr['bitrixId'] = $data->bitrixId;
+        if(!empty($data->name))
+        $toUpdateArr['name'] = $data->name;
+        if(!empty($data->address))
+        $toUpdateArr['address'] = $data->address;
+        if(!empty($data->cadastral_number))
+        $toUpdateArr['cadastral_number'] = $data->cadastral_number;
+        if(!empty($data->short_name))
+        $toUpdateArr['short_name'] = $data->short_name;
+
+        if(!empty($data->material_accounting_type))
+        $toUpdateArr['material_accounting_type'] = $data->material_accounting_type;
+
+        if(!empty($data->is_participates_in_material_accounting))
+            $toUpdateArr['is_participates_in_material_accounting'] =
+                $data->is_participates_in_material_accounting ? 1 : 0;
+        else
+            $toUpdateArr['is_participates_in_material_accounting'] = 0;
+
+        if(!empty($data->is_participates_in_documents_flow))
+            $toUpdateArr['is_participates_in_documents_flow'] =
+                $data->is_participates_in_documents_flow ? 1 : 0;
+        else
+            $toUpdateArr['is_participates_in_documents_flow'] = 0;
+
+        if(!empty($data->is_active))
+        $toUpdateArr['is_active'] = $data->is_active;
+
+        return $toUpdateArr;
+    }
+
+
+    public function syncResponsibles($request, $id)
+    {
+        // if(Auth::user()->isProjectManager() or Auth::user()->isInGroup(43)/*8*/)
         // return;
-      
+
         $rolesArray = [
-            'resp_user_role_one' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PROJECT_MANAGER'),
-            'resp_user_role_two' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'),
-            'resp_user_role_three' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_FOREMAN'),
+            'responsibles_managers' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PROJECT_MANAGER'),
+            'responsibles_pto' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'),
+            'responsibles_foremen' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_FOREMAN'),
         ];
 
         $newResponsiblesIds = [];
 
         foreach($rolesArray as $roleKey=>$roleValue){
+
+            if(empty($request->$roleKey))
+            continue;
+
             if ($request->$roleKey) {
                 foreach ($request->$roleKey as $user_id) {
                     $newResponsible = ObjectResponsibleUser::firstOrCreate([
-                        'object_id' => $request->object_id,
+                        'object_id' => $id,
                         'user_id' => $user_id,
                         'object_responsible_user_role_id' => $roleValue
                     ]);
@@ -170,7 +274,7 @@ class ObjectController extends Controller
             }
         }
 
-        ObjectResponsibleUser::where('object_id', $request->object_id)
+        ObjectResponsibleUser::where('object_id', $id)
             ->whereNotIn('user_id', $newResponsiblesIds)
             ->delete();
 
@@ -257,7 +361,7 @@ class ObjectController extends Controller
                 ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
             ])->pluck('id');
 
-        foreach($archivedObjectDocumentsIds as $id) 
+        foreach($archivedObjectDocumentsIds as $id)
             (new ProjectObjectDocumentsController)->restoreDocument($id);
     }
 
@@ -267,7 +371,7 @@ class ObjectController extends Controller
             'project_object_id', $objectId
         )->pluck('id');
 
-        foreach($objectDocumentsIds as $id) 
+        foreach($objectDocumentsIds as $id)
         {
             $archivedStatusId = ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id;
             ProjectObjectDocument::find($id)->update([
@@ -329,7 +433,7 @@ class ObjectController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            
+
             [
                 'document_name' => 'РД в производство работ',
                 'author_id' => Auth::user()->id,
@@ -457,9 +561,9 @@ class ObjectController extends Controller
         // ProjectObjectDocument::insert($sortedNewDocuments);
     }
 
-    public function getPermissions() 
+    public function getPermissions()
     {
         $permissions = (new ProjectObject())->permissions;
-        return response()->json($permissions, 200); 
+        return response()->json($permissions, 200);
     }
 }
