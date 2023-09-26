@@ -1,7 +1,7 @@
 <style>
-    
+
     /* Common */
-    
+
         /* Панель подключаем для информации о фильтре в скачиваемом файле, но не показываем */
         .dx-datagrid-filter-panel {
             display: none !important;
@@ -11,10 +11,14 @@
             padding: 0 0 2px 5px !important;
         }
 
-       
+
     /* Common */
-    
+
     /* Popup */
+
+        /* .dx-popup-content {
+            padding-bottom: 0 !important;
+        } */
 
         /* .dx-tabpanel{
             margin-top: 20px;
@@ -65,7 +69,7 @@
         /* file uploader end */
 
         /* LIGHTGALLERY */
-        
+
         .lg-backdrop {
             z-index: 1640 !important;
         }
@@ -78,7 +82,7 @@
         .form-group-list-header {
             font-weight: bolder;
             font-size: 110%;
-            
+
         }
         .form-group-comments-list {
             margin-top: 10px;
@@ -105,7 +109,7 @@
         /* .form-comments-list-elem{
             padding: 10px 0;
         } */
-        
+
         .comments-list-user-photo {
             position: relative;
             border: 1px solid #E0E0E0;
@@ -128,10 +132,10 @@
             width: 100%;
             margin-right: 10px;
         }
-        
+
         .fileOnServerDivWrapper, .fileOnServerDivWrapperInfoTab {
             position: relative;
-            width: 150px; 
+            width: 150px;
             height: auto;
             border-radius: 5px;
             display: flex;
@@ -193,9 +197,9 @@
         }
 
         .newFileDivCSS {
-            width: 100px; 
-            height: 100px; 
-            border: 1px solid grey; 
+            width: 100px;
+            height: 100px;
+            border: 1px solid grey;
             border-radius: 10px;
             display: flex;
             flex-direction: column;
@@ -205,6 +209,18 @@
             margin-right: 20px;
             margin-bottom: 20px;
             position: relative;
+        }
+
+        .file-files-tab{
+            width: 150px;
+            height: 130px;
+            border-radius: 5px;
+        }
+
+        .file-info-tab{
+            width: 75px;
+            height: 65px;
+            border-radius: 5px;
         }
 
         .fileOnServerDivWrapper:hover img  {
@@ -231,10 +247,10 @@
         .attacmentNewHoverDeleteButton {
             right: 2px !important;
         }
-        
+
         .attachmentHoverDeleteButton .dx-icon {
             color: #337ab7 !important;
-            font-size: 16px !important; 
+            font-size: 16px !important;
         }
 
         .attachmentHoverDeleteButton .dx-button-content {
@@ -337,8 +353,8 @@
         }
 
         .round-color-marker {
-            width: 10px; 
-            height: 10px; 
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             margin-right: 5px;
         }
@@ -350,7 +366,7 @@
                 flex-direction: column;
                 align-items: start;
             }
-            
+
             .headerToolbarItem{
                 margin-left: 0;
                 margin-bottom: 10px;
@@ -369,5 +385,5 @@
         }
 
     /* Main end */
-        
+
 </style>

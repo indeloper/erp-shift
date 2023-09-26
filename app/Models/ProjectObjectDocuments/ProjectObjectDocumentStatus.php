@@ -9,6 +9,8 @@ class ProjectObjectDocumentStatus extends Model
 {
     use SoftDeletes;
 
+    protected $guarded = ['id'];
+
     public function projectObjectDocuments()
     {
         return $this->hasMany(ProjectObjectDocument::class, 'document_status_id');

@@ -66,12 +66,13 @@
             // if(!isFilePdf) {
             let fileImg = $('<img>').attr({
                 'src': fileSrc
-            }).css({
-                'width': '150px',
-                'height': '130px',
-                // 'object-fit': 'cover',
-                'border-radius': '5px'
             })
+            // .css({
+            //     'width': '150px',
+            //     'height': '130px',
+            //     'border-radius': '5px'
+            // })
+
             // if (isFileImg && context)
             //     fileImg.addClass('fileImg')
             if (isFileImg) {
@@ -83,6 +84,10 @@
                 fileImg.css('object-fit', 'scale-down')
             }
 
+            if(context)
+                fileImg.addClass('file-files-tab')
+            else
+                fileImg.addClass('file-info-tab')
 
 
             $(fileOnServerDivWrapper).append(fileImg)

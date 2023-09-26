@@ -1859,11 +1859,17 @@ class ProjectWorkVolumeController extends Controller
                    $prev_task->solve_n_notify();
                }
                $project = Project::find($work_volume->project_id);
+               $projectResponsibleForCommercialOfferUserId = ProjectResponsibleUser::query()
+                    ->where('project_id', $project->id)
+                    ->whereIn('role', [1,2])
+                    ->first()->user_id;
 
                $task18 = new Task();
                $task18->project_id = $project->id;
                $task18->name = 'Контроль выполнения ОР шпунтового направления по проекту ' . ($project->name);
-               $task18->responsible_user_id = Group::find(50)->getUsers()->first()->id; //Директор по развитию [hardcoded]
+               $task18->responsible_user_id = $projectResponsibleForCommercialOfferUserId;
+            //    старый вариант
+            //    $task18->responsible_user_id = Group::find(50)->getUsers()->first()->id; //Директор по развитию [hardcoded]
                $task18->contractor_id = $project->contractor_id;
                $task18->target_id = $work_volume->id; // WV id
                $task18->expired_at = $this->addHours(24);

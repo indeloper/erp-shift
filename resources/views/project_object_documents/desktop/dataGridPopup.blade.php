@@ -1,5 +1,5 @@
 <script>
-    const dataGridPopup = 
+    const dataGridPopup =
         {
             showTitle: true,
             title: "Информация о документе",
@@ -36,37 +36,41 @@
 
                 // Прогружаем за один запрос комментарии и файлы, и после этого перерисовываем форму (.repaint())
                 // комментарии и файлы содержатся в projectObjectDocumentInfoByID
-                projectObjectDocumentInfoByID.reload().done((data)=>{            
+                projectObjectDocumentInfoByID.reload().done((data)=>{
                         getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', true);
                         getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
                         getFormInstance()?.repaint();
+
+                        $('.dx-popup-content').css({'height': '', 'paddingBottom': 0 })
+                        $('.dx-popup-normal').css({'height': '' })
+
                 });
             },
             onShown(){
                 // setTimeout(() => {
                     if(!projectObjectDocumentInfoByID.isLoaded())
                     getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', true);
-                // }, 300)         
+                // }, 300)
             },
             onHiding(){
                 getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
             }
-            
+
             // onShowing(e){
             //     createCustomToolbarItems()
-                
+
             //     $('#deleteDocumentButton').dxButton({
-            //         icon: "trash", 
+            //         icon: "trash",
             //         hint: "Удалить",
-            //         onClick: function(e) { 
+            //         onClick: function(e) {
             //             deleteDocument(deletingRowId = editingRowId)
             //         }
             //     })
 
             //     $('#copyDocumentButton').dxButton({
-            //         icon: "copy", 
+            //         icon: "copy",
             //         hint: "Копировать",
-            //         onClick: function(e) { 
+            //         onClick: function(e) {
             //             copyDocument(copyRowId = editingRowId)
             //         }
             //     })
@@ -92,7 +96,7 @@
         let coreDataGridInstance = getCoreDataGridInstance();
 
         setOptionPopupVariables(coreDataGridInstance)
-       
+
         const statusOptionsFormPopup =  $('#statusOptionsForm').dxPopup({
             title: 'Статус и опции',
             width: 300,
@@ -123,7 +127,7 @@
                     }
                 }
             ],
-            
+
             onShown() {
                 optionsByTypeAndStatusStore.clearRawDataCache();
                 getDocumentOptionsByTypeAndStatus();
@@ -134,7 +138,7 @@
                 return contentElement.append('<div id="documentStatusSelector"></div><div id="optionsList"></div>')
                 // statusOptionsFormContentTemplate(contentElement)
             } ,
-            
+
         }).dxPopup('instance')
     }
 
@@ -143,12 +147,12 @@
             editingRowTypeId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "document_type_id")
             editingRowStatusId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "document_status_id")
             editingRowStartOptions = JSON.parse(coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "options"))
-        }        
+        }
     }
 
     function renderStatusSelector() {
         documentStatusesByTypeStore.clearRawDataCache();
-        $("#documentStatusSelector").dxSelectBox({ 
+        $("#documentStatusSelector").dxSelectBox({
                     // inputAttr: { 'id': 'documentStatusSelector' },
                     // dataSource: documentStatusesByTypeStore,
                     dataSource: documentStatusesByTypeStoreDataSource,
@@ -178,7 +182,7 @@
                                 value: data?.name,
                                 readOnly: true,
                             });
-                        
+
                         container.append(result);
                     },
 
@@ -186,24 +190,24 @@
                         resetStatusOptionsVars()
                         optionsByTypeAndStatusStore.clearRawDataCache();
                         editingRowNewStatusId = e.value;
-                        
+
                         getDocumentOptionsByTypeAndStatus()
 
-                        documentStatusesByTypeStore.load().done((statuses)=>{                            
+                        documentStatusesByTypeStore.load().done((statuses)=>{
                             let choosedStatus = statuses.filter(el=>el.id===editingRowNewStatusId)
                             documentStatusMainFormSelector.value = choosedStatus[0].name
-                        })    
+                        })
                     }
                 })
 
     }
 
     // function statusOptionsFormContentTemplate(contentElement){
-        
-    //     documentStatusesByTypeStore.clearRawDataCache();      
 
-    //     return contentElement.append( 
-    //             $("<div />").dxSelectBox({ 
+    //     documentStatusesByTypeStore.clearRawDataCache();
+
+    //     return contentElement.append(
+    //             $("<div />").dxSelectBox({
     //                 // inputAttr: { 'id': 'documentStatusSelector' },
     //                 // dataSource: documentStatusesByTypeStore,
     //                 dataSource: documentStatusesByTypeStoreDataSource,
@@ -233,7 +237,7 @@
     //                             value: data?.name,
     //                             readOnly: true,
     //                         });
-                        
+
     //                     container.append(result);
     //                 },
 
@@ -243,10 +247,10 @@
     //                     editingRowNewStatusId = e.value;
     //                     getDocumentOptionsByTypeAndStatus()
 
-    //                     documentStatusesByTypeStore.load().done((statuses)=>{                            
+    //                     documentStatusesByTypeStore.load().done((statuses)=>{
     //                         let choosedStatus = statuses.filter(el=>el.id==editingRowNewStatusId)
     //                         documentStatusMainFormSelector.value = choosedStatus[0].name
-    //                     })    
+    //                     })
     //                 }
     //             }),
 
@@ -261,7 +265,7 @@
         } catch (err) {
             //
         }
-        
+
         let optionsList = $('#optionsList')
         const optionsLoadIndicatorWrapper = $('<div>')
             .attr('id', 'optionsLoadIndicatorWrapper')
@@ -283,11 +287,11 @@
     function getDocumentOptionsByTypeAndStatus() {
         let dxPopupContentElems = document.querySelectorAll('.dx-popup-content')
         renderOptionsLoadIndicator()
-                        
+
         optionsByTypeAndStatusStore.load().done((options)=>{
             // if(optionsListLoadPanel)
             // optionsListLoadPanel.hide();
-           
+
             if($('#optionsLoadIndicatorWrapper'))
             $('#optionsLoadIndicatorWrapper').remove()
 
@@ -346,7 +350,7 @@
                         }
                     }).appendTo(result)
                 }
-                
+
                 if(data.type === 'text') {
                     $('<div />').dxTextBox({
                         label: data.label,
@@ -393,5 +397,5 @@
         editingRowTypeStatusOptions = [];
         editingRowTypeStatusOptions_tmp = [];
     }
-    
+
 </script>
