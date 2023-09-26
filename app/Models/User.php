@@ -359,7 +359,7 @@ class User extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return trim($this->last_name . ' ' . mb_substr($this->first_name,0,1,'UTF-8') . '.' . ($this->patronymic ? " " . mb_substr($this->patronymic,0,1,'UTF-8') . '.' : ''));
+        return $this->user_full_name;
     }
 
 

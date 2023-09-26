@@ -558,7 +558,7 @@
                                                 summaryType: "count",
                                                 displayFormat: "Количество: {0}",
                                             },
-                                            {
+{
                                                 summaryType: "custom",
                                                 name: "totalQuantitySummary",
                                                 showInGroupFooter: false,
@@ -585,7 +585,7 @@
                                                 showInColumn: "computed_weight",
                                                 summaryType: "custom",
                                                 name: "totalComputedWeightSummary",
-                                            }],
+                                           }],
                                             calculateCustomSummary: (options) => {
                                                 if (options.name === 'totalQuantitySummary' ||
                                                     options.name === 'amountSummary' ||
@@ -669,7 +669,7 @@
                                                         }
                                                     }
                                                 }
-                                            },
+                                            }
                                         },
                                         masterDetail: {
                                             enabled: true,
@@ -1134,7 +1134,6 @@
                             if (e.itemData === "Поставка") {
                                 let popupWindow = $("#supplyTypePopup")
                                     .dxPopup({
-                                        showCloseButton: true,
                                         width: "auto",
                                         height: "auto",
                                         title: "Выберите тип поставки",

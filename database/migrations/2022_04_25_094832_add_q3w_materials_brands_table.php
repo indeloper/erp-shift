@@ -27,7 +27,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
             $table->softDeletes();
         });
 
-        $brandTypeNames = ['VL/GU/PU', 'Л5', 'AZ'];
+        $brandTypeNames = ['VL/GU/PU', 'Л5-УМ', 'AZ'];
 
         foreach ($brandTypeNames as $brandTypeName) {
             $brandType = new q3wMaterialBrandType();
@@ -67,7 +67,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
             ['VL 603', '1', 'VL/GU/PU'],
             ['VL 606A', '1', 'VL/GU/PU'],
             ['Л4', '1', ''],
-            ['Л5-УМ', '1', 'Л5'],
+            ['Л5-УМ', '1', 'Л5-УМ'],
             ['⌀10', '2', ''],
             ['⌀12', '2', ''],
             ['⌀14', '2', ''],
@@ -375,16 +375,16 @@ class AddQ3wMaterialsBrandsTable extends Migration
             $brandRelation->save();
         }
 
-        //Л5
+        //Л5-УМ
         $materialBrand = new q3wMaterialBrand([
-            'name' => 'Л5',
+            'name' => 'Л5-УМ',
             'material_type_id' => 1,
-            'brand_type_id' => q3wMaterialBrandType::where('name', 'like', 'Л5')->first()->id
+            'brand_type_id' => q3wMaterialBrandType::where('name', 'like', 'Л5-УМ')->first()->id
         ]);
         $materialBrand->save();
 
-        $materialStandards = q3wMaterialStandard::where('name', 'like', '%Л5')
-            ->orWhere('name', 'like', '%Л5 %')
+        $materialStandards = q3wMaterialStandard::where('name', 'like', '%Л5-УМ')
+            ->orWhere('name', 'like', '%Л5-УМ %')
             ->get();
         foreach ($materialStandards as $materialStandard) {
             $brandRelation = new q3wMaterialBrandsRelation();

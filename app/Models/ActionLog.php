@@ -10,7 +10,7 @@ class ActionLog extends Model
 {
     use SoftDeletes, HasAuthor;
 
-    protected $fillable = ['user_id', 'actions'];
+    protected $fillable = ['user_id', 'actions', 'logable_type', 'logable_id'];
 
     protected $casts = ['actions' => 'array'];
 

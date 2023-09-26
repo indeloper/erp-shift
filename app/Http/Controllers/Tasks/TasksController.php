@@ -28,6 +28,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\{DB, Auth, File, Storage};
+use ReflectionClass;
 
 class TasksController extends Controller
 {
@@ -231,6 +232,11 @@ class TasksController extends Controller
     public function get_users(Request $request)
     {
         $users = User::getAllUsers()->where('status', 1);
+
+        if ($request->groupConstantName) {
+            $groupModelConstants = (new ReflectionClass(new Group))->getConstants();
+            $users = $users->whereIn('group_id', $groupModelConstants[$request->groupConstantName]);
+        }
 
         if ($request->q) {
             $groups = Group::where('name', $request->q)

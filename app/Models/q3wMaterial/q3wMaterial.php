@@ -2,9 +2,9 @@
 /**  * @mixin ..\Eloquent  */
 namespace App\Models\q3wMaterial;
 
-use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\DevExtremeDataSourceLoadable;
 
 class q3wMaterial extends Model
 {

@@ -9,16 +9,12 @@ use App\Models\User;
 
 class ObjectResponsibleUser extends Model
 {
-    protected $fillable = [
-        'object_id',
-        'user_id',
-        'role',
-    ];
+    protected $guarded = ["id"];
 
     public $role_codes = [
         1 => 'Ответственный за мат. учет',
-        2 => 'Ответственный за транспорт', // coming soon
-        3 => 'Ответственный за персонал' // coming soon
+        // 2 => 'Ответственный за транспорт', // coming soon
+        // 3 => 'Ответственный за персонал' // coming soon
     ];
 
     public function object()
@@ -39,5 +35,20 @@ class ObjectResponsibleUser extends Model
     public function getUpdatedAtAttribute($date)
     {
         return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
+    }
+
+    public function isUserResponsibleForObject($userId, $projectObjectId, $role)
+    {
+        return ObjectResponsibleUser::where('user_id',$userId)
+            ->where('object_id', $projectObjectId)
+            ->where('object_responsible_user_role_id', (new ObjectResponsibleUserRole)->getRoleIdBySlug($role))
+            ->exists();
+    }
+
+    public function getResponsibilityUsers($projectObjectId, $role)
+    {
+        return $this->where('object_id', $projectObjectId)
+        ->where('object_responsible_user_role_id', (new ObjectResponsibleUserRole)->getRoleIdBySlug($role))
+        ->get();
     }
 }

@@ -107,6 +107,10 @@ trait DevExtremeDataSourceLoadable
      */
     protected function appendFilter($query, $filterArray, string $logicalOperator = '', bool $useHaving = false)
     {
+        // Условие для проверки валидности элемента, содержащего dataField
+        if(empty($filterArray[0]))
+            return; 
+
         $result = $query;
 
         $isFilterConditionSimple = !is_array($filterArray[0]) && count($filterArray) == 3;

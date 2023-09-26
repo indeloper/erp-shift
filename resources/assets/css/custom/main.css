@@ -225,3 +225,15 @@ i.fas.fa-random.minus, i.fas.fa-minus {
     padding: 4px;
     text-align: right;
 }
+
+/* lightgallery */
+
+.lg-backdrop {
+    z-index: 10040 !important;
+}
+
+.lg-outer {
+    z-index: 10050 !important;
+}
+
+/* END lightgallery */

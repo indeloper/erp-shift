@@ -218,6 +218,13 @@ return [
             'url' => env('AWS_URL'),
         ],
 
+        'project_object_documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/project_object_documents'),
+            'url' => env('APP_URL').'/project_object_documents',
+            'visibility' => 'private',
+        ],
+
     ],
 
 ];

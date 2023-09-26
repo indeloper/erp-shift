@@ -3,6 +3,7 @@
 namespace App\Models\q3wMaterial\operations;
 
 use App\Models\Building\ObjectResponsibleUser;
+use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\UserPermission;
@@ -138,10 +139,14 @@ class q3wMaterialOperation extends Model
             case 37:
             case 71:
             case 77:
-                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->destination_project_object_id)->get()->pluck('user_id');
+                $responsibilityUsers = (new ObjectResponsibleUser)
+                    ->getResponsibilityUsers($this->destination_project_object_id, $role='TONGUE_PROJECT_MANAGER')
+                    ->pluck('user_id');
                 return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
             case 19:
-                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->source_project_object_id)->get()->pluck('user_id');
+                $responsibilityUsers = (new ObjectResponsibleUser)
+                    ->getResponsibilityUsers($this->source_project_object_id, $role='TONGUE_PROJECT_MANAGER')
+                    ->pluck('user_id');
                 return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
             case 79:
                 $permissionId = Permission::where('codename', 'material_accounting_write_off_confirmation')->first()->id;

@@ -93,6 +93,7 @@ class Group extends Model
     const PROJECT_MANAGERS = [8, 13, 19, 27, 58];
     const LOGIST = [15, 16, 17];
     const MECHANICS = [46, 47];
+    const PTO = [52, 53, 62];
 
     public function permissions()
     {

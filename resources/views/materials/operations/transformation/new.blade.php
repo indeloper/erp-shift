@@ -18,150 +18,94 @@
             padding-left: 0 !important;
         }
 
-        .transformation-type-selector {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+        .transform-element {
+            margin-top: 8px;
+            display: inline-flex;
+            align-content: center;
             flex-direction: row;
-            align-content: space-between;
-        }
-
-        .transformation-type-item {
-            width: 120px;
-            height: 120px;
-            margin: 32px;
-            background-color: rgba(183, 183, 183, 0.1);
-            border-width: 2px;
-            border-style: solid;
-            border-color: rgba(183, 183, 183, 0.7);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            font-size: larger;
         }
 
-        .transformation-type-text {
-            font-weight: 500;
-            opacity: 0.8;
-            text-align: center;
+        .transform-element>.transformation-number-box, .transform-element>.transformation-comment-box {
+            display: inline-block;
+            margin: 8px;
+            max-width: 6%;
+            min-width: 60px;
         }
 
-        .transformation-type-item:hover {
-            background-color: aliceblue;
-            border-color: #03a9f4a6;
-            cursor: pointer;
+
+        .transform-element>.transformation-comment-box {
+            max-width: 20%;
+            min-width: 200px;
         }
 
-        .without-box-shadow {
-            box-shadow: none !important;
+
+        .transform-wizard-button {
+            margin: 8px 8px 8px 0;
         }
 
-        .form-container .dx-numberbox {
-            float: right;
-        }
-
-        .transformation-header {
-            border-bottom: #e0e0e0 solid 2px !important;
-            background-color: #f7f7f7;
-        }
-
-        .transformation-header-caption {
-            float: left;
-            line-height: 28px;
+        .transform-wizard-caption {
             font-weight: bold;
-            color: #717171;
+            font-size: larger;
+            color: darkslategray;
         }
 
-        .transformation-header-button {
-            float: right;
-            margin-left: 8px;
-        }
-        .command-row-buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .dx-datagrid-rowsview .dx-texteditor.dx-editor-outlined .dx-texteditor-input {
-            text-align: right;
-            padding-right: 0;
-        }
-
-        .dx-datagrid-rowsview .dx-placeholder {
-            text-align: right;
-            width: 100%;
-        }
-
-        .dx-datagrid-rowsview .dx-texteditor.dx-editor-outlined .dx-placeholder::before {
-            padding-right: 0;
-        }
-
-        .computed-weight, .quantity-total-summary, .amount-total-summary, .weight-total-summary {
-            text-align: right;
-        }
-
-        div.footer-row-validation {
-            display: flex;
+        .transformation-validator {
+            display: inline-flex;
+            align-content: center;
             align-items: center;
         }
 
-        .footer-row-validation-indicator {
-            float: left;
+        .fa-exclamation-triangle, .fa-trash-alt, .fa-copy, .fa-check-circle{
+            font-size: larger;
             margin-right: 8px;
         }
 
-        .footer-row-validation-message {
-            font-weight: 500;
+        .fa-check-circle {
+            color: #006100
+        }
+
+        #materialsToTransformElements, #materialsAfterTransformElements, #materialsRemainsTransformElements {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transformation-standard-name-cell {
+            min-width: 20%;
         }
     </style>
 @endsection
 
 @section('content')
     <div id="formContainer"></div>
-
     <div id="popupContainer">
         <div id="materialsStandardsAddingForm"></div>
     </div>
-
     <div id="validationPopoverContainer">
-        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }"></div>
-    </div>
+        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }">
 
-    <div id="validationPopoverContainer">
-        <div id="validationTemplate" data-options="dxTemplate: { name: 'validationTemplate' }"></div>
+        </div>
     </div>
 @endsection
 
 @section('js_footer')
     <script>
         $(function () {
-            const transformationStages = Object.freeze({
-                transformationTypesSelection: Symbol("transformationTypesSelection"),
-                fillingMaterialsToTransform: Symbol("fillingMaterialsToTransform"),
-                fillingMaterialsAfterTransform: Symbol("fillingMaterialsAfterTransform"),
-                fillingMaterialsRemains: Symbol("fillingMaterialsRemains"),
-                fillingMaterialsTechnologicalLosses: Symbol("fillingMaterialsTechnologicalLosses"),
-            });
-
-            const rowTypes = Object.freeze({
-                rowHeader: Symbol("rowHeader"),
-                rowFooter: Symbol("rowFooter"),
-                rowData: Symbol("fillingMaterialsTechnologicalLosses"),
-            });
-
+            let measureUnitData = {!!$measureUnits1 ?? '[]'!!};
+            let projectObject = {{$projectObjectId}};
             let materialTypesData = {!!$materialTypes!!};
+            let materialErrorList = [];
 
             let projectObjectId = {{$projectObjectId}};
 
-            let currentTransformationStage = transformationStages.transformationTypesSelection;
-            let currentTransformationType = "";
+            let materialsToTransform = [];
+            let materialsAfterTransform = [];
+            let materialsRemains = [];
 
-            let transformationData = new DevExpress.data.DataSource({
-                store: new DevExpress.data.ArrayStore({
-                    key: "id",
-                    data: []
-                }),
-                sort: ["sortIndex"]
-            })
+            let currentTransformationStage = "fillingMaterialsToTransform";
+            let isUserIsResponsibleForMaterialAccounting = false;
+
 
             let suspendSourceObjectLookupValueChanged = false;
             //<editor-fold desc="JS: DataSources">
@@ -177,7 +121,8 @@
 
             let availableMaterialsDataSource = new DevExpress.data.DataSource({
                 key: "id",
-                store: availableMaterialsStore
+                store: availableMaterialsStore,
+                filter: [ "accounting_type", "=", "2" ]
             });
 
             let materialStandardsListStore = new DevExpress.data.CustomStore({
@@ -191,7 +136,8 @@
 
             let materialStandardsListDataSource = new DevExpress.data.DataSource({
                 key: "id",
-                store: materialStandardsListStore
+                store: materialStandardsListStore,
+                filter: [ "accounting_type", "=", "2" ]
             })
 
             let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
@@ -199,6 +145,18 @@
                     key: "id",
                     data: []
                 })
+            })
+
+            let supplyMaterialData = [];
+
+            let supplyMaterialStore = new DevExpress.data.ArrayStore({
+                key: "id",
+                data: supplyMaterialData
+            })
+
+            let supplyMaterialDataSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: supplyMaterialStore
             })
 
             let projectObjectsListWhichParticipatesInMaterialAccountingDataSource = new DevExpress.data.DataSource({
@@ -222,10 +180,7 @@
                         return $.getJSON("{{route('material.transformation-types.lookup-list')}}",
                             {data: JSON.stringify(loadOptions)});
                     }
-                }),
-                onChanged: function () {
-                    repaintGUI();
-                }
+                })
             });
 
             let usersWithMaterialListAccessStore = new DevExpress.data.CustomStore({
@@ -249,7 +204,7 @@
                         name: "materialsStandardsList",
                         editorOptions: {
                             dataSource: null,
-                            height: "50vh",
+                            height: 400,
                             width: 500,
                             showColumnHeaders: false,
                             showRowLines: false,
@@ -278,8 +233,7 @@
                                 width: 240,
                                 placeholder: "Поиск..."
                             },
-                            columns: [
-                                {
+                            columns: [{
                                 dataField: "standard_name",
                                 dataType: "string",
                                 caption: "Наименование",
@@ -290,7 +244,7 @@
                                         let words = filterValue.split(" ");
                                         let filter = [];
 
-                                        columnsNames.forEach(function (column) {
+                                        columnsNames.forEach(function (column, index) {
                                             filter.push([]);
                                             words.forEach(function (word) {
                                                 filter[filter.length - 1].push([column, "contains", word]);
@@ -306,11 +260,15 @@
                                     return this.defaultCalculateFilterExpression(filterValue, selectedFilterOperation);
                                 },
                                 cellTemplate: function (container, options) {
+
                                     let quantity;
                                     let amount;
+                                    let comment;
 
                                     quantity = options.data.quantity ? options.data.quantity + " " : "";
                                     amount = options.data.amount ? options.data.amount + " " : "";
+
+
 
                                     switch (options.data.accounting_type) {
                                         case 2:
@@ -376,7 +334,7 @@
                                 dataSource: selectedMaterialStandardsListDataSource,
                                 allowItemDeleting: true,
                                 itemDeleteMode: "static",
-                                height: "50vh",
+                                height: 400,
                                 width: 500,
                                 itemTemplate: function (data) {
                                     let quantity = data.quantity ? data.quantity + " " : "";
@@ -403,6 +361,8 @@
                                             }
 
                                             return container;
+
+                                            break;
                                         default:
                                             return $("<div>").text(data.standard_name +
                                                 ' (' +
@@ -440,23 +400,8 @@
 
                                 selectedMaterialsData.forEach(function (material) {
                                     switch(currentTransformationStage) {
-                                        case transformationStages.fillingMaterialsToTransform:
-                                        case transformationStages.fillingMaterialsAfterTransform:
-                                            let rowType;
-                                            let sortIndex;
-                                            switch (currentTransformationStage) {
-                                                case transformationStages.fillingMaterialsToTransform:
-                                                    rowType = rowTypes.rowData;
-                                                    sortIndex = 2;
-                                                    break;
-                                                case transformationStages.fillingMaterialsAfterTransform:
-                                                    rowType = rowTypes.rowData;
-                                                    sortIndex = 5;
-                                                    break;
-                                            }
-                                            let validationUid = getValidationUid(material);
-
-                                            let data = {
+                                        case "fillingMaterialsToTransform":
+                                            materialsToTransform.push({
                                                 id: "uid-" + new DevExpress.data.Guid().toString(),
                                                 material_id: material.id,
                                                 standard_id: material.standard_id,
@@ -472,30 +417,35 @@
                                                 initial_comment_id: material.comment_id,
                                                 initial_comment: material.comment,
                                                 total_quantity: material.quantity,
-                                                total_amount: material.amount,
-                                                brands: material.standard_brands,
-                                                rowType: rowType,
-                                                rowTransformationStage: currentTransformationStage,
-                                                sortIndex: sortIndex,
-                                                validationUid: validationUid,
-                                                validationState: "unvalidated",
-                                                validationResult: "none",
-                                                errorMessage: ""
-                                            };
-
-                                            insertTransformationRow(data, currentTransformationStage);
-
-                                            validateMaterialList(data.validationUid);
-                                            validateStages(null);
+                                                total_amount: material.amount
+                                            });
                                             break;
-                                        /*case "fillingMaterialsRemains":
-                                            break;*/
+                                        case "fillingMaterialsAfterTransform":
+                                            materialsAfterTransform.push({
+                                                id: "uid-" + new DevExpress.data.Guid().toString(),
+                                                standard_id: material.standard_id,
+                                                standard_name: material.standard_name,
+                                                accounting_type: material.accounting_type,
+                                                material_type: material.material_type,
+                                                measure_unit: material.measure_unit,
+                                                measure_unit_value: material.measure_unit_value,
+                                                standard_weight: material.weight,
+                                                quantity: null,
+                                                amount: null,
+                                                comment: material.comment,
+                                                initial_comment_id: material.comment_id,
+                                                initial_comment: material.comment,
+                                                total_quantity: material.quantity,
+                                                total_amount: material.amount
+                                            });
+                                            break;
+                                        case "fillingMaterialsRemains":
+                                            break;
                                     }
                                 })
 
-                                //updateRowFooter();
 
-                                /*switch(currentTransformationStage) {
+                                switch(currentTransformationStage) {
                                     case "fillingMaterialsToTransform":
                                         repaintMaterialsToTransformLayer();
                                         break;
@@ -504,8 +454,9 @@
                                         break;
                                     case "fillingMaterialsRemains":
                                         break;
-                                }*/
+                                }
                                 $("#popupContainer").dxPopup("hide");
+                                validateMaterialList(false, false);
                             }
                         }
                     }
@@ -513,7 +464,6 @@
             }).dxForm("instance");
 
             let popupContainer = $("#popupContainer").dxPopup({
-                showCloseButton: true,
                 height: "auto",
                 width: "auto",
                 title: "Выберите материалы для добавления"
@@ -559,7 +509,7 @@
                                      let confirmDialog = DevExpress.ui.dialog.confirm('При смене объекта будут удалены введенные данные по материалам операции.<br>Продолжить?', 'Смена объекта');
                                      confirmDialog.done(function (dialogResult) {
                                          if (dialogResult) {
-                                             /*updateComponentsDataSources(currentValue);
+                                             updateComponentsDataSources(currentValue);
 
                                              currentTransformationStage = "fillingMaterialsToTransform";
                                              materialsToTransform = [];
@@ -568,7 +518,7 @@
 
                                              repaintMaterialsToTransformLayer();
                                              repaintMaterialsAfterTransformLayer();
-                                             repaintMaterialRemains();*/
+                                             repaintMaterialRemains();
                                          } else {
                                              suspendSourceObjectLookupValueChanged = true;
                                              e.component.option('value', oldValue);
@@ -605,7 +555,7 @@
                     },
                     {
                         name: "destinationResponsibleUserSelectBox",
-                        colSpan: 2,
+                        colSpan: 1,
                         dataField: "responsible_user_id",
                         label: {
                             text: "Ответственный"
@@ -623,6 +573,30 @@
                         validationRules: [{
                             type: "required",
                             message: 'Поле "Ответственный" обязательно для заполнения'
+                        }]
+
+                    },
+                    {
+                        name: "transformationTypeSelectBox",
+                        colSpan: 1,
+                        dataField: "transformation_type_id",
+                        label: {
+                            text: "Тип преобразования"
+                        },
+                        editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: materialTransformationTypesDataSource,
+                            displayExpr: "value",
+                            valueExpr: "id",
+                            searchEnabled: true,
+                            value: null,
+                            onValueChanged: () => {
+                                repaintMaterialRemains();
+                            }
+                        },
+                        validationRules: [{
+                            type: "required",
+                            message: 'Поле "Тип преобразования" обязательно для заполнения'
                         }]
 
                     }]
@@ -650,1341 +624,907 @@
                         itemType: "group",
                         caption: "Материалы",
                         colSpan: 2,
-                        items: [
-                            {
-                                dataField: "",
-                                name: "materialsGroup",
-                                itemType: "tabbed",
-                                tabs: [
-                                    {
-                                        title: "Выбор типа преобразования",
-                                        name: "transformationTypeSelector",
-                                        items: [
-                                            {
-                                                itemType: "simple",
-                                                template: function (data, itemElement) {
-                                                    itemElement.append( $(`<div class="transformation-type-selector"/>`));
-                                                }
-                                            }
-                                        ]
+                        items: [{
+                            dataField: "",
+                            name: "materialsToTransformLayer",
+                            template: function (data, itemElement) {
+                                itemElement.append( $("<div id='materials-to-transform'>"));
+                                itemElement.append( $("<div id='materials-after-transform'>"));
+                                itemElement.append( $("<div id='materials-remains'>"));
 
-                                    },
-                                    {
-                                        title: "Преобразование",
-                                        name: "transformation-tab",
-                                        items: [
-                                            {
-                                                editorType: "dxDataGrid",
-                                                name: "transformationGrid",
-                                                editorOptions: {
-                                                    dataSource: transformationData,
-                                                    focusedRowEnabled: false,
-                                                    hoverStateEnabled: true,
-                                                    columnAutoWidth: false,
-                                                    showBorders: true,
-                                                    showColumnLines: true,
-                                                    paging: {
-                                                        enabled: false
-                                                    },
-                                                    editing: {
-                                                        allowUpdating: true,
-                                                        mode: "cell",
-                                                        selectTextOnEditStart: false,
-                                                        startEditAction: "click",
-                                                        useIcons: true
-                                                    },
-                                                    dataRowTemplate(container, item) {
-                                                        let markup = getRowMarkup(item.rowIndex, item.data);
-
-                                                        container.append(markup);
-                                                    },
-                                                    columns: [
-                                                        {
-                                                            dataField: "sortIndex",
-                                                            dataType: "integer",
-                                                            sortIndex: 0,
-                                                            visible: false
-                                                        },
-                                                        {
-                                                            type: "buttons",
-                                                            width: 130,
-                                                            allowSorting: false
-                                                        },
-                                                        {
-                                                            dataField: "standard_name",
-                                                            dataType: "string",
-                                                            allowEditing: false,
-                                                            width: "30%",
-                                                            caption: "Наименование",
-                                                            allowSorting: false
-                                                        },
-                                                        {
-                                                            dataField: "quantity",
-                                                            dataType: "number",
-                                                            caption: "Количество",
-                                                            allowSorting: false,
-                                                            editorOptions: {
-                                                                min: 0
-                                                            },
-                                                            showSpinButtons: false
-                                                        },
-                                                        {
-                                                            dataField: "amount",
-                                                            dataType: "number",
-                                                            caption: "Количество (шт)",
-                                                            allowSorting: false,
-                                                            editorOptions: {
-                                                                min: 0,
-                                                                format: "#"
-                                                            }
-                                                        },
-                                                        {
-                                                            dataField: "computed_weight",
-                                                            dataType: "number",
-                                                            allowEditing: false,
-                                                            allowSorting: false,
-                                                            caption: "Вес"
-                                                        }
-                                                    ]
-                                                }
-                                            },
-
-                                        ]
-
-                                    }
-                                ]
+                                repaintTransformLayers();
                             }
+                        }
                         ]
-                    }],
-                onContentReady: () => {
-                    materialTransformationTypesDataSource.load();
-                }
+                    }]
 
             }).dxForm("instance")
             //</editor-fold>
 
-            function repaintGUI(){
-                switch (currentTransformationStage) {
-                    case transformationStages.transformationTypesSelection:
-                        repaintTransformationTypeSelectionLayer();
-                        break;
-                }
+            //<editor-fold desc="JS: Toolbar configuration">
+            //</editor-fold>
+
+            function saveOperationData() {
+                let transformationOperationData = {};
+
+                transformationOperationData.project_object_id = operationForm.option("formData").project_object_id;
+                //TODO Дата формируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
+                transformationOperationData.operation_date = new Date(operationForm.option("formData").operation_date).toJSON().split("T")[0];
+                transformationOperationData.responsible_user_id = operationForm.option("formData").responsible_user_id;
+                transformationOperationData.new_comment = operationForm.option("formData").new_comment;
+                transformationOperationData.transformation_type_id = operationForm.option("formData").transformation_type_id;
+
+                transformationOperationData.materialsToTransform = materialsToTransform;
+                transformationOperationData.materialsAfterTransform = materialsAfterTransform;
+                transformationOperationData.materialsRemains = materialsRemains;
+
+                postEditingData(transformationOperationData);
             }
 
-            function repaintTransformationTypeSelectionLayer(){
-                let transformTypeLayer = $('.transformation-type-selector');
-                let transformTypes = materialTransformationTypesDataSource.items();
-
-                transformTypes.forEach(element => {
-                    let transformationTypeLayer = $(`<div class="transformation-type-item" transformation-type-name="${element.value}" transformation-type-codename="${element.codename}"/>`).append(
-                        $(`<div class="transformation-type-text">${element.value}</div>`)
-                    )
-
-                    transformationTypeLayer.click(() => {
-                        let data = {
-                            name: `Шаг 1: Добавьте материалы для преобразования «${element.value}»`,
-                            rowType: rowTypes.rowHeader,
-                            sortIndex: 1
-                        }
-                        insertTransformationRow(data, transformationStages.fillingMaterialsToTransform);
-
-                        currentTransformationType = element.codename;
-                    })
-
-                    transformTypeLayer.append(transformationTypeLayer)
-                })
-            }
-
-            function getRowMarkup(rowIndex, data) {
-                let markup;
-
-                let row = $(`<tr>`);
-                switch (data.rowType) {
-                    case rowTypes.rowHeader:
-                        markup = $(`<td colspan="5" class="transformation-header">`);
-                        let caption = $(`<div class="transformation-header-caption">${data.name}</div>`);
-                        markup.append(caption);
-
-                        let appendMaterialButton;
-                        let nextStageButton;
-
-                        switch (currentTransformationStage) {
-                            case transformationStages.fillingMaterialsToTransform:
-                                appendMaterialButton = $(`<div class="transformation-header-button">`).dxButton({
-                                    text: `Добавить материал`,
-                                    type: `normal`,
-                                    onClick: () => {
-                                        showMaterialsAddingForm();
-                                    }
-                                });
-
-                                nextStageButton = $(`<div class="transformation-header-button">`).dxButton({
-                                    text: `Далее`,
-                                    type: `normal`,
-                                    onClick: () => {
-                                        let data = {
-                                            name: `Шаг 2: Добавьте материалы после преобразования`,
-                                            rowType: rowTypes.rowHeader,
-                                            sortIndex: 4
-                                        }
-                                        insertTransformationRow(data, transformationStages.fillingMaterialsAfterTransform);
-                                    }
-                                });
-
-                                markup.append(nextStageButton);
-                                markup.append(appendMaterialButton);
-
-                                break;
-                            case transformationStages.fillingMaterialsAfterTransform:
-                                appendMaterialButton = $(`<div class="transformation-header-button">`).dxButton({
-                                    text: `Добавить материал`,
-                                    type: `normal`,
-                                    onClick: () => {
-                                        showMaterialsAddingForm();
-                                    }
-                                });
-
-                                nextStageButton = $(`<div class="transformation-header-button">`).dxButton({
-                                    text: `Далее`,
-                                    type: `normal`,
-                                    onClick: () => {
-                                        let data = {
-                                            name: `Шаг 3: Укажите остатки матералов`,
-                                            rowType: rowTypes.rowHeader,
-                                            sortIndex: 7
-                                        }
-                                        insertTransformationRow(data, transformationStages.fillingMaterialsRemains);
-                                        insertMaterialsRemains();
-
-                                        data = {
-                                            name: `Шаг 4: Укажите технологические потери (из-за резки или торцовки материала)`,
-                                            rowType: rowTypes.rowHeader,
-                                            sortIndex: 10
-                                        }
-                                        insertTransformationRow(data, transformationStages.fillingMaterialsTechnologicalLosses);
-                                        insertMaterialsTechnologicalLosses()
-                                    }
-                                });
-
-                                markup.append(nextStageButton);
-                                markup.append(appendMaterialButton);
-
-                                break;
-                        }
-                        row.append(markup);
-                        break;
-
-                    case rowTypes.rowData:
-                        row.addClass("dx-row")
-                            .addClass("dx-data-row")
-                            .addClass("dx-row-lines")
-                            .addClass("dx-column-lines");
-                        let controlRow = $(`<td class="dx-command-edit dx-command-edit-with-icons dx-cell-focus-disabled"/>`).append(getControlRowLayer(rowIndex, data));
-                        let standardName = $("<td/>").append(getStandardNameLayer(rowIndex, data));
-                        let quantity = $(`<td aria-describedby="dx-col-2" aria-selected="false" role="gridcell" aria-colindex="2" style="text-align: right;"/>`).append(getQuantityLayer(rowIndex, data));
-                        let amount = $(`<td aria-describedby="dx-col-3" aria-selected="false" role="gridcell" aria-colindex="3" style="text-align: right;"/>`).append(getAmountLayer(rowIndex, data));
-                        let computedWeight = $(`<td class="computed-weight" rowIndex="${rowIndex}"/>`).append(getComputedWeightLayer(rowIndex, data));
-
-                        row.append(controlRow);
-                        row.append(standardName);
-                        row.append(quantity);
-                        row.append(amount);
-                        row.append(computedWeight);
-
-                        break;
-
-                    case rowTypes.rowFooter:
-                        let footerStageErrorLayer = $(`<td colspan ="2" class="footer-validation-cell" rowIndex="${rowIndex}"/>`).append(getFooterStageErrorLayer(rowIndex, data));
-
-                        row.addClass("dx-row")
-                            .addClass("dx-footer-row")
-                            .addClass("dx-row-lines")
-                            .addClass("dx-column-lines")
-                            .attr("uid", data.id)
-                            .append(footerStageErrorLayer)
-                            .append($(`<td><div class="dx-datagrid-summary-item dx-datagrid-text-content quantity-total-summary">${data.quantity} ${data.measure_unit_value}</div></td>`))
-                            .append($(`<td><div class="dx-datagrid-summary-item dx-datagrid-text-content amount-total-summary">${data.amount} шт</div></td>`))
-                            .append($(`<td><div class="dx-datagrid-summary-item dx-datagrid-text-content weight-total-summary">${data.weight} т</div></td>`))
-                        break;
-                }
-
-                return row;
-            }
-
-            function showMaterialsAddingForm() {
-                let dataSource = materialStandardsListDataSource;
-
-                switch (currentTransformationStage) {
-                    case transformationStages.fillingMaterialsToTransform:
-                        dataSource = availableMaterialsDataSource
-                        break;
-                    case transformationStages.fillingMaterialsAfterTransform:
-                        dataSource = materialStandardsListDataSource;
-                        break;
-                }
-
-                dataSource.filter(getMaterialAddingFormFilter())
-
-                let materialsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
-                materialsList.option("dataSource", dataSource);
-                dataSource.reload();
-                materialsList.option("selectedRowKeys", []);
-
-                $("#popupContainer").dxPopup("show")
-            }
-
-            function insertTransformationRow(dataToInsert, transformationStage) {
-                transformationData.store().insert(dataToInsert).done(() => {
-                    currentTransformationStage = transformationStage;
-                    transformationData.reload();
-
-                    if (dataToInsert.rowType === rowTypes.rowFooter) {
-                        validateStages(null);
-                    }
-
-                    if (dataToInsert.rowType === rowTypes.rowData) {
-                        updateRowFooter();
-                    }
-                })
-            }
-
-            function getStandardNameLayer(rowIndex, data){
-                let divStandardName = $(`<div class="standard-name"></div>`)
-
-                $(`<div>${data.standard_name}</div>`)
-                    .appendTo(divStandardName);
-
-                if (data.comment) {
-                    $(`<div class="material-comment">${data.comment}</div>`)
-                        .appendTo(divStandardName);
-
-                    divStandardName.addClass("standard-name-cell-with-comment");
-                }
-
-                return divStandardName;
-            }
-
-            function getQuantityLayer(rowIndex, data){
-            let isReadOnly = false;
-
-            switch (data.rowTransformationStage) {
-                case transformationStages.fillingMaterialsToTransform:
-                    isReadOnly = true;
-                    break;//data.rowType === rowTypes.rowMaterialsToTransform;
-            }
-
-                let quantity = Math.round(data.quantity * 100) / 100;
-
-                if (isReadOnly) {
-                    if (quantity) {
-                        return $(`<div class="transformation-quantity"><span>${quantity} ${data.measure_unit_value}</span></div>`)
-                    } else {
-                        return $(`<div class="transformation-quantity measure-units-only"><span>${data.measure_unit_value}</span></div>`)
-                    }
-                } else {
-                    let quantityLayer = $(
-                        `<div class="measure-units-only without-box-shadow dx-show-invalid-badge dx-numberbox dx-texteditor dx-editor-outlined dx-texteditor-empty dx-widget">` +
-                        `</div>`
-                    );
-
-                    quantityLayer.dxNumberBox({
-                        min: 0,
-                        value: quantity,
-                        format: "#0.## " + data.measure_unit_value,
-                        placeholder: data.measure_unit_value,
-                        mode: "number",
-                        onValueChanged: (e) => {
-                            e.component.option("format", "#0.## " + data.measure_unit_value);
-                            transformationData.store()
-                                .update(data.id, {quantity: e.value})
-                                .done(() => {
-                                    updateComputedWeightLayer(rowIndex, data);
-                                    validateMaterialList(data.validationUid);
-                                    validateStages(null);
-                                });
-                            operationForm.getEditor("transformationGrid").endUpdate();
-                        },
-                        onFocusIn: (e) => {
-                            e.component.option("format", "");
-                        },
-                        onFocusOut: (e) => {
-                            e.component.option("format", "#0.## " + data.measure_unit_value);
-                        },
-                    });
-
-                    return quantityLayer;
-                }
-            }
-
-            function getAmountLayer(rowIndex, data){
-                let isReadOnly = false;
-
-                let amount = data.amount;
-
-                if (isReadOnly) {
-                    if (amount) {
-                        return $(`<div>${amount} шт</div>`)
-                    } else {
-                        return $(`<div class="measure-units-only">шт</div>`)
-                    }
-                } else {
-                    let amountLayer = $(
-                        `<div class="measure-units-only without-box-shadow dx-show-invalid-badge dx-numberbox dx-texteditor dx-editor-outlined dx-texteditor-empty dx-widget">` +
-                        `</div>`
-                    );
-
-                    amountLayer.dxNumberBox({
-                        min: 0,
-                        value: amount,
-                        format: "#0 шт",
-                        placeholder: "шт",
-                        mode: "number",
-                        onValueChanged: (e) => {
-                            e.component.option("format", "#0 шт");
-                            transformationData.store()
-                                .update(data.id, {amount: e.value})
-                                .done(() => {
-                                    updateComputedWeightLayer(rowIndex, data);
-                                    validateMaterialList(data.validationUid);
-                                    validateStages(null);
-                                });
-
-                        },
-                        onFocusIn: (e) => {
-                            e.component.option("format", "");
-                        },
-                        onFocusOut: (e) => {
-                            e.component.option("format", "# шт");
-                        },
-                    });
-
-                    return amountLayer;
-                }
-            }
-
-            function getComputedWeightLayer(rowIndex, data) {
-                let weight = data.quantity * data.amount * data.standard_weight;
-
-                if (weight) {
-                    weight = Math.round(weight * 1000) / 1000
-                } else {
-                    weight = 0;
-                }
-
-                return $(`<div>${weight} т</div>`)
-            }
-
-            function updateComputedWeightLayer(rowIndex, data) {
-                $(`.computed-weight[rowIndex=${rowIndex}]`).html(getComputedWeightLayer(rowIndex, data));
-            }
-
-            function getControlRowLayer(rowIndex, data) {
-                let controlRowLayer = $('<div class="command-row-buttons"/>');
-                let validationUid = data.validationUid;
-                let validationDiv = $(`<div class="row-validation-indicator"/>`)
-                    .attr("validation-uid", validationUid)
-
-                switch(data.validationResult) {
-                    case "valid":
-                        let checkIcon = $(`<i/>`)
-                            .addClass(`dx-link dx-icon fas fa-check-circle dx-link-icon`)
-                            .attr(`style`, `color: #8bc34a`)
-                            .appendTo(validationDiv);
-                        break;
-                    case "invalid":
-                        let exclamationTriangle = $(`<i/>`).addClass(`dx-link fas fa-exclamation-triangle`)
-                            .attr(`style`, `color: #f15a5a`)
-                            .mouseenter(function () {
-                                if (!data.errorMessage) {
-                                    return;
-                                }
-
-                                let validationDescription = $('#validationTemplate');
-
-                                validationDescription.dxPopover({
-                                    position: "top",
-                                    width: 300,
-                                    contentTemplate: data.errorMessage,
-                                    hideEvent: "mouseleave",
-                                })
-                                    .dxPopover("instance")
-                                    .show($(this));
-                            })
-                            .appendTo(validationDiv);
-                        break;
-                }
-
-                let deleteRowDiv = $(`<div row-index="${rowIndex}"><a href="#" class="dx-link dx-icon-trash dx-link-icon" title="Удалить" row-index="${rowIndex}"></a></div>`)
-                    .attr("validation-uid", validationUid);
-
-                deleteRowDiv.click((e) => {
-                    e.preventDefault();
-
-                    operationForm.getEditor("transformationGrid").deleteRow(rowIndex);
-
-                    validateMaterialList(data.validationUid);
-                    validateStages(null);
-                    })
-
-                let duplicateRowDiv = $(`<div class=""><a href="#" class="dx-link dx-icon-copy dx-link-icon" title="Дублировать"></a></div>`)
-                    .attr("validation-uid", validationUid)
-                    .click((e) => {
-                        e.preventDefault();
-
-                        let clonedItemId = "uid-" + new DevExpress.data.Guid().toString();
-
-                        let clonedItem = $.extend({},
-                            data, {
-                                id: clonedItemId,
-                                edit_states: ["addedByRecipient"],
-                                validationUid: getValidationUid(data),
-                            }
-                        );
-
-                        transformationData.store().insert(clonedItem).done(() => {
-                            transformationData.reload();
-                            validateMaterialList(data.validationUid);
-                            validateStages(null);
-                        });
-                    })
-
-                controlRowLayer.append(validationDiv);
-                controlRowLayer.append(deleteRowDiv);
-                controlRowLayer.append(duplicateRowDiv);
-
-                return controlRowLayer;
-            }
-
-            function getFooterStageErrorLayer(rowIndex, data){
-                let validationUid = data.validationUid;
-                let validationDiv = $(`<div class="footer-row-validation"/>`).attr("validation-uid", validationUid);
-                let validationIconDiv = $(`<div class="footer-row-validation-indicator"/>`);
-
-
-                let validationMessageDiv = $(`<div class="footer-row-validation-message"/>`);
-
-                switch(data.validationResult) {
-                    case "valid":
-                        let checkIcon = $(`<i/>`)
-                            .addClass(`dx-icon fas fa-check-circle`)
-                            .attr(`style`, `color: #8bc34a;font-size: 16px;`)
-                            .appendTo(validationIconDiv);
-
-                        validationMessageDiv.html("Проблемы не обнаружены");
-                        break;
-                    case "invalid":
-                        let exclamationTriangle = $(`<i/>`).addClass(`dx-icon fas fa-exclamation-triangle`)
-                            .attr(`style`, `color: #f15a5a;font-size: 16px;`)
-                            .appendTo(validationIconDiv);
-                            validationMessageDiv.html(data.errorMessage);
-                        break;
-                }
-                validationDiv.append(validationIconDiv);
-                validationDiv.append(validationMessageDiv);
-                return validationDiv;
-            }
-
-            function getValidationUid(material) {
-                let filterConditions;
-
-                switch (material.accounting_type) {
-                    case 2:
-                        if (!material.quantity || !material.amount) {
-                            return "uid-" + new DevExpress.data.Guid().toString();
+            function validateMaterialList(saveEditedData, showErrorWindowOnHighSeverity) {
+                setButtonIndicatorVisibleState(true);
+                setElementsDisabledState(true);
+
+                let transformationOperationData = {
+                    materialsToTransform: materialsToTransform,
+                    materialsAfterTransform: materialsAfterTransform,
+                    materialsRemains: materialsRemains,
+                    projectObjectId: operationForm.option("formData").project_object_id,
+                    transformationStage: currentTransformationStage
+                };
+                $.ajax({
+                    url: "{{route('materials.operations.transformation.new.validate-material-list')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    dataType: "json",
+                    data: {
+                        transformationOperationData
+                    },
+                    success: function (e) {
+                        $('.fa-exclamation-triangle').attr('style', 'display:none');
+                        $('.validator-description-text').attr('style', 'display:none');
+                        if (saveEditedData) {
+                            saveOperationData();
                         } else {
-                            filterConditions = [["standard_id", "=", material.standard_id],
-                                "and",
-                                ["quantity", "=", material.quantity],
-                                "and",
-                                ["amount", ">", 0],
-                                "and",
-                                ["initial_comment_id", "=", material.initial_comment_id],
-                                "and",
-                                ["rowType", "=", material.rowType]];
+                            setButtonIndicatorVisibleState(false);
+                            setElementsDisabledState(false);
                         }
+                    },
+                    error: function (e) {
+                        if (e.responseJSON.result === 'error') {
+                            let needToShowErrorWindow = false;
+
+                            $('.fa-exclamation-triangle').attr('style', 'display:none');
+                            e.responseJSON.errors.forEach((errorElement) => {
+                                updateValidationExclamationTriangles($('.transform-element[validationId=' + errorElement.validationId.toString().replaceAll('.', '\\.') + ']'), errorElement);
+                                errorElement.errorList.forEach((errorItem) => {
+                                    if (showErrorWindowOnHighSeverity) {
+                                        if (errorItem.severity > 500) {
+                                            needToShowErrorWindow = true;
+                                        }
+                                    }
+                                })
+                            })
+
+                            if (needToShowErrorWindow) {
+                                showErrorWindow(e.responseJSON.errors);
+                            }
+                            materialErrorList = e.responseJSON.errors;
+                        } else {
+                            DevExpress.ui.notify("При проверке данных произошла неизвестная ошибка", "error", 5000)
+                        }
+                        setButtonIndicatorVisibleState(false);
+                        setElementsDisabledState(true);
+                    }
+                });
+            }
+
+            function updateValidationExclamationTriangles(element, errorElement) {
+                let maxSeverity = 0;
+                let errorDescription = "";
+                let exclamationTriangleStyle = ""
+
+                let validatorLayer = element.find('.transformation-validator');
+                let validationIcon = element.find('.validator-icon');
+                validationIcon.empty();
+                validationIcon.append('<i class="fas fa-exclamation-triangle">');
+
+                let validationDescription = element.find('.validator-description');
+                validationDescription.empty();
+
+                let descriptionArray = [];
+
+                errorElement.errorList.forEach((errorItem) => {
+                    if (errorItem.severity > maxSeverity) {
+                        maxSeverity = errorItem.severity;
+                    }
+                    descriptionArray.push(errorItem.message);
+                })
+
+                validationDescription.append($('<span class = "validator-description-text">' + descriptionArray.join(" | ") + '</span>'));
+
+                switch (maxSeverity) {
+                    case 500:
+                        exclamationTriangleStyle = 'color: #ffd358';
+                        break;
+                    case 1000:
+                        exclamationTriangleStyle = 'color: #f15a5a';
                         break;
                     default:
-                        filterConditions = [["standard_id", "=", material.standard_id],
-                            "and",
-                            ["initial_comment_id", "=", material.initial_comment_id],
-                            "and",
-                            ["rowType", "=", material.rowType]];
+                        exclamationTriangleStyle = "display: none";
                 }
 
-                let filteredData = transformationData.store().createQuery()
-                    .filter(filterConditions)
-                    .toArray();
+                validatorLayer.attr('style', exclamationTriangleStyle);
+                validatorLayer.attr('severity', maxSeverity);
+            }
 
-                if (filteredData.length > 0) {
-                    return filteredData[0].validationUid
-                } else {
-                    return "uid-" + new DevExpress.data.Guid().toString();
+            function postEditingData(supplyOperationData) {
+                $.ajax({
+                    url: "{{route('materials.operations.transformation.new')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        data: JSON.stringify(supplyOperationData)
+                    },
+
+                    success: function (data, textStatus, jqXHR) {
+                        window.location.href = '{{route('materials.index')}}/?project_object=' + projectObjectId
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000);
+                        setButtonIndicatorVisibleState(false)
+                        setElementsDisabledState(false);
+                    }
+                })
+            }
+
+            function setElementsDisabledState(state){
+                let currentButtonClass = "";
+
+                switch (currentTransformationStage) {
+                    case "fillingMaterialsToTransform":
+                        currentButtonClass = "button-materials-to-transfer";
+                        break;
+                    case "fillingMaterialsAfterTransform":
+                        currentButtonClass = "button-materials-after-transfer";
+                        break;
+                    case "fillingMaterialsRemains":
+                        currentButtonClass = "createTransformationOperationButton";
+                        break;
+                }
+                let button = $('.' + currentButtonClass).dxButton("instance");
+                if (button) {
+                    $('.' + currentButtonClass).dxButton("instance").option("disabled", state);
                 }
             }
 
-            function validateMaterialList(validationUid) {
-                function validateQuantity(material) {
-                    if (material.rowType === rowTypes.rowData) {
-                        if (!material.quantity) {
-                            return ({
-                                severity: 1000,
-                                codename: "null_quantity",
-                                message: "Количество в единицах измерения не заполнено",
-                                standard_name: material.standard_name
-                            })
-                        }
-                    }
+            function setButtonIndicatorVisibleState(state){
+                let currentButtonClass = "";
+
+                switch (currentTransformationStage) {
+                    case "fillingMaterialsToTransform":
+                        currentButtonClass = "button-materials-to-transfer";
+                        break;
+                    case "fillingMaterialsAfterTransform":
+                        currentButtonClass = "button-materials-after-transfer";
+                        break;
+                    case "fillingMaterialsRemains":
+                        currentButtonClass = "createTransformationOperationButton";
+                        break;
                 }
 
-                function validateAmount(material) {
-                    if (material.rowType === rowTypes.rowData) {
-                        if (!material.amount) {
-                            return ({
-                                severity: 1000,
-                                codename: "null_amount",
-                                message: "Количество в штуках не заполнено",
-                                standard_name: material.standard_name
-                            })
-                        }
-                    }
+                let loadingIndicator = $('.' + currentButtonClass)
+                    .find(".button-loading-indicator").dxLoadIndicator("instance");
+                if (loadingIndicator) {
+                    loadingIndicator.option('visible', state);
                 }
+            }
 
-                function validateTotalRemains(material) {
-                    if (material.rowType !== rowTypes.rowData) {
-                        return;
+            function showErrorWindow(errorList){
+                let htmlMessage = "";
+                errorList.forEach((errorElement) => {
+                    errorElement.errorList.forEach((errorItem) => {
+                        switch (errorItem.severity) {
+                            case 500:
+                                exclamationTriangleStyle = 'color: #ffd358';
+                                break;
+                            case 1000:
+                                exclamationTriangleStyle = 'color: #f15a5a';
+                                break;
+                            default:
+                                exclamationTriangleStyle = "gray";
+                        }
+
+                        htmlMessage += '<p><i class="fas fa-exclamation-triangle" style="' + exclamationTriangleStyle + '"></i>  ';
+                        if ( errorItem.itemName) {
+                            htmlMessage += errorItem.itemName + ': ' + errorItem.message;
+                        } else {
+                            htmlMessage += errorItem.message;
+                        }
+                        htmlMessage += '</p>'
+                    })
+                });
+
+                DevExpress.ui.dialog.alert(htmlMessage, "При сохранении операции обнаружены ошибки");
+            }
+
+            function repaintTransformLayers() {
+                repaintMaterialsToTransformLayer();
+                repaintMaterialsAfterTransformLayer();
+                repaintMaterialRemains();
+            }
+
+            function repaintMaterialsToTransformLayer() {
+                const transformationHeaderStageText = 'Добавьте материалы для преобразования';
+                const transformationHeaderText = 'Добавленные материалы:';
+		const fillingMaterialsToTransformButtonText = materialsToTransform.length > 0 ? "Добавить еще" : "Добавить";
+                
+		let layer = $('#materials-to-transform');
+
+                layer.empty();
+
+                if (currentTransformationStage === "fillingMaterialsToTransform") {
+                    layer.append($('<span class="transform-wizard-caption">' + transformationHeaderStageText + '</span>'));
+                } else {
+                    layer.append($('<span class="transform-wizard-caption">' + transformationHeaderText + '</span>'));
+                }
+                layer.append($('<div id="materialsToTransformElements"></div>'));
+
+                let elements = layer.find('#materialsToTransformElements');
+
+                materialsToTransform.forEach(function (material) {
+
+                    let isQuantityControlDisabled = material.accounting_type === 2;
+                    let isAmountControlDisabled = currentTransformationStage !== "fillingMaterialsToTransform"
+                    let validationId = "0";
+                    let standardId = "";
+                    let quantity = "";
+
+                    if (material.quantity) {
+                        quantity = material.quantity;
                     }
 
-                    let filterArray = [];
-                    filterArray.push(["rowType", "=", rowTypes.rowData]);
-                    filterArray.push("and");
-                    filterArray.push(["rowTransformationStage", "=", material.rowTransformationStage])
-                    filterArray.push("and");
-                    filterArray.push(["standard_id", "=", material.standard_id]);
-                    filterArray.push("and");
-                    filterArray.push(["initial_comment_id", "=", material.initial_comment_id]);
+                    if (material.standard_id) {
+                        standardId = material.standard_id;
+                    }
 
                     switch (material.accounting_type) {
                         case 2:
-                            filterArray.push("and");
-                            filterArray.push(["quantity", "=", material.quantity]);
+                            validationId = standardId + "-" + quantity
                             break;
                         default:
+                            validationId = standardId;
                     }
 
-                    let materialsToCalculateTotalAmount = transformationData.store().createQuery()
-                        .filter(filterArray)
-                        .toArray();
+                    elements.append($('<div class="transform-element" validationId="' + validationId + '"></div>'));
 
-                    let materialToTransferTotalAmount = 0;
+                    let element = layer.find('.transform-element').last();
 
-                    materialsToCalculateTotalAmount.forEach((materialToCalculateTotalAmount) => {
-                        switch (materialToCalculateTotalAmount.accounting_type) {
-                            case 2:
-                                materialToTransferTotalAmount += materialToCalculateTotalAmount.amount;
-                                break;
-                            default:
-                                materialToTransferTotalAmount += Math.round(materialToCalculateTotalAmount.quantity * materialToCalculateTotalAmount.amount / 100) * 100;
+                    if (currentTransformationStage === "fillingMaterialsToTransform"){
+                        element.append($('<a href="#" class="dx-link far fa-trash-alt" uid="' + material.id + '"></a>'));
+                        element.find('.fa-trash-alt').click(function (e) {
+                            e.preventDefault();
+
+                            materialsToTransform.forEach((material, index) => {
+                                if (material.id === $(this).attr("uid")) {
+                                    console.log(materialsToTransform);
+                                    materialsToTransform.splice(index, 1);
+                                    repaintMaterialsToTransformLayer();
+                                    validateMaterialList(false, false);
+                                }
+
+                            });
+
+                            return false;
+                        });
+                    }
+                    let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                    element.append(standardNameElement);
+
+                    standardNameElement.append($(`<div class="standard-name">${material.standard_name}</div>`));
+
+                    if (material.initial_comment) {
+                        standardNameElement.append($(`<div class="material-comment">${material.initial_comment}</div>`));
+                    }
+
+                    element.append($('<div class="transformation-number-box transformation-quantity" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxNumberBox({
+                            min: 0,
+                            value: material.quantity,
+                            format: "#0.## " + material.measure_unit_value,
+                            placeholder: material.measure_unit_value,
+                            disabled: isQuantityControlDisabled,
+                            onValueChanged: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
+                                material.quantity = e.value;
+                                validateMaterialList(false, false);
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
+                            }
+                        }))
+
+                    if (material.accounting_type === 2) {
+                        element.append($('<div class="transformation-number-box transformation-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                            .dxNumberBox({
+                                min: 0,
+                                format: "#0 шт.",
+                                value: material.amount,
+                                disabled: isAmountControlDisabled,
+                                onValueChanged: (e) => {
+                                    e.component.option("format", "#0 шт");
+                                    material.amount = e.value;
+                                    validateMaterialList(false, false);
+                                },
+                                onFocusIn: (e) => {
+                                    e.component.option("format", "");
+                                },
+                                onFocusOut: (e) => {
+                                    e.component.option("format", "#0 шт");
+                                }
+                            }))
+                    }
+
+                    element.append($('<div class="transformation-validator" uid="' + material.id + '" material-id = "' + material.material_id + '">' +
+                        '<div class="validator-icon"></div>' +
+                        '<div class="validator-description"></div>' +
+                        '</div>'))
+                });
+
+                if (currentTransformationStage === "fillingMaterialsToTransform") {
+                    layer.append($('<div class="transform-wizard-button">').dxButton({
+                        text: fillingMaterialsToTransformButtonText,
+                        type: "default",
+                        stylingMode: "outlined",
+                        onClick: (e) => {
+                            let materialsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                            materialsList.option("dataSource", availableMaterialsDataSource);
+                            availableMaterialsDataSource.reload();
+                            materialsList.option("selectedRowKeys", []);
+
+                            $("#popupContainer").dxPopup("show")
                         }
-                    })
+                    }));
 
-                    if (material.total_amount < materialToTransferTotalAmount) {
-                        return ({
-                            severity: 1000,
-                            codename: "amount_is_larger_than_total_amount",
-                            message: "На объекте недостаточно материала",
-                            standard_name: material.standard_name
-                        })
+
+                    if (materialsToTransform.length > 0) {
+                        layer.append($('<div class="transform-wizard-button button-materials-to-transfer">').dxButton({
+                            text: "Далее",
+                            type: "default",
+                            stylingMode: "contained",
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
+                            onClick: (e) => {
+                                currentTransformationStage = "fillingMaterialsAfterTransform";
+                                //materialsRemains = JSON.parse(JSON.stringify(materialsToTransform));
+                                materialsToTransform.forEach((material) => {
+                                    let pushElement = true;
+
+                                    materialsRemains.forEach((materialRemain) => {
+                                        if (material.standard_id === materialRemain.standard_id) {
+                                            pushElement = false;
+                                        }
+                                    })
+
+                                    if (pushElement) {
+                                        materialsRemains.push(JSON.parse(JSON.stringify(material)))
+                                    }
+                                })
+
+                                materialsRemains.forEach((material) => {
+                                    material.amount = null;
+                                    material.quantity = null;
+                                })
+
+                                repaintTransformLayers();
+                            }
+                        }));
                     }
                 }
-
-                function updateValidationResult(validationData, validationResult, validationFunction) {
-                    validationData.forEach((material) => {
-                        let validationResponse = validationFunction(material);
-                        if (validationResponse) {
-                            validationResult.validationInfo.push(validationResponse);
-                        }
-                    })
-                }
-
-                let validationData;
-
-                if (validationUid) {
-                    validationData = transformationData.store().createQuery()
-                        .filter(['validationUid', '=', validationUid])
-                        .toArray();
-                } else {
-                    validationData = transformationData.store().createQuery()
-                        .toArray();
-                }
-
-                let validationResult = {validationUid: validationUid, validationInfo: []};
-
-                console.log('validationData', validationData);
-
-
-                if (validationData.rowTransformationStage === transformationStages.fillingMaterialsToTransform || validationData.rowTransformationStage === transformationStages.fillingMaterialsAfterTransform) {
-                    updateValidationResult(validationData, validationResult, validateQuantity);
-                    updateValidationResult(validationData, validationResult, validateAmount);
-                }
-
-                updateValidationResult(validationData, validationResult, validateTotalRemains);
-
-                validationResult.isValid = validationResult.validationInfo.length === 0;
-
-                if (!validationResult.isValid) {
-                    let validationErrors = [];
-
-                    validationResult.validationInfo.forEach((validationError) => {
-                        validationErrors.push(validationError.message);
-                    })
-
-                    validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
-                }
-
-                console.log("validationResult", validationResult);
-
-                updateValidationData(validationResult);
             }
 
-            function validateStages() {
-                function getStageFooterValidationUid(transformationStage){
-                    let footerData = transformationData.store().createQuery()
-                        .filter([["rowTransformationStage", "=", transformationStage],
-                            "and",
-                            ["rowType", "=", rowTypes.rowFooter]])
-                        .toArray();
+            function repaintMaterialsAfterTransformLayer(){
+                let layer = $('#materials-after-transform');
+                layer.empty();
 
-                    if (footerData.length > 0) {
-                        return footerData[0].validationUid;
-                    }
+                if (currentTransformationStage === "fillingMaterialsToTransform"){
+                    return
                 }
 
-                function validateMaterialToTransformStage() {
-                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsToTransform);
+                const transformationHeaderStageText = 'Добавьте преобразованные материалы';
+                const transformationHeaderText = 'Пребразованные материалы:';
 
-                    if (!footerValidationUid) {
-                        return;
-                    }
+                let isQuantityControlDisabled = currentTransformationStage !== "fillingMaterialsAfterTransform";
+                let isAmountControlDisabled = currentTransformationStage !== "fillingMaterialsAfterTransform";
 
-                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
+                layer.append($('<hr>'));
 
-                    let summary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands");
-
-                    let materialsToTransformMaterials = getMaterialsByStage(transformationStages.fillingMaterialsToTransform);
-
-                    let isAnyOfMaterialInvalid = false;
-
-                    materialsToTransformMaterials.forEach((material) => {
-                        if (material.validationResult === "invalid") {
-                            isAnyOfMaterialInvalid = true;
-                        }
-                    })
-
-                    if (isAnyOfMaterialInvalid) {
-                        validationResult.validationInfo.push({
-                            severity: 1000,
-                            codename: "some_materials_in_stage_invalid",
-                            message: `Данные у некоторых материалов введены некорректно`,
-                            //standard_name: material.standard_name
-                        })
-                    }
-
-                    validationResult.isValid = validationResult.validationInfo.length === 0;
-
-                    if (!validationResult.isValid) {
-                        let validationErrors = [];
-
-                        validationResult.validationInfo.forEach((validationError) => {
-                            validationErrors.push(validationError.message);
-                        })
-
-                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
-                    }
-
-                    updateValidationData(validationResult);
-
-                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands"), transformationStages.fillingMaterialsToTransform);
+                if (currentTransformationStage === "fillingMaterialsAfterTransform") {
+                    layer.append($('<span class="transform-wizard-caption">' + transformationHeaderStageText + '</span>'));
+                } else {
+                    layer.append($('<span class="transform-wizard-caption">' + transformationHeaderText + '</span>'));
                 }
+                layer.append($('<div id="materialsAfterTransformElements"></div>'));
 
-                function validateMaterialAfterTransformStage() {
-                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsAfterTransform);
+                let elements = layer.find('#materialsAfterTransformElements');
 
-                    if (!footerValidationUid) {
-                        return;
+                materialsAfterTransform.forEach(function (material) {
+                    let validationId = 0;
+                    let standardId = "";
+                    let quantity = "";
+
+                    if (material.quantity) {
+                        quantity = material.quantity;
                     }
 
-                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
-
-                    let materialsToTransform = getMaterialsByStage(transformationStages.fillingMaterialsToTransform, "brands");
-                    let materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
-
-                    materialsToTransform.forEach((toSummaryBrand) => {
-                        let isBrandFound = false;
-
-                        materialsAfterTransform.forEach((afterSummaryBrand) => {
-                            if (toSummaryBrand.key === afterSummaryBrand.key) {
-                                isBrandFound = true;
-                            }
-                        })
-
-                        if (!isBrandFound) {
-                            validationResult.validationInfo.push({
-                                severity: 1000,
-                                codename: "some_brands_not_found",
-                                message: `Не все марки материалов добавлены в список`,
-                                //standard_name: material.standard_name
-                            })
-                        }
-                    })
-
-                    let isAnyOfMaterialInvalid = false;
-
-                    materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform);
-
-                    materialsAfterTransform.forEach((material) => {
-                        if (material.validationResult === "invalid") {
-                            isAnyOfMaterialInvalid = true;
-                        }
-                    })
-
-                    if (isAnyOfMaterialInvalid) {
-                        validationResult.validationInfo.push({
-                            severity: 1000,
-                            codename: "some_materials_in_stage_invalid",
-                            message: `Данные у некоторых материалов введены некорректно`,
-                            //standard_name: material.standard_name
-                        })
+                    if (material.standard_id) {
+                        standardId = material.standard_id;
                     }
 
-                    validationResult.isValid = validationResult.validationInfo.length === 0;
-
-                    if (!validationResult.isValid) {
-                        let validationErrors = [];
-
-                        validationResult.validationInfo.forEach((validationError) => {
-                            validationErrors.push(validationError.message);
-                        })
-
-                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
+                    switch (material.accounting_type) {
+                        case 2:
+                            validationId = standardId + "-" + quantity
+                            break;
+                        default:
+                            validationId = standardId;
                     }
 
-                    updateValidationData(validationResult);
+                    elements.append($('<div class="transform-element" validationId="' + validationId + '"></div>'));
+                    let element = layer.find('.transform-element').last();
 
-                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsAfterTransform, "brands"), transformationStages.fillingMaterialsAfterTransform);
-                }
-
-                function validateFillingRemainsTransformStage() {
-                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsRemains);
-
-                    if (!footerValidationUid) {
-                        return;
-                    }
-
-                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
-
-                    let materialsToTransform = getMaterialsByStage(transformationStages.fillingMaterialsToTransform, "brands");
-                    let materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
-                    let materialsRemains = getMaterialsByStage(transformationStages.fillingMaterialsRemains, "brands");
-                    let materialsTechnologicalLosses = getMaterialsByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands");
-
-                    checkTotalMaterialSummaryAfterTransformation();
-
-                    let isAnyOfMaterialInvalid = false;
-
-
-                    let materialsToTransformSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands");
-                    let materialsAfterTransformSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
-                    let materialsRemainsSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsRemains, "brands");
-                    let materialsTechnologicalLossesSummary = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands")
-
-
-                    console.log(`materialsToTransformSummary`, materialsToTransformSummary);
-                    console.log(`materialsRemainsSummary`, materialsRemainsSummary);
-
-                    let Total
-
-                    if (isAnyOfMaterialInvalid) {
-                        validationResult.validationInfo.push({
-                            severity: 1000,
-                            codename: "some_materials_in_stage_invalid",
-                            message: `Данные у некоторых материалов введены некорректно`,
-                            //standard_name: material.standard_name
-                        })
-                    }
-
-                    validationResult.isValid = validationResult.validationInfo.length === 0;
-
-                    if (!validationResult.isValid) {
-                        let validationErrors = [];
-
-                        validationResult.validationInfo.forEach((validationError) => {
-                            validationErrors.push(validationError.message);
-                        })
-
-                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
-                    }
-
-                    updateValidationData(validationResult);
-
-                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsRemains, "brands"), transformationStages.fillingMaterialsRemains);
-                }
-
-                function validateTechnologicalLossesTransformStage() {
-                    let footerValidationUid = getStageFooterValidationUid(transformationStages.fillingMaterialsTechnologicalLosses);
-
-                    if (!footerValidationUid) {
-                        return;
-                    }
-
-                    let validationResult = {validationUid: footerValidationUid, validationInfo: []};
-
-                    let materialsToTransform = getMaterialsByStage(transformationStages.fillingMaterialsToTransform, "brands");
-                    let materialsAfterTransform = getMaterialsByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
-                    let materialsRemains = getMaterialsByStage(transformationStages.fillingMaterialsRemains, "brands");
-                    let materialsTechnologicalLosses = getMaterialsByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands");
-
-                    let materialsTotalSummary = [];
-
-                    materialsAfterTransform.forEach((item) => {
-                        let isBrandFound = false;
-                        materialsTotalSummary.forEach((totalSummaryItem) => {
-                            if (totalSummaryItem.brand_id === item.brand_id) {
-                                isBrandFound = true;
-                                totalSummaryItem.quantity += item.quantity;
-                                totalSummaryItem.weight += item.weight;
-                            }
-                        })
-
-                        if (!isBrandFound) {
-                            materialsTotalSummary.push({quantity: item.quantity, weight: item.weight});
-                        }
-                    })
-
-                    console.log(`totalSummaryItem`, materialsTotalSummary)
-
-                    let isAnyOfMaterialInvalid = false;
-
-                    materialsTechnologicalLosses = getMaterialsByStage(transformationStages.fillingMaterialsTechnologicalLosses);
-
-                    materialsTechnologicalLosses.forEach((material) => {
-                        if (material.validationResult === "invalid") {
-                            isAnyOfMaterialInvalid = true;
-                        }
-                    })
-
-                    if (isAnyOfMaterialInvalid) {
-                        validationResult.validationInfo.push({
-                            severity: 1000,
-                            codename: "some_materials_in_stage_invalid",
-                            message: `Данные у некоторых материалов введены некорректно`,
-                            //standard_name: material.standard_name
-                        })
-                    }
-
-                    validationResult.isValid = validationResult.validationInfo.length === 0;
-
-                    if (!validationResult.isValid) {
-                        let validationErrors = [];
-
-                        validationResult.validationInfo.forEach((validationError) => {
-                            validationErrors.push(validationError.message);
-                        })
-
-                        validationResult.errorMessage = (Array.from(new Set(validationErrors))).join("<br>");
-                    }
-
-                    updateValidationData(validationResult);
-
-                    updateSummaries(calculateMaterialSummariesByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands"), transformationStages.fillingMaterialsTechnologicalLosses);
-                }
-
-                function checkTotalMaterialSummaryAfterTransformation() {
-                    let totalSummary = [];
-
-                    function addToTotalSummary(summaryArray) {
-                        summaryArray.forEach((itemAfterTransform) => {
-                            let isBrandFound = false;
-                            totalSummary.forEach((totalSummaryItem) => {
-                                if (totalSummaryItem.brands === itemAfterTransform.brands) {
-                                    isBrandFound = true;
-                                    totalSummaryItem.quantity += itemAfterTransform.quantity;
-                                    totalSummaryItem.weight += itemAfterTransform.weight;
+                    if (currentTransformationStage === "fillingMaterialsAfterTransform"){
+                        element.append($('<a href="#" class="dx-link far fa-copy" uid="' + material.id + '"></a>'));
+                        element.find('.fa-copy').click(function (e) {
+                            e.preventDefault();
+                            materialsAfterTransform.forEach((material, index) => {
+                                if (material.id === $(this).attr("uid")) {
+                                    let clonedItem = $.extend({}, material, {id: "uid-" + new DevExpress.data.Guid().toString()});
+                                    materialsAfterTransform.push(clonedItem);
+                                    repaintMaterialsAfterTransformLayer();
+                                    validateMaterialList(false, false);
                                 }
                             })
+                        });
 
-                            if (!isBrandFound) {
-                                totalSummary.push({quantity: itemAfterTransform.quantity, weight: itemAfterTransform.weight, brands: itemAfterTransform.brands});
-                            }
-                        })
-                    }
+                        element.append($('<a href="#" class="dx-link far fa-trash-alt" uid="' + material.id + '"></a>'));
+                        element.find('.fa-trash-alt').click(function (e) {
+                            e.preventDefault();
 
-                    let materialsToTransform = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsToTransform, "brands");
-                    let materialsAfterTransform = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsAfterTransform, "brands");
-                    let materialsRemains = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsRemains, "brands");
-                    let materialsTechnologicalLosses = calculateMaterialSummariesByStage(transformationStages.fillingMaterialsTechnologicalLosses, "brands");
+                            materialsAfterTransform.forEach((material, index) => {
+                                console.log(materialsAfterTransform);
+                                if (material.id === $(this).attr("uid")) {
+                                    console.log(materialsAfterTransform);
+                                    materialsAfterTransform.splice(index, 1);
+                                    repaintMaterialsAfterTransformLayer();
+                                    validateMaterialList(false, false);
+                                }
 
-                    addToTotalSummary(materialsAfterTransform);
-                    addToTotalSummary(materialsRemains);
-                    addToTotalSummary(materialsTechnologicalLosses);
-
-                    materialsToTransform.forEach((item) => {
-                        totalSummary.forEach((totalSummaryItem) => {
-
-                        })
-                    })
-
-                    console.log(`addToTotalSummary`, totalSummary);
-
-
-                    return null;
-                }
-
-                function updateSummaries(summary, transformationStage) {
-                    let data = transformationData.store().createQuery()
-                        .filter([["rowTransformationStage", "=", transformationStage],
-                            "and",
-                            ["rowType", "=", rowTypes.rowFooter]])
-                        .toArray();
-
-                    if (data.length === 1){
-                        let totalStageSummary = {quantity: 0, amount: 0, weight: 0};
-                        summary.forEach((item) => {
-                            totalStageSummary.quantity += item.quantity;
-                            totalStageSummary.amount += item.amount;
-                            totalStageSummary.weight += item.weight;
-                        })
-
-                        if (!totalStageSummary.quantity) {
-                            totalStageSummary.quantity = 0;
-                        } else {
-                            totalStageSummary.quantity = Math.round(totalStageSummary.quantity * 100) / 100;
-                        }
-
-                        if (!totalStageSummary.amount) {
-                            totalStageSummary.amount = 0;
-                        }
-
-                        if (!totalStageSummary.weight) {
-                            totalStageSummary.weight = 0;
-                        } else {
-                            totalStageSummary.weight = Math.round(totalStageSummary.weight * 1000) / 1000;
-                        }
-
-                        transformationData.store().update(
-                            data[0].id,
-                            {
-                                quantity: totalStageSummary.quantity,
-                                amount: totalStageSummary.amount,
-                                weight: totalStageSummary.weight
                             });
-                    }
-                }
 
-                function getMaterialsByStage(transformationStage, groupBy){
-                    let filterArray = [["rowTransformationStage", "=", transformationStage],
-                        "and",
-                        ["rowType", "=", rowTypes.rowData]];
-
-                    let dataToCalculate = transformationData.store().createQuery()
-                        .filter(filterArray);
-
-                    if (groupBy) {
-                        dataToCalculate = dataToCalculate.groupBy(groupBy)
+                            return false;
+                        });
                     }
 
-                    return dataToCalculate.toArray();
+                    let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                    element.append(standardNameElement);
+
+                    standardNameElement.append($(`<div class="standard-name">${material.standard_name}</div>`));
+
+                    element.append($('<div class="transformation-number-box transformation-quantity" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxNumberBox({
+                            min: 0,
+                            value: material.quantity,
+                            format: "#0.## " + material.measure_unit_value,
+                            disabled: isQuantityControlDisabled,
+                            placeholder: material.measure_unit_value,
+                            onValueChanged: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
+                                material.quantity = e.value;
+                                repaintMaterialsAfterTransformLayer();
+                                validateMaterialList(false, false);
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
+                            }
+                        }))
+
+                    if (material.accounting_type === 2) {
+                        element.append($('<div class="transformation-number-box transformation-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                            .dxNumberBox({
+                                min: 0,
+                                format: "#0 шт",
+                                value: material.amount,
+                                disabled: isAmountControlDisabled,
+                                placeholder: "шт",
+                                onValueChanged: (e) => {
+                                    e.component.option("format", "#0 шт");
+                                    material.amount = e.value;
+                                    repaintMaterialsAfterTransformLayer();
+                                    validateMaterialList(false, false);
+                                },
+                                onFocusIn: (e) => {
+                                    e.component.option("format", "");
+                                },
+                                onFocusOut: (e) => {
+                                    e.component.option("format", "#0 шт");
+                                }
+                            }))
+
+                        element.append($('<div class="transformation-comment-box transformation-comment" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                            .dxTextEditor({
+                                value: material.comment,
+                                disabled: isAmountControlDisabled,
+                                placeholder: "Введите комментарий...",
+                                onValueChanged: (e) => {
+                                    material.comment = e.value;
+                                }
+                            }))
+                    }
+
+                    element.append($('<div class="transformation-validator" uid="' + material.id + '" material-id = "' + material.material_id + '">' +
+                        '<div class="validator-icon"></div>' +
+                        '<div class="validator-description"></div>' +
+                        '</div>'))
+                });
+
+                if (currentTransformationStage === "fillingMaterialsAfterTransform") {
+                    if (materialsAfterTransform.length <= 0) {
+                        layer.append($('<div class="transform-wizard-button">').dxButton({
+                            text: "Добавить",
+                            type: "default",
+                            stylingMode: "outlined",
+                            onClick: (e) => {
+                                let materialsList = materialsStandardsAddingForm.getEditor("materialsStandardsList");
+                                materialsList.option("dataSource", materialStandardsListDataSource);
+                                materialStandardsListDataSource.reload();
+                                materialsList.option("selectedRowKeys", []);
+
+                                $("#popupContainer").dxPopup("show")
+                            }
+                        }));
+                    }
+
+
+                    if (materialsAfterTransform.length > 0) {
+                        layer.append($('<div class="transform-wizard-button button-materials-after-transfer">').dxButton({
+                            text: "Далее",
+                            type: "default",
+                            stylingMode: "outlined",
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
+                            onClick: (e) => {
+                                setButtonIndicatorVisibleState(true)
+                                setElementsDisabledState(true);
+
+                                $.ajax({
+                                    url: "{{route('materials.transformation.is-user-responsible-for-material-accounting')}}",
+                                    method: "POST",
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    data: {
+                                        data: JSON.stringify({project_object_id: projectObjectId})
+                                    },
+                                    success: function (data, textStatus, jqXHR) {
+                                        isUserIsResponsibleForMaterialAccounting = data.isUserResponsibleForMaterialAccounting;
+
+                                        currentTransformationStage = "fillingMaterialsRemains";
+                                        repaintTransformLayers();
+                                        setButtonIndicatorVisibleState(false)
+                                        setElementsDisabledState(false);
+
+                                        console.log("isUserIsResponsibleForMaterialAccounting", isUserIsResponsibleForMaterialAccounting);
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        isUserIsResponsibleForMaterialAccounting = false;
+
+                                        currentTransformationStage = "fillingMaterialsRemains";
+                                        repaintTransformLayers();
+                                        setButtonIndicatorVisibleState(false)
+                                        setElementsDisabledState(false);
+                                    }
+                                })
+                            }
+                        }));
+                    }
                 }
-
-                function calculateMaterialSummariesByStage(transformationStage, groupBy) {
-                    let dataToCalculate = getMaterialsByStage(transformationStage, groupBy);
-
-                    let summaryResult = [];
-
-                    dataToCalculate.forEach((data) => {
-                        let summaryStructure = {quantity: 0, amount: 0, weight: 0}
-                        data.items.forEach((item) => {
-                            if (item.quantity && item.amount) {
-                                summaryStructure.quantity += item.quantity * item.amount;
-                            }
-
-                            if (item.amount) {
-                                summaryStructure.amount += item.amount;
-                            }
-
-                            if (item.quantity && item.amount) {
-                                summaryStructure.weight += item.quantity * item.amount * item.standard_weight;
-                            }
-
-                            if (groupBy) {
-                                summaryStructure[groupBy] = item[groupBy];
-                            }
-                        })
-
-                        summaryResult.push(summaryStructure);
-                    })
-
-                    return summaryResult;
-                }
-
-                validateMaterialToTransformStage();
-                validateMaterialAfterTransformStage();
-                validateFillingRemainsTransformStage();
-                validateTechnologicalLossesTransformStage();
             }
 
-            function updateValidationData(validationData) {
-                let validatedData = transformationData.store().createQuery()
-                    .filter(["validationUid", "=", validationData.validationUid])
-                    .toArray();
+            function repaintMaterialRemains() {
+                let layer = $('#materials-remains');
+                layer.empty();
 
-                validatedData.forEach((material) => {
-                    let validationState = "validated";
-                    let validationResult;
+                if (currentTransformationStage !== "fillingMaterialsRemains") {
+                    return
+                }
 
-                    if (validationData.isValid) {
-                        validationResult = "valid"
-                    } else {
-                        validationResult = "invalid"
+                const transformationHeaderStageText = 'Распределите остатки исходных материалов';
+
+                layer.append($('<hr>'));
+
+                layer.append($('<span class="transform-wizard-caption">' + transformationHeaderStageText + '</span>'));
+
+                layer.append($('<div id="materialsRemainsTransformElements"></div>'));
+
+                let elements = layer.find('#materialsRemainsTransformElements');
+
+                materialsRemains.forEach(function (material) {
+                    elements.append($('<div class="transform-element" standard-id= "' + material.standard_id + '"></div>'));
+                    let element = layer.find('.transform-element').last();
+                    let remainsSummary = calculateRemains(material.standard_id);
+
+                    if (currentTransformationStage === "fillingMaterialsRemains"){
+                        element.append($('<a href="#" class="dx-link far fa-copy" uid="' + material.id + '"></a>'));
+                        element.find('.fa-copy').click(function (e) {
+                            e.preventDefault();
+                            materialsRemains.forEach((material, index) => {
+                                if (material.id === $(this).attr("uid")) {
+                                    let clonedItem = $.extend({}, material, {id: "uid-" + new DevExpress.data.Guid().toString()});
+                                    materialsRemains.push(clonedItem);
+                                    repaintMaterialRemains();
+                                    //validateMaterialList(false, false);
+                                }
+                            })
+                        });
+
+                        if ($('.transform-element[standard-id="' +  material.standard_id + '"]').length > 1) {
+                            element.append($('<a href="#" class="dx-link far fa-trash-alt material-remains-trash" standard-id= "' + material.standard_id + '" uid="' + material.id + '"></a>'));
+                            element.find('.fa-trash-alt').click(function (e) {
+                                e.preventDefault();
+
+                                materialsRemains.forEach((material, index) => {
+                                    if (material.id === $(this).attr("uid")) {
+                                        materialsRemains.splice(index, 1);
+                                        repaintMaterialRemains();
+                                        //validateMaterialList(false, false);
+                                    }
+
+                                });
+
+                                return false;
+                            });
+                        }
                     }
 
-                    transformationData.store().update(material.id, {validationState: validationState, validationResult: validationResult, errorMessage: validationData.errorMessage})
-                        .done(() => {
-                            transformationData.reload();
-                        });
+                    let standardNameElement = $('<div class="standard-name-cell-with-comment transformation-standard-name-cell"/>');
+                    element.append(standardNameElement);
+
+                    standardNameElement.append($(`<div class="standard-name">${material.standard_name}</div>`));
+
+                    element.append($('<div class="transformation-number-box transformation-quantity" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxNumberBox({
+                            min: 0,
+                            value: material.quantity,
+                            format: "#0.## " + material.measure_unit_value,
+                            placeholder: material.measure_unit_value,
+                            onValueChanged: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
+                                material.quantity = e.value;
+                                let remains = calculateRemains(material.standard_id);
+                                $('.calculation-summary[standard-id="' + material.standard_id + '"]').html(getCalculationSummaryText(remains.delta, remains.total, remains.transform_total));
+                                repaintMaterialRemains();
+                            },
+                            onFocusIn: (e) => {
+                                e.component.option("format", "");
+                            },
+                            onFocusOut: (e) => {
+                                e.component.option("format", "#0.## " + material.measure_unit_value);
+                            }
+                        }))
+
+                    if (material.accounting_type === 2) {
+                        element.append($('<div class="transformation-number-box transformation-amount transformation-remains-amount" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                            .dxNumberBox({
+                                min: 0,
+                                format: "#0 шт",
+                                value: material.amount,
+                                onValueChanged: (e) => {
+                                    material.amount = e.value;
+                                    let remains = calculateRemains(material.standard_id);
+                                    $('.calculation-summary[standard-id="' + material.standard_id + '"]').html(getCalculationSummaryText(remains.delta, remains.total, remains.transform_total));
+                                    repaintMaterialRemains();
+                                },
+                                onFocusIn: (e) => {
+                                    e.component.option("format", "");
+                                },
+                                onFocusOut: (e) => {
+                                    e.component.option("format", "#0 шт");
+                                }
+                            }))
+                    }
+
+                    element.append($('<div class="transformation-comment-box transformation-comment" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
+                        .dxTextEditor({
+                            value: material.comment,
+                            placeholder: "Введите комментарий...",
+                            onValueChanged: (e) => {
+                                material.comment = e.value;
+                            }
+                        }))
+
+                    element.append($('<span class="calculation-summary" standard-id="' + material.standard_id + '">' + getCalculationSummaryText(remainsSummary.delta, remainsSummary.total, remainsSummary.transform_total) + '</span>'));
+                });
+                if (currentTransformationStage === "fillingMaterialsRemains") {
+                    let isCreateTransformationButtonDisabled = true;
+                    if (materialsRemains.length === 0) {
+                        isCreateTransformationButtonDisabled = true;
+                    } else {
+                        if ($(".allocation-pending").length !== 0) {
+                            if (getTransformationType() === "corningManufacturing") {
+                                isCreateTransformationButtonDisabled = false;
+                            }
+                        } else {
+                            isCreateTransformationButtonDisabled = false;
+                        }
+                    }
+
+                    let buttonText = isUserIsResponsibleForMaterialAccounting ? "Подтвердить преобразование" : "Отправить на согласование";
+
+                    if (materialsRemains.length > 0) {
+                        layer.append($('<div class="createTransformationOperationButton transform-wizard-button" >').dxButton({
+                            text: buttonText,
+                            type: "default",
+                            stylingMode: "contained",
+                            useSubmitBehavior: false,
+                            disabled: isCreateTransformationButtonDisabled,
+                            template: function(data, container) {
+                                $("<div class='button-loading-indicator'></div><span class='dx-button-text'>" + data.text + "</span>").appendTo(container);
+                                let loadingIndicator = container.find(".button-loading-indicator").dxLoadIndicator({
+                                    visible: false
+                                }).dxLoadIndicator("instance");
+                            },
+                            onClick: function (e) {
+                                let result = e.validationGroup.validate();
+                                if (!result.isValid) {
+                                    return;
+                                }
+
+                                setButtonIndicatorVisibleState(true)
+                                setElementsDisabledState(true);
+
+                                let comment = operationForm.option("formData").new_comment;
+                                if (!comment) {
+                                    let confirmDialog = DevExpress.ui.dialog.confirm('Вы не заполнили поле "Комментарий".<br>Продолжить без заполнения?', 'Комметарий не заполнен');
+                                    confirmDialog.done(function (dialogResult) {
+                                        if (dialogResult) {
+                                            validateMaterialList(true, true);
+                                        } else {
+                                            setButtonIndicatorVisibleState(false);
+                                            setElementsDisabledState(false);
+                                            return;
+                                        }
+                                    })
+                                } else {
+                                    validateMaterialList(true, true);
+                                }
+                            }
+                        }));
+                    }
+                }
+            }
+
+            function calculateRemains(standardId) {
+                let transformationType = getTransformationType();
+                let result = {
+                    standard_id: standardId,
+                    amount: 0,
+                    quantity: 0,
+                    total: 0,
+                    transform_amount: 0,
+                    transform_quantity: 0,
+                    transform_total: 0,
+                    remain_amount: 0,
+                    remain_quantity: 0,
+                    remain_total: 0,
+                    source_sum: 0,
+                    remain_sum: 0,
+                    delta: 0
+                };
+
+                materialsToTransform.forEach((material) => {
+                    if (standardId === material.standard_id) {
+                        result.amount = Math.round((result.amount + material.amount) * 100) / 100;
+                        result.quantity = Math.round((result.quantity + material.quantity) * 100) / 100;
+                        result.total = Math.round((result.total + material.amount * material.quantity) * 100) / 100
+                    }
                 })
+
+                materialsAfterTransform.forEach((material) => {
+                    result.transform_amount = Math.round((result.transform_amount + material.amount) * 100) / 100;
+                    result.transform_quantity = Math.round((result.transform_quantity + material.quantity) * 100) / 100;
+                    result.transform_total = Math.round((result.transform_total + material.amount * material.quantity) * 100) / 100
+                })
+
+                materialsRemains.forEach((material) => {
+                    if (standardId === material.standard_id) {
+                        result.remain_amount = Math.round((result.remain_amount + material.amount) * 100) / 100;
+                        result.remain_quantity = Math.round((result.remain_quantity + material.quantity) * 100) / 100;
+                        result.remain_total = Math.round((result.remain_total + material.amount * material.quantity) * 100) / 100
+                    }
+                })
+
+                switch (transformationType) {
+                    case "cutting":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        break;
+                    case "lengthDocking":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        break;
+                    case "wedgeShapedProduction":
+                        result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        break;
+                    case "corningManufacturing":
+                        let uniqueStandards = [];
+
+                        materialsToTransform.forEach((material) => {
+                            if (!uniqueStandards.includes(material.standard_id)) {
+                                uniqueStandards.push(material.standard_id);
+                            }
+                        })
+
+                        if (uniqueStandards.length === 1) {
+                            result.delta = Math.round((result.total - result.transform_total * 2 - result.remain_total) * 100) / 100;
+                        } else {
+                            result.delta = Math.round((result.total - result.transform_total - result.remain_total) * 100) / 100;
+                        }
+                        break;
+                }
+                return result;
+            }
+
+            function getCalculationSummaryText(delta, sourceSum, transformSum) {
+                if (getTransformationType() === "none"){
+                    return '<i class="allocation-pending fas fa-exclamation-triangle" style="color: #f15a5a"></i>' + "Невозможно рассчитать остатки - выберите тип преобразования";
+                }
+
+                if (delta === 0){
+                    return '<i class = "fas fa-check-circle"></i>' + "Остатки распределены";
+                } else {
+                    if (delta < 0){
+                        return '<i class = "allocation-pending"></i>Количество остатков превышено на ' + Math.abs(delta) + ' м.п. (Исходное количество: ' + sourceSum + ' м.п.; Преобразованное количество: ' + transformSum + ' м.п.)';
+                    } else {
+                        return '<i class = "allocation-pending"></i>Осталось распределить ' + Math.abs(delta) + ' м.п. (Исходное количество: ' + sourceSum + ' м.п.; Преобразованное количество: ' + transformSum + ' м.п.)';
+                    }
+                }
+            }
+
+            function getTransformationType() {
+                switch(operationForm.getEditor("transformationTypeSelectBox").option("value")) {
+                    case 1:
+                        return "cutting"
+                    case 2:
+                        return "lengthDocking";
+                    case 3:
+                        return "corningManufacturing";
+                    case 4:
+                        return "wedgeShapedProduction";
+                    default:
+                        return "none"
+                }
             }
 
             function getMinDate() {
                 let minDate = new Date();
 
                 return minDate.setDate(minDate.getDate() - 3);
-            }
-
-            function getMaterialAddingFormFilter() {
-                let filterArray = [];
-                switch (currentTransformationStage) {
-                    case transformationStages.fillingMaterialsToTransform:
-                        switch (currentTransformationType) {
-                            case "CUTTING":
-                                filterArray = [ "accounting_type", "=", "2" ]
-                                break;
-                            default:
-                                filterArray = null
-                        }
-                        break;
-                    case transformationStages.fillingMaterialsAfterTransform:
-                        switch (currentTransformationType) {
-                            case "CUTTING":
-                                let transformationDataArray = transformationData.store().createQuery()
-                                    .filter(['standard_id', '>', 0])
-                                    .toArray();
-
-                                let brands = [];
-                                let uniqueBrands = [];
-                                let brandsFilterArray = []
-                                transformationDataArray.forEach((item) => {
-                                    brands.push(item.brands)
-                                });
-
-                                uniqueBrands = Array.from(new Set(brands));
-
-                                uniqueBrands.forEach((item) => {
-                                    brandsFilterArray.push([
-                                        'standard_brands',
-                                        '=',
-                                        item
-                                    ]);
-                                    brandsFilterArray.push('or');
-                                })
-
-                                brandsFilterArray.pop();
-
-                                if (brandsFilterArray.length > 0) {
-                                    filterArray.push(brandsFilterArray);
-                                    filterArray.push("and");
-                                }
-
-                                filterArray.push(["standard_properties", "=", null])
-                                filterArray.push("and")
-                                filterArray.push(["accounting_type", "=", "2"])
-
-                                console.log('filterArray', filterArray);
-                                break;
-                            default:
-                                filterArray = null
-                        }
-                        break;
-                }
-                return filterArray;
-            }
-
-            function insertMaterialsRemains() {
-                let materialsRemains = [];
-                let standardFound = false;
-                let materialsToTransform = transformationData.store().createQuery()
-                    .filter(["rowType", "=", rowTypes.rowData],
-                        "and",
-                        ["rowTransformationStage", "=", transformationStages.fillingMaterialsToTransform])
-                    .toArray()
-
-                materialsToTransform.forEach((material) => {
-                    materialsRemains.forEach((remainMaterial) => {
-                        if (remainMaterial.standard_id === material.standard_id) {
-                            standardFound = true;
-                        }
-                    });
-
-                    if (!standardFound) {
-                        let data = {
-                            id: "uid-" + new DevExpress.data.Guid().toString(),
-                            standard_id: material.standard_id,
-                            standard_name: material.standard_name,
-                            accounting_type: material.accounting_type,
-                            material_type: material.material_type,
-                            measure_unit: material.measure_unit,
-                            measure_unit_value: material.measure_unit_value,
-                            standard_weight: material.standard_weight,
-                            quantity: 0,
-                            amount: 0,
-                            comment: null,
-                            initial_comment_id: null,
-                            initial_comment: null,
-                            total_quantity: material.quantity,
-                            total_amount: material.amount,
-                            brands: material.brands,
-                            validationUid: "uid-" + new DevExpress.data.Guid().toString(),
-                            validationState: "unvalidated",
-                            validationResult: "none",
-                            rowType: rowTypes.rowData,
-                            rowTransformationStage: transformationStages.fillingMaterialsRemains,
-                            sortIndex: 8
-                        }
-
-                        materialsRemains.push(data);
-                        insertTransformationRow(data, transformationStages.fillingMaterialsRemains);
-                        standardFound = false;
-                        validateMaterialList(data.validationUid);
-                    }
-                })
-            }
-
-            function insertMaterialsTechnologicalLosses() {
-                let materialsTechnologicalLosses = [];
-                let standardFound = false;
-                let materialsToTransfer = transformationData.store().createQuery()
-                    .filter(["rowType", "=", rowTypes.rowData],
-                        "and",
-                        ["rowTransformationStage", "=", transformationStages.fillingMaterialsToTransform])
-                    .toArray()
-
-                materialsToTransfer.forEach((material) => {
-                    materialsTechnologicalLosses.forEach((technologicalLossesMaterial) => {
-                        if (technologicalLossesMaterial.standard_id === material.standard_id) {
-                            standardFound = true;
-                        }
-                    });
-
-                    if (!standardFound) {
-                        let data = {
-                            id: "uid-" + new DevExpress.data.Guid().toString(),
-                            standard_id: material.standard_id,
-                            standard_name: material.standard_name,
-                            accounting_type: material.accounting_type,
-                            material_type: material.material_type,
-                            measure_unit: material.measure_unit,
-                            measure_unit_value: material.measure_unit_value,
-                            standard_weight: material.standard_weight,
-                            quantity: 0,
-                            amount: 0,
-                            comment: null,
-                            initial_comment_id: null,
-                            initial_comment: null,
-                            total_quantity: material.quantity,
-                            total_amount: material.amount,
-                            brands: material.brands,
-                            validationUid: "uid-" + new DevExpress.data.Guid().toString(),
-                            validationState: "unvalidated",
-                            validationResult: "none",
-                            rowType: rowTypes.rowData,
-                            rowTransformationStage: transformationStages.fillingMaterialsTechnologicalLosses,
-                            sortIndex: 11
-                        }
-
-                        materialsTechnologicalLosses.push(data);
-                        insertTransformationRow(data, transformationStages.fillingMaterialsTechnologicalLosses);
-                        validateMaterialList(data.validationUid);
-                        standardFound = false;
-                    }
-                })
-            }
-
-            function updateRowFooter() {
-                console.log("updateRowFooter transformationData", transformationData.store().createQuery().toArray());
-
-                let data = transformationData.store().createQuery()
-                    .filter([["rowType", "=", rowTypes.rowData],
-                        "and",
-                        ["rowTransformationStage", "=", currentTransformationStage]
-                    ])
-                    .toArray();
-
-                let footerData = transformationData.store().createQuery()
-                    .filter([["rowType", "=", rowTypes.rowFooter],
-                        "and",
-                        ["rowTransformationStage", "=", currentTransformationStage]
-                    ])
-                    .toArray();
-
-                let isFooterAlreadyInserted = footerData.length !== 0;
-
-                if (data.length === 0) {
-                    deleteRowFooter()
-                } else {
-                    if (!isFooterAlreadyInserted) {
-                        insertFooterRow();
-                    }
-                }
-            }
-
-            function insertFooterRow() {
-                let sortIndex = 0;
-                switch (currentTransformationStage) {
-                    case transformationStages.fillingMaterialsToTransform:
-                        sortIndex = 3;
-                        break;
-                    case transformationStages.fillingMaterialsAfterTransform:
-                        sortIndex = 6;
-                        break;
-                    case transformationStages.fillingMaterialsRemains:
-                        sortIndex = 9;
-                        break;
-                    case transformationStages.fillingMaterialsTechnologicalLosses:
-                        sortIndex = 12;
-                        break;
-                }
-
-                let data = {
-                    id: "uid-" + new DevExpress.data.Guid().toString(),
-                    rowType: rowTypes.rowFooter,
-                    quantity: 0,
-                    amount: 0,
-                    weight: 0,
-                    measure_unit_value: 'м.п',
-                    rowTransformationStage: currentTransformationStage,
-                    sortIndex: sortIndex,
-                    validationUid: "uid-" + new DevExpress.data.Guid().toString(),
-                    validationState: "unvalidated",
-                    validationResult: "none",
-                    errorMessage: ""
-                }
-
-                insertTransformationRow(data, currentTransformationStage);
-
-                console.log('transformationData array', transformationData.store().createQuery().toArray());
-            }
-
-            function deleteRowFooter() {
-
             }
         });
     </script>

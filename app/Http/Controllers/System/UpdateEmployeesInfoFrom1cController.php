@@ -82,48 +82,48 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                     ->get()
                     ->first();
 
-                if (isset($user))
-                {
-                    DB::statement("update users set " .
-                        "first_name = '" . trim($employee->employeeFirstName) . "', " .
-                        "last_name = '" . trim($employee->employeeLastName) . "', " .
-                        "patronymic = '" . trim($employee->employeePatronymic) . "', " .
-                        "person_phone = '" . $formattedPhone . "', " .
-                        "inn = '" . trim($employee->employeeINN) . "', " .
-                        "gender = '" . trim($employee->employeeGender) . "', " .
-                        "person_phone = '" . $formattedPhone . "', " .
-                        "company = " . $company->id . ", " .
-                        "updated_at = NOW(), " .
-                        "status = " . $userStatus . " " .
-                        "where id = '" . $user->id . "'");
-                } else {
-                    DB::statement('insert into users (first_name,' .
-                        'last_name,' .
-                        'patronymic,' .
-                        'inn,' .
-                        'gender,' .
-                        'birthday,' .
-                        'person_phone,' .
-                        'company,' .
-                        'created_at,' .
-                        'updated_at,' .
-                        'status,' .
-                        'is_su) ' .
+                    if (isset($user))
+                    {
+                            DB::statement("update users set " .
+                                "first_name = '" . trim($employee->employeeFirstName) . "', " .
+                                "last_name = '" . trim($employee->employeeLastName) . "', " .
+                                "patronymic = '" . trim($employee->employeePatronymic) . "', " .
+                                "person_phone = '" . $formattedPhone . "', " .
+                                "inn = '" . trim($employee->employeeINN) . "', " .
+                                "gender = '" . trim($employee->employeeGender) . "', " .
+                                "person_phone = '" . $formattedPhone . "', " .
+                                "company = " . $company->id . ", " .
+                                "updated_at = NOW(), " .
+                                "status = " . $userStatus . " " .
+                                "where id = '" . $user->id . "'");
+                    } else {
+                        DB::statement('insert into users (first_name,' .
+                                                                'last_name,' .
+                                                                'patronymic,' .
+                                                                'inn,' .
+                                                                'gender,' .
+                                                                'birthday,' .
+                                                                'person_phone,' .
+                                                                'company,' .
+                                                                'created_at,' .
+                                                                'updated_at,' .
+                                                                'status,' .
+                                                                'is_su) ' .
                         'values (' .
-                        "'" . trim($employee->employeeFirstName) . "'," .
-                        "'" . trim($employee->employeeLastName) . "'," .
-                        "'" . trim($employee->employeePatronymic) . "'," .
-                        "'" . trim($employee->employeeINN) . "'," .
-                        "'" . trim($employee->employeeGender) . "'," .
-                        "'" . $formattedBirthday . "'," .
-                        "'" . $formattedPhone . "'," .
-                        $company->id . "," .
-                        'NOW()' . "," .
-                        'NOW()' . "," .
-                        '0' . "," .
-                        '0' .
+                            "'" . trim($employee->employeeFirstName) . "'," .
+                            "'" . trim($employee->employeeLastName) . "'," .
+                            "'" . trim($employee->employeePatronymic) . "'," .
+                            "'" . trim($employee->employeeINN) . "'," .
+                            "'" . trim($employee->employeeGender) . "'," .
+                            "'" . $formattedBirthday . "'," .
+                            "'" . $formattedPhone . "'," .
+                                  $company->id . "," .
+                                  'NOW()' . "," .
+                                  'NOW()' . "," .
+                                  '0' . "," .
+                                  '0' .
                         ')');
-                }
+                    }
 
                 $user = User::withoutGlobalScopes()
                     ->where('inn', '=', trim($employee->employeeINN))
@@ -152,7 +152,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 if ($updatedEmployee->id > $lastEmployeesId){
                     foreach($notificationRecipients as $recipient){
                         Notification::create([
-                            'name' => 'Добавлен сотрудник: ' . $employee->employeeName . ' – ' . $employeePost->name,
+                            'name' => 'Добавлен сотрудник: ' . $employee->employeeName . ' ' . $employeePost->name,
                             'user_id' => $recipient->id,
                             'type' => 0,
                         ]);
@@ -218,20 +218,23 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 );
 
                 $post->inflection = (object)$post->inflection;
-                Employees1cPostInflection::updateOrCreate(
-                    [
-                        'post_id' => $employeePost->id
-                    ],
-                    [
-                        'nominative' => $post->inflection->nominative,
-                        'genitive' => $post->inflection->genitive,
-                        'dative' => $post->inflection->dative,
-                        'accusative' => $post->inflection->accusative,
-                        'ablative' => $post->inflection->ablative,
-                        'prepositional' => $post->inflection->prepositional
-                    ]
-                );
+                    Employees1cPostInflection::updateOrCreate(
+                        [
+                            'post_id' => $employeePost->id
+                        ],
+                        [
+                            'nominative' => $post->inflection->nominative,
+                            'genitive' => $post->inflection->genitive,
+                            'dative' => $post->inflection->dative,
+                            'accusative' => $post->inflection->accusative,
+                            'ablative' => $post->inflection->ablative,
+                            'prepositional' => $post->inflection->prepositional
+                        ]
+                    );
+
             }
         }
     }
+
+
 }

@@ -28,9 +28,4 @@ class Employee extends Model
     {
         return User::withoutGlobalScopes()->find($this->user_id)->format($format, $declension);
     }
-
-    public function employee1cPost()
-    {
-        return $this->belongsTo('App\Models\Employees\Employees1cPost', 'employee_1c_post_id');
-    }
 }

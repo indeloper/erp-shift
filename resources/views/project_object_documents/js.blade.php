@@ -1,0 +1,8 @@
+@include('project_object_documents.components.dataSource')
+@include('project_object_documents.components.variables')
+@include('project_object_documents.components.methods')
+@include('project_object_documents.components.appCore')
+@include('project_object_documents.components.dataGridEditForm')
+@include('project_object_documents.components.dataGridPopup')
+@include('project_object_documents.components.dataGridSettings')
+@include('project_object_documents.components.dataGridColumns')

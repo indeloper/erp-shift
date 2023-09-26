@@ -22,6 +22,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Building\ObjectResponsibleUserRole;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -513,7 +514,8 @@ class q3wMaterialTransformationOperationController extends Controller
     }
 
     public function sendTransformationNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId) {
-        $responsibilityUsers = ObjectResponsibleUser::where('object_id', $projectObjectId)->get();
+
+        $responsibilityUsers = (new ObjectResponsibleUser)->getResponsibilityUsers($projectObjectId, $role='TONGUE_PROJECT_MANAGER');
 
         foreach ($responsibilityUsers as $responsibilityUser) {
             $this->sendTransformationNotification($operation, $notificationText, $responsibilityUser->user_id, $projectObjectId);
@@ -575,13 +577,6 @@ class q3wMaterialTransformationOperationController extends Controller
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
-                    ->where(function ($query) use ($materialToTransfer) {
-                        if (empty($materialToTransfer['initial_comment_id'])) {
-                            $query->whereNull('comment_id');
-                        } else {
-                            $query->where('comment_id', $materialToTransfer['initial_comment_id']);
-                        }
-                    })
                     ->first();
             }
 
@@ -639,15 +634,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
-                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
-                    ->where(function ($query) use ($materialAfterTransferComment) {
-                        if (!empty($materialAfterTransferComment)) {
-                            $query->where('comment', 'like', $materialAfterTransferComment);
-                        } else {
-                            $query->whereNull('comment_id');
-                        }
-                    })
                     ->get('q3w_materials.*')
                     ->first();
             }
@@ -714,15 +701,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->first();
             } else {
                 $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
-                    ->leftJoin('q3w_material_comments', 'comment_id', '=', 'q3w_material_comments.id')
                     ->where('standard_id', $materialStandard->id)
-                    ->where(function ($query) use ($materialRemainsComment) {
-                        if (!empty($materialRemainsComment)) {
-                            $query->where('comment', 'like', $materialRemainsComment);
-                        } else {
-                            $query->whereNull('comment_id');
-                        }
-                    })
                     ->first();
             }
 
@@ -889,8 +868,7 @@ class q3wMaterialTransformationOperationController extends Controller
 
     public function isUserResponsibleForMaterialAccounting(int $projectObjectId): bool
     {
-        return ObjectResponsibleUser::where('user_id', Auth::id())
-            ->where('object_id', $projectObjectId)->exists();
+        return (new ObjectResponsibleUser)->isUserResponsibleForObject(Auth::id(), $projectObjectId, $role='TONGUE_PROJECT_MANAGER');
     }
 
     public function allowEditing(q3wMaterialOperation $operation): bool
@@ -907,6 +885,6 @@ class q3wMaterialTransformationOperationController extends Controller
         $requestData = json_decode($request["data"]);
         return response()->json([
             'isUserResponsibleForMaterialAccounting' => $this->isUserResponsibleForMaterialAccounting($requestData->project_object_id)
-            ]);
+        ]);
     }
 }

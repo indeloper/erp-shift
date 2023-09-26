@@ -49,6 +49,8 @@ use App\Models\CommercialOffer\CommercialOfferRequest;
 use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
+use App\Models\Building\ObjectResponsibleUserRole;
+use App\Models\Department;
 use Illuminate\Support\Facades\Session;
 use App\Traits\UserSearchByGroup;
 
@@ -582,10 +584,14 @@ class ProjectController extends Controller
                 }
                 $users->where('users.id', $first_role);
             } else if ($role == 2) {
-                $usersFromGroup = Group::find(50)->getUsers()->pluck('group_id')->toArray();
-                $users->whereIn('users.group_id',
-                    array_unique(array_merge(['50'/*'7'*//* remove because Users::where('group_id', 36)->count() == 0, '36'*/], $usersFromGroup))
-                );
+                //Коммерческий отдел
+                $users->whereIn('users.department_id', [14]);
+
+                // Старый код
+                // $usersFromGroup = Group::find(50)->getUsers()->pluck('group_id')->toArray();
+                // $users->whereIn('users.group_id',
+                //     array_unique(array_merge(['50'/*'7'*//* remove because Users::where('group_id', 36)->count() == 0, '36'*/], $usersFromGroup))
+                // );
             } else if ($role == 3) {
                 $user_27 = User::find(27)->last_vacation;
                 if ($user_27) {
@@ -747,10 +753,11 @@ class ProjectController extends Controller
                     $objectResponsibleUser->save();
                 }
             } else {
+                $roleId = (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PROJECT_MANAGER');
                 ObjectResponsibleUser::create([
                     'object_id' => $project->object_id,
                     'user_id' => $request->user,
-                    'role' => 1
+                    'object_responsible_user_role_id' => $roleId
                 ]);
             }
 

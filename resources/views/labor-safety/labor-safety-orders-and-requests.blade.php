@@ -291,7 +291,25 @@
                                 DevExpress.ui.notify("Данные успешно изменены", "success", 1000)
                             }
                         });
-                    }
+                    },
+                    remove: function (key) {
+                        return $.ajax({
+                            url: "{{route('labor-safety.orders-and-requests.delete')}}",
+                            method: "DELETE",
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            data: {
+                                key: key
+                            },
+                            success: function (data, textStatus, jqXHR) {
+                                DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                DevExpress.ui.notify("При удалении данных произошла ошибка", "error", 5000)
+                            }
+                        })
+                    },
                 })
             });
 
@@ -426,7 +444,7 @@
                                     mode: 'popup',
                                     allowUpdating: true,
                                     allowAdding: false,
-                                    allowDeleting: false,
+                                    allowDeleting: true,
                                     selectTextOnEditStart: true,
                                     popup: getRequestEditingPopup(),
                                     form: getRequestEditForm(),
@@ -648,6 +666,12 @@
                                                 onClick: (e) => {
                                                     $('#requestId').val(JSON.stringify(e.row.key));
                                                     $('#downloadRequest').get(0).submit();
+                                                }
+                                            },
+                                            {
+                                                name: 'delete',
+                                                visible: (e) => {
+                                                    return (isUserCanGenerateOrders() && e.row.data.request_status_id !== 4) || e.row.data.request_status_id === 1;
                                                 }
                                             }
                                         ]
@@ -889,11 +913,19 @@
                             enabled: false
                         },
                         onEditorPreparing: (e) => {
-                            if (e.dataField === "quantity" && e.parentType === "dataRow") {
-                                if (e.row.data.accounting_type === 2 && e.row.data.edit_states.indexOf("addedByRecipient") === -1) {
-                                    e.cancel = true;
-                                    e.editorElement.append($(`<div>${e.row.data.quantity} ${e.row.data.measure_unit_value}</div>`))
-                                }
+                            if (e.dataField === "worker_employee_id" && e.parentType === "dataRow" && e.component.option("editing.mode") === "cell") {
+                                e.cancel = true;
+
+                                e.editorElement.css('padding', '10px 11px');
+
+                                $(`<div class="employee-name">${e.row.data.employee_1c_name}</div>`)
+                                    .appendTo(e.editorElement);
+
+                                $(`<div class="employee-role">${e.row.data.employee_role}</div>`)
+                                    .appendTo(e.editorElement);
+
+                                $(`<div class="employee-post">${e.row.data.post_name} (${e.row.data.company_name})</div>`)
+                                    .appendTo(e.editorElement);
                             }
                         },
                         onInitNewRow: (e) => {

@@ -285,7 +285,8 @@ class UserController extends Controller
         DB::beginTransaction();
 
         // create vacation
-        $vacation = VacationsHistory::where('is_actual', 1)->firstOrCreate([
+        $vacation = VacationsHistory::create([
+            'is_actual' => 1,
             'vacation_user_id' => $id,
             'support_user_id' => $request->support_user_id,
             'from_date' => Carbon::createFromFormat('d.m.Y', $request->from_date)->toDateString(),
@@ -643,5 +644,35 @@ class UserController extends Controller
         $value = json_decode($request['data'])->value;
 
         (new UsersSetting)->setSetting($codename, $value);
+    }
+
+    public function getActiveUsersForVacationCardFrontend() 
+    {
+        $users = User::query()->active()->get();
+
+        $results = [];
+        foreach ($users as $user) {
+            $results[] = [
+                 'id' => $user->id,
+                 'text' => trim($user->last_name . ' ' . $user->first_name . ' ' . $user->patronymic) . ', ' . $user->group_name,
+             ];
+        }
+
+        return ['results' => $results];
+    }
+
+    public function getAvailableUsersForReplaceEmployeeDuringVacation(Request $request)
+    {
+        $users = User::where('group_id', User::find($request->userId)->group_id)->active()->get();
+        
+        $results = [];
+        foreach ($users as $user) {
+            $results[] = [
+                 'id' => $user->id,
+                 'text' => trim($user->last_name . ' ' . $user->first_name . ' ' . $user->patronymic) . ', ' . $user->group_name,
+             ];
+        }
+
+        return ['results' => $results];
     }
 }

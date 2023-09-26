@@ -10,6 +10,9 @@ use App\Traits\SmartSearchable;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Building\ObjectResponsibleUser;
+use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProjectObject extends Model
 {
@@ -72,5 +75,35 @@ class ProjectObject extends Model
     public function projects()
     {
         return $this->hasMany(Project::class, 'object_id');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(ProjectObjectDocument::class, 'project_object_id');
+    }
+
+    public function scopeWithResponsibleUserNames($query)
+    {
+        $query->leftJoin('object_responsible_users', 'project_objects.id', '=', 'object_responsible_users.object_id')
+            ->leftJoin('users', 'users.id', '=', 'object_responsible_users.user_id')
+            ->leftJoin('object_responsible_user_roles', 'object_responsible_user_roles.id', '=', 'object_responsible_users.object_responsible_user_role_id')
+            ->addSelect([
+                DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PROJECT_MANAGER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_project_manager_full_names`"),
+                DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_pto_engineer_full_names`"),
+                DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_foreman_full_names`")                
+            ])
+            ->groupBy(['project_objects.id']);
+    }
+
+    public function getPermissionsAttribute()
+    {
+        $permissionsArray = [];
+        $permissions = Permission::where("category", 4)->get();
+
+        foreach ($permissions as $permission){
+            $permissionsArray[$permission->codename] = Auth::user()->can($permission->codename);
+        }
+
+        return $permissionsArray;
     }
 }

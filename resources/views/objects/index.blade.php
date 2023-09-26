@@ -263,22 +263,52 @@
                                    </div>
                                </div>
                            </div>
-                           @if(Auth::user()->isProjectManager() or Auth::user()->isInGroup(43)/*8*/)
-                               <div class="form-group" id="">
-                                   <div class="row">
-                                       <label class="col-sm-3 col-form-label">Отв. за мат. учет<star class="star">*</star></label>
-                                       <div class="col-sm-9">
-                                           <select id="resp_users_role_one" name="resp_user_role_one[]" multiple style="width:100%;">
-                                           </select>
-                                       </div>
-                                   </div>
-                               </div>
-                           @endif
+                        
+                            <div class="form-group" id="">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label">Ответственные PП<star class="star">*</star></label>
+                                    <div class="col-sm-9">
+                                        <select id="resp_users_role_one" name="resp_user_role_one[]" multiple style="width:100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                    
+                    
+                            <div class="form-group" id="">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label">Ответственные ПТО<star class="star">*</star></label>
+                                    <div class="col-sm-9">
+                                        <select id="resp_users_role_two" name="resp_user_role_two[]" multiple style="width:100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                    
+                    
+                            <div class="form-group" id="">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label">Ответственные прорабы<star class="star">*</star></label>
+                                    <div class="col-sm-9">
+                                        <select id="resp_users_role_three" name="resp_user_role_three[]" multiple style="width:100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        
                            <div class="form-group" id="">
                                <div class="row">
-                                   <label class="col-sm-3 col-form-label">Участвует в мат. учете</label>
+                                   <label class="col-sm-3 col-form-label">Участвует в произв. работ</label>
                                    <div class="col-sm-9">
                                        <input type="checkbox" id="update_is_participates_in_material_accounting" name="is_participates_in_material_accounting"  style="width: 20px; height: 20px;"/>
+                                   </div>
+                               </div>
+                           </div>
+                           <div class="form-group" id="">
+                               <div class="row">
+                                   <label class="col-sm-3 col-form-label">Участвует в документообороте</label>
+                                   <div class="col-sm-9">
+                                       <input type="checkbox" id="update_is_participates_in_documents_flow" name="is_participates_in_documents_flow"  style="width: 20px; height: 20px;"/>
                                    </div>
                                </div>
                            </div>
@@ -406,7 +436,19 @@
     }
 
     $('#resp_users_role_one').select2();
+    $('#resp_users_role_two').select2();
+    $('#resp_users_role_three').select2();
     $('#material_accounting_type').select2();
+
+    $.ajax({
+        type: 'GET',
+        url:"{{route('objects::getPermissions')}}",
+        success: (permissions) => {
+            $('#resp_users_role_one').prop('disabled', !permissions.can_assign_responsible_projectManager_user)
+            $('#resp_users_role_two').prop('disabled', !permissions.can_assign_responsible_pto_user)
+            $('#resp_users_role_three').prop('disabled', !permissions.can_assign_responsible_foreman_user)
+        }
+    })
 
     @can('objects_create')
         function createObject() {
@@ -447,6 +489,10 @@
     function edit_object(data) {
         $('#resp_users_role_one').select2('destroy');
         $('#resp_users_role_one').find('option').remove();
+        $('#resp_users_role_two').select2('destroy');
+        $('#resp_users_role_two').find('option').remove();
+        $('#resp_users_role_three').select2('destroy');
+        $('#resp_users_role_three').find('option').remove();
 
         $('#material_accounting_type').select2('destroy');
         $('#material_accounting_type').find('option').remove();
@@ -461,19 +507,50 @@
         } else {
             $('#update_is_participates_in_material_accounting').removeAttr("checked");
         }
+        if (data.is_participates_in_documents_flow) {
+            $('#update_is_participates_in_documents_flow').attr("checked", true);
+        } else {
+            $('#update_is_participates_in_documents_flow').removeAttr("checked");
+        }
 
         $('#resp_users_role_one').select2({
             language: "ru",
             ajax: {
-                url: '{{ route('tasks::get_users') }}',
+                url: '{{ route('tasks::get_users', ["groupConstantName"=>"PROJECT_MANAGERS"]) }}',
+                dataType: 'json',
+                delay: 250,
+            }
+        });
+        $('#resp_users_role_two').select2({
+            language: "ru",
+            ajax: {
+                url: '{{ route('tasks::get_users', ["groupConstantName"=>"PTO"]) }}',
+                dataType: 'json',
+                delay: 250,
+            }
+        });
+        $('#resp_users_role_three').select2({
+            language: "ru",
+            ajax: {
+                url: '{{ route('tasks::get_users', ["groupConstantName"=>"FOREMEN"]) }}',
                 dataType: 'json',
                 delay: 250,
             }
         });
 
-        $.each(data.resp_users, function(index, resp_user) {
+        $.each(data.resp_users.filter(elem=>elem.object_responsible_user_role_id === 1), function(index, resp_user) {
             var user = $("<option selected='selected'></option>").val(resp_user.user.id).text(resp_user.user.full_name);
             $('#resp_users_role_one').append(user).trigger('change');
+        });
+        
+        $.each(data.resp_users.filter(elem=>elem.object_responsible_user_role_id === 2), function(index, resp_user) {
+            var user = $("<option selected='selected'></option>").val(resp_user.user.id).text(resp_user.user.full_name);
+            $('#resp_users_role_two').append(user).trigger('change');
+        });
+
+        $.each(data.resp_users.filter(elem=>elem.object_responsible_user_role_id === 3), function(index, resp_user) {
+            var user = $("<option selected='selected'></option>").val(resp_user.user.id).text(resp_user.user.full_name);
+            $('#resp_users_role_three').append(user).trigger('change');
         });
 
         $('#material_accounting_type').select2({

@@ -21,6 +21,7 @@ use App\Policies\OurTechnicTicketReportPolicy;
 use App\Policies\FuelTankPolicy;
 use App\Policies\FuelTankOperationPolicy;
 
+
 class AuthServiceProvider extends ServiceProvider
 {
     /**

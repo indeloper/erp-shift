@@ -24,6 +24,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Building\ObjectResponsibleUserRole;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -720,7 +721,8 @@ class q3wMaterialWriteOffOperationController extends Controller
     }
 
     public function sendWriteOffNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId) {
-        $responsibilityUsers = ObjectResponsibleUser::where('object_id', $projectObjectId)->get();
+
+        $responsibilityUsers = (new ObjectResponsibleUser)->getResponsibilityUsers($projectObjectId, $role='TONGUE_PROJECT_MANAGER');
 
         foreach ($responsibilityUsers as $responsibilityUser) {
             $this->sendWriteOffNotification($operation, $notificationText, $responsibilityUser->user_id, $projectObjectId);
@@ -765,8 +767,7 @@ class q3wMaterialWriteOffOperationController extends Controller
 
     public function isUserResponsibleForMaterialAccounting(int $projectObjectId): bool
     {
-        return ObjectResponsibleUser::where('user_id', Auth::id())
-            ->where('object_id', $projectObjectId)->exists();
+        return (new ObjectResponsibleUser)->isUserResponsibleForObject(Auth::id(), $projectObjectId, $role='TONGUE_PROJECT_MANAGER');
     }
 
     public function allowEditing(q3wMaterialOperation $operation): bool

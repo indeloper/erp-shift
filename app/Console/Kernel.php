@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -84,6 +85,8 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('notification:need-contract')->cron('0 0 */3 * *');
         //q3w material accounting
         $schedule->command('materialOperation:checkOverdue')->everyThirtyMinutes();
+
+        (new ProjectObjectDocumentsNotifications)->handle();
     }
 
     /**

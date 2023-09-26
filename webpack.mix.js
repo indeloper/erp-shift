@@ -33,7 +33,7 @@ const mix = require('laravel-mix');
  mix.copy('resources/assets/css/jquery-ui.min.css', 'public/css');
  mix.copy('resources/assets/css/video-js.css', 'public/css');
 
- mix.sass('resources/assets/css/custom/projects.scss', 'public/css');
+mix.sass('resources/assets/css/custom/projects.scss', 'public/css');
 
  mix.copy('resources/assets/js/core/bootstrap.min.js', 'public/js/core');
  mix.copy('resources/assets/js/core/jquery.3.2.1.min.js', 'public/js/core');
@@ -142,6 +142,8 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('resources/assets/img/wrench.svg', 'public/img');
  mix.copy('resources/assets/img/delivery-truck.svg', 'public/img');
 
+ mix.copy('resources/assets/img/fileIcons/*', 'public/img/fileIcons');
+
  mix.js('resources/assets/js/plugins/pusher_and_vue.js', 'public/js/plugins');
 
  // emoji
@@ -159,5 +161,20 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
   //Q3W
  mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
+
+ // lightgalleryjs.com
+ mix.copy('node_modules/lightgallery/css/lightgallery.css', 'public/css/lightgallery/lightgallery.css');
+ mix.copy('node_modules/lightgallery/css/lg-thumbnail.css', 'public/css/lightgallery/lg-thumbnail.css');
+ mix.copy('node_modules/lightgallery/css/lg-zoom.css', 'public/css/lightgallery/lg-zoom.css');
+ mix.copy('node_modules/lightgallery/css/lg-rotate.css', 'public/css/lightgallery/lg-rotate.css');
+ mix.copy('node_modules/lightgallery/css/lightgallery-bundle.css', 'public/css/lightgallery/lightgallery-bundle.css');
+
+ mix.copyDirectory('node_modules/lightgallery/fonts', 'public/css/fonts');
+ mix.copyDirectory('node_modules/lightgallery/images', 'public/css/images');
+
+ mix.copy('node_modules/lightgallery/lightgallery.umd.js', 'public/js/lightgallery/lightgallery.umd.js');
+ mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.umd.js', 'public/js/lightgallery/lg-thumbnail.umd.js');
+ mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.umd.js', 'public/js/lightgallery/lg-zoom.umd.js');
+ mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.umd.js', 'public/js/lightgallery/lg-rotate.umd.js');
 
  mix.version();

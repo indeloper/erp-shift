@@ -13,13 +13,13 @@ class AddQ3wMaterialSupplyObjectsTable extends Migration
      */
     public function up()
     {
-        /*Schema::create('q3w_material_supply_objects', function (Blueprint $table) {
+        Schema::create('q3w_material_supply_objects', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
             $table->string('name')->comment('Наименование объекта для планирования поставок');
 
             $table->timestamps();
             $table->softDeletes();
-        });*/
+        });
 
         Schema::table('q3w_material_supply_planning', function (Blueprint $table) {
             $table->bigInteger('planning_object_id')->unsigned()->after('id')->comment('Идентификатор планируемого объекта');
@@ -35,6 +35,8 @@ class AddQ3wMaterialSupplyObjectsTable extends Migration
             $table->dropColumn('brand_id');
 
             $table->dropColumn('amount');
+
+            $table->decimal('quantity', 8, 3)->change();
         });
 
         Schema::table('q3w_material_supply_materials', function (Blueprint $table) {
@@ -88,6 +90,6 @@ class AddQ3wMaterialSupplyObjectsTable extends Migration
             $table->float('amount')->unsigned();
         });
 
-        //Schema::dropIfExists('q3w_material_supply_objects');
+        Schema::dropIfExists('q3w_material_supply_objects');
     }
 }

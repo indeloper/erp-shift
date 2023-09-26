@@ -29,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         setlocale(LC_TIME, 'ru_RU.UTF-8');
+
         Carbon::setLocale('ru');
 
         Relation::morphMap([

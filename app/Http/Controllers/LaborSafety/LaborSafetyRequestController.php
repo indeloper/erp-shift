@@ -460,10 +460,21 @@ class LaborSafetyRequestController extends Controller
                     [
                         'request_id' => $laborSafetyRequestRow->id,
                         'worker_employee_id' => $worker["worker_employee_id"],
-                        'worker_type_id' => 3
+                        'worker_type_id' => $worker["employee_role_id"]
                     ]
                 );
                 $newWorker->save();
+
+                if (isset($worker['orders'])) {
+                    foreach ($worker['orders'] as $orderType) {
+                        $orderWorker = new LaborSafetyOrderWorker([
+                            'request_id' => $laborSafetyRequestRow->id,
+                            'order_type_id' => $orderType,
+                            'requests_worker_id' => $newWorker->id
+                        ]);
+                        $orderWorker->save();
+                    }
+                }
             }
         }
 
@@ -550,6 +561,24 @@ class LaborSafetyRequestController extends Controller
         DB::commit();
 
         //$this->sendRequestNotification($requestRow);
+
+        return response()->json([
+            'result' => 'ok'
+        ], 200);
+    }
+
+    public function delete(Request $request) {
+        $id = $request["key"];
+
+        $request = LaborSafetyRequest::findOrFail($id);
+
+        DB::beginTransaction();
+
+        LaborSafetyOrderWorker::where('request_id', '=', $id)->delete();
+        LaborSafetyRequestWorker::where('request_id', '=', $id)->delete();
+        $request->delete();
+
+        DB::commit();
 
         return response()->json([
             'result' => 'ok'
@@ -798,9 +827,9 @@ class LaborSafetyRequestController extends Controller
                     break;
                 case "{project_object_cadastral_number}":
                     if (!empty($projectObject->cadastral_number)){
-                       $orderTemplate = str_replace($variable, ', на земельном участке с кадастровым номером ' . $projectObject->cadastral_number, $orderTemplate);
+                        $orderTemplate = str_replace($variable, ', на земельном участке с кадастровым номером ' . $projectObject->cadastral_number, $orderTemplate);
                     } else {
-                       $orderTemplate = str_replace($variable, '', $orderTemplate);
+                        $orderTemplate = str_replace($variable, '', $orderTemplate);
                     }
                     break;
                 case "{object_responsible_users}":
@@ -1041,12 +1070,27 @@ class LaborSafetyRequestController extends Controller
 
                         $pattern = '/\[workers_list_optional_section_start].*?\[workers_list_optional_section_end]/s';
                         $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+
+                        $orderTemplate = str_replace(['[optional-section-start|order_type_10_workers_list]', '[optional-section-end|order_type_10_workers_list]'], '', $orderTemplate);
+
+                        if (isset($subResponsibleEmployee) && $this->isEmployeeParticipatesInOrder($request->id, $subResponsibleEmployee->id, $order->order_type_id)){
+                            $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee_and_workers_list]', '[optional-section-end|subresponsible_employee_and_workers_list]'], '', $orderTemplate);
+                        } else {
+                            $pattern = '/\[optional-section-start\|subresponsible_employee_and_workers_list].*?\[optional-section-end\|subresponsible_employee_and_workers_list]/s';
+                            $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+                        }
                     } else {
                         $pattern = '/\[workers_list_section_start].*?\[workers_list_section_end]/s';
                         $orderTemplate = preg_replace($pattern, '', $orderTemplate);
-
                         $orderTemplate = str_replace($variable, $workersList, $orderTemplate);
+
                         $orderTemplate = str_replace(['[workers_list_optional_section_start]', '[workers_list_optional_section_end]'], '', $orderTemplate);
+
+                        $pattern = '/\[optional-section-start\|order_type_10_workers_list].*?\[optional-section-end\|order_type_10_workers_list]/s';
+                        $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+
+                        $pattern = '/\[optional-section-start\|subresponsible_employee_and_workers_list].*?\[optional-section-end\|subresponsible_employee_and_workers_list]/s';
+                        $orderTemplate = preg_replace($pattern, '', $orderTemplate);
                     }
                     break;
                 case "{sign_list}":
@@ -1064,6 +1108,8 @@ class LaborSafetyRequestController extends Controller
 
         if (isset($subResponsibleEmployee) and ($this->isEmployeeParticipatesInOrder($request->id, $subResponsibleEmployee->id, $order->order_type_id))) {
             $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
+
+
         } else {
             $pattern = '/\[optional-section-start\|subresponsible_employee].*?\[optional-section-end\|subresponsible_employee]/s';
             $orderTemplate = preg_replace($pattern, '', $orderTemplate);
@@ -1166,7 +1212,7 @@ class LaborSafetyRequestController extends Controller
             $employeeName = Employee::find($worker->worker_employee_id)->format(' f. p. L');
             if ($isWorkerFirstInList) {
                 $isWorkerFirstInList = false;
-                $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid #b91717; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
+                $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
             } else {
                 $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
             }

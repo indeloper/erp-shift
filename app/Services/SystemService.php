@@ -96,4 +96,11 @@ class SystemService
         }
         return $attributes;
     }
+
+    public static function determineClientDeviceType($userAget) {
+        if(preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $userAget))
+        return 'mobile';
+
+        return 'desktop';
+    }
 }

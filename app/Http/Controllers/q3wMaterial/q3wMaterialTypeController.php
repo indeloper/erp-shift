@@ -127,6 +127,7 @@ class q3wMaterialTypeController extends Controller
                 'errors'  => $e->getMessage(),
             ], 400);
         }
+
     }
 
     /**

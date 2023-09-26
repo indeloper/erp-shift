@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
     Route::get('storage/{file_path?}', 'System\FileController@file')->where('file_path', '.*');
@@ -23,6 +25,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
     Route::group(['prefix' => 'objects', 'as' => 'objects::',  'namespace' => "Commerce", 'middleware' => 'can:objects'], function () {
         Route::get('/', 'ObjectController@index')->name('index');
+	Route::get('/getPermissions', 'ObjectController@getPermissions')->name('getPermissions');
         Route::post('/store', 'ObjectController@store')->name('store')->middleware('can:objects_create');
         Route::post('/update', 'ObjectController@update')->name('update')->middleware('can:objects_edit');
 
@@ -178,6 +181,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::get('/get_foreman_for_brigades', 'UserController@getBrigadeForemans')->name('get_foreman_for_brigades');
         Route::get('/get_responsible_users_for_defects', 'UserController@get_responsible_users_for_defects')->name('get_responsible_users_for_defects');
         Route::get('/getUserSetting', 'UserController@getSetting')->name('get-user-setting');
+        Route::get('/getAvailableUsersForReplaceEmployeeDuringVacation', 'UserController@getAvailableUsersForReplaceEmployeeDuringVacation')->name('getAvailableUsersForReplaceEmployeeDuringVacation');
 
         Route::post('/store', 'UserController@store')->name('store')->middleware('can:users_create');
         Route::post('/update/{id}', 'UserController@update')->name('update');
@@ -219,9 +223,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     });
 
     Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'System', 'middleware' => ['can:that_noone_can']], function() {
-        Route::get('notifications', 'AdminController@admin')->name('notifications');
-        Route::get('validate-material-accounting-data', 'AdminController@validateMaterialAccountingData')->name('validate-material-accounting_data');
-        Route::get('get-material-accounting-data-validation-result', 'AdminController@getMaterialAccountingDataValidationResult')->name('get-material-accounting-data-validation-result');
+        Route::get('/', 'AdminController@admin')->name('index');
         Route::post('/send_tech_update_notify', 'AdminController@sendTechUpdateNotify')->name('send_tech_update_notify');
         Route::post('/auth_hack', 'AdminController@loginAsUserId')->name('login_as');
     });
@@ -355,7 +357,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/materials/supply-planning/object-list', 'q3wMaterial\q3wMaterialSupplyPlanningController@list')->name('materials.supply-planning.list')->middleware('can:material_supply_planning_access');
     Route::get('/materials/supply-planning/get-materials-for-supply-planning/{planningObjectId}', 'q3wMaterial\q3wMaterialSupplyPlanningController@getMaterialsForSupplyPlanning')->name('materials.supply-planning.get-materials-for-supply-planning')->middleware('can:material_supply_planning_access');
     Route::get('/materials/supply-planning/available-material-list', 'q3wMaterial\q3wMaterialSupplyPlanningController@getAvailableMaterialList')->name('materials.supply-planning.available-material-list')->middleware('can:material_supply_planning_access');
-    //Route::get('/materials/supply-planning/by-key', 'q3wMaterial\q3wMaterialSupplyPlanningController@byKey')->name('materials.supply-planning.by-key');//!!!
+    Route::get('/materials/supply-planning/get-summary', 'q3wMaterial\q3wMaterialSupplyPlanningController@getSummary')->name('materials.supply-planning.get-summary')->middleware('can:material_supply_planning_access');
     Route::put('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@update')->name('materials.supply-planning.update')->middleware('can:material_supply_planning_editing');
     Route::post('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@store')->name('materials.supply-planning.store')->middleware('can:material_supply_planning_editing');
     Route::delete('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@delete')->name('materials.supply-planning.delete')->middleware('can:material_supply_planning_editing');
@@ -373,6 +375,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     require base_path('routes/modules/labor-safety/labor-safety.php');
     require base_path('routes/modules/common/company.php');
     require base_path('routes/modules/employees/employees.php');
+    require base_path('routes/modules/project_object_documents/project_object_documents.php');
 });
 
 
