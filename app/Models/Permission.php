@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\DevExtremeDataSourceLoadable;
 use App\Models\Notifications\NotificationsForPermissions;
 use Illuminate\Database\Eloquent\Model;
 
 class Permission extends Model
 {
-    protected $fillable = ['name', 'codename'];
+    use DevExtremeDataSourceLoadable;
+
+    protected $fillable = ['name', 'codename', 'category'];
 
     public $categories = [
         1 => 'Модуль "Задачи"',
