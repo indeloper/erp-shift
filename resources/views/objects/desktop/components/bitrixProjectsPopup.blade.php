@@ -48,12 +48,51 @@
             return $('<div id="bitrixProjectsDataGrid">').dxDataGrid({
                 dataSource: bitrixProjectsArray,
                 keyExpr: 'ID',
+                // focusedRowEnabled: true,
+                // hoverStateEnabled: true,
+                // columnAutoWidth: true,
+                // showBorders: true,
+                // showColumnLines: true,
+                // showRowLines: true,
+
                 focusedRowEnabled: true,
                 hoverStateEnabled: true,
-                columnAutoWidth: true,
+                columnAutoWidth: false,
                 showBorders: true,
                 showColumnLines: true,
+                columnMinWidth: 50,
+                columnResizingMode: 'nextColumn',
+                syncLookupFilterValues: false,
+                columnHidingEnabled: false,
                 showRowLines: true,
+                remoteOperations: true,
+                scrolling: {
+                    mode: 'standard',
+                    rowRenderingMode: 'standard',
+                },
+                filterRow: {
+                    visible: false,
+                    applyFilter: "auto"
+                },
+                headerFilter: {
+                    visible: false,
+                },
+
+
+                filterPanel: {
+                    visible: false,
+                    customizeText: (e) => {
+                        filterText = e.text;
+                    }
+                },
+
+                paging: {
+                    enabled: false,
+                    // pageSize: 100,
+                },
+
+
+
                 onRowDblClick: function(e) {
                     handleChoosingBitrixProject()
                 },
