@@ -13,5 +13,9 @@
                 resetVars();
                 resetStores();
             },
+            onShowing() {
+                checkSaveButtonAvailable()
+               
+            }
         }
 </script>

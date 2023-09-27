@@ -84,6 +84,12 @@
     }
     getPermissions();
 
+    function checkSaveButtonAvailable() {
+        if((!permissions.objects_create && !editingRowId) || (!permissions.objects_edit && editingRowId)) {
+            const saveButton = $('[aria-label="Сохранить"]')
+            saveButton.remove()
+        }
+    }
 
 // Конец Общие
 
