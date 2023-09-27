@@ -121,7 +121,7 @@ class ObjectController extends Controller
 
         $contractors = Contractor::whereIn(
                 'id',
-                Project::where('object_id', $request->id)->pluck('id')->toArray()
+                Project::where('object_id', $request->id)->pluck('contractor_id')->toArray()
             )
             ->select('id', 'short_name')
             ->get();
