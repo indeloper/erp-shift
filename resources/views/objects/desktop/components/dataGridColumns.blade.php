@@ -69,7 +69,7 @@
         {
             caption: "Идентификатор",
             dataField: "id",
-            visible: true
+            width: 75,
         },
         {
             caption: "Bitrix ID",
