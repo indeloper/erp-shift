@@ -31,6 +31,7 @@
                     id: 'responsiblesPTOfield'
                 },
                 dataSource: [],
+                searchEnabled: true
             },
         },
 
@@ -47,6 +48,7 @@
                     id: 'responsiblesManagersfield'
                 },
                 dataSource: [],
+                searchEnabled: true
             },
         },
 
@@ -63,6 +65,7 @@
                     id: 'responsiblesForemenfield'
                 },
                 dataSource: [],
+                searchEnabled: true
             },
         },
 

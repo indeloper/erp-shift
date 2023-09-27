@@ -77,6 +77,13 @@
         }
     }
 
+    async function getPermissions() {
+        let response = await fetch("{{route('objects::getPermissions')}}");
+        permissions = await response.json();
+        return await permissions;
+    }
+    getPermissions();
+
 
 // Конец Общие
 
@@ -96,7 +103,7 @@
             .option({
                 dataSource: allAvailableResponsibles.pto,
                 value: objectResponsibles.pto,
-                disabled: false
+                disabled: permissions.can_assign_responsible_pto_user
             })
 
         $('#responsiblesManagersfield')
@@ -104,7 +111,7 @@
             .option({
                 dataSource: allAvailableResponsibles.managers,
                 value: objectResponsibles.managers,
-                disabled: false
+                disabled: permissions.can_assign_responsible_projectManager_user
             })
 
         $('#responsiblesForemenfield')
@@ -112,7 +119,7 @@
             .option({
                 dataSource: allAvailableResponsibles.foremen,
                 value: objectResponsibles.foremen,
-                disabled: false
+                disabled: permissions.can_assign_responsible_foreman_user
             })
     }
 
