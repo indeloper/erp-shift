@@ -225,17 +225,13 @@ class ObjectController extends Controller
         if(!empty($data->material_accounting_type))
         $toUpdateArr['material_accounting_type'] = $data->material_accounting_type;
 
-        if(!empty($data->is_participates_in_material_accounting))
+        if(isset($data->is_participates_in_material_accounting))
             $toUpdateArr['is_participates_in_material_accounting'] =
                 $data->is_participates_in_material_accounting ? 1 : 0;
-        else
-            $toUpdateArr['is_participates_in_material_accounting'] = 0;
 
-        if(!empty($data->is_participates_in_documents_flow))
+        if(isset($data->is_participates_in_documents_flow))
             $toUpdateArr['is_participates_in_documents_flow'] =
                 $data->is_participates_in_documents_flow ? 1 : 0;
-        else
-            $toUpdateArr['is_participates_in_documents_flow'] = 0;
 
         if(!empty($data->is_active))
         $toUpdateArr['is_active'] = $data->is_active;
