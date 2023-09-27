@@ -223,6 +223,12 @@
                                 columnAutoWidth: false,
                                 showBorders: true,
                                 showColumnLines: true,
+                                focusedRowEnabled: true,
+                                onRowDblClick: function(e) {
+                                    if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
+                                        e.component.editRow(e.rowIndex);
+                                    }
+                                },
                                 filterRow: {
                                     visible: true,
                                     applyFilter: "auto"
@@ -312,7 +318,27 @@
                                             displayExpr: "value"
                                          },
                                     },
+                                    {
+                                        type: "buttons",
+                                        buttons: [
+                                            'edit',
+                                            'delete'
+                                        ],
 
+                                        headerCellTemplate: (container, options) => {
+                                            $('<div>')
+                                                .appendTo(container)
+                                                .dxButton({
+                                                    text: "Добавить",
+                                                    icon: "fas fa-plus",
+                                                    onClick: (e) => {
+                                                        options.component.addRow();
+                                                        $('#dataGridContainer').dxDataGrid('instance').option("focusedRowKey", undefined);
+                                                        $('#dataGridContainer').dxDataGrid('instance').option("focusedRowIndex", undefined);
+                                                    }
+                                                })
+                                        }
+                                    }
                                 ]
                             }
                         }]
@@ -321,27 +347,6 @@
             }).dxForm("instance");
 
 
-            function createGridGroupHeaderButtons() {
-
-                let groupCaption = $('#formContainer').find('.dx-form-group-with-caption');
-                $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
-                groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
-                let groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
-                console.log(groupCaptionButtonsDiv);
-
-                $('<div>')
-                    .dxButton({
-                        text: "Добавить",
-                        icon: "fas fa-plus",
-                        onClick: (e) => {
-                            gridForm.getEditor("permissionsGrid").addRow();
-                        }
-                    })
-                    .addClass('dx-form-group-caption-button')
-                    .prependTo(groupCaptionButtonsDiv)
-            }
-
-            createGridGroupHeaderButtons();
 
         });
 

@@ -81,7 +81,7 @@ class PermissionsController extends Controller
         $permission = Permission::findOrFail($id);
 
         $permission->name = $req->name ?? $permission->name;
-        $permission->codename = $req->codename ?? $permission->name;
+        $permission->codename = $req->codename ?? $permission->codename;
         $permission->category = $req->category ?? $permission->category;
 
         $permission->save();
