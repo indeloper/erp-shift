@@ -53,25 +53,46 @@
             editorType: "dxSelectBox",
             editorOptions: {
                 readOnly: true,
+                showClearButton: true,
                 elementAttr: {
                     id: "bitrixIdFormField"
                 },
 
-                buttons: [{
-                    name: 'bitrix-projects-editor-button',
-                    location: 'after',
-                    options: {
-                        elementAttr: {
-                            id: "bitrixProjectsOpenPopupButton"
+                buttons: [
+                    {
+                        name: 'clear-bitrix-projects-editor-button',
+                        location: 'after',
+                        options: {
+                            elementAttr: {
+                                id: "clearBitrixProjectsOpenPopupButton",
+                            },
+                            stylingMode: 'text',
+                            icon: 'clear',
+                            type: 'default',
+                            disabled: false,
+                            onClick(e) {
+                                resetChoosedBitrixProject()
+                            },
                         },
-                        icon: 'more',
-                        type: 'default',
-                        disabled: false,
-                        onClick(e) {
-                            showBitrixProjectsPopup()
+                    }, 
+
+                    {
+                        name: 'bitrix-projects-editor-button',
+                        location: 'after',
+                        options: {
+                            elementAttr: {
+                                id: "bitrixProjectsOpenPopupButton"
+                            },
+                            icon: 'more',
+                            type: 'default',
+                            disabled: false,
+                            onClick(e) {
+                                showBitrixProjectsPopup()
+                            },
                         },
-                    },
-                }],
+                    }, 
+                    
+                ],
                 fieldTemplate(data, container) {
                     const result = $(`
                             <div style="display:flex; align-items:center">

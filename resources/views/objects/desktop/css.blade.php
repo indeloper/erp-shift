@@ -49,5 +49,10 @@
 
 /* КОНЕЦ ОБЩЕЕ */
 
+    /* reset bitrix id */
+    #clearBitrixProjectsOpenPopupButton.dx-button-mode-text.dx-button-default .dx-icon {
+        color: #98abbb;
+    }
+
 
 </style>

@@ -212,7 +212,7 @@ class ObjectController extends Controller
         $toUpdateArr = [];
 
         if(isset($data->bitrixId))
-        $toUpdateArr['bitrixId'] = $data->bitrixId;
+        $toUpdateArr['bitrixId'] = $data->bitrixId ? $data->bitrixId : NULL;
         if(isset($data->name))
         $toUpdateArr['name'] = $data->name;
         if(isset($data->address))

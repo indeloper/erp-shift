@@ -136,6 +136,11 @@
         })
     }
 
+    function resetChoosedBitrixProject() {
+        const choosedDataGridRowIndex = $('#dataGridContainer').dxDataGrid('instance').option('focusedRowIndex')
+        operationsWithFormDataAfterFormRepaint(choosedDataGridRowIndex, '')
+    }
+
     function handleChoosingBitrixProject() {
 
         saveResponsiblesEditorsValues()
@@ -198,6 +203,9 @@
     }
 
     function getBitrixProjectFormDisplayValue(bitrixId) {
+        if(!bitrixId)
+        return 'Выбрать...';
+
         const bitrixProject = bitrixProjectsArray.find(el=>+el.ID === +bitrixId)
         return '[ID' + bitrixId + ']' + ' - ' + bitrixProject.NAME
     }
