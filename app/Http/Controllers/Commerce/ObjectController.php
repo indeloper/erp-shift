@@ -211,18 +211,18 @@ class ObjectController extends Controller
     {
         $toUpdateArr = [];
 
-        if(!empty($data->bitrixId))
+        if(isset($data->bitrixId))
         $toUpdateArr['bitrixId'] = $data->bitrixId;
-        if(!empty($data->name))
+        if(isset($data->name))
         $toUpdateArr['name'] = $data->name;
-        if(!empty($data->address))
+        if(isset($data->address))
         $toUpdateArr['address'] = $data->address;
-        if(!empty($data->cadastral_number))
+        if(isset($data->cadastral_number))
         $toUpdateArr['cadastral_number'] = $data->cadastral_number;
-        if(!empty($data->short_name))
+        if(isset($data->short_name))
         $toUpdateArr['short_name'] = $data->short_name;
 
-        if(!empty($data->material_accounting_type))
+        if(isset($data->material_accounting_type))
         $toUpdateArr['material_accounting_type'] = $data->material_accounting_type;
 
         if(isset($data->is_participates_in_material_accounting))
@@ -233,7 +233,7 @@ class ObjectController extends Controller
             $toUpdateArr['is_participates_in_documents_flow'] =
                 $data->is_participates_in_documents_flow ? 1 : 0;
 
-        if(!empty($data->is_active))
+        if(isset($data->is_active))
         $toUpdateArr['is_active'] = $data->is_active;
 
         return $toUpdateArr;
