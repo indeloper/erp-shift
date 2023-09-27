@@ -26,14 +26,7 @@ class UploadProjectObjectDocumentsNewStatusTypeRelations extends Migration
     public function down()
     {
         DB::table('project_object_document_status_type_relations')
-        ->where([
-            'document_status_id' => 4,
-            'document_type_id' => 1
-        ])
-        ->orWhere([
-            'document_status_id' => 4,
-            'document_type_id' => 4
-        ])
+            ->where('document_status_id', ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id)
         ->delete();
 
         DB::table('project_object_document_statuses')

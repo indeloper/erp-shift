@@ -60,10 +60,11 @@
                 mode: 'standard',
                 rowRenderingMode: 'standard',
             },
+
             filterRow: {
-                visible: false,
-                applyFilter: "auto"
+                visible: true
             },
+
             headerFilter: {
                 visible: false,
             },
