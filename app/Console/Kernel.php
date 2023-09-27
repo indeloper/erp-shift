@@ -86,7 +86,7 @@ class Kernel extends ConsoleKernel
         //q3w material accounting
         $schedule->command('materialOperation:checkOverdue')->everyThirtyMinutes();
 
-        (new ProjectObjectDocumentsNotifications)->handle();
+        //(new ProjectObjectDocumentsNotifications)->handle();
     }
 
     /**
