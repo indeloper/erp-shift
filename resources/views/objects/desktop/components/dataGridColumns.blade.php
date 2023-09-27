@@ -1,11 +1,7 @@
 <script>
     const dataGridColumns = [
 
-        {
-            caption: "Идентификатор",
-            dataField: "id",
-            visible: false
-        },
+        
         {
             caption: "Кадастровый номер",
             dataField: "cadastral_number",
@@ -70,7 +66,11 @@
             },
         },
 
-
+        {
+            caption: "Идентификатор",
+            dataField: "id",
+            visible: true
+        },
         {
             caption: "Bitrix ID",
             dataField: "bitrixId",
