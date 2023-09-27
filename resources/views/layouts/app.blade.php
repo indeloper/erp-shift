@@ -518,6 +518,12 @@
                                         <span class="sidebar-normal">Проверка мат. учета</span>
                                     </a>
                                 </li>
+                                <li class="nav-item @if (Request::is('/admin/permissions')) active @endif">
+                                    <a class="nav-link" href="{{ route('admin.permissions') }}">
+                                        <span class="sidebar-mini"><i class="fas fa-check"></i></span>
+                                        <span class="sidebar-normal">Управление доступами</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
