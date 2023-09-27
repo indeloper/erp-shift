@@ -67,8 +67,8 @@
                 showRowLines: true,
                 remoteOperations: true,
                 scrolling: {
-                    mode: 'infinite',
-                    rowRenderingMode: 'virtual',
+                    mode: 'standard',
+                    rowRenderingMode: 'standard',
                 },
                 filterRow: {
                     visible: false,
@@ -87,8 +87,8 @@
                 },
 
                 paging: {
-                    enabled: true,
-                    pageSize: 100,
+                    enabled: false,
+                    // pageSize: 100,
                 },
 
 
