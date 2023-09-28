@@ -109,7 +109,7 @@
             .option({
                 dataSource: allAvailableResponsibles.pto,
                 value: objectResponsibles.pto,
-                disabled: permissions.can_assign_responsible_pto_user
+                disabled: !permissions.can_assign_responsible_pto_user
             })
 
         $('#responsiblesManagersfield')
@@ -117,7 +117,7 @@
             .option({
                 dataSource: allAvailableResponsibles.managers,
                 value: objectResponsibles.managers,
-                disabled: permissions.can_assign_responsible_projectManager_user
+                disabled: !permissions.can_assign_responsible_projectManager_user
             })
 
         $('#responsiblesForemenfield')
@@ -125,7 +125,7 @@
             .option({
                 dataSource: allAvailableResponsibles.foremen,
                 value: objectResponsibles.foremen,
-                disabled: permissions.can_assign_responsible_foreman_user
+                disabled: !permissions.can_assign_responsible_foreman_user
             })
     }
 
