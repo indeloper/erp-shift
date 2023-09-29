@@ -35,7 +35,7 @@ class FuelTankOperationController extends Controller
         $fuelTankOperationCount = $paginated->total();
         $fuelTankOperations = $paginated->items();
 
-        return view('tech_accounting.fuel.accounting', ['data' => [
+        return view('tech_accounting.fuel.old.accounting', ['data' => [
             'operations' => $fuelTankOperations,
             'total_count' => $fuelTankOperationCount,
             'owners' => OurTechnic::$owners,
@@ -185,7 +185,7 @@ class FuelTankOperationController extends Controller
             $start_value = 0;
         }
 
-        return view('tech_accounting.fuel.report', compact(['operations', 'responsible_user', 'object', 'start_value', 'fuelTank', 'mode']));
+        return view('tech_accounting.fuel.old.report', compact(['operations', 'responsible_user', 'object', 'start_value', 'fuelTank', 'mode']));
     }
 
     public function getFuelTanksOperations(Request $request)

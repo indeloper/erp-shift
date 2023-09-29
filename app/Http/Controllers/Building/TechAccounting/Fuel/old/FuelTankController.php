@@ -31,7 +31,7 @@ class FuelTankController extends Controller
         $data['fuel_tanks_count'] = $paginated->total();
         $data['class'] = FuelTank::getModel();
 
-        return view('tech_accounting.fuel.capacities', ['data' => $data]);
+        return view('tech_accounting.fuel.old.capacities', ['data' => $data]);
     }
 
     /**
@@ -168,7 +168,7 @@ class FuelTankController extends Controller
         $data['fuel_tanks_count'] = $paginated->total();
         $data['class'] = FuelTank::getModel();
 
-        return view('tech_accounting.fuel.trashed_capacities', ['data' => $data]);
+        return view('tech_accounting.fuel.old.trashed_capacities', ['data' => $data]);
     }
 
     public function getTrashedFuelTanksPaginated(Request $request)

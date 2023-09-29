@@ -4,12 +4,19 @@ namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\Common\FileSystemService;
 
 class FuelTankController extends Controller
 {
 
-    public function getPageCore() {
-        return 123;
+    public function getPageCore() 
+    {
+        $routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
+        $sectionTitle = 'Топливные ёмкости';
+        $basePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
+        $componentsPath = $basePath.'/desktop/components';
+        $components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($componentsPath, $basePath);
+        return view('tech_accounting.fuel.tanks.objects.desktop.index', compact('routeNameFixedPart', 'sectionTitle', 'basePath', 'components'));
     }
 
     /**
