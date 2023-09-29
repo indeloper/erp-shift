@@ -84,6 +84,7 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
     
     Route::group(['prefix' => 'tanks', 'as' => 'tanks::'], function () {
         Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
+        Route::get('getProjectObjects', 'FuelTankController@getProjectObjects')->name('getProjectObjects');
         Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
         Route::apiResource('resource', 'FuelTankController');
         Route::apiResource('movement', 'FuelTankMovementController');

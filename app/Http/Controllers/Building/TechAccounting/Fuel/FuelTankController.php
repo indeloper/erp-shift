@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\ProjectObject;
+use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Services\Common\FileSystemService;
 
 class FuelTankController extends Controller
@@ -24,9 +26,19 @@ class FuelTankController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $options = json_decode($request['data']);
+
+        $entities = (new FuelTank)
+            ->dxLoadOptions($options)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return json_encode(array(
+            "data" => $entities
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -48,7 +60,7 @@ class FuelTankController extends Controller
      */
     public function show($id)
     {
-        //
+        return FuelTank::find($id);
     }
 
     /**
@@ -72,5 +84,21 @@ class FuelTankController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getProjectObjects(Request $request)
+    {
+        $options = json_decode($request['data']);
+        
+        $objects = (new ProjectObject)
+            ->where('is_participates_in_material_accounting', 1)
+            ->orderBy('short_name')
+            ->get()
+            ->toArray();
+
+        return json_encode(
+            $objects
+        ,
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

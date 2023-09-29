@@ -11,6 +11,15 @@
             caption: "Наименование",
             dataField: "name",
         },
+        {
+            caption: "Объект",
+            dataField: "object_id",
+            lookup: {
+                dataSource: projectObjectsStore,
+                valueExpr: "id",
+                displayExpr: "short_name"
+            },
+        },
         
         {
             type: "buttons",
@@ -27,8 +36,8 @@
                         icon: "fas fa-plus",
                         onClick: (e) => {
                             options.component.addRow();
-                            $('#dataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
-                            $('#dataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
+                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
+                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
                         }
                     })
             }

@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Traits\Logable;
+use App\Traits\DevExtremeDataSourceLoadable;
 
 use App\Models\ProjectObject;
 
 class FuelTank extends Model
 {
-    use SoftDeletes, Defectable;
+    use SoftDeletes, Defectable, DevExtremeDataSourceLoadable, Logable;
 
     protected $fillable = [
         'fuel_level',

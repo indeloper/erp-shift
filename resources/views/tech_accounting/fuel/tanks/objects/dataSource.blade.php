@@ -49,4 +49,25 @@
         })
     });
 
+    const entityInfoByID = new DevExpress.data.DataSource({
+        store: new DevExpress.data.CustomStore({
+            loadMode: "raw",
+            load: function (loadOptions) {
+                // return $.getJSON("{{route('objects::getObjectInfoByID')}}" + '?id=' + editingRowId);
+                return $.getJSON(getUrlWithId("{{route($routeNameFixedPart.'resource.show', ['id'=>'setId'])}}", editingRowId));
+            }
+        })
+    })
+
+    const projectObjectsStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route($routeNameFixedPart.'getProjectObjects')}}" 
+            return $.getJSON(url);
+        }
+    })
+    
+    // projectObjectsStore.load()
+
 </script>
