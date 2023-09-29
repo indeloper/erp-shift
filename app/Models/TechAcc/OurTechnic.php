@@ -19,7 +19,10 @@ class OurTechnic extends Model
 
     protected $fillable = ['brand','model','owner','start_location_id','technic_category_id','exploitation_start','inventory_number',];
 
-    protected $appends = ['category_name', 'name', 'human_status', 'release_date', 'short_tickets', 'work_link'];
+    protected $appends = 
+    ['category_name', 
+    // 'name', 
+    'human_status', 'release_date', 'short_tickets', 'work_link'];
 
     protected $with = ['defectsLight', 'start_location'];
 
@@ -76,10 +79,10 @@ class OurTechnic extends Model
         }
     }
 
-    public function getNameAttribute()
-    {
-        return trim($this->brand . ' ' . $this->model);
-    }
+    // public function getNameAttribute()
+    // {
+    //     return trim($this->brand . ' ' . $this->model);
+    // }
 
     public function category()
     {

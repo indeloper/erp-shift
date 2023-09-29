@@ -91,9 +91,15 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
     });
 
     Route::group(['prefix' => 'fuelFlow', 'as' => 'fuelFlow::'], function () {
-        Route::get('/', 'FuelFlowController@getPageCore')->name('getPageCore');
-        Route::get('getPermissions', 'FuelFlowController@getPermissions')->name('getPermissions');
-        Route::apiResource('resource', 'FuelFlowController');
+        Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
+
+        Route::get('getFuelResponsibles', 'FuelTankFlowController@getFuelResponsibles')->name('getFuelResponsibles');
+        Route::get('getFuelTanks', 'FuelTankFlowController@getFuelTanks')->name('getFuelTanks');
+        Route::get('getFuelContractors', 'FuelTankFlowController@getFuelContractors')->name('getFuelContractors');
+        Route::get('getFuelConsumers', 'FuelTankFlowController@getFuelConsumers')->name('getFuelConsumers');
+
+        Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
+        Route::apiResource('resource', 'FuelTankFlowController');
     });
 
     Route::group(['prefix' => 'reports', 'as' => 'reports::'], function () {

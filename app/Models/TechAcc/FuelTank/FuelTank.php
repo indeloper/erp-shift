@@ -3,12 +3,14 @@
 namespace App\Models\TechAcc\FuelTank;
 
 use App\Traits\Defectable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use App\Traits\Logable;
 use App\Traits\DevExtremeDataSourceLoadable;
+
+use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\ProjectObject;
 
@@ -16,12 +18,7 @@ class FuelTank extends Model
 {
     use SoftDeletes, Defectable, DevExtremeDataSourceLoadable, Logable;
 
-    protected $fillable = [
-        'fuel_level',
-        'tank_number',
-        'object_id',
-        'explotation_start'
-    ];
+    protected $guarded = ['id'];
 
     protected $with = [
         'object',

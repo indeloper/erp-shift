@@ -390,7 +390,7 @@
                                 </li>
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
                                     <a class="nav-link"
-                                       href="{{ route('building::tech_acc::fuel_tank_operations.index') }}">
+                                       href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Топливный журнал</span>
                                     </a>

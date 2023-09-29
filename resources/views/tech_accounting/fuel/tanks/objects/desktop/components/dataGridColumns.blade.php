@@ -5,11 +5,20 @@
             caption: "Идентификатор",
             dataField: "id",
             width: 75,
+            visible: false,
+        },
+
+        {
+            caption: "Начало эксплуатации",
+            dataField: "explotation_start",
+            dataType: "date",
+            visible: false,
         },
         
         {
-            caption: "Наименование",
-            dataField: "name",
+            caption: "Номер емкоскти",
+            dataField: "tank_number",
+            width: 75,
         },
         {
             caption: "Объект",
@@ -19,6 +28,11 @@
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
+        },
+        {
+            caption: "Текущий остаток",
+            dataField: "fuel_level",
+ 
         },
         
         {
