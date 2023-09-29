@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Building\TechAccounting;
+namespace App\Http\Controllers\Building\TechAccounting\Fuel\Old;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

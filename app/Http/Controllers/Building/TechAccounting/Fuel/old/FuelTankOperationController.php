@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Building\TechAccounting;
+namespace App\Http\Controllers\Building\TechAccounting\Fuel\Old;
 
 use App\Http\Requests\Building\FuelTank\UpdateFuelTankOperation;
 use App\Http\Requests\Building\TechAccounting\FuelTank\StoreFuelTankOperation;

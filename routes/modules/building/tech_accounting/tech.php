@@ -50,26 +50,56 @@ Route::post('our_technic_tickets/{our_technic_ticket}/agree_extension', 'OurTech
 Route::post('our_technic_tickets/{our_technic_ticket}/make_ttn', 'OurTechnicTicketActionsController@make_ttn')->name('our_technic_tickets.make_ttn');
 
 
-Route::get('fuel_tank_operations/report', 'FuelTankOperationController@createReport')->name('fuel_tank_operation.report');
+// ТОПЛИВО СТАРОЕ
 
-Route::resource('fuel_tank_operations', 'FuelTankOperationController')->except([
+Route::get('fuel_tank_operations/report', 'Fuel\Old\FuelTankOperationController@createReport')->name('fuel_tank_operation.report');
+
+Route::resource('fuel_tank_operations', 'Fuel\Old\FuelTankOperationController')->except([
     'create',
     'edit',
 ]);
 
-Route::post('fuel_tank_operations_paginated', 'FuelTankOperationController@getFuelTankOperationsPaginated')->name('fuel_tank_operations_paginated');
-Route::post('get_fuel_tank_operations', 'FuelTankOperationController@getFuelTanksOperations')->name('get_fuel_tank_operations');
-Route::post('fuel_tank/{fuel_tank}/change_fuel_level', 'FuelTankController@changeFuelLevel')->name('fuel_tank.change_fuel_level');
-Route::get('fuel_tank_trashed', 'FuelTankController@display_trashed')->name('fuel_tank.display_trashed');
-Route::get('trashed_fuel_tank/{fuel_tank}', 'FuelTankController@show_trashed')->name('fuel_tank.show_trashed');
+Route::post('fuel_tank_operations_paginated', 'Fuel\Old\FuelTankOperationController@getFuelTankOperationsPaginated')->name('fuel_tank_operations_paginated');
+Route::post('get_fuel_tank_operations', 'Fuel\Old\FuelTankOperationController@getFuelTanksOperations')->name('get_fuel_tank_operations');
+Route::post('fuel_tank/{fuel_tank}/change_fuel_level', 'Fuel\Old\FuelTankController@changeFuelLevel')->name('fuel_tank.change_fuel_level');
+Route::get('fuel_tank_trashed', 'Fuel\Old\FuelTankController@display_trashed')->name('fuel_tank.display_trashed');
+Route::get('trashed_fuel_tank/{fuel_tank}', 'Fuel\Old\FuelTankController@show_trashed')->name('fuel_tank.show_trashed');
 
 
-Route::resource('fuel_tank', 'FuelTankController')->except([
+Route::resource('fuel_tank', 'Fuel\Old\FuelTankController')->except([
     'create',
     'edit',
 ]);
 
-Route::post('get_fuel_tanks', 'FuelTankController@getFuelTanks')->name('get_fuel_tanks');
-Route::post('get_fuel_tanks_by_object', 'FuelTankController@getFuelTanksByObject')->name('get_fuel_tanks_by_object');
-Route::post('get_fuel_tanks_paginated', 'FuelTankController@getFuelTanksPaginated')->name('get_fuel_tanks_paginated');
-Route::post('get_trashed_fuel_tanks_paginated', 'FuelTankController@getTrashedFuelTanksPaginated')->name('get_trashed_fuel_tanks_paginated');
+Route::post('get_fuel_tanks', 'Fuel\Old\FuelTankController@getFuelTanks')->name('get_fuel_tanks');
+Route::post('get_fuel_tanks_by_object', 'Fuel\Old\FuelTankController@getFuelTanksByObject')->name('get_fuel_tanks_by_object');
+Route::post('get_fuel_tanks_paginated', 'Fuel\Old\FuelTankController@getFuelTanksPaginated')->name('get_fuel_tanks_paginated');
+Route::post('get_trashed_fuel_tanks_paginated', 'Fuel\Old\FuelTankController@getTrashedFuelTanksPaginated')->name('get_trashed_fuel_tanks_paginated');
+
+// ТОПЛИВО СТАРОЕ КОНЕЦ
+
+// Новый раздел учета топлива
+
+Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], function () {
+    
+    Route::group(['prefix' => 'tanks', 'as' => 'tanks::'], function () {
+        Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
+        Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
+        Route::apiResource('resource', 'FuelTankController');
+        Route::apiResource('movement', 'FuelTankMovementController');
+    });
+
+    Route::group(['prefix' => 'fuelFlow', 'as' => 'fuelFlow::'], function () {
+        Route::get('/', 'FuelFlowController@getPageCore')->name('getPageCore');
+        Route::get('getPermissions', 'FuelFlowController@getPermissions')->name('getPermissions');
+        Route::apiResource('resource', 'FuelFlowController');
+    });
+
+    Route::group(['prefix' => 'reports', 'as' => 'reports::'], function () {
+        Route::get('fuelFlowMacroReport', 'FuelReportController@fuelFlowMacroReport')->name('fuelFlowMacroReport');
+        Route::get('fuelFlowDetailedReport', 'FuelReportController@fuelFlowDetailedReport')->name('fuelFlowDetailedReport');
+        Route::get('tanksMovementReport', 'FuelReportController@tanksMovementReport')->name('tanksMovementReport');
+        Route::get('getPermissions', 'FuelReportController@getPermissions')->name('getPermissions');
+    });
+
+});

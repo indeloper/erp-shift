@@ -370,8 +370,8 @@
                         </div>
                     </li>
                 @endcanany
-                @can('store', 'App\Models\TechAcc\FuelTank\FuelTank')
-                    <li class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
+<!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
+                <li style="background: #8d2323;" class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#fuel">
                             <i class="pe-7s-note2"></i>
                             <p>Учёт топлива
@@ -379,8 +379,40 @@
                             </p>
                         </a>
                         <div
-                            class="collapse @if(Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) show @endif"
+                            class="collapse @if(Request::is('building/tech_acc/fuel/t*')) show @endif"
                             id="fuel">
+                            <ul class="nav">
+                                <li class="nav-item @if(Request::is('building/tech_acc/fuel/t*')) active @endif">
+                                    <a class="nav-link" href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
+                                        <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
+                                        <span class="sidebar-normal">Топливные ёмкости</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item @if (Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
+                                    <a class="nav-link"
+                                       href="{{ route('building::tech_acc::fuel_tank_operations.index') }}">
+                                        <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
+                                        <span class="sidebar-normal">Топливный журнал</span>
+                                    </a>
+                                </li>
+                                <hr>
+                            </ul>
+                        </div>
+                    </li>
+    <!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
+    <!-- СТАРЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
+
+                @can('store', 'App\Models\TechAcc\FuelTank\FuelTank')
+                    <li style="background: grey;" class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
+                        <a class="nav-link" data-toggle="collapse" href="#oldfuel">
+                            <i class="pe-7s-note2"></i>
+                            <p>Учёт топлива - OLD
+                                <b class="caret"></b>
+                            </p>
+                        </a>
+                        <div
+                            class="collapse @if(Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) show @endif"
+                            id="oldfuel">
                             <ul class="nav">
                                 <li class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*')) active @endif">
                                     <a class="nav-link" href="{{ route('building::tech_acc::fuel_tank.index') }}">
