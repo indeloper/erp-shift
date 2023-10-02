@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewWorkerType extends Migration
+class AddNewWorkerType1 extends Migration
 {
     /**
      * Run the migrations.

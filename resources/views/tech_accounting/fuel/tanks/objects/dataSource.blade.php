@@ -46,6 +46,21 @@
                 })
 
             },
+
+            remove: function (key) {
+
+                return $.ajax({
+                    url: getUrlWithId("{{route($routeNameFixedPart.'resource.destroy', ['id'=>'setId'])}}", key),
+                    method: "DELETE",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                    },
+                })
+
+            },
         })
     });
 

@@ -38,7 +38,7 @@
             mode: "popup",
             popup: dataGridPopup,
             form: dataGridEditForm,
-            allowUpdating: true,
+            allowUpdating: false,
             allowAdding: true,
             allowDeleting: true,
             selectTextOnEditStart: false,

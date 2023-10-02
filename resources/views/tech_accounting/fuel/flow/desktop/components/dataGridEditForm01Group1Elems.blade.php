@@ -18,6 +18,21 @@
                 type: 'required',
                 message: 'Укажите значение',
             }],
+            editorOptions: {
+                elementAttr: {
+                    id: 'selectBoxFuelOperationType'
+                },
+                onSelectionChanged(e) {
+                    if(e.component.option('value') === 'Поступление') {
+                        $('#selectBoxFuelConsumer').dxSelectBox('instance')?.option('disabled', true)
+                        $('#selectBoxFuelSupplier').dxSelectBox('instance')?.option('disabled', false)
+                    }
+                    else {
+                        $('#selectBoxFuelConsumer').dxSelectBox('instance')?.option('disabled', false)
+                        $('#selectBoxFuelSupplier').dxSelectBox('instance')?.option('disabled', true)
+                    }
+                },
+            }
         },
         {
             dataField: "volume",
@@ -29,11 +44,38 @@
         },
         {
             dataField: "our_technic_id",
-            colSpan: 1
+            colSpan: 1,
+            editorType: "dxSelectBox",
+            validationRules: [{
+                type: 'required',
+                message: 'Укажите значение',
+            }],
+            editorOptions: {
+                elementAttr: {
+                    id: 'selectBoxFuelConsumer'
+                },
+                onContentReady(e){
+                    if($('#selectBoxFuelOperationType').dxSelectBox('instance').option('value') === 'Поступление')
+                    e.component.option('disabled', true)
+                }
+            }
         },
         {
             dataField: "contractor_id",
-            colSpan: 1
+            colSpan: 1,
+            validationRules: [{
+                type: 'required',
+                message: 'Укажите значение',
+            }],
+            editorOptions: {
+                elementAttr: {
+                    id: 'selectBoxFuelSupplier'
+                },
+                onContentReady(e){
+                    if($('#selectBoxFuelOperationType').dxSelectBox('instance').option('value') === 'Расход')
+                    e.component.option('disabled', true)
+                }
+            }
         },
        
     ];

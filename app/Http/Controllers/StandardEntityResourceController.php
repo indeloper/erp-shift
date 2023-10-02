@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class StandardEntityResourceController extends Controller
 {
@@ -53,9 +54,13 @@ class StandardEntityResourceController extends Controller
      */
     public function store(Request $request)
     {
-        $data = json_decode($request->input('data'));
-        $data->author_id = Auth::user()->id;
-        $this->baseModel->create((array)$data);
+        $data = (array)json_decode($request->input('data'));
+        
+        DB::beginTransaction();
+            $data = $this->beforeStore($data);
+            $entity = $this->baseModel->create($data);
+            $this->afterStore($entity, $data);
+        DB::commit();
     }
 
     /**
@@ -78,7 +83,13 @@ class StandardEntityResourceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->baseModel::find($id)->update((array)json_decode($request->input('data')));
+        $data = (array)json_decode($request->input('data'));
+        
+        DB::beginTransaction();
+            $data = $this->beforeUpdate($id, $data);
+            $this->baseModel::findOrFail($id)->update($data);
+            $this->afterUpdate($id, $data);
+        DB::commit();
     }
 
     /**
@@ -89,6 +100,41 @@ class StandardEntityResourceController extends Controller
      */
     public function destroy($id)
     {
-        $this->baseModel::find($id)->delete();
+        $entity = $this->baseModel::findOrFail($id);
+        DB::beginTransaction();
+            $this->beforeDelete($entity);
+            $entity->delete();
+            $this->afterDelete($entity);
+        DB::commit();
+    }
+
+    public function beforeStore($data)
+    {
+        return $data;
+    }
+
+    public function afterStore($entity, $data)
+    {
+        return $data;
+    }
+
+    public function beforeUpdate($id, $data)
+    {
+        return $data;
+    }
+
+    public function afterUpdate($id, $data)
+    {
+        return $data;
+    }
+
+    public function beforeDelete($entity)
+    {
+       //
+    }
+
+    public function afterDelete($entity)
+    {
+       //
     }
 }

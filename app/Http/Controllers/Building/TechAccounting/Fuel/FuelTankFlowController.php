@@ -9,9 +9,10 @@ use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
 use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\TankFuelFlow;
+use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class FuelTankFlowController extends StandardEntityResourceController
 {
@@ -24,12 +25,37 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function __construct()
     {
-        $this->baseModel = new TankFuelFlow();
+        $this->baseModel = new FuelTankFlow();
         $this->routeNameFixedPart = 'building::tech_acc::fuel::fuelFlow::';
         $this->sectionTitle = 'Топливный журнал';
         $this->basePath = resource_path().'/views/tech_accounting/fuel/flow';
         $this->componentsPath = $this->basePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->basePath);
+    }
+
+    public function beforeStore($data)
+    {
+        $tank = FuelTank::findOrFail($data['fuel_tank_id']);
+        $tankCurrentFuelLevel = $tank->fuel_level;
+        if($data['type']==='Расход') 
+            $tank->fuel_level = $tankCurrentFuelLevel - $data['volume'];
+        if($data['type']==='Поступление') 
+            $tank->fuel_level = $tankCurrentFuelLevel + $data['volume'];
+        $tank->save();
+
+        $data['author_id'] = Auth::user()->id;
+        return $data;
+    }
+
+    public function beforeDelete($entity)
+    {
+        $tank = FuelTank::findOrFail($entity->fuel_tank_id);
+        $tankCurrentFuelLevel = $tank->fuel_level;
+        if($entity->type==='Расход') 
+            $tank->fuel_level = $tankCurrentFuelLevel + $entity->volume;
+        if($entity->type==='Поступление') 
+            $tank->fuel_level = $tankCurrentFuelLevel - $entity->volume;
+        $tank->save();
     }
 
     public function getFuelResponsibles()
@@ -40,7 +66,7 @@ class FuelTankFlowController extends StandardEntityResourceController
                 ->orderBy('last_name')
                 ->get();
     }
-
+   
     public function getFuelTanks()
     {
         return FuelTank::all();

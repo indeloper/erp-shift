@@ -35,7 +35,7 @@
         },
         
         {
-            caption: "Контрагент",
+            caption: "Поставщик",
             dataField: "contractor_id",
             lookup: {
                 dataSource: fuelContractorsStore,
@@ -45,7 +45,7 @@
             visible: false
         },
         {
-            caption: "Техника",
+            caption: "Потребитель",
             dataField: "our_technic_id",
             lookup: {
                 dataSource: fuelConsumersStore,

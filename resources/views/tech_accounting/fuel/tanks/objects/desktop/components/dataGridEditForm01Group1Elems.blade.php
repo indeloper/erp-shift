@@ -3,11 +3,15 @@
     const dataGridEditForm01Group1Elems = [
         {
             dataField: "tank_number",
-            colSpan: 2,
+            colSpan: 1,
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',
             }],
+        },
+        {
+            dataField: "explotation_start",
+            colSpan: 1,
         },
         {
             dataField: "object_id",
@@ -18,9 +22,6 @@
             }
 
         },
-        {
-            dataField: "explotation_start",
-            colSpan: 2,
-        }
+        
     ];
 </script>

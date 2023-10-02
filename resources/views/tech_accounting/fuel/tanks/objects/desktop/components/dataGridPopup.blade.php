@@ -2,10 +2,10 @@
     const dataGridPopup =
         {
             showTitle: true,
-            title: "Информация об объекте",
+            title: "Информация о топливной емкости",
             hideOnOutsideClick: true,
             showCloseButton: true,
-            maxWidth: '60vw',
+            maxWidth: '40vw',
             height: 'auto',
             onHiding() {
                 resetVars();

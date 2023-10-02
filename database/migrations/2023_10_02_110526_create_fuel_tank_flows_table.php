@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class CreateTankFuelFlowsTable extends Migration
+class CreateFuelTankFlowsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateTankFuelFlowsTable extends Migration
      */
     public function up()
     {
-        Schema::create('tank_fuel_flows', function (Blueprint $table) {
+        Schema::create('fuel_tank_flows', function (Blueprint $table) {
             $table->bigIncrements('id');
 
             $table->unsignedInteger('author_id')->comment('ID автора');
@@ -39,8 +39,9 @@ class CreateTankFuelFlowsTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
+        
         DB::statement("ALTER TABLE tank_fuel_flows COMMENT 'Движение топлива в емкостях'");
+
     }
 
     /**
@@ -50,6 +51,6 @@ class CreateTankFuelFlowsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tank_fuel_flows');
+        Schema::dropIfExists('fuel_tank_flows');
     }
 }

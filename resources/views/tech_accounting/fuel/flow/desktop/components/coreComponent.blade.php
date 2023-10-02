@@ -4,7 +4,7 @@
             items: [
                 {
                     itemType: "group",
-                    caption: "Заголовок страницы",
+                    caption: "Движение топлива по ёмкостям",
                     cssClass: "material-snapshot-grid",
                     items: [{
                         name: "mainDataGrid",

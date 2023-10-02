@@ -29,7 +29,10 @@ class AddNameAndResponsibleColumns extends Migration
     public function down()
     {
         Schema::table('our_technics', function (Blueprint $table) {
-            //
+            
+            $table->dropColumn('name');
+            $table->dropForeign(['responsible_id']);
+            $table->dropColumn('responsible_id');
         });
     }
 }

@@ -16,9 +16,9 @@
         },
         
         {
-            caption: "Номер емкоскти",
+            caption: "Номер ёмкоскти",
             dataField: "tank_number",
-            width: 75,
+            width: 150,
         },
         {
             caption: "Объект",

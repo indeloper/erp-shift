@@ -83,22 +83,21 @@ Route::post('get_trashed_fuel_tanks_paginated', 'Fuel\Old\FuelTankController@get
 Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], function () {
     
     Route::group(['prefix' => 'tanks', 'as' => 'tanks::'], function () {
-        Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
         Route::get('getProjectObjects', 'FuelTankController@getProjectObjects')->name('getProjectObjects');
+
         Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
+        Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'FuelTankController');
-        Route::apiResource('movement', 'FuelTankMovementController');
     });
 
     Route::group(['prefix' => 'fuelFlow', 'as' => 'fuelFlow::'], function () {
-        Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
-
         Route::get('getFuelResponsibles', 'FuelTankFlowController@getFuelResponsibles')->name('getFuelResponsibles');
         Route::get('getFuelTanks', 'FuelTankFlowController@getFuelTanks')->name('getFuelTanks');
         Route::get('getFuelContractors', 'FuelTankFlowController@getFuelContractors')->name('getFuelContractors');
         Route::get('getFuelConsumers', 'FuelTankFlowController@getFuelConsumers')->name('getFuelConsumers');
 
         Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
+        Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'FuelTankFlowController');
     });
 
@@ -106,6 +105,7 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::get('fuelFlowMacroReport', 'FuelReportController@fuelFlowMacroReport')->name('fuelFlowMacroReport');
         Route::get('fuelFlowDetailedReport', 'FuelReportController@fuelFlowDetailedReport')->name('fuelFlowDetailedReport');
         Route::get('tanksMovementReport', 'FuelReportController@tanksMovementReport')->name('tanksMovementReport');
+
         Route::get('getPermissions', 'FuelReportController@getPermissions')->name('getPermissions');
     });
 
