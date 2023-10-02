@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Building\TechAccounting;
+namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Http\Requests\OurTechnicStoreRequest;
 use App\Http\Requests\OurTechnicUpdateRequest;

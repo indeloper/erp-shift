@@ -37,10 +37,10 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         $tank = FuelTank::findOrFail($data['fuel_tank_id']);
         $tankCurrentFuelLevel = $tank->fuel_level;
-        if($data['type']==='Расход') 
-            $tank->fuel_level = $tankCurrentFuelLevel - $data['volume'];
+        if($data['type']==='Расхкод') 
+            $tank->fuel_level = round($tankCurrentFuelLevel - $data['volume'], 3);
         if($data['type']==='Поступление') 
-            $tank->fuel_level = $tankCurrentFuelLevel + $data['volume'];
+            $tank->fuel_level = round($tankCurrentFuelLevel + $data['volume'], 3);
         $tank->save();
 
         $data['author_id'] = Auth::user()->id;
@@ -52,9 +52,9 @@ class FuelTankFlowController extends StandardEntityResourceController
         $tank = FuelTank::findOrFail($entity->fuel_tank_id);
         $tankCurrentFuelLevel = $tank->fuel_level;
         if($entity->type==='Расход') 
-            $tank->fuel_level = $tankCurrentFuelLevel + $entity->volume;
+            $tank->fuel_level = round($tankCurrentFuelLevel + $entity->volume, 3);
         if($entity->type==='Поступление') 
-            $tank->fuel_level = $tankCurrentFuelLevel - $entity->volume;
+            $tank->fuel_level = round($tankCurrentFuelLevel - $entity->volume, 3);
         $tank->save();
     }
 

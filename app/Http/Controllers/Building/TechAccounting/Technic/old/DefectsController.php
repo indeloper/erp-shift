@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Building\TechAccounting;
+namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Services\AuthorizeService;
 use App\Traits\{TimeCalculator, NotificationGenerator, AdditionalFunctions};

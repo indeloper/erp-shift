@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Building\TechAccounting;
+namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Http\Requests\Building\TechAccounting\OurTechnic\OurTechnicTicketReportRequests\StoreOurTechnicTicketReportRequest;
 use App\Models\TechAcc\OurTechnicTicketReport;

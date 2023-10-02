@@ -29,6 +29,7 @@ class CreateFuelTankMovementsTable extends Migration
             $table->float('fuel_level', 8, 3);
 
             $table->timestamps();
+            $table->softDeletes();
         });
         
         DB::statement("ALTER TABLE fuel_tank_movements COMMENT 'Движение топлива в емкостях'");

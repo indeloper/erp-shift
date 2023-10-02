@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use App\Traits\DevExtremeDataSourceLoadable;
 
 class OurTechnic extends Model
 {
-    use Documentable, Defectable, SoftDeletes;
+    use DevExtremeDataSourceLoadable, Documentable, Defectable, SoftDeletes;
 
     protected $fillable = ['brand','model','owner','start_location_id','technic_category_id','exploitation_start','inventory_number',];
 

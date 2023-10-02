@@ -1,22 +1,22 @@
 <?php
-Route::resource('technic_category', 'TechnicCategoryController');
-Route::get('technic_category_trashed', 'TechnicCategoryController@display_trashed')->name('technic_category.display_trashed');
-Route::get('technic_category_trashed/{technic_category}', 'TechnicCategoryController@show_trashed')->name('technic_category.show_trashed');
+Route::resource('technic_category', 'Technic\old\TechnicCategoryController');
+Route::get('technic_category_trashed', 'Technic\old\TechnicCategoryController@display_trashed')->name('technic_category.display_trashed');
+Route::get('technic_category_trashed/{technic_category}', 'Technic\old\TechnicCategoryController@show_trashed')->name('technic_category.show_trashed');
 
-Route::resource('technic_category.our_technic', 'OurTechnicController')->except([
+Route::resource('technic_category.our_technic', 'Technic\old\OurTechnicController')->except([
     'create', 'show', 'edit'
 ]);
-Route::get('technic_category/{technic_category}/our_technic_trashed', 'OurTechnicController@display_trashed')->name('technic_category.our_technic.trashed_index');
+Route::get('technic_category/{technic_category}/our_technic_trashed', 'Technic\old\OurTechnicController@display_trashed')->name('technic_category.our_technic.trashed_index');
 
-Route::resource('our_technic_tickets', 'OurTechnicTicketController')->except([
+Route::resource('our_technic_tickets', 'Technic\old\OurTechnicTicketController')->except([
     'create',
     'edit'
 ]);
-Route::post('our_technic_tickets/reassignment/{our_technic_ticket}', 'OurTechnicTicketController@reassignment')->name('our_technic_tickets.reassignment');
+Route::post('our_technic_tickets/reassignment/{our_technic_ticket}', 'Technic\old\OurTechnicTicketController@reassignment')->name('our_technic_tickets.reassignment');
 
-Route::post('get_technic_tickets', 'OurTechnicTicketController@getTechnicTickets')->name('get_technic_tickets');
+Route::post('get_technic_tickets', 'Technic\old\OurTechnicTicketController@getTechnicTickets')->name('get_technic_tickets');
 
-Route::resource('our_technic_tickets.report', 'OurTechnicTicketReportController')->only([
+Route::resource('our_technic_tickets.report', 'Technic\old\OurTechnicTicketReportController')->only([
     'store',
     'destroy',
     'update',
@@ -25,29 +25,29 @@ Route::resource('our_technic_tickets.report', 'OurTechnicTicketReportController'
 ]);
 
 
-Route::get('get_technics', 'OurTechnicController@get_technics')->name('get_technics');
-Route::get('get_all_technics', 'OurTechnicController@get_all_technics')->name('get_all_technics');
-Route::post('get_technics_paginated/{our_technic_category_id}', 'OurTechnicController@getTechnicsPaginated')->name('get_technics_paginated');
-Route::post('get_trashed_technics_paginated/{our_technic_category_id}', 'OurTechnicController@getTrashedTechnicsPaginated')->name('get_trashed_technics_paginated');
+Route::get('get_technics', 'Technic\old\OurTechnicController@get_technics')->name('get_technics');
+Route::get('get_all_technics', 'Technic\old\OurTechnicController@get_all_technics')->name('get_all_technics');
+Route::post('get_technics_paginated/{our_technic_category_id}', 'Technic\old\OurTechnicController@getTechnicsPaginated')->name('get_technics_paginated');
+Route::post('get_trashed_technics_paginated/{our_technic_category_id}', 'Technic\old\OurTechnicController@getTrashedTechnicsPaginated')->name('get_trashed_technics_paginated');
 
-Route::resource('defects', 'DefectsController')->except([
+Route::resource('defects', 'Technic\old\DefectsController')->except([
     'create',
     'update',
     'edit'
 ]);
-Route::put('defects/{defects}/select_responsible', 'DefectsController@select_responsible')->name('defects.select_responsible');
-Route::put('defects/{defects}/decline', 'DefectsController@decline')->name('defects.decline');
-Route::put('defects/{defects}/accept', 'DefectsController@accept')->name('defects.accept');
-Route::put('defects/{defects}/update_repair_dates', 'DefectsController@update_repair_dates')->name('defects.update_repair_dates');
-Route::put('defects/{defects}/end_repair', 'DefectsController@end_repair')->name('defects.end_repair');
-Route::post('paginated_defects/', 'DefectsController@paginated_defects')->name('defects.paginated');
+Route::put('defects/{defects}/select_responsible', 'Technic\old\DefectsController@select_responsible')->name('defects.select_responsible');
+Route::put('defects/{defects}/decline', 'Technic\old\DefectsController@decline')->name('defects.decline');
+Route::put('defects/{defects}/accept', 'Technic\old\DefectsController@accept')->name('defects.accept');
+Route::put('defects/{defects}/update_repair_dates', 'Technic\old\DefectsController@update_repair_dates')->name('defects.update_repair_dates');
+Route::put('defects/{defects}/end_repair', 'Technic\old\DefectsController@end_repair')->name('defects.end_repair');
+Route::post('paginated_defects/', 'Technic\old\DefectsController@paginated_defects')->name('defects.paginated');
 
-Route::post('our_technic_tickets/{our_technic_ticket}/close', 'OurTechnicTicketActionsController@close')->name('our_technic_tickets.close');
+Route::post('our_technic_tickets/{our_technic_ticket}/close', 'Technic\old\OurTechnicTicketActionsController@close')->name('our_technic_tickets.close');
 
-Route::post('our_technic_tickets/{our_technic_ticket}/close', 'OurTechnicTicketActionsController@close')->name('our_technic_tickets.close');
-Route::post('our_technic_tickets/{our_technic_ticket}/request_extension', 'OurTechnicTicketActionsController@request_extension')->name('our_technic_tickets.request_extension');
-Route::post('our_technic_tickets/{our_technic_ticket}/agree_extension', 'OurTechnicTicketActionsController@agree_extension')->name('our_technic_tickets.agree_extension');
-Route::post('our_technic_tickets/{our_technic_ticket}/make_ttn', 'OurTechnicTicketActionsController@make_ttn')->name('our_technic_tickets.make_ttn');
+Route::post('our_technic_tickets/{our_technic_ticket}/close', 'Technic\old\OurTechnicTicketActionsController@close')->name('our_technic_tickets.close');
+Route::post('our_technic_tickets/{our_technic_ticket}/request_extension', 'Technic\old\OurTechnicTicketActionsController@request_extension')->name('our_technic_tickets.request_extension');
+Route::post('our_technic_tickets/{our_technic_ticket}/agree_extension', 'Technic\old\OurTechnicTicketActionsController@agree_extension')->name('our_technic_tickets.agree_extension');
+Route::post('our_technic_tickets/{our_technic_ticket}/make_ttn', 'Technic\old\OurTechnicTicketActionsController@make_ttn')->name('our_technic_tickets.make_ttn');
 
 
 // ТОПЛИВО СТАРОЕ
@@ -78,6 +78,18 @@ Route::post('get_trashed_fuel_tanks_paginated', 'Fuel\Old\FuelTankController@get
 
 // ТОПЛИВО СТАРОЕ КОНЕЦ
 
+// Новый раздел учета техники
+
+Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Technic"], function () {
+    Route::group(['prefix' => 'ourTechnicList', 'as' => 'ourTechnicList::'], function () {
+        Route::get('getPermissions', 'OurTechnicController@getPermissions')->name('getPermissions');
+        Route::get('/', 'OurTechnicController@getPageCore')->name('getPageCore');
+        Route::apiResource('resource', 'OurTechnicController');
+    });
+});
+
+// КОНЕЦ Новый раздел учета техники
+
 // Новый раздел учета топлива
 
 Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], function () {
@@ -102,11 +114,22 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
     });
 
     Route::group(['prefix' => 'reports', 'as' => 'reports::'], function () {
-        Route::get('fuelFlowMacroReport', 'FuelReportController@fuelFlowMacroReport')->name('fuelFlowMacroReport');
-        Route::get('fuelFlowDetailedReport', 'FuelReportController@fuelFlowDetailedReport')->name('fuelFlowDetailedReport');
-        Route::get('tanksMovementReport', 'FuelReportController@tanksMovementReport')->name('tanksMovementReport');
-
-        Route::get('getPermissions', 'FuelReportController@getPermissions')->name('getPermissions');
+        Route::group(['prefix' => 'fuelFlowMacroReport', 'as' => 'fuelFlowMacroReport::'], function () {
+            Route::get('getPageCore', 'FuelReportController@fuelFlowMacroReportPageCore')->name('getPageCore');
+            Route::get('data', 'FuelReportController@fuelFlowMacroReportData')->name('resource.index');
+            Route::get('getPermissions', 'FuelReportController@fuelFlowMacroReportPermissions')->name('getPermissions');
+        });
+        // Route::group(['prefix' => 'fuelFlowDetailedReport', 'as' => 'fuelFlowDetailedReport::'], function () {
+        //     Route::get('getPageCore', 'FuelReportController@fuelFlowDetailedReportPageCore')->name('getPageCore');
+        //     Route::get('data', 'FuelReportController@fuelFlowDetailedReportData')->name('resource.index');
+        //     Route::get('getPermissions', 'FuelReportController@fuelFlowDetailedReporttPermissions')->name('getPermissions');
+        // });
+        Route::group(['prefix' => 'tanksMovementReport', 'as' => 'tanksMovementReport::'], function () {
+            Route::get('getPageCore', 'FuelReportController@tanksMovementReportPageCore')->name('getPageCore');
+            Route::get('data', 'FuelReportController@tanksMovementReportData')->name('resource.index');
+            Route::get('getPermissions', 'FuelReportController@tanksMovementReportPermissions')->name('getPermissions');
+        });
+        Route::get('getProjectObjects', 'FuelReportController@getProjectObjects')->name('getProjectObjects');
     });
 
 });

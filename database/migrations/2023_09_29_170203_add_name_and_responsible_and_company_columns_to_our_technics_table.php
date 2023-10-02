@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNameAndResponsibleColumns extends Migration
+class AddNameAndResponsibleAndCompanyColumnsToOurTechnicsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -18,6 +18,9 @@ class AddNameAndResponsibleColumns extends Migration
 
             $table->unsignedInteger('responsible_id')->nullable()->after('name')->comment('ID автора');
             $table->foreign('responsible_id')->references('id')->on('users');
+
+            $table->unsignedInteger('company_id')->nullable()->after('responsible_id')->comment('ID организации-собственника');
+            $table->foreign('company_id')->references('id')->on('companies');
         });
     }
 
@@ -33,6 +36,8 @@ class AddNameAndResponsibleColumns extends Migration
             $table->dropColumn('name');
             $table->dropForeign(['responsible_id']);
             $table->dropColumn('responsible_id');
+            $table->dropForeign(['company_id']);
+            $table->dropColumn('company_id');
         });
     }
 }

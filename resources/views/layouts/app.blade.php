@@ -315,17 +315,36 @@
                         </div>
                     </li>
                 @endif
-                @canany(['tech_acc_our_technic_tickets_see', 'tech_acc_defects_see', 'tech_acc_see_technic_ticket_module'])
-                    <li class="nav-item @if((Request::is('building/tech_acc/*') || Request::is('building/tech_acc/') || Request::is('building/vehicles/') || Request::is('building/vehicles/*')) && !(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*'))) active @endif">
+                <li class="nav-item @if(Request::is('building/tech_acc/technic/*') ) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#technics">
                             <i class="pe-7s-note2"></i>
                             <p>Учёт техники
                                 <b class="caret"></b>
                             </p>
                         </a>
+                        <div class="collapse @if(Request::is('building/tech_acc/technic/*') ) show @endif"
+                            id="technics">
+                            <ul class="nav">
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/ourTechnicList*')) active @endif">
+                                    <a class="nav-link" href="{{ route('building::tech_acc::technic::ourTechnicList::getPageCore') }}">
+                                        <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
+                                        <span class="sidebar-normal">Список техники</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                </li>
+<!-- СТАРЫЙ РАЗДЕЛ ТЕХНИКИ -->
+                    <li  style="background: grey;" class="nav-item active">
+                        <a class="nav-link" data-toggle="collapse" href="#technics-old">
+                            <i class="pe-7s-note2"></i>
+                            <p>Учёт техники - OLD
+                                <b class="caret"></b>
+                            </p>
+                        </a>
                         <div
                             class="collapse @if((Request::is('building/tech_acc/*') || Request::is('building/tech_acc/') || Request::is('building/vehicles/') || Request::is('building/vehicles/*')) && !(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*'))) show @endif"
-                            id="technics">
+                            id="technics-old">
                             <ul class="nav">
                                 <li class="nav-item @if (Request::is('building/tech_acc/technic_category') || Request::is('building/tech_acc/technic_category/*')) active @endif">
                                     <a class="nav-link"
@@ -364,38 +383,53 @@
                                             <span class="sidebar-normal">Неисправности</span>
                                         </a>
                                     </li>
-                                    <hr>
+                                    
                             </ul>
                             @endcan
                         </div>
                     </li>
-                @endcanany
+
+<!-- СТРЫЙ РАЗДЕЛ ТЕХНИКИ КОНЕЦ -->
 <!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
-                <li style="background: #8d2323;" class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
+                <li class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#fuel">
                             <i class="pe-7s-note2"></i>
                             <p>Учёт топлива
                                 <b class="caret"></b>
                             </p>
                         </a>
-                        <div
-                            class="collapse @if(Request::is('building/tech_acc/fuel/t*')) show @endif"
+                        <div class="collapse @if(Request::is('building/tech_acc/fuel/*') ) show @endif"
                             id="fuel">
                             <ul class="nav">
-                                <li class="nav-item @if(Request::is('building/tech_acc/fuel/t*')) active @endif">
+                                <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
                                     <a class="nav-link" href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Топливные ёмкости</span>
                                     </a>
                                 </li>
-                                <li class="nav-item @if (Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
+                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/fuelFlow*') ) active @endif">
                                     <a class="nav-link"
                                        href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Топливный журнал</span>
                                     </a>
                                 </li>
+                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
+                                    <a class="nav-link"
+                                       href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
+                                        <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                        <span class="sidebar-normal">Оборотка<br>по ёмкостям</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
+                                    <a class="nav-link"
+                                       href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
+                                        <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                        <span class="sidebar-normal">Перемещение<br>ёмкостей</span>
+                                    </a>
+                                </li>
                                 <hr>
+                                
                             </ul>
                         </div>
                     </li>
