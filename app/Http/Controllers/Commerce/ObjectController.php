@@ -183,12 +183,10 @@ class ObjectController extends Controller
             $toUpdateArr['material_accounting_type'] = $data->material_accounting_type;
 
         if (isset($data->is_participates_in_material_accounting))
-            $toUpdateArr['is_participates_in_material_accounting'] =
-                $data->is_participates_in_material_accounting ? 1 : 0;
+            $toUpdateArr['is_participates_in_material_accounting'] = $data->is_participates_in_material_accounting;
 
         if (isset($data->is_participates_in_documents_flow))
-            $toUpdateArr['is_participates_in_documents_flow'] =
-                $data->is_participates_in_documents_flow ? 1 : 0;
+            $toUpdateArr['is_participates_in_documents_flow'] = $data->is_participates_in_documents_flow;
 
         if (isset($data->is_active))
             $toUpdateArr['is_active'] = $data->is_active;
@@ -198,9 +196,6 @@ class ObjectController extends Controller
 
     public function syncResponsibles($request, $id)
     {
-        // if(Auth::user()->isProjectManager() or Auth::user()->isInGroup(43)/*8*/)
-        // return;
-
         $rolesArray = [
             'responsibles_managers' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PROJECT_MANAGER'),
             'responsibles_pto' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'),
@@ -463,37 +458,28 @@ class ObjectController extends Controller
     public function update(Request $request, $id)
     {
         $data = json_decode($request->input('data'));
-//        $responsiblePTOUsers
-//        $responsibleProjectManagerUsers
-//        $responsibleForemanUsers
+
         $toUpdateArr = $this->getDataToUpdate($data);
 
         DB::beginTransaction();
 
         $object = ProjectObject::findOrFail($id);
-
-        $checkedParticipatesInDocumentsFlow = false;
-        $uncheckedParticipatesInDocumentsFlow = false;
+        $oldIsParticipatesInDocumentsFlow = $object->is_participates_in_documents_flow;
 
         $lastObjectResponsibleId = ObjectResponsibleUser::orderByDesc('id')->first()->id;
-
-        if (isset($data->is_participates_in_documents_flow) && !$object->is_participates_in_documents_flow)
-            $checkedParticipatesInDocumentsFlow = true;
-
-        if (!isset($data->is_participates_in_documents_flow) && $object->is_participates_in_documents_flow)
-            $uncheckedParticipatesInDocumentsFlow = true;
 
         $object->update($toUpdateArr);
 
         $this->syncResponsibles($data, $id);
 
-        if ($checkedParticipatesInDocumentsFlow) {
-            $this->handleCheckedParticipatesInDocumentsFlow($id);
-            $this->notifyResponsibleUsers($id);
+        if (isset($data->is_participates_in_documents_flow)) {
+            if ($data->is_participates_in_documents_flow > $oldIsParticipatesInDocumentsFlow) {
+                $this->handleCheckedParticipatesInDocumentsFlow($id);
+                $this->notifyResponsibleUsers($id);
+            }
+            else if ($data->is_participates_in_documents_flow < $oldIsParticipatesInDocumentsFlow)
+                $this->addDocumentsToArchive($id);
         }
-
-        if ($uncheckedParticipatesInDocumentsFlow)
-            $this->addDocumentsToArchive($id);
 
         $this->notifyNewResponsibleUser($id, $lastObjectResponsibleId);
 
