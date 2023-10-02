@@ -624,12 +624,14 @@ class ProjectObjectDocumentsController extends Controller
             : false;
     }
 
-    public function getProjectObjects()
+    public function getProjectObjects(Request $request)
     {
+        $isArchived = filter_var($request->query('is-archived', 'false'), FILTER_VALIDATE_BOOLEAN);
+        $archivedStatusTypeCondition = $isArchived ? 'project_object_document_statuses.status_type_id = 4' : 'project_object_document_statuses.status_type_id <> 4';
         $objects = ProjectObject::query()
             ->withResponsibleUserNames()
             ->whereNotNull('short_name')
-            ->where('is_participates_in_material_accounting', '>', 0)
+            ->whereRaw('exists(select * from `project_object_documents` where `project_object_documents`.`project_object_id` = `project_objects`.`id` and `project_object_documents`.`document_status_id` in (select `id` from `project_object_document_statuses` where '.$archivedStatusTypeCondition.'))')
             ->addSelect(['project_objects.id AS id',
                 'short_name', 'project_objects.name AS object_name'
                 ])
@@ -887,7 +889,7 @@ class ProjectObjectDocumentsController extends Controller
         $response =  [[
             'projecObjects' => ProjectObject::query()
                 ->whereNotNull('short_name')
-                ->where('is_participates_in_material_accounting', '>', 0)
+                ->where('is_participates_in_documents_flow', '=', 1)
                 ->orderBy('short_name')->get(),
             'projecObjectsTypes' => ProjectObjectDocumentType::all(),
             'projecObjectsStatuses' => ProjectObjectDocumentStatus::with('projectObjectDocumentsStatusType')->orderBy('sortOrder')->get(),

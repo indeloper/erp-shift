@@ -6,7 +6,7 @@
             load: function (loadOptions) {
                 // loadOptions = getFormatedLoadOptions(loadOptions)
                 filterOptions =  loadOptions;
-                
+
                 return $.getJSON("{{route('project-object-document.index')}}",
                     {
                         data: JSON.stringify(loadOptions),
@@ -49,7 +49,7 @@
                         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
                     },
                 })
-                
+
             },
 
             remove: function (key) {
@@ -84,11 +84,11 @@
         })
     })
 
-    
+
     let documentTypesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getTypes')}}");
         }
     })
@@ -98,25 +98,25 @@
     let documentStatusesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {        
+        load: function (loadOptions) {
             let url = "{{route('projectObjectDocument.getStatuses')}}" + '?customSearchParams=' + window.location.search.substring(1)
             return $.getJSON(url);
         }
     })
-    
+
     documentStatusesStore.load()
 
     let documentStatusesByTypeStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getStatuses')}}" + '?documentTypeId=' + editingRowTypeId);
         }
     })
 
     let optionsByTypeAndStatusStore = new DevExpress.data.CustomStore({
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getOptionsByTypeAndStatus')}}" + '?documentTypeId=' + editingRowTypeId + '&statusId=' + editingRowNewStatusId);
         }
     })
@@ -124,8 +124,10 @@
     let projectObjectsStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
-            return $.getJSON("{{route('projectObjectDocument.getProjectObjects')}}");
+        load: function (loadOptions) {
+            let isArchived = new URLSearchParams(window.location.search).get("showArchive");
+            let isArchivedParam = isArchived ? "?is-archived=true" : "";
+            return $.getJSON("{{route('projectObjectDocument.getProjectObjects')}}" + isArchivedParam);
         }
     })
 
@@ -134,51 +136,51 @@
     let responsibles_pto = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getResponsibles', ['type'=>'pto'])}}" + '&id=' + editingRowId);
         }
-    })    
+    })
 
     let responsibles_foreman = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getResponsibles', ['type'=>'foreman'])}}" + '&id=' + editingRowId);
         }
-    })    
+    })
 
     let responsibles_manager = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getResponsibles', ['type'=>'manager'])}}" + '&id=' + editingRowId);
         }
-    })    
+    })
 
     let responsible_managers_and_pto = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getResponsibles', ['type'=>'managers_and_pto'])}}" + '&id=' + editingRowId);
         }
-    })   
+    })
 
     let responsible_managers_and_foremen = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getResponsibles', ['type'=>'managers_and_foremen'])}}" + '&id=' + editingRowId);
         }
-    })  
+    })
 
     let responsibles_all = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function (loadOptions) {                        
+        load: function (loadOptions) {
             return $.getJSON("{{route('projectObjectDocument.getResponsibles', ['type'=>'all'])}}");
         }
-    })   
-    
+    })
+
     responsibles_all.load()
 
     // let projectObjectCommentsDataSource = new DevExpress.data.DataSource({
@@ -199,7 +201,7 @@
     //             return $.getJSON("{{route('projectObjectDocument.getProjectObjectDocumentAttachments')}}" + '?id=' + editingRowId);
     //         }
     //     })
-    // }) 
+    // })
 
     let projectObjectDocumentInfoByID = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
@@ -224,6 +226,6 @@
     let documentStatusesByTypeStoreDataSource = new DevExpress.data.DataSource({
         store: documentStatusesByTypeStore,
     })
-        
+
 </script>
 

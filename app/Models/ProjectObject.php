@@ -93,7 +93,7 @@ class ProjectObject extends Model
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_pto_engineer_full_names`"),
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_foreman_full_names`")
             ])
-            ->groupBy(['project_objects.id']);
+            ->groupBy(['project_objects.id', 'project_objects.short_name']);
     }
 
     public function getPermissionsAttribute()

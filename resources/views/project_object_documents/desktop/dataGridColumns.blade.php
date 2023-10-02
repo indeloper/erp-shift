@@ -1,27 +1,23 @@
 <script>
     const dataGridColumns = [
-
         {
             visible: false,
             caption: "фейковое поле для активации сабмита формы",
             allowFiltering: false,
             dataField: "fake_submit_dataField",
         },
-
         {
             visible: false,
             caption: "поле формы новый комментарий",
             allowFiltering: false,
             dataField: "new_comment",
         },
-
         {
             visible: false,
             caption: "options с начальными параметрами",
             allowFiltering: false,
             dataField: "options",
         },
-
         {
             caption: "Идентификатор",
             dataField: "id",
@@ -30,7 +26,7 @@
             cellTemplate: (container, options) => {
                 $(`
                     <div style="display:flex; align-items: center">
-                        <div class="round-color-marker" style=" 
+                        <div class="round-color-marker" style="
                             background-color: ${options.row.data.status.project_object_documents_status_type.style};
                         "></div>
                         <div>${options.value}</div>
@@ -48,14 +44,12 @@
                 return [fullDataFieldName, selectedFilterOperation, filterValue];
             }
         },
-
         {
             dataField: "project_object_id",
             caption: "Объект",
             lookup: {
                 dataSource: projectObjectsStore,
                 valueExpr: "id",
-                //displayExpr: "short_name"
                 displayExpr: (e) => {
                     return e.short_name ? e.short_name : e.object_name
                 }
@@ -81,7 +75,6 @@
                 }
             }
         },
-
         {
             visible: true,
             dataField: "document_type_id",
@@ -160,7 +153,7 @@
         //         $('<span>')
         //             .text(options.value)
         //             .css('color', options.row.data.status.style)
-        //             .appendTo(container)                
+        //             .appendTo(container)
         //     },
         //     validationRules: [{
         //         type: 'required',
@@ -183,7 +176,7 @@
         //             {text: 'Передан заказчику', value: 8},
         //             {text: 'Передан в офис', value: 9},
         //             {text: 'Получен офисом', value: 10},
-        //         ],              
+        //         ],
         //     },
         //     // filterValues: [1,2,3,4,5] ,
         //     width: '25%'
@@ -200,8 +193,8 @@
             // hidingPriority: 10,
             width: '15%',
             buttons: [
-                // 'edit', 
-                // 'delete', 
+                // 'edit',
+                // 'delete',
 
                 {
                     hint: 'Копировать',

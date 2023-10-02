@@ -1,36 +1,26 @@
 <script>
     const dataGridSettings = {
         height: getGridHeight(),
-
-
-        // remoteOperations
-        // изменяли настройки, были вопросы в связи с группировкой по объектам и кастомным rowFilter
         remoteOperations: {
             filtering: true,
             groupPaging: false
         },
-
         grouping: {
             autoExpandAll: false
         },
         groupPanel: {
             visible: false
         },
-
         focusedRowEnabled: false,
         hoverStateEnabled: true,
         columnAutoWidth: true,
         showBorders: true,
         showColumnLines: true,
-        // allowColumnResizing: true,
         columnMinWidth: 50,
         columnResizingMode: 'nextColumn',
         syncLookupFilterValues: false,
         columnHidingEnabled: true,
-        // wordWrapEnabled: true,
         showRowLines: true,
-
-
         filterRow: {
             visible: true,
             applyFilter: "auto"
@@ -38,15 +28,12 @@
         headerFilter: {
             visible: false,
         },
-
-
         filterPanel: {
             visible: true,
             customizeText: (e) => {
                 filterText = e.text;
             }
         },
-
         paging: {
             enabled: false
         },
@@ -62,7 +49,6 @@
             selectTextOnEditStart: false,
             form: dataGridEditForm
         },
-
         summary: {
             groupItems: [
                 {
@@ -99,38 +85,21 @@
                 }
             },
         },
-
         onContentReady(e) {
-            // downloadXlsButton (DropDownButton) бывают случаи, когда управление свойством disabled через option зависает
-            // сделал через перерисовку элемента при каждом обновлении данных
             $('#toolbarDropDownButton').dxDropDownButton('dispose')
-            if(e.component.getDataSource().items().length)
+            if (e.component.getDataSource().items().length)
                 addToolbarDropDownButton(isDownloadXlsDisabled = false)
             else
                 addToolbarDropDownButton(isDownloadXlsDisabled = true)
         },
-
-
-        onRowDblClick: function(e) {
+        onRowDblClick: function (e) {
             if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
                 e.component.editRow(e.rowIndex);
             }
         },
         onEditingStart(e) {
             editingRowId = e.key;
-            //getFormInstance()?.itemOption('document_type_id', 'disabled', true);
-
-            // getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', false);
-
-            // // Прогружаем за один запрос комментарии и файлы, и после этого перерисовываем форму (.repaint())
-            // // комментарии и файлы содержатся в projectObjectDocumentInfoByID
-            // projectObjectDocumentInfoByID.reload().done((data)=>{
-            //         getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', true);
-            //         getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
-            //         getFormInstance()?.repaint();
-            // });
         },
-
         onEditorPreparing: (e) => {
 
             if (e.dataField === `document_type_id` && e.parentType === `dataRow`)
@@ -139,7 +108,6 @@
             if (e.parentType === `filterRow` && e.lookup)
                 createFilterRowTagBoxFilterControlForLookupColumns(e)
         },
-
         onSaving(e) {
             if (e.changes.length === 0 && !newAttachments.length && !deletedAttachments.length && !editingRowTypeStatusOptions.length && !newCommentsArr.length)
                 return;
@@ -161,16 +129,12 @@
             if (editingRowNewStatusId)
                 e.changes[0].data.document_status_id = editingRowNewStatusId
         },
-
         onSaved() {
             resetVars();
             resetStores();
         },
-
         onEditCanceling(e) {
-
             if (!skipStoppingEditingRow && e.changes.length) {
-
                 e.cancel = true
                 skipStoppingEditingRow = 0
 
@@ -188,13 +152,11 @@
             }
 
         },
-
-        onCellPrepared: function(e) {
+        onCellPrepared: function (e) {
             // if (e.rowType === "data" && e.column.dataField === "status.name") {
             //     e.cellElement.css("color", e.data.status.style);
             // }
         },
-
         toolbar: {
             visible: false,
             items: [{
