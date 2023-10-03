@@ -244,8 +244,9 @@ class ObjectController extends Controller
             ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
         ])->pluck('id');
 
-        foreach ($archivedObjectDocumentsIds as $id)
+        foreach ($archivedObjectDocumentsIds as $id) {
             (new ProjectObjectDocumentsController)->restoreDocument($id);
+        }
     }
 
     public function createProjectObjectDocuments($objectId)
@@ -400,6 +401,8 @@ class ObjectController extends Controller
         foreach ($sortedNewDocuments as $newDocument) {
             $id = ProjectObjectDocument::insertGetId($newDocument);
 
+            (new ProjectObjectDocumentsController(['Документ создан']))->addComment($id);
+
             $actions = new stdClass;
             $actions->event = 'store';
             $actions->new_values = (object)$newDocument;
@@ -503,7 +506,8 @@ class ObjectController extends Controller
             ProjectObjectDocument::find($id)->update([
                 'document_status_id' => $archivedStatusId
             ]);
-
+        
+            (new ProjectObjectDocumentsController(['Документ перемещен в архив']))->addComment($id);
             (new ProjectObjectDocumentsController)->addDataToActionLog('archive', ['document_status_id' => $archivedStatusId], $id);
         }
     }
