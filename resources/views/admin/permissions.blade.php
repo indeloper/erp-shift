@@ -216,6 +216,9 @@
                             name: "permissionsGrid",
                             editorType: "dxDataGrid",
                             editorOptions: {
+                                elementAttr: {
+                                    id: "mainDataGrid"
+                                },
                                 dataSource: dataSourceList,
                                 remoteOperations: true,
                                 focusedRowEnabled: false,
@@ -333,8 +336,8 @@
                                                     icon: "fas fa-plus",
                                                     onClick: (e) => {
                                                         options.component.addRow();
-                                                        $('#dataGridContainer').dxDataGrid('instance').option("focusedRowKey", undefined);
-                                                        $('#dataGridContainer').dxDataGrid('instance').option("focusedRowIndex", undefined);
+                                                        $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
+                                                        $('#mainDataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
                                                     }
                                                 })
                                         }
