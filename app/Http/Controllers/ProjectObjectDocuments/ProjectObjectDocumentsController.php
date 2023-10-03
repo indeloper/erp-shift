@@ -301,6 +301,7 @@ class ProjectObjectDocumentsController extends Controller
         $document->delete();
 
         $this->addDataToActionLog('delete', ['document_status_id'=>$deletedDocumentStatusId], $id);
+        (new ProjectObjectDocumentsController(['Документ удален']))->addComment($id);
 
         return response()->json([
             'result' => 'ok',
@@ -318,6 +319,7 @@ class ProjectObjectDocumentsController extends Controller
         ]);
 
         $this->addDataToActionLog('restore', ['document_status_id'=>$lastDocumentActiveStatusId], $id);
+        (new ProjectObjectDocumentsController(['Документ восстановлен']))->addComment($id);
 
         return response()->json([
             'result' => 'ok',
