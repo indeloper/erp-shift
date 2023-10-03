@@ -16,21 +16,14 @@ use Illuminate\Support\Facades\Auth;
 
 class FuelTankFlowController extends StandardEntityResourceController
 {
-    protected $baseModel;
-    protected $routeNameFixedPart;
-    protected $sectionTitle;
-    protected $basePath;
-    protected $componentsPath;
-    protected $components;
-
     public function __construct()
     {
         $this->baseModel = new FuelTankFlow();
         $this->routeNameFixedPart = 'building::tech_acc::fuel::fuelFlow::';
         $this->sectionTitle = 'Топливный журнал';
-        $this->basePath = resource_path().'/views/tech_accounting/fuel/flow';
-        $this->componentsPath = $this->basePath.'/desktop/components';
-        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->basePath);
+        $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/flow';
+        $this->componentsPath = $this->baseBladePath.'/desktop/components';
+        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
 
     public function beforeStore($data)

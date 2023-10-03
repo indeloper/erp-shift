@@ -5,7 +5,7 @@
 @section('url', route($routeNameFixedPart.'getPageCore'))
 
 @section('css_top')
-    @include(explode('/views/', $basePath)[1].'/desktop/css')
+    @include(explode('/views/', $baseBladePath)[1].'/desktop/css')
 @endsection
 
 @section('content')
@@ -16,5 +16,5 @@
 @endsection
 
 @section('js_footer')
-    @include(explode('/views/', $basePath)[1].'/desktop/components')
+    @include(explode('/views/', $baseBladePath)[1].'/desktop/components')
 @endsection

@@ -66,7 +66,7 @@
         },
 
         {
-            caption: "Объем",
+            caption: "Объем (л)",
             dataField: "volume",
             dataType: "number",
         },

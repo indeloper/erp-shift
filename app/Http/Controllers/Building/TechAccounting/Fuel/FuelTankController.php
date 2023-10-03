@@ -13,21 +13,14 @@ use Illuminate\Support\Facades\Auth;
 
 class FuelTankController extends StandardEntityResourceController
 {
-    protected $baseModel;
-    protected $routeNameFixedPart;
-    protected $sectionTitle;
-    protected $basePath;
-    protected $componentsPath;
-    protected $components;
-
     public function __construct()
     {
         $this->baseModel = new FuelTank;
         $this->routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
         $this->sectionTitle = 'Топливные ёмкости';
-        $this->basePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
-        $this->componentsPath = $this->basePath.'/desktop/components';
-        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->basePath);
+        $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
+        $this->componentsPath = $this->baseBladePath.'/desktop/components';
+        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
 
     public function getProjectObjects(Request $request)
@@ -56,9 +49,8 @@ class FuelTankController extends StandardEntityResourceController
         ]);
     }
 
-    public function afterUpdate($tankId, $data)
+    public function afterUpdate($tank, $data)
     {
-        $tank = FuelTank::findOrFail($tankId);
         FuelTankMovement::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $tank->id,

@@ -14,11 +14,11 @@ class FuelReportController extends Controller
 {
     public function fuelFlowMacroReportPageCore() {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::fuelFlowMacroReport::';
-        $sectionTitle = 'Отчёт: оборотная ведомость по всем топливным ёмкостям';
-        $basePath = resource_path().'/views/tech_accounting/fuel/reports/fuelFlowMacroReport';
+        $sectionTitle = 'Отчёт: оборотная ведомость по топливным ёмкостям';
+        $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/fuelFlowMacroReport';
  
         return view('tech_accounting.fuel.reports.fuelFlowMacroReport.desktop.index',
-            $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $basePath)
+            $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );
     }
 
@@ -38,10 +38,10 @@ class FuelReportController extends Controller
     public function tanksMovementReportPageCore(Request $request) {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::tanksMovementReport::';
         $sectionTitle = 'Отчёт: перемещения топливных ёмкостей';
-        $basePath = resource_path().'/views/tech_accounting/fuel/reports/tanksMovementReport';
+        $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/tanksMovementReport';
  
         return view('tech_accounting.fuel.reports.tanksMovementReport.desktop.index',
-            $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $basePath)
+            $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );        
     }
 
@@ -67,15 +67,15 @@ class FuelReportController extends Controller
         
     // }
 
-    public function getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $basePath) {
+    public function getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath) {
         
-        $componentsPath = $basePath.'/desktop/components';
-        $components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($componentsPath, $basePath);
+        $componentsPath = $baseBladePath.'/desktop/components';
+        $components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($componentsPath, $baseBladePath);
 
         return [
             'routeNameFixedPart' => $routeNameFixedPart,
             'sectionTitle' => $sectionTitle, 
-            'basePath' => $basePath, 
+            'baseBladePath' => $baseBladePath, 
             'components' => $components
         ];
     }

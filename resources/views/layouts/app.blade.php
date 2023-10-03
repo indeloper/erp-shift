@@ -327,7 +327,11 @@
                             <ul class="nav">
                                 <li class="nav-item @if(Request::is('building/tech_acc/technic/ourTechnicList*')) active @endif">
                                     <a class="nav-link" href="{{ route('building::tech_acc::technic::ourTechnicList::getPageCore') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
                                         <span class="sidebar-normal">Список техники</span>
                                     </a>
                                 </li>

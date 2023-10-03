@@ -37,6 +37,10 @@
         {
             dataField: "volume",
             colSpan: 1,
+            editorType: 'dxNumberBox',
+            editorOptions: {
+                min: 0.001
+            },
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',

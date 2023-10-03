@@ -2,7 +2,7 @@
     const dataGridPopup =
         {
             showTitle: true,
-            title: "Информация об объекте",
+            title: "Карточка единицы техники",
             hideOnOutsideClick: true,
             showCloseButton: true,
             maxWidth: '60vw',

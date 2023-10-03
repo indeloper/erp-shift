@@ -5,26 +5,33 @@ namespace App\Http\Controllers\Building\TechAccounting\Technic;
 use Illuminate\Http\Request;
 use App\Models\TechAcc\OurTechnic;
 use App\Http\Controllers\StandardEntityResourceController;
+use App\Models\TechAcc\TechnicCategory;
+use App\Models\User;
 use App\Services\Common\FileSystemService;
 
 class OurTechnicController extends StandardEntityResourceController
 {
-
-    protected $baseModel;
-    protected $routeNameFixedPart;
-    protected $sectionTitle;
-    protected $basePath;
-    protected $componentsPath;
-    protected $components;
-
     public function __construct()
     {
         $this->baseModel = new OurTechnic;
         $this->routeNameFixedPart = 'building::tech_acc::technic::ourTechnicList::';
-        $this->sectionTitle = 'Наша техника';
-        $this->basePath = resource_path().'/views/tech_accounting/technic/ourTechnicList';
-        $this->componentsPath = $this->basePath.'/desktop/components';
-        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->basePath);
+        $this->sectionTitle = 'Учёт техники';
+        $this->baseBladePath = resource_path().'/views/tech_accounting/technic/ourTechnicList';
+        $this->componentsPath = $this->baseBladePath.'/desktop/components';
+        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
+    }
+
+    public function getTechnicCategories()
+    {
+        return TechnicCategory::all();
+    }
+
+    public function getTechnicResponsibles()
+    {
+        return User::query()->active()
+                ->select(['id', 'user_full_name'])
+                ->orderBy('last_name')
+                ->get();
     }
     
 }

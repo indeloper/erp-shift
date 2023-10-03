@@ -86,6 +86,8 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
         Route::get('/', 'OurTechnicController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'OurTechnicController');
     });
+    Route::get('getTechnicCategories', 'OurTechnicController@getTechnicCategories')->name('getTechnicCategories');
+    Route::get('getTechnicResponsibles', 'OurTechnicController@getTechnicResponsibles')->name('getTechnicResponsibles');
 });
 
 // КОНЕЦ Новый раздел учета техники

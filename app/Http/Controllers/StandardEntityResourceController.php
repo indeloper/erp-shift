@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Common\FileSystemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -11,17 +12,18 @@ class StandardEntityResourceController extends Controller
     protected $baseModel;
     protected $routeNameFixedPart;
     protected $sectionTitle;
-    protected $basePath;
+    protected $baseBladePath;
     protected $componentsPath;
     protected $components;
 
+    
     public function getPageCore() 
     {
         return view('tech_accounting.fuel.tanks.objects.desktop.index',
         [
             'routeNameFixedPart' => $this->routeNameFixedPart,
             'sectionTitle' => $this->sectionTitle, 
-            'basePath' => $this->basePath, 
+            'baseBladePath' => $this->baseBladePath, 
             'components' => $this->components
         ]);
     }
@@ -61,6 +63,11 @@ class StandardEntityResourceController extends Controller
             $entity = $this->baseModel->create($data);
             $this->afterStore($entity, $data);
         DB::commit();
+
+        return json_encode(array(
+            "stored" => $entity
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -84,12 +91,17 @@ class StandardEntityResourceController extends Controller
     public function update(Request $request, $id)
     {
         $data = (array)json_decode($request->input('data'));
-        
+        $entity = $this->baseModel::findOrFail($id);
         DB::beginTransaction();
-            $data = $this->beforeUpdate($id, $data);
-            $this->baseModel::findOrFail($id)->update($data);
-            $this->afterUpdate($id, $data);
+            $data = $this->beforeUpdate($entity, $data);
+            $entity->update($data);
+            $this->afterUpdate($entity, $data);
         DB::commit();
+
+        return json_encode(array(
+            "updated" => $entity
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -106,6 +118,11 @@ class StandardEntityResourceController extends Controller
             $entity->delete();
             $this->afterDelete($entity);
         DB::commit();
+
+        return json_encode(array(
+            "deleted" => 'ok'
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function beforeStore($data)
@@ -118,12 +135,12 @@ class StandardEntityResourceController extends Controller
         return $data;
     }
 
-    public function beforeUpdate($id, $data)
+    public function beforeUpdate($entity, $data)
     {
         return $data;
     }
 
-    public function afterUpdate($id, $data)
+    public function afterUpdate($entity, $data)
     {
         return $data;
     }

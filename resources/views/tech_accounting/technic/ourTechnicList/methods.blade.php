@@ -15,7 +15,7 @@
     }
 
     function resetStores() {
-        entityInfoByID.store().clearRawDataCache()
+        // entityInfoByID.store().clearRawDataCache()
     }
 
     function customConfirmDialog(message) {

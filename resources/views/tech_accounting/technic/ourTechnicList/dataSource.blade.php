@@ -65,13 +65,22 @@
         })
     });
 
-    const entityInfoByID = new DevExpress.data.DataSource({
-        store: new DevExpress.data.CustomStore({
-            loadMode: "raw",
-            load: function (loadOptions) {
-                return $.getJSON(getUrlWithId("{{route($routeNameFixedPart.'resource.show', ['id'=>'setId'])}}", editingRowId));
-            }
-        })
+    const technicCategoriesStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route('building::tech_acc::technic::'.'getTechnicCategories')}}" 
+            return $.getJSON(url);
+        }
+    })
+
+    const technicResponsiblesStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route('building::tech_acc::technic::'.'getTechnicResponsibles')}}" 
+            return $.getJSON(url);
+        }
     })
 
 </script>
