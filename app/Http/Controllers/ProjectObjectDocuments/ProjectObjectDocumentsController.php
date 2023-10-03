@@ -335,9 +335,19 @@ class ProjectObjectDocumentsController extends Controller
                 ['actions', 'NOT LIKE', '%"event":"archive"%'],
             ])->orderBy('id', 'desc')->first();
 
-        $lastDocumentActiveStatusId = $actionLog->actions['new_values']['document_status_id'];
+        if($actionLog )
+            $statusId = $actionLog->actions['new_values']['document_status_id'];
+        else {
+            // Если записей в action_logs не найдено восстанавливаем со статусом по умолчанию
+            $document_type_id = ProjectObjectDocument::find($id)->document_type_id;
+            $statusId = ProjectObjectDocumentStatusTypeRelation::query()
+                ->where([
+                    ['document_type_id', $document_type_id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id;
+        }
 
-        return $lastDocumentActiveStatusId;
+        return $statusId;
     }
 
     public function addCustomFilters($keysArr, $filterArr, $options)

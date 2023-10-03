@@ -147,7 +147,7 @@ class ObjectController extends Controller
 
         $this->syncResponsibles($data, $object->id);
 
-        if (!isset($data->is_participates_in_documents_flow)) {
+        if (!isset($data->is_participates_in_documents_flow) and $data->is_participates_in_documents_flow) {
             $this->handleCheckedParticipatesInDocumentsFlow($object->id);
             $this->notifyResponsibleUsers($object->id);
         }
