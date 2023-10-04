@@ -13,7 +13,7 @@
                                     template: (data, itemElement) => {
                                         itemElement.attr('id', 'commentsWrapperHistoryTab').css('height', '45vh')
                                         itemElement.append('<div class="form-group-list-header">Комментарии:</div>')
-                                        itemElement.append('<div id="newAddedComments" style="color:#829be3"></div>')
+                                        itemElement.append('<div id="newAddedComments" style="color:#829be3; background: #fbfbfb"></div>')
                                         if(projectObjectDocumentInfoByID.items()[0])
                                         handleCommentsDataArr(projectObjectDocumentInfoByID.items()[0]?.comments.original, itemElement) 
                                         else 

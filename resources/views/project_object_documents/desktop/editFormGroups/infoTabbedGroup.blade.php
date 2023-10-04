@@ -229,7 +229,7 @@
                                 itemType: 'simple',
                                 template: (data, itemElement) => {
                                     itemElement.attr('id', 'commentsWrapperInfoTab').css('height', '20vh')
-                                    itemElement.append('<div id="newAddedCommentsInfoTab" style="color:#829be3"></div>')
+                                    itemElement.append('<div id="newAddedCommentsInfoTab" style="color:#829be3;  background: #fbfbfb"></div>')
                                     const commentsInfoTab = $('<div id="commentsInfoTab">').appendTo(itemElement)
                                     if(projectObjectDocumentInfoByID.items()[0])
                                     handleCommentsDataArr(projectObjectDocumentInfoByID.items()[0]?.comments.original.slice(0,3), commentsInfoTab) 

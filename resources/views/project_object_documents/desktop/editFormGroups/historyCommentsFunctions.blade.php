@@ -10,7 +10,7 @@
         let itemElementContent = 
             '<div class="form-group-list-wrapper">'
                 + '<div class="form-group-comments-list">'
-                + '<table>'
+                + '<table style="width:100%">'
 
         itemElementContent += getCommentsListHTML(commentsArr)
         itemElementContent += '</table></div></div>'
@@ -32,10 +32,10 @@
             }
             itemElementContent += 
                 '<tr class="form-comments-list-elem" style="">'
-                    +'<td style="padding-bottom:10px; padding-top: 10px"><div class="comments-list-user-photo">'
+                    +'<td style="width:50px; padding-bottom:10px; padding-left:10px; padding-top: 10px"><div class="comments-list-user-photo">'
                         + '<img src="' + photoUrl + '" class="photo">'
                     +'</div></td>'
-                    +'<td style="padding-left:20px;   padding-bottom:10px; padding-top: 10px; ">'
+                    +'<td style="width: 180px; padding-left:20px; padding-bottom:10px; padding-top: 10px; ">'
                         + '<div style="border-right: 1px dashed #dddddd; padding-right: 20px;">'
                             + '<div>' + comment.author.full_name + '</div>'
                             + '<div>' + new Date(comment.created_at).toLocaleString() + '</div>'
