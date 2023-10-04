@@ -12,6 +12,7 @@
                 // $('#dataGridContainer').dxDataGrid('instance').option("focusedRowIndex", undefined);
                 resetVars();
                 resetStores();
+                setReadonlyFormElemsProperties(false)
             },
             onShowing() {
                 checkSaveButtonAvailable()

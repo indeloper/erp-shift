@@ -91,6 +91,24 @@
         }
     }
 
+    function setReadonlyFormElemsProperties(isReadonly) {
+        $('#clearBitrixProjectsOpenPopupButton').dxButton('instance').option('disabled', isReadonly)
+        $('#bitrixProjectsOpenPopupButton').dxButton('instance').option('disabled', isReadonly)
+
+        let dataGrid = $("#dataGridContainer").dxDataGrid("instance")
+        dataGrid.option("columns").forEach((columnItem) => {
+            if(![
+                    'responsibles_pto',
+                    'responsibles_managers',
+                    'responsibles_foremen'
+                ]
+                .includes(columnItem.dataField)
+            ) {
+                dataGrid.columnOption(columnItem.dataField, "allowEditing", !isReadonly)
+            }
+        });
+    }
+   
 // Конец Общие
 
     function setLoadedObjectInfo() {
@@ -102,7 +120,6 @@
     }
 
     function setResponsiblesObjectInfo(allAvailableResponsibles, objectResponsibles) {
-
 
         $('#responsiblesPTOfield')
             .dxTagBox('instance')
