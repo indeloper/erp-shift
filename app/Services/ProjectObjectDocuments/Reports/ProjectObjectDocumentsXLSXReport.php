@@ -56,6 +56,9 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
             'Тип',
             'Статус',
             'Дата изменения статуса',
+            'Ответственные РП',
+            'Ответственные ПТО',
+            'Ответственные прорабы'
         ];
 
         return [
@@ -89,7 +92,10 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
                 $projectObjectDocument['created_at'] ?? null,
                 $projectObjectDocument['type']['name'] ?? null,
                 $projectObjectDocument['status']['name'] ?? null, 
-                $projectObjectDocument['status_updated_at'] ?? null
+                $projectObjectDocument['status_updated_at'] ?? null,
+                $projectObjectDocument['tongue_project_manager_full_names'] ?? null,
+                $projectObjectDocument['tongue_pto_engineer_full_names'] ?? null,
+                $projectObjectDocument['tongue_foreman_full_names'] ?? null
             ]);
 
             $this->statusStyles[$lineNumber] = str_replace('#', '', $projectObjectDocument['status']['project_object_documents_status_type']['style']);
