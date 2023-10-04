@@ -237,3 +237,17 @@ i.fas.fa-random.minus, i.fas.fa-minus {
 }
 
 /* END lightgallery */
+
+/*dx DataGrid Form Group Container*/
+.datagrid-container .dx-form-group-with-caption {
+    background: white;
+    padding: 10px;
+    border: #dddddd solid 1px;
+    border-radius: 5px;
+
+}
+
+.datagrid-container .dx-form-group-content {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
