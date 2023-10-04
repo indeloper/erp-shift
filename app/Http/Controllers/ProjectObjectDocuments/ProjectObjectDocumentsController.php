@@ -867,12 +867,21 @@ class ProjectObjectDocumentsController extends Controller
             ->leftJoin('project_object_document_types', 'project_object_document_types.id', '=', 'project_object_documents.document_type_id')
             ->leftJoin('action_logs', 'action_logs.logable_id', '=', 'project_object_documents.id')
             ->leftJoin('project_objects', 'project_objects.id', '=', 'project_object_documents.project_object_id')
+            ->leftJoin('object_responsible_users', 'project_objects.id', '=', 'object_responsible_users.object_id')
+            ->leftJoin('users', 'users.id', '=', 'object_responsible_users.user_id')
+            ->leftJoin('object_responsible_user_roles', 'object_responsible_user_roles.id', '=', 'object_responsible_users.object_responsible_user_role_id')
             ->where('logable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument')
             ->where('actions', 'LIKE' , '%document_status_id%')
             ->addSelect(DB::raw('DISTINCT project_object_documents.*'))
             ->addSelect('project_object_document_types.sortOrder AS sortOrder')
             ->addSelect(DB::raw('MAX(action_logs.created_at) over (PARTITION BY project_object_documents.id) as status_updated_at'))
             ->addSelect('project_object_documents.id as project_object_documents_id')
+            ->addSelect([
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PROJECT_MANAGER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_project_manager_full_names`"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_pto_engineer_full_names`"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_foreman_full_names`")
+            ])
+            ->groupBy(['project_object_documents.id'])
             ->orderBy('project_objects.short_name')
             ->orderBy('sortOrder')
             ->with([
