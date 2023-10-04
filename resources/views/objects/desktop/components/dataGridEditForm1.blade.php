@@ -1,9 +1,15 @@
 <script>
     const dataGridEditForm = {
-        onInitialized() {
+        onInitialized(e) {
             setLoadedObjectInfo();
         },
 
+        onContentReady() {
+            if(!permissions.objects_edit && editingRowId) {
+                setReadonlyFormElemsProperties(true)
+            }
+        },
+        
         colCount: 1,
         items: [
             {
