@@ -5,7 +5,7 @@
                 {
                     itemType: "group",
                     caption: "Топливные ёмкости",
-                    cssClass: "material-snapshot-grid",
+                    cssClass: "datagrid-container",
                     items: [{
                         name: "mainDataGrid",
                         editorType: "dxDataGrid",

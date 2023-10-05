@@ -5,7 +5,7 @@
                 {
                     itemType: "group",
                     caption: "Движение топлива по ёмкостям",
-                    cssClass: "material-snapshot-grid",
+                    cssClass: "datagrid-container",
                     items: [{
                         name: "mainDataGrid",
                         editorType: "dxDataGrid",
