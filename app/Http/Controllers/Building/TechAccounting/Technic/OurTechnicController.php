@@ -21,11 +21,6 @@ class OurTechnicController extends StandardEntityResourceController
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
 
-    public function getTechnicCategories()
-    {
-        return TechnicCategory::all();
-    }
-
     public function getTechnicResponsibles()
     {
         return User::query()->active()

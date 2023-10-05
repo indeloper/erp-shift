@@ -86,7 +86,12 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
         Route::get('/', 'OurTechnicController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'OurTechnicController');
     });
-    Route::get('getTechnicCategories', 'OurTechnicController@getTechnicCategories')->name('getTechnicCategories');
+    Route::group(['prefix' => 'technicCategory', 'as' => 'technicCategory::'], function () {
+        Route::get('getPermissions', 'TechnicCategoryController@getPermissions')->name('getPermissions');
+        Route::get('/', 'TechnicCategoryController@getPageCore')->name('getPageCore');
+        Route::apiResource('resource', 'TechnicCategoryController');
+    });
+    Route::get('getTechnicCategories', 'TechnicCategoryController@getTechnicCategories')->name('getTechnicCategories');
     Route::get('getTechnicResponsibles', 'OurTechnicController@getTechnicResponsibles')->name('getTechnicResponsibles');
 });
 

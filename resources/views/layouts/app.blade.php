@@ -326,7 +326,8 @@
                             id="technics">
                             <ul class="nav">
                                 <li class="nav-item @if(Request::is('building/tech_acc/technic/ourTechnicList*')) active @endif">
-                                    <a class="nav-link" href="{{ route('building::tech_acc::technic::ourTechnicList::getPageCore') }}">
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);"
+                                         href="{{ route('building::tech_acc::technic::ourTechnicList::getPageCore') }}">
                                         <span class="sidebar-mini">
                                             <i class="pe-7s-mini">
                                                 <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
@@ -335,6 +336,19 @@
                                         <span class="sidebar-normal">Список техники</span>
                                     </a>
                                 </li>
+
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicCategory*')) active @endif">
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);"
+                                         href="{{ route('building::tech_acc::technic::technicCategory::getPageCore') }}">
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
+                                        <span class="sidebar-normal">Категории техники</span>
+                                    </a>
+                                </li>
+
                             </ul>
                         </div>
                 </li>
@@ -406,27 +420,28 @@
                             id="fuel">
                             <ul class="nav">
                                 <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
-                                    <a class="nav-link" href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);""
+                                         href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Топливные ёмкости</span>
                                     </a>
                                 </li>
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel/fuelFlow*') ) active @endif">
-                                    <a class="nav-link"
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);"
                                        href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Топливный журнал</span>
                                     </a>
                                 </li>
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
-                                    <a class="nav-link"
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);"
                                        href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Оборотка<br>по ёмкостям</span>
                                     </a>
                                 </li>
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
-                                    <a class="nav-link"
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);"
                                        href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Перемещение<br>ёмкостей</span>
