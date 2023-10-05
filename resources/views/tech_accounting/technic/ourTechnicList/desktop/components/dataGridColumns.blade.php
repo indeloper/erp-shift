@@ -42,7 +42,7 @@
             },
         },
         {
-            caption: "Бренд",
+            caption: "Марка",
             dataField: "brand",
         },
         
