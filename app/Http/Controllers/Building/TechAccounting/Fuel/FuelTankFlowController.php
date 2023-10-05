@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Services\Common\FileSystemService;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Contractors\Contractor;
+use App\Models\Contractors\ContractorAdditionalTypes;
+use App\Models\Contractors\ContractorType;
 use App\Models\Group;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
@@ -67,7 +69,10 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function getFuelContractors()
     {
-        return Contractor::all();
+        return Contractor::query()
+            ->whereIn('main_type', ContractorType::where('name', 'Поставщик топлива')->pluck('id')->toArray())
+            ->orWhereIn('id', ContractorAdditionalTypes::where('additional_type', ContractorType::where('name', 'Поставщик топлива')->first()->id)->pluck('contractor_id')->toArray() )
+            ->get();
     }
 
     public function getFuelConsumers()

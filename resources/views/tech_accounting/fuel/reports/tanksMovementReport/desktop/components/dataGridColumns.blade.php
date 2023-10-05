@@ -28,6 +28,10 @@
         {
             caption: "Остаток (л)",
             dataField: "fuel_level",
+            editorType: 'dxNumberBox',
+            editorOptions: {
+                min: 0.001
+            },
             customizeText: (data) => {
                 return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
             }

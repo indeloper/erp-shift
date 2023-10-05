@@ -68,6 +68,10 @@
         {
             caption: "Объем (л)",
             dataField: "volume",
+            editorType: 'dxNumberBox',
+            editorOptions: {
+                min: 0.001
+            },
             dataType: "number",
             customizeText: (data) => {
                 return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
