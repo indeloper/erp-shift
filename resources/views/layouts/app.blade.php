@@ -349,6 +349,30 @@
                                     </a>
                                 </li>
 
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrand*')) active @endif">
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);"
+                                         href="{{ route('building::tech_acc::technic::technicBrand::getPageCore') }}">
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
+                                        <span class="sidebar-normal">Марки техники</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrandModel*')) active @endif">
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent);"
+                                         href="{{ route('building::tech_acc::technic::technicBrandModel::getPageCore') }}">
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
+                                        <span class="sidebar-normal">Модели техники</span>
+                                    </a>
+                                </li>
+
                             </ul>
                         </div>
                 </li>

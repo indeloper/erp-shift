@@ -91,6 +91,18 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
         Route::get('/', 'TechnicCategoryController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'TechnicCategoryController');
     });
+    Route::group(['prefix' => 'technicBrand', 'as' => 'technicBrand::'], function () {
+        Route::get('getPermissions', 'TechnicBrandController@getPermissions')->name('getPermissions');
+        Route::get('/', 'TechnicBrandController@getPageCore')->name('getPageCore');
+        Route::apiResource('resource', 'TechnicBrandController');
+    });
+    Route::group(['prefix' => 'technicBrandModel', 'as' => 'technicBrandModel::'], function () {
+        Route::get('getPermissions', 'TechnicBrandModelController@getPermissions')->name('getPermissions');
+        Route::get('/', 'TechnicBrandModelController@getPageCore')->name('getPageCore');
+        Route::apiResource('resource', 'TechnicBrandModelController');
+    });
+
+    Route::get('getTechnicBrands', 'TechnicBrandController@getTechnicBrands')->name('getTechnicBrands');
     Route::get('getTechnicCategories', 'TechnicCategoryController@getTechnicCategories')->name('getTechnicCategories');
     Route::get('getTechnicResponsibles', 'OurTechnicController@getTechnicResponsibles')->name('getTechnicResponsibles');
 });

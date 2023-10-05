@@ -10,7 +10,8 @@ class TechnicCategory extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable;
 
-    protected $fillable = ['name', 'description', 'characteristic_id'];
+    protected $guarded = ['id'];
+    // protected $fillable = ['name', 'description', 'characteristic_id'];
 
     // public function __construct($attributes = [])
     // {
