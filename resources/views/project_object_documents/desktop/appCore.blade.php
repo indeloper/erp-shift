@@ -1,11 +1,44 @@
 <script>
     $(()=>{
-        const dataGridInstance = $('#dataGridContainer').dxDataGrid({
-            dataSource: dataSourceList,
-            ...dataGridSettings,
-            columns: dataGridColumns,
-        }).dxDataGrid('instance')
+        // const dataGridInstance = $('#dataGridContainer').dxDataGrid({
+        //     dataSource: dataSourceList,
+        //     ...dataGridSettings,
+        //     columns: dataGridColumns,
+        // }).dxDataGrid('instance')
 
+        $("#dataGridAncor").dxForm({
+            items: [
+                {
+                    itemType: "group",
+                    caption: "Документооборот: Площадка ⇆ Офис",
+                    cssClass: "datagrid-container",
+                    items: [{
+                        name: "dataGridContainer",
+                        editorType: "dxDataGrid",
+                        editorOptions: {
+                            dataSource: dataSourceList,
+                            ...dataGridSettings,
+                            columns: dataGridColumns,
+                            elementAttr: {
+                                id: "dataGridContainer"
+                            }
+                        }
+                    }]
+                }
+            ]
+        })
+
+        const groupCaption = $('.datagrid-container').find('.dx-form-group-with-caption');
+            $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
+            groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
+        const groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
+        groupCaptionButtonsDiv.css('display', 'flex')
+        groupCaptionButtonsDiv
+            .append('<div id="responsiblesFilterSelect" class="headerToolbarItem dxTagBoxItem">')
+            .append('<div id="objectsFilterSelect" class="headerToolbarItem dxTagBoxItem">')
+            .append('<div id="groupingAutoExpandAllTrue" class="headerToolbarItem">')
+            .append('<div id="groupingAutoExpandAllFalse" class="headerToolbarItem">')
+            .append('<div id="toolbarDropDownButton" class="headerToolbarItem">')
 
         $('#responsiblesFilterSelect').dxTagBox({
             dataSource: responsibles_all,
@@ -31,7 +64,7 @@
                 }
 
                 dataSourceList.reload();
-                // window.history.pushState("", "", window.location.origin + window.location.pathname + "?projectResponsiblesFilter=" + JSON.stringify(customFilter['projectResponsiblesFilter']));
+
             },
             placeholder: 'Выбрать...',
         })
@@ -54,7 +87,6 @@
                 }
 
                 dataSourceList.reload();
-                // window.history.pushState("", "", window.location.origin + window.location.pathname + "?projectObjectsFilter=" + JSON.stringify(customFilter['projectObjectsFilter']));
             },
             placeholder: 'Выбрать...',
         })
@@ -63,7 +95,7 @@
             icon: 'expand',
             dropDownOptions: {width: 120},
             onClick() {
-                dataGridInstance.option('grouping.autoExpandAll', true)
+                $('#dataGridContainer').dxDataGrid('instance').option('grouping.autoExpandAll', true)
             }
         })
 
@@ -71,7 +103,7 @@
             icon: 'collapse',
             dropDownOptions: {width: 120},
             onClick() {
-                dataGridInstance.option('grouping.autoExpandAll', false)
+                $('#dataGridContainer').dxDataGrid('instance').option('grouping.autoExpandAll', false)
             }
         })
 

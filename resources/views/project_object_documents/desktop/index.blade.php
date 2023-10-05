@@ -10,7 +10,7 @@
 
 @section('content')
 
-    <div id="container">
+    <!-- <div id="container">
         <div id="headerRow">
             <div id="gridHeader">
                 Документы
@@ -33,16 +33,12 @@
                 <div class="headerToolbarItem-wrapper">
                     <div id="toolbarDropDownButton" class="headerToolbarItem"></div>
                 </div>
-                <!-- <div class="headerToolbarItem-wrapper">
-                    <div id="downloadButton" class="headerToolbarItem"></div>
-                </div>
-                <div class="headerToolbarItem-wrapper">
-                    <div id="addRowButton" class="headerToolbarItem"></div>
-                </div> -->
             </div>
         </div>
         <div id="dataGridContainer"></div>
-    </div>
+    </div> -->
+
+
 
     @php
         $actionUrl = route('projectObjectDocument.downloadXls');
@@ -57,6 +53,8 @@
         <input id="projectResponsiblesFilter" name="projectResponsiblesFilter">
     </form>
 
+
+    <div id="dataGridAncor"></div>
     <div id="statusOptionsForm"></div>
 
 @endsection
