@@ -896,7 +896,12 @@
 
 <!-- DevExtreme themes -->
 <link rel="stylesheet" href="{{ asset('css/devextreme/dx.common.css')}}">
-@if (Request::is('project-object-documents') || Request::is('objects'))
+@if (
+        Request::is('project-object-documents') 
+        || Request::is('objects') 
+        || Request::is('building/tech_acc/technic*')
+        || Request::is('building/tech_acc/fuel*')
+    )
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.generic.light.css')}}">
 @else
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.material.blue.light.compact.css')}}">
