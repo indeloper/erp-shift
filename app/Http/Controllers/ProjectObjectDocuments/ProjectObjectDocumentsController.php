@@ -857,7 +857,7 @@ class ProjectObjectDocumentsController extends Controller
         $documentArchivedOrDeletedStatusesIds = $this->getDocumentArchivedOrDeletedStatusesIds();
 
         $projectObjectDocuments = (new ProjectObjectDocument)
-            ->dxLoadOptions($filterOptions, true)
+            ->dxLoadOptions($filterOptions)
             ->when(str_contains($request->customSearchParams, 'showArchive=1'), function($query) use($documentArchivedOrDeletedStatusesIds) {
                 return $query->whereIn('document_status_id', $documentArchivedOrDeletedStatusesIds )->withTrashed();
             })
