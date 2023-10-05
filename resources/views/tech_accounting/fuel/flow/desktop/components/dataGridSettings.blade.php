@@ -50,9 +50,9 @@
         //         e.component.editRow(e.rowIndex);
         //     }
         // },
-        onEditingStart(e) {
-            editingRowId = e.key;
-        },
+        // onEditingStart(e) {
+        //     editingRowId = e.key;
+        // },
         onEditorPreparing: (e) => {
             if (e.parentType === `filterRow` && e.lookup)
                 createFilterRowTagBoxFilterControlForLookupColumns(e)
@@ -62,7 +62,7 @@
             resetStores();
         },
 
-        onEditCanceling(e) {
+        // onEditCanceling(e) {
 
             // if (!skipStoppingEditingRow && e.changes.length) {
 
@@ -82,7 +82,7 @@
             //     resetStores();
             // }
 
-        },
+        // },
 
         toolbar: {
             visible: false,

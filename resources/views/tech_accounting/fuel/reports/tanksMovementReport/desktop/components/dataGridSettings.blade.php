@@ -45,14 +45,14 @@
             useIcons: true,
         },
 
-        onRowDblClick: function(e) {
-            if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
-                e.component.editRow(e.rowIndex);
-            }
-        },
-        onEditingStart(e) {
-            editingRowId = e.key;
-        },
+        // onRowDblClick: function(e) {
+        //     if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
+        //         e.component.editRow(e.rowIndex);
+        //     }
+        // },
+        // onEditingStart(e) {
+        //     editingRowId = e.key;
+        // },
         onEditorPreparing: (e) => {
             if (e.parentType === `filterRow` && e.lookup)
                 createFilterRowTagBoxFilterControlForLookupColumns(e)
@@ -62,27 +62,27 @@
             resetStores();
         },
 
-        onEditCanceling(e) {
+        // onEditCanceling(e) {
 
-            // if (!skipStoppingEditingRow && e.changes.length) {
+        //     // if (!skipStoppingEditingRow && e.changes.length) {
 
-            //     e.cancel = true
-            //     skipStoppingEditingRow = 0
+        //     //     e.cancel = true
+        //     //     skipStoppingEditingRow = 0
 
-            //     customConfirmDialog("Вы уверены, что отменить изменения?").show().then((dialogResult) => {
-            //         if (dialogResult) {
-            //             resetVars();
-            //             resetStores();
-            //             skipStoppingEditingRow = 1;
-            //             e.component.cancelEditData();
-            //         }
-            //     })
-            // } else {
-            //     resetVars();
-            //     resetStores();
-            // }
+        //     //     customConfirmDialog("Вы уверены, что отменить изменения?").show().then((dialogResult) => {
+        //     //         if (dialogResult) {
+        //     //             resetVars();
+        //     //             resetStores();
+        //     //             skipStoppingEditingRow = 1;
+        //     //             e.component.cancelEditData();
+        //     //         }
+        //     //     })
+        //     // } else {
+        //     //     resetVars();
+        //     //     resetStores();
+        //     // }
 
-        },
+        // },
 
         toolbar: {
             visible: false,

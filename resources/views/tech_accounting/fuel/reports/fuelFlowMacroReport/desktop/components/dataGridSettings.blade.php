@@ -45,14 +45,14 @@
             useIcons: true,
         },
 
-        onRowDblClick: function(e) {
-            if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
-                e.component.editRow(e.rowIndex);
-            }
-        },
-        onEditingStart(e) {
-            editingRowId = e.key;
-        },
+        // onRowDblClick: function(e) {
+        //     if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
+        //         e.component.editRow(e.rowIndex);
+        //     }
+        // },
+        // onEditingStart(e) {
+        //     editingRowId = e.key;
+        // },
         onEditorPreparing: (e) => {
             if (e.parentType === `filterRow` && e.lookup)
                 createFilterRowTagBoxFilterControlForLookupColumns(e)
@@ -62,7 +62,7 @@
             resetStores();
         },
 
-        onEditCanceling(e) {
+        // onEditCanceling(e) {
 
             // if (!skipStoppingEditingRow && e.changes.length) {
 
@@ -82,7 +82,7 @@
             //     resetStores();
             // }
 
-        },
+        // },
 
         toolbar: {
             visible: false,
