@@ -105,6 +105,8 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                                                                 'birthday,' .
                                                                 'person_phone,' .
                                                                 'company,' .
+                                                                'department_id,' .
+                                                                'group_id,' .
                                                                 'created_at,' .
                                                                 'updated_at,' .
                                                                 'status,' .
@@ -118,6 +120,8 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                             "'" . $formattedBirthday . "'," .
                             "'" . $formattedPhone . "'," .
                                   $company->id . "," .
+                                  0 . "," .
+                                  0 . "," .
                                   'NOW()' . "," .
                                   'NOW()' . "," .
                                   '0' . "," .
