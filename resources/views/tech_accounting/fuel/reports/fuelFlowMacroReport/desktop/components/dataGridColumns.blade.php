@@ -24,8 +24,11 @@
             }
         },
         {
-            caption: "Объем, л",
+            caption: "Объем (л)",
             dataField: "volume",
+            customizeText: (data) => {
+                return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
+            }
         },
 
         // {
