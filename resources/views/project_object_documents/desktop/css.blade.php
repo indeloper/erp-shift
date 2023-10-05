@@ -310,12 +310,12 @@
             margin-left: 4px;
         }
 
-        #dataGridContainer {
+        /* #dataGridContainer {
             padding-top: 15px;
             margin-top: 12px;
             border-top: 1px solid #ddd;
             padding-bottom: 10px;
-        }
+        } */
 
         .dxTagBoxItem{
             width: 250px;
@@ -358,7 +358,6 @@
             border-radius: 50%;
             margin-right: 5px;
         }
-
 
         @media screen and (max-width: 1200px) {
 
