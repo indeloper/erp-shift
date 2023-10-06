@@ -92,7 +92,8 @@
                         text: "Добавить",
                         icon: "fas fa-plus",
                         onClick: (e) => {
-                            options.component.addRow();
+                            showDecreaseFuelPopup()
+                            // options.component.addRow();
                             $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
                             $('#mainDataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
                         }
