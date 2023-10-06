@@ -20,7 +20,9 @@
                         text: 'Сохранить',
                     },
                     onClick() {
-                        entitiesDataSource.store().insert($('#mainForm').dxForm('instance').option('formData'));
+                        formData = $('#mainForm').dxForm('instance').option('formData')
+                        formData.newAttachments = newAttachments;
+                        entitiesDataSource.store().insert(formData);
                         entitiesDataSource.reload()
                         mainPopup.hide()
                     }

@@ -20,6 +20,7 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusOptions;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use App\Models\User;
+use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReport;
 use App\Services\ProjectObjectDocuments\Reports\TestDownload;
@@ -742,21 +743,14 @@ class ProjectObjectDocumentsController extends Controller
     public function uploadFiles(Request $request)
     {
         $uploadedFile = $request->files->all()['files'][0];
+        $storage_name = 'project_object_documents';
+        $storage_path = 'storage/docs/project_object_documents/';
+        $documentable_id = $request->input('id');
+        $documentable_type = 'App\Models\ProjectObjectDocuments\ProjectObjectDocument';
 
-        $fileExtension = $uploadedFile->getClientOriginalExtension();
-        $fileName =  'file-' . uniqid() . '.' . $fileExtension;
-
-        Storage::disk('project_object_documents')->put($fileName, File::get($uploadedFile));
-
-        $fileEntry = FileEntry::create([
-            'filename' => 'storage/docs/project_object_documents/' . $fileName,
-            'size' => $uploadedFile->getSize(),
-            'mime' => $uploadedFile->getClientMimeType(),
-            'original_filename' => $uploadedFile->getClientOriginalName(),
-            'user_id' => Auth::user()->id,
-            'documentable_id' => $request->input('id'),
-            'documentable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'
-        ]);
+        [$fileEntry, $fileName] 
+            = (new FilesUploadService)
+            ->uploadFile($uploadedFile, $documentable_id, $documentable_type, $storage_name, $storage_path);
 
         return response()->json([
             'result' => 'ok',

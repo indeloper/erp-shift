@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,11 +58,14 @@ class StandardEntityResourceController extends Controller
     public function store(Request $request)
     {
         $data = (array)json_decode($request->input('data'));
-        
+
         DB::beginTransaction();
-            $data = $this->beforeStore($data);
-            $entity = $this->baseModel->create($data);
-            $this->afterStore($entity, $data);
+            $beforeStoreResult = $this->beforeStore($data);
+            $data = $beforeStoreResult['data'];
+            $ignoreDataKeys = $beforeStoreResult['ignoreDataKeys'];
+            $dataToStore = $this->getDataToStore($data, $ignoreDataKeys);
+            $entity = $this->baseModel->create($dataToStore);
+            $this->afterStore($entity, $data, $dataToStore);
         DB::commit();
 
         return json_encode(array(
@@ -92,10 +96,18 @@ class StandardEntityResourceController extends Controller
     {
         $data = (array)json_decode($request->input('data'));
         $entity = $this->baseModel::findOrFail($id);
+
         DB::beginTransaction();
-            $data = $this->beforeUpdate($entity, $data);
-            $entity->update($data);
-            $this->afterUpdate($entity, $data);
+            $beforeUpdateResult = $this->beforeUpdate($entity, $data);
+            $data = $beforeUpdateResult['data'];
+            $ignoreDataKeys = $beforeUpdateResult['ignoreDataKeys'];
+            $dataToUpdate = $this->getDataToStore($data, $ignoreDataKeys);
+            $entity->update($dataToUpdate);
+            $this->afterUpdate($entity, $data, $dataToUpdate);
+
+            // $data = $this->beforeUpdate($entity, $data);
+            // $entity->update($data);
+            // $this->afterUpdate($entity, $data, $dataToUpdate);
         DB::commit();
 
         return json_encode(array(
@@ -127,7 +139,15 @@ class StandardEntityResourceController extends Controller
 
     public function beforeStore($data)
     {
-        return $data;
+        $ignoreDataKeys = [];
+
+        if(!empty($data['newAttachments']))
+            $ignoreDataKeys[] = 'newAttachments';
+
+        return [
+            'data' => $data, 
+            'ignoreDataKeys' => $ignoreDataKeys
+        ];
     }
 
     public function afterStore($entity, $data)
@@ -137,7 +157,15 @@ class StandardEntityResourceController extends Controller
 
     public function beforeUpdate($entity, $data)
     {
-        return $data;
+        $ignoreDataKeys = [];
+
+        if(!empty($data['newAttachments']))
+            $ignoreDataKeys[] = 'newAttachments';
+
+        return [
+            'data' => $data, 
+            'ignoreDataKeys' => $ignoreDataKeys
+        ];
     }
 
     public function afterUpdate($entity, $data)
@@ -153,5 +181,19 @@ class StandardEntityResourceController extends Controller
     public function afterDelete($entity)
     {
        //
+    }
+
+    public function getDataToStore($data, $ignoreDataKeys)
+    {
+        if(empty($ignoreDataKeys))
+        return $data;
+
+        $dataToStore = [];
+        foreach($data as $key=>$value){
+            if(!in_array($key, $ignoreDataKeys)) 
+                $dataToStore[$key] = $value;
+        }
+
+        return $dataToStore;
     }
 }

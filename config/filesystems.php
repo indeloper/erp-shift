@@ -225,6 +225,21 @@ return [
             'visibility' => 'private',
         ],
 
+        'technic' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/technic'),
+            'url' => env('APP_URL').'/building/tech_acc/technic/ourTechnicList',
+            'visibility' => 'private',
+        ],
+
+        'fuel_flow' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/fuel_flow'),
+            'url' => env('APP_URL').'storage/docs/fuel_flow/',
+            'visibility' => 'private',
+        ],
+        
+
     ],
 
 ];

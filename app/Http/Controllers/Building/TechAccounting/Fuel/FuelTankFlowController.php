@@ -9,6 +9,7 @@ use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorAdditionalTypes;
 use App\Models\Contractors\ContractorType;
+use App\Models\FileEntry;
 use App\Models\Group;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
@@ -16,6 +17,7 @@ use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankFlowTypes;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
+use App\Services\Common\FilesUploadService;
 use Illuminate\Support\Facades\Auth;
 
 class FuelTankFlowController extends StandardEntityResourceController
@@ -44,7 +46,17 @@ class FuelTankFlowController extends StandardEntityResourceController
         $tank->save();
 
         $data['author_id'] = Auth::user()->id;
-        return $data;
+        
+        return [
+            'data' => $data, 
+            'ignoreDataKeys' => ['newAttachments']
+        ];
+    }
+
+    public function afterStore($entity, $data)
+    {
+        if(!empty($data['newAttachments']))
+            (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
     }
 
     public function beforeDelete($entity)
@@ -89,5 +101,26 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         return FuelTankFlowType::all();
     }
+
+    public function uploadFile(Request $request)
+    {
+        $uploadedFile = $request->files->all()['files'][0];
+        $storage_name = 'fuel_flow';
+        $storage_path = 'storage/docs/fuel_flow/';
+        $documentable_id = $request->input('id');
+        $documentable_type = 'App\Models\TechAcc\FuelTank\FuelTankFlow';
+
+        [$fileEntry, $fileName] 
+            = (new FilesUploadService)
+            ->uploadFile($uploadedFile, $documentable_id, $documentable_type, $storage_name, $storage_path);
+
+        return response()->json([
+            'result' => 'ok',
+            'fileEntryId' => $fileEntry->id,
+            'filename' =>  $fileName,
+            'fileEntry' => $fileEntry
+        ], 200);
+    }
+
 
 }

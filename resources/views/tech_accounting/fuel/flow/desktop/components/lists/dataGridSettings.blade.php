@@ -45,11 +45,15 @@
             useIcons: true,
         },
 
-        // onRowDblClick: function(e) {
-        //     if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
-        //         e.component.editRow(e.rowIndex);
-        //     }
-        // },
+        onRowDblClick: function(e) {
+            if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
+                console.log(e);
+                editingRowId = e.key;
+                showDecreaseFuelPopup(3)
+                // e.component.editRow(e.rowIndex);
+            }
+        },
+
         // onEditingStart(e) {
         //     editingRowId = e.key;
         // },

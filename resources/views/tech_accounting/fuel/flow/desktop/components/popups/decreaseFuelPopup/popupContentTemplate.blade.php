@@ -19,6 +19,9 @@
                     dataField: 'fuel_tank_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
+                        elementAttr: {
+                            id: 'fuel_tank_id_dxSelectBox'
+                        },
                         dataSource: fuelTanksStore,
                         valueExpr: 'id',
                         displayExpr: 'tank_number',

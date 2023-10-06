@@ -39,7 +39,14 @@
                     },
 
                 },
-             
+
+                {
+                    item: 'simple',
+                    template: (data, itemElement) => {
+                        renderFileUploader(itemElement)
+                    }
+                },
+                                
             ]
         })
     }
