@@ -57,12 +57,12 @@
 
         {
             caption: "Тип операции",
-            dataField: "type",
-            editorType: "dxSelectBox",
-            editorOptions: {
-                dataSource: ['Поступление', 'Расход']
-            }
-
+            dataField: "fuel_tank_flow_type_id",
+            lookup: {
+                dataSource: fuelFlowTypesStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
         },
 
         {
@@ -100,7 +100,7 @@
                         displayExpr: 'name',
 
                         onItemClick(e) {
-                            console.log(e);
+
                             if(e.itemData.slug === 'income')
                                 showIncreaseFuelPopup();
 

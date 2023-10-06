@@ -34,9 +34,12 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         $tank = FuelTank::findOrFail($data['fuel_tank_id']);
         $tankCurrentFuelLevel = $tank->fuel_level;
-        if($data['type']==='Расхкод') 
+        
+        if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'outcome')
             $tank->fuel_level = round($tankCurrentFuelLevel - $data['volume'], 3);
-        if($data['type']==='Поступление') 
+        if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'income') 
+            $tank->fuel_level = round($tankCurrentFuelLevel + $data['volume'], 3);
+        if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'adjustment') 
             $tank->fuel_level = round($tankCurrentFuelLevel + $data['volume'], 3);
         $tank->save();
 

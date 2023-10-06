@@ -19,8 +19,10 @@
                     options: {
                         text: 'Сохранить',
                     },
-                    onClick(e) {
-                        
+                    onClick() {
+                        entitiesDataSource.store().insert($('#mainForm').dxForm('instance').option('formData'));
+                        entitiesDataSource.reload()
+                        mainPopup.hide()
                     }
                 },
                 {

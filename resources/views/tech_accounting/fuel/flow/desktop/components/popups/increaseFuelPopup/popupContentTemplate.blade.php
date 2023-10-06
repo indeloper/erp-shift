@@ -1,9 +1,20 @@
 <script>
     const getIncreaseFuelPopupContentTemplate = () => {
-        return $('<div>').dxForm({
+        return $('<div id="mainForm">').dxForm({
             items: [
                 {
-                    dataField: 'Ёмкость',
+                    visible: false,
+                    dataField: 'fuel_tank_flow_type_id',
+                    editorType: "dxSelectBox",
+                    editorOptions: {
+                        dataSource: fuelFlowTypesStore,
+                        valueExpr: 'id',
+                        displayExpr: 'name',
+                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='income').id
+                    }
+                },
+                {
+                    dataField: 'fuel_tank_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
                         dataSource: fuelTanksStore,
@@ -12,7 +23,7 @@
                     }
                 },
                 {
-                    dataField: 'Поставщик топлива',
+                    dataField: 'contractor_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
                         dataSource: fuelContractorsStore,
@@ -21,7 +32,7 @@
                     }
                 },
                 {
-                    dataField: 'Объем (л)',
+                    dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
                         min: 0.001
