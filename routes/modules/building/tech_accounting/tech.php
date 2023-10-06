@@ -126,6 +126,7 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::get('getFuelTanks', 'FuelTankFlowController@getFuelTanks')->name('getFuelTanks');
         Route::get('getFuelContractors', 'FuelTankFlowController@getFuelContractors')->name('getFuelContractors');
         Route::get('getFuelConsumers', 'FuelTankFlowController@getFuelConsumers')->name('getFuelConsumers');
+        Route::get('getFuelFlowTypes', 'FuelTankFlowController@getFuelFlowTypes')->name('getFuelFlowTypes');
 
         Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
         Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');

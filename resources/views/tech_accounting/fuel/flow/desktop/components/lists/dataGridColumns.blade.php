@@ -86,16 +86,29 @@
             ],
 
             headerCellTemplate: (container, options) => {
+
                 $('<div>')
                     .appendTo(container)
-                    .dxButton({
-                        text: "Добавить",
-                        icon: "fas fa-plus",
-                        onClick: (e) => {
-                            showDecreaseFuelPopup()
-                            // options.component.addRow();
-                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
-                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
+                    .dxDropDownButton({
+                        icon: 'overflow',
+                        dropDownOptions: {
+                            width: 200
+                        },
+
+                        dataSource: fuelFlowTypesStore,
+                        valueExpr: 'id',
+                        displayExpr: 'name',
+
+                        onItemClick(e) {
+                            console.log(e);
+                            if(e.itemData.slug === 'income')
+                                showIncreaseFuelPopup();
+
+                            if(e.itemData.slug === 'outcome')
+                                showDecreaseFuelPopup();
+
+                            if(e.itemData.slug === 'adjustment')
+                                showAdjustmentFuelPopup();
                         }
                     })
             }

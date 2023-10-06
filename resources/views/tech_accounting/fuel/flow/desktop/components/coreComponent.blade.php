@@ -2,19 +2,10 @@
     $(()=>{
         const mainPopup = $('#mainPopup').dxPopup({
             visible: false,
-            // contentTemplate: () => {
-            //     const content = $('<div id="popupContentWrapper">123</div>');
-                
-            //     return content;
-            // },
-            // onInitialized(e){
-            //     console.log(e);
-            // },
             showTitle: true,
-            // title: "Движение топлива",
             hideOnOutsideClick: true,
             showCloseButton: true,
-            maxWidth: '60vw',
+            maxWidth: '30vw',
             height: 'auto',
             onHiding() {
                 resetVars();

@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class CreateContractorTypesTable extends Migration
+class CreateFuelTankFlowTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateContractorTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('contractor_types', function (Blueprint $table) {
+        Schema::create('fuel_tank_flow_types', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name')->comment('Наименование');
             $table->string('slug')->comment('Кодовое наименование');
@@ -22,7 +22,7 @@ class CreateContractorTypesTable extends Migration
             $table->softDeletes();
         });
 
-        DB::statement("ALTER TABLE contractor_types COMMENT 'Типы контрагентов'");
+        DB::statement("ALTER TABLE fuel_tank_flow_types COMMENT 'Типы топливных операций'");
         $this->uploadData(); 
     }
 
@@ -33,29 +33,24 @@ class CreateContractorTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contractor_types');
-    }
-    
-    public function uploadData()
-    {
-        DB::table('contractor_types')->insert([
-            [
-                'name' => 'Заказчик',
-                'slug' => 'customer'
-            ],
-            [
-                'name' => 'Подрядчик',
-                'slug' => 'executor'
-            ],
-            [
-                'name' => 'Поставщик материалов',
-                'slug' => 'materials_supplier'
-            ],
-            [
-                'name' => 'Поставщик топлива',
-                'slug' => 'fuel_supplier'
-            ]
-        ]);
+        Schema::dropIfExists('fuel_tank_flow_types');
     }
 
+    public function uploadData()
+    {
+        DB::table('fuel_tank_flow_types')->insert([
+            [
+                'name' => 'Поступление',
+                'slug' => 'income'
+            ],
+            [
+                'name' => 'Расход',
+                'slug' => 'outcome'
+            ],
+            [
+                'name' => 'Корректировка',
+                'slug' => 'adjustment'
+            ],
+        ]);
+    }
 }

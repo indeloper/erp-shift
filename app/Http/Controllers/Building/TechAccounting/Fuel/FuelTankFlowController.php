@@ -12,6 +12,8 @@ use App\Models\Contractors\ContractorType;
 use App\Models\Group;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
+use App\Models\TechAcc\FuelTank\FuelTankFlowType;
+use App\Models\TechAcc\FuelTank\FuelTankFlowTypes;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -79,4 +81,10 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         return OurTechnic::all();
     }
+
+    public function getFuelFlowTypes()
+    {
+        return FuelTankFlowType::all();
+    }
+
 }

@@ -1,9 +1,9 @@
 <script>
     function showDecreaseFuelPopup() {
-        $('#mainPopup').dxPopup('instance').option({
+        $('#mainPopup').dxPopup({
             visible: true,
             title: 'Расход топлива',
-            contentTemplate: decreaseFuelPopupContentTemplate()
+            contentTemplate: getDecreaseFuelPopupContentTemplate
         })
     }
 </script>

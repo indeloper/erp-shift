@@ -111,4 +111,14 @@
         }
     })
 
+    const fuelFlowTypesStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route($routeNameFixedPart.'getFuelFlowTypes')}}" 
+            return $.getJSON(url);
+        }
+    })
+    fuelFlowTypesStore.load()
+
 </script>
