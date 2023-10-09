@@ -30,6 +30,15 @@
             },
         },
         {
+            caption: "Ответственный",
+            dataField: "responsible_id",
+            lookup: {
+                dataSource: fuelTanksResponsiblesStore,
+                valueExpr: "id",
+                displayExpr: "user_full_name"
+            },
+        },
+        {
             caption: "Текущий остаток (л)",
             dataField: "fuel_level",
             editorType: 'dxNumberBox',

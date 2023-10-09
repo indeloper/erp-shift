@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -82,7 +83,23 @@ class StandardEntityResourceController extends Controller
      */
     public function show($id)
     {
-        return $this->baseModel::find($id);
+        $entity = $this->baseModel::find($id);
+        if(!$entity)
+
+        return json_encode([
+            'data' => [],
+            'comments' => [],
+            'attachments' => []
+        ], JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+
+        $resultArr = ['data' => $entity];
+        
+        if(method_exists($this->baseModel, 'comments'))
+            $resultArr['comments'] = $entity->comments;
+        if(method_exists($this->baseModel, 'attachments'))
+            $resultArr['attachments'] = $this->getGroupedAttachments($entity->attachments);
+            
+        return json_encode($resultArr, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -196,4 +213,24 @@ class StandardEntityResourceController extends Controller
 
         return $dataToStore;
     }
+
+    // public function entityInfoByID($id)
+    // {
+        
+    // }
+
+    public function getGroupedAttachments($attachments)
+    {
+        $groupedAttachments = [];
+        foreach ($attachments as $attachment) {
+            $createdAtDate = Carbon::parse($attachment->updated_at)->format('d.m.Y H:i');
+            $authorFio = $attachment['author']['full_name'];
+            $groupName = $createdAtDate.' ('.$authorFio.')';
+            $groupedAttachments[$groupName][] = $attachment;
+        }
+
+        return $groupedAttachments;
+    }
+
+
 }

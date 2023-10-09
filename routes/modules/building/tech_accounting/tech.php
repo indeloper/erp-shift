@@ -115,6 +115,7 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
     
     Route::group(['prefix' => 'tanks', 'as' => 'tanks::'], function () {
         Route::get('getProjectObjects', 'FuelTankController@getProjectObjects')->name('getProjectObjects');
+        Route::get('getFuelTanksResponsibles', 'FuelTankController@getFuelTanksResponsibles')->name('getFuelTanksResponsibles');
 
         Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
         Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
@@ -140,17 +141,20 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
             Route::get('data', 'FuelReportController@fuelFlowMacroReportData')->name('resource.index');
             Route::get('getPermissions', 'FuelReportController@fuelFlowMacroReportPermissions')->name('getPermissions');
         });
-        // Route::group(['prefix' => 'fuelFlowDetailedReport', 'as' => 'fuelFlowDetailedReport::'], function () {
-        //     Route::get('getPageCore', 'FuelReportController@fuelFlowDetailedReportPageCore')->name('getPageCore');
-        //     Route::get('data', 'FuelReportController@fuelFlowDetailedReportData')->name('resource.index');
-        //     Route::get('getPermissions', 'FuelReportController@fuelFlowDetailedReporttPermissions')->name('getPermissions');
-        // });
+
+        Route::group(['prefix' => 'fuelTankPeriodReport', 'as' => 'fuelTankPeriodReport::'], function () {
+            Route::get('getPageCore', 'FuelReportController@fuelTankPeriodReportPageCore')->name('getPageCore');
+            Route::get('data', 'FuelReportController@fuelTankPeriodReportData')->name('resource.index');
+            Route::get('getPermissions', 'FuelReportController@fuelTankPeriodReportPermissions')->name('getPermissions');
+        });
+        
         Route::group(['prefix' => 'tanksMovementReport', 'as' => 'tanksMovementReport::'], function () {
             Route::get('getPageCore', 'FuelReportController@tanksMovementReportPageCore')->name('getPageCore');
             Route::get('data', 'FuelReportController@tanksMovementReportData')->name('resource.index');
             Route::get('getPermissions', 'FuelReportController@tanksMovementReportPermissions')->name('getPermissions');
         });
         Route::get('getProjectObjects', 'FuelReportController@getProjectObjects')->name('getProjectObjects');
+        Route::get('getCompanies', 'FuelReportController@getCompanies')->name('getCompanies');
     });
 
 });

@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
+use App\Models\TechAcc\FuelTank\FuelTankFlowRemains;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
 use App\Services\Common\FileSystemService;
+use Carbon\Carbon;
+use PDF;
 
 class FuelReportController extends Controller
 {
@@ -91,4 +95,61 @@ class FuelReportController extends Controller
 
         return response()->json($objects, 200, [], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
     }
+
+    public function getCompanies() {
+        $companies = Company::all();
+        return response()->json($companies, 200, [], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
+    }
+
+
+    public function fuelTankPeriodReportPageCore(Request $request) {
+        $routeNameFixedPart = 'building::tech_acc::fuel::reports::fuelTankPeriodReport::';
+        $sectionTitle = 'Отчёт: оборотная ведомость по топливной емкости за период';
+        $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/fuelTankPeriodReport';
+ 
+        return view('tech_accounting.fuel.reports.fuelTankPeriodReport.desktop.index',
+            $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
+        );        
+    }
+
+    public function fuelTankPeriodReportData(Request $request) {
+        $dateFrom = Carbon::create($request->dateFrom)->toDateString();
+        $fuelTankFlows = FuelTankFlow::where('created_at', '>', $dateFrom)->get()->toArray();
+        $fuelTank = FuelTank::find($request->fuelTankId);
+        $company = Company::find($fuelTank->company_id)->name;
+        $fuelVolumeDateBegin = $this->getFuelVolumeDateBegin($dateFrom, $request->fuelTankId);
+
+        $pdf = PDF::loadView('tech_accounting.fuel.reports.fuelTankPeriodReport.pdfTemlates.report', 
+            [
+                'company' => Company::find($fuelTank->company_id)->name,
+                'objectAdress' => ProjectObject::find($fuelTank->object_id)->address,
+                'tank_number' => $fuelTank->tank_number,
+                'dateFrom' => Carbon::create($request->dateFrom)->format('d.m.Y'),
+                'fuelVolumeDateBegin' => $fuelVolumeDateBegin
+
+            ]
+        );
+        return $pdf->stream('fuelTankPeriodReport.pdf');
+        
+    }
+
+    public function getFuelVolumeDateBegin($dateFrom, $fuelTankId)
+    {
+        $fuelDateBegin=FuelTankFlowRemains::where([
+            [
+                'fuel_tank_id', $fuelTankId
+            ],
+            [
+                'created_at', '<', $dateFrom
+            ]
+        ])->orderBy('id', 'desc')->first();
+
+        if($fuelDateBegin)
+            $fuelVolumeDateBegin = $fuelDateBegin->volume;
+        else   
+            $fuelVolumeDateBegin = 0;
+        
+        return $fuelVolumeDateBegin;
+    }
+
 }

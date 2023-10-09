@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
+use App\Models\Group;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
+use App\Models\User;
 use App\Services\Common\FileSystemService;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,6 +39,15 @@ class FuelTankController extends StandardEntityResourceController
             $objects
         ,
         JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function getFuelTanksResponsibles()
+    {
+        return User::query()->active()
+                ->whereIn('group_id', Group::FOREMEN)
+                ->select(['id', 'user_full_name'])
+                ->orderBy('last_name')
+                ->get();
     }
     
     public function afterStore($tank, $data)

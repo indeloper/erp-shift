@@ -32,7 +32,7 @@ class CreateFuelTankFlowsTable extends Migration
             $table->bigInteger('fuel_tank_flow_type_id')->unsigned()->comment('ID типа топливной операции');
             $table->foreign('fuel_tank_flow_type_id')->references('id')->on('fuel_tank_flow_types');
 
-            $table->float('volume', 8, 3);
+            $table->float('volume', 8, 3)->comment('Количество топлива');
 
             $table->string('comment')->nullable()->comment('Комментарий');
 

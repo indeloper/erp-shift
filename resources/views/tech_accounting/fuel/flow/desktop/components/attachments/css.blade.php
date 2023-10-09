@@ -1,10 +1,13 @@
 <style>
     #fileUploaderNewFileButtonAnchorDiv,
     #newFilesListWrapper,
-    #newFilesNotImgListWrapper {
+    #newFilesNotImgListWrapper,
+    #filesOnServerListWrapper
+    {
         margin-top: 10px;
         width: 100%;
         overflow-y: auto;
+        max-height: 40vh;
     }
     .newFileDivCSS{
         border: 1px solid grey;
@@ -20,6 +23,34 @@
         margin-bottom: 10px;
         position: relative;
     }
+
+    .fileOnServerDivWrapper{
+        border-radius: 5px;
+        float: left;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+
+    .attachmentFileName {
+        bottom: 0;
+        padding-left: 6px;
+        width: 100%;
+        color: #8e8ebb;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .files-group-header {
+        padding: 6px 10px;
+        font-weight: bolder;
+        margin-bottom: 10px;
+        background: #e6e6ed;
+        width: 100%;
+        float: left;
+    }
+
 
     .fileOnServerDivWrapper:hover img  {
         filter: brightness(0.5);

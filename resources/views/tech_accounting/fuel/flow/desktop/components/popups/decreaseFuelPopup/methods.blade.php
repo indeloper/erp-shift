@@ -1,21 +1,71 @@
 <script>
-    function showDecreaseFuelPopup(key = null) {
+    function showDecreaseFuelPopup(formItem = {}) {
+
         $('#mainPopup').dxPopup({
             visible: true,
             title: 'Расход топлива',
-            contentTemplate: getDecreaseFuelPopupContentTemplate
-        })
+            contentTemplate: () => {return getDecreaseFuelPopupContentTemplate(formItem)}
+        })       
+    }
 
-        if(key) {
-            $('#mainForm').dxForm('instance').itemOption('fuel_tank_id', 'value', 7);
-            
-            // $('#mainPopup').dxPopup('instance').option(
-            //     {
-            //         fuel_tank_id: 3,
-            //         our_technic_id: 1,
-            //         volume: 43656
-            //     }
-            // )
-        }
+    const getDecreaseFuelPopupContentTemplate = (formItem) => {
+        return $('<div id="mainForm">').dxForm({
+            labelMode: 'outside',
+            labelLocation: 'left',
+            formData: formItem,
+            items: [
+                {
+                    visible: false,
+                    dataField: 'fuel_tank_flow_type_id',
+                    editorType: "dxSelectBox",
+                    editorOptions: {
+                        dataSource: fuelFlowTypesStore,
+                        valueExpr: 'id',
+                        displayExpr: 'name',
+                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id
+                    }
+                },
+                {
+                    dataField: 'fuel_tank_id',
+                    editorType: 'dxSelectBox',
+                    editorOptions: {
+                        dataSource: fuelTanksStore,
+                        valueExpr: 'id',
+                        displayExpr: 'tank_number',
+                    }
+                },
+                {
+                    
+                    dataField: 'our_technic_id',
+                    editorType: "dxSelectBox",
+                    editorOptions: {
+                        dataSource: fuelConsumersStore,
+                        valueExpr: 'id',
+                        displayExpr: 'name',
+                    }
+                },
+                {
+                    dataField: 'volume',
+                    editorType: "dxNumberBox",
+                    editorOptions: {
+                        min: 0.001
+                    },
+                },
+                {
+                    item: 'simple',
+                    template: (data, itemElement) => {
+                        renderFileUploader(itemElement)
+                    }
+                },
+
+                {
+                    item: 'simple',
+                    template: (data, itemElement) => {
+                        renderFileDisplayer(itemElement)
+                    }
+                },
+             
+            ]
+        })
     }
 </script>

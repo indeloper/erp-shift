@@ -83,6 +83,12 @@
         }
     })
     
-    // projectObjectsStore.load()
-
+    const fuelTanksResponsiblesStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route($routeNameFixedPart.'getFuelTanksResponsibles')}}" 
+            return $.getJSON(url);
+        }
+    })
 </script>

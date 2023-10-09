@@ -47,16 +47,21 @@
 
         onRowDblClick: function(e) {
             if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
-                console.log(e);
                 editingRowId = e.key;
-                showDecreaseFuelPopup(3)
-                // e.component.editRow(e.rowIndex);
+                let choosedItem = $('#mainDataGrid').dxDataGrid('instance').getDataSource().items().find(el=>el.id === e.key)
+                let fuelFlowType = fuelFlowTypesStore.__rawData.find(el=>el.id===choosedItem.fuel_tank_flow_type_id).slug
+
+                if(fuelFlowType === 'outcome')
+                    showDecreaseFuelPopup(choosedItem)
+
+                if(fuelFlowType === 'income')
+                    showIncreaseFuelPopup(choosedItem)
+
+                if(fuelFlowType === 'adjustment')
+                    showAdjustmentFuelPopup(choosedItem)
             }
         },
 
-        // onEditingStart(e) {
-        //     editingRowId = e.key;
-        // },
         onEditorPreparing: (e) => {
             if (e.parentType === `filterRow` && e.lookup)
                 createFilterRowTagBoxFilterControlForLookupColumns(e)
@@ -65,28 +70,6 @@
             resetVars();
             resetStores();
         },
-
-        // onEditCanceling(e) {
-
-            // if (!skipStoppingEditingRow && e.changes.length) {
-
-            //     e.cancel = true
-            //     skipStoppingEditingRow = 0
-
-            //     customConfirmDialog("Вы уверены, что отменить изменения?").show().then((dialogResult) => {
-            //         if (dialogResult) {
-            //             resetVars();
-            //             resetStores();
-            //             skipStoppingEditingRow = 1;
-            //             e.component.cancelEditData();
-            //         }
-            //     })
-            // } else {
-            //     resetVars();
-            //     resetStores();
-            // }
-
-        // },
 
         toolbar: {
             visible: false,

@@ -457,11 +457,20 @@
                                         <span class="sidebar-normal">Топливный журнал</span>
                                     </a>
                                 </li>
+
+                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelTankPeriodReport*') ) active @endif">
+                                    <a class="nav-link" style="background: radial-gradient(black, transparent); box-shadow: 0 0 5px 5px;"
+                                       href="{{ route('building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore') }}">
+                                        <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                        <span class="sidebar-normal">Оборотная ведомость<br>по одной емкости за периож</span>
+                                    </a>
+                                </li>
+
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
                                     <a class="nav-link" style="background: radial-gradient(black, transparent); box-shadow: 0 0 5px 5px;"
                                        href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Оборотка<br>по ёмкостям</span>
+                                        <span class="sidebar-normal">Оборотная ведомость<br>по ёмкостям</span>
                                     </a>
                                 </li>
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
