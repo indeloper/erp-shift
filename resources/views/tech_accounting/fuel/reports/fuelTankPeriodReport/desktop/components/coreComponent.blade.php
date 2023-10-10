@@ -65,7 +65,6 @@
                                                 return;
                                             }
                                             const formData = $("#dataGridAncor").dxForm('instance').option('formData')
-                                            console.log(formData);
                                             const dateFrom = formData.date_from.toISOString()
                                             const dateTo = formData.date_to.toISOString()
                                             const fuelTankId = formData.fuel_tank_id

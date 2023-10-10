@@ -60,10 +60,10 @@
     </tr>
 
     <tr>
-        <td class="td-center">
+        <td class="td-center" style="border-right: 0;">
             <b>Приход</b> 
         </td>
-        <td class="td-normal" colspan=4></td>
+        <td class="td-normal" style="border-left: 0;" colspan=4></td>
     </tr>
 
     @foreach($fuelIncomes as $fuelIncome)
@@ -72,7 +72,7 @@
                 {{$fuelIncome['contractor']->short_name}}
             </td>
             <td class="td-normal">
-                {{$fuelIncome->document_date}}
+                {{$carbonInstance::create($fuelIncome->document_date)->format('d.m.Y')}}
             </td>
             <td class="td-normal">
                 {{$fuelIncome->document}}
@@ -103,29 +103,12 @@
         </td>
     </tr>
 
-    <!-- <tr>
-        <td class="td-center">
-           <b>Итого по остаткам</b> 
-        </td>
-        <td class="td-center">
-            х
-        </td>
-        <td class="td-center">
-            х
-        </td>
-        <td class="td-normal">
-            <b>{{$fuelSumIncomes + $fuelVolumeDateBegin}}</b> 
-        </td>
-        <td class="td-normal">
-        </td>
-    </tr> -->
-
     <tr><td class="td-normal" colspan=5></tr>
     <tr>
-        <td class="td-center">
+        <td class="td-center" style="border-right: 0;">
             <b>Расход</b> 
         </td>
-        <td class="td-normal" colspan=4></td>
+        <td class="td-normal" style="border-left: 0;" colspan=4></td>
     </tr>
 
     @foreach($fuelOutcomes as $fuelOutcome)
@@ -134,7 +117,7 @@
                 {{$fuelOutcome['ourTechnic']->name}}
             </td>
             <td class="td-normal">
-                {{$fuelOutcome->document_date}}
+                {{$carbonInstance::create($fuelIncome->document_date)->format('d.m.Y')}}
             </td>
             <td class="td-normal">
                 {{$fuelOutcome->document}}
@@ -206,12 +189,35 @@
         <td colspan="2"></td>
     </tr>
 
-    <tr>
-        <td style="padding-top: 20px ;">
+    <tr >
+        <td style="padding-top: 40px; font-size: 80%">
             Материально ответственное лицо
         </td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 40px; text-align: right;"></td>
+        <td style="border-bottom: 1px solid; padding-top: 40px; text-align: center;">{{$fuelTankResponsible->user_full_name}}</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="text-align: center; font-size: 80%">Должность</td>
+        <td style="text-align: center; font-size: 80%">Подпись</td>
+        <td style="text-align: center; font-size: 80%">Расшифровка</td>
+        <td></td>
+    </tr>
+
+    <tr >
+        <td style="padding-top: 20px ; font-size: 80%">
+            Отчет с документами принял и проверил
+        </td>
         <td colspan="2" style="border-bottom: 1px solid; padding-top: 20px;"></td>
-        <td style="border-bottom: 1px solid; padding-top: 20px;"> / {{$fuelTankResponsible->user_full_name}}</td>
+        <td style="border-bottom: 1px solid; padding-top: 20px;"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="text-align: center; font-size: 80%">Должность</td>
+        <td style="text-align: center; font-size: 80%">Подпись</td>
+        <td style="text-align: center; font-size: 80%">Расшифровка</td>
         <td></td>
     </tr>
 

@@ -7,11 +7,24 @@
             dataType: "date",
             visible: false
         },
+
         {
-            caption: "Модель",
-            dataField: "model",
-            visible: false
+            caption: "Марка (old)",
+            dataField: "brand",
+            visible: false,
+            editorOptions: {
+                readOnly:true
+            }
         },
+        {
+            caption: "Модель(old)",
+            dataField: "model",
+            visible: false,
+            editorOptions: {
+                readOnly:true
+            }
+        },
+        
 
         {
             caption: "Идентификатор",
@@ -43,8 +56,25 @@
         },
         {
             caption: "Марка",
-            dataField: "brand",
+            dataField: "technic_brand_id",
+            lookup: {
+                dataSource: technicBrandsStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
         },
+
+        {
+            caption: "Модель",
+            dataField: "technic_brand_model_id",
+            lookup: {
+                dataSource: technicModelsStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+        },
+        
+        
         
         {
             caption: "Наименование",

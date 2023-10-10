@@ -30,20 +30,6 @@
         groupCaptionButtonsDiv
             .append('<div id="downloadXlsButton" class="headerToolbarItem">')
 
-        $('#downloadXlsButton').dxButton({
-            text: "Скачать",
-                        icon: "fa fa-download",
-                        onClick: (e) => {
-                            delete entitiesDataSource.skip;
-                            delete entitiesDataSource.take;
-                            
-                            // форма в файле index.blade.php
-                            // $('#filterList').val(JSON.stringify(''));
-                            // $('#filterOptions').val(JSON.stringify(''));
-
-                            $('#downloadXlsForm').get(0).submit();
-                        }
-                    
-        });
+       
     })
 </script>

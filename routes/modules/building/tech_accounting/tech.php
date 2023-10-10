@@ -82,6 +82,9 @@ Route::post('get_trashed_fuel_tanks_paginated', 'Fuel\Old\FuelTankController@get
 
 Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Technic"], function () {
     Route::group(['prefix' => 'ourTechnicList', 'as' => 'ourTechnicList::'], function () {
+        Route::get('getTechnicBrands', 'OurTechnicController@getTechnicBrands')->name('getTechnicBrands');
+        Route::get('getTechnicModels', 'OurTechnicController@getTechnicModels')->name('getTechnicModels');
+
         Route::get('getPermissions', 'OurTechnicController@getPermissions')->name('getPermissions');
         Route::get('/', 'OurTechnicController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'OurTechnicController');

@@ -462,23 +462,23 @@
                                     <a class="nav-link" 
                                        href="{{ route('building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Оборотная ведомость<br>по выбранной ёмкости</span>
+                                        <span class="sidebar-normal">Отчет по топливу</span>
                                     </a>
                                 </li>
 
-                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
+                                <!-- <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
                                     <a class="nav-link" 
                                        href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Оборотная ведомость<br>по всем ёмкостям</span>
                                     </a>
-                                </li>
+                                </li> -->
 
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
                                     <a class="nav-link" 
                                        href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Перемещение<br>ёмкостей</span>
+                                        <span class="sidebar-normal">Перемещение ёмкостей</span>
                                     </a>
                                 </li>
                                 <hr>

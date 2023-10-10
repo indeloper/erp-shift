@@ -27,22 +27,46 @@
             }],
         },
 
-        
         {
-            dataField: "brand",
+            dataField: "technic_brand_id",
+            colSpan: 1,
+            editorOptions: {
+                onSelectionChanged(){
+                    console.log(technicModelsStore);
+                }
+            },
+            validationRules: [{
+                type: 'required',
+                message: 'Укажите значение',
+            }],
+        },
+
+        {
+            dataField: "technic_brand_model_id",
             colSpan: 1,
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',
             }],
         },
+
+
+        
+        {
+            dataField: "brand",
+            colSpan: 1,
+            // validationRules: [{
+            //     type: 'required',
+            //     message: 'Укажите значение',
+            // }],
+        },
         {
             dataField: "model",
             colSpan: 1,
-            validationRules: [{
-                type: 'required',
-                message: 'Укажите значение',
-            }],
+            // validationRules: [{
+            //     type: 'required',
+            //     message: 'Укажите значение',
+            // }],
         },
         {
             dataField: "inventory_number",

@@ -106,7 +106,7 @@ class FuelReportController extends Controller
 
     public function fuelTankPeriodReportPageCore(Request $request) {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::fuelTankPeriodReport::';
-        $sectionTitle = 'Детальный отчет по выбранной топливной ёмкости за период';
+        $sectionTitle = 'Отчет по топливу';
         $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/fuelTankPeriodReport';
  
         return view('tech_accounting.fuel.reports.fuelTankPeriodReport.desktop.index',
@@ -151,7 +151,8 @@ class FuelReportController extends Controller
                 'fuelSumIncomes' => $fuelSumIncomes,
                 'fuelOutcomes' => $fuelOutcomes,
                 'fuelSumOutcomes' => $fuelSumOutcomes,
-                'fuelTankResponsible' => $fuelTankResponsible
+                'fuelTankResponsible' => $fuelTankResponsible,
+                'carbonInstance' => new Carbon
             ]
         );
         return $pdf->stream('fuelTankPeriodReport.pdf');

@@ -83,4 +83,23 @@
         }
     })
 
+    const technicBrandsStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route($routeNameFixedPart.'getTechnicBrands')}}" 
+            return $.getJSON(url);
+        }
+    })
+
+    const technicModelsStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route($routeNameFixedPart.'getTechnicModels')}}" 
+            return $.getJSON(url);
+        }
+    })
+    
+
 </script>
