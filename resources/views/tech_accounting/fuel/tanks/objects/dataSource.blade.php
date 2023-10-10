@@ -91,4 +91,15 @@
             return $.getJSON(url);
         }
     })
+
+    const companiesStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route($routeNameFixedPart.'getCompanies')}}" 
+            return $.getJSON(url);
+        }
+    })
+
+
 </script>

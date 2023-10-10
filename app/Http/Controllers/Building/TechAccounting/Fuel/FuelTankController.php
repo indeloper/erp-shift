@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
+use App\Models\Company\Company;
 use App\Models\Group;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
@@ -69,4 +70,10 @@ class FuelTankController extends StandardEntityResourceController
             'fuel_level' => $tank->fuel_level
         ]);
     }
+
+    public function getCompanies() {
+        $companies = Company::all();
+        return response()->json($companies, 200, [], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
+    }
+
 }

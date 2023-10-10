@@ -20,7 +20,24 @@
             editorOptions: {
                 showClearButton: true,
             }
-
+        },
+        {
+            dataField: "company_id",
+            colSpan: 2,
+            editorType: "dxSelectBox",
+            validationRules: [{
+                type: 'required',
+                message: 'Укажите значение',
+            }],
+        },
+        {
+            dataField: "responsible_id",
+            colSpan: 2,
+            editorType: "dxSelectBox",
+            validationRules: [{
+                type: 'required',
+                message: 'Укажите значение',
+            }],
         },
         
     ];

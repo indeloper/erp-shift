@@ -31,7 +31,10 @@
                         dataSource: fuelTanksStore,
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
-                    }
+                    },
+                    label: {
+                        text: 'Ёмкость'
+                    },
                 },
                 {
                     dataField: 'contractor_id',
@@ -40,7 +43,10 @@
                         dataSource: fuelContractorsStore,
                         valueExpr: 'id',
                         displayExpr: 'short_name',
-                    }
+                    },
+                    label: {
+                        text: 'Поставщик'
+                    },
                 },
                 {
                     dataField: 'volume',
@@ -48,7 +54,30 @@
                     editorOptions: {
                         min: 0.001
                     },
+                    label: {
+                        text: 'Объем'
+                    },
 
+                },
+                {
+                    itemType: "group",
+                    caption: 'Документ',
+                    items: [
+                        {
+                            dataField: 'document',
+                            editorType: "dxTextBox",
+                            label: {
+                                text: 'Номер'
+                            },
+                        },
+                        {
+                            dataField: 'document_date',
+                            editorType: "dxDateBox",
+                            label: {
+                                text: 'Дата'
+                            },
+                        }
+                    ]
                 },
 
                 {

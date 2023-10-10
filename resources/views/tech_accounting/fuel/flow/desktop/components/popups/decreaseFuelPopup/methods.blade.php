@@ -52,6 +52,26 @@
                     },
                 },
                 {
+                    itemType: "group",
+                    caption: 'Документ',
+                    items: [
+                        {
+                            dataField: 'document',
+                            editorType: "dxTextBox",
+                            label: {
+                                text: 'Номер'
+                            },
+                        },
+                        {
+                            dataField: 'document_date',
+                            editorType: "dxDateBox",
+                            label: {
+                                text: 'Дата'
+                            },
+                        }
+                    ]
+                },
+                {
                     item: 'simple',
                     template: (data, itemElement) => {
                         renderFileUploader(itemElement)

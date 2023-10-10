@@ -14,6 +14,15 @@
             dataType: "date",
             visible: false,
         },
+        {
+            caption: "Компания",
+            dataField: "company_id",
+            lookup: {
+                dataSource: companiesStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+        },
         
         {
             caption: "Номер ёмкоскти",

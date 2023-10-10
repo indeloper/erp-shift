@@ -116,6 +116,7 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
     Route::group(['prefix' => 'tanks', 'as' => 'tanks::'], function () {
         Route::get('getProjectObjects', 'FuelTankController@getProjectObjects')->name('getProjectObjects');
         Route::get('getFuelTanksResponsibles', 'FuelTankController@getFuelTanksResponsibles')->name('getFuelTanksResponsibles');
+        Route::get('getCompanies', 'FuelTankController@getCompanies')->name('getCompanies');
 
         Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
         Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
