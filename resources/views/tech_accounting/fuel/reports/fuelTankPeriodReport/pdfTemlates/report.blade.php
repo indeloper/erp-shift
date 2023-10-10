@@ -55,7 +55,7 @@
         <td class="td-normal" colspan="3">
             Остаток в баке на {{$dateFrom}}
         </td>
-        <td class="td-normal">{{$fuelVolumeDateBegin}}</td>
+        <td class="td-normal">{{number_format($fuelVolumeDateBegin, 0, ',', ' ')}}</td>
         <td class="td-normal"></td>
     </tr>
 
@@ -78,7 +78,7 @@
                 {{$fuelIncome->document}}
             </td>
             <td class="td-normal">
-                {{$fuelIncome->volume}}
+                {{number_format($fuelIncome->volume, 0, ',', ' ')}}
             </td>
             <td class="td-normal"></td>
         </tr>
@@ -97,7 +97,7 @@
             х
         </td>
         <td class="td-normal">
-            <b>{{$fuelSumIncomes}}</b> 
+            <b>{{number_format($fuelSumIncomes, 0, ',', ' ')}}</b> 
         </td>
         <td class="td-normal">
         </td>
@@ -140,7 +140,7 @@
                 {{$fuelOutcome->document}}
             </td>
             <td class="td-normal">
-                {{$fuelOutcome->volume}}
+                {{number_format($fuelOutcome->volume, 0, ',', ' ')}}
             </td>
             <td class="td-normal"></td>
         </tr>
@@ -159,7 +159,7 @@
             х
         </td>
         <td class="td-normal">
-            <b>{{$fuelSumOutcomes}}</b>
+            <b>{{number_format($fuelSumOutcomes, 0, ',', ' ')}}</b>
         </td>
         <td class="td-normal">
         </td>
@@ -172,7 +172,7 @@
             Остаток в баке на {{$dateTo}}
         </td>
 
-        <td class="td-normal">{{$fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes}}</td>
+        <td class="td-normal">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
         <td class="td-normal"></td>
     </tr>
     
@@ -181,28 +181,28 @@
         <td style="padding-top: 20px ;">
             Остаток топлива на начало периода (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 20px; text-align:center">{{$fuelVolumeDateBegin}}</td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 20px; text-align:center">{{number_format($fuelVolumeDateBegin, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
     <tr>
         <td style="padding-top: 10px ;">
             Итого поступило (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{$fuelSumIncomes}}</td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelSumIncomes, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
     <tr>
         <td style="padding-top: 10px;">
             Итого израсходовано (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{$fuelSumOutcomes}}</td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelSumOutcomes, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
     <tr>
         <td style="padding-top: 10px ;">
             Остаток топлива на конец периода (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{$fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes}}</td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
 

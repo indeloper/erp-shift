@@ -23,6 +23,7 @@
             return $.getJSON(url);
         }
     })
+    fuelTanksStore.load()
 
     const fuelContractorsStore = new DevExpress.data.CustomStore({
         key: "id",
@@ -32,6 +33,7 @@
             return $.getJSON(url);
         }
     })
+    fuelContractorsStore.load()
 
     const fuelConsumersStore = new DevExpress.data.CustomStore({
         key: "id",
@@ -41,6 +43,16 @@
             return $.getJSON(url);
         }
     })
+    fuelConsumersStore.load()
 
+    const fuelFlowTypesStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {        
+            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelFlowTypes')}}" 
+            return $.getJSON(url);
+        }
+    })
+    fuelFlowTypesStore.load()
     
 </script>

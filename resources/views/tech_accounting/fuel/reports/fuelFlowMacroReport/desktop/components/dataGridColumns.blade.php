@@ -17,11 +17,13 @@
         },
         {
             caption: "Тип операции",
-            dataField: "type",
+            dataField: "fuel_tank_flow_type_id",
             editorType: "dxSelectBox",
-            editorOptions: {
-                dataSource: ['Поступление', 'Расход']
-            }
+            lookup: {
+                dataSource: fuelFlowTypesStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
         },
         {
             caption: "Объем (л)",
