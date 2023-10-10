@@ -121,10 +121,6 @@ class StandardEntityResourceController extends Controller
             $dataToUpdate = $this->getDataToStore($data, $ignoreDataKeys);
             $entity->update($dataToUpdate);
             $this->afterUpdate($entity, $data, $dataToUpdate);
-
-            // $data = $this->beforeUpdate($entity, $data);
-            // $entity->update($data);
-            // $this->afterUpdate($entity, $data, $dataToUpdate);
         DB::commit();
 
         return json_encode(array(
@@ -163,13 +159,14 @@ class StandardEntityResourceController extends Controller
 
         return [
             'data' => $data, 
-            'ignoreDataKeys' => $ignoreDataKeys
+            'ignoreDataKeys' => ['newAttachments']
         ];
     }
 
     public function afterStore($entity, $data)
     {
-        return $data;
+        if(!empty($data['newAttachments']))
+            (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
     }
 
     public function beforeUpdate($entity, $data)
@@ -181,13 +178,14 @@ class StandardEntityResourceController extends Controller
 
         return [
             'data' => $data, 
-            'ignoreDataKeys' => $ignoreDataKeys
+            'ignoreDataKeys' => ['newAttachments']
         ];
     }
 
     public function afterUpdate($entity, $data)
     {
-        return $data;
+        if(!empty($data['newAttachments']))
+            (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
     }
 
     public function beforeDelete($entity)
@@ -213,11 +211,6 @@ class StandardEntityResourceController extends Controller
 
         return $dataToStore;
     }
-
-    // public function entityInfoByID($id)
-    // {
-        
-    // }
 
     public function getGroupedAttachments($attachments)
     {

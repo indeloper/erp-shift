@@ -3,12 +3,13 @@
         $('#mainPopup').dxPopup({
             visible: true,
             title: 'Корректировка остатков топлива',
-            contentTemplate: () => {return getAdjustmentFuelPopupContentTemplate(formItem)}
+            contentTemplate: () => {return getAdjustmentFuelPopupContentTemplate(formItem)},
         })
     }
 
     const getAdjustmentFuelPopupContentTemplate = (formItem) => {
         return $('<div id="mainForm">').dxForm({
+            validationGroup: "documentValidationGroup",
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
@@ -31,7 +32,14 @@
                         dataSource: fuelTanksStore,
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
-                    }
+                    },
+                    label: {
+                        text: 'Ёмкость'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
                 },
                 
                 {
@@ -40,7 +48,20 @@
                     editorOptions: {
                         // min: 0.001
                     },
-
+                    label: {
+                        text: 'Объем (л)'
+                    },
+                    validationRules: [
+                        {
+                            type: 'required',
+                            message: 'Укажите значение',
+                        },
+                        {
+                            type: 'range',
+                            min: 1,
+                            message: 'Минимальное значение 1',
+                        }
+                    ],
                 },
                 {
                     itemType: "group",

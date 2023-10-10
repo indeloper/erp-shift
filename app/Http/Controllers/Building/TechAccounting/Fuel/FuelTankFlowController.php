@@ -78,11 +78,11 @@ class FuelTankFlowController extends StandardEntityResourceController
         ];
     }
 
-    public function afterStore($entity, $data)
-    {
-        if(!empty($data['newAttachments']))
-            (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
-    }
+    // public function afterStore($entity, $data)
+    // {
+    //     if(!empty($data['newAttachments']))
+    //         (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
+    // }
 
     public function beforeDelete($entity)
     {

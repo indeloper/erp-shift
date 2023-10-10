@@ -4,6 +4,7 @@
         {
             dataField: "tank_number",
             colSpan: 1,
+            editorType: 'dxTextBox',
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',

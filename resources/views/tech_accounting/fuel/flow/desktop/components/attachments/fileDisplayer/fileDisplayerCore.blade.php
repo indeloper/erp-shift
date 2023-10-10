@@ -1,5 +1,11 @@
 <script>
     const renderFileDisplayer = (wrapperElement) => {
+
+        if(!editingRowId) {
+            wrapperElement.append('<div id="noAttachmentsNotification" class="documentElemMobile"><div class="popup-field-nodata">Нет сохраненных файлов</div></div>')
+            return
+        }
+
         $('<div id="filesOnServerListWrapper" >').appendTo(wrapperElement);
         let loadIndicator = $('<div>')
         .dxLoadIndicator({
@@ -24,10 +30,10 @@
     }
 
     const renderLoadedAttachments = (filesOnServerListWrapper) => {
-
+            
         $('#loadIndicatorFilesOnServer').remove()
 
-        let filesDataset = entityInfoByID.store().__rawData.attachments
+        let filesDataset = entityInfoByID.store()?.__rawData?.attachments
 
         if (filesDataset.length === 0) {
             filesOnServerListWrapper.append('<div id="noAttachmentsNotification" class="documentElemMobile"><div class="popup-field-nodata">Нет сохраненных файлов</div></div>')

@@ -20,10 +20,17 @@
                         text: 'Сохранить',
                     },
                     onClick() {
+                        if (!DevExpress.validationEngine.validateGroup("documentValidationGroup").isValid) {
+                            return;
+                        }
                         formData = $('#mainForm').dxForm('instance').option('formData')
                         formData.newAttachments = newAttachments;
-                        entitiesDataSource.store().insert(formData);
-                        entitiesDataSource.reload()
+
+                        if(!editingRowId)
+                            entitiesDataSource.store().insert(formData);
+                        else
+                            entitiesDataSource.store().update(editingRowId, formData);
+                        
                         mainPopup.hide()
                     }
                 },

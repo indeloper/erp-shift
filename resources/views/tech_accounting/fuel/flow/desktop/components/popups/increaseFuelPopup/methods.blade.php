@@ -3,12 +3,13 @@
         $('#mainPopup').dxPopup({
             visible: true,
             title: 'Поступление топлива',
-            contentTemplate: () => {return getIncreaseFuelPopupContentTemplate(formItem)}
+            contentTemplate: () => {return getIncreaseFuelPopupContentTemplate(formItem)},
         })
     }
 
     const getIncreaseFuelPopupContentTemplate = (formItem) => {
         return $('<div id="mainForm">').dxForm({
+            validationGroup: "documentValidationGroup",
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
@@ -34,7 +35,11 @@
                     },
                     label: {
                         text: 'Ёмкость'
-                    },
+                    }, 
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
                 },
                 {
                     dataField: 'contractor_id',
@@ -46,7 +51,11 @@
                     },
                     label: {
                         text: 'Поставщик'
-                    },
+                    }, 
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
                 },
                 {
                     dataField: 'volume',
@@ -55,9 +64,19 @@
                         min: 0.001
                     },
                     label: {
-                        text: 'Объем'
-                    },
-
+                        text: 'Объем (л)'
+                    }, 
+                    validationRules: [
+                        {
+                            type: 'required',
+                            message: 'Укажите значение',
+                        },
+                        {
+                            type: 'range',
+                            min: 1,
+                            message: 'Минимальное значение 1',
+                        }
+                    ],
                 },
                 {
                     itemType: "group",

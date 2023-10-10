@@ -1,7 +1,7 @@
 <script>
-    const uploadingFiles = [];
-    const newAttachments = [];
-    const deletedAttachments = [];
+    let uploadingFiles = [];
+    let newAttachments = [];
+    let deletedAttachments = [];
     const progressBarSettings = {
         min: 0,
         max: 100,

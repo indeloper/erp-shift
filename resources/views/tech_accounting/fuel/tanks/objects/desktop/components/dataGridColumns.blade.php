@@ -25,7 +25,7 @@
         },
         
         {
-            caption: "Номер ёмкоскти",
+            caption: "Номер ёмкости",
             dataField: "tank_number",
             width: 150,
         },

@@ -26,30 +26,7 @@ class FuelTankController extends StandardEntityResourceController
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
 
-    public function getProjectObjects(Request $request)
-    {
-        $options = json_decode($request['data']);
-        
-        $objects = (new ProjectObject)
-            ->where('is_participates_in_material_accounting', 1)
-            ->orderBy('short_name')
-            ->get()
-            ->toArray();
-
-        return json_encode(
-            $objects
-        ,
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
-    }
-
-    public function getFuelTanksResponsibles()
-    {
-        return User::query()->active()
-                ->whereIn('group_id', Group::FOREMEN)
-                ->select(['id', 'user_full_name'])
-                ->orderBy('last_name')
-                ->get();
-    }
+    
     
     public function afterStore($tank, $data)
     {
@@ -61,14 +38,29 @@ class FuelTankController extends StandardEntityResourceController
         ]);
     }
 
-    public function afterUpdate($tank, $data)
+    public function beforeUpdate($entity, $data)
     {
         FuelTankMovement::create([
             'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $tank->id,
-            'object_id' => $tank->object_id,
-            'fuel_level' => $tank->fuel_level
+            'fuel_tank_id' => $entity->id,
+            'previous_object_id' => $entity->object_id,
+            'object_id' => $data['object_id'] ?? $entity->object_id ?? null,
+            'fuel_level' => $entity->fuel_level
         ]);
+
+        return [
+            'data' => $data, 
+            'ignoreDataKeys' => []
+        ];
+    }
+
+    public function getFuelTanksResponsibles()
+    {
+        return User::query()->active()
+                ->whereIn('group_id', Group::FOREMEN)
+                ->select(['id', 'user_full_name'])
+                ->orderBy('last_name')
+                ->get();
     }
 
     public function getCompanies() {
@@ -76,4 +68,20 @@ class FuelTankController extends StandardEntityResourceController
         return response()->json($companies, 200, [], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
     }
 
+    public function getProjectObjects(Request $request)
+    {
+        $options = json_decode($request['data']);
+        
+        $objects = (new ProjectObject)
+            ->where('is_participates_in_material_accounting', 1)
+            ->whereNotNull('short_name')
+            ->orderBy('short_name')
+            ->get()
+            ->toArray();
+
+        return json_encode(
+            $objects
+        ,
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
 }

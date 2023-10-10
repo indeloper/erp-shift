@@ -16,6 +16,15 @@
             },
         },
         {
+            caption: "Предыдущий объект",
+            dataField: "previous_object_id",
+            lookup: {
+                dataSource: projectObjectsStore,
+                valueExpr: "id",
+                displayExpr: "short_name"
+            },
+        },
+        {
             caption: "Объект",
             dataField: "object_id",
             lookup: {

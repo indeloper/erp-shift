@@ -4,12 +4,13 @@
         $('#mainPopup').dxPopup({
             visible: true,
             title: 'Расход топлива',
-            contentTemplate: () => {return getDecreaseFuelPopupContentTemplate(formItem)}
+            contentTemplate: () => {return getDecreaseFuelPopupContentTemplate(formItem)},
         })       
     }
 
     const getDecreaseFuelPopupContentTemplate = (formItem) => {
         return $('<div id="mainForm">').dxForm({
+            validationGroup: "documentValidationGroup",
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
@@ -32,7 +33,14 @@
                         dataSource: fuelTanksStore,
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
-                    }
+                    },
+                    label: {
+                        text: 'Ёмкость'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
                 },
                 {
                     
@@ -42,7 +50,14 @@
                         dataSource: fuelConsumersStore,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                    }
+                    },
+                    label: {
+                        text: 'Потребитель'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
                 },
                 {
                     dataField: 'volume',
@@ -50,6 +65,20 @@
                     editorOptions: {
                         min: 0.001
                     },
+                    label: {
+                        text: 'Объем (л)'
+                    },
+                    validationRules: [
+                        {
+                            type: 'required',
+                            message: 'Укажите значение',
+                        },
+                        {
+                            type: 'range',
+                            min: 1,
+                            message: 'Минимальное значение 1',
+                        }
+                    ],
                 },
                 {
                     itemType: "group",

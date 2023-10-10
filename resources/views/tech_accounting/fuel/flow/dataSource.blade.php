@@ -24,6 +24,7 @@
                         options: null
                     },
                     success: function (data, textStatus, jqXHR) {
+                        entitiesDataSource.reload()
                         DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
                     },
                 })
@@ -41,6 +42,7 @@
                         options: null
                     },
                     success: function (data, textStatus, jqXHR) {
+                        entitiesDataSource.reload()
                         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
                     },
                 })
@@ -56,6 +58,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function (data, textStatus, jqXHR) {
+                        entitiesDataSource.reload()
                         DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
                     },
                 })
@@ -65,7 +68,7 @@
         })
     });
 
-    const entityInfoByID = new DevExpress.data.DataSource({
+    let entityInfoByID = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
             loadMode: "raw",
             load: function (loadOptions) {
@@ -119,6 +122,6 @@
             return $.getJSON(url);
         }
     })
-    fuelFlowTypesStore.load()
+    // fuelFlowTypesStore.load()
 
 </script>

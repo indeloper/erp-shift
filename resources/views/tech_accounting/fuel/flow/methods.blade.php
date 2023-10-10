@@ -12,10 +12,14 @@
 
     function resetVars() {
         editingRowId = 0;
+        uploadingFiles = [];
+        newAttachments = [];
+        deletedAttachments = [];
     }
 
     function resetStores() {
         entityInfoByID.store().clearRawDataCache()
+        entityInfoByID._isLoaded = false
     }
 
     function customConfirmDialog(message) {
