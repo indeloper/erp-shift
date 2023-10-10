@@ -1,38 +1,50 @@
+<style>
+    .td-normal {
+        border:1px solid; 
+        padding: 5px 10px;
+    }
+    .td-center {
+        border:1px solid; 
+        padding: 5px 10px;
+        text-align: center;
+    }
+</style>
+
 <b>{{$company}}</b>
 <br><br><br>
 <div style="width:100%; text-align: center;">
-    <span style="font-weight:bold">ОТЧЕТ по дизельному топливу</span>
+    <span style="font-weight:bold">ОТЧЕТ по дизельному топливу<br>{{$dateFrom}} - {{$dateTo}}</span>
 </div>
 <br><br>
 
 Адрес объекта: {{$objectAdress}}
 <br>
-№ Бака (емкости): {{$tank_number}}
+№ Бака (ёмкости): {{$tank_number}}
 <br><br>
 
 <table style="border-collapse: collapse; font-size:80%; width: 100%">
     
 
     <tr>
-        <th style="border:1px solid; padding: 10px;" rowspan="2">
+        <th class="td-normal" rowspan="2">
             Наименование
         </th>
-        <th colspan="2" style="border:1px solid; padding: 10px;">
+        <th colspan="2" class="td-normal">
             Документ
         </th>
-        <th  rowspan="2" style="border:1px solid; padding: 10px;">
+        <th  rowspan="2" class="td-normal">
             Количество (л)
         </th>
-        <th  rowspan="2" style="border:1px solid; padding: 10px;">
+        <th  rowspan="2" class="td-normal">
             Отметка бухгалтерии
         </th>
     </tr>
     <tr>
         
-        <th style="border:1px solid; padding: 10px;">
+        <th class="td-normal">
             Дата
         </th>
-        <th style="border:1px solid; padding: 10px;">
+        <th class="td-normal">
             Номер
         </th>
     </tr>
@@ -40,43 +52,170 @@
 
 
     <tr>
-        <td style="border:1px solid; padding: 10px;">
+        <td class="td-normal" colspan="3">
             Остаток в баке на {{$dateFrom}}
         </td>
-        <td style="border:1px solid; padding: 10px;"></td>
-        <td style="border:1px solid; padding: 10px;"></td>
-        <td style="border:1px solid; padding: 10px;">{{$fuelVolumeDateBegin}}</td>
-        <td style="border:1px solid; padding: 10px;"></td>
+        <td class="td-normal">{{$fuelVolumeDateBegin}}</td>
+        <td class="td-normal"></td>
     </tr>
 
     <tr>
-        <td style="border:1px solid; padding: 10px; text-align: center;">
-            Приход
+        <td class="td-center">
+            <b>Приход</b> 
         </td>
-        <td style="border:1px solid; padding: 10px;"></td>
-        <td style="border:1px solid; padding: 10px;"></td>
-        <td style="border:1px solid; padding: 10px;"></td>
-        <td style="border:1px solid; padding: 10px;"></td>
+        <td class="td-normal" colspan=4></td>
     </tr>
 
+    @foreach($fuelIncomes as $fuelIncome)
+        <tr>
+            <td class="td-center">
+                {{$fuelIncome['contractor']->short_name}}
+            </td>
+            <td class="td-normal">
+                {{$fuelIncome->document_date}}
+            </td>
+            <td class="td-normal">
+                {{$fuelIncome->document}}
+            </td>
+            <td class="td-normal">
+                {{$fuelIncome->volume}}
+            </td>
+            <td class="td-normal"></td>
+        </tr>
+    @endforeach
+
+    <tr><td class="td-normal" colspan=5></tr>
+
+    <tr>
+        <td class="td-center">
+           <b>Итого по приходу</b> 
+        </td>
+        <td class="td-center">
+            х
+        </td>
+        <td class="td-center">
+            х
+        </td>
+        <td class="td-normal">
+            <b>{{$fuelSumIncomes}}</b> 
+        </td>
+        <td class="td-normal">
+        </td>
+    </tr>
+
+    <!-- <tr>
+        <td class="td-center">
+           <b>Итого по остаткам</b> 
+        </td>
+        <td class="td-center">
+            х
+        </td>
+        <td class="td-center">
+            х
+        </td>
+        <td class="td-normal">
+            <b>{{$fuelSumIncomes + $fuelVolumeDateBegin}}</b> 
+        </td>
+        <td class="td-normal">
+        </td>
+    </tr> -->
+
+    <tr><td class="td-normal" colspan=5></tr>
+    <tr>
+        <td class="td-center">
+            <b>Расход</b> 
+        </td>
+        <td class="td-normal" colspan=4></td>
+    </tr>
+
+    @foreach($fuelOutcomes as $fuelOutcome)
+        <tr>
+            <td class="td-center">
+                {{$fuelOutcome['ourTechnic']->name}}
+            </td>
+            <td class="td-normal">
+                {{$fuelOutcome->document_date}}
+            </td>
+            <td class="td-normal">
+                {{$fuelOutcome->document}}
+            </td>
+            <td class="td-normal">
+                {{$fuelOutcome->volume}}
+            </td>
+            <td class="td-normal"></td>
+        </tr>
+    @endforeach
+
+    <tr><td class="td-normal" colspan=5></tr>
+
+    <tr>
+        <td class="td-center">
+            <b>Итого по расходу</b>
+        </td>
+        <td class="td-center">
+            х
+        </td>
+        <td class="td-center">
+            х
+        </td>
+        <td class="td-normal">
+            <b>{{$fuelSumOutcomes}}</b>
+        </td>
+        <td class="td-normal">
+        </td>
+    </tr>
+
+    <tr><td class="td-normal" colspan=5></tr>
+
+    <tr>
+        <td class="td-normal" colspan=3>
+            Остаток в баке на {{$dateTo}}
+        </td>
+
+        <td class="td-normal">{{$fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes}}</td>
+        <td class="td-normal"></td>
+    </tr>
     
-
+    
+    <tr>
+        <td style="padding-top: 20px ;">
+            Остаток топлива на начало периода (л)
+        </td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 20px; text-align:center">{{$fuelVolumeDateBegin}}</td>
+        <td colspan="2"></td>
+    </tr>
+    <tr>
+        <td style="padding-top: 10px ;">
+            Итого поступило (л)
+        </td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{$fuelSumIncomes}}</td>
+        <td colspan="2"></td>
+    </tr>
+    <tr>
+        <td style="padding-top: 10px;">
+            Итого израсходовано (л)
+        </td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{$fuelSumOutcomes}}</td>
+        <td colspan="2"></td>
+    </tr>
+    <tr>
+        <td style="padding-top: 10px ;">
+            Остаток топлива на конец периода (л)
+        </td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{$fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes}}</td>
+        <td colspan="2"></td>
+    </tr>
 
     <tr>
-        <td style="border:1px solid; padding: 10px;">
-            Накладная
+        <td style="padding-top: 20px ;">
+            Материально ответственное лицо
         </td>
-        <td style="border:1px solid; padding: 10px;">
-            12.12.2023
-        </td>
-        <td style="border:1px solid; padding: 10px;">
-            455464
-        </td>
-        <td style="border:1px solid; padding: 10px;">
-        500
-        </td>
-        <td style="border:1px solid; padding: 10px;">
-            Отметки бух
-        </td>
+        <td colspan="2" style="border-bottom: 1px solid; padding-top: 20px;"></td>
+        <td style="border-bottom: 1px solid; padding-top: 20px;"> / {{$fuelTankResponsible->user_full_name}}</td>
+        <td></td>
     </tr>
+
 </table>
+<br><br>
+
+

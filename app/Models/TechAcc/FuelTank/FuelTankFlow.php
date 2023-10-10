@@ -7,7 +7,9 @@ use App\Traits\Logable;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Comment;
+use App\Models\Contractors\Contractor;
 use App\Models\FileEntry;
+use App\Models\TechAcc\OurTechnic;
 
 class FuelTankFlow extends Model
 {
@@ -23,5 +25,15 @@ class FuelTankFlow extends Model
     public function attachments()
     {
         return $this->morphMany(FileEntry::class, 'documentable');
+    }
+
+    public function contractor()
+    {
+        return $this->belongsTo(Contractor::class);
+    }
+
+    public function ourTechnic()
+    {
+        return $this->belongsTo(OurTechnic::class);
     }
 }
