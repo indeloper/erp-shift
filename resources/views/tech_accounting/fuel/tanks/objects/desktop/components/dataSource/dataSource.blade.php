@@ -264,22 +264,21 @@
                     },
                     success: function (data, textStatus, jqXHR) {
 
-                        tankFuelIncomesStore.reload()
-                        // if(choosedFormTab === 'fuelIncomes') {
-                        //     tankFuelIncomesStore.reload().done(()=>{
-                        //         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
-                        //     })      
-                        // }
-                        // if(choosedFormTab === 'fuelOutcomes') {
-                        //     tankFuelOutcomesStore.reload().done(()=>{
-                        //         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
-                        //     })      
-                        // }
-                        // if(choosedFormTab === 'fuelAdjustmens') {
-                        //     tankFuelAdjustmentsStore.reload().done(()=>{
-                        //         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
-                        //     })      
-                        // }
+                        if(choosedFormTab === 'fuelIncomes') {
+                            tankFuelIncomesStore.reload().done(()=>{
+                                DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                            })      
+                        }
+                        if(choosedFormTab === 'fuelOutcomes') {
+                            tankFuelOutcomesStore.reload().done(()=>{
+                                DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                            })      
+                        }
+                        if(choosedFormTab === 'fuelAdjustmens') {
+                            tankFuelAdjustmentsStore.reload().done(()=>{
+                                DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                            })      
+                        }
                         
                     },
                 })
