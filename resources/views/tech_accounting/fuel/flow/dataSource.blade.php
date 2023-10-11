@@ -5,7 +5,7 @@
             key: "id",
             loadMode: "processed",
             load: function (loadOptions) {
-
+                console.log(loadOptions);
                 return $.getJSON("{{route($routeNameFixedPart.'resource.index')}}",
                     {
                         data: JSON.stringify(loadOptions),

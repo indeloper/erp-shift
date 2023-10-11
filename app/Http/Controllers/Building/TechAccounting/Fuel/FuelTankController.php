@@ -9,6 +9,7 @@ use App\Models\Company\Company;
 use App\Models\Group;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
@@ -25,8 +26,6 @@ class FuelTankController extends StandardEntityResourceController
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
-
-    
     
     public function afterStore($tank, $data)
     {

@@ -12,6 +12,7 @@
 
 <div id="dataGridAncor"></div>
 <div id="mainPopup"></div>
+<div id="externalPopup"></div>
 
 @endsection
 
