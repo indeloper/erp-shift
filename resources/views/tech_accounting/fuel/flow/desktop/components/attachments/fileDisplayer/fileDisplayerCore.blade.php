@@ -40,25 +40,22 @@
             return
         }
 
-        Object.keys(filesDataset).forEach(group => renderFilesGroup(group, filesDataset[group]))
+        Object.keys(filesDataset).forEach(group => renderFilesGroup(group, filesDataset[group])) 
         addLightgalleryListenersImg()
+        addLightgalleryListenersVideo()
     }
 
     const renderFilesGroup = (group, groupItems) => {
         $('#filesOnServerListWrapper').append(`<div class="files-group-header">${group}</div>`)
 
-        let filesGroupWrapper = $('<div>').addClass('filesGroupWrapperClass');
-        let filesNotImgGroupWrapper = $('<div>').addClass('filesGroupWrapperClass');
+        let filesGroupWrapper = $('<div>').addClass('filesGroupWrapperClass').appendTo(filesOnServerListWrapper);
+        let filesNotImgGroupWrapper = $('<div>').addClass('filesGroupWrapperClass').appendTo(filesOnServerListWrapper);
+        let filesVideoGroupWrapper = $('<div>').addClass('filesGroupWrapperClass videoFilesOnServer').appendTo(filesOnServerListWrapper);
 
-        handleFilesDataArr(groupItems, filesGroupWrapper, filesNotImgGroupWrapper, 'filesTab')
-
-        $(filesOnServerListWrapper).append(filesGroupWrapper)
-        $(filesOnServerListWrapper).append(filesNotImgGroupWrapper)
+        handleFilesDataArr(groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper)
     }
 
-    const context = 'filesTab'
-
-    const handleFilesDataArr = (groupItems, filesGroupWrapper, filesNotImgGroupWrapper, context) => {
+    const handleFilesDataArr = (groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper) => {
         let i = 0;
         groupItems.forEach(file => {
 
@@ -66,14 +63,13 @@
 
             let isFileImg = file.mime.includes('image')
             let isFilePdf = file.mime.includes('pdf')
+            let isFileVideo = file.mime.includes('video')
 
             if (isFileImg) {
-                // if (!context)
-                //     fileOnServerDivWrapper = $('<a>').attr('href', file.filename).addClass(context ? 'fileOnServerDivWrapper' : 'fileOnServerDivWrapperInfoTab')
-                // else
-                    fileOnServerDivWrapper = $('<div>').css({
-                        'cursor': 'pointer'
-                    }).addClass('fileOnServerDivWrapper')
+                
+                fileOnServerDivWrapper = $('<div>').css({
+                    'cursor': 'pointer'
+                }).addClass('fileOnServerDivWrapper')
 
                 fileSrc = window.location.protocol + '//' + window.location.host + '/' + file.filename
 
@@ -83,7 +79,7 @@
                         'href': file.filename,
                         'target': '_blanc'
                     })
-                    .addClass(context ? 'fileOnServerDivWrapper' : 'fileOnServerDivWrapperInfoTab')
+                    .addClass('fileOnServerDivWrapper')
 
                 if (file.original_filename.includes('.xls') || file.original_filename.includes('.xlsx'))
                     fileSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/xls-icon.png'
@@ -92,8 +88,10 @@
                     fileSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/doc-icon.png'
 
                 if (file.original_filename.includes('.pdf'))
-                    fileSrc = fileSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/pdf-icon.png'
+                    fileSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/pdf-icon.png'
 
+                if (isFileVideo)
+                    fileSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/video-icon.png'
             }
 
             $(fileOnServerDivWrapper).attr('id', 'fileId-' + file.id).addClass('attachmentFileWrapper')
@@ -108,9 +106,7 @@
 
             if (isFileImg) {
                 fileImg.css('object-fit', 'cover')
-
-                if (context)
-                    fileImg.addClass('fileImg')
+                fileImg.addClass('fileImg')
             } else {
                 fileImg.css('object-fit', 'scale-down')
             }
@@ -125,10 +121,14 @@
 
             if (isFileImg) {
                 $(filesGroupWrapper).append(fileOnServerDivWrapper)
-            } else {
+            } 
+            else if(!isFileVideo) {
                 $(filesNotImgGroupWrapper).append(fileOnServerDivWrapper)
+                console.log('not img');
             }
-
+            else {
+                $(filesVideoGroupWrapper).append(fileOnServerDivWrapper)
+            }
         })
     }
 
@@ -142,4 +142,11 @@
                 })
             }
     }
+
+    function addLightgalleryListenersVideo() {
+        const videoFilesOnServer = document.querySelectorAll('.videoFilesOnServer')
+        console.log(videoFilesOnServer);
+    }
+
+
 </script>

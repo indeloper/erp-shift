@@ -5,7 +5,7 @@
             showTitle: true,
             hideOnOutsideClick: true,
             showCloseButton: true,
-            maxWidth: '30vw',
+            maxWidth: '500px',
             height: 'auto',
             onHiding() {
                 resetVars();
