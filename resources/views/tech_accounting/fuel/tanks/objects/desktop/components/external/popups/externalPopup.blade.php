@@ -2,7 +2,7 @@
     let externalPopupSettings = {
         visible: false,
         showTitle: true,
-        hideOnOutsideClick: true,
+        hideOnOutsideClick: false,
         showCloseButton: true,
         maxWidth: '500px',
         height: 'auto',
@@ -22,7 +22,7 @@
                         return;
                     }
                     formData = $('#externalForm').dxForm('instance').option('formData')
-                    formData.newAttachments = newExternalAttachments;
+                    formData.newAttachments = externalNewAttachments;
 
                     if (!externalEditingRowId)
                         externalEntitiesDataSource.store().insert(formData);

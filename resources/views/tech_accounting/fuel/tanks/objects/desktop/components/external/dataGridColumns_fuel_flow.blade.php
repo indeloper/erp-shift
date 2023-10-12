@@ -73,7 +73,7 @@
             dataField: "volume",
             editorType: 'dxNumberBox',
             editorOptions: {
-                min: 0.001
+                // min: 0.001
             },
             dataType: "number",
             customizeText: (data) => {
@@ -107,7 +107,7 @@
                                 $('#mainDataGrid_fuel_flow_outcomes').dxDataGrid('instance').option("focusedRowIndex", undefined);
                             }
 
-                            if(choosedFormTab === 'fuelAdjustmens') {
+                            if(choosedFormTab === 'fuelAdjustments') {
                                 showAdjustmentFuelPopup();
                                 $('#mainDataGrid_fuel_flow_adjusments').dxDataGrid('instance').option("focusedRowKey", undefined);
                                 $('#mainDataGrid_fuel_flow_adjusments').dxDataGrid('instance').option("focusedRowIndex", undefined);

@@ -57,7 +57,7 @@
                 if(choosedFormTab === 'fuelOutcomes')
                     dataGridItems = $('#mainDataGrid_fuel_flow_outcomes')
                     
-                if(choosedFormTab === 'fuelAdjustmens') 
+                if(choosedFormTab === 'fuelAdjustments') 
                     dataGridItems = $('#mainDataGrid_fuel_flow_adjusments')
 
                 let choosedItem = dataGridItems.dxDataGrid('instance').getDataSource().items().find(el=>el.id === e.key)

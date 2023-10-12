@@ -16,13 +16,13 @@
             width: 50,
         }).appendTo(wrapperElement);
 
-        if (entityInfoByID.isLoaded()) {
+        if (externalEntityInfoByID.isLoaded()) {
             renderLoadedAttachments(wrapperElement)
         } else {
-            entityInfoByID.load()
-            let checkEntityInfoByIDAvailable = setInterval(() => {
-                if (entityInfoByID.isLoaded()) {
-                    clearInterval(checkEntityInfoByIDAvailable);
+            externalEntityInfoByID.load()
+            let checkexternalEntityInfoByIDAvailable = setInterval(() => {
+                if (externalEntityInfoByID.isLoaded()) {
+                    clearInterval(checkexternalEntityInfoByIDAvailable);
                     renderLoadedAttachments(wrapperElement)
                 }
             }, 100)
@@ -33,7 +33,7 @@
             
         $('#loadIndicatorFilesOnServer').remove()
 
-        let filesDataset = entityInfoByID.store()?.__rawData?.attachments
+        let filesDataset = externalEntityInfoByID.store()?.__rawData?.attachments
 
         if (filesDataset.length === 0) {
             filesOnServerListWrapper.append('<div id="noAttachmentsNotification" class="documentElemMobile"><div class="popup-field-nodata">Нет сохраненных файлов</div></div>')
@@ -48,11 +48,18 @@
     const renderFilesGroup = (group, groupItems) => {
         $('#filesOnServerListWrapper').append(`<div class="files-group-header">${group}</div>`)
 
-        let filesGroupWrapper = $('<div>').addClass('filesGroupWrapperClass').appendTo(filesOnServerListWrapper);
-        let filesNotImgGroupWrapper = $('<div>').addClass('filesGroupWrapperClass').appendTo(filesOnServerListWrapper);
-        let filesVideoGroupWrapper = $('<div>').addClass('filesGroupWrapperClass videoFilesOnServer').appendTo(filesOnServerListWrapper);
+        let filesGroupWrapper = $('<div>').addClass('filesGroupWrapperClass')
+            // .appendTo(filesOnServerListWrapper);
+        let filesNotImgGroupWrapper = $('<div>').addClass('filesGroupWrapperClass')
+            // .appendTo(filesOnServerListWrapper);
+        let filesVideoGroupWrapper = $('<div>').addClass('filesGroupWrapperClass videoFilesOnServer')
+            // .appendTo(filesOnServerListWrapper);
 
         handleFilesDataArr(groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper)
+
+        $('#filesOnServerListWrapper').append(filesGroupWrapper)
+        $('#filesOnServerListWrapper').append(filesNotImgGroupWrapper)
+        $('#filesOnServerListWrapper').append(filesVideoGroupWrapper)
     }
 
     const handleFilesDataArr = (groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper) => {
@@ -124,7 +131,6 @@
             } 
             else if(!isFileVideo) {
                 $(filesNotImgGroupWrapper).append(fileOnServerDivWrapper)
-                console.log('not img');
             }
             else {
                 $(filesVideoGroupWrapper).append(fileOnServerDivWrapper)
@@ -145,7 +151,6 @@
 
     function addLightgalleryListenersVideo() {
         const videoFilesOnServer = document.querySelectorAll('.videoFilesOnServer')
-        console.log(videoFilesOnServer);
     }
 
 

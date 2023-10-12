@@ -6,6 +6,6 @@
 // Конец Общие
     let choosedFormTab = '';
 
-    let externalEditingRowId = 0;
+    
 
 </script>

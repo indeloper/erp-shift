@@ -4,9 +4,9 @@
         const progressBarDiv = $('<div>').css({
             'width': '90%'
         })
-        uploadingFiles.push(e);
-        let newFile = newFileDiv.attr('id', 'newFile' + uploadingFiles.length)
-        let progressBar = progressBarDiv.attr('id', 'progressBar' + uploadingFiles.length).addClass('progressBar')
+        externalUploadingFiles.push(e);
+        let newFile = newFileDiv.attr('id', 'newFile' + externalUploadingFiles.length)
+        let progressBar = progressBarDiv.attr('id', 'progressBar' + externalUploadingFiles.length).addClass('progressBar')
         $(newFile).append(progressBar)
         $('#newFilesListWrapper').append(newFile)
     }
@@ -16,7 +16,7 @@
         if (bars.length) {
             for (let index = 0; index < bars.length; index++) {
                 const element = bars[index];
-                let newFileUploadProgressBar = $('#' + element.id).dxProgressBar(progressBarSettings).dxProgressBar('instance');
+                let newFileUploadProgressBar = $('#' + element.id).dxProgressBar(externalProgressBarSettings).dxProgressBar('instance');
                 newFileUploadProgressBar.option('value', (e.bytesLoaded / e.bytesTotal) * 100);
             }
         }
@@ -28,16 +28,16 @@
         let isFileImg = e.file.type.includes('image')
         let isFilePdf = e.file.type.includes('pdf')
        
-        newAttachments.push(newFileEntryId)
+        externalNewAttachments.push(newFileEntryId)
 
-        $('#newFile' + uploadingFiles.length).remove()
+        $('#newFile' + externalUploadingFiles.length).remove()
 
         const {file} = e;
         const fileReader = new FileReader();
         fileReader.readAsDataURL(file);
         let i = 0;
         fileReader.onload = function() {
-            $('#newFile' + uploadingFiles.length).remove()
+            $('#newFile' + externalUploadingFiles.length).remove()
 
             if (isFileImg) {
                 newFileURL = JSON.parse(e.request.response).fileEntry.filename
@@ -84,10 +84,10 @@
                 $(newFilesNotImgListWrapper).append(newFileImgWrapper)
             }
 
-            uploadingFiles.pop()
+            externalUploadingFiles.pop()
 
             i++;
-            if (!uploadingFiles.length && i > 0) {
+            if (!externalUploadingFiles.length && i > 0) {
 
                 // Добавление Lightgallery
 
@@ -114,7 +114,7 @@
                             },
                             onClick(e) {
                                 let fileId = e.element.closest('.newFileDivCSS')[0]?.getAttribute("id")?.split('-')[1];
-                                deletedAttachments.push(fileId)
+                                externalDeletedAttachments.push(fileId)
                                 e.element.closest('.newFileDivCSS').remove()
                             },
                         })

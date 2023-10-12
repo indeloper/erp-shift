@@ -58,11 +58,7 @@
                             type: 'required',
                             message: 'Укажите значение',
                         },
-                        {
-                            type: 'range',
-                            min: 1,
-                            message: 'Минимальное значение 1',
-                        }
+                        
                     ],
                 },
                 {
@@ -89,6 +85,12 @@
                     item: 'simple',
                     template: (data, itemElement) => {
                         renderFileUploader(itemElement)
+                    }
+                },
+                {
+                    item: 'simple',
+                    template: (data, itemElement) => {
+                        renderFileDisplayer(itemElement)
                     }
                 },
              

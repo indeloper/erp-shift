@@ -48,11 +48,18 @@
     const renderFilesGroup = (group, groupItems) => {
         $('#filesOnServerListWrapper').append(`<div class="files-group-header">${group}</div>`)
 
-        let filesGroupWrapper = $('<div>').addClass('filesGroupWrapperClass').appendTo(filesOnServerListWrapper);
-        let filesNotImgGroupWrapper = $('<div>').addClass('filesGroupWrapperClass').appendTo(filesOnServerListWrapper);
-        let filesVideoGroupWrapper = $('<div>').addClass('filesGroupWrapperClass videoFilesOnServer').appendTo(filesOnServerListWrapper);
+        let filesGroupWrapper = $('<div>').addClass('filesGroupWrapperClass')
+            // .appendTo(filesOnServerListWrapper);
+        let filesNotImgGroupWrapper = $('<div>').addClass('filesGroupWrapperClass')
+            // .appendTo(filesOnServerListWrapper);
+        let filesVideoGroupWrapper = $('<div>').addClass('filesGroupWrapperClass videoFilesOnServer')
+            // .appendTo(filesOnServerListWrapper);
 
         handleFilesDataArr(groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper)
+
+        $('#filesOnServerListWrapper').append(filesGroupWrapper)
+        $('#filesOnServerListWrapper').append(filesNotImgGroupWrapper)
+        $('#filesOnServerListWrapper').append(filesVideoGroupWrapper)
     }
 
     const handleFilesDataArr = (groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper) => {
