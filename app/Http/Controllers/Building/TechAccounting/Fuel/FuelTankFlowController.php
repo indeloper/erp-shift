@@ -71,6 +71,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         $tank->save();
 
         $data['author_id'] = Auth::user()->id;
+        $data['responsible_id'] = $tank->responsible_id;
         
         return [
             'data' => $data, 
