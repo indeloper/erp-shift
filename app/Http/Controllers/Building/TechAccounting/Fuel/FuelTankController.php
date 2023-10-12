@@ -21,7 +21,7 @@ class FuelTankController extends StandardEntityResourceController
     {
         $this->baseModel = new FuelTank;
         $this->routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
-        $this->sectionTitle = 'Топливные ёмкости';
+        $this->sectionTitle = 'Топливные емкости';
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);

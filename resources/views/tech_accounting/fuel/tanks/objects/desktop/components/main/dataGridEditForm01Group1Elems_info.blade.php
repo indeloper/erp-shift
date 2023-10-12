@@ -13,23 +13,27 @@
                 dataField: "tank_number",
                 colSpan: 1,
                 editorType: 'dxTextBox',
-                validationRules: [{
-                    type: 'required',
-                    message: 'Укажите значение',
-                }],
+                validationRules: [
+                    {
+                        type: 'required',
+                        message: 'Укажите значение',
+                    },
+                    {
+                        type: 'custom',
+                        message: 'Значение должно быть уникальным',
+                        validationCallback(e) {
+                            if(fuelTanksStore.__rawData.find(el=>el.tank_number == e.value))
+                                return false
+                            return true
+                        },
+                    }
+                ],
             },
             {
                 dataField: "explotation_start",
                 colSpan: 1,
             },
-            {
-                dataField: "object_id",
-                colSpan: 2,
-                editorType: "dxSelectBox",
-                editorOptions: {
-                    showClearButton: true,
-                }
-            },
+            
             {
                 dataField: "company_id",
                 colSpan: 2,
@@ -38,6 +42,14 @@
                     type: 'required',
                     message: 'Укажите значение',
                 }],
+            },
+            {
+                dataField: "object_id",
+                colSpan: 2,
+                editorType: "dxSelectBox",
+                editorOptions: {
+                    showClearButton: false,
+                }
             },
             {
                 dataField: "responsible_id",

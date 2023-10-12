@@ -17,7 +17,7 @@ class OurTechnicController extends StandardEntityResourceController
     {
         $this->baseModel = new OurTechnic;
         $this->routeNameFixedPart = 'building::tech_acc::technic::ourTechnicList::';
-        $this->sectionTitle = 'Учёт техники';
+        $this->sectionTitle = 'Учет техники';
         $this->baseBladePath = resource_path().'/views/tech_accounting/technic/ourTechnicList';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);

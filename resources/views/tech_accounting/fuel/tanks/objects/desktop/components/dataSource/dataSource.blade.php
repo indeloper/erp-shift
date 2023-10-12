@@ -93,6 +93,8 @@
         }
     })
 
+    fuelTanksStore.load()
+
     const projectObjectsStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",

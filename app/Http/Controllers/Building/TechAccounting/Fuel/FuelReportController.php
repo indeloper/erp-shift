@@ -20,7 +20,7 @@ class FuelReportController extends Controller
 {
     public function fuelFlowMacroReportPageCore() {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::fuelFlowMacroReport::';
-        $sectionTitle = 'Общая оборотная ведомость по топливным ёмкостям';
+        $sectionTitle = 'Общая оборотная ведомость по топливным емкостям';
         $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/fuelFlowMacroReport';
  
         return view('tech_accounting.fuel.reports.fuelFlowMacroReport.desktop.index',
@@ -43,7 +43,7 @@ class FuelReportController extends Controller
 
     public function tanksMovementReportPageCore(Request $request) {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::tanksMovementReport::';
-        $sectionTitle = 'Перемещения топливных ёмкостей';
+        $sectionTitle = 'Перемещения топливных емкостей';
         $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/tanksMovementReport';
  
         return view('tech_accounting.fuel.reports.tanksMovementReport.desktop.index',

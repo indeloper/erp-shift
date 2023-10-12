@@ -28,6 +28,8 @@
             caption: "Номер емкости",
             dataField: "tank_number",
             width: 150,
+            sortIndex: 0, 
+            sortOrder: "asc"
         },
         {
             caption: "Объект",
