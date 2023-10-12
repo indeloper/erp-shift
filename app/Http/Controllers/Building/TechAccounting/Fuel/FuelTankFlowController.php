@@ -33,6 +33,32 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
 
+    public function index(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        $entities = $this->baseModel
+            ->dxLoadOptions($options)
+            ->leftJoin('fuel_tanks', 'fuel_tanks.id', '=', 'fuel_tank_flows.fuel_tank_id')
+            ->orderBy('fuel_tank_flows.id', 'desc')
+            ->get();
+
+        if(!empty($options->group)) {
+            $groups = $this->handleGroupResponse($entities, $options->group);
+            return json_encode(array(
+                    "data" => $groups['data'],
+                    "groupCount" => $groups['groupCount'],
+                    "totalCount" => $groups['totalCount'],
+                ),
+                JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        }
+    
+        return json_encode(array(
+            "data" => $entities
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
     public function beforeStore($data)
     {
         $tank = FuelTank::findOrFail($data['fuel_tank_id']);

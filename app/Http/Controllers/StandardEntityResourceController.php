@@ -237,25 +237,26 @@ class StandardEntityResourceController extends Controller
 
     public function handleGroupResponse($entities, $groupRequest)
     {
-        $groupBy = $groupRequest[0]->selector;
-        $groupByArr = $entities->pluck($groupBy)->unique();
-
-        $groups = [];
-        $groups['groupCount'] = 0;
-        $groups['totalCount'] = $entities->count();
-
-        foreach($groupByArr as $groupKey) {
-            $projectObjectDocumentsGrouped = $entities->where($groupBy, $groupKey);
-            $groupData = new \stdClass;
-            $groupData->key = $groupKey;
-            $groupData->count = $projectObjectDocumentsGrouped->count();
-            $groupData->items = null;
-            $groupData->summary = [
-                
-            ];
-            $groups['data'][] = $groupData;
-            ++ $groups['groupCount'];
+        foreach($groupRequest as $groupRequestElement){
+            $groupBy = $groupRequestElement->selector;
+            $groupByArr = $entities->pluck($groupBy)->unique();
+    
+            $groups = [];
+            $groups['groupCount'] = 0;
+            $groups['totalCount'] = $entities->count();
+    
+            foreach($groupByArr as $groupKey) {
+                $projectObjectDocumentsGrouped = $entities->where($groupBy, $groupKey);
+                $groupData = new \stdClass;
+                $groupData->key = $groupKey;
+                $groupData->count = $projectObjectDocumentsGrouped->count();
+                $groupData->items = null;
+                $groupData->summary = [];
+                $groups['data'][] = $groupData;
+                ++ $groups['groupCount'];
+            }
         }
+       
 
         return $groups;
     }

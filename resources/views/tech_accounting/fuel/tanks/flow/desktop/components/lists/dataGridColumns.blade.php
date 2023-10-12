@@ -1,14 +1,27 @@
 <script>
     const dataGridColumns = [
+        {
+            caption: "Компания",
+            dataField: "company_id",
+            lookup: {
+                dataSource: companiesStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+            groupIndex: 0,
+        },
 
         {
-            caption: "Идентификатор",
-            dataField: "id",
-            dataType: "number",
-            width: 75,
-            visible: false
+            caption: "Объект",
+            dataField: "object_id",
+            lookup: {
+                dataSource: projectObjectsStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+            groupIndex: 1,
         },
-                
+
         {
             caption: "Поставщик",
             dataField: "contractor_id",
@@ -37,6 +50,26 @@
                 valueExpr: "id",
                 displayExpr: "name"
             },
+            cellTemplate(container, options) {
+   
+                let displayValue = options.text
+                fontColor = ''
+
+                if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
+                    fontColor = 'red' 
+                } 
+                else if(options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
+                    fontColor = 'green' 
+                }
+                else {
+                    fontColor = 'blue'
+                }
+
+                $('<span>')
+                    .css('color', fontColor)
+                    .text(displayValue)
+                    .appendTo(container)
+            }
         },
         {
             caption: "Дата",
@@ -78,17 +111,15 @@
 
                 let displayValue = fontColor = ''
 
-                if(options.row.data.fuel_tank_flow_type_id === fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id) {
+                if (options.row.data.fuel_tank_flow_type_id === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
                     displayValue = options.value * -1
-                }
-                else {
+                } else {
                     displayValue = options.value
                 }
 
-                if(displayValue > 0) {
+                if (displayValue > 0) {
                     fontColor = 'green'
-                }
-                else {
+                } else {
                     fontColor = 'red'
                 }
 
@@ -98,7 +129,7 @@
                     .appendTo(container)
             }
         },
-        
+
         {
             type: "buttons",
             buttons: [
@@ -123,13 +154,13 @@
 
                         onItemClick(e) {
 
-                            if(e.itemData.slug === 'income')
+                            if (e.itemData.slug === 'income')
                                 showIncreaseFuelPopup();
 
-                            if(e.itemData.slug === 'outcome')
+                            if (e.itemData.slug === 'outcome')
                                 showDecreaseFuelPopup();
 
-                            if(e.itemData.slug === 'adjustment')
+                            if (e.itemData.slug === 'adjustment')
                                 showAdjustmentFuelPopup();
                         }
                     })
