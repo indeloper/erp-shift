@@ -8,32 +8,7 @@
             width: 75,
             visible: false
         },
-        {
-            caption: "Дата",
-            dataField: "created_at",
-            dataType: "date",
-            width: 150,
-        },
-        {
-            caption: "Ответственный",
-            dataField: "author_id",
-            lookup: {
-                dataSource: fuelResponsiblesStore,
-                valueExpr: "id",
-                displayExpr: "user_full_name"
-            },
-        },
-        
-        {
-            caption: "Топливная емкость",
-            dataField: "fuel_tank_id",
-            lookup: {
-                dataSource: fuelTanksStore,
-                valueExpr: "id",
-                displayExpr: "tank_number"
-            },
-        },
-        
+                
         {
             caption: "Поставщик",
             dataField: "contractor_id",
@@ -54,7 +29,6 @@
             },
             visible: false
         },
-
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
@@ -64,7 +38,31 @@
                 displayExpr: "name"
             },
         },
+        {
+            caption: "Дата",
+            dataField: "created_at",
+            dataType: "date",
+            width: 150,
+        },
 
+        {
+            caption: "Топливная емкость",
+            dataField: "fuel_tank_id",
+            lookup: {
+                dataSource: fuelTanksStore,
+                valueExpr: "id",
+                displayExpr: "tank_number"
+            },
+        },
+        {
+            caption: "Ответственный",
+            dataField: "author_id",
+            lookup: {
+                dataSource: fuelResponsiblesStore,
+                valueExpr: "id",
+                displayExpr: "user_full_name"
+            },
+        },
         {
             caption: "Объем (л)",
             dataField: "volume",
