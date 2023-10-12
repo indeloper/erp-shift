@@ -71,14 +71,31 @@
                 min: 0.001
             },
             dataType: "number",
-            customizeText: (data) => {
-                return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
-            },
+            // customizeText: (data) => {
+            //     return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
+            // },
             cellTemplate(container, options) {
 
-                if(options.row.data.fuel_tank_flow_type_id === fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id)
-                    container.append(options.value*-1)
-                else container.append(options.value)
+                let displayValue = fontColor = ''
+
+                if(options.row.data.fuel_tank_flow_type_id === fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id) {
+                    displayValue = options.value * -1
+                }
+                else {
+                    displayValue = options.value
+                }
+
+                if(displayValue > 0) {
+                    fontColor = 'green'
+                }
+                else {
+                    fontColor = 'red'
+                }
+
+                $('<span>')
+                    .css('color', fontColor)
+                    .text(new Intl.NumberFormat('ru-RU').format(displayValue * 1000 / 1000))
+                    .appendTo(container)
             }
         },
         
