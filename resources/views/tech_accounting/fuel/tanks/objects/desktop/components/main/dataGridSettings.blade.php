@@ -13,6 +13,7 @@
         columnHidingEnabled: false,
         showRowLines: true,
         remoteOperations: true,
+        
         scrolling: {
             mode: 'infinite',
             rowRenderingMode: 'virtual',
@@ -34,6 +35,10 @@
             enabled: true,
             pageSize: 100,
         },
+        grouping: {
+            autoExpandAll: true,
+        },
+        
         editing: {
             mode: "popup",
             popup: dataGridPopup,

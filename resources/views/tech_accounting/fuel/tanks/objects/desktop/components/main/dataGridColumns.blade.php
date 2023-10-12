@@ -22,6 +22,7 @@
                 valueExpr: "id",
                 displayExpr: "name"
             },
+            groupIndex: 0,
         },
         
         {

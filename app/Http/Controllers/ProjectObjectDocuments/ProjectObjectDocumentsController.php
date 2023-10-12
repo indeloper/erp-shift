@@ -207,7 +207,7 @@ class ProjectObjectDocumentsController extends Controller
                 'red' => $projectObjectDocuments->whereIn('document_status_id', $redStatusesIds)->where($groupBy, $groupKey)->count(),
                 'orange' => $projectObjectDocuments->whereIn('document_status_id', $orangeStatusesIds)->where($groupBy, $groupKey)->count(),
                 'green' => $projectObjectDocuments->whereIn('document_status_id', $greenStatusesIds)->where($groupBy, $groupKey)->count(),
-                'grey' => $projectObjectDocuments->whereIn('document_status_id', $greenStatusesIds)->where($groupBy, $groupKey)->count(),
+                'grey' => $projectObjectDocuments->whereIn('document_status_id', $greyStatusesIds)->where($groupBy, $groupKey)->count(),
             ];
             $groups['data'][] = $groupData;
             ++ $groups['groupCount'];
