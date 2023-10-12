@@ -266,7 +266,7 @@
             </div>
             <div style="margin:0 auto; margin-bottom:2px; margin-top: 70px">
                 <h1 style="font-size:8pt; text-align:center; text-transform: uppercase">
-                    <b>ОТЧЁТ по дизельному топливу</b>
+                    <b>ОТЧЕТ по дизельному топливу</b>
                 </h1>
             </div>
             <div style="width: 40%; float: left;">
@@ -433,7 +433,7 @@
             </div>
             <div style="width: 30%; float: left;">
                 <span style="font-size: 4pt; width:100%; display:inline-block;">
-                    Отчёт с документами принял и проверил
+                    Отчет с документами принял и проверил
                 </span>
             </div>
             <div style="width: 20%; float: left">

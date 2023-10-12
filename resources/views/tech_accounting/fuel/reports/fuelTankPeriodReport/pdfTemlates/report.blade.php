@@ -19,7 +19,7 @@
 
 Адрес объекта: {{$objectAdress}}
 <br>
-№ Бака (ёмкости): {{$tank_number}}
+№ Бака (емкости): {{$tank_number}}
 <br><br>
 
 <table style="border-collapse: collapse; font-size:80%; width: 100%">

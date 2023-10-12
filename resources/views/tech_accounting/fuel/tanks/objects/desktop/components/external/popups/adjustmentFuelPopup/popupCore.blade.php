@@ -36,7 +36,7 @@
                         value: editingRowId
                     },
                     label: {
-                        text: 'Ёмкость'
+                        text: 'Емкость'
                     }, 
                     validationRules: [{
                         type: 'required',

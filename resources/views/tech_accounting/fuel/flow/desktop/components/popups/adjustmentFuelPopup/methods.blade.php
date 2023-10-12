@@ -34,7 +34,7 @@
                         displayExpr: 'tank_number',
                     },
                     label: {
-                        text: 'Ёмкость'
+                        text: 'Емкость'
                     },
                     validationRules: [{
                         type: 'required',

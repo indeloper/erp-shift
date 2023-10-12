@@ -52,7 +52,7 @@
             items: [
                 {
                     itemType: "group",
-                    caption: "Движение топлива по ёмкостям",
+                    caption: "Движение топлива по емкостям",
                     cssClass: "datagrid-container",
                     items: [{
                         name: "mainDataGrid",

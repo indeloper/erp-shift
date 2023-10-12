@@ -141,7 +141,7 @@
             <div class="card col-xl-10 mr-auto ml-auto pd-0-min">
                 <div class="card-body card-body-tech">
                     <div class="row">
-                        <h4 class="h4-tech fw-500 m-0" style="margin-top:0"><span v-pre>Топливные ёмкости</span></h4>
+                        <h4 class="h4-tech fw-500 m-0" style="margin-top:0"><span v-pre>Топливные емкости</span></h4>
                     </div>
                     <div class="fixed-table-toolbar toolbar-for-btn" style="padding-left:0">
                         <div class="row">
@@ -154,11 +154,11 @@
                             <div class="col-sm-6 col-md-8 text-right mt-10__mobile">
                                 @can('store', $data['class'])
                                     <button type="button" name="button" class="btn btn-sm btn-primary btn-round"
-                                            style="margin-right: 10px" @click="createFuel">Добавить топливную ёмкость
+                                            style="margin-right: 10px" @click="createFuel">Добавить топливную емкость
                                     </button>
                                 @endcan
                                 @can('tech_acc_fuel_tanks_trashed')
-                                    <a href="{{ route('building::tech_acc::fuel_tank.display_trashed') }}" class="float-right btn btn-outline btn-sm">Просмотр удалённых записей</a>
+                                    <a href="{{ route('building::tech_acc::fuel_tank.display_trashed') }}" class="float-right btn btn-outline btn-sm">Просмотр удаленных записей</a>
                                 @endcan
                             </div>
                         </div>
@@ -254,7 +254,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="create_form">
                 <div class="modal-header">
-                    <h5 class="modal-title">@{{ edit_mode ? 'Редактирование' : 'Добавление' }} топливной ёмкости</h5>
+                    <h5 class="modal-title">@{{ edit_mode ? 'Редактирование' : 'Добавление' }} топливной емкости</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -276,7 +276,7 @@
                                                         :class="v.classes"
                                                         id="number-input"
                                                         maxlength="10"
-                                                        placeholder="Введите номер топливной ёмкости"
+                                                        placeholder="Введите номер топливной емкости"
                                                         v-model="tank_number"
                                                         clearable
                                                     ></el-input>
@@ -410,7 +410,7 @@
         <div class="modal-dialog modal-lg" role="document" style="max-width:900px">
             <div class="modal-content pb-3">
                 <div class="modal-header">
-                    <h5 class="modal-title">Топливная ёмкость №@{{ fuel.tank_number }}</h5>
+                    <h5 class="modal-title">Топливная емкость №@{{ fuel.tank_number }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -561,7 +561,7 @@
                         ></el-table-column>
                         <el-table-column
                             prop="value"
-                            label="Объём, л."
+                            label="Объем, л."
                         ></el-table-column>
                         <el-table-column
                             prop="result_value"
@@ -968,7 +968,7 @@
                 removeFuel(id) {
                     swal({
                         title: 'Вы уверены?',
-                        text: "Топливная ёмкость будет удалена!",
+                        text: "Топливная емкость будет удалена!",
                         type: 'warning',
                         showCancelButton: true,
                         cancelButtonText: 'Назад',

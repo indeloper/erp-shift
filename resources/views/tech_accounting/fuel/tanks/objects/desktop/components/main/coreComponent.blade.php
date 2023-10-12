@@ -4,7 +4,7 @@
             items: [
                 {
                     itemType: "group",
-                    caption: "Топливные ёмкости",
+                    caption: "Топливные емкости",
                     cssClass: "datagrid-container",
                     items: [{
                         name: "mainDataGrid",

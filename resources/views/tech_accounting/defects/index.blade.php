@@ -493,7 +493,7 @@
                 {label: 'Техническое устройство', value: 'defectable'},
                 {label: 'Марка техники', value: 'brand'},
                 {label: 'Модель техники', value: 'model'},
-                {label: 'Номер топливной ёмкости', value: 'tank_number'},
+                {label: 'Номер топливной емкости', value: 'tank_number'},
                 {label: 'Инвентарный номер техники', value: 'inventory_number'},
                 {label: 'Юридическое лицо', value: 'owner'},
             ],

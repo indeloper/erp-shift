@@ -42,7 +42,7 @@
                                     dataField: 'fuel_tank_id',
                                     editorType: "dxSelectBox",
                                     label: {
-                                        text: 'Ёмкость'
+                                        text: 'Емкость'
                                     },
                                     editorOptions: {
                                         dataSource: fuelTanksStore,

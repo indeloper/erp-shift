@@ -141,7 +141,7 @@
             <div class="card col-xl-10 mr-auto ml-auto pd-0-min">
                 <div class="card-body card-body-tech">
                     <div class="row">
-                        <h4 class="h4-tech fw-500 m-0" style="margin-top:0"><span v-pre>Топливные ёмкости</span></h4>
+                        <h4 class="h4-tech fw-500 m-0" style="margin-top:0"><span v-pre>Топливные емкости</span></h4>
                     </div>
                     <div class="fixed-table-toolbar toolbar-for-btn" style="padding-left:0">
                         <div class="row">
@@ -226,7 +226,7 @@
         <div class="modal-dialog modal-lg" role="document" style="max-width:900px">
             <div class="modal-content pb-3">
                 <div class="modal-header">
-                    <h5 class="modal-title">Топливная ёмкость №@{{ fuel.tank_number }}</h5>
+                    <h5 class="modal-title">Топливная емкость №@{{ fuel.tank_number }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -287,7 +287,7 @@
                         ></el-table-column>
                         <el-table-column
                             prop="value"
-                            label="Объём, л."
+                            label="Объем, л."
                         ></el-table-column>
                         <el-table-column
                             prop="result_value"

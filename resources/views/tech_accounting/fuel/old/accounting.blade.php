@@ -179,7 +179,7 @@
                                        @change="updateCurrentCustomName"
                                        @clear="searchFuelCapacities('')"
                                        remote
-                                       placeholder="Поиск топливной ёмкости"
+                                       placeholder="Поиск топливной емкости"
                             >
                                 <el-option
                                     v-for="item in fuelCapacities"
@@ -263,7 +263,7 @@
                             <div class="col-sm-6 col-md-8 text-right mt-10__mobile">
                                 {{--TODO move this button to a different place--}}
                                 <button type="button" name="button" class="btn btn-sm btn-primary btn-round btn-outline"
-                                        data-toggle="modal" data-target="#report-create" @click="openReportCreate">Сформировать топливный отчёт
+                                        data-toggle="modal" data-target="#report-create" @click="openReportCreate">Сформировать топливный отчет
                                 </button>
                                 <button type="button" name="button" class="btn btn-sm btn-primary btn-round"
                                         @click="addRecord">Добавить запись
@@ -277,9 +277,9 @@
                             <tr>
                                 <th class="text-truncate" data-balloon-pos="up-left" aria-label="Дата записи"><span class="text-truncate d-inline-block">Дата записи</span></th>
                                 {{--<th class="text-truncate" data-balloon-pos="up-left" aria-label="#"><span class="text-truncate d-inline-block">#</span></th>--}}
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Номер топливной ёмкости"><span class="text-truncate d-inline-block">Номер топливной ёмкости</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Номер топливной емкости"><span class="text-truncate d-inline-block">Номер топливной емкости</span></th>
                                 <th class="text-truncate" data-balloon-pos="up-left" aria-label="Вид записи"><span class="text-truncate d-inline-block">Вид записи</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Объём, л."><span class="text-truncate d-inline-block">Объём, л.</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Объем, л."><span class="text-truncate d-inline-block">Объем, л.</span></th>
                                 <th v-if="hasAnyConsumption" class="text-truncate" data-balloon-pos="up-left" aria-label="Заправляемая техника"><span class="text-truncate d-inline-block">Заправляемая техника</span></th>
                                 <th v-if="hasAnySupply" class="text-truncate" data-balloon-pos="up-left" aria-label="Поставщик"><span class="text-truncate d-inline-block">Поставщик</span></th>
                                 <th class="text-truncate" data-balloon-pos="up-left" aria-label="Дата операции"><span class="text-truncate d-inline-block">Дата операции</span></th>
@@ -305,13 +305,13 @@
                                 {{--<td data-label="#">
                                     @{{record.id}}
                                 </td>--}}
-                                <td data-label="Номер топливной ёмкости">
+                                <td data-label="Номер топливной емкости">
                                     @{{record.fuel_tank ? record.fuel_tank.tank_number : ''}}
                                 </td>
                                 <td data-label="Вид записи">
                                     @{{record.type_name}}
                                 </td>
-                                <td data-label="Объём, л.">
+                                <td data-label="Объем, л.">
                                     @{{record.value}}
                                 </td>
                                 <td v-if="hasAnyConsumption" data-label="Заправляемая техника">
@@ -398,7 +398,7 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <label for="">Топливная ёмкость<span class="star">*</span></label>
+                                                <label for="">Топливная емкость<span class="star">*</span></label>
                                                 <validation-provider rules="required" v-slot="v" vid="fuel-capacity-select"
                                                                      ref="fuel-capacity-select">
                                                     <el-select v-model="fuel_tank_id"
@@ -411,7 +411,7 @@
                                                                @focus="firstLoad('fuel_tank_id')"
                                                                remote
                                                                autocomplete="none"
-                                                               placeholder="Поиск топливной ёмкости"
+                                                               placeholder="Поиск топливной емкости"
                                                     >
                                                         <el-option
                                                             v-for="item in fuel_capacities"
@@ -471,7 +471,7 @@
                                                 </validation-provider>
                                             </div>
                                             <div class="col-md-6">
-                                                <label for="">Объём @{{ type === 'Поставка' ? 'поставки' : 'заправленного' }} топлива, л.<span class="star">*</span></label>
+                                                <label for="">Объем @{{ type === 'Поставка' ? 'поставки' : 'заправленного' }} топлива, л.<span class="star">*</span></label>
                                                 <validation-provider rules="required|positive|max:10" vid="value-input"
                                                                      ref="value-input"
                                                                      v-slot="v"
@@ -486,7 +486,7 @@
                                                         :precision="0"
                                                         controls-position="right"
                                                         autocomplete="none"
-                                                        placeholder="Укажите поставляемый объём"
+                                                        placeholder="Укажите поставляемый объем"
                                                         v-model="value"
                                                     ></el-input-number>
                                                     <div class="error-message">@{{ v.errors[0] }}</div>
@@ -724,7 +724,7 @@
                                             Уровень топлива после изменения
                                         </span>
                                         <span v-else class="task-info__head-title">
-                                            Объём @{{ record.contractor ? 'поступившего' : 'заправленного' }} топлива
+                                            Объем @{{ record.contractor ? 'поступившего' : 'заправленного' }} топлива
                                         </span>
                                         <span class="task-info__body-title">
                                             @{{ record.value ? record.value : '' }} литров
@@ -732,7 +732,7 @@
                                     </div>
                                     <div class="task-info__text-unit">
                                         <span class="task-info__head-title">
-                                            Номер ёмкости
+                                            Номер емкости
                                         </span>
                                         <span class="task-info__body-title">
                                             @{{ record.fuel_tank ? record.fuel_tank.tank_number : '' }}
@@ -972,14 +972,14 @@
                                     <template>
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <label for="">Форма отчёта<span class="star">*</span></label>
+                                                <label for="">Форма отчета<span class="star">*</span></label>
                                                 <validation-provider rules="required" vid="mode-select"
                                                                      ref="mode-select" v-slot="v">
                                                     <el-select v-model="mode"
                                                                :class="v.classes"
                                                                clearable filterable
                                                                id="mode-select"
-                                                               placeholder="Выберите форму отчёта"
+                                                               placeholder="Выберите форму отчета"
                                                     >
                                                         <el-option
                                                             v-for="item in modes"
@@ -995,7 +995,7 @@
                                         <template v-if="mode === 1">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <label for="">Ёмкость<span class="star">*</span></label>
+                                                    <label for="">Емкость<span class="star">*</span></label>
                                                     <validation-provider rules="required" vid="fuel-tank-search"
                                                                          ref="fuel-tank-search" v-slot="v">
                                                         <el-select v-model="fuelTank"
@@ -1005,7 +1005,7 @@
                                                                    :remote-method="searchFuelTanks"
                                                                    @clear="searchFuelTanks('')"
                                                                    remote
-                                                                   placeholder="Поиск топливной ёмкости"
+                                                                   placeholder="Поиск топливной емкости"
                                                         >
                                                             <el-option
                                                                 v-for="item in fuelTanks"
@@ -1072,7 +1072,7 @@
                                                     </validation-provider>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label for="">Ёмкость<span class="star">*</span></label>
+                                                    <label for="">Емкость<span class="star">*</span></label>
                                                     <validation-provider rules="required" vid="fuel-tank-search-by-object"
                                                                          ref="fuel-tank-search-by-object" v-slot="v">
                                                         <el-select v-model="fuelTank"
@@ -1082,7 +1082,7 @@
                                                                    :remote-method="searchFuelTanksByObject"
                                                                    @clear="searchFuelTanksByObject('')"
                                                                    remote
-                                                                   placeholder="Поиск топливной ёмкости"
+                                                                   placeholder="Поиск топливной емкости"
                                                         >
                                                             <el-option
                                                                 v-for="item in fuelTanks"
@@ -1098,7 +1098,7 @@
                                         </template>
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <label for="">Дата начала отчётного периода</label>
+                                                <label for="">Дата начала отчетного периода</label>
                                                 <validation-provider v-slot="v" vid="date-from" ref="date-from">
                                                     <el-date-picker
                                                         style="cursor:pointer"
@@ -1108,14 +1108,14 @@
                                                         id="date-from"
                                                         value-format="yyyy-MM-dd"
                                                         type="date"
-                                                        placeholder="Укажите дату начала отчётного периода"
+                                                        placeholder="Укажите дату начала отчетного периода"
                                                         :picker-options="dateFromPickerOptions"
                                                     ></el-date-picker>
                                                     <div class="error-message">@{{ v.errors[0] }}</div>
                                                 </validation-provider>
                                             </div>
                                             <div class="col-md-6">
-                                                <label for="">Дата окончания отчётного периода</label>
+                                                <label for="">Дата окончания отчетного периода</label>
                                                 <validation-provider v-slot="v" vid="date-to" ref="date-to">
                                                     <el-date-picker
                                                         style="cursor:pointer"
@@ -1125,7 +1125,7 @@
                                                         id="date-to"
                                                         value-format="yyyy-MM-dd"
                                                         type="date"
-                                                        placeholder="Укажите дату окончания отчётного периода"
+                                                        placeholder="Укажите дату окончания отчетного периода"
                                                         :picker-options="dateToPickerOptions"
                                                     ></el-date-picker>
                                                     <div class="error-message">@{{ v.errors[0] }}</div>
@@ -1134,7 +1134,7 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <label for="">Ответственный за приём отчёта<span
+                                                <label for="">Ответственный за прием отчета<span
                                                         class="star">*</span></label>
                                                 <validation-provider rules="required" vid="responsible-receiver-select"
                                                                      ref="responsible-receiver-select" v-slot="v">
@@ -1145,7 +1145,7 @@
                                                                :remote-method="search_responsible_receivers"
                                                                @clear="search_responsible_receivers('')"
                                                                remote
-                                                               placeholder="Поиск ответственного за приём отчёта"
+                                                               placeholder="Поиск ответственного за прием отчета"
                                                     >
                                                         <el-option
                                                             v-for="item in responsible_receivers"
@@ -1202,14 +1202,14 @@
                 //search_tf: '',
                 filter_attributes: [
                     //{label: '№', value: 'id'},
-                    {label: 'Топливная ёмкость №', value: 'tank_number'},
+                    {label: 'Топливная емкость №', value: 'tank_number'},
                     {label: 'Дата записи от', value: 'date_updated_from'},
                     {label: 'Дата записи до', value: 'date_updated_to'},
                     {label: 'Дата операции от', value: 'operation_date_from'},
                     {label: 'Дата операции до', value: 'operation_date_to'},
                     {label: 'Вид записи', value: 'type'},
-                    {label: 'Объём от, л', value: 'value_from'},
-                    {label: 'Объём до, л', value: 'value_to'},
+                    {label: 'Объем от, л', value: 'value_from'},
+                    {label: 'Объем до, л', value: 'value_to'},
                     {label: 'Заправляемая техника', value: 'our_technic'},
                     {label: 'Поставщик', value: 'contractor'},
                     {label: 'Автор записи', value: 'author'},
@@ -1888,7 +1888,7 @@
                     return this.record.type != 3 ? (this.record.contractor ?
                         ('Поставка топлива на ' + (this.record.object ? this.record.object.name : '')) :
                         ('Заправка топлива в ' + (this.record.our_technic ? this.record.our_technic.name : ''))) :
-                        'Ручное изменение уровня топлива\nтопливной ёмкости ' + (this.record.fuel_tank ? this.record.fuel_tank.tank_number : '');
+                        'Ручное изменение уровня топлива\nтопливной емкости ' + (this.record.fuel_tank ? this.record.fuel_tank.tank_number : '');
                 },
                 pagerCount() {
                     return this.window_width > 1000 ? 7 : 5;
@@ -1998,10 +1998,10 @@
                 },
                 getFieldLabel(field) {
                     switch (field) {
-                        case 'value': return 'Объём';
+                        case 'value': return 'Объем';
                         case 'operation_date': return 'Дата операции';
                         case 'our_technic_id': return 'Техника';
-                        case 'fuel_tank_id': return 'Топливная ёмкость';
+                        case 'fuel_tank_id': return 'Топливная емкость';
                         case 'contractor_id': return 'Поставщик';
                         case 'owner_id': return 'Собственник';
                         case 'description': return 'Комментарий';
@@ -2534,9 +2534,9 @@
                         (createReport.operation_date_from ? (date < moment(createReport.operation_date_from, "YYYY-MM-DD")) : false)
                 },
                 modes: [
-                    {id: 1, label: 'По ёмкости'},
+                    {id: 1, label: 'По емкости'},
                     {id: 2, label: 'По объекту'},
-                    {id: 3, label: 'По ёмкости и объекту'},
+                    {id: 3, label: 'По емкости и объекту'},
                 ],
             },
             watch: {
