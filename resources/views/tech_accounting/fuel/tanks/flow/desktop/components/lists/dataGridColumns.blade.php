@@ -73,6 +73,12 @@
             dataType: "number",
             customizeText: (data) => {
                 return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
+            },
+            cellTemplate(container, options) {
+
+                if(options.row.data.fuel_tank_flow_type_id === fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id)
+                    container.append(options.value*-1)
+                else container.append(options.value)
             }
         },
         
