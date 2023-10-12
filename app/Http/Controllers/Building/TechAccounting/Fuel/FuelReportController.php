@@ -21,9 +21,9 @@ class FuelReportController extends Controller
     public function fuelFlowMacroReportPageCore() {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::fuelFlowMacroReport::';
         $sectionTitle = 'Общая оборотная ведомость по топливным емкостям';
-        $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/fuelFlowMacroReport';
+        $baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/reports/fuelFlowMacroReport';
  
-        return view('tech_accounting.fuel.reports.fuelFlowMacroReport.desktop.index',
+        return view('tech_accounting.fuel.tanks.reports.fuelFlowMacroReport.desktop.index',
             $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );
     }
@@ -44,9 +44,9 @@ class FuelReportController extends Controller
     public function tanksMovementReportPageCore(Request $request) {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::tanksMovementReport::';
         $sectionTitle = 'Перемещения топливных емкостей';
-        $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/tanksMovementReport';
+        $baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/reports/tanksMovementReport';
  
-        return view('tech_accounting.fuel.reports.tanksMovementReport.desktop.index',
+        return view('tech_accounting.fuel.tanks.reports.tanksMovementReport.desktop.index',
             $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );        
     }
@@ -107,9 +107,9 @@ class FuelReportController extends Controller
     public function fuelTankPeriodReportPageCore(Request $request) {
         $routeNameFixedPart = 'building::tech_acc::fuel::reports::fuelTankPeriodReport::';
         $sectionTitle = 'Отчет по топливу';
-        $baseBladePath = resource_path().'/views/tech_accounting/fuel/reports/fuelTankPeriodReport';
+        $baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/reports/fuelTankPeriodReport';
  
-        return view('tech_accounting.fuel.reports.fuelTankPeriodReport.desktop.index',
+        return view('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.desktop.index',
             $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );        
     }
@@ -139,7 +139,7 @@ class FuelReportController extends Controller
 
         $fuelTankResponsible = User::find($fuelTank->responsible_id);
         
-        $pdf = PDF::loadView('tech_accounting.fuel.reports.fuelTankPeriodReport.pdfTemlates.report', 
+        $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.report', 
             [
                 'company' => Company::find($fuelTank->company_id)->name,
                 'objectAdress' => ProjectObject::find($fuelTank->object_id)->address,

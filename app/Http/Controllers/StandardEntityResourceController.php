@@ -21,7 +21,7 @@ class StandardEntityResourceController extends Controller
     
     public function getPageCore() 
     {
-        return view('tech_accounting.fuel.tanks.objects.desktop.index',
+        return view('1_base.desktop.index',
         [
             'routeNameFixedPart' => $this->routeNameFixedPart,
             'sectionTitle' => $this->sectionTitle, 
