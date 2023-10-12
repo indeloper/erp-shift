@@ -88,7 +88,8 @@
                 $('<div>')
                     .appendTo(container)
                     .dxDropDownButton({
-                        icon: 'overflow',
+                        // icon: 'overflow',
+                        text: 'Создать',
                         dropDownOptions: {
                             width: 200
                         },
