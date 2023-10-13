@@ -85,7 +85,7 @@
         // },
 
         toolbar: {
-            visible: false,
+            visible: true,
             items: [{}]
         },
     }

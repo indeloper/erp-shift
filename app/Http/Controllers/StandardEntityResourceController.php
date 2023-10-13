@@ -257,9 +257,7 @@ class StandardEntityResourceController extends Controller
             }
         }
        
-
         return $groups;
     }
-    
 
 }

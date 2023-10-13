@@ -33,6 +33,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
 
+    
     public function index(Request $request)
     {
         $options = json_decode($request['data']);

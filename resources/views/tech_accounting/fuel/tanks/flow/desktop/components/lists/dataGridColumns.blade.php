@@ -19,7 +19,7 @@
                 valueExpr: "id",
                 displayExpr: "name"
             },
-            groupIndex: 1,
+            // groupIndex: 1,
         },
 
         {

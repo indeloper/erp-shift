@@ -23,7 +23,7 @@ class FuelReportController extends Controller
         $sectionTitle = 'Общая оборотная ведомость по топливным емкостям';
         $baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/reports/fuelFlowMacroReport';
  
-        return view('tech_accounting.fuel.tanks.reports.fuelFlowMacroReport.desktop.index',
+        return view('1_base.desktop.index',
             $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );
     }
@@ -46,7 +46,7 @@ class FuelReportController extends Controller
         $sectionTitle = 'Перемещения топливных емкостей';
         $baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/reports/tanksMovementReport';
  
-        return view('tech_accounting.fuel.tanks.reports.tanksMovementReport.desktop.index',
+        return view('1_base.desktop.index',
             $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );        
     }
@@ -109,7 +109,7 @@ class FuelReportController extends Controller
         $sectionTitle = 'Отчет по топливу';
         $baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/reports/fuelTankPeriodReport';
  
-        return view('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.desktop.index',
+        return view('1_base.desktop.index',
             $this->getReportPageCoreArray($routeNameFixedPart, $sectionTitle, $baseBladePath)
         );        
     }
