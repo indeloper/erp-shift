@@ -3,7 +3,8 @@
     let externalNewAttachments = [];
     let externalEditingRowId = 0;
     let externalDeletedAttachments = [];
-    const externalProgressBarSettings = {
+    
+    const progressBarSettings = {
         min: 0,
         max: 100,
         width: '90%',

@@ -1,0 +1,139 @@
+<script>
+    function getFileLableWrapper(fileType, deviceType, fileDisplayContext, file) {
+        if (deviceType === 'desktop') {
+
+            if (fileType === 'img') {
+                return $('<div>').css({
+                    'cursor': 'pointer'
+                }).addClass('fileOnServerDivWrapper')
+            }
+
+            if (fileType === 'video') {
+                const fileLableWrapper = $('<a>').css({
+                    'cursor': 'pointer'
+                }).addClass('fileOnServerDivWrapper')
+                
+                const srcBase = window.location.protocol + '//' + window.location.host + '/'
+                const srcTail = file.filename ? file.filename : 'storage/docs/fuel_flow/' + file.name
+                const src = srcBase + srcTail
+
+                const dataAttributes = {
+                    "source": [{
+                        // "src": "http://erp.loc/storage/docs/fuel_flow/file-652565129b806.mp4",
+                        src: src,
+                        type: file.mime ? file.mime : file.type
+                    }],
+                    "attributes": {
+                        "preload": false,
+                        "controls": true
+                    }
+                }
+
+                fileLableWrapper.attr('data-video', JSON.stringify(dataAttributes))
+
+                return fileLableWrapper
+
+            }
+
+            return $('<div>').addClass('fileOnServerDivWrapper')
+        }
+
+    }
+
+    function addLightgalleryListenersImg(fileImgClass) {
+        let images = document.querySelectorAll('.'+fileImgClass)
+        if (images)
+            for (let index = 0; index < images.length; index++) {
+                const element = images[index];
+                element.addEventListener('click', (e) => {
+                    createDynamicLightGalleryData(e.target)
+                })
+            }
+    }
+
+    function addLightgalleryListenersVideo(videosListWrapperClass) {
+        document.querySelectorAll('.' + videosListWrapperClass).forEach(el=>{
+
+            lightGallery(document.getElementById(el.id), {
+                plugins: [lgVideo],
+                videojs: true,
+                videojsOptions: {
+                    muted: true,
+                },
+            });
+        })
+
+    }
+
+    function createDynamicLightGalleryData(target) {
+        let clickedElemSrc = target.attributes.src.value
+        let clickedElemIndex = 0
+        let lightGalleryElemsArr = []
+
+        let galleryElemsWrapper = target.closest('div.filesGroupWrapperClass')
+        let galleryElems = galleryElemsWrapper.querySelectorAll('img')
+
+        for (let index = 0; index < galleryElems.length; index++) {
+            const element = galleryElems[index];
+
+            if (element.src.includes(target.attributes.src.value))
+                clickedElemIndex = index
+
+            lightGalleryElemsArr.push({
+                src: element.src,
+                thumb: element.src,
+            })
+
+            if (index === galleryElems.length - 1)
+                openDynamicLightGallery(galleryElemsWrapper, lightGalleryElemsArr, clickedElemIndex)
+        }
+
+    }
+
+    function openDynamicLightGallery(rootElem, elemsArr, elemIndex) {
+        const dynamicGallery = window.lightGallery(rootElem, {
+            dynamic: true,
+            dynamicEl: elemsArr,
+            plugins: [lgZoom, lgThumbnail, lgRotate],
+            licenseKey: "0000-0000-000-0000",
+            speed: 500,
+        });
+        dynamicGallery.openGallery(elemIndex)
+    }
+
+    function addHoverAttachmentElements(elementClass) {
+        $('.'+elementClass).hover(
+                function() {
+                    if (!$(this).find('.dx-checkbox').length) {
+                        let checkBox = $('<div>').dxCheckBox({
+                            hint: "Скачать",
+                            elementAttr: {
+                                class: 'attacmentHoverCkeckbox'
+                            }
+                        })
+                        $(this).append($(checkBox));
+                    }
+
+                    // if (permissions.can_delete_project_object_document_files) {
+                        let deleteButton = $('<div />').dxButton({
+                            icon: "fas fa-trash",
+                            hint: "Удалить",
+                            elementAttr: {
+                                class: 'attacmentHoverDeleteButton'
+                            },
+                            onClick(e) {
+                                deleteAttachment(e);
+                            },
+                        })
+                        $(this).append($(deleteButton));
+                    // }
+                },
+                function() {
+                    let checkBox = $(this).find('.dx-checkbox').dxCheckBox('instance')
+                    if (!checkBox.option('value'))
+                        $(this).find('.attacmentHoverCkeckbox').last().remove();
+                    $(this).find('.attacmentHoverDeleteButton').last().remove();
+                }
+            )
+    }
+</script>

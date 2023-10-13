@@ -933,6 +933,8 @@
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-thumbnail.umd.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-zoom.umd.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-rotate.umd.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-video.umd.js')}}"></script>
+
 <!-- END lightgalleryjs.com -->
 
 

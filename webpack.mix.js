@@ -153,12 +153,12 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('resources/assets/css/emojione.css', 'public/css/');
 
  //Devextreme
- mix.copy('node_modules/devextreme/dist/css/dx.common.css', 'public/css/devextreme/dx.common.css');
- mix.copy('node_modules/devextreme/dist/css/dx.material.blue.light.compact.css', 'public/css/devextreme/dx.material.blue.light.compact.css');
- mix.copyDirectory('node_modules/devextreme/dist/css/fonts', 'public/css/devextreme/fonts');
- mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextreme/icons');
- mix.copy('node_modules/devextreme/dist/js/dx.all.js', 'public/js/devextreme/dx.all.js');
- mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
+//  mix.copy('node_modules/devextreme/dist/css/dx.common.css', 'public/css/devextreme/dx.common.css');
+//  mix.copy('node_modules/devextreme/dist/css/dx.material.blue.light.compact.css', 'public/css/devextreme/dx.material.blue.light.compact.css');
+//  mix.copyDirectory('node_modules/devextreme/dist/css/fonts', 'public/css/devextreme/fonts');
+//  mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextreme/icons');
+//  mix.copy('node_modules/devextreme/dist/js/dx.all.js', 'public/js/devextreme/dx.all.js');
+//  mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
   //Q3W
  mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
 
@@ -176,5 +176,6 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.umd.js', 'public/js/lightgallery/lg-thumbnail.umd.js');
  mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.umd.js', 'public/js/lightgallery/lg-zoom.umd.js');
  mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.umd.js', 'public/js/lightgallery/lg-rotate.umd.js');
+ mix.copy('node_modules/lightgallery/plugins/rotate/lg-video.umd.js', 'public/js/lightgallery/lg-video.umd.js');
 
  mix.version();

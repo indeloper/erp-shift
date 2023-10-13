@@ -3,7 +3,7 @@
         const mainPopup = $('#mainPopup').dxPopup({
             visible: false,
             showTitle: true,
-            hideOnOutsideClick: true,
+            hideOnOutsideClick: false,
             showCloseButton: true,
             maxWidth: '500px',
             height: 'auto',

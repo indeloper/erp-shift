@@ -6,6 +6,7 @@
         wrapperElement.append('<div id="fileUploaderNewFileButtonAnchorDiv" >')
         wrapperElement.append('<div id="newFilesListWrapper" class="filesGroupWrapperClass">')
         wrapperElement.append('<div id="newFilesNotImgListWrapper" class="filesGroupWrapperClass">')
+        wrapperElement.append('<div id="newVideoFilesWrapper" class="filesGroupWrapperClass newVideoFiles">')
         
         let checkDropZoneIsAvailable = setInterval(() => {
 

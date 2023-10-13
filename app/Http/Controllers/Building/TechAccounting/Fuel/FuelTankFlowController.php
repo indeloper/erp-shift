@@ -40,8 +40,8 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $entities = $this->baseModel
             ->dxLoadOptions($options)
-            ->leftJoin('fuel_tanks', 'fuel_tanks.id', '=', 'fuel_tank_flows.fuel_tank_id')
-            ->orderBy('fuel_tank_flows.id', 'desc')
+            // ->leftJoin('fuel_tanks', 'fuel_tanks.id', '=', 'fuel_tank_flows.fuel_tank_id')
+            // ->orderBy('fuel_tank_flows.id', 'desc')
             ->get();
 
         if(!empty($options->group)) {
