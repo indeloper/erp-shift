@@ -25,6 +25,7 @@
                         }
                         formData = $('#mainForm').dxForm('instance').option('formData')
                         formData.newAttachments = newAttachments;
+                        formData.deletedAttachments = deletedAttachments;
 
                         if(!editingRowId)
                             entitiesDataSource.store().insert(formData);

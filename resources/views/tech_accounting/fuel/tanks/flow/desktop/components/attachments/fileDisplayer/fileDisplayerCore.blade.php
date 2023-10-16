@@ -115,7 +115,7 @@
                     
             }
 
-            $(fileLableWrapper).attr('id', 'fileId-' + file.id).addClass('attachmentFileWrapper')
+            $(fileLableWrapper).attr('id', 'fileId-' + file.id).addClass('fileLableWrapper')
 
             fileImg.attr({
                 'src': imgSrc

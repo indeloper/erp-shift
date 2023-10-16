@@ -23,6 +23,7 @@
                     }
                     formData = $('#externalForm').dxForm('instance').option('formData')
                     formData.newAttachments = externalNewAttachments;
+                    formData.deletedAttachments = externalDeletedAttachments;
 
                     if (!externalEditingRowId)
                         externalEntitiesDataSource.store().insert(formData);

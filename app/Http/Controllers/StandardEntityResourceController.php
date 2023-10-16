@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FileEntry;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use ZipArchive;
 
 class StandardEntityResourceController extends Controller
 {
@@ -17,7 +19,16 @@ class StandardEntityResourceController extends Controller
     protected $baseBladePath;
     protected $componentsPath;
     protected $components;
+    protected $ignoreDataKeys;
 
+    public function __construct()
+    {
+        $this->ignoreDataKeys = [
+            'newAttachments',
+            'deletedAttachments',
+            'newComments'
+        ];
+    }
     
     public function getPageCore() 
     {
@@ -73,8 +84,8 @@ class StandardEntityResourceController extends Controller
         DB::beginTransaction();
             $beforeStoreResult = $this->beforeStore($data);
             $data = $beforeStoreResult['data'];
-            $ignoreDataKeys = $beforeStoreResult['ignoreDataKeys'];
-            $dataToStore = $this->getDataToStore($data, $ignoreDataKeys);
+            // $ignoreDataKeys = $this->ignoreDataKeys;
+            $dataToStore = $this->getDataToStore($data);
             $entity = $this->baseModel->create($dataToStore);
             $this->afterStore($entity, $data, $dataToStore);
         DB::commit();
@@ -127,8 +138,8 @@ class StandardEntityResourceController extends Controller
         DB::beginTransaction();
             $beforeUpdateResult = $this->beforeUpdate($entity, $data);
             $data = $beforeUpdateResult['data'];
-            $ignoreDataKeys = $beforeUpdateResult['ignoreDataKeys'];
-            $dataToUpdate = $this->getDataToStore($data, $ignoreDataKeys);
+            // $ignoreDataKeys = $beforeUpdateResult['ignoreDataKeys'];
+            $dataToUpdate = $this->getDataToStore($data);
             $entity->update($dataToUpdate);
             $this->afterUpdate($entity, $data, $dataToUpdate);
         DB::commit();
@@ -162,14 +173,16 @@ class StandardEntityResourceController extends Controller
 
     public function beforeStore($data)
     {
-        $ignoreDataKeys = [];
+        // $ignoreDataKeys = [];
 
-        if(!empty($data['newAttachments']))
-            $ignoreDataKeys[] = 'newAttachments';
+        // if(!empty($data['newAttachments']))
+        //     $ignoreDataKeys[] = 'newAttachments';
+        // if(!empty($data['deletedAttachments']))
+        //     $ignoreDataKeys[] = 'deletedAttachments';
 
         return [
             'data' => $data, 
-            'ignoreDataKeys' => ['newAttachments']
+            // 'ignoreDataKeys' => $ignoreDataKeys
         ];
     }
 
@@ -177,18 +190,23 @@ class StandardEntityResourceController extends Controller
     {
         if(!empty($data['newAttachments']))
             (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
+
+        if(!empty($data['deletedAttachments']))
+            $this->deleteFiles($data['deletedAttachments']);
     }
 
     public function beforeUpdate($entity, $data)
     {
-        $ignoreDataKeys = [];
+        // $ignoreDataKeys = [];
 
-        if(!empty($data['newAttachments']))
-            $ignoreDataKeys[] = 'newAttachments';
-
+        // if(!empty($data['newAttachments']))
+        //     $ignoreDataKeys[] = 'newAttachments';
+        // if(!empty($data['deletedAttachments']))
+        //     $ignoreDataKeys[] = 'deletedAttachments';
+            
         return [
             'data' => $data, 
-            'ignoreDataKeys' => ['newAttachments']
+            // 'ignoreDataKeys' => $ignoreDataKeys
         ];
     }
 
@@ -196,6 +214,9 @@ class StandardEntityResourceController extends Controller
     {
         if(!empty($data['newAttachments']))
             (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
+
+        if(!empty($data['deletedAttachments']))
+            $this->deleteFiles($data['deletedAttachments']);
     }
 
     public function beforeDelete($entity)
@@ -208,14 +229,14 @@ class StandardEntityResourceController extends Controller
        //
     }
 
-    public function getDataToStore($data, $ignoreDataKeys)
+    public function getDataToStore($data)
     {
-        if(empty($ignoreDataKeys))
+        if(empty($this->ignoreDataKeys))
         return $data;
 
         $dataToStore = [];
         foreach($data as $key=>$value){
-            if(!in_array($key, $ignoreDataKeys)) 
+            if(!in_array($key, $this->ignoreDataKeys)) 
                 $dataToStore[$key] = $value;
         }
 
@@ -258,6 +279,18 @@ class StandardEntityResourceController extends Controller
         }
        
         return $groups;
+    }
+
+    public function deleteFiles($deletedAttachments)
+    {
+        foreach($deletedAttachments as $fileId){
+            $fileEntry = FileEntry::find($fileId);
+            if($fileEntry){
+                $fileEntry->documentable_id = NULL;
+                $fileEntry->save();
+            }
+        }
+
     }
 
 }

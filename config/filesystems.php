@@ -222,7 +222,7 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public/docs/project_object_documents'),
             'url' => env('APP_URL').'/project_object_documents',
-            'visibility' => 'private',
+            'visibility' => 'public',
         ],
 
         'technic' => [
@@ -239,6 +239,12 @@ return [
             'visibility' => 'private',
         ],
         
+        'zip_archives' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/zip_archives'),
+            'url' => env('APP_URL').'storage/docs/zip_archives/',
+            'visibility' => 'private',
+        ],
 
     ],
 

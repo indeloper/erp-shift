@@ -1,13 +1,14 @@
 <script>
-    function showAdjustmentFuelPopup(formItem) {
+    function showDecreaseFuelPopup(formItem = {}) {
+
         $('#mainPopup').dxPopup({
             visible: true,
-            title: 'Корректировка остатков топлива',
-            contentTemplate: () => {return getAdjustmentFuelPopupContentTemplate(formItem)},
-        })
+            title: 'Расход топлива',
+            contentTemplate: () => {return getDecreaseFuelPopupContentTemplate(formItem)},
+        })       
     }
 
-    const getAdjustmentFuelPopupContentTemplate = (formItem) => {
+    const getDecreaseFuelPopupContentTemplate = (formItem) => {
         return $('<div id="mainForm">').dxForm({
             validationGroup: "documentValidationGroup",
             labelMode: 'outside',
@@ -22,12 +23,12 @@
                         dataSource: fuelFlowTypesStore,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='adjustment').id
+                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id
                     }
                 },
                 {
                     dataField: 'fuel_tank_id',
-                    editorType: "dxSelectBox",
+                    editorType: 'dxSelectBox',
                     editorOptions: {
                         dataSource: fuelTanksStore,
                         valueExpr: 'id',
@@ -41,12 +42,28 @@
                         message: 'Укажите значение',
                     }],
                 },
-                
+                {
+                    
+                    dataField: 'our_technic_id',
+                    editorType: "dxSelectBox",
+                    editorOptions: {
+                        dataSource: fuelConsumersStore,
+                        valueExpr: 'id',
+                        displayExpr: 'name',
+                    },
+                    label: {
+                        text: 'Потребитель'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
                 {
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        // min: 0.001
+                        min: 0.001
                     },
                     label: {
                         text: 'Объем (л)'
@@ -66,6 +83,7 @@
                 {
                     itemType: "group",
                     caption: 'Документ',
+                    colCount: 2,
                     items: [
                         {
                             dataField: 'document',
@@ -84,12 +102,25 @@
                     ]
                 },
                 {
-                    item: 'simple',
-                    template: (data, itemElement) => {
-                        renderFileUploader(itemElement)
-                    }
-                },
-             
+                    itemType: "group",
+                    caption: 'Файлы',
+                    items: [
+                        {
+                            item: 'simple',
+                            template: (data, itemElement) => {
+                                renderFileUploader(itemElement)
+                            }
+                        },
+
+                        {
+                            item: 'simple',
+                            template: (data, itemElement) => {
+                                renderFileDisplayer(itemElement)
+                            }
+                        },
+                    ]
+                }
+               
             ]
         })
     }

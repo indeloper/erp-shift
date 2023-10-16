@@ -4,6 +4,7 @@
         wrapperElement.append('<div id="dropZoneExternal" >')
         wrapperElement.append('<div id="fileUploaderAnchorDiv" >')
         wrapperElement.append('<div id="fileUploaderNewFileButtonAnchorDiv" >')
+        wrapperElement.append('<div id="downloadFilesButton">')
         wrapperElement.append('<div id="newFilesListWrapper" class="filesGroupWrapperClass">')
         wrapperElement.append('<div id="newFilesNotImgListWrapper" class="filesGroupWrapperClass">')
         wrapperElement.append('<div id="newVideoFilesWrapper" class="filesGroupWrapperClass newVideoFiles">')
@@ -44,6 +45,16 @@
                             icon: 'upload',
                             onClick(){
                                 dropZoneExternal.click()
+                            }
+                        })
+
+                    $('#downloadFilesButton')
+                        .dxButton({
+                            text: "Скачать файлы",
+                            icon: 'download',
+                            disabled: true,
+                            onClick() {
+                                handleDownloadFilesButtonClicked()
                             }
                         })
 

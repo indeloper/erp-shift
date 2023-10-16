@@ -109,12 +109,27 @@
                             hint: "Скачать",
                             elementAttr: {
                                 class: 'attacmentHoverCkeckbox'
+                            },
+                            onValueChanged(e) {
+                                if(e.value) {
+                                    $('#downloadFilesButton').dxButton({
+                                        disabled: false
+                                    })
+                                } else {
+                                    // getCheckedCheckboxesFilesToDownload() в данном месте возвращает не отмеченные чекбоксы, а все
+                                    // поэтому проверка события отмены выбора при единственном имеющемся чекбоксе
+                                    if(getCheckedCheckboxesFilesToDownload().length<2) {
+                                        $('#downloadFilesButton').dxButton({
+                                            disabled: true
+                                        })
+                                    }
+                                }
                             }
                         })
                         $(this).append($(checkBox));
                     }
 
-                    // if (permissions.can_delete_project_object_document_files) {
+                    if (externalPermissions.can_delete_project_object_document_files) {
                         let deleteButton = $('<div />').dxButton({
                             icon: "fas fa-trash",
                             hint: "Удалить",
@@ -122,11 +137,11 @@
                                 class: 'attacmentHoverDeleteButton'
                             },
                             onClick(e) {
-                                deleteAttachment(e);
+                                deleteAttachment(e.element);
                             },
                         })
                         $(this).append($(deleteButton));
-                    // }
+                    }
                 },
                 function() {
                     let checkBox = $(this).find('.dx-checkbox').dxCheckBox('instance')
@@ -136,4 +151,66 @@
                 }
             )
     }
+
+    function deleteAttachment(element) {  
+
+        let elemParent = element.closest('.fileLableWrapper');
+        let fileId = elemParent[0]?.getAttribute("id")?.split('-')[1];
+   
+        customConfirmDialog("Вы уверены, что хотите удалить файл?")
+            .show().then( dialogResult => {if(dialogResult) deleteFile()} )
+
+        function deleteFile() {
+            externalDeletedAttachments.push(fileId)
+            elemParent.remove()        
+        }
+    }
+
+    function handleDownloadFilesButtonClicked() {
+        checkedCheckboxes = getCheckedCheckboxesFilesToDownload();
+        if(!checkedCheckboxes.length) return;
+        const filesIdsToDownload = [];
+        checkedCheckboxes.forEach(checkbox=>{
+            if(checkbox.value == 'true') 
+                filesIdsToDownload.push(checkbox.closest('.fileLableWrapper').id.split('-')[1]);
+        })
+        
+        downloadAttachments(filesIdsToDownload)
+    }
+
+    function getCheckedCheckboxesFilesToDownload() {
+        const attachmentsWrapper = document.getElementById('filesOnServerListWrapper')
+        const checkboxes = attachmentsWrapper.querySelectorAll('input');
+        
+        if(!checkboxes.length)
+        return [];
+
+        const checkedCheckboxes = [];
+        checkboxes.forEach(el=>{if(el.value) checkedCheckboxes.push(el)})
+
+        return checkedCheckboxes;
+    }
+
+    async function downloadAttachments(filesIdsToDownload) {
+        let fliesIds = {
+            fliesIds: filesIdsToDownload
+        }
+
+        // let response = await fetch("{{route('fileEntry.downloadAttachments')}}", {
+            let response = await fetch("{{route('projectObjectDocument.downloadAttachments')}}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            body: JSON.stringify(fliesIds)
+        });
+
+        let result = await response.json();
+        let a = document.createElement("a");
+        a.href = result.zipFileLink
+        a.download = 'filesArchive';
+        a.click();
+    }
+
 </script>

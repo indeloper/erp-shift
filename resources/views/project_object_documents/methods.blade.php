@@ -263,6 +263,7 @@
             fliesIds: filesIdsToDownload
         }
         let response = await fetch("{{route('projectObjectDocument.downloadAttachments')}}", {
+        // let response = await fetch("{{route('fileEntry.downloadAttachments')}}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -272,9 +273,11 @@
         });
 
         let result = await response.json();
+        console.log('result', result);
         let a = document.createElement("a");
         a.href = result.zipFileLink
         a.download = 'documentFilesArchive';
+        console.log('a', a);
         a.click();
     }
 

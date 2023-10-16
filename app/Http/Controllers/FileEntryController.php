@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FileEntry;
 use Illuminate\Http\Request;
+use ZipArchive;
 
 class FileEntryController extends Controller
 {
@@ -24,5 +25,31 @@ class FileEntryController extends Controller
         return \GuzzleHttp\json_encode([
             'result' => 'success',
         ]);
+    }
+
+    public function downloadAttachments(Request $request)
+    {
+        if(!count($request->fliesIds))
+        return response()->json('no files recieved', 200);
+
+        $storagePath = config('filesystems.disks')['zip_archives']['root'];
+
+        $zip = new ZipArchive();
+        $zipFileName = "file-". uniqid(). "-" . "archive.zip";
+        $zipFilePath = $storagePath."/".$zipFileName ;
+        $zip->open($zipFilePath, ZIPARCHIVE::CREATE);
+
+        foreach($request->fliesIds as $fileId)
+        {
+            $file = FileEntry::find($fileId);
+            $filenameElems = explode('/', $file->filename);
+            $filename = $filenameElems[count($filenameElems) - 1];
+            $zip->addFile('storage/docs/zip_archives/'.$filename, $file->original_filename);
+        }
+
+        $zip->close();
+
+        $response = ['zipFileLink'=>'storage/docs/zip_archives/'.$zipFileName];
+        return response()->json($response, 200);
     }
 }

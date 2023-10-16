@@ -25,12 +25,15 @@ class FuelTankFlowController extends StandardEntityResourceController
 {
     public function __construct()
     {
+        parent::__construct();
+        
         $this->baseModel = new FuelTankFlow();
         $this->routeNameFixedPart = 'building::tech_acc::fuel::fuelFlow::';
         $this->sectionTitle = 'Топливный журнал';
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/flow';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
+        
     }
 
     
@@ -102,7 +105,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         
         return [
             'data' => $data, 
-            'ignoreDataKeys' => ['newAttachments']
+            // 'ignoreDataKeys' => ['newAttachments', 'deletedAttachments']
         ];
     }
 
