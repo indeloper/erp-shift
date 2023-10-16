@@ -1,26 +1,26 @@
 <script>
     const dataGridColumns = [
-        // {
-        //     caption: "Компания",
-        //     dataField: "company_id",
-        //     lookup: {
-        //         dataSource: companiesStore,
-        //         valueExpr: "id",
-        //         displayExpr: "name"
-        //     },
-        //     // groupIndex: 0,
-        // },
+        {
+            caption: "Компания",
+            dataField: "company_id",
+            lookup: {
+                dataSource: companiesStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+            // groupIndex: 0,
+        },
 
-        // {
-        //     caption: "Объект",
-        //     dataField: "object_id",
-        //     lookup: {
-        //         dataSource: projectObjectsStore,
-        //         valueExpr: "id",
-        //         displayExpr: "name"
-        //     },
-        //     // groupIndex: 1,
-        // },
+        {
+            caption: "Объект",
+            dataField: "object_id",
+            lookup: {
+                dataSource: projectObjectsStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+            // groupIndex: 1,
+        },
 
         {
             caption: "Поставщик",

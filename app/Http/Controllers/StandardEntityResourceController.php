@@ -58,6 +58,7 @@ class StandardEntityResourceController extends Controller
         if(!empty($options->group)) {
             $groups = $this->handleGroupResponse($entities, $options->group);
             return json_encode(array(
+                    // 'data' => $groups
                     "data" => $groups['data'],
                     "groupCount" => $groups['groupCount'],
                     "totalCount" => $groups['totalCount'],
@@ -255,6 +256,33 @@ class StandardEntityResourceController extends Controller
 
         return $groupedAttachments;
     }
+
+    // public function handleGroupResponse($entities, $groupRequest, $groups = [])
+    // {
+    //     for ($i=0; $i<count($groupRequest); $i++) {
+
+    //     // foreach($groupRequest as $groupRequestElement){
+    //         // $groupBy = $groupRequestElement->selector;
+    //         $groupBy = $groupRequest[$i]->selector;
+    //         $groupByArr = $entities->pluck($groupBy)->unique();
+      
+    //         foreach($groupByArr as $groupKey) {
+    //             $projectObjectDocumentsGrouped = $entities->where($groupBy, $groupKey);
+    //             $groupData = new \stdClass;
+    //             $groupData->key = $groupKey;
+    //             $groupData->count = $projectObjectDocumentsGrouped->count();
+    //             $groupData->summary = [];
+    //             if(!isset($groupRequest[$i+1])) {
+    //                 $groupData->items = null;
+    //             } else {
+    //                 $groupData->items = $this->handleGroupResponse($projectObjectDocumentsGrouped, [$groupRequest[$i+1]], $groups);
+    //             }
+    //             $groups[] = $groupData;
+    //         }
+    //     }
+       
+    //     return $groups;
+    // }
 
     public function handleGroupResponse($entities, $groupRequest)
     {
