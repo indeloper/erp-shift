@@ -85,6 +85,7 @@
                 {
                     itemType: "group",
                     caption: 'Документ',
+                    colCount: 2,
                     items: [
                         {
                             dataField: 'document',
@@ -103,18 +104,24 @@
                     ]
                 },
                 {
-                    item: 'simple',
-                    template: (data, itemElement) => {
-                        renderFileUploader(itemElement)
-                    }
-                },
+                    itemType: "group",
+                    caption: 'Файлы',
+                    items: [
+                        {
+                            item: 'simple',
+                            template: (data, itemElement) => {
+                                renderFileUploader(itemElement)
+                            }
+                        },
 
-                {
-                    item: 'simple',
-                    template: (data, itemElement) => {
-                        renderFileDisplayer(itemElement)
-                    }
-                },
+                        {
+                            item: 'simple',
+                            template: (data, itemElement) => {
+                                renderFileDisplayer(itemElement)
+                            }
+                        },
+                    ]
+                }
              
             ]
         })
