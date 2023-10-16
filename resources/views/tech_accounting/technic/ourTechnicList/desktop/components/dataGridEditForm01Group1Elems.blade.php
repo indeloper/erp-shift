@@ -32,15 +32,19 @@
             colSpan: 1,
             editorOptions: {
                 onSelectionChanged(e){
+                    
                     if(e.selectedItem.id) {
                         let interval = setInterval(() => {
                             if($('#technic_brand_model_id').dxSelectBox('instance')) {
                                 clearInterval(interval)
-                                $('#technic_brand_model_id').dxSelectBox('instance')?.option('dataSource', $('#technic_brand_model_id').dxSelectBox('instance')?.option('dataSource').store.__rawData.filter(el=>el.technic_brand_id ===e.selectedItem.id));
+                                $('#technic_brand_model_id').dxSelectBox('instance')?.option('readOnly', false);
+                                $('#technic_brand_model_id').dxSelectBox('instance')?.option('dataSource', technicModelsStore.__rawData.filter(el=>el.technic_brand_id ===e.selectedItem.id));
+                                
                             }
                         }, 100)
                     }
-                }
+                },
+                
             },
             validationRules: [{
                 type: 'required',
@@ -53,6 +57,7 @@
             colSpan: 1,
             editorType: 'dxSelectBox',
             editorOptions: {
+                readOnly: true,
               elementAttr: {
                 id: 'technic_brand_model_id'
               }  
