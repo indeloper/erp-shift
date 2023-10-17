@@ -1,17 +1,9 @@
 <script>
     const dataGridColumns = [
-        {
-            caption: "Компания",
-            dataField: "company_id",
-            lookup: {
-                dataSource: companiesStore,
-                valueExpr: "id",
-                displayExpr: "name"
-            },
-            // groupIndex: 0,
-        },
+        
 
         {
+            visible: false,
             caption: "Объект",
             dataField: "object_id",
             lookup: {
@@ -55,20 +47,38 @@
                 let displayValue = options.text
                 fontColor = ''
 
+                const marker = $('<div>')
+                    
                 if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
-                    fontColor = 'red' 
+                    fontColor = '#dd5e5e' 
+                    marker.addClass('fa fa-arrow-down')
                 } 
                 else if(options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
-                    fontColor = 'green' 
+                    fontColor = '#1f931f' 
+                    marker.addClass('fa fa-arrow-up')
                 }
                 else {
-                    fontColor = 'blue'
+                    fontColor = '#3a6fcb'
+                    marker.addClass('fas fa-exchange-alt')
                 }
 
-                $('<span>')
+                const wrapper = 
+                    $('<div>')
+                        .css({
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'start'
+                        }).appendTo(container)
+
+                marker.css({
+                    marginRight: '6px',
+                    color: fontColor
+                }).appendTo(wrapper)
+
+                $('<div>')
                     .css('color', fontColor)
                     .text(displayValue)
-                    .appendTo(container)
+                    .appendTo(wrapper)
             }
         },
         {
@@ -86,6 +96,23 @@
                 valueExpr: "id",
                 displayExpr: "tank_number"
             },
+            cellTemplate(container, options) {
+                const objectName = projectObjectsStore.__rawData?.find(el=>el.id===options.row.data.object_id)?.short_name
+                $('<span>')
+                    .attr('title', options.text + ' (' + objectName + ')')
+                    .text(options.text + ' (' + objectName + ')')
+                    .appendTo(container)
+            }
+        },
+        {
+            caption: "Компания",
+            dataField: "company_id",
+            lookup: {
+                dataSource: companiesStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+            // groupIndex: 0,
         },
         {
             caption: "Ответственный",
@@ -118,9 +145,9 @@
                 }
 
                 if (displayValue > 0) {
-                    fontColor = 'green'
+                    fontColor = '#1f931f'
                 } else {
-                    fontColor = 'red'
+                    fontColor = '#dd5e5e'
                 }
 
                 $('<span>')
