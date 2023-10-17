@@ -57,9 +57,22 @@
             editorOptions: {
                 min: 0.001
             },
-            customizeText: (data) => {
-                return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
+            cellTemplate(container, options) {
+                fontColor = 'black'
+                if(options.text>0) 
+                    fontColor = '#1f931f';
+                if(options.text<0) 
+                    fontColor = '#dd5e5e'
+
+                $('<span>')
+                    .css('color', fontColor)
+                    .text(new Intl.NumberFormat('ru-RU').format(options.text * 1000 / 1000))
+                    .appendTo(container)
+                
             }
+            // customizeText: (data) => {
+            //     return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
+            // }
         },
         
         {

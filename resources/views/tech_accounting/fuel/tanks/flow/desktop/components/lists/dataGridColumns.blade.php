@@ -134,6 +134,7 @@
             // customizeText: (data) => {
             //     return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
             // },
+            alignment: 'right',
             cellTemplate(container, options) {
 
                 let displayValue = fontColor = ''
