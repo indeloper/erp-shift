@@ -1,4 +1,6 @@
 <script>
+    let externalEditingRowId = 0;
+    
     function resetExternalVars() {
         externalUploadingFiles = [];
         externalNewAttachments = [];

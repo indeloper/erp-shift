@@ -49,9 +49,10 @@
                     editorOptions: {
                         // min: 0.001
                         readOnly: editingRowId,
+                        format: "#0 л"
                     },
                     label: {
-                        text: 'Объем (л)'
+                        text: 'Объем'
                     },
                     validationRules: [
                         {
