@@ -51,6 +51,7 @@
                         dataSource: fuelContractorsStore,
                         valueExpr: 'id',
                         displayExpr: 'short_name',
+                        readOnly: externalEditingRowId,
                     },
                     label: {
                         text: 'Поставщик'
@@ -64,7 +65,8 @@
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        min: 0.001
+                        min: 0.001,
+                        readOnly: externalEditingRowId,
                     },
                     label: {
                         text: 'Объем (л)'

@@ -49,6 +49,7 @@
                     editorType: "dxNumberBox",
                     editorOptions: {
                         // min: 0.001
+                        readOnly: externalEditingRowId,
                     },
                     label: {
                         text: 'Объем (л)'

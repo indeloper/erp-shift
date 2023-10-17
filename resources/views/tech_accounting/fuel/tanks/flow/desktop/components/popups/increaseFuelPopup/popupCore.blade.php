@@ -32,6 +32,7 @@
                         dataSource: fuelTanksStore,
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
+                        readOnly: editingRowId,
                     },
                     label: {
                         text: 'Емкость'
@@ -48,6 +49,7 @@
                         dataSource: fuelContractorsStore,
                         valueExpr: 'id',
                         displayExpr: 'short_name',
+                        readOnly: editingRowId,
                     },
                     label: {
                         text: 'Поставщик'
@@ -61,7 +63,8 @@
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        min: 0.001
+                        min: 0.001,
+                        readOnly: editingRowId,
                     },
                     label: {
                         text: 'Объем (л)'

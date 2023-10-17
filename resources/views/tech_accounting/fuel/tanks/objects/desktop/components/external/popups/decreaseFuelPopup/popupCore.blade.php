@@ -52,6 +52,7 @@
                         dataSource: fuelConsumersStore,
                         valueExpr: 'id',
                         displayExpr: 'name',
+                        readOnly: externalEditingRowId,
                     },
                     label: {
                         text: 'Потребитель'
@@ -65,7 +66,8 @@
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        min: 0.001
+                        min: 0.001,
+                        readOnly: externalEditingRowId,
                     },
                     label: {
                         text: 'Объем (л)'
