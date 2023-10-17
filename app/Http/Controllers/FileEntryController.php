@@ -44,7 +44,7 @@ class FileEntryController extends Controller
             $file = FileEntry::find($fileId);
             $filenameElems = explode('/', $file->filename);
             $filename = $filenameElems[count($filenameElems) - 1];
-            $zip->addFile('storage/docs/zip_archives/'.$filename, $file->original_filename);
+            $zip->addFile('storage/docs/fuel_flow/'.$filename, $file->original_filename);
         }
 
         $zip->close();

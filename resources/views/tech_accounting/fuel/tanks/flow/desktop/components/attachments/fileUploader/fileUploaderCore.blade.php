@@ -1,12 +1,8 @@
-<style>
-    #downloadFilesButton {
-        margin-left: 10px;
-    }
-</style>
+
 <script>
 
     const renderFileUploader = (wrapperElement) => {
-        wrapperElement.append('<div id="dropZoneExternal" >')
+        wrapperElement.append('<div id="dropZone" >')
         wrapperElement.append('<div id="fileUploaderAnchorDiv" >')
         wrapperElement.append('<div id="fileUploaderNewFileButton" >')
         wrapperElement.append('<div id="downloadFilesButton">')
@@ -17,14 +13,14 @@
         let checkDropZoneIsAvailable = setInterval(() => {
 
             if (
-                    document.getElementById('dropZoneExternal')
+                    document.getElementById('dropZone')
                     && document.getElementById('fileUploaderAnchorDiv')
                 ) 
                 {
                     clearInterval(checkDropZoneIsAvailable);
 
                     $('#fileUploaderAnchorDiv').dxFileUploader({
-                        dialogTrigger: '#dropZoneExternal',
+                        dialogTrigger: '#dropZone',
                         multiple: true,
                         visible: false,
                         uploadMode: 'instantly',
@@ -49,7 +45,7 @@
                             text: "Загрузить файлы",
                             icon: 'upload',
                             onClick(){
-                                dropZoneExternal.click()
+                                dropZone.click()
                             }
                         })
                     

@@ -196,8 +196,8 @@
             fliesIds: filesIdsToDownload
         }
 
-        // let response = await fetch("{{route('fileEntry.downloadAttachments')}}", {
-            let response = await fetch("{{route('projectObjectDocument.downloadAttachments')}}", {
+        let response = await fetch("{{route('fileEntry.downloadAttachments')}}", {
+            // let response = await fetch("{{route('projectObjectDocument.downloadAttachments')}}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',

@@ -22,7 +22,7 @@
                 valueExpr: "id",
                 displayExpr: "name"
             },
-            groupIndex: 0,
+            // groupIndex: 0,
         },
         
         {

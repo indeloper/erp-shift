@@ -1,3 +1,4 @@
+
 <script>
 
     const renderFileUploader = (wrapperElement) => {

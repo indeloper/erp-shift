@@ -1,5 +1,9 @@
 <style>
 
+    #downloadFilesButton {
+        margin-left: 10px;
+    }
+
     #newFilesListWrapper,
     #newFilesNotImgListWrapper,
     #filesOnServerListWrapper
