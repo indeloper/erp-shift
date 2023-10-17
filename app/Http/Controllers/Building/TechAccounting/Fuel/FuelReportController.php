@@ -114,44 +114,43 @@ class FuelReportController extends Controller
         );        
     }
 
-    public function fuelTankPeriodReportData(Request $request) {
+    public function fuelTankPeriodReportData(Request $request) { 
         $dateFrom = Carbon::create($request->dateFrom)->toDateString();
         $dateTo = Carbon::create($request->dateTo)->toDateString();
-        $fuelTankFlows = FuelTankFlow::where('created_at', '>', $dateFrom)->get()->toArray();
         $fuelTank = FuelTank::find($request->fuelTankId);
-        $company = Company::find($fuelTank->company_id)->name;
         $fuelVolumeDateBegin = $this->getFuelVolumeDateBegin($dateFrom, $request->fuelTankId);
-        $fuelIncomes = FuelTankFlow::where([
-                ['created_at', '>=', $dateFrom],
-                ['created_at', '<=', $dateTo],
-                ['fuel_tank_id', $request->fuelTankId],
-                ['fuel_tank_flow_type_id', FuelTankFlowType::where('slug', 'income')->first()->id]
-            ])->with('contractor')->get();
-        $fuelSumIncomes = $fuelIncomes->sum('volume');
+        $fuelFlows = FuelTankFlow::where([
+            ['created_at', '>=', $dateFrom],
+            ['created_at', '<=', $dateTo],
+            ['fuel_tank_id', $request->fuelTankId],
+            ['object_id', $request->objectId],
+            ['responsible_id', $request->responsibleId],
+        ]);
 
-        $fuelOutcomes = FuelTankFlow::where([
-                ['created_at', '>=', $dateFrom],
-                ['created_at', '<=', $dateTo],
-                ['fuel_tank_id', $request->fuelTankId],
-                ['fuel_tank_flow_type_id', FuelTankFlowType::where('slug', 'outcome')->first()->id]
-            ])->with('ourTechnic')->get();
-        $fuelSumOutcomes = $fuelOutcomes->sum('volume');
+        $fuelFlows_clone1 = clone $fuelFlows;
+        $fuelFlows_clone2  = clone $fuelFlows;
 
-        $fuelTankResponsible = User::find($fuelTank->responsible_id);
-        
+        $fuelIncomes = $fuelFlows_clone1
+                        ->where('fuel_tank_flow_type_id', FuelTankFlowType::where('slug', 'income')->first()->id)
+                        ->with('contractor')->get();
+                        
+        $fuelOutcomes = $fuelFlows_clone2
+                        ->where('fuel_tank_flow_type_id', FuelTankFlowType::where('slug', 'outcome')->first()->id)
+                        ->with('ourTechnic')->get();
+
         $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.report', 
             [
                 'company' => Company::find($fuelTank->company_id)->name,
-                'objectAdress' => ProjectObject::find($fuelTank->object_id)->address,
+                'objectAdress' => ProjectObject::find($request->objectId)->address,
                 'tank_number' => $fuelTank->tank_number,
                 'dateFrom' => Carbon::create($request->dateFrom)->format('d.m.Y'),
                 'dateTo' => Carbon::create($request->dateTo)->format('d.m.Y'),
                 'fuelVolumeDateBegin' => $fuelVolumeDateBegin,
                 'fuelIncomes' => $fuelIncomes,
-                'fuelSumIncomes' => $fuelSumIncomes,
-                'fuelOutcomes' => $fuelOutcomes,
-                'fuelSumOutcomes' => $fuelSumOutcomes,
-                'fuelTankResponsible' => $fuelTankResponsible,
+                'fuelSumIncomes' => $fuelIncomes->sum('volume'),
+                'fuelOutcomes' => $fuelOutcomes ,
+                'fuelSumOutcomes' => $fuelOutcomes->sum('volume'),
+                'fuelTankResponsible' => User::find($request->responsibleId),
                 'carbonInstance' => new Carbon
             ]
         );

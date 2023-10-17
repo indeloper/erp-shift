@@ -55,7 +55,7 @@
         <td class="td-normal" colspan="3">
             Остаток в баке на {{$dateFrom}}
         </td>
-        <td class="td-normal">{{number_format($fuelVolumeDateBegin, 0, ',', ' ')}}</td>
+        <td class="td-normal" style="text-align:right">{{number_format($fuelVolumeDateBegin, 0, ',', ' ')}}</td>
         <td class="td-normal"></td>
     </tr>
 
@@ -72,12 +72,12 @@
                 {{$fuelIncome['contractor']->short_name}}
             </td>
             <td class="td-normal">
-                {{$carbonInstance::create($fuelIncome->document_date)->format('d.m.Y')}}
+                {{$fuelIncome->document_date ? $carbonInstance::create($fuelIncome->document_date)->format('d.m.Y') : ''}}
             </td>
             <td class="td-normal">
                 {{$fuelIncome->document}}
             </td>
-            <td class="td-normal">
+            <td class="td-normal" style="text-align:right">
                 {{number_format($fuelIncome->volume, 0, ',', ' ')}}
             </td>
             <td class="td-normal"></td>
@@ -96,7 +96,7 @@
         <td class="td-center">
             х
         </td>
-        <td class="td-normal">
+        <td class="td-normal" style="text-align:right">
             <b>{{number_format($fuelSumIncomes, 0, ',', ' ')}}</b> 
         </td>
         <td class="td-normal">
@@ -117,12 +117,12 @@
                 {{$fuelOutcome['ourTechnic']->name}}
             </td>
             <td class="td-normal">
-                {{$carbonInstance::create($fuelIncome->document_date)->format('d.m.Y')}}
+                {{$fuelOutcome->document_date ? $carbonInstance::create($fuelOutcome->document_date)->format('d.m.Y') : ''}}
             </td>
             <td class="td-normal">
                 {{$fuelOutcome->document}}
             </td>
-            <td class="td-normal">
+            <td class="td-normal" style="text-align:right">
                 {{number_format($fuelOutcome->volume, 0, ',', ' ')}}
             </td>
             <td class="td-normal"></td>
@@ -141,7 +141,7 @@
         <td class="td-center">
             х
         </td>
-        <td class="td-normal">
+        <td class="td-normal" style="text-align:right">
             <b>{{number_format($fuelSumOutcomes, 0, ',', ' ')}}</b>
         </td>
         <td class="td-normal">
@@ -155,7 +155,7 @@
             Остаток в баке на {{$dateTo}}
         </td>
 
-        <td class="td-normal">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
+        <td class="td-normal" style="text-align:right">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
         <td class="td-normal"></td>
     </tr>
     
