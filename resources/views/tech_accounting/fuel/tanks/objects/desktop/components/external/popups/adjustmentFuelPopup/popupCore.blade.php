@@ -77,7 +77,7 @@
                             dataField: 'document_date',
                             editorType: "dxDateBox",
                             label: {
-                                text: 'Дата'
+                                text: 'Дата документа'
                             },
                         }
                     ]
