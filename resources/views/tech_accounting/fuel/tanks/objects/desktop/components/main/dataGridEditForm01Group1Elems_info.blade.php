@@ -22,6 +22,9 @@
                         type: 'custom',
                         message: 'Значение должно быть уникальным',
                         validationCallback(e) {
+                            if(editingRowId)
+                            return true
+                        
                             if(fuelTanksStore.__rawData.find(el=>el.tank_number == e.value))
                                 return false
                             return true
@@ -49,7 +52,11 @@
                 editorType: "dxSelectBox",
                 editorOptions: {
                     showClearButton: false,
-                }
+                },
+                validationRules: [{
+                    type: 'required',
+                    message: 'Укажите значение',
+                }],
             },
             {
                 dataField: "responsible_id",

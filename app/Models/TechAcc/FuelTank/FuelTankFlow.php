@@ -16,8 +16,10 @@ class FuelTankFlow extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable, Logable;
 
-    protected $guarded = ['id'];
+    const STORAGE_PATH = 'storage/docs/fuel_flow/';
 
+    protected $guarded = ['id'];
+    
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
