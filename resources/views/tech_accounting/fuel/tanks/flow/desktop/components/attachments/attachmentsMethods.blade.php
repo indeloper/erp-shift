@@ -30,6 +30,7 @@
 
             }
 
+            
             return $('<a>')
                 .css({'cursor': 'pointer'})
                 .attr({
@@ -126,6 +127,9 @@
                             }
                         })
                         $(this).append($(checkBox));
+
+                        if(checkBox)
+                        console.log(checkBox.parent());
                     }
 
                     if (permissions.can_delete_project_object_document_files) {

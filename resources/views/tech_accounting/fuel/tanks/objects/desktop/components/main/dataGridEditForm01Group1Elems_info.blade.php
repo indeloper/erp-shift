@@ -13,21 +13,17 @@
                 dataField: "tank_number",
                 colSpan: 1,
                 editorType: 'dxTextBox',
+
                 validationRules: [
                     {
                         type: 'required',
                         message: 'Укажите значение',
                     },
                     {
-                        type: 'custom',
+                        type: 'async',
                         message: 'Значение должно быть уникальным',
                         validationCallback(e) {
-                            if(editingRowId)
-                            return true
-                        
-                            if(fuelTanksStore.__rawData.find(el=>el.tank_number == e.value))
-                                return false
-                            return true
+                            return validateTankNumberUnique(e.value);
                         },
                     }
                 ],

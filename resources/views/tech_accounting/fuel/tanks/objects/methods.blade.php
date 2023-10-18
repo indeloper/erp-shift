@@ -98,5 +98,12 @@
 
     // Конец Общие
 
-
+    async function validateTankNumberUnique(value) {
+        let response = await $.getJSON("{{route($routeNameFixedPart.'validateTankNumberUnique')}}", 
+        {
+            id: editingRowId,
+            value: value
+        })
+        return await response.result;
+    }
 </script>

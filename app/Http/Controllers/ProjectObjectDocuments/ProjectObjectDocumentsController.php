@@ -110,15 +110,15 @@ class ProjectObjectDocumentsController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        if(!empty($options->group)) {
-            $groups = $this->handleGroupResponse($projectObjectDocuments, $options->group);
-            return json_encode(array(
-                    "data" => $groups['data'],
-                    "groupCount" => $groups['groupCount'],
-                    "totalCount" => $groups['totalCount'],
-                ),
-                JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
-        }
+        // if(!empty($options->group)) {
+        //     $groups = $this->handleGroupResponse($projectObjectDocuments, $options->group);
+        //     return json_encode(array(
+        //             "data" => $groups['data'],
+        //             "groupCount" => $groups['groupCount'],
+        //             "totalCount" => $groups['totalCount'],
+        //         ),
+        //         JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        // }
 
         return json_encode(array(
                 "data" => $projectObjectDocuments,
@@ -184,37 +184,37 @@ class ProjectObjectDocumentsController extends Controller
         ]);
     }
 
-    public function handleGroupResponse($projectObjectDocuments, $groupRequest)
-    {
-        $groupBy = $groupRequest[0]->selector;
-        $groupByArr = $projectObjectDocuments->pluck($groupBy)->unique();
+    // public function handleGroupResponse($projectObjectDocuments, $groupRequest)
+    // {
+    //     $groupBy = $groupRequest[0]->selector;
+    //     $groupByArr = $projectObjectDocuments->pluck($groupBy)->unique();
 
-        $groups = [];
-        $groups['groupCount'] = 0;
-        $groups['totalCount'] = $projectObjectDocuments->count();
-        $redStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 1)->pluck('id')->toArray();
-        $orangeStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 2)->pluck('id')->toArray();
-        $greenStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 3)->pluck('id')->toArray();
-        $greyStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 4)->pluck('id')->toArray();
+    //     $groups = [];
+    //     $groups['groupCount'] = 0;
+    //     $groups['totalCount'] = $projectObjectDocuments->count();
+    //     $redStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 1)->pluck('id')->toArray();
+    //     $orangeStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 2)->pluck('id')->toArray();
+    //     $greenStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 3)->pluck('id')->toArray();
+    //     $greyStatusesIds = ProjectObjectDocumentStatus::where('status_type_id', 4)->pluck('id')->toArray();
 
-        foreach($groupByArr as $groupKey) {
-            $projectObjectDocumentsGrouped = $projectObjectDocuments->where($groupBy, $groupKey);
-            $groupData = new \stdClass;
-            $groupData->key = $groupKey;
-            $groupData->count = $projectObjectDocumentsGrouped->count();
-            $groupData->items = null;
-            $groupData->summary = [
-                'red' => $projectObjectDocuments->whereIn('document_status_id', $redStatusesIds)->where($groupBy, $groupKey)->count(),
-                'orange' => $projectObjectDocuments->whereIn('document_status_id', $orangeStatusesIds)->where($groupBy, $groupKey)->count(),
-                'green' => $projectObjectDocuments->whereIn('document_status_id', $greenStatusesIds)->where($groupBy, $groupKey)->count(),
-                'grey' => $projectObjectDocuments->whereIn('document_status_id', $greyStatusesIds)->where($groupBy, $groupKey)->count(),
-            ];
-            $groups['data'][] = $groupData;
-            ++ $groups['groupCount'];
-        }
+    //     foreach($groupByArr as $groupKey) {
+    //         $projectObjectDocumentsGrouped = $projectObjectDocuments->where($groupBy, $groupKey);
+    //         $groupData = new \stdClass;
+    //         $groupData->key = $groupKey;
+    //         $groupData->count = $projectObjectDocumentsGrouped->count();
+    //         $groupData->items = null;
+    //         $groupData->summary = [
+    //             'red' => $projectObjectDocuments->whereIn('document_status_id', $redStatusesIds)->where($groupBy, $groupKey)->count(),
+    //             'orange' => $projectObjectDocuments->whereIn('document_status_id', $orangeStatusesIds)->where($groupBy, $groupKey)->count(),
+    //             'green' => $projectObjectDocuments->whereIn('document_status_id', $greenStatusesIds)->where($groupBy, $groupKey)->count(),
+    //             'grey' => $projectObjectDocuments->whereIn('document_status_id', $greyStatusesIds)->where($groupBy, $groupKey)->count(),
+    //         ];
+    //         $groups['data'][] = $groupData;
+    //         ++ $groups['groupCount'];
+    //     }
 
-        return $groups;
-    }
+    //     return $groups;
+    // }
 
 
     /**

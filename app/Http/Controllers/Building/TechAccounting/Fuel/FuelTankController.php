@@ -83,4 +83,25 @@ class FuelTankController extends StandardEntityResourceController
         ,
         JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
+
+    public function validateTankNumberUnique(Request $request)
+    {
+        
+        if(!$request->id) {
+            return json_encode([
+                'result' => !FuelTank::where(
+                    'tank_number', $request->value
+                )->exists()
+            ], 
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        } else {
+            return json_encode([
+                'result' => !FuelTank::where([
+                    ['id', '<>', $request->id],
+                    ['tank_number', $request->value]
+                ])->exists()
+            ], 
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        }
+    }
 }

@@ -242,7 +242,7 @@ return [
         'zip_archives' => [
             'driver' => 'local',
             'root' => storage_path('app/public/docs/zip_archives'),
-            'url' => env('APP_URL').'storage/docs/zip_archives/',
+            'url' => env('APP_URL').'/storage/docs/zip_archives/',
             'visibility' => 'private',
         ],
 

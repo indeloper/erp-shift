@@ -117,6 +117,7 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
 Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], function () {
     
     Route::group(['prefix' => 'tanks', 'as' => 'tanks::'], function () {
+        Route::get('validateTankNumberUnique', 'FuelTankController@validateTankNumberUnique')->name('validateTankNumberUnique');
         Route::get('getProjectObjects', 'FuelTankController@getProjectObjects')->name('getProjectObjects');
         Route::get('getFuelTanksResponsibles', 'FuelTankController@getFuelTanksResponsibles')->name('getFuelTanksResponsibles');
         Route::get('getCompanies', 'FuelTankController@getCompanies')->name('getCompanies');
