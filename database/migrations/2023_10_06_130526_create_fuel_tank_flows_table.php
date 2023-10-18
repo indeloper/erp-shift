@@ -41,7 +41,7 @@ class CreateFuelTankFlowsTable extends Migration
             $table->softDeletes();
         });
         
-        DB::statement("ALTER TABLE tank_fuel_flows COMMENT 'Движение топлива в емкостях'");
+        DB::statement("ALTER TABLE fuel_tank_flows COMMENT 'Движение топлива в емкостях'");
 
     }
 

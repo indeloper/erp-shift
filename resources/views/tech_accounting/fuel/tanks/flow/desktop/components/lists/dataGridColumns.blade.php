@@ -35,6 +35,12 @@
             visible: false
         },
         {
+            caption: 'Дата операции',
+            dataField: 'document_date',
+            dataType: "date",
+            // groupIndex: 0,
+        },
+        {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
             lookup: {
@@ -82,7 +88,7 @@
             }
         },
         {
-            caption: "Дата",
+            caption: "Дата записи",
             dataField: "created_at",
             dataType: "date",
             width: 150,

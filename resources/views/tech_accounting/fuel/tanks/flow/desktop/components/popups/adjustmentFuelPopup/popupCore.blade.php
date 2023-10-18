@@ -67,26 +67,21 @@
                     ],
                 },
                 {
-                    itemType: "group",
-                    caption: 'Документ',
-                    colCount: 2,
-                    items: [
-                        {
-                            dataField: 'document',
-                            editorType: "dxTextBox",
-                            label: {
-                                text: 'Номер'
-                            },
-                        },
-                        {
-                            dataField: 'document_date',
-                            editorType: "dxDateBox",
-                            label: {
-                                text: 'Дата документа'
-                            },
-                        }
-                    ]
+                    visible: false,
+                    dataField: 'document_date',
+                    editorType: "dxDateBox",
+                    editorOptions:{
+                        value: new Date(),
+                    },
+                    label: {
+                        text: 'Дата операции'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
                 },
+                
                 {
                     item: 'simple',
                     template: (data, itemElement) => {

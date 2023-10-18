@@ -56,14 +56,16 @@ class StandardEntityResourceController extends Controller
             ->get();
 
         if(!empty($options->group)) {
-            $groups = $this->handleGroupResponse($entities, $options->group);
-            return json_encode(array(
-                    'data' => $groups
-                    // "data" => $groups['data'],
-                    // "groupCount" => $groups['groupCount'],
-                    // "totalCount" => $groups['totalCount'],
-                ),
-                JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+            if(!empty($options->group[0]->selector)){
+                $groups = $this->handleGroupResponse($entities, $options->group);
+                return json_encode(array(
+                        'data' => $groups
+                        // "data" => $groups['data'],
+                        // "groupCount" => $groups['groupCount'],
+                        // "totalCount" => $groups['totalCount'],
+                    ),
+                    JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+            }
         }
     
         return json_encode(array(
@@ -263,6 +265,7 @@ class StandardEntityResourceController extends Controller
 
         // foreach($groupRequest as $groupRequestElement){
             // $groupBy = $groupRequestElement->selector;
+
             $groupBy = $groupRequest[$i]->selector;
             $groupByArr = $entities->pluck($groupBy)->unique();
       

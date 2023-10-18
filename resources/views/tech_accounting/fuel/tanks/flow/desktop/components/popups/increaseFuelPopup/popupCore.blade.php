@@ -83,25 +83,25 @@
                     ],
                 },
                 {
-                    itemType: "group",
-                    caption: 'Документ',
-                    colCount: 2,
-                    items: [
-                        {
-                            dataField: 'document',
-                            editorType: "dxTextBox",
-                            label: {
-                                text: 'Номер'
-                            },
-                        },
-                        {
-                            dataField: 'document_date',
-                            editorType: "dxDateBox",
-                            label: {
-                                text: 'Дата документа'
-                            },
-                        }
-                    ]
+                    dataField: 'document_date',
+                    editorType: "dxDateBox",
+                    editorOptions: {
+                        
+                    },
+                    label: {
+                        text: 'Дата операции'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+                {
+                    dataField: 'document',
+                    editorType: "dxTextBox",
+                    label: {
+                        text: 'Номер документа'
+                    },
                 },
                 {
                     itemType: "group",
