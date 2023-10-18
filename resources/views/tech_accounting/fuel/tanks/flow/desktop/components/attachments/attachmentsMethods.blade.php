@@ -3,24 +3,19 @@
         if (deviceType === 'desktop') {
 
             if (fileType === 'img') {
-                return $('<div>').css({
-                    'cursor': 'pointer'
-                }).addClass('fileOnServerDivWrapper')
+                return $('<div>').css({'cursor': 'pointer'})
             }
 
-            if (fileType === 'video') {
-                const fileLableWrapper = $('<a>').css({
-                    'cursor': 'pointer'
-                }).addClass('fileOnServerDivWrapper')
-                
-                const srcBase = window.location.protocol + '//' + window.location.host + '/'
-                const srcTail = file.filename ? file.filename : 'storage/docs/fuel_flow/' + file.name
-                const src = srcBase + srcTail
+            const filePathBase = window.location.protocol + '//' + window.location.host + '/'
+            const filePathTail = file.filename ? file.filename : 'storage/docs/fuel_flow/' + file.name
+            const filePath = filePathBase + filePathTail
 
+            if (fileType === 'video') {
+                const fileLableWrapper = $('<a>').css({'cursor': 'pointer'})
+        
                 const dataAttributes = {
                     "source": [{
-                        // "src": "http://erp.loc/storage/docs/fuel_flow/file-652565129b806.mp4",
-                        src: src,
+                        src: filePath,
                         type: file.mime ? file.mime : file.type
                     }],
                     "attributes": {
@@ -35,9 +30,13 @@
 
             }
 
-            return $('<div>').addClass('fileOnServerDivWrapper')
+            return $('<a>')
+                .css({'cursor': 'pointer'})
+                .attr({
+                    href: filePath,
+                    target: '_blanc'
+                })
         }
-
     }
 
     function addLightgalleryListenersImg(fileImgClass) {

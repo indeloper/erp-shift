@@ -78,6 +78,7 @@
             }
             
             const fileLableWrapper = getFileLableWrapper(fileType, deviceType, fileDisplayContext, file)
+                .addClass('fileOnServerDivWrapper')
 
             let fileImg = $('<img>').css({
                 'width': '100px',
