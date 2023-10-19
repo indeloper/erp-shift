@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Model\Messenger\Thread;
+use App\Models\Messenger\Thread;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 

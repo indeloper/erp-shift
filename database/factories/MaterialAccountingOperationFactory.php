@@ -7,7 +7,6 @@ use App\Models\ProjectObject;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use Carbon\Carbon;
 use Faker\Generator as Faker;
-use App\Model;
 
 $factory->define(MaterialAccountingOperation::class, function (Faker $faker) {
     $rps = Group::with('users')->find([27, 13, 19])->pluck('users')->flatten();

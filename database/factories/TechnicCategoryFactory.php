@@ -2,7 +2,6 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\Model;
 use App\Models\TechAcc\TechnicCategory;
 use Faker\Generator as Faker;
 
