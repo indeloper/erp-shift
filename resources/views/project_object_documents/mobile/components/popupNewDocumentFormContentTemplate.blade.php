@@ -127,6 +127,8 @@
             .attr('id', 'statusAndOptionsWrapper')
             .appendTo(popupContentWrapper)
 
+        $('<div id="addNewCommentsNewDocumentWrapper">').appendTo(popupContentWrapper)
+
         $('<div id="popupNewDocumentFilesContainer" style="margin-top:30px">').appendTo(popupContentWrapper)
 
         return popupContentWrapper;

@@ -5,7 +5,17 @@
         container.html('')
         const containerScrollableWrapper = $('<div id="containerScrollableWrapper">').appendTo(container)
         
-        popupLoadPanel.option('visible', true)
+        setNewCommentElementMobile(containerScrollableWrapper);
+        const commentsOnServerListWrapper = $('<div id="commentsOnServerListWrapper">').appendTo(containerScrollableWrapper)
+        
+        popupLoadPanel.option({
+            position: {of: '#commentsOnServerListWrapper'}, 
+            container:  '#commentsOnServerListWrapper',
+        })
+    
+        popupLoadPanel.option({
+            visible: true,             
+        })
         projectObjectDocumentInfoByID.reload().done(()=>{
 
             popupLoadPanel.option('visible', false)
@@ -15,8 +25,8 @@
                 containerScrollableWrapper.append('<div class="documentElemMobile"><span class="popup-field-nodata">Нет данных</span></div>')
                 return
             }
-            
-            comments.forEach(comment=>renderCommentMobile(comment, containerScrollableWrapper))
+
+            comments.forEach(comment=>renderCommentMobile(comment, commentsOnServerListWrapper))
         })
         
     }
@@ -44,4 +54,7 @@
             `)
             .appendTo(container)
     }
+
+    
+    
 </script>

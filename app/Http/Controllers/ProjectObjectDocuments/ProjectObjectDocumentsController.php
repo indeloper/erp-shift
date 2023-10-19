@@ -723,7 +723,7 @@ class ProjectObjectDocumentsController extends Controller
         $comments = Comment::where([
                 ['commentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'],
                 ['commentable_id', $request->input('id')]
-            ])->with('author')
+            ])
             ->orderByDesc('id')
             ->get();
 
