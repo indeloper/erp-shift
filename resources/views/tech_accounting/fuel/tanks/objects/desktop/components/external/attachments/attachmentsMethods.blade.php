@@ -1,43 +1,38 @@
 <script>
     function getFileLableWrapper(fileType, deviceType, fileDisplayContext, file) {
-        if (deviceType === 'desktop') {
-
-            if (fileType === 'img') {
-                return $('<div>').css({
-                    'cursor': 'pointer'
-                }).addClass('fileOnServerDivWrapper')
-            }
-
-            if (fileType === 'video') {
-                const fileLableWrapper = $('<a>').css({
-                    'cursor': 'pointer'
-                }).addClass('fileOnServerDivWrapper')
-                
-                const srcBase = window.location.protocol + '//' + window.location.host + '/'
-                const srcTail = file.filename ? file.filename : 'storage/docs/fuel_flow/' + file.name
-                const src = srcBase + srcTail
-
-                const dataAttributes = {
-                    "source": [{
-                        // "src": "http://erp.loc/storage/docs/fuel_flow/file-652565129b806.mp4",
-                        src: src,
-                        type: file.mime ? file.mime : file.type
-                    }],
-                    "attributes": {
-                        "preload": false,
-                        "controls": true
-                    }
-                }
-
-                fileLableWrapper.attr('data-video', JSON.stringify(dataAttributes))
-
-                return fileLableWrapper
-
-            }
-
-            return $('<div>').addClass('fileOnServerDivWrapper')
+        if (fileType === 'img') {
+            return $('<a>').css({'cursor': 'pointer'})
         }
 
+        const filePathBase = window.location.protocol + '//' + window.location.host + '/'
+        const filePathTail = file.filename ? file.filename : 'storage/docs/fuel_flow/' + file.name
+        const filePath = filePathBase + filePathTail
+
+        if (fileType === 'video') {
+            const fileLableWrapper = $('<a>').css({'cursor': 'pointer'})
+    
+            const dataAttributes = {
+                "source": [{
+                    src: filePath,
+                    type: file.mime ? file.mime : file.type
+                }],
+                "attributes": {
+                    "preload": false,
+                    "controls": true
+                }
+            }
+
+            fileLableWrapper.attr('data-video', JSON.stringify(dataAttributes))
+
+            return fileLableWrapper
+        }
+
+        return $('<a>')
+            .css({'cursor': 'pointer'})
+            .attr({
+                href: filePath,
+                target: '_blanc'
+            })
     }
 
     function addLightgalleryListenersImg(fileImgClass) {
@@ -124,6 +119,14 @@
                                         })
                                     }
                                 }
+                            },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
                             }
                         })
                         $(this).append($(checkBox));
@@ -139,6 +142,14 @@
                             onClick(e) {
                                 deleteAttachment(e.element);
                             },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
+                            }
                         })
                         $(this).append($(deleteButton));
                     }

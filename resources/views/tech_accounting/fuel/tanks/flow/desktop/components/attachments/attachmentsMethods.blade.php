@@ -1,43 +1,39 @@
 <script>
     function getFileLableWrapper(fileType, deviceType, fileDisplayContext, file) {
-        if (deviceType === 'desktop') {
 
-            if (fileType === 'img') {
-                return $('<div>').css({'cursor': 'pointer'})
-            }
-
-            const filePathBase = window.location.protocol + '//' + window.location.host + '/'
-            const filePathTail = file.filename ? file.filename : 'storage/docs/fuel_flow/' + file.name
-            const filePath = filePathBase + filePathTail
-
-            if (fileType === 'video') {
-                const fileLableWrapper = $('<a>').css({'cursor': 'pointer'})
-        
-                const dataAttributes = {
-                    "source": [{
-                        src: filePath,
-                        type: file.mime ? file.mime : file.type
-                    }],
-                    "attributes": {
-                        "preload": false,
-                        "controls": true
-                    }
-                }
-
-                fileLableWrapper.attr('data-video', JSON.stringify(dataAttributes))
-
-                return fileLableWrapper
-
-            }
-
-            
-            return $('<a>')
-                .css({'cursor': 'pointer'})
-                .attr({
-                    href: filePath,
-                    target: '_blanc'
-                })
+        if (fileType === 'img') {
+            return $('<a>').css({'cursor': 'pointer'})
         }
+
+        const filePathBase = window.location.protocol + '//' + window.location.host + '/'
+        const filePathTail = file.filename ? file.filename : 'storage/docs/fuel_flow/' + file.name
+        const filePath = filePathBase + filePathTail
+
+        if (fileType === 'video') {
+            const fileLableWrapper = $('<a>').css({'cursor': 'pointer'})
+    
+            const dataAttributes = {
+                "source": [{
+                    src: filePath,
+                    type: file.mime ? file.mime : file.type
+                }],
+                "attributes": {
+                    "preload": false,
+                    "controls": true
+                }
+            }
+
+            fileLableWrapper.attr('data-video', JSON.stringify(dataAttributes))
+
+            return fileLableWrapper
+        }
+
+        return $('<a>')
+            .css({'cursor': 'pointer'})
+            .attr({
+                href: filePath,
+                target: '_blanc'
+            })
     }
 
     function addLightgalleryListenersImg(fileImgClass) {
@@ -124,12 +120,17 @@
                                         })
                                     }
                                 }
+                            },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
                             }
                         })
                         $(this).append($(checkBox));
-
-                        if(checkBox)
-                        console.log(checkBox.parent());
                     }
 
                     if (permissions.can_delete_project_object_document_files) {
@@ -142,6 +143,14 @@
                             onClick(e) {
                                 deleteAttachment(e.element);
                             },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
+                            }
                         })
                         $(this).append($(deleteButton));
                     }
