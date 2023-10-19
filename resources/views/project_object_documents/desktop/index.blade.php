@@ -54,7 +54,7 @@
     </form>
 
 
-    <div id="dataGridAncor"></div>
+    <div id="dataGridAnchor"></div>
     <div id="statusOptionsForm"></div>
 
 @endsection
