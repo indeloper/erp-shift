@@ -44,8 +44,8 @@ trait Messagable
     public function threads()
     {
         return $this->belongsToMany(
-            (\App\Model\Messenger\Thread::class),
-            (\App\Model\Messenger\Participant::class),
+            (Thread::class),
+            (Participant::class),
             'user_id',
             'thread_id'
         );

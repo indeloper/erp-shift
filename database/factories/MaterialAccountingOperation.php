@@ -2,7 +2,6 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\Model;
 use App\Models\Group;
 use App\Models\ProjectObject;
 use Carbon\Carbon;
