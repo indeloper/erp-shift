@@ -47,7 +47,6 @@
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        // min: 0.001
                         readOnly: editingRowId,
                         format: "#0 л"
                     },
@@ -59,11 +58,6 @@
                             type: 'required',
                             message: 'Укажите значение',
                         },
-                        {
-                            type: 'range',
-                            min: 1,
-                            message: 'Минимальное значение 1',
-                        }
                     ],
                 },
                 {

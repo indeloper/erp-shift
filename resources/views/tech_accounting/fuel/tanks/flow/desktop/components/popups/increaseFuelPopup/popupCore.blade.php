@@ -63,7 +63,7 @@
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
-                        min: 0.001,
+                        min: 1,
                         readOnly: editingRowId,
                         format: "#0 л"
                     },
