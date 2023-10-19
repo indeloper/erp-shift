@@ -63,10 +63,20 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             $employeePost = Employees1cPost::where('post_1c_uid', '=', $employee->employee1CPostUID)->get()->first();
             $employeeSubdivision = Employees1cSubdivision::where('subdivision_1c_uid', '=', $employee->employee1CSubdivisionUID)->get()->first();
 
+            $user = User::withoutGlobalScopes()
+                ->where('inn', '=', trim($employee->employeeINN))
+                ->get()->first();
+
+
             $userStatus = 1;
             if (!empty($employee->dismissalDate) && Carbon::parse($employee->dismissalDate) < Carbon::now()->addDay())
             {
-                $userStatus = 0;
+                if (isset($user)) {
+                    $userStatus = (int)(Employee::where('dismissal_date', '=', '0000-00-00')->
+                            where('user_id', '=', $user->id)->get()->count() > 1);
+                } else {
+                    $userStatus = 0;
+                }
             }
 
             $formattedBirthday = Carbon::parse($employee->birthday)->format('d.m.Y');
@@ -76,12 +86,6 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             }
 
             if (isset($company)) {
-
-                $user = User::withoutGlobalScopes()
-                    ->where('inn', '=', trim($employee->employeeINN))
-                    ->get()
-                    ->first();
-
                     if (isset($user))
                     {
                             DB::statement("update users set " .
