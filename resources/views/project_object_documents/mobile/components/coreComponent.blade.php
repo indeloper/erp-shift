@@ -20,6 +20,12 @@
                     $('#menuButtons').dxButtonGroup('instance').option('selectedItemKeys', ['Инфо'])
                     renderInfoTemplate()
                 }
+
+                if($('#addNewCommentsNewDocumentWrapper').length) {
+                    const addNewCommentsNewDocumentWrapper = $('#addNewCommentsNewDocumentWrapper')
+                    setNewCommentElementMobile(addNewCommentsNewDocumentWrapper);
+                }
+                
                 setDocumentStatusesByTypeStoreDataSourceFilter()
             },
 

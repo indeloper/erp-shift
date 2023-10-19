@@ -506,4 +506,69 @@
 
         return checkedCheckboxes;
     }
+
+
+    const setNewCommentElementMobile = (container) => {
+
+        const newCommentArea = $('<div>')
+            .css({
+                marginBottom: '10px',
+            })
+            .appendTo(container);
+
+        const newCommentTextArea = $('<div id="newCommentTextArea">').appendTo(newCommentArea)
+        const newCommentButton = $('<div id="newCommentButton" style="margin-top:10px">').appendTo(newCommentArea)
+        const newCommentsWrapper = $('<div id="newCommentsWrapper">').appendTo(newCommentArea)
+        
+        $('#newCommentButton').dxButton({
+            text: "Добавить комментарий",
+                // icon: 'upload',
+                elementAttr: {
+                    width: '100%',
+                },
+                onClick() {
+                    const textAreaInstance = $('#newCommentTextArea').dxTextArea('instance')
+                    renderNewCommentMobile(textAreaInstance.option('value'), newCommentsWrapper)
+                    textAreaInstance.option('value', '')                    
+                }
+        })
+
+        $('#newCommentTextArea').dxTextArea({
+            placeholder: 'Новый комментарий',
+            height: '10vh',
+            onEnterKey: function(e) {
+                renderNewCommentMobile(e.component.option('text'), newCommentsWrapper)
+                e.component.reset()
+            }
+        })   
+    }
+
+    const renderNewCommentMobile = (value, container) => {
+
+        if (!value)
+            return;
+
+        const newCommentObj = {
+            author: {
+                full_name: '{{Auth::user()->user_full_name}}',
+                image: '{{Auth::user()->image}}'
+            },
+            created_at: new Date(),
+            comment: value
+        }
+
+        newCommentsArr.unshift(newCommentObj)
+
+        const newCommentWrapper = $('<div>')
+            .addClass('documentElemMobile')
+            .css({color: '#829be3'})
+            .appendTo(container)
+
+        $('<div>').text(value).appendTo(newCommentWrapper)
+
+        container.css({
+            marginTop: '10px',
+            borderTop: '1px solid #e1e1e1'
+        })
+    }
 </script>
