@@ -84,6 +84,7 @@ class NotificationService
             try {
                 Telegram::sendMessage([
                     'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                    'parse_mode' => 'HTML',
                     'text' => $text
                 ]);
             } catch (\Throwable $t) {

@@ -45,6 +45,7 @@ class NotificationCreatedListener
             if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
                 Telegram::sendMessage([
                     'chat_id' => $userChatId,
+                    'parse_mode' => 'HTML',
                     'text' => $text
                 ]);
             }
@@ -59,12 +60,14 @@ class NotificationCreatedListener
 
                     Telegram::sendMessage([
                         'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                        'parse_mode' => 'HTML',
                         'text' => $text
                     ]);
                 }
             } catch (\Throwable $e) {
                 Telegram::sendMessage([
                     'chat_id' => '-1001558926749',
+                    'parse_mode' => 'HTML',
                     'text' => $userChatId
                 ]);
             }
