@@ -157,8 +157,11 @@ class ProjectObjectDocumentsController extends Controller
             );
         }
 
+        $documentArchivedOrDeletedStatusesIds = $this->getDocumentArchivedOrDeletedStatusesIds();
+
         $projectObjectDocuments =
             $this->getProjectObjectDocumentsList($options)
+            ->whereNotIn('document_status_id', $documentArchivedOrDeletedStatusesIds)
             ->orderByDesc('id')
             ->get();
 
