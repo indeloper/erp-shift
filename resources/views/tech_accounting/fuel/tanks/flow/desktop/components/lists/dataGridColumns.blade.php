@@ -1,6 +1,5 @@
 <script>
     const dataGridColumns = [
-        
 
         {
             visible: false,
@@ -38,7 +37,8 @@
             caption: 'Дата операции',
             dataField: 'document_date',
             dataType: "date",
-            // groupIndex: 0,
+            groupIndex: 0,
+            sortOrder: 'desc',
         },
         {
             caption: "Тип операции",

@@ -30,6 +30,11 @@
                 filterText = e.text;
             }
         },
+        grouping: {
+            autoExpandAll: true,
+            allowCollapsing: true,
+            expandMode: 'rowClick',
+        },
         paging: {
             enabled: true,
             pageSize: 100,
