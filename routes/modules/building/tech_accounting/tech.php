@@ -152,6 +152,10 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
             Route::get('data', 'FuelReportController@fuelTankPeriodReportData')->name('resource.index');
             Route::get('getPermissions', 'FuelReportController@fuelTankPeriodReportPermissions')->name('getPermissions');
         });
+
+        Route::group(['prefix' => 'fuelFlowPersonalPeriodReport', 'as' => 'fuelFlowPersonalPeriodReport::'], function () {
+            Route::get('data', 'FuelReportController@fuelFlowPersonalPeriodReport')->name('resource.index');
+        });
         
         Route::group(['prefix' => 'tanksMovementReport', 'as' => 'tanksMovementReport::'], function () {
             Route::get('getPageCore', 'FuelReportController@tanksMovementReportPageCore')->name('getPageCore');

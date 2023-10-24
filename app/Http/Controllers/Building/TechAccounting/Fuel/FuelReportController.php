@@ -14,6 +14,7 @@ use App\Models\TechAcc\FuelTank\FuelTankMovement;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use PDF;
 
 class FuelReportController extends Controller
@@ -175,6 +176,71 @@ class FuelReportController extends Controller
             $fuelVolumeDateBegin = 0;
         
         return $fuelVolumeDateBegin;
+    }
+
+    public function fuelFlowPersonalPeriodReport(Request $request) 
+    {
+        $currentMonthBegin = Carbon::create($request->year.'-'.$request->month.'-'.'01');
+        $nextMonthBegin = $currentMonthBegin->addMonth();
+        $responsibleId = Auth::user()->id;
+        $responsibleId = 321;
+        $objectsByPeriod = FuelTankFlow::where('responsible_id', $responsibleId)->pluck('object_id')->unique();
+        $tanksByPeriod = FuelTankFlow::where('responsible_id', $responsibleId)->pluck('fuel_tank_id')->unique();
+
+        $responsibleDataArr = [];
+
+        foreach($objectsByPeriod as $objectId) {
+
+            foreach($tanksByPeriod as $tankId) {
+
+                // foreach($tankArivalsToObject as $tankArival) {
+
+                // }
+            
+                $fuelFlows = FuelTankFlow::where([
+                    ['created_at', '>=', $currentMonthBegin],
+                    ['created_at', '<', $nextMonthBegin],
+                    ['object_id', $objectId],
+                    ['fuel_tank_id', $tankId],
+                    ['responsible_id', $responsibleId],
+                ]);
+
+                $fuelFlows_clone1 = clone $fuelFlows;
+                $fuelFlows_clone2  = clone $fuelFlows;
+
+                $fuelIncomes = $fuelFlows_clone1
+                    ->where('fuel_tank_flow_type_id', FuelTankFlowType::where('slug', 'income')->first()->id)
+                    ->with('contractor')->get();
+                                
+                $fuelOutcomes = $fuelFlows_clone2
+                    ->where('fuel_tank_flow_type_id', FuelTankFlowType::where('slug', 'outcome')->first()->id)
+                    ->with('ourTechnic')->get();   
+                    
+                $fuelTank = FuelTank::find($tankId);
+
+                $responsibleDataArr[] = [
+                    'company' => Company::find($fuelTank->company_id)->name,
+                    'objectAdress' => ProjectObject::find($objectId)->address,
+                    'tank_number' => $fuelTank->tank_number,
+                    'dateFrom' => $currentMonthBegin->format('d.m.Y'),
+                    'dateTo' => $nextMonthBegin->subDay()->format('d.m.Y'),
+                    'fuelVolumeDateBegin' => $this->getTankFuelVolumeBeginForResponsible($currentMonthBegin, $tankId),
+                    'fuelIncomes' => $fuelIncomes,
+                    'fuelSumIncomes' => $fuelIncomes->sum('volume'),
+                    'fuelOutcomes' => $fuelOutcomes ,
+                    'fuelSumOutcomes' => $fuelOutcomes->sum('volume'),
+                    'fuelTankResponsible' => User::find($responsibleId),
+                    'carbonInstance' => new Carbon
+                ];
+            
+            
+            }
+    
+        }
+
+        $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelFlowPersonalPeriodReport.pdfTemlates.report', compact('responsibleDataArr'));
+
+        return $pdf->stream('fuelFlowPersonalPeriodReport.pdf');
     }
 
 }

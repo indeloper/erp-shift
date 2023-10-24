@@ -16,10 +16,13 @@ use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankFlowRemains;
 use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankFlowTypes;
+use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FuelTankFlowController extends StandardEntityResourceController
 {
@@ -36,23 +39,90 @@ class FuelTankFlowController extends StandardEntityResourceController
         
     }
 
+    public function index(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        if(!empty($options->group)) {
+                $groups = $this->handleCustomGroupResponse($options);
+                return json_encode(array(
+                        'data' => $groups
+                    ),
+                    JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        }
+
+        if(!empty($options->sort)) {
+            $options->sort[0]->selector = 'document_date';
+        }
+
+        $entities = $this->baseModel
+            ->dxLoadOptions($options)
+            ->get();
+
+    
+        return json_encode(array(
+            "data" => $entities
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function handleCustomGroupResponse($options)
+    {
+        $entities = (new FuelTankFlow)->dxLoadOptions($options);
+
+        $groupsData = 
+            $entities
+            ->select(DB::raw('EXTRACT( YEAR_MONTH FROM `document_date`) as y_m'))
+            ->addSelect(DB::raw('EXTRACT( YEAR FROM `document_date`) as y'))
+            ->addSelect(DB::raw('EXTRACT( MONTH FROM `document_date`) as m'))
+            ->selectRaw('count(`document_date`) as qty')
+            ->groupBy('y_m')
+            ->orderByDesc('y_m')
+            ->get();
+        
+        $groups = [];
+        foreach($groupsData as $groupArr) {            
+            $groups[] = [
+                'count' => $groupArr->qty,
+                'key' => 'document_date',
+                'items' => null,
+                'summary' => [
+                    'year' => $groupArr->y,
+                    'month' => $groupArr->m
+                ]
+            ];
+        }
+        return $groups;
+    }
+
     public function beforeStore($data)
     {
         $tank = FuelTank::findOrFail($data['fuel_tank_id']);
         $tankCurrentFuelLevel = $tank->fuel_level;
         $lastFuelTankFlowRemains = FuelTankFlowRemains::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
+        $lastFuelTankTransferHystory = FuelTankTransferHystory::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
+        
         if($lastFuelTankFlowRemains)
             $lastFuelTankFlowRemainsVolume = $lastFuelTankFlowRemains->volume;
-        else
+        else {
             $lastFuelTankFlowRemainsVolume = 0;
+            $lastFuelTankTransferHystory = new FuelTankTransferHystory;
+        }
+           
+        if($lastFuelTankTransferHystory)
+            $lastFuelTankTransferHystoryVolume = $lastFuelTankTransferHystory->volume;
+        else
+            $lastFuelTankTransferHystoryVolume = 0;
 
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'outcome') {
-            $tank->fuel_level = round($tankCurrentFuelLevel - $data['volume'], 3);
-            $newFuelRamain = round($lastFuelTankFlowRemainsVolume - $data['volume'], 3);
+            $tank->fuel_level = round($tankCurrentFuelLevel - $data['volume']);
+            $newFuelRamain = round($lastFuelTankFlowRemainsVolume - $data['volume']);
             FuelTankFlowRemains::create([
                 'fuel_tank_id' => $data['fuel_tank_id'],
                 'volume' => $newFuelRamain
             ]);
+
+            $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
         }
     
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'income') {
@@ -61,6 +131,8 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'fuel_tank_id' => $data['fuel_tank_id'],
                 'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
             ]);
+
+            $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
         }
             
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'adjustment') {
@@ -69,6 +141,8 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'fuel_tank_id' => $data['fuel_tank_id'],
                 'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
             ]);
+
+            $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
         }
             
         $tank->save();
@@ -95,10 +169,15 @@ class FuelTankFlowController extends StandardEntityResourceController
         $tank = FuelTank::findOrFail($entity->fuel_tank_id);
         $tankCurrentFuelLevel = $tank->fuel_level;
         $lastFuelTankFlowRemains = FuelTankFlowRemains::where('fuel_tank_id', $entity->fuel_tank_id)->orderBy('id', 'desc')->first(); 
+        $lastFuelTankTransferHystory = FuelTankTransferHystory::where('fuel_tank_id', $entity->fuel_tank_id)->orderBy('id', 'desc')->first(); 
+        
         if($lastFuelTankFlowRemains->count())
             $lastFuelTankFlowRemainsVolume = $lastFuelTankFlowRemains->volume;
-        else
+            
+        else {
             $lastFuelTankFlowRemainsVolume = 0;
+            $lastFuelTankTransferHystory = new FuelTankTransferHystory;
+        }
 
         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
             $tank->fuel_level = round($tankCurrentFuelLevel + $entity->volume, 3);
@@ -106,6 +185,8 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'fuel_tank_id' => $entity->fuel_tank_id,
                 'volume' => round($lastFuelTankFlowRemainsVolume + $entity->volume, 3)
             ]);
+
+            $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHystory);
         }
 
         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
@@ -114,6 +195,8 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'fuel_tank_id' => $entity->fuel_tank_id,
                 'volume' => round($lastFuelTankFlowRemainsVolume - $entity->volume, 3)
             ]);
+
+            $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHystory);
         }
 
         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
@@ -122,9 +205,24 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'fuel_tank_id' => $entity->fuel_tank_id,
                 'volume' => round($lastFuelTankFlowRemainsVolume - $entity->volume, 3)
             ]);
+
+            $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHystory);
         }
 
         $tank->save();
+    }
+
+    public function createFuelTankTransferHystory($fuelTankId, $volume, $lastFuelTankTransferHystory)
+    {
+        FuelTankTransferHystory::create([
+            'author_id' => Auth::user()->id,
+            'fuel_tank_id' => $fuelTankId,
+            'previous_object_id' => $lastFuelTankTransferHystory->previous_object_id ?? null,
+            'object_id' => $lastFuelTankTransferHystory->object_id ?? null,
+            'previous_responsible_id' => $lastFuelTankTransferHystory->previous_responsible_id ?? null,
+            'responsible_id' => $lastFuelTankTransferHystory->responsible_id ?? null,
+            'volume' => $volume
+        ]);
     }
 
     public function getFuelResponsibles()

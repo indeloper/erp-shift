@@ -34,12 +34,49 @@
             visible: false
         },
         {
-            caption: 'Дата операции',
-            dataField: 'document_date',
+            dataField: "document_date", // Replace with your date field name
             dataType: "date",
             groupIndex: 0,
             sortOrder: 'desc',
+
+            calculateGroupValue: function (data) {
+                return data.document_date.getFullYear() + "-" + (data.document_date.getMonth() + 1); // Group by year and month
+            },
+            groupCellTemplate: function(element, options) {
+                    
+                    const year = options.data.summary.year
+                    const mothNum = options.data.summary.month
+                    const month = months[mothNum]
+                    
+                    const headerContent = $('<div>')
+                        .css({
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%'
+                        }).appendTo(element)
+
+                    const groupHeader = $('<div>')
+                        .text(month + ' ' + year)
+                        .appendTo(headerContent);
+                        
+                    const reportButton = $('<div>').dxButton({
+                        text: 'Отчет',
+                        onClick: function () {
+                            const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPersonalPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum
+                            window.open(url, '_blank');
+                        },
+                    }).appendTo(headerContent);
+
+                }
         },
+        // {
+        //     caption: 'Дата операции',
+        //     dataField: 'document_date',
+        //     dataType: "date",
+        //     // groupIndex: 0,
+        //     // sortOrder: 'desc',
+        // },
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",

@@ -11,6 +11,7 @@ use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
+use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
 use Illuminate\Support\Facades\Auth;
@@ -35,21 +36,39 @@ class FuelTankController extends StandardEntityResourceController
             'object_id' => $tank->object_id,
             'fuel_level' => 0
         ]);
+
+        FuelTankTransferHystory::create([
+            'author_id' => Auth::user()->id,
+            'fuel_tank_id' => $tank->id,
+            'object_id' => $tank->object_id,
+            'responsible_id' => $tank->responsible_id,
+            'volume' => 0
+        ]);
     }
 
-    public function beforeUpdate($entity, $data)
+    public function beforeUpdate($tank, $data)
     {
         FuelTankMovement::create([
             'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $entity->id,
-            'previous_object_id' => $entity->object_id,
-            'object_id' => $data['object_id'] ?? $entity->object_id ?? null,
-            'fuel_level' => $entity->fuel_level
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $tank->object_id,
+            'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
+            'fuel_level' => $tank->fuel_level
+        ]);
+
+        FuelTankTransferHystory::create([
+            'author_id' => Auth::user()->id,
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $tank->object_id,
+            'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
+            'previous_responsible_id' => $tank->responsible_id,
+            'responsible_id' => $data['responsible_id'] ?? $tank->responsible_id ?? null,
+            'volume' => $tank->fuel_level
         ]);
 
         return [
             'data' => $data, 
-            'ignoreDataKeys' => []
+            // 'ignoreDataKeys' => []
         ];
     }
 
