@@ -21,7 +21,7 @@
 <br>
 № Бака (емкости): {{$tank_number}}
 <br><br>
-
+<img class="fileImg" src="http://erp.loc/storage/docs/fuel_flow/file-6538b47a51e48.png" style="width: 100px; height: 80px; border-radius: 5px; object-fit: cover;">
 <table style="border-collapse: collapse; font-size:80%; width: 100%">
     
 
@@ -72,7 +72,7 @@
                 {{$fuelIncome['contractor']->short_name}}
             </td>
             <td class="td-normal">
-                {{$fuelIncome->document_date ? $carbonInstance::create($fuelIncome->document_date)->format('d.m.Y') : ''}}
+                {{$fuelIncome->event_date ? $carbonInstance::create($fuelIncome->event_date)->format('d.m.Y') : ''}}
             </td>
             <td class="td-normal">
                 {{$fuelIncome->document}}
@@ -117,7 +117,7 @@
                 {{$fuelOutcome['ourTechnic']->name}}
             </td>
             <td class="td-normal">
-                {{$fuelOutcome->document_date ? $carbonInstance::create($fuelOutcome->document_date)->format('d.m.Y') : ''}}
+                {{$fuelOutcome->event_date ? $carbonInstance::create($fuelOutcome->event_date)->format('d.m.Y') : ''}}
             </td>
             <td class="td-normal">
                 {{$fuelOutcome->document}}
@@ -222,6 +222,4 @@
     </tr>
 
 </table>
-<br><br>
-
-
+<pagebreak></pagebreak>

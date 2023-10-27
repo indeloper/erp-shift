@@ -52,7 +52,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         }
 
         if(!empty($options->sort)) {
-            $options->sort[0]->selector = 'document_date';
+            $options->sort[0]->selector = 'event_date';
         }
 
         $entities = $this->baseModel
@@ -72,10 +72,10 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $groupsData = 
             $entities
-            ->select(DB::raw('EXTRACT( YEAR_MONTH FROM `document_date`) as y_m'))
-            ->addSelect(DB::raw('EXTRACT( YEAR FROM `document_date`) as y'))
-            ->addSelect(DB::raw('EXTRACT( MONTH FROM `document_date`) as m'))
-            ->selectRaw('count(`document_date`) as qty')
+            ->select(DB::raw('EXTRACT( YEAR_MONTH FROM `event_date`) as y_m'))
+            ->addSelect(DB::raw('EXTRACT( YEAR FROM `event_date`) as y'))
+            ->addSelect(DB::raw('EXTRACT( MONTH FROM `event_date`) as m'))
+            ->selectRaw('count(`event_date`) as qty')
             ->groupBy('y_m')
             ->orderByDesc('y_m')
             ->get();
@@ -84,7 +84,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         foreach($groupsData as $groupArr) {            
             $groups[] = [
                 'count' => $groupArr->qty,
-                'key' => 'document_date',
+                'key' => 'event_date',
                 'items' => null,
                 'summary' => [
                     'year' => $groupArr->y,
@@ -100,20 +100,21 @@ class FuelTankFlowController extends StandardEntityResourceController
         $tank = FuelTank::findOrFail($data['fuel_tank_id']);
         $tankCurrentFuelLevel = $tank->fuel_level;
         $lastFuelTankFlowRemains = FuelTankFlowRemains::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
-        $lastFuelTankTransferHystory = FuelTankTransferHystory::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
+        // $lastFuelTankTransferHystory = FuelTankTransferHystory::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
         
         if($lastFuelTankFlowRemains)
             $lastFuelTankFlowRemainsVolume = $lastFuelTankFlowRemains->volume;
         else {
             $lastFuelTankFlowRemainsVolume = 0;
-            $lastFuelTankTransferHystory = new FuelTankTransferHystory;
         }
            
-        if($lastFuelTankTransferHystory)
-            $lastFuelTankTransferHystoryVolume = $lastFuelTankTransferHystory->volume;
-        else
-            $lastFuelTankTransferHystoryVolume = 0;
-
+        // if($lastFuelTankTransferHystory)
+        //     $lastFuelTankTransferHystoryVolume = $lastFuelTankTransferHystory->volume;
+        // else {
+        //     $lastFuelTankTransferHystoryVolume = 0;
+        //     $lastFuelTankTransferHystory = new FuelTankTransferHystory;
+        // }
+            
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'outcome') {
             $tank->fuel_level = round($tankCurrentFuelLevel - $data['volume']);
             $newFuelRamain = round($lastFuelTankFlowRemainsVolume - $data['volume']);
@@ -122,7 +123,7 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'volume' => $newFuelRamain
             ]);
 
-            $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
+            // $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
         }
     
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'income') {
@@ -132,7 +133,7 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
             ]);
 
-            $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
+            // $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
         }
             
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'adjustment') {
@@ -142,7 +143,7 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
             ]);
 
-            $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
+            // $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
         }
             
         $tank->save();
@@ -158,11 +159,24 @@ class FuelTankFlowController extends StandardEntityResourceController
         ];
     }
 
-    // public function afterStore($entity, $data)
-    // {
-    //     if(!empty($data['newAttachments']))
-    //         (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
-    // }
+    public function afterStore($entity, $data, $dataToStore)
+    {
+        if(!empty($data['newAttachments']))
+            (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
+
+        if(!empty($data['deletedAttachments']))
+            $this->deleteFiles($data['deletedAttachments']);
+
+        $lastFuelTankTransferHystory = FuelTankTransferHystory::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
+        if(!$lastFuelTankTransferHystory) {
+            $lastFuelTankTransferHystory = new FuelTankTransferHystory;
+        }
+        
+        $tankCurrentFuelLevel = FuelTank::find($entity->fuel_tank_id)->fuel_level;
+
+        $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tankCurrentFuelLevel, $lastFuelTankTransferHystory, $entity->id, $entity->event_date);
+
+    }
 
     public function beforeDelete($entity)
     {
@@ -212,7 +226,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         $tank->save();
     }
 
-    public function createFuelTankTransferHystory($fuelTankId, $volume, $lastFuelTankTransferHystory)
+    public function createFuelTankTransferHystory($fuelTankId, $fuel_level, $lastFuelTankTransferHystory, $fuel_tank_flow_id = null, $event_date = null)
     {
         FuelTankTransferHystory::create([
             'author_id' => Auth::user()->id,
@@ -221,7 +235,9 @@ class FuelTankFlowController extends StandardEntityResourceController
             'object_id' => $lastFuelTankTransferHystory->object_id ?? null,
             'previous_responsible_id' => $lastFuelTankTransferHystory->previous_responsible_id ?? null,
             'responsible_id' => $lastFuelTankTransferHystory->responsible_id ?? null,
-            'volume' => $volume
+            'fuel_tank_flow_id' => $fuel_tank_flow_id,
+            'fuel_level' => $fuel_level,
+            'event_date' => $event_date ? $event_date : now()
         ]);
     }
 

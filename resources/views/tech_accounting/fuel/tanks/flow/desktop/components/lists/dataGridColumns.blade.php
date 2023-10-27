@@ -34,13 +34,13 @@
             visible: false
         },
         {
-            dataField: "document_date", // Replace with your date field name
+            dataField: "event_date", // Replace with your date field name
             dataType: "date",
             groupIndex: 0,
             sortOrder: 'desc',
 
             calculateGroupValue: function (data) {
-                return data.document_date.getFullYear() + "-" + (data.document_date.getMonth() + 1); // Group by year and month
+                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1); // Group by year and month
             },
             groupCellTemplate: function(element, options) {
                     
@@ -63,7 +63,10 @@
                     const reportButton = $('<div>').dxButton({
                         text: 'Отчет',
                         onClick: function () {
-                            const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPersonalPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum
+                            // console.log(currentLoadOptions);
+                            // const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPersonalPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum
+                            const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum + '&loadOptions=' + JSON.stringify(currentLoadOptions)
+                            
                             window.open(url, '_blank');
                         },
                     }).appendTo(headerContent);
@@ -72,7 +75,7 @@
         },
         // {
         //     caption: 'Дата операции',
-        //     dataField: 'document_date',
+        //     dataField: 'event_date',
         //     dataType: "date",
         //     // groupIndex: 0,
         //     // sortOrder: 'desc',

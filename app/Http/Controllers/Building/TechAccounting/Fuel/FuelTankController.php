@@ -28,7 +28,7 @@ class FuelTankController extends StandardEntityResourceController
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
     
-    public function afterStore($tank, $data)
+    public function afterStore($tank, $data, $dataToStore)
     {
         FuelTankMovement::create([
             'author_id' => Auth::user()->id,
@@ -42,7 +42,8 @@ class FuelTankController extends StandardEntityResourceController
             'fuel_tank_id' => $tank->id,
             'object_id' => $tank->object_id,
             'responsible_id' => $tank->responsible_id,
-            'volume' => 0
+            'fuel_level' => 0,
+            'event_date' => $data['event_date'] ?? now()
         ]);
     }
 
@@ -63,7 +64,8 @@ class FuelTankController extends StandardEntityResourceController
             'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
             'previous_responsible_id' => $tank->responsible_id,
             'responsible_id' => $data['responsible_id'] ?? $tank->responsible_id ?? null,
-            'volume' => $tank->fuel_level
+            'fuel_level' => $tank->fuel_level,
+            'event_date' => $data['event_date'] ?? now()
         ]);
 
         return [

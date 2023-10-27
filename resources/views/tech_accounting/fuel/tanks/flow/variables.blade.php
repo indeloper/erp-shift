@@ -3,6 +3,7 @@
     let editingRowId = 0;
     // Используется при подтверждении закрытия формы без сохранения
     let skipStoppingEditingRow = 0;
+    let currentLoadOptions = [];
 // Конец Общие
     const months = 
         {

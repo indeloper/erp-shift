@@ -188,7 +188,7 @@ class StandardEntityResourceController extends Controller
         ];
     }
 
-    public function afterStore($entity, $data)
+    public function afterStore($entity, $data, $dataToStore)
     {
         if(!empty($data['newAttachments']))
             (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);

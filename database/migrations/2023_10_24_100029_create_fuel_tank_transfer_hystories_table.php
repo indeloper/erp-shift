@@ -34,9 +34,13 @@ class CreateFuelTankTransferHystoriesTable extends Migration
 
             $table->unsignedInteger('previous_responsible_id')->nullable()->comment('ID предыдущего ответственного');
             $table->foreign('previous_responsible_id')->references('id')->on('users');
-            
-            $table->integer('volume')->nullable()->comment('Количество топлива');
 
+            $table->bigInteger('fuel_tank_flow_id')->nullable()->unsigned()->comment('ID топливной транзакции');
+            $table->foreign('fuel_tank_flow_id')->references('id')->on('fuel_tank_flows');
+
+            $table->integer('fuel_level')->nullable()->comment('Остаток топлива в емкости');
+            
+            $table->date('event_date')->comment('Дата время факта события');
             $table->timestamps();
             $table->softDeletes();
 
