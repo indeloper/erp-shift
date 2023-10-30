@@ -103,6 +103,7 @@
                                 Номер
                             </th>
                         </tr>
+
                         <tr class="table-summary">
                             <td  class="td-normal table-summary" colspan=3>
                             <b>Остаток в баке на {{$summaryData['dateFrom']}}</b>
@@ -113,18 +114,19 @@
 
                         </tr>
                     
-                    
+                    @php 
+                        $isEmptyIncomeRegionRendered = false;  
+                        $isEmptyOutcomeRegionRendered = false;
+                    @endphp
+
                     @foreach ($objectTransferGroups as $flowTypeSlug=>$objectTransferGroup)
-        
+        {{--
                         @if(!$flowTypeSlug)
                             @continue
                         @endif
-                        @php 
-                            $isEmptyIncomeRegionRendered = false;  
-                            $isEmptyOutcomeRegionRendered = false;
-                        @endphp
+        --}}
                         
-                        @if (!isset($objectTransferGroups['income'])) 
+               @if (!isset($objectTransferGroups['income']) && !$isEmptyIncomeRegionRendered) 
                             @php $isEmptyIncomeRegionRendered = true; @endphp
                             <tr>
                                 <td class="td-normal row-without-borders" colspan=4></td>
@@ -148,7 +150,7 @@
                            
                         @endif
 
-                        @if (!isset($objectTransferGroups['outcome'])) 
+                        @if (!isset($objectTransferGroups['outcome'])  && !$isEmptyOutcomeRegionRendered) 
                             @php $isEmptyOutcomeRegionRendered = true; @endphp
                             <tr>
                                 <td class="td-normal row-without-borders" colspan=4></td>
@@ -163,13 +165,11 @@
                             </tr>   
                         @endif
 
-
+                        @continue($flowTypeSlug === 'notIncludedTank' || !$flowTypeSlug)
                         <tr>
                             <td class="td-normal row-without-borders" colspan=4></td>
                         </tr>
                         
-                        @continue($flowTypeSlug === 'notIncludedTank')
-
                         <tr  class="table-summary">
                             <td class="td-center table-summary" colspan=4>
                                 @if(empty($isEmptyIncomeRegionRendered) && $flowTypeSlug==='income')
@@ -213,6 +213,7 @@
 
                         @endforeach
                             
+                        @if($incomesTotalAmount || $outcomesTotalAmount)
                             <tr class="table-summary">
                                 <td  class="td-normal table-summary" >
                                     Итого по @if($flowTypeSlug==='income') приходу @else расходу @endif
@@ -234,6 +235,7 @@
                                 </td>
 
                             </tr>
+                        @endif
                            
                             @if($flowTypeSlug==='income')
                                 <tr  class="table-summary">
@@ -256,11 +258,11 @@
 
                     @endforeach
                     
-                        @if($flowTypeSlug !== 'notIncludedTank')
+                       
                             <tr>
                                 <td class="td-normal row-without-borders" colspan=4></td>
                             </tr>
-                        @endif
+                     
                         <tr  class="table-summary">
                             <td  class="td-normal table-summary" colspan=3>
                                 <b>Остаток в баке на {{$summaryData['dateTo']}}</b>

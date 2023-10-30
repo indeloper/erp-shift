@@ -207,20 +207,7 @@ class FuelReportController extends Controller
 
         $filteredResponsiblesArr = $this->getFilteredResponsiblesArr($options->filter);
 
-        // $fuelTanksIds = (new FuelTankFlow)
-        //     ->dxLoadOptions($options)
-        //     ->pluck('fuel_tank_id')
-        //     ->unique()
-        //     ->toArray();
-
         $baseReportArraySource = FuelTankTransferHystory::query();
-        
-            // // ->dxLoadOptions($options)
-            // ->where([
-            //     // ['fuel_tank_transfer_hystories.responsible_id', $responsibleId],
-            //     // ['fuel_tank_transfer_hystories.event_date', '>=', $currentMonthBegin],
-            //     // ['fuel_tank_transfer_hystories.event_date', '<=', $currentMonthEnd],
-            // ]);
             
         $baseReportArraySource_ = clone $baseReportArraySource;
 
@@ -230,6 +217,7 @@ class FuelReportController extends Controller
                 ['fuel_tank_transfer_hystories.event_date', '<=', $currentMonthEnd],
             ])
             ->whereIn('fuel_tank_transfer_hystories.fuel_tank_flow_id', $fuelTankFlowsIds)
+            ->orWhere('fuel_tank_transfer_hystories.fuel_tank_flow_id', null)
             ->leftJoin('fuel_tank_flows', 'fuel_tank_transfer_hystories.fuel_tank_flow_id', '=', 'fuel_tank_flows.id')
             ->leftJoin('fuel_tank_flow_types', 'fuel_tank_flows.fuel_tank_flow_type_id', '=', 'fuel_tank_flow_types.id')
             ->leftJoin('contractors', 'fuel_tank_flows.contractor_id', '=', 'contractors.id')
@@ -281,19 +269,21 @@ class FuelReportController extends Controller
                 $query->whereIn('responsible_id', $filteredResponsiblesArr);
             })
             ->get();
-
-        // return view('tech_accounting.fuel.tanks.reports.fuelFlowPersonalPeriodReport.pdfTemlates.testReportBlade',
-        // [
-        //     'baseReportArray' => $baseReportArray,
-        //     'dateFrom' => $currentMonthBegin->format('d.m.Y'),
-        //     'dateTo' => $nextMonthBegin->subDay()->format('d.m.Y'),
-        //     'companyModelInstance' => new Company,
-        //     'fuelTankModelInstance' => new FuelTank,
-        //     'objectModelInstance' => new ProjectObject,
-        //     'userModelInstance' => new User,
-        //     'carbonInstance' => new Carbon,
-        //     'reportControllerInstance' => $this
-        // ]
+// dd($baseReportArray);
+        // return view('tech_accounting.fuel.tanks.reports.fuelFlowPersonalPeriodReport.pdfTemlates.reportTemplate',
+        //     [
+        //         'baseReportArray' => $baseReportArray,
+        //         'dateFrom' => $currentMonthBegin->format('d.m.Y'),
+        //         'dateTo' => $nextMonthBegin->subDay()->format('d.m.Y'),
+        //         'companyModelInstance' => new Company,
+        //         'fuelTankModelInstance' => new FuelTank,
+        //         'objectModelInstance' => new ProjectObject,
+        //         'userModelInstance' => new User,
+        //         'employeeModelInstance' => new Employee,
+        //         'employees1cPostModelInstance' => new Employees1cPost,
+        //         'carbonInstance' => new Carbon,
+        //         'reportControllerInstance' => $this,
+        //     ]
         // );
 
             foreach($fuelTanksNotIncludedinReport as $notIncludedTank){

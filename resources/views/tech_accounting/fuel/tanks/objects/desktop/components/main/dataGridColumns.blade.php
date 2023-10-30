@@ -70,14 +70,23 @@
                     .appendTo(container)
                 
             }
-            // customizeText: (data) => {
-            //     return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
-            // }
+          
         },
         
         {
             type: "buttons",
             buttons: [
+                {
+                    hint: 'Переместить',
+                    icon: 'fas fa-exchange-alt',
+                    onClick(e) {
+                        if(!e.row.data.awaiting_confirmation) {
+                            showMovingFuelTankPopup(e.row.data)
+                        } else {
+                            showMovingConfirmationFuelTankPopup(e.row.data)
+                        }
+                    },
+                },
                 'edit',
                 'delete'
             ],

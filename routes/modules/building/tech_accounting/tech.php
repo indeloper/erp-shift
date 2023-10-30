@@ -121,6 +121,8 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::get('getProjectObjects', 'FuelTankController@getProjectObjects')->name('getProjectObjects');
         Route::get('getFuelTanksResponsibles', 'FuelTankController@getFuelTanksResponsibles')->name('getFuelTanksResponsibles');
         Route::get('getCompanies', 'FuelTankController@getCompanies')->name('getCompanies');
+        Route::post('moveFuelTank', 'FuelTankController@moveFuelTank')->name('moveFuelTank');
+        Route::post('confirmMovingFuelTank', 'FuelTankController@confirmMovingFuelTank')->name('confirmMovingFuelTank');
 
         Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
         Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
