@@ -188,8 +188,8 @@ class FuelReportController extends Controller
         $cloneCurrentMonthBegin = clone $currentMonthBegin;
         $nextMonthBegin = $cloneCurrentMonthBegin->addMonth();
         $currentMonthEnd = $nextMonthBegin->subDay();
-        $responsibleId = Auth::user()->id;
-        $responsibleId = 33;  
+        // $responsibleId = Auth::user()->id;
+        // $responsibleId = 33;  
 
         $options = json_decode($request['loadOptions']);
 
@@ -197,6 +197,10 @@ class FuelReportController extends Controller
 
         $fuelTankFlowsIds = (new FuelTankFlow)
             ->dxLoadOptions($options)
+            ->where([
+                ['event_date', '>=', $currentMonthBegin],
+                ['event_date', '<=', $currentMonthEnd],
+            ])
             ->pluck('id')
             ->unique()
             ->toArray();
@@ -221,11 +225,11 @@ class FuelReportController extends Controller
         $baseReportArraySource_ = clone $baseReportArraySource;
 
         $baseReportArray = $baseReportArraySource
-            ->whereRaw('fuel_tank_flows.id IN (?)', implode(',',  $fuelTankFlowsIds))
             ->where([
                 ['fuel_tank_transfer_hystories.event_date', '>=', $currentMonthBegin],
                 ['fuel_tank_transfer_hystories.event_date', '<=', $currentMonthEnd],
             ])
+            ->whereIn('fuel_tank_transfer_hystories.fuel_tank_flow_id', $fuelTankFlowsIds)
             ->leftJoin('fuel_tank_flows', 'fuel_tank_transfer_hystories.fuel_tank_flow_id', '=', 'fuel_tank_flows.id')
             ->leftJoin('fuel_tank_flow_types', 'fuel_tank_flows.fuel_tank_flow_type_id', '=', 'fuel_tank_flow_types.id')
             ->leftJoin('contractors', 'fuel_tank_flows.contractor_id', '=', 'contractors.id')
@@ -234,7 +238,6 @@ class FuelReportController extends Controller
             ->leftJoin('project_objects', 'fuel_tank_flows.object_id', '=', 'project_objects.id')
             ->leftJoin('users', 'fuel_tank_flows.responsible_id', '=', 'users.id')
             ->leftJoin('fuel_tanks', 'fuel_tank_flows.fuel_tank_id', '=', 'fuel_tanks.id')
-            
             ->orderBy('fuel_tank_transfer_hystories.responsible_id') 
             ->orderBy('fuel_tank_transfer_hystories.fuel_tank_id')
             ->orderBy('fuel_tank_transfer_hystories.object_id')
@@ -270,12 +273,12 @@ class FuelReportController extends Controller
             ])
             ->groupBy(['responsible_id', 'fuel_tank_id', 'object_id', 'group_marker', 'fuel_tank_flow_type_slug'])->toArray();
             
-        $fuelTanksIncludedinReportIds = $baseReportArraySource_->pluck('fuel_tank_id')->toArray();
+        $fuelTanksIncludedinReportIds = $baseReportArraySource_->pluck('fuel_tank_id')->unique()->toArray();
         $fuelTanksNotIncludedinReport = 
             FuelTank::query()
             ->whereNotIn('id', $fuelTanksIncludedinReportIds)
             ->when(!empty($filteredResponsiblesArr), function($query) use($filteredResponsiblesArr) {
-                $query->whereRaw('responsible_id IN (?)', implode(',',  $filteredResponsiblesArr));
+                $query->whereIn('responsible_id', $filteredResponsiblesArr);
             })
             ->get();
 
