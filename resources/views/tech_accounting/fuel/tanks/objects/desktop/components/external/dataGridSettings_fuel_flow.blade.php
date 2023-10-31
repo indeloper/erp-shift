@@ -1,8 +1,8 @@
 <script>
     const dataGridSettings_fuel_flow = {
-        height(){
-            return 0.85*$('.dx-overlay-wrapper').find('.dx-popup-content').height()
-        }, 
+        // height(){
+        //     return 0.85*$('.dx-overlay-wrapper').find('.dx-popup-content').height()
+        // }, 
         focusedRowEnabled: true,
         hoverStateEnabled: true,
         columnAutoWidth: false,
