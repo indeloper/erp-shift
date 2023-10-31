@@ -49,10 +49,9 @@ class StandardEntityResourceController extends Controller
     public function index(Request $request)
     {
         $options = json_decode($request['data']);
-
+        
         $entities = $this->baseModel
             ->dxLoadOptions($options)
-            ->orderBy('id', 'desc')
             ->get();
 
         if(!empty($options->group)) {
@@ -189,7 +188,7 @@ class StandardEntityResourceController extends Controller
         ];
     }
 
-    public function afterStore($entity, $data)
+    public function afterStore($entity, $data, $dataToStore)
     {
         if(!empty($data['newAttachments']))
             (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
@@ -267,7 +266,11 @@ class StandardEntityResourceController extends Controller
             // $groupBy = $groupRequestElement->selector;
 
             $groupBy = $groupRequest[$i]->selector;
-            $groupByArr = $entities->pluck($groupBy)->unique();
+            $isSortOrderDesc = $groupRequest[$i]->desc;
+            $groupByArr = $entities->pluck($groupBy)->unique()->toArray();
+            if($isSortOrderDesc) {
+                arsort($groupByArr);
+            }
       
             foreach($groupByArr as $groupKey) {
                 $projectObjectDocumentsGrouped = $entities->where($groupBy, $groupKey);

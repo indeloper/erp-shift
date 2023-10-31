@@ -106,4 +106,43 @@
         })
         return await response.result;
     }
+
+    async function moveFuelTank(formData, movemingFuelTankForm) {
+                
+        return $.ajax({
+                    url: "{{route($routeNameFixedPart.'moveFuelTank')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        data: JSON.stringify(formData),
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                        movemingFuelTankForm.hide()
+                        entitiesDataSource.reload()
+                    },
+                })
+    }
+
+    async function confirmMovingFuelTank(fuelTankId, movingConfirmationFuelTankFormPopup) {
+                
+        return $.ajax({
+                    url: "{{route($routeNameFixedPart.'confirmMovingFuelTank')}}",
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        fuelTankId: JSON.stringify(fuelTankId),
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                        movingConfirmationFuelTankFormPopup.hide()
+                        entitiesDataSource.reload()
+                    },
+                })
+    }
+
 </script>

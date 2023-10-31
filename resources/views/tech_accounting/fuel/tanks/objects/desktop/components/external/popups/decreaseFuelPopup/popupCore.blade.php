@@ -86,7 +86,7 @@
                     ],
                 },
                 {
-                    dataField: 'document_date',
+                    dataField: 'event_date',
                     editorType: "dxDateBox",
                     label: {
                         text: 'Дата операции'

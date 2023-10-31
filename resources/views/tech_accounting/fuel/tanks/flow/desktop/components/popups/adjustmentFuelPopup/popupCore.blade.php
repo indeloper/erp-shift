@@ -62,7 +62,7 @@
                 },
                 {
                     visible: false,
-                    dataField: 'document_date',
+                    dataField: 'event_date',
                     editorType: "dxDateBox",
                     editorOptions:{
                         value: new Date(),

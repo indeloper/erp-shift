@@ -143,6 +143,7 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('resources/assets/img/delivery-truck.svg', 'public/img');
 
  mix.copy('resources/assets/img/fileIcons/*', 'public/img/fileIcons');
+ mix.copy('resources/assets/img/logotypes/*', 'public/img/logotypes');
 
  mix.js('resources/assets/js/plugins/pusher_and_vue.js', 'public/js/plugins');
 

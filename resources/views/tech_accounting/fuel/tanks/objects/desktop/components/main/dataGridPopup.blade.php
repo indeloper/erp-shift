@@ -6,7 +6,7 @@
             hideOnOutsideClick: true,
             showCloseButton: true,
             maxWidth: '40vw',
-            height: '80vh',
+            height: 'auto',
             onHiding() {
                 resetVars();
                 resetStores();

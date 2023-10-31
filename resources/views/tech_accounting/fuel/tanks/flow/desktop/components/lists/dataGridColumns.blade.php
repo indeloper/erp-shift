@@ -1,6 +1,5 @@
 <script>
     const dataGridColumns = [
-        
 
         {
             visible: false,
@@ -35,11 +34,52 @@
             visible: false
         },
         {
-            caption: 'Дата операции',
-            dataField: 'document_date',
+            dataField: "event_date", // Replace with your date field name
             dataType: "date",
-            // groupIndex: 0,
+            groupIndex: 0,
+            sortOrder: 'desc',
+
+            calculateGroupValue: function (data) {
+                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1); // Group by year and month
+            },
+            groupCellTemplate: function(element, options) {
+                    
+                    const year = options.data.summary.year
+                    const mothNum = options.data.summary.month
+                    const month = months[mothNum]
+                    
+                    const headerContent = $('<div>')
+                        .css({
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%'
+                        }).appendTo(element)
+
+                    const groupHeader = $('<div>')
+                        .text(month + ' ' + year)
+                        .appendTo(headerContent);
+                        
+                    const reportButton = $('<div>').dxButton({
+                        text: 'Отчет',
+                        onClick: function () {
+                            // console.log(currentLoadOptions);
+                            // const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPersonalPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum
+                            const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum + '&loadOptions=' + JSON.stringify(currentLoadOptions)
+                            
+                            window.open(url, '_blank');
+                        },
+                    }).appendTo(headerContent);
+
+                }
         },
+        // {
+        //     caption: 'Дата операции',
+        //     dataField: 'event_date',
+        //     dataType: "date",
+        //     // groupIndex: 0,
+        //     // sortOrder: 'desc',
+        // },
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",

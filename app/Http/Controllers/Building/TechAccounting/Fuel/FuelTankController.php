@@ -11,6 +11,7 @@ use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
+use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +27,27 @@ class FuelTankController extends StandardEntityResourceController
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
     }
+
+    public function index(Request $request)
+    {
+        $options = json_decode($request['data']);
+        
+        $entities = $this->baseModel
+            ->dxLoadOptions($options)
+            ->selectRaw(
+                '*, 
+                (SELECT MAX(`event_date`) from `fuel_tank_flows` where `fuel_tank_flows`.`fuel_tank_id` = `fuel_tanks`.`id`) 
+                as max_event_date'
+            )
+            ->get();
     
-    public function afterStore($tank, $data)
+        return json_encode(array(
+            "data" => $entities
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+    
+    public function afterStore($tank, $data, $dataToStore)
     {
         FuelTankMovement::create([
             'author_id' => Auth::user()->id,
@@ -35,21 +55,41 @@ class FuelTankController extends StandardEntityResourceController
             'object_id' => $tank->object_id,
             'fuel_level' => 0
         ]);
+
+        FuelTankTransferHystory::create([
+            'author_id' => Auth::user()->id,
+            'fuel_tank_id' => $tank->id,
+            'object_id' => $tank->object_id,
+            'responsible_id' => $tank->responsible_id,
+            'fuel_level' => 0,
+            'event_date' => $data['event_date'] ?? now()
+        ]);
     }
 
-    public function beforeUpdate($entity, $data)
+    public function beforeUpdate($tank, $data)
     {
         FuelTankMovement::create([
             'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $entity->id,
-            'previous_object_id' => $entity->object_id,
-            'object_id' => $data['object_id'] ?? $entity->object_id ?? null,
-            'fuel_level' => $entity->fuel_level
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $tank->object_id,
+            'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
+            'fuel_level' => $tank->fuel_level
+        ]);
+
+        FuelTankTransferHystory::create([
+            'author_id' => Auth::user()->id,
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $tank->object_id,
+            'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
+            'previous_responsible_id' => $tank->responsible_id,
+            'responsible_id' => $data['responsible_id'] ?? $tank->responsible_id ?? null,
+            'fuel_level' => $tank->fuel_level,
+            'event_date' => $data['event_date'] ?? now()
         ]);
 
         return [
             'data' => $data, 
-            'ignoreDataKeys' => []
+            // 'ignoreDataKeys' => []
         ];
     }
 
@@ -103,5 +143,56 @@ class FuelTankController extends StandardEntityResourceController
             ], 
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         }
+    }
+
+    public function moveFuelTank(Request $request)
+    {
+        $data = json_decode($request->data);
+        $tank = $this->baseModel::findOrFail($data->id);
+
+        FuelTankTransferHystory::create([
+            'author_id' => Auth::user()->id,
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $tank->object_id,
+            'object_id' => $data->object_id,
+            'previous_responsible_id' => $tank->responsible_id,
+            'responsible_id' => $data->responsible_id,
+            'fuel_level' => $tank->fuel_level,
+            'event_date' => $data->event_date
+        ]);
+        
+        $tank->object_id = $data->object_id;
+        $tank->responsible_id = $data->responsible_id;
+        $tank->awaiting_confirmation = true;
+        $tank->save();
+
+        return json_encode($tank);
+    }
+
+    public function confirmMovingFuelTank(Request $request)
+    {
+        $fuelTankId = json_decode($request->fuelTankId);
+        $tank = $this->baseModel::findOrFail($fuelTankId);
+
+        $lastTankTransferHistory = FuelTankTransferHystory::query()
+            ->whereNull('fuel_tank_flow_id')
+            ->whereNull('tank_moving_confirmation')
+            ->orderByDesc('id')
+            ->firstOrFail();
+
+        FuelTankTransferHystory::create([
+            'author_id' => Auth::user()->id,
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $lastTankTransferHistory->previous_object_id,
+            'object_id' => $tank->object_id,
+            'previous_responsible_id' => $lastTankTransferHistory->previous_responsible_id,
+            'responsible_id' => $tank->responsible_id,
+            'fuel_level' => $tank->fuel_level,
+            'event_date' => now(),
+            'tank_moving_confirmation' => true
+        ]);
+
+        $tank->awaiting_confirmation = false;
+        $tank->save();
     }
 }
