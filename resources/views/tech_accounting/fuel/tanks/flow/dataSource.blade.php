@@ -1,4 +1,3 @@
-
 <script>
     const entitiesDataSource = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
@@ -83,8 +82,8 @@
     const fuelResponsiblesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getFuelResponsibles')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getFuelResponsibles')}}"
             return $.getJSON(url);
         }
     })
@@ -92,8 +91,8 @@
     const fuelTanksStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getFuelTanks')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getFuelTanks')}}"
             return $.getJSON(url);
         }
     })
@@ -101,8 +100,8 @@
     const fuelContractorsStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getFuelContractors')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getFuelContractors')}}"
             return $.getJSON(url);
         }
     })
@@ -110,8 +109,8 @@
     const fuelConsumersStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getFuelConsumers')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getFuelConsumers')}}"
             return $.getJSON(url);
         }
     })
@@ -119,17 +118,17 @@
     const fuelFlowTypesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getFuelFlowTypes')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getFuelFlowTypes')}}"
             return $.getJSON(url);
         }
     })
-    
+
     const projectObjectsStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route('building::tech_acc::fuel::tanks::'.'getProjectObjects')}}" 
+        load: function () {
+            let url = "{{route('building::tech_acc::fuel::tanks::'.'getProjectObjects')}}"
             return $.getJSON(url);
         }
     })
@@ -137,8 +136,8 @@
     const companiesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route('building::tech_acc::fuel::tanks::'.'getCompanies')}}" 
+        load: function () {
+            let url = "{{route('building::tech_acc::fuel::tanks::'.'getCompanies')}}"
             return $.getJSON(url);
         }
     })

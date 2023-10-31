@@ -42,36 +42,36 @@
             calculateGroupValue: function (data) {
                 return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1); // Group by year and month
             },
-            groupCellTemplate: function(element, options) {
-                    
-                    const year = options.data.summary.year
-                    const mothNum = options.data.summary.month
-                    const month = months[mothNum]
-                    
-                    const headerContent = $('<div>')
-                        .css({
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: '100%'
-                        }).appendTo(element)
+            groupCellTemplate: function (element, options) {
 
-                    const groupHeader = $('<div>')
-                        .text(month + ' ' + year)
-                        .appendTo(headerContent);
-                        
-                    const reportButton = $('<div>').dxButton({
-                        text: 'Отчет',
-                        onClick: function () {
-                            // console.log(currentLoadOptions);
-                            // const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPersonalPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum
-                            const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum + '&loadOptions=' + JSON.stringify(currentLoadOptions)
-                            
-                            window.open(url, '_blank');
-                        },
-                    }).appendTo(headerContent);
+                const year = options.data.summary.year
+                const mothNum = options.data.summary.month
+                const month = months[mothNum]
 
-                }
+                const headerContent = $('<div>')
+                    .css({
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        width: '100%'
+                    }).appendTo(element)
+
+                const groupHeader = $('<div>')
+                    .text(month + ' ' + year)
+                    .appendTo(headerContent);
+
+                const reportButton = $('<div>').dxButton({
+                    text: 'Отчет',
+                    onClick: function () {
+                        // console.log(currentLoadOptions);
+                        // const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPersonalPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum
+                        const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum + '&loadOptions=' + JSON.stringify(currentLoadOptions)
+
+                        window.open(url, '_blank');
+                    },
+                }).appendTo(headerContent);
+
+            }
         },
         // {
         //     caption: 'Дата операции',
@@ -89,26 +89,24 @@
                 displayExpr: "name"
             },
             cellTemplate(container, options) {
-   
+
                 let displayValue = options.text
                 fontColor = ''
 
                 const marker = $('<div>')
-                    
+
                 if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
-                    fontColor = '#dd5e5e' 
+                    fontColor = '#dd5e5e'
                     marker.addClass('fa fa-arrow-down')
-                } 
-                else if(options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
-                    fontColor = '#1f931f' 
+                } else if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
+                    fontColor = '#1f931f'
                     marker.addClass('fa fa-arrow-up')
-                }
-                else {
+                } else {
                     fontColor = '#3a6fcb'
                     marker.addClass('fas fa-exchange-alt')
                 }
 
-                const wrapper = 
+                const wrapper =
                     $('<div>')
                         .css({
                             display: 'flex',
@@ -143,7 +141,7 @@
                 displayExpr: "tank_number"
             },
             cellTemplate(container, options) {
-                const objectName = projectObjectsStore.__rawData?.find(el=>el.id===options.row.data.object_id)?.short_name
+                const objectName = projectObjectsStore.__rawData?.find(el => el.id === options.row.data.object_id)?.short_name
                 $('<span>')
                     .attr('title', options.text + ' (' + objectName + ')')
                     .text(options.text + ' (' + objectName + ')')

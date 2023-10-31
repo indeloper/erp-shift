@@ -1,6 +1,5 @@
-
 <script>
-    
+
     const entitiesDataSource = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
             key: "id",
@@ -78,8 +77,8 @@
     const fuelResponsiblesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelResponsibles')}}" 
+        load: function () {
+            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelResponsibles')}}"
             return $.getJSON(url);
         }
     })
@@ -87,8 +86,8 @@
     const fuelTanksStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelTanks')}}" 
+        load: function () {
+            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelTanks')}}"
             return $.getJSON(url);
         }
     })
@@ -98,17 +97,17 @@
     const projectObjectsStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getProjectObjects')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getProjectObjects')}}"
             return $.getJSON(url);
         }
     })
-    
+
     const fuelTanksResponsiblesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getFuelTanksResponsibles')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getFuelTanksResponsibles')}}"
             return $.getJSON(url);
         }
     })
@@ -116,13 +115,11 @@
     const companiesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getCompanies')}}" 
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getCompanies')}}"
             return $.getJSON(url);
         }
     })
 
-
-    
 
 </script>

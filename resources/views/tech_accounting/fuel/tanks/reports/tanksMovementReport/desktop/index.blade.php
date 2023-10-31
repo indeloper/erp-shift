@@ -10,8 +10,8 @@
 
 @section('content')
 
-<div id="dataGridAncor"></div>
-<div id="mainPopup"></div>
+    <div id="dataGridAncor"></div>
+    <div id="mainPopup"></div>
 
 @endsection
 

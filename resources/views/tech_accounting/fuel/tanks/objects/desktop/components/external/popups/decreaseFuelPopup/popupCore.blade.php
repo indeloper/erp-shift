@@ -4,8 +4,10 @@
         externalPopup.option({
             visible: true,
             title: 'Расход топлива',
-            contentTemplate: () => {return getDecreaseFuelPopupContentTemplate(formItem)},
-        })       
+            contentTemplate: () => {
+                return getDecreaseFuelPopupContentTemplate(formItem)
+            },
+        })
     }
 
     const getDecreaseFuelPopupContentTemplate = (formItem) => {
@@ -23,7 +25,7 @@
                         dataSource: fuelFlowTypesStore,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id
+                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id
                     }
                 },
                 {
@@ -38,14 +40,14 @@
                     },
                     label: {
                         text: 'Емкость'
-                    }, 
+                    },
                     validationRules: [{
                         type: 'required',
                         message: 'Укажите значение',
                     }],
                 },
                 {
-                    
+
                     dataField: 'our_technic_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
@@ -115,7 +117,7 @@
                         },
                     ]
                 }
-             
+
             ]
         })
     }

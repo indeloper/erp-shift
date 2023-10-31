@@ -8,6 +8,7 @@
             position: relative;
             overflow: visible;
         }
+
         /*@media (min-width: 768px) {
             span.text-truncate {
                 max-width: 130px;
@@ -32,6 +33,7 @@
         .reset-button-fade-enter-active, .reset-button-fade-leave-active {
             transition: opacity .5s;
         }
+
         .reset-button-fade-enter, .reset-button-fade-leave-to {
             opacity: 0;
         }
@@ -83,7 +85,7 @@
                                        clearable filterable
                                        :remote-method="searchLocations"
                                        @keyup.native.enter="() => {addFilter(); $refs['object_id-filter'].blur();}"
-                                        ref="object_id-filter"
+                                       ref="object_id-filter"
                                        @change="updateCurrentLocationName"
                                        remote
                                        placeholder="Поиск объекта"
@@ -107,8 +109,8 @@
                                 v-model="filter_value"
                             ></el-input-number>
                             <el-input v-else placeholder="Введите значение"
-                                @keyup.native.enter="addFilter"
-                                v-model="filter_value" id="filter-value-tf" clearable></el-input>
+                                      @keyup.native.enter="addFilter"
+                                      v-model="filter_value" id="filter-value-tf" clearable></el-input>
                         </div>
                         <div class="col-md-2 text-center--mobile" style="margin:29px 10px 20px 0">
                             <button type="button" class="btn btn-primary btn-outline" @click="addFilter">
@@ -130,7 +132,7 @@
                             </span>
                             </div>
                         </div>
-                        <div v-if="filters.length > 0"class="col-md-3 text-right mnt-20--mobile text-center--mobile">
+                        <div v-if="filters.length > 0" class="col-md-3 text-right mnt-20--mobile text-center--mobile">
                             <button id="clearAll" type="button" class="btn btn-sm show-all" @click="clearFilters">
                                 Снять фильтры
                             </button>
@@ -147,7 +149,7 @@
                         <div class="row">
                             <div class="col-sm-6 col-md-4">
                                 <el-input placeholder="Поиск по номеру и местоположению" v-model="search_tf" clearable
-                                        @keyup.native.enter="doneTyping"
+                                          @keyup.native.enter="doneTyping"
                                           prefix-icon="el-icon-search" id="search-tf" @clear="doneTyping"
                                 ></el-input>
                             </div>
@@ -158,7 +160,8 @@
                                     </button>
                                 @endcan
                                 @can('tech_acc_fuel_tanks_trashed')
-                                    <a href="{{ route('building::tech_acc::fuel_tank.display_trashed') }}" class="float-right btn btn-outline btn-sm">Просмотр удаленных записей</a>
+                                    <a href="{{ route('building::tech_acc::fuel_tank.display_trashed') }}"
+                                       class="float-right btn btn-outline btn-sm">Просмотр удаленных записей</a>
                                 @endcan
                             </div>
                         </div>
@@ -167,10 +170,14 @@
                         <table class="table table-hover mobile-table">
                             <thead>
                             <tr>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="#"><span class="text-truncate d-inline-block">#</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Местоположение"><span class="text-truncate d-inline-block">Местоположение</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Номер"><span class="text-truncate d-inline-block">Номер</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Уровень топлива, л"><span class="text-truncate d-inline-block">Уровень топлива, л</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="#"><span
+                                        class="text-truncate d-inline-block">#</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Местоположение"><span
+                                        class="text-truncate d-inline-block">Местоположение</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Номер"><span
+                                        class="text-truncate d-inline-block">Номер</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Уровень топлива, л">
+                                    <span class="text-truncate d-inline-block">Уровень топлива, л</span></th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -196,7 +203,8 @@
                                     @{{ fuel.fuel_level }}
                                     <button data-balloon-pos="up"
                                             aria-label="Изменить уровень топлива"
-                                            class="btn btn-link btn-xs btn-space btn-primary mn-0" @click="editFuelLevel(fuel)"
+                                            class="btn btn-link btn-xs btn-space btn-primary mn-0"
+                                            @click="editFuelLevel(fuel)"
                                             style="padding: 0 !important; padding-bottom: 4px !important; font-size: 12px !important;"
                                     >
                                         <i class="fa fa-pen"></i>
@@ -210,18 +218,20 @@
                                         <i class="fa fa-eye"></i>
                                     </button>
                                     @can('update', $data['class'])
-                                    <button data-balloon-pos="up"
-                                            aria-label="Редактировать"
-                                            class="btn btn-link btn-xs btn-space btn-success mn-0" @click="editFuel(fuel)">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
+                                        <button data-balloon-pos="up"
+                                                aria-label="Редактировать"
+                                                class="btn btn-link btn-xs btn-space btn-success mn-0"
+                                                @click="editFuel(fuel)">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
                                     @endcan
                                     @can('destroy', $data['class'])
-                                    <button data-balloon-pos="up"
-                                            aria-label="Удалить"
-                                            class="btn btn-link btn-xs btn-space btn-danger mn-0" @click="removeFuel(fuel.id)">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
+                                        <button data-balloon-pos="up"
+                                                aria-label="Удалить"
+                                                class="btn btn-link btn-xs btn-space btn-danger mn-0"
+                                                @click="removeFuel(fuel.id)">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
                                     @endcan
                                 </td>
                             </tr>
@@ -250,7 +260,8 @@
 
     <!-- modals -->
     <!-- form -->
-    <div class="modal fade bd-example-modal-lg show" id="form_fuel" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal fade bd-example-modal-lg show" id="form_fuel" role="dialog" aria-labelledby="modal-search"
+         style="display: none;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="create_form">
                 <div class="modal-header">
@@ -309,7 +320,8 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <label for="">Дата ввода в эксплуатацию<span class="star">*</span></label>
+                                                <label for="">Дата ввода в эксплуатацию<span
+                                                        class="star">*</span></label>
                                                 <validation-provider rules="required" v-slot="v" vid="date-input"
                                                                      ref="date-input">
                                                     <el-date-picker
@@ -384,7 +396,8 @@
                     <template v-if="window_width > 769">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                         <transition name="reset-button-fade">
-                            <button v-if="!edit_mode" @click.stop="reset" type="button" class="btn btn-warning">Сброс</button>
+                            <button v-if="!edit_mode" @click.stop="reset" type="button" class="btn btn-warning">Сброс
+                            </button>
                         </transition>
                         <button @click.stop="submit" type="button" class="btn btn-info">Сохранить</button>
                     </template>
@@ -394,7 +407,9 @@
                         </div>
                         <div class="row justify-content-center mb-2">
                             <transition name="reset-button-fade">
-                                <button v-if="!edit_mode" @click.stop="reset" type="button" class="btn btn-warning w-100">Сброс</button>
+                                <button v-if="!edit_mode" @click.stop="reset" type="button"
+                                        class="btn btn-warning w-100">Сброс
+                                </button>
                             </transition>
                         </div>
                         <div class="row justify-content-center mb-2">
@@ -406,7 +421,8 @@
         </div>
     </div>
     <!-- card -->
-    <div class="modal fade bd-example-modal-lg show" id="card_fuel" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal fade bd-example-modal-lg show" id="card_fuel" role="dialog" aria-labelledby="modal-search"
+         style="display: none;">
         <div class="modal-dialog modal-lg" role="document" style="max-width:900px">
             <div class="modal-content pb-3">
                 <div class="modal-header">
@@ -437,7 +453,8 @@
                             Дата ввода в эксплуатацию
                         </div>
                         <div class="col-md-8 font-weight-bold">
-                            <span :class="isWeekendDay(convertDateFormat(fuel.explotation_start), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                            <span
+                                :class="isWeekendDay(convertDateFormat(fuel.explotation_start), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                 @{{ isValidDate(convertDateFormat(fuel.explotation_start), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(fuel.explotation_start), 'DD.MM.YYYY') : '-' }}
                             </span>
                         </div>
@@ -475,9 +492,12 @@
                                             </td>
                                         </tr>
                                         <template v-else>
-                                            <tr v-for="(defect, index) in fuel.defects_light" v-if="index < 10" class="href" :data-href="'{{ route('building::tech_acc::defects.show', '') }}' + '/' + defect.id">
+                                            <tr v-for="(defect, index) in fuel.defects_light" v-if="index < 10"
+                                                class="href"
+                                                :data-href="'{{ route('building::tech_acc::defects.show', '') }}' + '/' + defect.id">
                                                 <td data-label="Нач. ремонта">
-                                                    <span :class="isWeekendDay(convertDateFormat(defect.repair_start_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                    <span
+                                                        :class="isWeekendDay(convertDateFormat(defect.repair_start_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                                         @{{ defect.repair_start_date ?
                                                             (isValidDate(convertDateFormat(defect.repair_start_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(defect.repair_start_date), 'DD.MM.YYYY') : '-')
                                                             : 'Не назначено'
@@ -485,7 +505,8 @@
                                                     </span>
                                                 </td>
                                                 <td data-label="Оконч. ремонта">
-                                                    <span :class="isWeekendDay(convertDateFormat(defect.repair_end_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                                    <span
+                                                        :class="isWeekendDay(convertDateFormat(defect.repair_end_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                                         @{{ defect.repair_end_date ?
                                                             (isValidDate(convertDateFormat(defect.repair_end_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(defect.repair_end_date), 'DD.MM.YYYY') : '-')
                                                             : 'Не назначено'
@@ -493,7 +514,8 @@
                                                     </span>
                                                 </td>
                                                 <td data-label="Исполнитель">
-                                                    @{{ defect.responsible_user_name ? defect.responsible_user_name : 'Не назначен' }}
+                                                    @{{ defect.responsible_user_name ? defect.responsible_user_name :
+                                                    'Не назначен' }}
                                                 </td>
                                                 <td data-label="Юр. лицо">
                                                     Неизвестно
@@ -502,7 +524,7 @@
                                                     @{{ defect.author_name ? defect.author_name : 'Неизвестен' }}
                                                 </td>
                                                 <td data-label="Статус">
-                                                    <span :class="`${getStatusClass(defect.status)}`" >@{{ defect.status_name ? defect.status_name : 'Неизвестен' }}</span>
+                                                    <span :class="`${getStatusClass(defect.status)}`">@{{ defect.status_name ? defect.status_name : 'Неизвестен' }}</span>
                                                 </td>
                                             </tr>
                                         </template>
@@ -513,7 +535,8 @@
                         </div>
                         <div class="row mt-10" v-if="fuel.defects_light && fuel.defects_light.length > 0">
                             <div class="col-md-12 text-right">
-                                <a :href="'{{ route('building::tech_acc::defects.index') }}' + `?defectable=${fuel.id}|2&page=1`" class="blue-link small-transition-link ">Просмотр всех заявок на
+                                <a :href="'{{ route('building::tech_acc::defects.index') }}' + `?defectable=${fuel.id}|2&page=1`"
+                                   class="blue-link small-transition-link ">Просмотр всех заявок на
                                     ремонт</a><span class="blue-link"> → </span>
                             </div>
                         </div>
@@ -536,11 +559,14 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a v-if="window_width > 769" href="#collapse" class="text-primary font-weight-bold" style="font-size: 15px;"
+                    <a v-if="window_width > 769" href="#collapse" class="text-primary font-weight-bold"
+                       style="font-size: 15px;"
                        data-target="#collapse" data-toggle="collapse">
                         Топливные записи
                     </a>
-                    <button v-if="window_width > 769" class="btn btn-primary btn-round btn-sm" @click="edit_fuel_modal_show">Редактировать</button>
+                    <button v-if="window_width > 769" class="btn btn-primary btn-round btn-sm"
+                            @click="edit_fuel_modal_show">Редактировать
+                    </button>
                     <button v-else class="btn btn-primary w-100" @click="edit_fuel_modal_show">Редактировать</button>
                 </div>
                 <div class="px-3 pb-3 collapse card-collapse" id="collapse">
@@ -550,7 +576,8 @@
                             label="Дата"
                         >
                             <template slot-scope="scope">
-                                <span :class="isWeekendDay(convertDateFormat(scope.row.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                <span
+                                    :class="isWeekendDay(convertDateFormat(scope.row.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                     @{{ isValidDate(convertDateFormat(scope.row.operation_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(scope.row.operation_date), 'DD.MM.YYYY') : '-' }}
                                 </span>
                             </template>
@@ -591,7 +618,8 @@
         </div>
     </div>
     <!-- fuel-level-edit -->
-    <div class="modal fade bd-example-modal-lg show" id="fuel-level-edit" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal fade bd-example-modal-lg show" id="fuel-level-edit" role="dialog" aria-labelledby="modal-search"
+         style="display: none;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content pb-3">
                 <div class="modal-header">
@@ -696,7 +724,7 @@
                 },
                 loading(val) {
                     if (val) {
-                        this.loadingInstance = ELEMENT.Loading.service({ fullscreen: true });
+                        this.loadingInstance = ELEMENT.Loading.service({fullscreen: true});
                     } else {
                         this.loadingInstance.close();
                     }
@@ -723,7 +751,8 @@
                                         location_name: customName,
                                     });
                                 })
-                                .catch(() => {})
+                                .catch(() => {
+                                })
                         } else {
                             this.filters.push({
                                 attribute: this.filter_attributes.find(el => el.value === field).label,
@@ -770,17 +799,18 @@
                 },
                 filter_attributes_filtered() {
                     return this.filter_attributes.filter(el => {
-                       if (this.SINGLE_USE_FILTERS.indexOf(el.value) !== -1 && this.filters.some(filter => filter.field === el.value)) {
-                           return false
-                       } else {
-                           return true;
-                       }
+                        if (this.SINGLE_USE_FILTERS.indexOf(el.value) !== -1 && this.filters.some(filter => filter.field === el.value)) {
+                            return false
+                        } else {
+                            return true;
+                        }
                     });
                 }
             },
             methods: {
                 changePage(page) {
-                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: page})}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: page})}).catch(err => {
+                    });
                     this.updateFilteredFuels();
                 },
                 doneTyping() {
@@ -790,16 +820,19 @@
                         const count = Object.keys(this.$route.query).filter(el => el.indexOf('search') !== -1).length;
                         if (!count) {
                             queryObj['search'] = this.search_tf;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         } else {
                             Object.assign(queryObj, this.$route.query);
                             queryObj['search'] = this.search_tf;
-                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                            });
                         }
                     } else {
                         Object.assign(queryObj, this.$route.query);
                         delete queryObj['search'];
-                        this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                        this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                        });
                     }
                     this.resetCurrentPage();
                 },
@@ -815,16 +848,19 @@
                         const count = Object.keys(this.$route.query).filter(el => el.indexOf(this.filter_attribute) !== -1).length;
                         if (!count) {
                             queryObj[this.filter_attribute] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         } else if (count === 1) {
                             Object.assign(queryObj, this.$route.query);
                             queryObj[this.filter_attribute + '[0]'] = queryObj[this.filter_attribute];
                             delete queryObj[this.filter_attribute];
                             queryObj[this.filter_attribute + `[${count}]`] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                            });
                         } else {
                             queryObj[this.filter_attribute + `[${count}]`] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         }
                         /*if (!this.$route.query[this.filter_attribute]) {
                             queryObj[this.filter_attribute] = this.filter_value;
@@ -847,7 +883,10 @@
                     }
                 },
                 updateFilteredFuels() {
-                    axios.post('{{ route('building::tech_acc::get_fuel_tanks_paginated') }}', {url: vm.$route.fullPath, page: this.currentPage})
+                    axios.post('{{ route('building::tech_acc::get_fuel_tanks_paginated') }}', {
+                        url: vm.$route.fullPath,
+                        page: this.currentPage
+                    })
                         .then(response => {
                             vm.fuels = response.data.fuelTanks;
                             vm.totalItems = response.data.fuelTanksCount;
@@ -883,7 +922,8 @@
                             delete queryObj[this.filters[index].field + `[${count - 1}]`];
                         }
                     }
-                    this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                    });
 
                     /*if (!Array.isArray(queryObj[this.filters[index].field])) {
                         delete queryObj[this.filters[index].field];
@@ -900,15 +940,18 @@
                 clearFilters() {
                     this.filters = [];
                     if (this.currentPage !== 1) {
-                        this.$router.replace({query: {page: this.currentPage}}).catch(err => {});
+                        this.$router.replace({query: {page: this.currentPage}}).catch(err => {
+                        });
                     } else {
-                        this.$router.replace({query: {}}).catch(err => {});
+                        this.$router.replace({query: {}}).catch(err => {
+                        });
                     }
                     this.searchLocations('');
                     this.resetCurrentPage();
                 },
                 resetCurrentPage() {
-                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: 1})}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: 1})}).catch(err => {
+                    });
                     this.currentPage = 1;
                     this.updateFilteredFuels();
                 },
@@ -999,7 +1042,7 @@
                         if (query) {
                             axios.post('{{ route('building::mat_acc::report_card::get_objects') }}', {q: query})
                                 .then(response => {
-                                    this.locations = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.locations = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1009,7 +1052,7 @@
                         } else {
                             axios.post('{{ route('building::mat_acc::report_card::get_objects') }}')
                                 .then(response => {
-                                    this.locations = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.locations = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1022,11 +1065,11 @@
                 searchLocations(query) {
                     if (query) {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}', {q: query})
-                            .then(response => this.locations = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.locations = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     } else {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}')
-                            .then(response => this.locations = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.locations = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     }
                 },
@@ -1050,8 +1093,8 @@
         });
     </script>
     <script type="text/javascript">
-        var cardFuel = new Vue ({
-            el:'#card_fuel',
+        var cardFuel = new Vue({
+            el: '#card_fuel',
             data: {
                 fuel: {object: []},
                 window_width: 10000,
@@ -1109,7 +1152,7 @@
 
                     setTimeout(() => {
                         var touchtime = 0;
-                        $("table .href").on("click", function() {
+                        $("table .href").on("click", function () {
                             if (touchtime == 0) {
                                 // set first click
                                 touchtime = new Date().getTime();
@@ -1149,14 +1192,14 @@
                         fuel_tank_id: that.fuel.id,
                         page: page,
                     })
-                    .then((response) => {
-                        that.$set(that.fuel, 'operations', response.data.fuelTankOperations);
-                        that.totalItems = response.data.fuelTankOperationCount;
-                    })
-                    //TODO add actual error handler
-                    .catch(error => {
-                        console.log(error);
-                    });
+                        .then((response) => {
+                            that.$set(that.fuel, 'operations', response.data.fuelTankOperations);
+                            that.totalItems = response.data.fuelTankOperationCount;
+                        })
+                        //TODO add actual error handler
+                        .catch(error => {
+                            console.log(error);
+                        });
                 },
             }
         });
@@ -1220,11 +1263,11 @@
                 searchLocations(query) {
                     if (query) {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}', {q: query})
-                            .then(response => this.objects = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.objects = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     } else {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}')
-                            .then(response => this.objects = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.objects = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     }
                 },

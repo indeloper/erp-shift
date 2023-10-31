@@ -2,7 +2,7 @@
     let externalUploadingFiles = [];
     let externalNewAttachments = [];
     let externalDeletedAttachments = [];
-    
+
     const progressBarSettings = {
         min: 0,
         max: 100,

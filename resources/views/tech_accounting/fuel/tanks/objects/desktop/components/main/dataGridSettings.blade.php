@@ -13,7 +13,7 @@
         columnHidingEnabled: false,
         showRowLines: true,
         remoteOperations: true,
-        
+
         scrolling: {
             mode: 'infinite',
             rowRenderingMode: 'virtual',
@@ -38,7 +38,7 @@
         grouping: {
             autoExpandAll: true,
         },
-        
+
         editing: {
             mode: "popup",
             popup: dataGridPopup,
@@ -50,7 +50,7 @@
             useIcons: true,
         },
 
-        onRowDblClick: function(e) {
+        onRowDblClick: function (e) {
             if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
                 e.component.editRow(e.rowIndex);
             }
@@ -93,6 +93,6 @@
             visible: true,
             items: [{}]
         },
-       
+
     }
 </script>

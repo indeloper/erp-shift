@@ -1,6 +1,6 @@
 <script>
 
-// Общие
+    // Общие
     function getUrlWithId(url, id) {
         return url.replace("/setId", "/" + id)
     }
@@ -51,7 +51,7 @@
                 e.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
                     let tagBoxFilterExpression = [];
                     let tagBox = $(item).dxTagBox(`instance`);
-                    tagBox.option(`value`).forEach(function(value) {
+                    tagBox.option(`value`).forEach(function (value) {
                         tagBoxFilterExpression.push([tagBox.option().dataFieldName, `=`, Number(value)]);
                         tagBoxFilterExpression.push(`or`);
                     });
@@ -82,13 +82,13 @@
 
 
     function setLoadedEntityInfo() {
-        entityInfoByID.reload().done((data)=>{
+        entityInfoByID.reload().done((data) => {
             entityInfo = entityInfoByID.store().__rawData;
             //
         })
     }
 
-    function fixDataBeforeFormRepaint ()  {
+    function fixDataBeforeFormRepaint() {
         //
     }
 
@@ -100,7 +100,6 @@
         editingRowId = itemData.id
     }
 
-    
 
     // Конец Общие
 

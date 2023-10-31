@@ -33,7 +33,7 @@
                 displayExpr: "short_name"
             },
         },
-                
+
         {
             caption: "Остаток (л)",
             dataField: "fuel_level",

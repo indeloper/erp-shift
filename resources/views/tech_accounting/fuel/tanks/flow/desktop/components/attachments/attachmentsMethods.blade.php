@@ -11,7 +11,7 @@
 
         if (fileType === 'video') {
             const fileLableWrapper = $('<a>').css({'cursor': 'pointer'})
-    
+
             const dataAttributes = {
                 "source": [{
                     src: filePath,
@@ -37,7 +37,7 @@
     }
 
     function addLightgalleryListenersImg(fileImgClass) {
-        let images = document.querySelectorAll('.'+fileImgClass)
+        let images = document.querySelectorAll('.' + fileImgClass)
         if (images)
             for (let index = 0; index < images.length; index++) {
                 const element = images[index];
@@ -48,7 +48,7 @@
     }
 
     function addLightgalleryListenersVideo(videosListWrapperClass) {
-        document.querySelectorAll('.' + videosListWrapperClass).forEach(el=>{
+        document.querySelectorAll('.' + videosListWrapperClass).forEach(el => {
 
             lightGallery(document.getElementById(el.id), {
                 plugins: [lgVideo],
@@ -98,107 +98,115 @@
     }
 
     function addHoverAttachmentElements(elementClass) {
-        $('.'+elementClass).hover(
-                function() {
-                    if (!$(this).find('.dx-checkbox').length) {
-                        let checkBox = $('<div>').dxCheckBox({
-                            hint: "Скачать",
-                            elementAttr: {
-                                class: 'attacmentHoverCkeckbox'
-                            },
-                            onValueChanged(e) {
-                                if(e.value) {
+        $('.' + elementClass).hover(
+            function () {
+                if (!$(this).find('.dx-checkbox').length) {
+                    let checkBox = $('<div>').dxCheckBox({
+                        hint: "Скачать",
+                        elementAttr: {
+                            class: 'attacmentHoverCkeckbox'
+                        },
+                        onValueChanged(e) {
+                            if (e.value) {
+                                $('#downloadFilesButton').dxButton({
+                                    disabled: false
+                                })
+                            } else {
+                                // getCheckedCheckboxesFilesToDownload() в данном месте возвращает не отмеченные чекбоксы, а все
+                                // поэтому проверка события отмены выбора при единственном имеющемся чекбоксе
+                                if (getCheckedCheckboxesFilesToDownload().length < 2) {
                                     $('#downloadFilesButton').dxButton({
-                                        disabled: false
+                                        disabled: true
                                     })
-                                } else {
-                                    // getCheckedCheckboxesFilesToDownload() в данном месте возвращает не отмеченные чекбоксы, а все
-                                    // поэтому проверка события отмены выбора при единственном имеющемся чекбоксе
-                                    if(getCheckedCheckboxesFilesToDownload().length<2) {
-                                        $('#downloadFilesButton').dxButton({
-                                            disabled: true
-                                        })
-                                    }
                                 }
-                            },
-                            onInitialized(e) {
-                                // переключаем кликабельность картинки
-                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
-                                $(e.element).hover(
-                                    () => $(e.element).parent().on('click', ()=>{return false}),
-                                    () => $(e.element).parent().off('click')
-                                )
                             }
-                        })
-                        $(this).append($(checkBox));
-                    }
-
-                    if (permissions.can_delete_project_object_document_files) {
-                        let deleteButton = $('<div />').dxButton({
-                            icon: "fas fa-trash",
-                            hint: "Удалить",
-                            elementAttr: {
-                                class: 'attacmentHoverDeleteButton'
-                            },
-                            onClick(e) {
-                                deleteAttachment(e.element);
-                            },
-                            onInitialized(e) {
-                                // переключаем кликабельность картинки
-                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
-                                $(e.element).hover(
-                                    () => $(e.element).parent().on('click', ()=>{return false}),
-                                    () => $(e.element).parent().off('click')
-                                )
-                            }
-                        })
-                        $(this).append($(deleteButton));
-                    }
-                },
-                function() {
-                    let checkBox = $(this).find('.dx-checkbox').dxCheckBox('instance')
-                    if (!checkBox.option('value'))
-                        $(this).find('.attacmentHoverCkeckbox').last().remove();
-                    $(this).find('.attacmentHoverDeleteButton').last().remove();
+                        },
+                        onInitialized(e) {
+                            // переключаем кликабельность картинки
+                            // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                            $(e.element).hover(
+                                () => $(e.element).parent().on('click', () => {
+                                    return false
+                                }),
+                                () => $(e.element).parent().off('click')
+                            )
+                        }
+                    })
+                    $(this).append($(checkBox));
                 }
-            )
+
+                if (permissions.can_delete_project_object_document_files) {
+                    let deleteButton = $('<div />').dxButton({
+                        icon: "fas fa-trash",
+                        hint: "Удалить",
+                        elementAttr: {
+                            class: 'attacmentHoverDeleteButton'
+                        },
+                        onClick(e) {
+                            deleteAttachment(e.element);
+                        },
+                        onInitialized(e) {
+                            // переключаем кликабельность картинки
+                            // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                            $(e.element).hover(
+                                () => $(e.element).parent().on('click', () => {
+                                    return false
+                                }),
+                                () => $(e.element).parent().off('click')
+                            )
+                        }
+                    })
+                    $(this).append($(deleteButton));
+                }
+            },
+            function () {
+                let checkBox = $(this).find('.dx-checkbox').dxCheckBox('instance')
+                if (!checkBox.option('value'))
+                    $(this).find('.attacmentHoverCkeckbox').last().remove();
+                $(this).find('.attacmentHoverDeleteButton').last().remove();
+            }
+        )
     }
 
-    function deleteAttachment(element) {     
+    function deleteAttachment(element) {
 
         let elemParent = element.closest('.fileLableWrapper');
         let fileId = elemParent[0]?.getAttribute("id")?.split('-')[1];
 
         customConfirmDialog("Вы уверены, что хотите удалить файл?")
-            .show().then( dialogResult => {if(dialogResult) deleteFile()} )
+            .show().then(dialogResult => {
+            if (dialogResult) deleteFile()
+        })
 
         function deleteFile() {
             deletedAttachments.push(fileId)
-            elemParent.remove()            
+            elemParent.remove()
         }
     }
 
     function handleDownloadFilesButtonClicked() {
         checkedCheckboxes = getCheckedCheckboxesFilesToDownload();
-        if(!checkedCheckboxes.length) return;
+        if (!checkedCheckboxes.length) return;
         const filesIdsToDownload = [];
-        checkedCheckboxes.forEach(checkbox=>{
-            if(checkbox.value == 'true') 
+        checkedCheckboxes.forEach(checkbox => {
+            if (checkbox.value == 'true')
                 filesIdsToDownload.push(checkbox.closest('.fileLableWrapper').id.split('-')[1]);
         })
-        
+
         downloadAttachments(filesIdsToDownload)
     }
 
     function getCheckedCheckboxesFilesToDownload() {
         const attachmentsWrapper = document.getElementById('filesOnServerListWrapper')
         const checkboxes = attachmentsWrapper.querySelectorAll('input');
-        
-        if(!checkboxes.length)
-        return [];
+
+        if (!checkboxes.length)
+            return [];
 
         const checkedCheckboxes = [];
-        checkboxes.forEach(el=>{if(el.value) checkedCheckboxes.push(el)})
+        checkboxes.forEach(el => {
+            if (el.value) checkedCheckboxes.push(el)
+        })
 
         return checkedCheckboxes;
     }

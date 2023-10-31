@@ -3,13 +3,8 @@
         tabTemplate(data, index, element) {
             return '<div style="display: flex; align-items:center"><div class="fa fa-info-circle info-circle-icon-color" style="padding-top: 1px; color: #725fdb"></div><div style="margin-left:6px">Инфо</div></div>'
         },
-        height: 1000,
-        // tabPanelOptions: {
-        //     deferRendering: false,
-        //     height: "600px"
-        // },
         colCount: 2,
-        onClick(){
+        onClick() {
             choosedFormTab = 'info'
         },
         items: [
@@ -37,7 +32,7 @@
                 dataField: "explotation_start",
                 colSpan: 1,
             },
-            
+
             {
                 dataField: "company_id",
                 colSpan: 2,

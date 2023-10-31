@@ -50,19 +50,19 @@
             useIcons: true,
         },
 
-        onRowDblClick: function(e) {
+        onRowDblClick: function (e) {
             if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
                 editingRowId = e.key;
-                let choosedItem = $('#mainDataGrid').dxDataGrid('instance').getDataSource().items().find(el=>el.id === e.key)
-                let fuelFlowType = fuelFlowTypesStore.__rawData.find(el=>el.id===choosedItem.fuel_tank_flow_type_id).slug
+                let choosedItem = $('#mainDataGrid').dxDataGrid('instance').getDataSource().items().find(el => el.id === e.key)
+                let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
 
-                if(fuelFlowType === 'outcome')
+                if (fuelFlowType === 'outcome')
                     showDecreaseFuelPopup(choosedItem)
 
-                if(fuelFlowType === 'income')
+                if (fuelFlowType === 'income')
                     showIncreaseFuelPopup(choosedItem)
 
-                if(fuelFlowType === 'adjustment')
+                if (fuelFlowType === 'adjustment')
                     showAdjustmentFuelPopup(choosedItem)
             }
         },

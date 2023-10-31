@@ -6,7 +6,7 @@
             labelMode: 'outside',
             labelLocation: 'left',
             items: [
-                
+
                 {
                     dataField: "id",
                     editorType: "dxSelectBox",
@@ -18,7 +18,7 @@
                     },
                     label: {
                         text: 'Топливная емкость'
-                    }, 
+                    },
                 },
                 {
                     dataField: "object_id",
@@ -27,12 +27,12 @@
                         dataSource: projectObjectsStore,
                         valueExpr: "id",
                         displayExpr: "short_name",
-                        value: fuelTankFormData.object_id, 
+                        value: fuelTankFormData.object_id,
                         readOnly: true
                     },
                     label: {
                         text: 'Принял на объекте'
-                    }, 
+                    },
                 },
                 {
                     dataField: "responsible_id",
@@ -45,7 +45,7 @@
                     },
                     label: {
                         text: 'Ответственный'
-                    }, 
+                    },
                 },
 
                 {
@@ -58,7 +58,7 @@
                         text: 'Остаток топлива',
                     },
                 },
-      
+
             ]
         })
     }
@@ -67,7 +67,7 @@
         const movingConfirmationFuelTankFormPopup = $("#externalPopup").dxPopup({
             visible: true,
             title: 'Подтверждение перемещения емкости',
-            
+
             toolbarItems: [
                 {
                     widget: 'dxButton',
@@ -92,9 +92,11 @@
                     }
                 }
             ],
-            contentTemplate: () => {return getConfirmPopupContentTemplate(fuelTankFormData)}
+            contentTemplate: () => {
+                return getConfirmPopupContentTemplate(fuelTankFormData)
+            }
         }).dxPopup('instance')
 
-        
+
     }
 </script>

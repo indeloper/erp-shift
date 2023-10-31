@@ -12,7 +12,7 @@
             enableBodyScroll: false,
 
             onShowing(e) {
-                if(e.component.option('newEntityMode')){
+                if (e.component.option('newEntityMode')) {
                     $('#menuButtons').remove()
                 }
             },
@@ -25,20 +25,20 @@
             },
 
             toolbarItems: [{
-                    location: "before",
-                    widget: 'dxButton',
-                    options: {
-                        icon: 'back',
-                        stylingMode: 'text',
-                        elementAttr: {
-                            style: 'padding-top:4px'
-                        }
-                    },
-                    onClick(e) {
-                        popupMobile.hide()
+                location: "before",
+                widget: 'dxButton',
+                options: {
+                    icon: 'back',
+                    stylingMode: 'text',
+                    elementAttr: {
+                        style: 'padding-top:4px'
                     }
-
                 },
+                onClick(e) {
+                    popupMobile.hide()
+                }
+
+            },
                 {
                     location: "after",
                     widget: 'dxButton',
@@ -80,7 +80,7 @@
             onGroupRendered(e) {
                 e.component.collapseGroup(e.groupIndex)
             },
-            
+
             onItemClick(e) {
                 setPopupItemVariablesMobile(e.itemData)
 
@@ -127,7 +127,7 @@
         showSelectionControls: true,
         wrapItemText: true,
         showDropDownButton: true,
-        
+
         onSelectionChanged(e) {
             for (let i = 0; i < this._selectedItems.length; i++) {
                 // someArr.push(this._selectedItems[i].id)

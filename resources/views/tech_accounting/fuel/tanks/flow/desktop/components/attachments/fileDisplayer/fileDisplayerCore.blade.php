@@ -2,20 +2,20 @@
 
     const renderFileDisplayer = (wrapperElement) => {
 
-        if(!editingRowId) {
+        if (!editingRowId) {
             wrapperElement.append('<div id="noAttachmentsNotification" class="documentElemMobile"><div class="popup-field-nodata">Нет сохраненных файлов</div></div>')
             return
         }
 
         $('<div id="filesOnServerListWrapper" >').appendTo(wrapperElement);
         let loadIndicator = $('<div>')
-        .dxLoadIndicator({
-            elementAttr:{
-                id: 'loadIndicatorFilesOnServer'
-            },
-            height: 50,
-            width: 50,
-        }).appendTo(wrapperElement);
+            .dxLoadIndicator({
+                elementAttr: {
+                    id: 'loadIndicatorFilesOnServer'
+                },
+                height: 50,
+                width: 50,
+            }).appendTo(wrapperElement);
 
         if (entityInfoByID.isLoaded()) {
             renderLoadedAttachments(wrapperElement)
@@ -31,7 +31,7 @@
     }
 
     const renderLoadedAttachments = (filesOnServerListWrapper) => {
-            
+
         $('#loadIndicatorFilesOnServer').remove()
 
         let filesDataset = entityInfoByID.store()?.__rawData?.attachments
@@ -41,7 +41,7 @@
             return
         }
 
-        Object.keys(filesDataset).forEach(group => renderFilesGroup(group, filesDataset[group])) 
+        Object.keys(filesDataset).forEach(group => renderFilesGroup(group, filesDataset[group]))
         addLightgalleryListenersImg('fileImg')
         addLightgalleryListenersVideo('videoFilesOnServer')
         addHoverAttachmentElements('fileOnServerDivWrapper')
@@ -61,7 +61,7 @@
         $('#filesOnServerListWrapper').append(filesVideoGroupWrapper)
     }
 
-    const handleFilesDataArr = (groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper, deviceType='desktop', fileDisplayContext='entityFilesOnServer') => {
+    const handleFilesDataArr = (groupItems, filesGroupWrapper, filesNotImgGroupWrapper, filesVideoGroupWrapper, deviceType = 'desktop', fileDisplayContext = 'entityFilesOnServer') => {
         let i = 0;
 
         groupItems.forEach(file => {
@@ -70,13 +70,12 @@
 
             let fileType = 'any'
 
-            if(file.mime.includes('image')) {
+            if (file.mime.includes('image')) {
                 fileType = 'img'
-            } 
-            else if(file.mime.includes('video')) {
+            } else if (file.mime.includes('video')) {
                 fileType = 'video'
             }
-            
+
             const fileLableWrapper = getFileLableWrapper(fileType, deviceType, fileDisplayContext, file)
                 .addClass('fileOnServerDivWrapper')
 
@@ -86,7 +85,7 @@
                 'border-radius': '5px'
             })
 
-            if(fileType === 'img') {
+            if (fileType === 'img') {
                 fileImg.css('object-fit', 'cover')
                 fileImg.addClass('fileImg')
                 imgSrc = window.location.protocol + '//' + window.location.host + '/' + file.filename
@@ -97,7 +96,7 @@
                 fileImg.css('object-fit', 'scale-down')
 
                 if (fileType === 'video') {
-                    
+
                     imgSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/video-icon.png'
                     filesVideoGroupWrapper.attr('id', 'filesVideoGroupWrapper' + file.id).append(fileLableWrapper)
 
@@ -113,7 +112,7 @@
                     if (file.original_filename.includes('.pdf'))
                         imgSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/pdf-icon.png'
                 }
-                    
+
             }
 
             $(fileLableWrapper).attr('id', 'fileId-' + file.id).addClass('fileLableWrapper')
@@ -121,7 +120,7 @@
             fileImg.attr({
                 'src': imgSrc
             })
-            
+
             fileLableWrapper.append(fileImg)
 
             $('<div>').text(file.original_filename)

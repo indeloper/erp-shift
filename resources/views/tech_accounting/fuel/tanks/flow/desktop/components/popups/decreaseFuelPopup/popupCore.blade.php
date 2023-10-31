@@ -4,8 +4,10 @@
         $('#mainPopup').dxPopup({
             visible: true,
             title: 'Расход топлива',
-            contentTemplate: () => {return getDecreaseFuelPopupContentTemplate(formItem)},
-        })       
+            contentTemplate: () => {
+                return getDecreaseFuelPopupContentTemplate(formItem)
+            },
+        })
     }
 
     const getDecreaseFuelPopupContentTemplate = (formItem) => {
@@ -23,7 +25,7 @@
                         dataSource: fuelFlowTypesStore,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='outcome').id
+                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id
                     }
                 },
                 {
@@ -44,7 +46,7 @@
                     }],
                 },
                 {
-                    
+
                     dataField: 'our_technic_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
@@ -95,7 +97,7 @@
                         message: 'Укажите значение',
                     }],
                 },
-                
+
                 {
                     itemType: "group",
                     caption: 'Файлы',
@@ -115,7 +117,7 @@
                         },
                     ]
                 }
-               
+
             ]
         })
     }

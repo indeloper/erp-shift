@@ -1,5 +1,5 @@
 <script>
-    $(()=>{
+    $(() => {
         $("#dataGridAncor").dxForm({
             validationGroup: "documentValidationGroup",
             items: [
@@ -25,7 +25,7 @@
                                         type: 'required',
                                         message: 'Укажите значение',
                                     }],
-                                   
+
                                 },
                                 {
                                     editorType: 'dxDateBox',
@@ -89,7 +89,7 @@
                                     }],
                                 },
 
-                                
+
                                 {
                                     editorType: 'dxButton',
                                     horizontalAlignment: 'right',
@@ -113,14 +113,14 @@
                                             const url = "{{route($routeNameFixedPart.'resource.index')}}?" + 'fuelTankId=' + fuelTankId + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&objectId=' + objectId + '&responsibleId=' + responsibleId
                                             window.open(url, '_blank');
                                         },
-                                       
+
                                     }
 
                                 }
                             ]
                         }
-                        
-                
+
+
                     ]
                 }
             ]

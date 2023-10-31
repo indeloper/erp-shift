@@ -4,7 +4,7 @@
     const fuelContractorsStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function() {
+        load: function () {
             let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelContractors')}}"
             return $.getJSON(url);
         }
@@ -14,7 +14,7 @@
     const fuelConsumersStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function() {
+        load: function () {
             let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelConsumers')}}"
             return $.getJSON(url);
         }
@@ -24,7 +24,7 @@
     const fuelFlowTypesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",
-        load: function() {
+        load: function () {
             let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelFlowTypes')}}"
             return $.getJSON(url);
         }
@@ -35,7 +35,7 @@
         store: new DevExpress.data.CustomStore({
             key: "id",
             loadMode: "processed",
-            load: function(loadOptions) {
+            load: function (loadOptions) {
 
                 loadOptions = setFuelFlowLoadOptionsFilter(loadOptions, 'income')
 
@@ -50,7 +50,7 @@
         store: new DevExpress.data.CustomStore({
             key: "id",
             loadMode: "processed",
-            load: function(loadOptions) {
+            load: function (loadOptions) {
 
                 loadOptions = setFuelFlowLoadOptionsFilter(loadOptions, 'outcome')
 
@@ -65,7 +65,7 @@
         store: new DevExpress.data.CustomStore({
             key: "id",
             loadMode: "processed",
-            load: function(loadOptions) {
+            load: function (loadOptions) {
 
                 loadOptions = setFuelFlowLoadOptionsFilter(loadOptions, 'adjustment')
 
@@ -81,7 +81,7 @@
             key: "id",
             loadMode: "processed",
 
-            insert: function(values) {
+            insert: function (values) {
 
                 return $.ajax({
                     url: "{{route('building::tech_acc::fuel::fuelFlow::'.'resource.store')}}",
@@ -93,13 +93,13 @@
                         data: JSON.stringify(values),
                         options: null
                     },
-                    success: function(data, textStatus, jqXHR) {
+                    success: function (data, textStatus, jqXHR) {
                         execAfterSuccess('Данные успешно добавлены')
                     },
                 })
             },
 
-            update: function(key, values) {
+            update: function (key, values) {
                 return $.ajax({
                     url: getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.update', ['id'=>'setId'])}}", key),
                     method: "PUT",
@@ -110,14 +110,14 @@
                         data: JSON.stringify(values),
                         options: null
                     },
-                    success: function(data, textStatus, jqXHR) {
+                    success: function (data, textStatus, jqXHR) {
                         execAfterSuccess('Данные успешно обновлены')
                     },
                 })
 
             },
 
-            remove: function(key) {
+            remove: function (key) {
 
                 return $.ajax({
                     url: getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.destroy', ['id'=>'setId'])}}", key),
@@ -125,7 +125,7 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(data, textStatus, jqXHR) {
+                    success: function (data, textStatus, jqXHR) {
                         execAfterSuccess('Данные успешно удалены')
                     },
                 })
@@ -137,7 +137,7 @@
     const externalEntityInfoByID = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
             loadMode: "raw",
-            load: function(loadOptions) {
+            load: function (loadOptions) {
                 // return $.getJSON("{{route('objects::getObjectInfoByID')}}" + '?id=' + editingRowId);
                 return $.getJSON(getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.show', ['id'=>'setId'])}}", externalEditingRowId));
             }

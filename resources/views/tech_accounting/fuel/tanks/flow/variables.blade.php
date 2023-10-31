@@ -1,11 +1,11 @@
 <script>
-// Общие
+    // Общие
     let editingRowId = 0;
     // Используется при подтверждении закрытия формы без сохранения
     let skipStoppingEditingRow = 0;
     let currentLoadOptions = [];
-// Конец Общие
-    const months = 
+    // Конец Общие
+    const months =
         {
             1: "Январь",
             2: "Февраль",

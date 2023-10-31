@@ -13,13 +13,13 @@
     <div style="display: flex; justify-content:end">
         <div id="newEntityButtonMobile"></div>
     </div>
-    
+
     <div id="filterTagBox" class="customFilterMobile"></div>
 
     <div id="entitiesListMobile"></div>
     <div id="popupMobile"></div>
     <div id="popupLoadPanel"></div>
-    
+
 @endsection
 
 @section('js_footer')

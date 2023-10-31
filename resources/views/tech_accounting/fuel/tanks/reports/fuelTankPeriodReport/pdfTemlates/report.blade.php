@@ -1,10 +1,11 @@
 <style>
     .td-normal {
-        border:1px solid; 
+        border: 1px solid;
         padding: 5px 10px;
     }
+
     .td-center {
-        border:1px solid; 
+        border: 1px solid;
         padding: 5px 10px;
         text-align: center;
     }
@@ -21,9 +22,10 @@
 <br>
 № Бака (емкости): {{$tank_number}}
 <br><br>
-<img class="fileImg" src="http://erp.loc/storage/docs/fuel_flow/file-6538b47a51e48.png" style="width: 100px; height: 80px; border-radius: 5px; object-fit: cover;">
+<img class="fileImg" src="http://erp.loc/storage/docs/fuel_flow/file-6538b47a51e48.png"
+     style="width: 100px; height: 80px; border-radius: 5px; object-fit: cover;">
 <table style="border-collapse: collapse; font-size:80%; width: 100%">
-    
+
 
     <tr>
         <th class="td-normal" rowspan="2">
@@ -32,15 +34,15 @@
         <th colspan="2" class="td-normal">
             Документ
         </th>
-        <th  rowspan="2" class="td-normal">
+        <th rowspan="2" class="td-normal">
             Количество (л)
         </th>
-        <th  rowspan="2" class="td-normal">
+        <th rowspan="2" class="td-normal">
             Отметка бухгалтерии
         </th>
     </tr>
     <tr>
-        
+
         <th class="td-normal">
             Дата
         </th>
@@ -48,7 +50,6 @@
             Номер
         </th>
     </tr>
-
 
 
     <tr>
@@ -61,7 +62,7 @@
 
     <tr>
         <td class="td-center" style="border-right: 0;">
-            <b>Приход</b> 
+            <b>Приход</b>
         </td>
         <td class="td-normal" style="border-left: 0;" colspan=4></td>
     </tr>
@@ -84,11 +85,13 @@
         </tr>
     @endforeach
 
-    <tr><td class="td-normal" colspan=5></tr>
+    <tr>
+        <td class="td-normal" colspan=5>
+    </tr>
 
     <tr>
         <td class="td-center">
-           <b>Итого по приходу</b> 
+            <b>Итого по приходу</b>
         </td>
         <td class="td-center">
             х
@@ -97,16 +100,18 @@
             х
         </td>
         <td class="td-normal" style="text-align:right">
-            <b>{{number_format($fuelSumIncomes, 0, ',', ' ')}}</b> 
+            <b>{{number_format($fuelSumIncomes, 0, ',', ' ')}}</b>
         </td>
         <td class="td-normal">
         </td>
     </tr>
 
-    <tr><td class="td-normal" colspan=5></tr>
+    <tr>
+        <td class="td-normal" colspan=5>
+    </tr>
     <tr>
         <td class="td-center" style="border-right: 0;">
-            <b>Расход</b> 
+            <b>Расход</b>
         </td>
         <td class="td-normal" style="border-left: 0;" colspan=4></td>
     </tr>
@@ -129,7 +134,9 @@
         </tr>
     @endforeach
 
-    <tr><td class="td-normal" colspan=5></tr>
+    <tr>
+        <td class="td-normal" colspan=5>
+    </tr>
 
     <tr>
         <td class="td-center">
@@ -148,48 +155,55 @@
         </td>
     </tr>
 
-    <tr><td class="td-normal" colspan=5></tr>
+    <tr>
+        <td class="td-normal" colspan=5>
+    </tr>
 
     <tr>
         <td class="td-normal" colspan=3>
             Остаток в баке на {{$dateTo}}
         </td>
 
-        <td class="td-normal" style="text-align:right">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
+        <td class="td-normal"
+            style="text-align:right">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
         <td class="td-normal"></td>
     </tr>
-    
-    
+
+
     <tr>
         <td style="padding-top: 20px ;">
             Остаток топлива на начало периода (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 20px; text-align:center">{{number_format($fuelVolumeDateBegin, 0, ',', ' ')}}</td>
+        <td colspan="2"
+            style="border-bottom: 1px solid; padding-top: 20px; text-align:center">{{number_format($fuelVolumeDateBegin, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
     <tr>
         <td style="padding-top: 10px ;">
             Итого поступило (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelSumIncomes, 0, ',', ' ')}}</td>
+        <td colspan="2"
+            style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelSumIncomes, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
     <tr>
         <td style="padding-top: 10px;">
             Итого израсходовано (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelSumOutcomes, 0, ',', ' ')}}</td>
+        <td colspan="2"
+            style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelSumOutcomes, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
     <tr>
         <td style="padding-top: 10px ;">
             Остаток топлива на конец периода (л)
         </td>
-        <td colspan="2" style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
+        <td colspan="2"
+            style="border-bottom: 1px solid; padding-top: 10px; text-align:center">{{number_format($fuelVolumeDateBegin + $fuelSumIncomes - $fuelSumOutcomes, 0, ',', ' ')}}</td>
         <td colspan="2"></td>
     </tr>
 
-    <tr >
+    <tr>
         <td style="padding-top: 40px; font-size: 80%">
             Материально ответственное лицо
         </td>
@@ -205,7 +219,7 @@
         <td></td>
     </tr>
 
-    <tr >
+    <tr>
         <td style="padding-top: 20px ; font-size: 80%">
             Отчет с документами принял и проверил
         </td>

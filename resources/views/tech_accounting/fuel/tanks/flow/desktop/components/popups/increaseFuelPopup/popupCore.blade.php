@@ -3,7 +3,9 @@
         $('#mainPopup').dxPopup({
             visible: true,
             title: 'Поступление топлива',
-            contentTemplate: () => {return getIncreaseFuelPopupContentTemplate(formItem)},
+            contentTemplate: () => {
+                return getIncreaseFuelPopupContentTemplate(formItem)
+            },
         })
     }
 
@@ -22,7 +24,7 @@
                         dataSource: fuelFlowTypesStore,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='income').id
+                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id
                     }
                 },
                 {
@@ -36,7 +38,7 @@
                     },
                     label: {
                         text: 'Емкость'
-                    }, 
+                    },
                     validationRules: [{
                         type: 'required',
                         message: 'Укажите значение',
@@ -53,7 +55,7 @@
                     },
                     label: {
                         text: 'Поставщик'
-                    }, 
+                    },
                     validationRules: [{
                         type: 'required',
                         message: 'Укажите значение',
@@ -69,7 +71,7 @@
                     },
                     label: {
                         text: 'Объем'
-                    }, 
+                    },
                     validationRules: [
                         {
                             type: 'required',
@@ -85,9 +87,7 @@
                 {
                     dataField: 'event_date',
                     editorType: "dxDateBox",
-                    editorOptions: {
-                        
-                    },
+                    editorOptions: {},
                     label: {
                         text: 'Дата операции'
                     },
@@ -122,7 +122,7 @@
                         },
                     ]
                 }
-                                
+
             ]
         })
     }

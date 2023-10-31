@@ -11,28 +11,28 @@
             resetExternalStores();
         },
         toolbarItems: [{
-                widget: 'dxButton',
-                toolbar: 'bottom',
-                location: 'after',
-                options: {
-                    text: 'Сохранить',
-                },
-                onClick(e) {
-                    if (!DevExpress.validationEngine.validateGroup("documentExternalValidationGroup").isValid) {
-                        return;
-                    }
-                    formData = $('#externalForm').dxForm('instance').option('formData')
-                    formData.newAttachments = externalNewAttachments;
-                    formData.deletedAttachments = externalDeletedAttachments;
-
-                    if (!externalEditingRowId)
-                        externalEntitiesDataSource.store().insert(formData);
-                    else
-                        externalEntitiesDataSource.store().update(externalEditingRowId, formData);
-
-                    externalPopup.hide()
-                }
+            widget: 'dxButton',
+            toolbar: 'bottom',
+            location: 'after',
+            options: {
+                text: 'Сохранить',
             },
+            onClick(e) {
+                if (!DevExpress.validationEngine.validateGroup("documentExternalValidationGroup").isValid) {
+                    return;
+                }
+                formData = $('#externalForm').dxForm('instance').option('formData')
+                formData.newAttachments = externalNewAttachments;
+                formData.deletedAttachments = externalDeletedAttachments;
+
+                if (!externalEditingRowId)
+                    externalEntitiesDataSource.store().insert(formData);
+                else
+                    externalEntitiesDataSource.store().update(externalEditingRowId, formData);
+
+                externalPopup.hide()
+            }
+        },
             {
                 widget: 'dxButton',
                 toolbar: 'bottom',

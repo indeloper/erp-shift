@@ -8,6 +8,7 @@
             position: relative;
             overflow: visible;
         }
+
         /*@media (min-width: 768px) {
             span.text-truncate {
                 max-width: 130px;
@@ -32,6 +33,7 @@
         .reset-button-fade-enter-active, .reset-button-fade-leave-active {
             transition: opacity .5s;
         }
+
         .reset-button-fade-enter, .reset-button-fade-leave-to {
             opacity: 0;
         }
@@ -82,7 +84,7 @@
                                        v-model="filter_value"
                                        clearable filterable
                                        @keyup.native.enter="() => {addFilter(); $refs['object_id-filter'].blur();}"
-                                        ref="object_id-filter"
+                                       ref="object_id-filter"
                                        :remote-method="searchLocations"
                                        @change="updateCurrentLocationName"
                                        remote
@@ -107,8 +109,8 @@
                                 v-model="filter_value"
                             ></el-input-number>
                             <el-input v-else placeholder="Введите значение" v-model="filter_value"
-                                @keyup.native.enter="addFilter"
-                                id="filter-value-tf" clearable></el-input>
+                                      @keyup.native.enter="addFilter"
+                                      id="filter-value-tf" clearable></el-input>
                         </div>
                         <div class="col-md-2 text-center--mobile" style="margin:29px 10px 20px 0">
                             <button type="button" class="btn btn-primary btn-outline" @click="addFilter">
@@ -130,7 +132,7 @@
                             </span>
                             </div>
                         </div>
-                        <div v-if="filters.length > 0"class="col-md-3 text-right mnt-20--mobile text-center--mobile">
+                        <div v-if="filters.length > 0" class="col-md-3 text-right mnt-20--mobile text-center--mobile">
                             <button id="clearAll" type="button" class="btn btn-sm show-all" @click="clearFilters">
                                 Снять фильтры
                             </button>
@@ -147,12 +149,13 @@
                         <div class="row">
                             <div class="col-sm-6 col-md-4">
                                 <el-input placeholder="Поиск по номеру и местоположению" v-model="search_tf" clearable
-                                            @keyup.native.enter="doneTyping"
+                                          @keyup.native.enter="doneTyping"
                                           prefix-icon="el-icon-search" id="search-tf" @clear="doneTyping"
                                 ></el-input>
                             </div>
                             <div class="col-sm-6 col-md-8 text-right mt-10__mobile">
-                                <a href="{{ route('building::tech_acc::fuel_tank.index') }}" class="float-right btn btn-outline btn-sm">Просмотр обычных записей</a>
+                                <a href="{{ route('building::tech_acc::fuel_tank.index') }}"
+                                   class="float-right btn btn-outline btn-sm">Просмотр обычных записей</a>
                             </div>
                         </div>
                     </div>
@@ -160,10 +163,14 @@
                         <table class="table table-hover mobile-table">
                             <thead>
                             <tr>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="#"><span class="text-truncate d-inline-block">#</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Местоположение"><span class="text-truncate d-inline-block">Местоположение</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Номер"><span class="text-truncate d-inline-block">Номер</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Уровень топлива, л"><span class="text-truncate d-inline-block">Уровень топлива, л</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="#"><span
+                                        class="text-truncate d-inline-block">#</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Местоположение"><span
+                                        class="text-truncate d-inline-block">Местоположение</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Номер"><span
+                                        class="text-truncate d-inline-block">Номер</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Уровень топлива, л">
+                                    <span class="text-truncate d-inline-block">Уровень топлива, л</span></th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -222,7 +229,8 @@
 
     <!-- modals -->
     <!-- card -->
-    <div class="modal fade bd-example-modal-lg show" id="card_fuel" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal fade bd-example-modal-lg show" id="card_fuel" role="dialog" aria-labelledby="modal-search"
+         style="display: none;">
         <div class="modal-dialog modal-lg" role="document" style="max-width:900px">
             <div class="modal-content pb-3">
                 <div class="modal-header">
@@ -258,7 +266,8 @@
                     </div> -->
                     <div v-if="window_width <= 769" class="row mt-3">
                         <div class="col-md-12">
-                            <a href="#collapse" target="_blank" class="text-primary font-weight-bold" style="font-size: 15px;"
+                            <a href="#collapse" target="_blank" class="text-primary font-weight-bold"
+                               style="font-size: 15px;"
                                data-target="#collapse" data-toggle="collapse">
                                 Топливные записи
                             </a>
@@ -266,7 +275,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a v-if="window_width > 769" href="#collapse" target="_blank" class="text-primary font-weight-bold" style="font-size: 15px;"
+                    <a v-if="window_width > 769" href="#collapse" target="_blank" class="text-primary font-weight-bold"
+                       style="font-size: 15px;"
                        data-target="#collapse" data-toggle="collapse">
                         Топливные записи
                     </a>
@@ -278,7 +288,7 @@
                             label="Дата"
                         >
                             <template slot-scope="scope">
-                                @{{  convertDateFormat(scope.row.operation_date)  }}
+                                @{{ convertDateFormat(scope.row.operation_date) }}
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -359,7 +369,7 @@
                 },
                 loading(val) {
                     if (val) {
-                        this.loadingInstance = ELEMENT.Loading.service({ fullscreen: true });
+                        this.loadingInstance = ELEMENT.Loading.service({fullscreen: true});
                     } else {
                         this.loadingInstance.close();
                     }
@@ -386,7 +396,8 @@
                                         location_name: customName,
                                     });
                                 })
-                                .catch(() => {})
+                                .catch(() => {
+                                })
                         } else {
                             this.filters.push({
                                 attribute: this.filter_attributes.find(el => el.value === field).label,
@@ -433,17 +444,18 @@
                 },
                 filter_attributes_filtered() {
                     return this.filter_attributes.filter(el => {
-                       if (this.SINGLE_USE_FILTERS.indexOf(el.value) !== -1 && this.filters.some(filter => filter.field === el.value)) {
-                           return false
-                       } else {
-                           return true;
-                       }
+                        if (this.SINGLE_USE_FILTERS.indexOf(el.value) !== -1 && this.filters.some(filter => filter.field === el.value)) {
+                            return false
+                        } else {
+                            return true;
+                        }
                     });
                 }
             },
             methods: {
                 changePage(page) {
-                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: page})}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: page})}).catch(err => {
+                    });
                     this.updateFilteredFuels();
                 },
                 doneTyping() {
@@ -453,16 +465,19 @@
                         const count = Object.keys(this.$route.query).filter(el => el.indexOf('search') !== -1).length;
                         if (!count) {
                             queryObj['search'] = this.search_tf;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         } else {
                             Object.assign(queryObj, this.$route.query);
                             queryObj['search'] = this.search_tf;
-                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                            });
                         }
                     } else {
                         Object.assign(queryObj, this.$route.query);
                         delete queryObj['search'];
-                        this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                        this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                        });
                     }
                     this.updateFilteredFuels();
                 },
@@ -478,16 +493,19 @@
                         const count = Object.keys(this.$route.query).filter(el => el.indexOf(this.filter_attribute) !== -1).length;
                         if (!count) {
                             queryObj[this.filter_attribute] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         } else if (count === 1) {
                             Object.assign(queryObj, this.$route.query);
                             queryObj[this.filter_attribute + '[0]'] = queryObj[this.filter_attribute];
                             delete queryObj[this.filter_attribute];
                             queryObj[this.filter_attribute + `[${count}]`] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                            });
                         } else {
                             queryObj[this.filter_attribute + `[${count}]`] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         }
                         /*if (!this.$route.query[this.filter_attribute]) {
                             queryObj[this.filter_attribute] = this.filter_value;
@@ -510,7 +528,10 @@
                     }
                 },
                 updateFilteredFuels() {
-                    axios.post('{{ route('building::tech_acc::get_trashed_fuel_tanks_paginated') }}', {url: vm.$route.fullPath, page: this.currentPage})
+                    axios.post('{{ route('building::tech_acc::get_trashed_fuel_tanks_paginated') }}', {
+                        url: vm.$route.fullPath,
+                        page: this.currentPage
+                    })
                         .then(response => {
                             vm.fuels = response.data.fuelTanks;
                             vm.totalItems = response.data.fuelTanksCount;
@@ -546,7 +567,8 @@
                             delete queryObj[this.filters[index].field + `[${count - 1}]`];
                         }
                     }
-                    this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                    });
 
                     /*if (!Array.isArray(queryObj[this.filters[index].field])) {
                         delete queryObj[this.filters[index].field];
@@ -563,15 +585,18 @@
                 clearFilters() {
                     this.filters = [];
                     if (this.currentPage !== 1) {
-                        this.$router.replace({query: {page: this.currentPage}}).catch(err => {});
+                        this.$router.replace({query: {page: this.currentPage}}).catch(err => {
+                        });
                     } else {
-                        this.$router.replace({query: {}}).catch(err => {});
+                        this.$router.replace({query: {}}).catch(err => {
+                        });
                     }
                     this.searchLocations('');
                     this.updateFilteredFuels();
                 },
                 resetCurrentPage() {
-                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: 1})}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: 1})}).catch(err => {
+                    });
                     this.currentPage = 1;
                     this.updateFilteredFuels();
                 },
@@ -613,7 +638,7 @@
                         if (query) {
                             axios.post('{{ route('building::mat_acc::report_card::get_objects') }}', {q: query})
                                 .then(response => {
-                                    this.locations = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.locations = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -623,7 +648,7 @@
                         } else {
                             axios.post('{{ route('building::mat_acc::report_card::get_objects') }}')
                                 .then(response => {
-                                    this.locations = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.locations = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -636,11 +661,11 @@
                 searchLocations(query) {
                     if (query) {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}', {q: query})
-                            .then(response => this.locations = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.locations = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     } else {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}')
-                            .then(response => this.locations = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.locations = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     }
                 },
@@ -664,8 +689,8 @@
         });
     </script>
     <script type="text/javascript">
-        var cardFuel = new Vue ({
-            el:'#card_fuel',
+        var cardFuel = new Vue({
+            el: '#card_fuel',
             data: {
                 fuel: {object: []},
                 window_width: 10000,
@@ -716,14 +741,14 @@
                         fuel_tank_id: that.fuel.id,
                         page: page,
                     })
-                    .then((response) => {
-                        that.$set(that.fuel, 'operations', response.data.fuelTankOperations);
-                        that.totalItems = response.data.fuelTankOperationCount;
-                    })
-                    //TODO add actual error handler
-                    .catch(error => {
-                        console.log(error);
-                    });
+                        .then((response) => {
+                            that.$set(that.fuel, 'operations', response.data.fuelTankOperations);
+                            that.totalItems = response.data.fuelTankOperationCount;
+                        })
+                        //TODO add actual error handler
+                        .catch(error => {
+                            console.log(error);
+                        });
                 },
             }
         });

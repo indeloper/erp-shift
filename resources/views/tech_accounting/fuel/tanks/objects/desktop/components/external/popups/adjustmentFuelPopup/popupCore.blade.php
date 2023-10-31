@@ -3,7 +3,9 @@
         externalPopup.option({
             visible: true,
             title: 'Корректировка остатков топлива',
-            contentTemplate: () => {return getAdjustmentFuelPopupContentTemplate(formItem)},
+            contentTemplate: () => {
+                return getAdjustmentFuelPopupContentTemplate(formItem)
+            },
         })
     }
 
@@ -22,7 +24,7 @@
                         dataSource: fuelFlowTypesStore,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el=>el.slug==='adjustment').id
+                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'adjustment').id
                     }
                 },
                 {
@@ -37,13 +39,13 @@
                     },
                     label: {
                         text: 'Емкость'
-                    }, 
+                    },
                     validationRules: [{
                         type: 'required',
                         message: 'Укажите значение',
                     }],
                 },
-                
+
                 {
                     dataField: 'volume',
                     editorType: "dxNumberBox",
@@ -59,14 +61,14 @@
                             type: 'required',
                             message: 'Укажите значение',
                         },
-                        
+
                     ],
                 },
                 {
                     visible: false,
                     dataField: 'event_date',
                     editorType: "dxDateBox",
-                    editorOptions:{
+                    editorOptions: {
                         value: new Date(),
                     },
                     label: {
@@ -96,7 +98,7 @@
                         },
                     ]
                 }
-             
+
             ]
         })
     }

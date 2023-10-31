@@ -1,4 +1,3 @@
-
 <script>
     const dataGridEditForm = {
         onInitialized() {
@@ -15,6 +14,9 @@
             // },
             {
                 itemType: 'tabbed',
+                tabPanelOptions: {
+                    height: 450,
+                },
                 tabs: [
                     dataGridEditForm01Group1Elems_info,
                     dataGridEditForm01Group2Elems_incomes,

@@ -25,35 +25,34 @@
     const handleOnUploaded = (e) => {
         let newFileEntryId = JSON.parse(e.request.response).fileEntryId
         let newFileName = JSON.parse(e.request.response).filename
-   
+
         newAttachments.push(newFileEntryId)
 
         $('#newFile' + uploadingFiles.length).remove()
 
         let fileType = 'any'
 
-        if(e.file.type.includes('image')) {
+        if (e.file.type.includes('image')) {
             fileType = 'img'
-        } 
-        else if(e.file.type.includes('video')) {
+        } else if (e.file.type.includes('video')) {
             fileType = 'video'
         }
 
-        deviceType='desktop'
-        fileDisplayContext='entityNewFiles'
+        deviceType = 'desktop'
+        fileDisplayContext = 'entityNewFiles'
 
         const fileLableWrapper = getFileLableWrapper(fileType, deviceType, fileDisplayContext, e.file).addClass('fileLableWrapper newFileDivWrapper')
         let newFileImg = $('<img>')
-   
+
         const {file} = e;
         const fileReader = new FileReader();
         fileReader.readAsDataURL(file);
         let i = 0;
 
-        fileReader.onload = function() {
+        fileReader.onload = function () {
 
             $('#newFile' + uploadingFiles.length).remove()
-            
+
             fileLableWrapper
                 .attr('id', 'fileId-' + newFileEntryId)
                 .css({'border': 0})
@@ -69,10 +68,9 @@
                 if (fileType === 'video') {
                     imgSrc = window.location.protocol + '//' + window.location.host + '/img/fileIcons/video-icon.png'
                     $(newVideoFilesWrapper).append(fileLableWrapper)
-                }
-                else {
+                } else {
                     if (e.file.name.includes('.xls') || e.file.name.includes('.xlsx'))
-                    imgSrc = window.location.protocol + '//' + window.location.host + '/' + 'img/fileIcons/xls-icon.png'
+                        imgSrc = window.location.protocol + '//' + window.location.host + '/' + 'img/fileIcons/xls-icon.png'
 
                     if (e.file.name.includes('.doc') || e.file.name.includes('.docx'))
                         nimgSrc = window.location.protocol + '//' + window.location.host + '/' + 'img/fileIcons/doc-icon.png'
@@ -81,10 +79,10 @@
                         imgSrc = window.location.protocol + '//' + window.location.host + '/' + 'img/fileIcons/pdf-icon.png'
 
                     $(newFilesNotImgListWrapper).append(fileLableWrapper)
-                }    
-                
+                }
+
                 newFileImg.addClass('newAttachmentIcon')
-                
+
                 fileLableWrapper
                     .css({
                         'padding': '10px',
@@ -113,5 +111,5 @@
         }
     }
 
-    
+
 </script>

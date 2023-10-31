@@ -1,5 +1,5 @@
 <script>
-    $(()=>{
+    $(() => {
         const mainPopup = $('#mainPopup').dxPopup({
             visible: false,
             showTitle: true,
@@ -27,11 +27,11 @@
                         formData.newAttachments = newAttachments;
                         formData.deletedAttachments = deletedAttachments;
 
-                        if(!editingRowId)
+                        if (!editingRowId)
                             entitiesDataSource.store().insert(formData);
                         else
                             entitiesDataSource.store().update(editingRowId, formData);
-                        
+
                         mainPopup.hide()
                     }
                 },

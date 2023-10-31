@@ -1,6 +1,6 @@
 <script>
 
-    const popupEditingModeContentTemplate = function() {
+    const popupEditingModeContentTemplate = function () {
         const popupContentWrapper = $('<div id="popupContentWrapper">')
             .css({
                 'width': '100%',

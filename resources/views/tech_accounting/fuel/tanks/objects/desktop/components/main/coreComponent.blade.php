@@ -1,5 +1,5 @@
 <script>
-    $(()=>{
+    $(() => {
         $("#dataGridAncor").dxForm({
             items: [
                 {

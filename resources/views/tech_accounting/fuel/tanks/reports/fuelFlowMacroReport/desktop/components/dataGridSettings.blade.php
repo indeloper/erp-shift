@@ -64,23 +64,23 @@
 
         // onEditCanceling(e) {
 
-            // if (!skipStoppingEditingRow && e.changes.length) {
+        // if (!skipStoppingEditingRow && e.changes.length) {
 
-            //     e.cancel = true
-            //     skipStoppingEditingRow = 0
+        //     e.cancel = true
+        //     skipStoppingEditingRow = 0
 
-            //     customConfirmDialog("Вы уверены, что отменить изменения?").show().then((dialogResult) => {
-            //         if (dialogResult) {
-            //             resetVars();
-            //             resetStores();
-            //             skipStoppingEditingRow = 1;
-            //             e.component.cancelEditData();
-            //         }
-            //     })
-            // } else {
-            //     resetVars();
-            //     resetStores();
-            // }
+        //     customConfirmDialog("Вы уверены, что отменить изменения?").show().then((dialogResult) => {
+        //         if (dialogResult) {
+        //             resetVars();
+        //             resetStores();
+        //             skipStoppingEditingRow = 1;
+        //             e.component.cancelEditData();
+        //         }
+        //     })
+        // } else {
+        //     resetVars();
+        //     resetStores();
+        // }
 
         // },
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+@php use Carbon\Carbon; @endphp
+    <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -26,7 +27,8 @@
 @endif--}}
 <style>
     div.tablePage {
-        page-break-inside:avoid; page-break-after:always;
+        page-break-inside: avoid;
+        page-break-after: always;
     }
 </style>
 <style media="screen">
@@ -139,6 +141,7 @@
             padding: 0 !important;
             margin: 0 !important;
         }
+
         #debug-panel {
             display: none !important;
         }
@@ -163,64 +166,70 @@
     }
 </style>
 <body>
-    <div style="position: absolute; left: 1000px; top: 200px; width: 300px; display: none;" id="debug-panel">
-        pageHeight
-        <el-input-number :min="0"
-                         :max="2000"
-                         v-model="pageHeight"
-                         :precision="0"
-                         :step="1"
-                         style="display: block; width: 100%"
-                         @change="rerender"
-        ></el-input-number><br>
-        pageContentHeight
-        <el-input-number :min="0"
-                         :max="2000"
-                         v-model="pageContentHeight"
-                         :precision="0"
-                         :step="1"
-                         style="display: block; width: 100%"
-                         @change="rerender"
-        ></el-input-number><br>
-        pageSpecialContentHeight
-        <el-input-number :min="0"
-                         :max="2000"
-                         v-model="pageSpecialContentHeight"
-                         :precision="0"
-                         :step="1"
-                         style="display: block; width: 100%"
-                         @change="rerender"
-        ></el-input-number><br>
-        magicStandartPagePaddingCompensator
-        <el-input-number :min="-2000"
-                         :max="2000"
-                         v-model="magicStandartPagePaddingCompensator"
-                         :precision="0"
-                         :step="1"
-                         style="display: block; width: 100%"
-                         @change="rerender"
-        ></el-input-number><br>
-        <el-button style="display: block; width: 100%; margin: 0" @click.stop="print">Печать</el-button><br>
-        <el-button style="display: block; width: 100%; margin: 0" @click.stop="reset">Сброс</el-button>
-    </div>
-    <div class="ttn-list clearfix">
-        <div class="list-header">
-            <div class="top-header clearfix">
-                <img src="{{ asset('img/logosvg.png') }}" alt="ск город" class="logo-print">
-            </div>
+<div style="position: absolute; left: 1000px; top: 200px; width: 300px; display: none;" id="debug-panel">
+    pageHeight
+    <el-input-number :min="0"
+                     :max="2000"
+                     v-model="pageHeight"
+                     :precision="0"
+                     :step="1"
+                     style="display: block; width: 100%"
+                     @change="rerender"
+    ></el-input-number>
+    <br>
+    pageContentHeight
+    <el-input-number :min="0"
+                     :max="2000"
+                     v-model="pageContentHeight"
+                     :precision="0"
+                     :step="1"
+                     style="display: block; width: 100%"
+                     @change="rerender"
+    ></el-input-number>
+    <br>
+    pageSpecialContentHeight
+    <el-input-number :min="0"
+                     :max="2000"
+                     v-model="pageSpecialContentHeight"
+                     :precision="0"
+                     :step="1"
+                     style="display: block; width: 100%"
+                     @change="rerender"
+    ></el-input-number>
+    <br>
+    magicStandartPagePaddingCompensator
+    <el-input-number :min="-2000"
+                     :max="2000"
+                     v-model="magicStandartPagePaddingCompensator"
+                     :precision="0"
+                     :step="1"
+                     style="display: block; width: 100%"
+                     @change="rerender"
+    ></el-input-number>
+    <br>
+    <el-button style="display: block; width: 100%; margin: 0" @click.stop="print">Печать</el-button>
+    <br>
+    <el-button style="display: block; width: 100%; margin: 0" @click.stop="reset">Сброс</el-button>
+</div>
+<div class="ttn-list clearfix">
+    <div class="list-header">
+        <div class="top-header clearfix">
+            <img src="{{ asset('img/logosvg.png') }}" alt="ск город" class="logo-print">
         </div>
-        <div class="list-body" style="margin-top:-20px">
-            <div style="width: 60%">
+    </div>
+    <div class="list-body" style="margin-top:-20px">
+        <div style="width: 60%">
                 <span style="font-size: 4pt; width:100%; display:inline-block; text-align: center">
                     <b>ООО "СК ГОРОД"</b>
                 </span>
-            </div>
-            <div style="width: 60%; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 60%; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     организация
                 </span>
-            </div>
-            <div style="width: 60%; margin-top: -12px;">
+        </div>
+        <div style="width: 60%; margin-top: -12px;">
                 <span style="font-size: 4pt; width:100%; display:inline-block; text-align: center">
                     @switch($mode)
                         @case(1)
@@ -234,63 +243,68 @@
                             @break
                     @endswitch
                 </span>
-            </div>
-            <div style="width: 60%; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 60%; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     адреса объектов
                 </span>
-            </div>
-            <div style="width: 60%; float: right;">
-                <table class="ttn-table" style="border-bottom:0">
-                    <tbody>
-                        <tr>
-                            <th style="width:25%;" rowspan="2">Номер документа</th>
-                            <th style="width:25%;" rowspan="2">Дата составления</th>
-                            <th style="width:50%" colspan="2">Отчетный период</th>
-                        </tr>
-                        <tr>
-                            <th style="width:25%">с</th>
-                            <th style="width:25%">по</th>
-                        </tr>
-                        <tr style="border-top: 2px solid black;">
-                            <th style="border-left: 2px solid black; border-bottom: 0; width:25%; opacity: 0;">.</th>
-                            <th style="width:25%; border-bottom: 2px solid black;" rowspan="2">{{ \Carbon\Carbon::now()->format('d.m.Y') }}</th>
-                            <th style="width:25%; border-bottom: 2px solid black;" rowspan="2">{{ now()->parse(request()->operation_date_from ?? (isset($operations) ? ($operations->first() ? $operations->first()->operation_date : false) : now()))->format('d.m.Y') }}</th>
-                            <th style="width:25%; border-right: 2px solid black; border-bottom: 2px solid black;" rowspan="2">{{ now()->parse(request()->operation_date_to ?? (isset($operations) ? ($operations->last() ? $operations->last()->operation_date : false) : now()))->format('d.m.Y') }}</th>
-                        </tr>
-                        <tr style="border-bottom: 2px solid black;">
-                            <th style="border-left: 2px solid black; border-top: 0; opacity: 0">.</th>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div style="margin:0 auto; margin-bottom:2px; margin-top: 70px">
-                <h1 style="font-size:8pt; text-align:center; text-transform: uppercase">
-                    <b>ОТЧЕТ по дизельному топливу</b>
-                </h1>
-            </div>
-            <div style="width: 40%; float: left;">
+        </div>
+        <div style="width: 60%; float: right;">
+            <table class="ttn-table" style="border-bottom:0">
+                <tbody>
+                <tr>
+                    <th style="width:25%;" rowspan="2">Номер документа</th>
+                    <th style="width:25%;" rowspan="2">Дата составления</th>
+                    <th style="width:50%" colspan="2">Отчетный период</th>
+                </tr>
+                <tr>
+                    <th style="width:25%">с</th>
+                    <th style="width:25%">по</th>
+                </tr>
+                <tr style="border-top: 2px solid black;">
+                    <th style="border-left: 2px solid black; border-bottom: 0; width:25%; opacity: 0;">.</th>
+                    <th style="width:25%; border-bottom: 2px solid black;"
+                        rowspan="2">{{ Carbon::now()->format('d.m.Y') }}</th>
+                    <th style="width:25%; border-bottom: 2px solid black;"
+                        rowspan="2">{{ now()->parse(request()->operation_date_from ?? (isset($operations) ? ($operations->first() ? $operations->first()->operation_date : false) : now()))->format('d.m.Y') }}</th>
+                    <th style="width:25%; border-right: 2px solid black; border-bottom: 2px solid black;"
+                        rowspan="2">{{ now()->parse(request()->operation_date_to ?? (isset($operations) ? ($operations->last() ? $operations->last()->operation_date : false) : now()))->format('d.m.Y') }}</th>
+                </tr>
+                <tr style="border-bottom: 2px solid black;">
+                    <th style="border-left: 2px solid black; border-top: 0; opacity: 0">.</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin:0 auto; margin-bottom:2px; margin-top: 70px">
+            <h1 style="font-size:8pt; text-align:center; text-transform: uppercase">
+                <b>ОТЧЕТ по дизельному топливу</b>
+            </h1>
+        </div>
+        <div style="width: 40%; float: left;">
                 <span style="font-size: 4pt; width:100%; display:inline-block;">
                     Материально ответственное лицо
                 </span>
-            </div>
-            <div style="width: 50%; float: left">
+        </div>
+        <div style="width: 50%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block;">
                     {{ $responsible_user->group->name . ' ' . $responsible_user->long_full_name }}
                 </span>
-            </div>
-            <div style="width: 40%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 40%; float: left; margin-top: -12px;">
                 <span style="font-size: 1pt; opacity: 0">
                     .
                 </span>
-            </div>
-            <div style="width: 50%; float: left; margin-top: -12px; margin-bottom: 7px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 50%; float: left; margin-top: -12px; margin-bottom: 7px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     должность, фамилия, имя, отчество
                 </span>
-            </div>
-            <div>
-                <table class="ttn-table splitForPrint" style="border: 0;">
+        </div>
+        <div>
+            <table class="ttn-table splitForPrint" style="border: 0;">
                 <tr>
                     <th style="width: 45%" rowspan="2">Наименование</th>
                     <th style="width: 25%" colspan="2">Документ</th>
@@ -311,7 +325,9 @@
                     <th style="width: 10%">6</th>
                 </tr>
                 <tr>
-                    <th style="width: 45%">Остаток на объекте на <b>{{ \Carbon\Carbon::parse(request()->operation_date_from)->locale('ru')->isoFormat('D[-е] MMMM YYYY') }}</b></th>
+                    <th style="width: 45%">Остаток на объекте на
+                        <b>{{ Carbon::parse(request()->operation_date_from)->locale('ru')->isoFormat('D[-е] MMMM YYYY') }}</b>
+                    </th>
                     <th style="width: 12.5%; border-left: 2px solid black;"></th>
                     <th style="width: 12.5%"></th>
                     <th style="width: 10%; border-right: 2px solid black;"><b>{{ $start_value }}</b></th>
@@ -328,14 +344,14 @@
                 </tr>
                 {{--ROW TO REPEAT--}}
                 @foreach($operations->where('type', 1) as $operation)
-                <tr class="page-breakable-row">
-                    <th style="width: 45%; text-align: left">{{ $operation->contractor->short_name }}</th>
-                    <th style="width: 12.5%; border-left: 2px solid black;">{{ \Carbon\Carbon::parse($operation->operation_date)->format('d.m.Y') }}</th>
-                    <th style="width: 12.5%"></th>
-                    <th style="width: 10%; border-right: 2px solid black;">{{ number_format($operation->value, 3) }}</th>
-                    <th style="width: 10%"></th>
-                    <th style="width: 10%"></th>
-                </tr>
+                    <tr class="page-breakable-row">
+                        <th style="width: 45%; text-align: left">{{ $operation->contractor->short_name }}</th>
+                        <th style="width: 12.5%; border-left: 2px solid black;">{{ Carbon::parse($operation->operation_date)->format('d.m.Y') }}</th>
+                        <th style="width: 12.5%"></th>
+                        <th style="width: 10%; border-right: 2px solid black;">{{ number_format($operation->value, 3) }}</th>
+                        <th style="width: 10%"></th>
+                        <th style="width: 10%"></th>
+                    </tr>
                 @endforeach
                 <tr>
                     <th style="width: 45%; text-align: right">Итого по приходу</th>
@@ -355,7 +371,8 @@
                 </tr>
                 <tr id="operation-separator">
                     <th style="width: 45%; border-left: 0; opacity: 0;">.</th>
-                    <th style="width: 35%; border-left: 2px solid black; border-right: 2px solid black;" colspan="3"></th>
+                    <th style="width: 35%; border-left: 2px solid black; border-right: 2px solid black;"
+                        colspan="3"></th>
                     <th style="width: 20%; border-right: 0; " colspan="2"></th>
                 </tr>
                 <tr class="special-page-breakable-row page-breakable-row">
@@ -368,14 +385,14 @@
                 </tr>
                 {{--ROW TO REPEAT--}}
                 @foreach($operations->where('type', 2) as $operation)
-                <tr class="page-breakable-row">
-                    <th style="width: 45%; text-align: left">{{ $operation->our_technic->name . ($operation->our_technic->trashed() ? ' (удалена)' : '') }}</th>
-                    <th style="width: 12.5%; border-left: 2px solid black;">{{ \Carbon\Carbon::parse($operation->operation_date)->format('d.m.Y') }}</th>
-                    <th style="width: 12.5%"></th>
-                    <th style="width: 10%; border-right: 2px solid black;">{{ number_format($operation->value, 3) }}</th>
-                    <th style="width: 10%"></th>
-                    <th style="width: 10%"></th>
-                </tr>
+                    <tr class="page-breakable-row">
+                        <th style="width: 45%; text-align: left">{{ $operation->our_technic->name . ($operation->our_technic->trashed() ? ' (удалена)' : '') }}</th>
+                        <th style="width: 12.5%; border-left: 2px solid black;">{{ Carbon::parse($operation->operation_date)->format('d.m.Y') }}</th>
+                        <th style="width: 12.5%"></th>
+                        <th style="width: 10%; border-right: 2px solid black;">{{ number_format($operation->value, 3) }}</th>
+                        <th style="width: 10%"></th>
+                        <th style="width: 10%"></th>
+                    </tr>
                 @endforeach
 
                 <tr>
@@ -387,177 +404,188 @@
                     <th style="width: 10%"></th>
                 </tr>
                 <tr>
-                    <th style="width: 45%">Остаток на объекте на <b>{{ \Carbon\Carbon::parse(request()->operation_date_to)->locale('ru')->isoFormat('D[-е] MMMM YYYY') }}</b></th>
+                    <th style="width: 45%">Остаток на объекте на
+                        <b>{{ Carbon::parse(request()->operation_date_to)->locale('ru')->isoFormat('D[-е] MMMM YYYY') }}</b>
+                    </th>
                     <th style="width: 12.5%; border-left: 2px solid black; border-bottom: 2px solid black;"></th>
                     <th style="width: 12.5%; border-bottom: 2px solid black;"></th>
-                    <th style="width: 10%; border-right: 2px solid black; border-bottom: 2px solid black;"><b>{{ number_format($operations->last()->result_value ?? 0, 3) }}</b></th>
+                    <th style="width: 10%; border-right: 2px solid black; border-bottom: 2px solid black;">
+                        <b>{{ number_format($operations->last()->result_value ?? 0, 3) }}</b></th>
                     <th style="width: 10%"></th>
                     <th style="width: 10%"></th>
                 </tr>
             </table>
-            </div>
-            <div style="width: 30%; float: left;">
+        </div>
+        <div style="width: 30%; float: left;">
                 <span style="font-size: 4pt; width:100%; display:inline-block;">
                     Приложение
                 </span>
-            </div>
-            <div style="width: 60%; float: left">
+        </div>
+        <div style="width: 60%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 1%; float: left">
+        </div>
+        <div style="width: 1%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 9%; float: left">
+        </div>
+        <div style="width: 9%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block;">
                     документов
                 </span>
-            </div>
-            <div style="width: 30%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 30%; float: left; margin-top: -12px;">
                 <span style="font-size: 1pt; opacity: 0">
                     .
                 </span>
-            </div>
-            <div style="width: 60%; float: left; margin-top: -12px; margin-bottom: 7px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 60%; float: left; margin-top: -12px; margin-bottom: 7px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     .
                 </span>
-            </div>
-            <div style="width: 10%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 10%; float: left; margin-top: -12px;">
                 <span style="font-size: 1pt; opacity: 0">
                     .
                 </span>
-            </div>
-            <div style="width: 30%; float: left;">
+        </div>
+        <div style="width: 30%; float: left;">
                 <span style="font-size: 4pt; width:100%; display:inline-block;">
                     Отчет с документами принял и проверил
                 </span>
-            </div>
-            <div style="width: 20%; float: left">
+        </div>
+        <div style="width: 20%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     гл. бухгалтер
                 </span>
-            </div>
-            <div style="width: 5%; float: left">
+        </div>
+        <div style="width: 5%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left">
+        </div>
+        <div style="width: 20%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 5%; float: left">
+        </div>
+        <div style="width: 5%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left">
+        </div>
+        <div style="width: 20%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     Рябинина А.Ю.
                 </span>
-            </div>
-            <div style="width: 30%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 30%; float: left; margin-top: -12px;">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 20%; float: left; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     должность
                 </span>
-            </div>
-            <div style="width: 5%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 5%; float: left; margin-top: -12px;">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 20%; float: left; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     подпись
                 </span>
-            </div>
-            <div style="width: 5%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 5%; float: left; margin-top: -12px;">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 20%; float: left; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     расшифровка подписи
                 </span>
-            </div>
-            <div style="width: 30%; float: left;">
+        </div>
+        <div style="width: 30%; float: left;">
                 <span style="font-size: 4pt; width:100%; display:inline-block;">
                     Материальное ответственное лицо
                 </span>
-            </div>
-            <div style="width: 20%; float: left">
+        </div>
+        <div style="width: 20%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     Рук. проектов
                 </span>
-            </div>
-            <div style="width: 5%; float: left">
+        </div>
+        <div style="width: 5%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left">
+        </div>
+        <div style="width: 20%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 5%; float: left">
+        </div>
+        <div style="width: 5%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left">
+        </div>
+        <div style="width: 20%; float: left">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     Самсонов К.Н.
                 </span>
-            </div>
-            <div style="width: 30%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 30%; float: left; margin-top: -12px;">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 20%; float: left; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     должность
                 </span>
-            </div>
-            <div style="width: 5%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 5%; float: left; margin-top: -12px;">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 20%; float: left; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     подпись
                 </span>
-            </div>
-            <div style="width: 5%; float: left; margin-top: -12px;">
+        </div>
+        <div style="width: 5%; float: left; margin-top: -12px;">
                 <span style="font-size: 4pt; width:100%; display:inline-block; opacity: 0;">
                     .
                 </span>
-            </div>
-            <div style="width: 20%; float: left; margin-top: -12px;">
-                <span style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
+        </div>
+        <div style="width: 20%; float: left; margin-top: -12px;">
+                <span
+                    style="border-top:0.5px solid black; font-size: 4pt; width:100%; display:inline-block; text-align: center;">
                     расшифровка подписи
                 </span>
-            </div>
         </div>
     </div>
+</div>
 </body>
 </html>
 <script src="{{ mix('js/core/jquery.3.2.1.min.js') }}" type="text/javascript"></script>
 <script>
     setTimeout(breakPage, 1500);
+
     function breakPage() {
         let MaxHeight = 920;
         let RunningHeight = 0;
@@ -571,7 +599,7 @@
             RunningHeight += $(this).height();
             $(this).attr("data-page-no", PageNo);
         });
-        for(let i = 1; i <= PageNo; i++){
+        for (let i = 1; i <= PageNo; i++) {
             if (i < PageNo) {
                 $('table.splitForPrint').parent().append("<div class='tablePage'><table class='ttn-table' style='border: 0;' id='Table" + i + "'><tbody></tbody></table></div>");
             } else {
@@ -581,7 +609,7 @@
             $('#Table' + i).find("tbody").append(rows);
         }
         $('table.splitForPrint').remove();
-        setTimeout(function() {
+        setTimeout(function () {
             window.print();
         }, 500);
     }

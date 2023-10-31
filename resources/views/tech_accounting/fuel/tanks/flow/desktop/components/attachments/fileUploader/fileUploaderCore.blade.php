@@ -1,4 +1,3 @@
-
 <script>
 
     const renderFileUploader = (wrapperElement) => {
@@ -9,14 +8,13 @@
         wrapperElement.append('<div id="newFilesListWrapper" class="filesGroupWrapperClass">')
         wrapperElement.append('<div id="newFilesNotImgListWrapper" class="filesGroupWrapperClass">')
         wrapperElement.append('<div id="newVideoFilesWrapper" class="filesGroupWrapperClass newVideoFiles">')
-        
+
         let checkDropZoneIsAvailable = setInterval(() => {
 
-            if (
+                if (
                     document.getElementById('dropZone')
                     && document.getElementById('fileUploaderAnchorDiv')
-                ) 
-                {
+                ) {
                     clearInterval(checkDropZoneIsAvailable);
 
                     $('#fileUploaderAnchorDiv').dxFileUploader({
@@ -24,10 +22,10 @@
                         multiple: true,
                         visible: false,
                         uploadMode: 'instantly',
-                        uploadUrl: "{{route($routeNameFixedPart.'uploadFile')}}"  + '?id=' + 0,
+                        uploadUrl: "{{route($routeNameFixedPart.'uploadFile')}}" + '?id=' + 0,
                         uploadHeaders: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        }, 
+                        },
 
                         onUploadStarted(e) {
                             handleOnUploadStarted(e)
@@ -44,11 +42,11 @@
                         .dxButton({
                             text: "Загрузить файлы",
                             icon: 'upload',
-                            onClick(){
+                            onClick() {
                                 dropZone.click()
                             }
                         })
-                    
+
                     $('#downloadFilesButton')
                         .dxButton({
                             text: "Скачать файлы",
@@ -61,8 +59,8 @@
 
 
                 }
-        }
-        , 100);
+            }
+            , 100);
     }
 
 </script>

@@ -24,12 +24,12 @@
             },
             // groupIndex: 0,
         },
-        
+
         {
             caption: "Номер емкости",
             dataField: "tank_number",
             width: 150,
-            sortIndex: 0, 
+            sortIndex: 0,
             sortOrder: "asc"
         },
         {
@@ -59,20 +59,20 @@
             },
             cellTemplate(container, options) {
                 fontColor = 'black'
-                if(options.text>0) 
+                if (options.text > 0)
                     fontColor = '#1f931f';
-                if(options.text<0) 
+                if (options.text < 0)
                     fontColor = '#dd5e5e'
 
                 $('<span>')
                     .css('color', fontColor)
                     .text(new Intl.NumberFormat('ru-RU').format(options.text * 1000 / 1000))
                     .appendTo(container)
-                
+
             }
-          
+
         },
-        
+
         {
             type: "buttons",
             buttons: [
@@ -80,7 +80,7 @@
                     hint: 'Переместить',
                     icon: 'fas fa-exchange-alt',
                     onClick(e) {
-                        if(!e.row.data.awaiting_confirmation) {
+                        if (!e.row.data.awaiting_confirmation) {
                             showMovingFuelTankPopup(e.row.data)
                         } else {
                             showMovingConfirmationFuelTankPopup(e.row.data)

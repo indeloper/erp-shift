@@ -22,9 +22,9 @@
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
-            
+
         },
-        
+
         {
             caption: "Топливная емкость",
             dataField: "fuel_tank_id",
@@ -35,7 +35,7 @@
             },
             visible: false
         },
-        
+
         {
             caption: "Поставщик",
             dataField: "contractor_id",
@@ -80,7 +80,7 @@
                 return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
             }
         },
-        
+
         {
             type: "buttons",
             buttons: [
@@ -95,28 +95,28 @@
                         text: "Добавить",
                         icon: "fas fa-plus",
                         onClick: (e) => {
-                            if(choosedFormTab === 'fuelIncomes') {
+                            if (choosedFormTab === 'fuelIncomes') {
                                 showIncreaseFuelPopup();
                                 $('#mainDataGrid_fuel_flow_incomes').dxDataGrid('instance').option("focusedRowKey", undefined);
                                 $('#mainDataGrid_fuel_flow_incomes').dxDataGrid('instance').option("focusedRowIndex", undefined);
                             }
 
-                            if(choosedFormTab === 'fuelOutcomes') {
+                            if (choosedFormTab === 'fuelOutcomes') {
                                 showDecreaseFuelPopup();
                                 $('#mainDataGrid_fuel_flow_outcomes').dxDataGrid('instance').option("focusedRowKey", undefined);
                                 $('#mainDataGrid_fuel_flow_outcomes').dxDataGrid('instance').option("focusedRowIndex", undefined);
                             }
 
-                            if(choosedFormTab === 'fuelAdjustments') {
+                            if (choosedFormTab === 'fuelAdjustments') {
                                 showAdjustmentFuelPopup();
                                 $('#mainDataGrid_fuel_flow_adjusments').dxDataGrid('instance').option("focusedRowKey", undefined);
                                 $('#mainDataGrid_fuel_flow_adjusments').dxDataGrid('instance').option("focusedRowIndex", undefined);
                             }
-                            
+
                         }
                     })
             }
-        
+
         }
 
 

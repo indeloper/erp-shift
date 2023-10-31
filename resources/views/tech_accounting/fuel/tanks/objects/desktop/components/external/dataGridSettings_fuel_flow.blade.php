@@ -2,7 +2,7 @@
     const dataGridSettings_fuel_flow = {
         // height(){
         //     return 0.85*$('.dx-overlay-wrapper').find('.dx-popup-content').height()
-        // }, 
+        // },
         focusedRowEnabled: true,
         hoverStateEnabled: true,
         columnAutoWidth: false,
@@ -46,33 +46,33 @@
             useIcons: true,
         },
 
-        onRowDblClick: function(e) {
+        onRowDblClick: function (e) {
             if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
                 externalEditingRowId = e.key;
 
                 let dataGrid = {}
-                
-                if(choosedFormTab === 'fuelIncomes') 
+
+                if (choosedFormTab === 'fuelIncomes')
                     dataGridItems = $('#mainDataGrid_fuel_flow_incomes')
-                
-                if(choosedFormTab === 'fuelOutcomes')
+
+                if (choosedFormTab === 'fuelOutcomes')
                     dataGridItems = $('#mainDataGrid_fuel_flow_outcomes')
-                    
-                if(choosedFormTab === 'fuelAdjustments') 
+
+                if (choosedFormTab === 'fuelAdjustments')
                     dataGridItems = $('#mainDataGrid_fuel_flow_adjusments')
 
-                let choosedItem = dataGridItems.dxDataGrid('instance').getDataSource().items().find(el=>el.id === e.key)
+                let choosedItem = dataGridItems.dxDataGrid('instance').getDataSource().items().find(el => el.id === e.key)
 
                 // let choosedItem = $('#externalDataGrid').dxDataGrid('instance').getDataSource().items().find(el=>el.id === e.key)
-                let fuelFlowType = fuelFlowTypesStore.__rawData.find(el=>el.id===choosedItem.fuel_tank_flow_type_id).slug
+                let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
 
-                if(fuelFlowType === 'outcome')
+                if (fuelFlowType === 'outcome')
                     showDecreaseFuelPopup(choosedItem)
 
-                if(fuelFlowType === 'income')
+                if (fuelFlowType === 'income')
                     showIncreaseFuelPopup(choosedItem)
 
-                if(fuelFlowType === 'adjustment')
+                if (fuelFlowType === 'adjustment')
                     showAdjustmentFuelPopup(choosedItem)
             }
         },

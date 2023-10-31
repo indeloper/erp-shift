@@ -1,6 +1,6 @@
 <script>
 
-// Общие
+    // Общие
     function getUrlWithId(url, id) {
         return url.replace("/setId", "/" + id)
     }
@@ -47,7 +47,7 @@
                 e.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
                     let tagBoxFilterExpression = [];
                     let tagBox = $(item).dxTagBox(`instance`);
-                    tagBox.option(`value`).forEach(function(value) {
+                    tagBox.option(`value`).forEach(function (value) {
                         tagBoxFilterExpression.push([tagBox.option().dataFieldName, `=`, Number(value)]);
                         tagBoxFilterExpression.push(`or`);
                     });
@@ -78,13 +78,13 @@
 
 
     function setLoadedEntityInfo() {
-        entityInfoByID.reload().done((data)=>{
+        entityInfoByID.reload().done((data) => {
             entityInfo = entityInfoByID.store().__rawData;
             //
         })
     }
 
-    function fixDataBeforeFormRepaint ()  {
+    function fixDataBeforeFormRepaint() {
         //
     }
 
@@ -99,50 +99,50 @@
     // Конец Общие
 
     async function validateTankNumberUnique(value) {
-        let response = await $.getJSON("{{route($routeNameFixedPart.'validateTankNumberUnique')}}", 
-        {
-            id: editingRowId,
-            value: value
-        })
+        let response = await $.getJSON("{{route($routeNameFixedPart.'validateTankNumberUnique')}}",
+            {
+                id: editingRowId,
+                value: value
+            })
         return await response.result;
     }
 
     async function moveFuelTank(formData, movemingFuelTankForm) {
-                
+
         return $.ajax({
-                    url: "{{route($routeNameFixedPart.'moveFuelTank')}}",
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        data: JSON.stringify(formData),
-                    },
-                    success: function (data, textStatus, jqXHR) {
-                        DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
-                        movemingFuelTankForm.hide()
-                        entitiesDataSource.reload()
-                    },
-                })
+            url: "{{route($routeNameFixedPart.'moveFuelTank')}}",
+            method: "POST",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                data: JSON.stringify(formData),
+            },
+            success: function (data, textStatus, jqXHR) {
+                DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                movemingFuelTankForm.hide()
+                entitiesDataSource.reload()
+            },
+        })
     }
 
     async function confirmMovingFuelTank(fuelTankId, movingConfirmationFuelTankFormPopup) {
-                
+
         return $.ajax({
-                    url: "{{route($routeNameFixedPart.'confirmMovingFuelTank')}}",
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        fuelTankId: JSON.stringify(fuelTankId),
-                    },
-                    success: function (data, textStatus, jqXHR) {
-                        DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
-                        movingConfirmationFuelTankFormPopup.hide()
-                        entitiesDataSource.reload()
-                    },
-                })
+            url: "{{route($routeNameFixedPart.'confirmMovingFuelTank')}}",
+            method: "POST",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                fuelTankId: JSON.stringify(fuelTankId),
+            },
+            success: function (data, textStatus, jqXHR) {
+                DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                movingConfirmationFuelTankFormPopup.hide()
+                entitiesDataSource.reload()
+            },
+        })
     }
 
 </script>

@@ -9,26 +9,31 @@
             position: relative;
             overflow: visible;
         }
+
         @media (min-width: 768px) {
             span.text-truncate {
                 max-width: 50px;
             }
         }
+
         @media (min-width: 1200px) {
             span.text-truncate {
                 max-width: 80px;
             }
         }
+
         @media (min-width: 1360px) {
             span.text-truncate {
                 max-width: 140px;
             }
         }
+
         @media (min-width: 1560px) {
             span.text-truncate {
                 max-width: 220px;
             }
         }
+
         @media (min-width: 1920px) {
             span.text-truncate {
                 max-width: 300px;
@@ -42,6 +47,7 @@
         .reset-button-fade-enter-active, .reset-button-fade-leave-active {
             transition: opacity .5s;
         }
+
         .reset-button-fade-enter, .reset-button-fade-leave-to {
             opacity: 0;
         }
@@ -82,7 +88,8 @@
                     <li class="breadcrumb-item active" aria-current="page">Топливный журнал</li>
                 </ol>
             </div>
-            <div :class="{'card': true, 'col-10 mr-auto ml-auto pd-0-min': window_width > 2000}" style="border:1px solid rgba(0,0,0,.125);">
+            <div :class="{'card': true, 'col-10 mr-auto ml-auto pd-0-min': window_width > 2000}"
+                 style="border:1px solid rgba(0,0,0,.125);">
                 <div class="card-body-tech">
                     <div class="row">
                         <div class="col-md-12">
@@ -106,7 +113,7 @@
                                        filterable clearable
                                        placeholder="Выберите поставщика"
                                        @keyup.native.enter="() => {addFilter(); $refs['contractor-filter'].blur();}"
-                                        ref="contractor-filter"
+                                       ref="contractor-filter"
                                        @clear="searchSuppliers('')"
                                        remote
                                        :remote-method="searchSuppliers"
@@ -123,7 +130,7 @@
                             <el-select v-else-if="filter_attribute === 'type'"
                                        v-model="filter_value" filterable clearable
                                        @keyup.native.enter="() => {addFilter(); $refs['type-filter'].blur();}"
-                                        ref="type-filter"
+                                       ref="type-filter"
                                        placeholder="Выберите вид записи"
                                        @change="updateCurrentCustomName"
                             >
@@ -213,8 +220,8 @@
                                 v-model="filter_value"
                             ></el-input-number>
                             <el-input v-else placeholder="Введите значение"
-                             @keyup.native.enter="addFilter"
-                             v-model="filter_value" id="filter-value-tf" clearable></el-input>
+                                      @keyup.native.enter="addFilter"
+                                      v-model="filter_value" id="filter-value-tf" clearable></el-input>
                         </div>
                         <div class="col-md-2 text-center--mobile" style="margin:29px 10px 20px 0">
                             <button type="button" class="btn btn-primary btn-outline" @click="addFilter">
@@ -252,7 +259,8 @@
                     <div class="fixed-table-toolbar toolbar-for-btn" style="padding-left:0">
                         <div class="row">
                             <div class="col-sm-6 col-md-4">
-                                <h4 class="h4-tech fw-500 m-0" style="margin-top:0"><span v-pre>Топливные записи</span></h4>
+                                <h4 class="h4-tech fw-500 m-0" style="margin-top:0"><span v-pre>Топливные записи</span>
+                                </h4>
                                 <a class="tech-link modal-link d-block ml-1">
                                     Найдено записей: @{{ totalItems }}
                                 </a>
@@ -263,7 +271,8 @@
                             <div class="col-sm-6 col-md-8 text-right mt-10__mobile">
                                 {{--TODO move this button to a different place--}}
                                 <button type="button" name="button" class="btn btn-sm btn-primary btn-round btn-outline"
-                                        data-toggle="modal" data-target="#report-create" @click="openReportCreate">Сформировать топливный отчет
+                                        data-toggle="modal" data-target="#report-create" @click="openReportCreate">
+                                    Сформировать топливный отчет
                                 </button>
                                 <button type="button" name="button" class="btn btn-sm btn-primary btn-round"
                                         @click="addRecord">Добавить запись
@@ -275,15 +284,26 @@
                         <table class="table table-hover mobile-table">
                             <thead>
                             <tr>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Дата записи"><span class="text-truncate d-inline-block">Дата записи</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Дата записи"><span
+                                        class="text-truncate d-inline-block">Дата записи</span></th>
                                 {{--<th class="text-truncate" data-balloon-pos="up-left" aria-label="#"><span class="text-truncate d-inline-block">#</span></th>--}}
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Номер топливной емкости"><span class="text-truncate d-inline-block">Номер топливной емкости</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Вид записи"><span class="text-truncate d-inline-block">Вид записи</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Объем, л."><span class="text-truncate d-inline-block">Объем, л.</span></th>
-                                <th v-if="hasAnyConsumption" class="text-truncate" data-balloon-pos="up-left" aria-label="Заправляемая техника"><span class="text-truncate d-inline-block">Заправляемая техника</span></th>
-                                <th v-if="hasAnySupply" class="text-truncate" data-balloon-pos="up-left" aria-label="Поставщик"><span class="text-truncate d-inline-block">Поставщик</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Дата операции"><span class="text-truncate d-inline-block">Дата операции</span></th>
-                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Автор записи"><span class="text-truncate d-inline-block">Автор записи</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left"
+                                    aria-label="Номер топливной емкости"><span class="text-truncate d-inline-block">Номер топливной емкости</span>
+                                </th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Вид записи"><span
+                                        class="text-truncate d-inline-block">Вид записи</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Объем, л."><span
+                                        class="text-truncate d-inline-block">Объем, л.</span></th>
+                                <th v-if="hasAnyConsumption" class="text-truncate" data-balloon-pos="up-left"
+                                    aria-label="Заправляемая техника"><span class="text-truncate d-inline-block">Заправляемая техника</span>
+                                </th>
+                                <th v-if="hasAnySupply" class="text-truncate" data-balloon-pos="up-left"
+                                    aria-label="Поставщик"><span class="text-truncate d-inline-block">Поставщик</span>
+                                </th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Дата операции"><span
+                                        class="text-truncate d-inline-block">Дата операции</span></th>
+                                <th class="text-truncate" data-balloon-pos="up-left" aria-label="Автор записи"><span
+                                        class="text-truncate d-inline-block">Автор записи</span></th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -298,7 +318,8 @@
                             </tr>
                             <tr v-else v-for="record in records">
                                 <td data-label="Дата записи">
-                                    <span :class="isWeekendDay(convertDateFormat(record.updated_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                    <span
+                                        :class="isWeekendDay(convertDateFormat(record.updated_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                         @{{ isValidDate(convertDateFormat(record.updated_at), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.updated_at), 'DD.MM.YYYY') : '-' }}
                                     </span>
                                 </td>
@@ -321,7 +342,8 @@
                                     @{{record.contractor ? record.contractor.full_name : '-'}}
                                 </td>
                                 <td data-label="Дата операции">
-                                    <span :class="isWeekendDay(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                    <span
+                                        :class="isWeekendDay(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                         @{{ isValidDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') : '-' }}
                                     </span>
                                 </td>
@@ -331,18 +353,21 @@
                                 <td class="text-right actions">
                                     <button data-balloon-pos="up"
                                             aria-label="Просмотр"
-                                            class="btn btn-link btn-xs btn-space btn-primary mn-0" @click="showRecord(record.id)">
+                                            class="btn btn-link btn-xs btn-space btn-primary mn-0"
+                                            @click="showRecord(record.id)">
                                         <i class="fa fa-eye"></i>
                                     </button>
                                     <button data-balloon-pos="up"
                                             aria-label="Редактировать"
                                             v-if="record.type != 3"
-                                            class="btn btn-link btn-xs btn-space btn-success mn-0" @click="editRecord(record)">
+                                            class="btn btn-link btn-xs btn-space btn-success mn-0"
+                                            @click="editRecord(record)">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                     <button data-balloon-pos="up"
                                             aria-label="Удалить"
-                                            class="btn btn-link btn-xs btn-space btn-danger mn-0" @click="removeRecord(record.id)">
+                                            class="btn btn-link btn-xs btn-space btn-danger mn-0"
+                                            @click="removeRecord(record.id)">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
@@ -372,11 +397,13 @@
 
     <!-- modals -->
     <!-- form -->
-    <div class="modal fade bd-example-modal-lg show" id="form_record" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal fade bd-example-modal-lg show" id="form_record" role="dialog" aria-labelledby="modal-search"
+         style="display: none;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="create_form">
                 <div class="modal-header">
-                    <h5 class="modal-title">@{{ edit_mode ? 'Редактирование' : 'Добавление' }} записи о @{{ type === 'Поставка' ? 'поставке' : 'заправке' }}</h5>
+                    <h5 class="modal-title">@{{ edit_mode ? 'Редактирование' : 'Добавление' }} записи о @{{ type ===
+                        'Поставка' ? 'поставке' : 'заправке' }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -399,7 +426,8 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label for="">Топливная емкость<span class="star">*</span></label>
-                                                <validation-provider rules="required" v-slot="v" vid="fuel-capacity-select"
+                                                <validation-provider rules="required" v-slot="v"
+                                                                     vid="fuel-capacity-select"
                                                                      ref="fuel-capacity-select">
                                                     <el-select v-model="fuel_tank_id"
                                                                :class="v.classes"
@@ -424,7 +452,8 @@
                                                 </validation-provider>
                                             </div>
                                             <div class="col-md-6">
-                                            <label for="">Дата @{{ type === 'Поставка' ? 'поставки' : 'заправки' }}<span class="star">*</span></label>
+                                                <label for="">Дата @{{ type === 'Поставка' ? 'поставки' : 'заправки'
+                                                    }}<span class="star">*</span></label>
                                                 <validation-provider rules="required" v-slot="v" vid="date-input"
                                                                      ref="date-input">
                                                     <el-date-picker
@@ -471,7 +500,8 @@
                                                 </validation-provider>
                                             </div>
                                             <div class="col-md-6">
-                                                <label for="">Объем @{{ type === 'Поставка' ? 'поставки' : 'заправленного' }} топлива, л.<span class="star">*</span></label>
+                                                <label for="">Объем @{{ type === 'Поставка' ? 'поставки' :
+                                                    'заправленного' }} топлива, л.<span class="star">*</span></label>
                                                 <validation-provider rules="required|positive|max:10" vid="value-input"
                                                                      ref="value-input"
                                                                      v-slot="v"
@@ -563,7 +593,8 @@
                                                 >
                                                     <template v-if="window_width > 1100">
                                                         <i class="el-icon-upload"></i>
-                                                        <div class="el-upload__text">Перетащите сюда или <em>кликните, чтобы выбрать файлы для загрузки</em></div>
+                                                        <div class="el-upload__text">Перетащите сюда или <em>кликните,
+                                                                чтобы выбрать файлы для загрузки</em></div>
                                                     </template>
                                                     <el-button v-else size="small" type="primary">Загрузить</el-button>
                                                     <div class="el-upload__tip" slot="tip">
@@ -571,10 +602,13 @@
                                                         <br>Файлы формата mp4 размером до 300Мб
                                                     </div>
                                                 </el-upload>
-                                                <div class="error-message d-none" id="video-upload-section-error">Обязательное поле</div>
+                                                <div class="error-message d-none" id="video-upload-section-error">
+                                                    Обязательное поле
+                                                </div>
                                             </div>
                                             <div v-show="type === 'Поставка'" class="col-md-6" id="doc-upload-section">
-                                                <label for="">Сопроводительные документы<span class="star">*</span></label>
+                                                <label for="">Сопроводительные документы<span
+                                                        class="star">*</span></label>
                                                 <el-upload
                                                     :drag="window_width > 1100"
                                                     action="{{ route('file_entry.store') }}"
@@ -592,16 +626,22 @@
                                                 >
                                                     <template v-if="window_width > 1100">
                                                         <i class="el-icon-upload"></i>
-                                                        <div class="el-upload__text">Перетащите сюда или <em>кликните, чтобы выбрать файлы для загрузки</em></div>
+                                                        <div class="el-upload__text">Перетащите сюда или <em>кликните,
+                                                                чтобы выбрать файлы для загрузки</em></div>
                                                     </template>
                                                     <el-button v-else size="small" type="primary">Загрузить</el-button>
-                                                    <div class="el-upload__tip" slot="tip">Неисполняемые файлы размером до 50Мб</div>
+                                                    <div class="el-upload__tip" slot="tip">Неисполняемые файлы размером
+                                                        до 50Мб
+                                                    </div>
                                                 </el-upload>
-                                                <div class="error-message d-none" id="doc-upload-section-error">Обязательное поле</div>
+                                                <div class="error-message d-none" id="doc-upload-section-error">
+                                                    Обязательное поле
+                                                </div>
                                             </div>
                                             <div v-show="type === 'Заправка'" class="col-md-6">
                                                 <label for="">Заправляемая техника<span class="star">*</span></label>
-                                                <validation-provider rules="required" v-slot="v" vid="our_technic-select"
+                                                <validation-provider rules="required" v-slot="v"
+                                                                     vid="our_technic-select"
                                                                      ref="our_technic-select">
                                                     <el-select v-model="our_technic_id"
                                                                :class="v.classes"
@@ -630,7 +670,8 @@
                                                 <label for="">
                                                     Комментарий<span class="star">*</span>
                                                 </label>
-                                                <validation-provider rules="required|max:300" v-slot="v" vid="comment-input"
+                                                <validation-provider rules="required|max:300" v-slot="v"
+                                                                     vid="comment-input"
                                                                      ref="comment-input">
                                                     <el-input
                                                         type="textarea"
@@ -656,7 +697,8 @@
                     <template v-if="window_width > 769">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                         <transition name="reset-button-fade">
-                            <button v-if="!edit_mode" @click.stop="reset" type="button" class="btn btn-warning">Сброс</button>
+                            <button v-if="!edit_mode" @click.stop="reset" type="button" class="btn btn-warning">Сброс
+                            </button>
                         </transition>
                         <button @click.stop="submit" type="button" class="btn btn-info">Сохранить</button>
                     </template>
@@ -666,7 +708,9 @@
                         </div>
                         <div class="row justify-content-center mb-2">
                             <transition name="reset-button-fade">
-                                <button v-if="!edit_mode" @click.stop="reset" type="button" class="btn btn-warning w-100">Сброс</button>
+                                <button v-if="!edit_mode" @click.stop="reset" type="button"
+                                        class="btn btn-warning w-100">Сброс
+                                </button>
                             </transition>
                         </div>
                         <div class="row justify-content-center mb-2">
@@ -678,7 +722,8 @@
         </div>
     </div>
     <!-- card -->
-    <div class="modal fade bd-example-modal-lg show" id="card_record" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal fade bd-example-modal-lg show" id="card_record" role="dialog" aria-labelledby="modal-search"
+         style="display: none;">
         <div class="modal-dialog modal-lg" role="document" style="max-width:900px">
             <div class="modal-content">
                 <div class="decor-modal__body">
@@ -689,7 +734,8 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true" style="color:#202020;font-size: 26px;font-weight: 500;">&times;</span>
+                                                <span aria-hidden="true"
+                                                      style="color:#202020;font-size: 26px;font-weight: 500;">&times;</span>
                                             </button>
                                         </div>
                                     </div>
@@ -698,7 +744,8 @@
                                             Дата @{{ record.type == 3 ? 'ручного изменения' : (record.contractor ? 'поставки' : 'заправки') }}
                                         </span>
                                         <span class="task-info__body-title">
-                                            <span :class="isWeekendDay(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                            <span
+                                                :class="isWeekendDay(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                                 @{{ isValidDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.operation_date), 'DD.MM.YYYY') : '-' }}
                                             </span>
                                         </span>
@@ -751,7 +798,8 @@
                                             Дата записи в журнале
                                         </span>
                                         <span class="task-info__body-title">
-                                            <span :class="isWeekendDay(convertDateFormat(record.created_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
+                                            <span
+                                                :class="isWeekendDay(convertDateFormat(record.created_at), 'DD.MM.YYYY') ? 'weekend-day' : ''">
                                                 @{{ isValidDate(convertDateFormat(record.created_at), 'DD.MM.YYYY') ? weekdayDate(convertDateFormat(record.created_at), 'DD.MM.YYYY') : '-' }}
                                             </span>
                                         </span>
@@ -791,14 +839,15 @@
                                     </div>
                                 </div>
                                 @can('see_fuel_operation_history')
-                                <div class="row mt-2">
-                                    <div class="col-md-12 text-center">
-                                        <a v-if="window_width > 769 & record.type != 3" href="#collapse" class="text-primary font-weight-bold" style="font-size: 15px;"
-                                           data-target="#collapse" data-toggle="collapse">
-                                            История изменений
-                                        </a>
+                                    <div class="row mt-2">
+                                        <div class="col-md-12 text-center">
+                                            <a v-if="window_width > 769 & record.type != 3" href="#collapse"
+                                               class="text-primary font-weight-bold" style="font-size: 15px;"
+                                               data-target="#collapse" data-toggle="collapse">
+                                                История изменений
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
                                 @endcan()
                             </div>
                         </div>
@@ -810,7 +859,8 @@
                                     <div class="modal-section">
                                         <div class="row">
                                             <div class="col-md-12" id="video-section">
-                                                <a v-if="!record.videos || record.videos.length === 0" class="tech-link modal-link">
+                                                <a v-if="!record.videos || record.videos.length === 0"
+                                                   class="tech-link modal-link">
                                                     Видеозаписи отсутствуют
                                                 </a>
                                             </div>
@@ -847,106 +897,127 @@
                                     </div>
                                 </div>
                                 @can('see_fuel_operation_history')
-                                <div v-if="window_width <= 769 && record.type != 3" class="modal-section">
-                                    <div class="row mt-3">
-                                        <div class="col-md-12">
-                                            <a href="#collapse" class="text-primary font-weight-bold" style="font-size: 15px;"
-                                               data-target="#collapse" data-toggle="collapse">
-                                                История изменений
-                                            </a>
+                                    <div v-if="window_width <= 769 && record.type != 3" class="modal-section">
+                                        <div class="row mt-3">
+                                            <div class="col-md-12">
+                                                <a href="#collapse" class="text-primary font-weight-bold"
+                                                   style="font-size: 15px;"
+                                                   data-target="#collapse" data-toggle="collapse">
+                                                    История изменений
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                                 @endcan()
                             </div>
                         </div>
                     </div>
                 </div>
                 @can('see_fuel_operation_history')
-                <div class="px-3 pb-3 collapse card-collapse modal-section" id="collapse" v-if="record.type != 3">
-                    <el-table :data="record.history"
-                              class="w-100"
-                              v-if="window_width > 769"
-                    >
-                        <el-table-column
+                    <div class="px-3 pb-3 collapse card-collapse modal-section" id="collapse" v-if="record.type != 3">
+                        <el-table :data="record.history"
+                                  class="w-100"
+                                  v-if="window_width > 769"
+                        >
+                            <el-table-column
                                 label="Дата"
                                 width="175"
-                        >
-                            <template slot-scope="scope">
-                                <span :class="isWeekendDay(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
+                            >
+                                <template slot-scope="scope">
+                                <span
+                                    :class="isWeekendDay(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
                                     @{{ isValidDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? weekdayDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
                                 </span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
+                                </template>
+                            </el-table-column>
+                            <el-table-column
                                 prop="user.full_name"
                                 label="Автор"
                                 width="180"
-                        ></el-table-column>
-                        <el-table-column
+                            ></el-table-column>
+                            <el-table-column
                                 prop="changed_fields_parsed"
                                 label="Изменения"
-                        >
-                            <template slot-scope="scope">
-                                <div v-if="scope.row.changed_fields_parsed.old_values">
-                                    <div class="d-flex justify-content-between hoverable-row"
-                                        v-for="(field, i) in Object.keys(scope.row.changed_fields_parsed.old_values)"
-                                        :style="i > 0 ? 'border-top: 1px solid #EBEEF5;' : ''"
-                                    >
-                                        <div style="padding-right: 10px;">@{{ getFieldLabel(field) }}</div>
-                                        <div style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey" v-if="field !== 'date'">@{{ scope.row.changed_fields_parsed.old_values[field] }} → @{{ scope.row.changed_fields_parsed.new_values[field] }}</div>
-                                        <div style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey" v-else>@{{ convertDateFormat(scope.row.changed_fields_parsed.old_values[field]) }} → @{{ convertDateFormat(scope.row.changed_fields_parsed.new_values[field]) }}</div>
+                            >
+                                <template slot-scope="scope">
+                                    <div v-if="scope.row.changed_fields_parsed.old_values">
+                                        <div class="d-flex justify-content-between hoverable-row"
+                                             v-for="(field, i) in Object.keys(scope.row.changed_fields_parsed.old_values)"
+                                             :style="i > 0 ? 'border-top: 1px solid #EBEEF5;' : ''"
+                                        >
+                                            <div style="padding-right: 10px;">@{{ getFieldLabel(field) }}</div>
+                                            <div
+                                                style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey"
+                                                v-if="field !== 'date'">@{{
+                                                scope.row.changed_fields_parsed.old_values[field] }} → @{{
+                                                scope.row.changed_fields_parsed.new_values[field] }}
+                                            </div>
+                                            <div
+                                                style="min-width: 350px; width: 350px; padding-left: 10px; border-left: 1px solid lightgrey"
+                                                v-else>@{{
+                                                convertDateFormat(scope.row.changed_fields_parsed.old_values[field]) }}
+                                                → @{{
+                                                convertDateFormat(scope.row.changed_fields_parsed.new_values[field]) }}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    <el-table :data="record.history"
-                              class="w-100"
-                              v-else
-                    >
-                        <el-table-column
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <el-table :data="record.history"
+                                  class="w-100"
+                                  v-else
+                        >
+                            <el-table-column
                                 prop="created_at"
                                 label="История изменений"
-                        >
-                            <template slot-scope="scope">
-                                <div class="font-weight-bold">
-                                    <span :class="isWeekendDay(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
+                            >
+                                <template slot-scope="scope">
+                                    <div class="font-weight-bold">
+                                    <span
+                                        :class="isWeekendDay(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? 'weekend-day' : ''">
                                         @{{ isValidDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss') ? weekdayDate(convertDateFormat(scope.row.created_at, true), 'DD.MM.YYYY HH:mm:ss', 'DD.MM.YYYY dd HH:mm:ss') : '-' }}
                                     </span>
-                                </div>
-                                <div class="font-weight-bold">@{{  scope.row.user.full_name  }}</div>
-                                <div v-for="(field, i) in Object.keys(scope.row.changed_fields_parsed.old_values)"
-                                     style="border-top: 1px solid #EBEEF5;"
-                                >
-                                    <div>@{{ getFieldLabel(field) }}</div>
-                                    <div v-if="field !== 'date'">@{{ scope.row.changed_fields_parsed.old_values[field] }} → @{{ scope.row.changed_fields_parsed.new_values[field] }}</div>
-                                    <div v-else>@{{ convertDateFormat(scope.row.changed_fields_parsed.old_values[field]) }} → @{{ convertDateFormat(scope.row.changed_fields_parsed.new_values[field]) }}</div>
-                                </div>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    {{--                    <div class="d-flex justify-content-end mt-2">--}}
-                    {{--                        <el-pagination--}}
-                    {{--                            :background="pagerBackground"--}}
-                    {{--                            :page-size="PAGE_SIZE"--}}
-                    {{--                            :total="totalItems"--}}
-                    {{--                            :small="smallPager"--}}
-                    {{--                            :current-page.sync="currentPage"--}}
-                    {{--                            :pagerCount="pagerCount"--}}
-                    {{--                            layout="prev, pager, next"--}}
-                    {{--                            @prev-click="changePage"--}}
-                    {{--                            @next-click="changePage"--}}
-                    {{--                            @current-change="changePage"--}}
-                    {{--                        ></el-pagination>--}}
-                    {{--                    </div>--}}
-                </div>
+                                    </div>
+                                    <div class="font-weight-bold">@{{ scope.row.user.full_name }}</div>
+                                    <div v-for="(field, i) in Object.keys(scope.row.changed_fields_parsed.old_values)"
+                                         style="border-top: 1px solid #EBEEF5;"
+                                    >
+                                        <div>@{{ getFieldLabel(field) }}</div>
+                                        <div v-if="field !== 'date'">@{{
+                                            scope.row.changed_fields_parsed.old_values[field] }} → @{{
+                                            scope.row.changed_fields_parsed.new_values[field] }}
+                                        </div>
+                                        <div v-else>@{{
+                                            convertDateFormat(scope.row.changed_fields_parsed.old_values[field]) }} →
+                                            @{{ convertDateFormat(scope.row.changed_fields_parsed.new_values[field]) }}
+                                        </div>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        {{--                    <div class="d-flex justify-content-end mt-2">--}}
+                        {{--                        <el-pagination--}}
+                        {{--                            :background="pagerBackground"--}}
+                        {{--                            :page-size="PAGE_SIZE"--}}
+                        {{--                            :total="totalItems"--}}
+                        {{--                            :small="smallPager"--}}
+                        {{--                            :current-page.sync="currentPage"--}}
+                        {{--                            :pagerCount="pagerCount"--}}
+                        {{--                            layout="prev, pager, next"--}}
+                        {{--                            @prev-click="changePage"--}}
+                        {{--                            @next-click="changePage"--}}
+                        {{--                            @current-change="changePage"--}}
+                        {{--                        ></el-pagination>--}}
+                        {{--                    </div>--}}
+                    </div>
                 @endcan()
             </div>
         </div>
     </div>
     <!-- report-create -->
-    <div class="modal fade bd-example-modal-lg show" id="report-create" role="dialog" aria-labelledby="modal-search" style="display: none;">
+    <div class="modal fade bd-example-modal-lg show" id="report-create" role="dialog" aria-labelledby="modal-search"
+         style="display: none;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content pb-3">
                 <div class="modal-header">
@@ -963,12 +1034,18 @@
                                       target="_blank" id="report-create-form" multisubmit="true"
                                       action="{{ route('building::tech_acc::fuel_tank_operation.report') }}">
 
-                                    <input type="hidden" name="object_id" id="report-location-input" v-model="object_id" />
-                                    <input type="hidden" name="operation_date_from" id="report-date-from-input" v-model="operation_date_from" value="" />
-                                    <input type="hidden" name="operation_date_to" id="report-date-to-input" v-model="operation_date_to" value="" />
-                                    <input type="hidden" name="responsible_receiver_id" id="report-responsible-receiver-input" v-model="responsible_receiver" value="" />
-                                    <input type="hidden" name="fuel_tank_id" id="report-fuel-tank-input" v-model="fuelTank" value="" />
-                                    <input type="hidden" name="mode" id="report-mode-input" v-model="mode" value="" />
+                                    <input type="hidden" name="object_id" id="report-location-input"
+                                           v-model="object_id"/>
+                                    <input type="hidden" name="operation_date_from" id="report-date-from-input"
+                                           v-model="operation_date_from" value=""/>
+                                    <input type="hidden" name="operation_date_to" id="report-date-to-input"
+                                           v-model="operation_date_to" value=""/>
+                                    <input type="hidden" name="responsible_receiver_id"
+                                           id="report-responsible-receiver-input" v-model="responsible_receiver"
+                                           value=""/>
+                                    <input type="hidden" name="fuel_tank_id" id="report-fuel-tank-input"
+                                           v-model="fuelTank" value=""/>
+                                    <input type="hidden" name="mode" id="report-mode-input" v-model="mode" value=""/>
                                     <template>
                                         <div class="row">
                                             <div class="col-md-12">
@@ -1073,7 +1150,8 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label for="">Емкость<span class="star">*</span></label>
-                                                    <validation-provider rules="required" vid="fuel-tank-search-by-object"
+                                                    <validation-provider rules="required"
+                                                                         vid="fuel-tank-search-by-object"
                                                                          ref="fuel-tank-search-by-object" v-slot="v">
                                                         <el-select v-model="fuelTank"
                                                                    :class="v.classes"
@@ -1197,7 +1275,7 @@
                 loadingInstance: {},
 
                 records:
-                        {!! json_encode($data['operations']) !!}
+                    {!! json_encode($data['operations']) !!}
                 ,
                 //search_tf: '',
                 filter_attributes: [
@@ -1247,7 +1325,9 @@
                                         custom_name: customName,
                                     });
                                 })
-                                .catch((error) => {console.log(error)})
+                                .catch((error) => {
+                                    console.log(error)
+                                })
                         } else if (field === 'our_technic') {
                             this.promisedSearchTechs('')//entry[1]
                                 .then(() => {
@@ -1260,16 +1340,18 @@
                                         custom_name: customName,
                                     });
                                 })
-                                .catch((error) => {console.log(error)})
+                                .catch((error) => {
+                                    console.log(error)
+                                })
                         } else if (field === 'type') {
-                                    const type = this.types.find(el => el.id == value);
-                                    customName = type ? type.name : '';
-                                    this.filters.push({
-                                        attribute: this.filter_attributes.find(el => el.value === field).label,
-                                        field: field,
-                                        value: value,
-                                        custom_name: customName,
-                                    })
+                            const type = this.types.find(el => el.id == value);
+                            customName = type ? type.name : '';
+                            this.filters.push({
+                                attribute: this.filter_attributes.find(el => el.value === field).label,
+                                field: field,
+                                value: value,
+                                custom_name: customName,
+                            })
                         } else if (field === 'contactor') {
                             const contactor = this.contactors.find(el => el.id == value);
                             customName = contactor ? contactor.name : '';
@@ -1291,7 +1373,9 @@
                                         custom_name: customName,
                                     });
                                 })
-                                .catch((error) => {console.log(error)})
+                                .catch((error) => {
+                                    console.log(error)
+                                })
                         } else if (field === 'contractor') {
                             this.promisedSearchSuppliers('')//entry[1]
                                 .then(() => {
@@ -1304,7 +1388,9 @@
                                         custom_name: customName,
                                     });
                                 })
-                                .catch((error) => {console.log(error)})
+                                .catch((error) => {
+                                    console.log(error)
+                                })
                         } else {
                             this.filters.push({
                                 attribute: this.filter_attributes.find(el => el.value === field).label,
@@ -1322,21 +1408,25 @@
                     this.filter_value = '';
                     this.filter_custom_name = '';
                     if (!this.loaded_filters.some(el => el === val)) {
-                        switch(val) {
-                            case 'author': this.searchAuthors('');
-                            break;
-                            case 'contractor': this.searchSuppliers('');
+                        switch (val) {
+                            case 'author':
+                                this.searchAuthors('');
                                 break;
-                            case 'our_technic': this.searchTechs('');
+                            case 'contractor':
+                                this.searchSuppliers('');
                                 break;
-                            case 'tank_number': this.searchFuelCapacities('');
+                            case 'our_technic':
+                                this.searchTechs('');
+                                break;
+                            case 'tank_number':
+                                this.searchFuelCapacities('');
                         }
                         this.loaded_filters.push(val);
                     }
                 },
                 loading(val) {
                     if (val) {
-                        this.loadingInstance = ELEMENT.Loading.service({ fullscreen: true });
+                        this.loadingInstance = ELEMENT.Loading.service({fullscreen: true});
                     } else {
                         this.loadingInstance.close();
                     }
@@ -1344,7 +1434,7 @@
             },
             mounted() {
                 $('#filter-value-tf').on('keypress', function (e) {
-                    if(e.which === 13){
+                    if (e.which === 13) {
                         vm.addFilter();
                     }
                 });
@@ -1390,16 +1480,19 @@
                         const count = Object.keys(this.$route.query).filter(el => el.indexOf(this.filter_attribute) !== -1).length;
                         if (!count) {
                             queryObj[this.filter_attribute] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         } else if (count === 1) {
                             Object.assign(queryObj, this.$route.query);
                             queryObj[this.filter_attribute + '[0]'] = queryObj[this.filter_attribute];
                             delete queryObj[this.filter_attribute];
                             queryObj[this.filter_attribute + `[${count}]`] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                            });
                         } else {
                             queryObj[this.filter_attribute + `[${count}]`] = this.filter_value;
-                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {});
+                            this.$router.replace({query: Object.assign({}, this.$route.query, queryObj)}).catch(err => {
+                            });
                         }
                         this.filter_value = '';
                         if (this.SINGLE_USE_FILTERS.indexOf(this.filter_attribute) !== -1) {
@@ -1410,14 +1503,18 @@
                     }
                 },
                 changePage(page) {
-                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: page})}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: page})}).catch(err => {
+                    });
                     this.updateFilteredRecords();
                 },
                 openReportCreate() {
                     createReport.open();
                 },
                 updateFilteredRecords() {
-                    axios.post('{{ route('building::tech_acc::fuel_tank_operations_paginated') }}', {url: vm.$route.fullPath, page: vm.currentPage})
+                    axios.post('{{ route('building::tech_acc::fuel_tank_operations_paginated') }}', {
+                        url: vm.$route.fullPath,
+                        page: vm.currentPage
+                    })
                         .then(response => {
                             vm.records = response.data.fuelTankOperations;
                             vm.totalItems = response.data.fuelTankOperationCount;
@@ -1427,29 +1524,37 @@
                 updateCurrentCustomName() {
                     switch (this.filter_attribute) {
                         case 'tank_number':
-                            this.filter_custom_name = this.fuelCapacities.find(el => el.id === this.filter_value) ? this.fuelCapacities.find(el => el.id === this.filter_value).tank_number : ''; break;
+                            this.filter_custom_name = this.fuelCapacities.find(el => el.id === this.filter_value) ? this.fuelCapacities.find(el => el.id === this.filter_value).tank_number : '';
+                            break;
                         case 'type':
-                            this.filter_custom_name = this.types.find(el => el.id === this.filter_value) ? this.types.find(el => el.id === this.filter_value).name : ''; break;
+                            this.filter_custom_name = this.types.find(el => el.id === this.filter_value) ? this.types.find(el => el.id === this.filter_value).name : '';
+                            break;
                         case 'our_technic':
-                            this.filter_custom_name = this.techs.find(el => el.id === this.filter_value) ? this.techs.find(el => el.id === this.filter_value).name : ''; break;
+                            this.filter_custom_name = this.techs.find(el => el.id === this.filter_value) ? this.techs.find(el => el.id === this.filter_value).name : '';
+                            break;
                         case 'contractor':
-                            this.filter_custom_name = this.contractors.find(el => el.id === this.filter_value) ? this.contractors.find(el => el.id === this.filter_value).name : ''; break;
+                            this.filter_custom_name = this.contractors.find(el => el.id === this.filter_value) ? this.contractors.find(el => el.id === this.filter_value).name : '';
+                            break;
                         case 'author':
-                            this.filter_custom_name = this.authors.find(el => el.id === this.filter_value) ? this.authors.find(el => el.id === this.filter_value).name : ''; break;
+                            this.filter_custom_name = this.authors.find(el => el.id === this.filter_value) ? this.authors.find(el => el.id === this.filter_value).name : '';
+                            break;
                     }
                 },
                 getFilterValueLabel(filter) {
-                    switch(filter.field) {
+                    switch (filter.field) {
                         case 'fuel_tank_id':
                         case 'our_technic':
                         case 'author':
                         case 'contractor':
-                        case 'type': return filter.custom_name;
+                        case 'type':
+                            return filter.custom_name;
                         case 'date_updated_from':
                         case 'date_updated_to':
                         case 'operation_date_from':
-                        case 'operation_date_to': return moment(filter.value, 'YYYY-MM-DD').format('DD.MM.YYYY');
-                        default: return filter.value;
+                        case 'operation_date_to':
+                            return moment(filter.value, 'YYYY-MM-DD').format('DD.MM.YYYY');
+                        default:
+                            return filter.value;
                     }
                 },
                 removeFilter(index) {
@@ -1478,7 +1583,8 @@
                             delete queryObj[this.filters[index].field + `[${count - 1}]`];
                         }
                     }
-                    this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, queryObj)}).catch(err => {
+                    });
 
                     /*if (!Array.isArray(queryObj[this.filters[index].field])) {
                         delete queryObj[this.filters[index].field];
@@ -1495,9 +1601,11 @@
                 clearFilters() {
                     this.filters = [];
                     if (this.currentPage !== 1) {
-                        this.$router.replace({query: {page: this.currentPage}}).catch(err => {});
+                        this.$router.replace({query: {page: this.currentPage}}).catch(err => {
+                        });
                     } else {
-                        this.$router.replace({query: {}}).catch(err => {});
+                        this.$router.replace({query: {}}).catch(err => {
+                        });
                     }
                     this.searchAuthors('');
                     this.searchSuppliers('');
@@ -1506,7 +1614,8 @@
                     this.resetCurrentPage();
                 },
                 resetCurrentPage() {
-                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: 1})}).catch(err => {});
+                    this.$router.replace({query: Object.assign({}, this.$route.query, {page: 1})}).catch(err => {
+                    });
                     this.currentPage = 1;
                     this.updateFilteredRecords();
                 },
@@ -1636,10 +1745,12 @@
                 promisedSearchTechs(query) {
                     return new Promise((resolve, reject) => {
                         if (query) {
-                            axios.get('{{ route('building::tech_acc::get_technics') }}', {params: {
+                            axios.get('{{ route('building::tech_acc::get_technics') }}', {
+                                params: {
                                     q: query,
                                     free_only: false,
-                                }})
+                                }
+                            })
                                 .then(response => {
                                     this.techs = response.data.data.map(el => ({
                                         name: el.category_name + ', ' + el.brand + ' ' + el.model,
@@ -1652,9 +1763,11 @@
                                     reject(error);
                                 });
                         } else {
-                            axios.get('{{ route('building::tech_acc::get_technics') }}', {params: {
+                            axios.get('{{ route('building::tech_acc::get_technics') }}', {
+                                params: {
                                     free_only: false,
-                                }})
+                                }
+                            })
                                 .then(response => {
                                     this.techs = response.data.data.map(el => ({
                                         name: el.category_name + ', ' + el.brand + ' ' + el.model,
@@ -1672,10 +1785,12 @@
                 searchTechs(query) {
                     if (query) {
                         //TODO change route
-                        axios.get('{{ route('building::tech_acc::get_technics') }}', {params: {
+                        axios.get('{{ route('building::tech_acc::get_technics') }}', {
+                            params: {
                                 q: query,
                                 free_only: false,
-                            }})
+                            }
+                        })
                             .then(response => this.techs = response.data.data.map(el => ({
                                 name: el.category_name + ', ' + el.brand + ' ' + el.model,
                                 id: el.id
@@ -1683,10 +1798,12 @@
                             .catch(error => console.log(error));
                     } else {
                         //TODO change route
-                        axios.get('{{ route('building::tech_acc::get_technics') }}', {params: {
+                        axios.get('{{ route('building::tech_acc::get_technics') }}', {
+                            params: {
                                 q: query,
                                 free_only: false,
-                            }})
+                            }
+                        })
                             .then(response => this.techs = response.data.data.map(el => ({
                                 name: el.category_name + ', ' + el.brand + ' ' + el.model,
                                 id: el.id
@@ -1697,11 +1814,13 @@
                 promisedSearchAuthors(query) {
                     return new Promise((resolve, reject) => {
                         if (query) {
-                            axios.get('{{ route('users::get_users_for_tech_tickets') }}', {params: {
+                            axios.get('{{ route('users::get_users_for_tech_tickets') }}', {
+                                params: {
                                     q: query
-                                }})
+                                }
+                            })
                                 .then(response => {
-                                    this.authors = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.authors = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1711,7 +1830,7 @@
                         } else {
                             axios.get('{{ route('users::get_users_for_tech_tickets') }}')
                                 .then(response => {
-                                    this.authors = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.authors = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1724,26 +1843,30 @@
                 searchAuthors(query) {
                     if (query) {
                         //TODO change route
-                        axios.get('{{ route('users::get_users_for_tech_tickets') }}', {params: {
+                        axios.get('{{ route('users::get_users_for_tech_tickets') }}', {
+                            params: {
                                 q: query,
-                            }})
-                            .then(response => this.authors = response.data.map(el => ({ name: el.label, id: el.code })))
+                            }
+                        })
+                            .then(response => this.authors = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     } else {
                         //TODO change route
                         axios.get('{{ route('users::get_users_for_tech_tickets') }}')
-                            .then(response => this.authors = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.authors = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     }
                 },
                 promisedSearchSuppliers(query) {
                     return new Promise((resolve, reject) => {
                         if (query) {
-                            axios.get('/projects/ajax/get-contractors', {params: {
+                            axios.get('/projects/ajax/get-contractors', {
+                                params: {
                                     q: query
-                                }})
+                                }
+                            })
                                 .then(response => {
-                                    this.contractors = response.data.results.map(el => ({ name: el.text, id: el.id }));
+                                    this.contractors = response.data.results.map(el => ({name: el.text, id: el.id}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1753,7 +1876,7 @@
                         } else {
                             axios.get('/projects/ajax/get-contractors')
                                 .then(response => {
-                                    this.contractors = response.data.results.map(el => ({ name: el.text, id: el.id }));
+                                    this.contractors = response.data.results.map(el => ({name: el.text, id: el.id}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1767,12 +1890,18 @@
                     if (query) {
                         //TODO change route
                         axios.get('/projects/ajax/get-contractors', {params: {q: query}})
-                            .then(response => this.contractors = response.data.results.map(el => ({ name: el.text, id: el.id })))
+                            .then(response => this.contractors = response.data.results.map(el => ({
+                                name: el.text,
+                                id: el.id
+                            })))
                             .catch(error => console.log(error));
                     } else {
                         //TODO change route
                         axios.get('/projects/ajax/get-contractors')
-                            .then(response => this.contractors = response.data.results.map(el => ({ name: el.text, id: el.id })))
+                            .then(response => this.contractors = response.data.results.map(el => ({
+                                name: el.text,
+                                id: el.id
+                            })))
                             .catch(error => console.log(error));
                     }
                 },
@@ -1781,7 +1910,7 @@
                         if (query) {
                             axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}', {q: query})
                                 .then(response => {
-                                    this.fuelCapacities = response.data.map(el => ({ name: el.name, id: el.id }));
+                                    this.fuelCapacities = response.data.map(el => ({name: el.name, id: el.id}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1791,7 +1920,7 @@
                         } else {
                             axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}')
                                 .then(response => {
-                                    this.fuelCapacities = response.data.map(el => ({ name: el.name, id: el.id }));
+                                    this.fuelCapacities = response.data.map(el => ({name: el.name, id: el.id}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -1805,12 +1934,18 @@
                     if (query) {
                         //TODO change route
                         axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}', {q: query})
-                            .then(response => this.fuelCapacities = response.data.map(el => ({ name: el.tank_number, id: el.tank_number })))
+                            .then(response => this.fuelCapacities = response.data.map(el => ({
+                                name: el.tank_number,
+                                id: el.tank_number
+                            })))
                             .catch(error => console.log(error));
                     } else {
                         //TODO change route
                         axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}')
-                            .then(response => this.fuelCapacities = response.data.map(el => ({ name: el.tank_number, id: el.tank_number })))
+                            .then(response => this.fuelCapacities = response.data.map(el => ({
+                                name: el.tank_number,
+                                id: el.tank_number
+                            })))
                             .catch(error => console.log(error));
                     }
                 },
@@ -1827,8 +1962,8 @@
         });
     </script>
     <script type="text/javascript">
-        var cardRecord = new Vue ({
-            el:'#card_record',
+        var cardRecord = new Vue({
+            el: '#card_record',
             data: {
                 record: {},
                 window_width: 10000,
@@ -1886,8 +2021,8 @@
             computed: {
                 cardTitle() {
                     return this.record.type != 3 ? (this.record.contractor ?
-                        ('Поставка топлива на ' + (this.record.object ? this.record.object.name : '')) :
-                        ('Заправка топлива в ' + (this.record.our_technic ? this.record.our_technic.name : ''))) :
+                            ('Поставка топлива на ' + (this.record.object ? this.record.object.name : '')) :
+                            ('Заправка топлива в ' + (this.record.our_technic ? this.record.our_technic.name : ''))) :
                         'Ручное изменение уровня топлива\nтопливной емкости ' + (this.record.fuel_tank ? this.record.fuel_tank.tank_number : '');
                 },
                 pagerCount() {
@@ -1998,15 +2133,24 @@
                 },
                 getFieldLabel(field) {
                     switch (field) {
-                        case 'value': return 'Объем';
-                        case 'operation_date': return 'Дата операции';
-                        case 'our_technic_id': return 'Техника';
-                        case 'fuel_tank_id': return 'Топливная емкость';
-                        case 'contractor_id': return 'Поставщик';
-                        case 'owner_id': return 'Собственник';
-                        case 'description': return 'Комментарий';
-                        case 'object_id': return 'Объект';
-                        default: return 'Неизвестная характеристика';
+                        case 'value':
+                            return 'Объем';
+                        case 'operation_date':
+                            return 'Дата операции';
+                        case 'our_technic_id':
+                            return 'Техника';
+                        case 'fuel_tank_id':
+                            return 'Топливная емкость';
+                        case 'contractor_id':
+                            return 'Поставщик';
+                        case 'owner_id':
+                            return 'Собственник';
+                        case 'description':
+                            return 'Комментарий';
+                        case 'object_id':
+                            return 'Объект';
+                        default:
+                            return 'Неизвестная характеристика';
                     }
                 }
             },
@@ -2071,14 +2215,18 @@
             methods: {
                 firstLoad(field) {
                     if (!this.loaded_selects.some(el => el === field)) {
-                        switch(field) {
-                            case 'object_id': this.searchObjects('');
+                        switch (field) {
+                            case 'object_id':
+                                this.searchObjects('');
                                 break;
-                            case 'fuel_tank_id': this.searchFuelCapacities('');
+                            case 'fuel_tank_id':
+                                this.searchFuelCapacities('');
                                 break;
-                            case 'contractor_id': this.searchSuppliers('');
+                            case 'contractor_id':
+                                this.searchSuppliers('');
                                 break;
-                            case 'our_technic_id': this.searchTechs('');
+                            case 'our_technic_id':
+                                this.searchTechs('');
                         }
                         this.loaded_selects.push(field);
                     }
@@ -2214,9 +2362,11 @@
                                         }
                                         this.object_id = String(linkedObject.id);
                                     })
-                                    .catch(() => {});
+                                    .catch(() => {
+                                    });
                             })
-                            .catch(() => {});
+                            .catch(() => {
+                            });
                     }
                 },
                 handleResize() {
@@ -2225,11 +2375,13 @@
                 promisedSearchObjects(query) {
                     return new Promise((resolve, reject) => {
                         if (query) {
-                            axios.get('{{ route('building::mat_acc::report_card::get_objects') }}', {params: {
+                            axios.get('{{ route('building::mat_acc::report_card::get_objects') }}', {
+                                params: {
                                     q: query
-                                }})
+                                }
+                            })
                                 .then(response => {
-                                    this.objects = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.objects = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -2239,7 +2391,7 @@
                         } else {
                             axios.get('{{ route('building::mat_acc::report_card::get_objects') }}')
                                 .then(response => {
-                                    this.objects = response.data.map(el => ({ name: el.label, id: el.code }));
+                                    this.objects = response.data.map(el => ({name: el.label, id: el.code}));
                                     resolve(response);
                                 })
                                 .catch(error => {
@@ -2252,11 +2404,11 @@
                 searchObjects(query) {
                     if (query) {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}', {q: query})
-                            .then(response => this.objects = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.objects = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     } else {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}')
-                            .then(response => this.objects = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.objects = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     }
                 },
@@ -2264,12 +2416,20 @@
                     if (query) {
                         //TODO change route
                         axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}', {q: query})
-                            .then(response => this.fuel_capacities = response.data.map(el => ({ name: el.name, id: el.id, object: el.object })))
+                            .then(response => this.fuel_capacities = response.data.map(el => ({
+                                name: el.name,
+                                id: el.id,
+                                object: el.object
+                            })))
                             .catch(error => console.log(error));
                     } else {
                         //TODO change routee
                         axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}')
-                            .then(response => this.fuel_capacities = response.data.map(el => ({ name: el.name, id: el.id, object: el.object })))
+                            .then(response => this.fuel_capacities = response.data.map(el => ({
+                                name: el.name,
+                                id: el.id,
+                                object: el.object
+                            })))
                             .catch(error => console.log(error));
                     }
                 },
@@ -2277,12 +2437,18 @@
                     if (query) {
                         //TODO change route
                         axios.get('/projects/ajax/get-contractors', {params: {q: query}})
-                            .then(response => this.contractors = response.data.results.map(el => ({ name: el.text, id: el.id })))
+                            .then(response => this.contractors = response.data.results.map(el => ({
+                                name: el.text,
+                                id: el.id
+                            })))
                             .catch(error => console.log(error));
                     } else {
                         //TODO change route
                         axios.get('/projects/ajax/get-contractors')
-                            .then(response => this.contractors = response.data.results.map(el => ({ name: el.text, id: el.id })))
+                            .then(response => this.contractors = response.data.results.map(el => ({
+                                name: el.text,
+                                id: el.id
+                            })))
                             .catch(error => console.log(error));
                     }
                 },
@@ -2290,12 +2456,12 @@
                     if (query) {
                         //TODO change route
                         axios.get('{{ route('building::tech_acc::get_technics') }}', {params: {q: query}})
-                            .then(response => this.techs = response.data.data.map(el => ({ name: el.name, id: el.id })))
+                            .then(response => this.techs = response.data.data.map(el => ({name: el.name, id: el.id})))
                             .catch(error => console.log(error));
                     } else {
                         //TODO change route
                         axios.get('{{ route('building::tech_acc::get_technics') }}')
-                            .then(response => this.techs = response.data.data.map(el => ({ name: el.name, id: el.id })))
+                            .then(response => this.techs = response.data.data.map(el => ({name: el.name, id: el.id})))
                             .catch(error => console.log(error));
                     }
                 },
@@ -2382,8 +2548,8 @@
                     return true;
                 },
                 submit() {
-                    const ERRORS_TYPE_1_ONLY= ['contractor-select', 'owner-select'];
-                    const ERRORS_TYPE_2_ONLY= ['our_technic-select'];
+                    const ERRORS_TYPE_1_ONLY = ['contractor-select', 'owner-select'];
+                    const ERRORS_TYPE_2_ONLY = ['our_technic-select'];
                     this.$refs.observer.validate().then(success => {
                         let error = false;
                         if (this.type === 'Поставка') {
@@ -2557,9 +2723,11 @@
                 },
                 search_responsible_receivers(query) {
                     if (query) {
-                        axios.get('{{ route('users::get_users_for_tech_tickets') }}', {params: {
+                        axios.get('{{ route('users::get_users_for_tech_tickets') }}', {
+                            params: {
                                 q: query,
-                            }})
+                            }
+                        })
                             .then(response => this.responsible_receivers = response.data.map(el => ({
                                 name: el.label,
                                 id: el.code
@@ -2577,33 +2745,36 @@
                 search_locations(query) {
                     if (query) {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}', {q: query})
-                            .then(response => this.objects = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.objects = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     } else {
                         axios.post('{{ route('building::mat_acc::report_card::get_objects') }}')
-                            .then(response => this.objects = response.data.map(el => ({ name: el.label, id: el.code })))
+                            .then(response => this.objects = response.data.map(el => ({name: el.label, id: el.code})))
                             .catch(error => console.log(error));
                     }
                 },
                 searchFuelTanks(query) {
                     if (query) {
                         axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}', {q: query})
-                            .then(response => this.fuelTanks = response.data.map(el => ({ name: el.name, id: el.id })))
+                            .then(response => this.fuelTanks = response.data.map(el => ({name: el.name, id: el.id})))
                             .catch(error => console.log(error));
                     } else {
                         axios.post('{{ route('building::tech_acc::get_fuel_tanks') }}')
-                            .then(response => this.fuelTanks = response.data.map(el => ({ name: el.name, id: el.id })))
+                            .then(response => this.fuelTanks = response.data.map(el => ({name: el.name, id: el.id})))
                             .catch(error => console.log(error));
                     }
                 },
                 searchFuelTanksByObject(query) {
                     if (query) {
-                        axios.post('{{ route('building::tech_acc::get_fuel_tanks_by_object') }}', {q: query, object_id: this.object_id})
-                            .then(response => this.fuelTanks = response.data.map(el => ({ name: el.name, id: el.id })))
+                        axios.post('{{ route('building::tech_acc::get_fuel_tanks_by_object') }}', {
+                            q: query,
+                            object_id: this.object_id
+                        })
+                            .then(response => this.fuelTanks = response.data.map(el => ({name: el.name, id: el.id})))
                             .catch(error => console.log(error));
                     } else {
                         axios.post('{{ route('building::tech_acc::get_fuel_tanks_by_object') }}', {object_id: this.object_id})
-                            .then(response => this.fuelTanks = response.data.map(el => ({ name: el.name, id: el.id })))
+                            .then(response => this.fuelTanks = response.data.map(el => ({name: el.name, id: el.id})))
                             .catch(error => console.log(error));
                     }
                 },
