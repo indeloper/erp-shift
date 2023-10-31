@@ -26,20 +26,21 @@ use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
 use Illuminate\Support\Facades\App;
+use stdClass;
 
 class ObjectController extends Controller
 {
     private $components;
 
-    public function __construct ($components = [])
+    public function __construct($components = [])
     {
         $this->components = $components;
     }
 
     public function returnPageCore()
     {
-        $basePath = resource_path().'/views/objects';
-        $componentsPath = resource_path().'/views/objects/desktop/components';
+        $basePath = resource_path() . '/views/objects';
+        $componentsPath = resource_path() . '/views/objects/desktop/components';
         $components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($componentsPath, $basePath);
         return view('objects.desktop.index', compact('components'));
     }
@@ -57,9 +58,8 @@ class ObjectController extends Controller
         return json_encode(array(
             "data" => $objects
         ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
-
 
 
     public function getMaterialAccountingTypes()
@@ -120,9 +120,9 @@ class ObjectController extends Controller
         ];
 
         $contractors = Contractor::whereIn(
-                'id',
-                Project::where('object_id', $request->id)->pluck('contractor_id')->toArray()
-            )
+            'id',
+            Project::where('object_id', $request->id)->pluck('contractor_id')->toArray()
+        )
             ->select('id', 'short_name')
             ->get();
 
@@ -132,14 +132,14 @@ class ObjectController extends Controller
             'allAvailableResponsibles' => $allAvailableResponsibles,
             'objectResponsibles' => $objectResponsibles
         ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function store(Request $request)
     {
         $data = json_decode($request->input('data'));
-        if(empty($request->input('data')))
-        $data = $request;
+        if (empty($request->input('data')))
+            $data = $request;
 
         $toUpdateArr = $this->getDataToUpdate($data);
 
@@ -147,7 +147,7 @@ class ObjectController extends Controller
 
         $this->syncResponsibles($data, $object->id);
 
-        if(!isset($data->is_participates_in_documents_flow)){
+        if (!isset($data->is_participates_in_documents_flow) and $data->is_participates_in_documents_flow) {
             $this->handleCheckedParticipatesInDocumentsFlow($object->id);
             $this->notifyResponsibleUsers($object->id);
         }
@@ -164,87 +164,38 @@ class ObjectController extends Controller
 
     }
 
-    public function update(Request $request, $id)
-    {
-        $data = json_decode($request->input('data'));
-        $toUpdateArr = $this->getDataToUpdate($data);
-
-        DB::beginTransaction();
-
-        $object = ProjectObject::findOrFail($id);
-
-        $checkedParticipatesInDocumentsFlow = false;
-        $uncheckedParticipatesInDocumentsFlow = false;
-
-        $lastObjectResponsibleId = ObjectResponsibleUser::orderByDesc('id')->first()->id;
-
-        if(isset($data->is_participates_in_documents_flow) && !$object->is_participates_in_documents_flow)
-        $checkedParticipatesInDocumentsFlow = true;
-
-        if(!isset($data->is_participates_in_documents_flow) && $object->is_participates_in_documents_flow)
-        $uncheckedParticipatesInDocumentsFlow = true;
-
-        $object->update($toUpdateArr);
-
-        $this->syncResponsibles($data, $id);
-
-        if($checkedParticipatesInDocumentsFlow){
-            $this->handleCheckedParticipatesInDocumentsFlow($id);
-            $this->notifyResponsibleUsers($id);
-        }
-
-        if($uncheckedParticipatesInDocumentsFlow)
-            $this->addDocumentsToArchive($id);
-
-        $this->notifyNewResponsibleUser($id, $lastObjectResponsibleId);
-
-        DB::commit();
-
-        return response()->json([
-            'result' => 'ok',
-            'object' => $object,
-            'updated' => $toUpdateArr
-        ], 200);
-    }
-
     public function getDataToUpdate($data)
     {
         $toUpdateArr = [];
 
-        if(isset($data->bitrixId))
-        $toUpdateArr['bitrixId'] = $data->bitrixId ? $data->bitrixId : NULL;
-        if(isset($data->name))
-        $toUpdateArr['name'] = $data->name;
-        if(isset($data->address))
-        $toUpdateArr['address'] = $data->address;
-        if(isset($data->cadastral_number))
-        $toUpdateArr['cadastral_number'] = $data->cadastral_number;
-        if(isset($data->short_name))
-        $toUpdateArr['short_name'] = $data->short_name;
+        if (isset($data->bitrix_id))
+            $toUpdateArr['bitrix_id'] = $data->bitrix_id ? $data->bitrix_id : NULL;
+        if (isset($data->name))
+            $toUpdateArr['name'] = $data->name;
+        if (isset($data->address))
+            $toUpdateArr['address'] = $data->address;
+        if (isset($data->cadastral_number))
+            $toUpdateArr['cadastral_number'] = $data->cadastral_number;
+        if (isset($data->short_name))
+            $toUpdateArr['short_name'] = $data->short_name;
 
-        if(isset($data->material_accounting_type))
-        $toUpdateArr['material_accounting_type'] = $data->material_accounting_type;
+        if (isset($data->material_accounting_type))
+            $toUpdateArr['material_accounting_type'] = $data->material_accounting_type;
 
-        if(isset($data->is_participates_in_material_accounting))
-            $toUpdateArr['is_participates_in_material_accounting'] =
-                $data->is_participates_in_material_accounting ? 1 : 0;
+        if (isset($data->is_participates_in_material_accounting))
+            $toUpdateArr['is_participates_in_material_accounting'] = $data->is_participates_in_material_accounting;
 
-        if(isset($data->is_participates_in_documents_flow))
-            $toUpdateArr['is_participates_in_documents_flow'] =
-                $data->is_participates_in_documents_flow ? 1 : 0;
+        if (isset($data->is_participates_in_documents_flow))
+            $toUpdateArr['is_participates_in_documents_flow'] = $data->is_participates_in_documents_flow;
 
-        if(isset($data->is_active))
-        $toUpdateArr['is_active'] = $data->is_active;
+        if (isset($data->is_active))
+            $toUpdateArr['is_active'] = $data->is_active;
 
         return $toUpdateArr;
     }
 
-
     public function syncResponsibles($request, $id)
     {
-        // if(Auth::user()->isProjectManager() or Auth::user()->isInGroup(43)/*8*/)
-        // return;
-
         $rolesArray = [
             'responsibles_managers' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PROJECT_MANAGER'),
             'responsibles_pto' => (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'),
@@ -253,10 +204,10 @@ class ObjectController extends Controller
 
         $newResponsiblesIds = [];
 
-        foreach($rolesArray as $roleKey=>$roleValue){
+        foreach ($rolesArray as $roleKey => $roleValue) {
 
-            if(empty($request->$roleKey))
-            continue;
+            if (empty($request->$roleKey))
+                continue;
 
             if ($request->$roleKey) {
                 foreach ($request->$roleKey as $user_id) {
@@ -273,8 +224,292 @@ class ObjectController extends Controller
         ObjectResponsibleUser::where('object_id', $id)
             ->whereNotIn('user_id', $newResponsiblesIds)
             ->delete();
+    }
 
-        return;
+    public function handleCheckedParticipatesInDocumentsFlow($objectId)
+    {
+        if (ProjectObjectDocument::where([
+            ['project_object_id', $objectId],
+            ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
+        ])->exists())
+            $this->returnDocumentsFromArchive($objectId);
+        else
+            $this->createProjectObjectDocuments($objectId);
+    }
+
+    public function returnDocumentsFromArchive($objectId)
+    {
+        $archivedObjectDocumentsIds = ProjectObjectDocument::where([
+            ['project_object_id', $objectId],
+            ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
+        ])->pluck('id');
+
+        foreach ($archivedObjectDocumentsIds as $id) {
+            (new ProjectObjectDocumentsController)->restoreDocument($id);
+        }
+    }
+
+    public function createProjectObjectDocuments($objectId)
+    {
+        $newDocuments = [
+            [
+                'document_name' => 'ППР',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'ППР')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Акт-допуск на площадку',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Акт передачи фронта работ',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            [
+                'document_name' => 'РД в производство работ',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'РД')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'РД')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            [
+                'document_name' => 'Комплект приказов ООО «СК ГОРОД»',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Прочее')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Прочее')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Комплект приказов заказчика',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Прочее')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Прочее')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Акт приемки ГРО (акт геодезической разбивки)',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Общий журнал работ',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Журнал верификации (входного контроля)',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Журнал погружения шпунта',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'document_name' => 'Журнал сварочных работ',
+                'author_id' => Auth::user()->id,
+                'project_object_id' => $objectId,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
+                    ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ];
+
+        $sortedTypesIds = ProjectObjectDocumentType::with('projectObjectDocumentStatusTypeRelations')->orderBy('sortOrder')->pluck('id');
+        $sortedNewDocuments = [];
+        foreach ($sortedTypesIds as $typeId) {
+            $filteredNewDocuments = array_filter($newDocuments, function ($elem) use ($typeId) {
+                return $elem['document_type_id'] === $typeId;
+            });
+
+            $sortedNewDocuments = array_merge($sortedNewDocuments, $filteredNewDocuments);
+        }
+
+        foreach ($sortedNewDocuments as $newDocument) {
+            $id = ProjectObjectDocument::insertGetId($newDocument);
+
+            (new ProjectObjectDocumentsController(['Документ создан']))->addComment($id);
+
+            $actions = new stdClass;
+            $actions->event = 'store';
+            $actions->new_values = (object)$newDocument;
+
+            ActionLog::create([
+                'logable_id' => $id,
+                'logable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument',
+                'actions' => $actions,
+                'user_id' => Auth::user()->id,
+            ]);
+        }
+        // ProjectObjectDocument::insert($sortedNewDocuments);
+    }
+
+    public function notifyResponsibleUsers($objectId)
+    {
+        if (!App::environment() != 'production')
+            return;
+
+        $notificationRecipients =
+            ObjectResponsibleUser::query()
+                ->where('object_id', $objectId)
+                ->where('user_id', '<>', Auth::user()->id)
+                ->pluck('user_id');
+
+        $objectName = ProjectObject::findOrFail($objectId)->short_name;
+
+        foreach ($notificationRecipients as $userId) {
+            Notification::create([
+                'name' => 'Документооборот на объектах' . "\n" . $objectName . "\n" . 'Участвует в документообороте',
+                'user_id' => $userId,
+                'type' => 0,
+            ]);
+        }
+    }
+
+    public function notifyNewResponsibleUser($objectId, $lastObjectResponsibleId)
+    {
+        $notificationRecipients = ObjectResponsibleUser::where([
+            ['id', '>', $lastObjectResponsibleId],
+            ['object_id', $objectId],
+            ['user_id', '<>', Auth::user()->id]
+        ])->pluck('user_id');
+
+        $objectName = ProjectObject::findOrFail($objectId)->short_name;
+
+        foreach ($notificationRecipients as $userId) {
+            Notification::create([
+                'name' => 'Вы добавлены ответственным на объект' . "\n" . $objectName,
+                'user_id' => $userId,
+                'type' => 0,
+            ]);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = json_decode($request->input('data'));
+
+        $toUpdateArr = $this->getDataToUpdate($data);
+
+        DB::beginTransaction();
+
+        $object = ProjectObject::findOrFail($id);
+        $oldIsParticipatesInDocumentsFlow = $object->is_participates_in_documents_flow;
+
+        $lastObjectResponsibleId = ObjectResponsibleUser::orderByDesc('id')->first()->id;
+
+        $object->update($toUpdateArr);
+
+        $this->syncResponsibles($data, $id);
+
+        if (isset($data->is_participates_in_documents_flow)) {
+            if ($data->is_participates_in_documents_flow > $oldIsParticipatesInDocumentsFlow) {
+                $this->handleCheckedParticipatesInDocumentsFlow($id);
+                $this->notifyResponsibleUsers($id);
+            }
+            else if ($data->is_participates_in_documents_flow < $oldIsParticipatesInDocumentsFlow)
+                $this->addDocumentsToArchive($id);
+        }
+
+        $this->notifyNewResponsibleUser($id, $lastObjectResponsibleId);
+
+        DB::commit();
+
+        return response()->json([
+            'result' => 'ok',
+            'object' => $object,
+            'updated' => $toUpdateArr
+        ], 200);
+    }
+
+    public function addDocumentsToArchive($objectId)
+    {
+        $objectDocumentsIds = ProjectObjectDocument::where(
+            'project_object_id', $objectId
+        )->pluck('id');
+
+        foreach ($objectDocumentsIds as $id) {
+            $archivedStatusId = ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id;
+            ProjectObjectDocument::find($id)->update([
+                'document_status_id' => $archivedStatusId
+            ]);
+        
+            (new ProjectObjectDocumentsController(['Документ перемещен в архив']))->addComment($id);
+            (new ProjectObjectDocumentsController)->addDataToActionLog('archive', ['document_status_id' => $archivedStatusId], $id);
+        }
     }
 
     public function get_object_projects()
@@ -305,256 +540,6 @@ class ObjectController extends Controller
         return $objects->map(function ($object) {
             return ['code' => $object->id . '', 'label' => $object->address];
         });
-    }
-
-    public function notifyResponsibleUsers($objectId)
-    {
-        if(!App::environment() != 'production')
-        return;
-
-        $notificationRecipients =
-            ObjectResponsibleUser::query()
-                ->where('object_id', $objectId)
-                ->where('user_id', '<>', Auth::user()->id)
-                ->pluck('user_id');
-
-        $objectName = ProjectObject::findOrFail($objectId)->short_name;
-
-        foreach($notificationRecipients as $userId)
-        {
-            Notification::create([
-                'name' => 'Документооборот на объектах' . "\n" . $objectName . "\n" . 'Участвует в документообороте',
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
-        }
-    }
-
-    public function notifyNewResponsibleUser($objectId, $lastObjectResponsibleId)
-    {
-        $notificationRecipients = ObjectResponsibleUser::where([
-            ['id', '>', $lastObjectResponsibleId],
-            ['object_id', $objectId],
-            ['user_id', '<>', Auth::user()->id]
-        ])->pluck('user_id');
-
-        $objectName = ProjectObject::findOrFail($objectId)->short_name;
-
-        foreach($notificationRecipients as $userId)
-        {
-            Notification::create([
-                'name' => 'Вы добавлены ответственным на объект' . "\n" . $objectName,
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
-        }
-    }
-
-    public function returnDocumentsFromArchive($objectId)
-    {
-        $archivedObjectDocumentsIds = ProjectObjectDocument::where([
-                ['project_object_id', $objectId],
-                ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
-            ])->pluck('id');
-
-        foreach($archivedObjectDocumentsIds as $id)
-            (new ProjectObjectDocumentsController)->restoreDocument($id);
-    }
-
-    public function addDocumentsToArchive($objectId)
-    {
-        $objectDocumentsIds = ProjectObjectDocument::where(
-            'project_object_id', $objectId
-        )->pluck('id');
-
-        foreach($objectDocumentsIds as $id)
-        {
-            $archivedStatusId = ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id;
-            ProjectObjectDocument::find($id)->update([
-                'document_status_id' => $archivedStatusId
-            ]);
-
-            (new ProjectObjectDocumentsController)->addDataToActionLog('archive', ['document_status_id' => $archivedStatusId], $id);
-        }
-    }
-
-    public function handleCheckedParticipatesInDocumentsFlow($objectId)
-    {
-        if(ProjectObjectDocument::where([
-            ['project_object_id', $objectId],
-            ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
-        ])->exists())
-            $this->returnDocumentsFromArchive($objectId);
-        else
-            $this->createProjectObjectDocuments($objectId);
-    }
-
-
-    public function createProjectObjectDocuments($objectId)
-    {
-        $newDocuments = [
-            [
-                'document_name' => 'ППР',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'ППР')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Акт-допуск на площадку',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Акт передачи фронта работ',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            [
-                'document_name' => 'РД в производство работ',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'РД')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'РД')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            [
-                'document_name' => 'Комплект приказов ООО «СК ГОРОД»',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Прочее')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Прочее')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Комплект приказов заказчика',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Прочее')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Прочее')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Акт приемки ГРО (акт геодезической разбивки)',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Общий журнал работ',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Журнал верификации (входного контроля)',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Журнал погружения шпунта',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'document_name' => 'Журнал сварочных работ',
-                'author_id' => Auth::user()->id,
-                'project_object_id' => $objectId,
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
-                        ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                        ['default_selection', 1]
-                    ])->first()->document_status_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ];
-
-        $sortedTypesIds = ProjectObjectDocumentType::with('projectObjectDocumentStatusTypeRelations')->orderBy('sortOrder')->pluck('id');
-        $sortedNewDocuments = [];
-        foreach($sortedTypesIds as $typeId)
-        {
-            $filteredNewDocuments = array_filter($newDocuments, function($elem) use($typeId) {
-                return $elem['document_type_id'] === $typeId;
-            });
-
-            $sortedNewDocuments = array_merge($sortedNewDocuments, $filteredNewDocuments);
-        }
-
-        foreach ($sortedNewDocuments as $newDocument) {
-            $id = ProjectObjectDocument::insertGetId($newDocument);
-
-            $actions = new \stdClass;
-            $actions->event = 'store';
-            $actions->new_values = (object)$newDocument;
-
-            ActionLog::create([
-                'logable_id' => $id,
-                'logable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument',
-                'actions' => $actions,
-                'user_id' => Auth::user()->id,
-            ]);
-        }
-        // ProjectObjectDocument::insert($sortedNewDocuments);
     }
 
     public function getPermissions()

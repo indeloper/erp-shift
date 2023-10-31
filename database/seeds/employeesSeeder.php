@@ -129,11 +129,6 @@ class employeesSeeder extends Seeder
                         ')');
 
                         Log::channel('stderr')->info('[info] Добавлен новый пользователь: ' . $employee->employeeLastName . ' ' . $employee->employeeFirstName . ' ' . trim($employee->employeePatronymic));
-
-                        /*Telegram::sendMessage([
-                            'chat_id' =>  config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
-                            'text' => "[info] Добавлен новый пользователь: " . $employee->employeeLastName . ' ' . $employee->employeeFirstName . ' ' . trim($employee->employeePatronymic)
-                        ]);*/
                     }
 
                 $user = User::withoutGlobalScopes()

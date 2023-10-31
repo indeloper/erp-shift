@@ -51,7 +51,7 @@
     const materialAccountingTypesDataSource = new DevExpress.data.CustomStore({
         loadMode: "raw",
         key: "id",
-        load: function() {
+        load: function () {
             return $.getJSON("{{route('objects::getMaterialAccountingTypes')}}");
         }
     })
@@ -66,22 +66,35 @@
         })
     })
 
-    const bitrixProjectsDataSource = new DevExpress.data.DataSource({
-        store: new DevExpress.data.CustomStore({
-            loadMode: "raw",
-            load: function (loadOptions) {
-                return $.getJSON("{{config('auth.BITRIX_PROJECTS_LIST_URL')}}");
-            }
-        })
-    })
 
-    bitrixProjectsDataSource.load().done(()=>{
-        bitrixProjectsArray = bitrixProjectsDataSource.store().__rawData.result
-        .map((item) => {
+    let bitrixProjectsArray = [];
+
+    const getBitrixProjects = async () => {
+        const url = "{{config('auth.BITRIX_PROJECTS_LIST_URL')}}";
+
+        const bitrixRequest = async (requestUrl) => {
+            let response = await fetch(requestUrl);
+            return await response.json()
+        }
+
+        const firstRequestResult = await bitrixRequest(url);
+        bitrixProjectsArray = bitrixProjectsArray.concat(firstRequestResult.result);
+
+        const batchNumber = Math.ceil(await firstRequestResult.total / 50);
+        for (let i = 1; i < batchNumber; i++) {
+            let requestResult = await bitrixRequest(url + '&start=' + i * 50);
+            bitrixProjectsArray = bitrixProjectsArray.concat(requestResult.result);
+        }
+    }
+
+    const getBitrixProjectsAndPrepareData = async () => {
+        await getBitrixProjects()
+        bitrixProjectsArray.map((item) => {
             item.ID = Number(item.ID)
             return item;
-        })
-    // Возвращает элемент для new_array
-    })
+        });
+    }
+
+    getBitrixProjectsAndPrepareData()
 
 </script>

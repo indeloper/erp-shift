@@ -49,7 +49,7 @@
         },
 
         {
-            dataField: "bitrixId",
+            dataField: "bitrix_id",
             editorType: "dxSelectBox",
             editorOptions: {
                 readOnly: true,
@@ -74,7 +74,7 @@
                                 resetChoosedBitrixProject()
                             },
                         },
-                    }, 
+                    },
 
                     {
                         name: 'bitrix-projects-editor-button',
@@ -90,8 +90,8 @@
                                 showBitrixProjectsPopup()
                             },
                         },
-                    }, 
-                    
+                    },
+
                 ],
                 fieldTemplate(data, container) {
                     const result = $(`

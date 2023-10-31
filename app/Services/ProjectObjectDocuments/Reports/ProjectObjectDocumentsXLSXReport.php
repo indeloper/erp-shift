@@ -56,6 +56,9 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
             'Тип',
             'Статус',
             'Дата изменения статуса',
+            'Ответственные РП',
+            'Ответственные ПТО',
+            'Ответственные прорабы'
         ];
 
         return [
@@ -89,7 +92,10 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
                 $projectObjectDocument['created_at'] ?? null,
                 $projectObjectDocument['type']['name'] ?? null,
                 $projectObjectDocument['status']['name'] ?? null, 
-                $projectObjectDocument['status_updated_at'] ?? null
+                $projectObjectDocument['status_updated_at'] ?? null,
+                $projectObjectDocument['tongue_project_manager_full_names'] ?? null,
+                $projectObjectDocument['tongue_pto_engineer_full_names'] ?? null,
+                $projectObjectDocument['tongue_foreman_full_names'] ?? null
             ]);
 
             $this->statusStyles[$lineNumber] = str_replace('#', '', $projectObjectDocument['status']['project_object_documents_status_type']['style']);
@@ -109,11 +115,11 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $event->sheet->setAutoFilter('A4:G4');
+                $event->sheet->setAutoFilter('A4:J4');
 
                 //Main header styles
-                $event->sheet->getDelegate()->mergeCells('A1:'.'G1');
-                $event->sheet->getDelegate()->mergeCells('A2:'.'G2');
+                $event->sheet->getDelegate()->mergeCells('A1:'.'J1');
+                $event->sheet->getDelegate()->mergeCells('A2:'.'J2');
                 
                 $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_CENTER);
                 $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_RIGHT);
@@ -128,7 +134,7 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
 
                 
                 //Table headers
-                $event->sheet->getStyle('A4:'.'G4')
+                $event->sheet->getStyle('A4:'.'J4')
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
@@ -145,7 +151,7 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
                         ]
                     ]);
 
-                    $event->sheet->getStyle('A' . self::startLineNumber . ':'. 'G' . $this->lastLineNumber)
+                    $event->sheet->getStyle('A' . self::startLineNumber . ':'. 'J' . $this->lastLineNumber)
                         ->applyFromArray([
                            
                             'borders' => [
@@ -200,6 +206,9 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
             'E' => 30,
             'F' => 30,
             'G' => 30,
+            'H' => 30,
+            'I' => 30,
+            'J' => 30,
         ];
     }
 

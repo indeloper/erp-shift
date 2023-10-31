@@ -2,8 +2,6 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\Model;
-
 use App\Models\ProjectObject;
 use App\Models\TechAcc\CategoryCharacteristic;
 use App\Models\TechAcc\OurTechnic;

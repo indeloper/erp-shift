@@ -91,6 +91,24 @@
         }
     }
 
+    function setReadonlyFormElemsProperties(isReadonly) {
+        $('#clearBitrixProjectsOpenPopupButton').dxButton('instance').option('disabled', isReadonly)
+        $('#bitrixProjectsOpenPopupButton').dxButton('instance').option('disabled', isReadonly)
+
+        let dataGrid = $("#dataGridContainer").dxDataGrid("instance")
+        dataGrid.option("columns").forEach((columnItem) => {
+            if(![
+                    'responsibles_pto',
+                    'responsibles_managers',
+                    'responsibles_foremen'
+                ]
+                .includes(columnItem.dataField)
+            ) {
+                dataGrid.columnOption(columnItem.dataField, "allowEditing", !isReadonly)
+            }
+        });
+    }
+   
 // Конец Общие
 
     function setLoadedObjectInfo() {
@@ -103,13 +121,12 @@
 
     function setResponsiblesObjectInfo(allAvailableResponsibles, objectResponsibles) {
 
-
         $('#responsiblesPTOfield')
             .dxTagBox('instance')
             .option({
                 dataSource: allAvailableResponsibles.pto,
                 value: objectResponsibles.pto,
-                disabled: permissions.can_assign_responsible_pto_user
+                disabled: !permissions.can_assign_responsible_pto_user
             })
 
         $('#responsiblesManagersfield')
@@ -117,7 +134,7 @@
             .option({
                 dataSource: allAvailableResponsibles.managers,
                 value: objectResponsibles.managers,
-                disabled: permissions.can_assign_responsible_projectManager_user
+                disabled: !permissions.can_assign_responsible_projectManager_user
             })
 
         $('#responsiblesForemenfield')
@@ -125,7 +142,7 @@
             .option({
                 dataSource: allAvailableResponsibles.foremen,
                 value: objectResponsibles.foremen,
-                disabled: permissions.can_assign_responsible_foreman_user
+                disabled: !permissions.can_assign_responsible_foreman_user
             })
     }
 
@@ -209,18 +226,18 @@
         const bitrixProjectFormElement = getBitrixProjectFormDisplayValue(choosedBitrixProjectId)
         const objectInfo = objectInfoByID.store().__rawData;
 
-        $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'bitrixId', choosedBitrixProjectId)
+        $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'bitrix_id', choosedBitrixProjectId)
         $('#bitrix-project-name').dxTextBox({value: bitrixProjectFormElement})
         setResponsiblesObjectInfo(objectInfo.allAvailableResponsibles, objectInfo.objectResponsibles)
         // setContractorsObjectInfo(objectInfo.contractors);
     }
 
-    function getBitrixProjectFormDisplayValue(bitrixId) {
-        if(!bitrixId)
+    function getBitrixProjectFormDisplayValue(bitrix_id) {
+        if(!bitrix_id)
         return 'Выбрать...';
 
-        const bitrixProject = bitrixProjectsArray.find(el=>+el.ID === +bitrixId)
-        return '[ID' + bitrixId + ']' + ' - ' + bitrixProject.NAME
+        const bitrixProject = bitrixProjectsArray.find(el=>+el.ID === +bitrix_id)
+        return '[ID' + bitrix_id + ']' + ' - ' + bitrixProject.NAME
     }
 
     function saveResponsiblesEditorsValues()  {

@@ -158,8 +158,11 @@ class ProjectObjectDocumentsController extends Controller
             );
         }
 
+        $documentArchivedOrDeletedStatusesIds = $this->getDocumentArchivedOrDeletedStatusesIds();
+
         $projectObjectDocuments =
             $this->getProjectObjectDocumentsList($options)
+            ->whereNotIn('document_status_id', $documentArchivedOrDeletedStatusesIds)
             ->orderByDesc('id')
             ->get();
 
@@ -302,6 +305,7 @@ class ProjectObjectDocumentsController extends Controller
         $document->delete();
 
         $this->addDataToActionLog('delete', ['document_status_id'=>$deletedDocumentStatusId], $id);
+        (new ProjectObjectDocumentsController(['Документ удален']))->addComment($id);
 
         return response()->json([
             'result' => 'ok',
@@ -319,6 +323,7 @@ class ProjectObjectDocumentsController extends Controller
         ]);
 
         $this->addDataToActionLog('restore', ['document_status_id'=>$lastDocumentActiveStatusId], $id);
+        (new ProjectObjectDocumentsController(['Документ восстановлен']))->addComment($id);
 
         return response()->json([
             'result' => 'ok',
@@ -336,9 +341,19 @@ class ProjectObjectDocumentsController extends Controller
                 ['actions', 'NOT LIKE', '%"event":"archive"%'],
             ])->orderBy('id', 'desc')->first();
 
-        $lastDocumentActiveStatusId = $actionLog->actions['new_values']['document_status_id'];
+        if($actionLog )
+            $statusId = $actionLog->actions['new_values']['document_status_id'];
+        else {
+            // Если записей в action_logs не найдено восстанавливаем со статусом по умолчанию
+            $document_type_id = ProjectObjectDocument::find($id)->document_type_id;
+            $statusId = ProjectObjectDocumentStatusTypeRelation::query()
+                ->where([
+                    ['document_type_id', $document_type_id],
+                    ['default_selection', 1]
+                ])->first()->document_status_id;
+        }
 
-        return $lastDocumentActiveStatusId;
+        return $statusId;
     }
 
     public function addCustomFilters($keysArr, $filterArr, $options)
@@ -625,12 +640,14 @@ class ProjectObjectDocumentsController extends Controller
             : false;
     }
 
-    public function getProjectObjects()
+    public function getProjectObjects(Request $request)
     {
+        $isArchived = filter_var($request->query('is-archived', 'false'), FILTER_VALIDATE_BOOLEAN);
+        $archivedStatusTypeCondition = $isArchived ? 'project_object_document_statuses.status_type_id = 4' : 'project_object_document_statuses.status_type_id <> 4';
         $objects = ProjectObject::query()
             ->withResponsibleUserNames()
             ->whereNotNull('short_name')
-            ->where('is_participates_in_material_accounting', '>', 0)
+            ->whereRaw('exists(select * from `project_object_documents` where `project_object_documents`.`project_object_id` = `project_objects`.`id` and `project_object_documents`.`document_status_id` in (select `id` from `project_object_document_statuses` where '.$archivedStatusTypeCondition.'))')
             ->addSelect(['project_objects.id AS id',
                 'short_name', 'project_objects.name AS object_name'
                 ])
@@ -710,7 +727,7 @@ class ProjectObjectDocumentsController extends Controller
         $comments = Comment::where([
                 ['commentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'],
                 ['commentable_id', $request->input('id')]
-            ])->with('author')
+            ])
             ->orderByDesc('id')
             ->get();
 
@@ -837,7 +854,7 @@ class ProjectObjectDocumentsController extends Controller
         $documentArchivedOrDeletedStatusesIds = $this->getDocumentArchivedOrDeletedStatusesIds();
 
         $projectObjectDocuments = (new ProjectObjectDocument)
-            ->dxLoadOptions($filterOptions, true)
+            ->dxLoadOptions($filterOptions)
             ->when(str_contains($request->customSearchParams, 'showArchive=1'), function($query) use($documentArchivedOrDeletedStatusesIds) {
                 return $query->whereIn('document_status_id', $documentArchivedOrDeletedStatusesIds )->withTrashed();
             })
@@ -847,12 +864,21 @@ class ProjectObjectDocumentsController extends Controller
             ->leftJoin('project_object_document_types', 'project_object_document_types.id', '=', 'project_object_documents.document_type_id')
             ->leftJoin('action_logs', 'action_logs.logable_id', '=', 'project_object_documents.id')
             ->leftJoin('project_objects', 'project_objects.id', '=', 'project_object_documents.project_object_id')
+            ->leftJoin('object_responsible_users', 'project_objects.id', '=', 'object_responsible_users.object_id')
+            ->leftJoin('users', 'users.id', '=', 'object_responsible_users.user_id')
+            ->leftJoin('object_responsible_user_roles', 'object_responsible_user_roles.id', '=', 'object_responsible_users.object_responsible_user_role_id')
             ->where('logable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument')
             ->where('actions', 'LIKE' , '%document_status_id%')
             ->addSelect(DB::raw('DISTINCT project_object_documents.*'))
             ->addSelect('project_object_document_types.sortOrder AS sortOrder')
             ->addSelect(DB::raw('MAX(action_logs.created_at) over (PARTITION BY project_object_documents.id) as status_updated_at'))
             ->addSelect('project_object_documents.id as project_object_documents_id')
+            ->addSelect([
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PROJECT_MANAGER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_project_manager_full_names`"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_pto_engineer_full_names`"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_foreman_full_names`")
+            ])
+            ->groupBy(['project_object_documents.id'])
             ->orderBy('project_objects.short_name')
             ->orderBy('sortOrder')
             ->with([
@@ -881,7 +907,7 @@ class ProjectObjectDocumentsController extends Controller
         $response =  [[
             'projecObjects' => ProjectObject::query()
                 ->whereNotNull('short_name')
-                ->where('is_participates_in_material_accounting', '>', 0)
+                ->where('is_participates_in_documents_flow', '=', 1)
                 ->orderBy('short_name')->get(),
             'projecObjectsTypes' => ProjectObjectDocumentType::all(),
             'projecObjectsStatuses' => ProjectObjectDocumentStatus::with('projectObjectDocumentsStatusType')->orderBy('sortOrder')->get(),

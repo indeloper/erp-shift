@@ -5,7 +5,7 @@
         {
             caption: "Кадастровый номер",
             dataField: "cadastral_number",
-            visible: false
+            visible: false,
         },
         {
             caption: "Тип материального учета",
@@ -76,7 +76,7 @@
         },
         {
             caption: "Bitrix ID",
-            dataField: "bitrixId",
+            dataField: "bitrix_id",
             width: 75,
         },
         {
@@ -140,6 +140,9 @@
                             options.component.addRow();
                             $('#dataGridContainer').dxDataGrid('instance').option("focusedRowKey", undefined);
                             $('#dataGridContainer').dxDataGrid('instance').option("focusedRowIndex", undefined);
+                        },
+                        onInitialized(e){
+                            e.component.option('visible', permissions.objects_create)
                         }
                     })
             }

@@ -23,6 +23,6 @@ Route::middleware(['can:project_object_documents_access'])->group(function () {
     Route::get('project-object-document-getPermissions', 'ProjectObjectDocuments\ProjectObjectDocumentsController@getPermissions')->name('projectObjectDocument.getPermissions');
 
     Route::post('project-object-document-restore/{id}', 'ProjectObjectDocuments\ProjectObjectDocumentsController@restoreDocument')->name('project-object-document.restoreDocument');
-    
+
     Route::apiResource('project-object-document', 'ProjectObjectDocuments\ProjectObjectDocumentsController');
 });
