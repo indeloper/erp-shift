@@ -108,7 +108,7 @@
             }
         });
     }
-   
+
 // Конец Общие
 
     function setLoadedObjectInfo() {
@@ -213,7 +213,7 @@
 
             } else {
                 $('#bitrixIdFormField').dxSelectBox('instance').option('value', choosedBitrixProjectId)
-                $('#objectShotrNameFormField').dxTextBox('instance').option('value', choosedBitrixProject.NAME)
+                $('#objectShortNameFormField').dxTextBox('instance').option('value', choosedBitrixProject.NAME)
                 $('#bitrix-project-name').dxTextBox({value: getBitrixProjectFormDisplayValue(choosedBitrixProjectId)})
             }
         }

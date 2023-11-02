@@ -17,9 +17,23 @@
             editorType: 'dxTextBox',
             editorOptions: {
                 elementAttr: {
-                    id: 'objectShotrNameFormField'
+                    id: 'objectShortNameFormField'
                 },
+                buttons: [
+                    {
+                        name: 'short_name_configurator',
+                        location: 'after',
+                        options: {
+                            icon: 'more',
+                            type: 'default',
+                            onClick: () => {
+                                showShortNameConfiguratorPopup();
+                            }
+                        },
+                    },
+                ],
             },
+
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',
@@ -57,7 +71,6 @@
                 elementAttr: {
                     id: "bitrixIdFormField"
                 },
-
                 buttons: [
                     {
                         name: 'clear-bitrix-projects-editor-button',
@@ -75,7 +88,6 @@
                             },
                         },
                     },
-
                     {
                         name: 'bitrix-projects-editor-button',
                         location: 'after',
