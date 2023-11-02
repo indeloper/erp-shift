@@ -20,6 +20,7 @@
                         text: 'Сохранить',
                     },
                     onClick() {
+                        console.log('lasbdfliausdhfliasd');
                         if (!DevExpress.validationEngine.validateGroup("documentValidationGroup").isValid) {
                             return;
                         }

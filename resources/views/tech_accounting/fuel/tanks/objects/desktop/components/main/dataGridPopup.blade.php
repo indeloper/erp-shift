@@ -7,6 +7,9 @@
             showCloseButton: true,
             maxWidth: '40vw',
             height: 'auto',
+            onInitialized: (e) => {
+                console.log("onInitialized", e.component.container)
+            },
             onHiding() {
                 resetVars();
                 resetStores();
