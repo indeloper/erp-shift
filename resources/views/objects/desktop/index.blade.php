@@ -18,7 +18,7 @@
     </div>
     <div id="dataGridContainer"></div>
 </div> -->
-<div id="dataGridAncor"></div>
+<div id="dataGridAnchor"></div>
 <div id="mainPopup"></div>
 <div id="bitrixProjectsPopup"></div>
 
