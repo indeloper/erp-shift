@@ -123,7 +123,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
         }
     }
 
-    function employeesSync($employeeList) {
+    /*function employeesSync($employeeList) {
         $notificationRecipients = User::where('is_su', 1)->get();
 
         foreach ($employeeList as $employee) {
@@ -151,6 +151,117 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                     'group_id' => 0,
                     'gender' => trim($employee->employeeGender)
                     ]
+            );
+
+            $existingEmployee = Employee::where('employee_1c_uid', $employee->employeeUID)->first();
+
+            if ($existingEmployee) {
+                if ($existingEmployee->dismissal_date == '0000-00-00' && !empty($employee->dismissalDate)) {
+                    $dismissedEmployeesList[] = (object)[
+                        "fullName" => $employee->employeeName,
+                        "postName" => $employeePost->name,
+                        "companyName" => $company->name,
+                        "birthday" => Carbon::parse($employee->birthday)->format('d.m.Y')
+                    ];
+                }
+            } else {
+                $newEmployeesList[] = (object)[
+                    "fullName" => $employee->employeeName,
+                    "postName" => $employeePost->name,
+                    "companyName" => $company->name,
+                    "birthday" => Carbon::parse($employee->birthday)->format('d.m.Y')
+                ];
+            }
+
+            Employee::updateOrCreate(
+                [
+                    'employee_1c_uid' => $employee->employeeUID,
+                ],
+                [
+                    'user_id' => $user->id,
+                    'employee_1c_name' => $employee->employeeName,
+                    'personnel_number' => $employee->personnelNumber,
+                    'employee_1c_post_id' => $employeePost->id,
+                    'employee_1c_subdivision_id' => $employeeSubdivision->id,
+                    'company_id' => $company->id,
+                    'employment_date' => $employee->dateReceived,
+                    'dismissal_date' => $employee->dismissalDate,
+                    'report_group_id' => null
+                ]
+            );
+
+            $actualEmployee = Employee::where('user_id', $user->id)
+                ->where('dismissal_date', '<>', '0000-00-00')
+                ->orderBy('company_id')
+                ->first();
+
+            $userStatus = $actualEmployee ? 1 : 0;
+
+            $user->update(
+                [
+                    'company_id' => $actualEmployee->company_id,
+                    'status' => $userStatus
+                ]
+            );
+
+            if (isset($newEmployeesList)) {
+                $newEmployeesNotificationMessageText = "<b>" . pluralize(count($newEmployeesList), "новый сотрудник") . ":</b>";
+                foreach ($newEmployeesList as $newEmployee) {
+                    $newEmployeesNotificationMessageText .= "\n{$newEmployee->fullName} ({$newEmployee->birthday} г.р) — {$newEmployee->postName}, {$newEmployee->companyName}";
+                }
+
+                foreach ($notificationRecipients as $recipient) {
+                    Notification::create([
+                        'name' => $newEmployeesNotificationMessageText,
+                        'user_id' => $recipient->id,
+                        'type' => 0,
+                    ]);
+                }
+            }
+
+            if (isset($dismissedEmployeesList)) {
+                $dismissedEmployeesNotificationMessageText = "<b>" . pluralize(count($dismissedEmployeesList), "уволенный сотрудник") . ":</b>";
+                foreach ($dismissedEmployeesList as $dismissedEmployee) {
+                    $dismissedEmployeesNotificationMessageText .= "\n{$dismissedEmployee->fullName} ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
+                }
+
+                Notification::create([
+                    'name' => $dismissedEmployeesNotificationMessageText,
+                    'user_id' => $recipient->id,
+                    'type' => 0,
+                ]);
+            }
+        }
+    }*/
+
+    function employeesSync($employeeList) {
+        $notificationRecipients = User::where('is_su', 1)->get();
+
+        foreach ($employeeList as $employee) {
+            $employee = (object)$employee;
+
+            $company = Company::where('company_1c_uid', $employee->organizationUID)->get()->first();
+            $employeePost = Employees1cPost::where('post_1c_uid', '=', $employee->employee1CPostUID)->get()->first();
+            $employeeSubdivision = Employees1cSubdivision::where('subdivision_1c_uid', '=', $employee->employee1CSubdivisionUID)->get()->first();
+            $formattedBirthday = Carbon::parse($employee->birthday)->format('d.m.Y');
+            $formattedPhone = preg_replace("/[^0-9]/", '', trim($employee->employeePhone));
+            if (substr($formattedPhone, 0, 1) == 8) {
+                $formattedPhone = substr_replace($formattedPhone, '7', 0, 1);
+            }
+
+            $user = User::withoutGlobalScopes()->updateOrCreate(
+                ['INN' => trim($employee->employeeINN)],
+                [
+                    'first_name' => trim($employee->employeeFirstName),
+                    'last_name' => trim($employee->employeeLastName),
+                    'patronymic' => trim($employee->employeePatronymic),
+                    'birthday' => $formattedBirthday,
+                    'email' => null,
+                    'person_phone' => $formattedPhone,
+                    'department_id' => 0,
+                    'group_id' => 0,
+                    'gender' => trim($employee->employeeGender)
+                ]
             );
 
             $existingEmployee = Employee::where('employee_1c_uid', $employee->employeeUID)->first();
