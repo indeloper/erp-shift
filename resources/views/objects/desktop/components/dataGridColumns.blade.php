@@ -76,7 +76,7 @@
         },
         {
             caption: "Bitrix ID",
-            dataField: "bitrixId",
+            dataField: "bitrix_id",
             width: 75,
         },
         {

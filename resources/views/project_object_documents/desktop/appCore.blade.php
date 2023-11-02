@@ -6,7 +6,7 @@
         //     columns: dataGridColumns,
         // }).dxDataGrid('instance')
 
-        $("#dataGridAncor").dxForm({
+        $("#dataGridAnchor").dxForm({
             items: [
                 {
                     itemType: "group",

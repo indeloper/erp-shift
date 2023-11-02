@@ -226,18 +226,18 @@
         const bitrixProjectFormElement = getBitrixProjectFormDisplayValue(choosedBitrixProjectId)
         const objectInfo = objectInfoByID.store().__rawData;
 
-        $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'bitrixId', choosedBitrixProjectId)
+        $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'bitrix_id', choosedBitrixProjectId)
         $('#bitrix-project-name').dxTextBox({value: bitrixProjectFormElement})
         setResponsiblesObjectInfo(objectInfo.allAvailableResponsibles, objectInfo.objectResponsibles)
         // setContractorsObjectInfo(objectInfo.contractors);
     }
 
-    function getBitrixProjectFormDisplayValue(bitrixId) {
-        if(!bitrixId)
+    function getBitrixProjectFormDisplayValue(bitrix_id) {
+        if(!bitrix_id)
         return 'Выбрать...';
 
-        const bitrixProject = bitrixProjectsArray.find(el=>+el.ID === +bitrixId)
-        return '[ID' + bitrixId + ']' + ' - ' + bitrixProject.NAME
+        const bitrixProject = bitrixProjectsArray.find(el=>+el.ID === +bitrix_id)
+        return '[ID' + bitrix_id + ']' + ' - ' + bitrixProject.NAME
     }
 
     function saveResponsiblesEditorsValues()  {
