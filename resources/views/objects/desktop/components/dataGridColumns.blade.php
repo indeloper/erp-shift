@@ -1,7 +1,7 @@
 <script>
     const dataGridColumns = [
 
-        
+
         {
             caption: "Кадастровый номер",
             dataField: "cadastral_number",
@@ -137,9 +137,13 @@
                         text: "Добавить",
                         icon: "fas fa-plus",
                         onClick: (e) => {
-                            options.component.addRow();
-                            $('#dataGridContainer').dxDataGrid('instance').option("focusedRowKey", undefined);
-                            $('#dataGridContainer').dxDataGrid('instance').option("focusedRowIndex", undefined);
+                            options.component.addRow().done(() => {
+                                options.component.cellValue(0, "material_accounting_type", 1);
+                                options.component.cellValue(0, "is_participates_in_documents_flow", 0);
+                                options.component.cellValue(0, "is_participates_in_material_accounting", 0);
+                                options.component.option("focusedRowKey", undefined);
+                                options.component.option("focusedRowIndex", undefined);
+                            });
                         },
                         onInitialized(e){
                             e.component.option('visible', permissions.objects_create)

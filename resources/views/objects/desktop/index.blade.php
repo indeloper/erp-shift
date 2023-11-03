@@ -21,6 +21,7 @@
 <div id="dataGridAnchor"></div>
 <div id="mainPopup"></div>
 <div id="bitrixProjectsPopup"></div>
+<div id="shortNameConfigurationPopup"></div>
 
 @endsection
 

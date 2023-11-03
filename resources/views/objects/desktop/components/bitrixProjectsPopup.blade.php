@@ -12,7 +12,7 @@
 
             onShowing() {
                 let focusedRowIndexBitrixId = $('#bitrixIdFormField').dxSelectBox('instance').option('value')
-                bitrixProjectsDataGridInstance = $('#bitrixProjectsDataGrid').dxDataGrid('instance');
+                let bitrixProjectsDataGridInstance = $('#bitrixProjectsDataGrid').dxDataGrid('instance');
                 bitrixProjectsDataGridInstance.option("focusedRowKey", focusedRowIndexBitrixId)
             },
 
@@ -79,7 +79,6 @@
             paging: {
                 enabled: false,
             },
-
 
             onRowDblClick: function (e) {
                 handleChoosingBitrixProject()
