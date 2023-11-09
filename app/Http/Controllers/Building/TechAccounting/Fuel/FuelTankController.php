@@ -175,7 +175,7 @@ class FuelTankController extends StandardEntityResourceController
 
         Notification::create([
             'name' => $notificationText,
-            'user_id' => 538,
+            'user_id' => $tank->responsible_id,
             'type' => 0,
         ]);
 
