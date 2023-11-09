@@ -360,6 +360,7 @@ class FuelReportController extends Controller
                 ['event_date', '<',  Carbon::create($globalDateTo)],
             ])
             ->whereNull('fuel_tank_flow_id')
+            ->whereNotNull('tank_moving_confirmation')
             ->exists()
         ) {
             $dateTo = FuelTankTransferHystory::where([
@@ -368,6 +369,7 @@ class FuelReportController extends Controller
                 ['event_date', '<',  Carbon::create($globalDateTo)],
             ])
             ->whereNull('fuel_tank_flow_id')
+            ->whereNotNull('tank_moving_confirmation')
             ->first()
             ->event_date;
         } else {
@@ -410,6 +412,7 @@ class FuelReportController extends Controller
             ['event_date', '<=',  $dateTo],
         ])
         ->whereNull('fuel_tank_flow_id')
+        ->whereNotNull('tank_moving_confirmation')
         ->get()
         ->toArray();
         

@@ -153,20 +153,6 @@
 
                         @endif
 
-                        @if (!isset($objectTransferGroups['outcome'])  && !$isEmptyOutcomeRegionRendered)
-                            @php $isEmptyOutcomeRegionRendered = true; @endphp
-                            <tr>
-                                <td class="td-normal row-without-borders" colspan=4></td>
-                            </tr>
-                            <tr class="table-summary">
-                                <td class="td-center" colspan=4>
-                                    Расход
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="td-normal" colspan=4>Нет данных</td>
-                            </tr>
-                        @endif
 
                         @continue($flowTypeSlug === 'notIncludedTank' || !$flowTypeSlug)
                         <tr>
@@ -184,8 +170,6 @@
 
                             </td>
                         </tr>
-
-
 
                         @foreach($objectTransferGroup as $fuelFlowOperation)
 
@@ -262,6 +246,21 @@
                                 </td>
                             </tr>
 
+                        @endif
+
+                        @if (!isset($objectTransferGroups['outcome'])  && !$isEmptyOutcomeRegionRendered)
+                            @php $isEmptyOutcomeRegionRendered = true; @endphp
+                            <tr>
+                                <td class="td-normal row-without-borders" colspan=4></td>
+                            </tr>
+                            <tr class="table-summary">
+                                <td class="td-center" colspan=4>
+                                    Расход
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td-normal" colspan=4>Нет данных</td>
+                            </tr>
                         @endif
 
                     @endforeach
