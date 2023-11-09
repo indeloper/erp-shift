@@ -41,6 +41,7 @@
                     </div>
                 </div>
                 @if($notifications->count())
+                    @include('notifications.hooksHandlers')
                     <div class="table-responsive">
                         <table class="table table-hover mobile-table">
                             <thead>
@@ -55,7 +56,9 @@
                             <tbody class="notify_place">
                             @foreach($notifications as $key => $notify)
                                 <tr class="notify {{ $notify->is_seen ? 'bg-color-snow' : 'notSeen' }}">
-                                    <td data-label="Уведомления">{{ $notify->name }}</td>
+                                    @include('notifications.hooks', ['text' => $notify->name])
+                                    
+                                    {{--<td data-label="Уведомления">{{ $notify->name }}</td>--}}
                                     <td data-label="Контрагент">{{ $notify->short_name ? $notify->short_name : 'Не указан' }}</td>
                                     <td data-label="Адрес объекта" style="max-width: 500px">{{ $notify->address ? $notify->address : 'Не указан' }}</td>
                                     <td data-label="Дата">{{ $notify->created_at }}</td>
@@ -240,6 +243,15 @@
 @endsection
 
 @section('js_footer')
+    <div id="externalPopup"></div>
+    <script>
+        const urlParams = window.location.search
+        if(urlParams.includes('notificationHook')) {
+            const notificationHook = urlParams.split('notificationHook=')[1]
+            hookHandlerDispatcher(notificationHook)
+        }
+    </script>
+
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <script type="text/javascript">
         function ban_notification(e, id) {

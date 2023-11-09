@@ -205,19 +205,21 @@ class FuelReportController extends Controller
             ->unique()
             ->toArray();
 
-        $filteredResponsiblesArr = $this->getFilteredResponsiblesArr($options->filter);
-
-        $baseReportArraySource = FuelTankTransferHystory::query();
-            
-        $baseReportArraySource_ = clone $baseReportArraySource;
-
-        $baseReportArray = $baseReportArraySource
+        $baseReportArraySource = FuelTankTransferHystory::query()
             ->where([
                 ['fuel_tank_transfer_hystories.event_date', '>=', $currentMonthBegin],
                 ['fuel_tank_transfer_hystories.event_date', '<=', $currentMonthEnd],
             ])
-            ->whereIn('fuel_tank_transfer_hystories.fuel_tank_flow_id', $fuelTankFlowsIds)
-            ->orWhere('fuel_tank_transfer_hystories.fuel_tank_flow_id', null)
+            ->whereIn('fuel_tank_transfer_hystories.fuel_tank_flow_id', $fuelTankFlowsIds);
+            // ->orWhere([
+            //     ['fuel_tank_transfer_hystories.event_date', '>=', $currentMonthBegin],
+            //     ['fuel_tank_transfer_hystories.event_date', '<=', $currentMonthEnd],
+            //     ['fuel_tank_transfer_hystories.fuel_tank_flow_id', null]
+            // ]);
+            
+        $baseReportArraySource_ = clone $baseReportArraySource;
+
+        $baseReportArray = $baseReportArraySource
             ->leftJoin('fuel_tank_flows', 'fuel_tank_transfer_hystories.fuel_tank_flow_id', '=', 'fuel_tank_flows.id')
             ->leftJoin('fuel_tank_flow_types', 'fuel_tank_flows.fuel_tank_flow_type_id', '=', 'fuel_tank_flow_types.id')
             ->leftJoin('contractors', 'fuel_tank_flows.contractor_id', '=', 'contractors.id')
@@ -229,6 +231,7 @@ class FuelReportController extends Controller
             ->orderBy('fuel_tank_transfer_hystories.responsible_id') 
             ->orderBy('fuel_tank_transfer_hystories.fuel_tank_id')
             ->orderBy('fuel_tank_transfer_hystories.object_id')
+            
             ->orderBy('fuel_tank_transfer_hystories.event_date')
             ->orderBy('fuel_tank_transfer_hystories.id')
             ->get(['fuel_tank_transfer_hystories.responsible_id as responsible_id',
@@ -260,13 +263,24 @@ class FuelReportController extends Controller
                         ')
             ])
             ->groupBy(['responsible_id', 'fuel_tank_id', 'object_id', 'group_marker', 'fuel_tank_flow_type_slug'])->toArray();
-            
+
         $fuelTanksIncludedinReportIds = $baseReportArraySource_->pluck('fuel_tank_id')->unique()->toArray();
+        // $filteredResponsiblesArr = $this->getFilteredResponsiblesArr($options->filter);
+        $filteredByResponsiblesArr = $this->getFilteredArray($options->filter, 'responsible_id');
+        $filteredByTankArr = $this->getFilteredArray($options->filter, 'fuel_tank_id');
+        $filteredByCompanyArr = $this->getFilteredArray($options->filter, 'company_id');
+
         $fuelTanksNotIncludedinReport = 
             FuelTank::query()
             ->whereNotIn('id', $fuelTanksIncludedinReportIds)
-            ->when(!empty($filteredResponsiblesArr), function($query) use($filteredResponsiblesArr) {
-                $query->whereIn('responsible_id', $filteredResponsiblesArr);
+            ->when(!empty($filteredByResponsiblesArr), function($query) use($filteredByResponsiblesArr) {
+                $query->whereIn('responsible_id', $filteredByResponsiblesArr);
+            })
+            ->when(!empty($filteredByTankArr), function($query) use($filteredByTankArr) {
+                $query->whereIn('id', $filteredByTankArr);
+            })
+            ->when(!empty($filteredByCompanyArr), function($query) use($filteredByCompanyArr) {
+                $query->whereIn('id', $filteredByCompanyArr);
             })
             ->get();
 // dd($baseReportArray);
@@ -305,7 +319,7 @@ class FuelReportController extends Controller
                 [
                     'baseReportArray' => $baseReportArray,
                     'dateFrom' => $currentMonthBegin->format('d.m.Y'),
-                    'dateTo' => $nextMonthBegin->subDay()->format('d.m.Y'),
+                    'dateTo' => $nextMonthBegin->format('d.m.Y'),
                     'companyModelInstance' => new Company,
                     'fuelTankModelInstance' => new FuelTank,
                     'objectModelInstance' => new ProjectObject,
@@ -407,6 +421,30 @@ class FuelReportController extends Controller
             'dateTo' => $dateTo->format('d.m.Y'),
         ];
 
+    }
+
+    public function getFilteredArray($filterData, $filterKey)
+    {
+        if(!str_contains(json_encode($filterData), $filterKey))
+        return [];
+
+        $filterData = (array)$filterData;
+        $resultArr = [];
+        $i=0;
+        array_walk_recursive($filterData, function($value, $key) use(&$resultArr, &$i, &$filterKey) {
+            if($value === $filterKey) {
+                $i++;
+            }
+            if($i) {
+                $i++;
+                if($i===4) {
+                    $resultArr[] = $value;
+                    $i=0;
+                }
+            }
+        });
+
+        return $resultArr;
     }
 
     public function getFilteredResponsiblesArr($filter)

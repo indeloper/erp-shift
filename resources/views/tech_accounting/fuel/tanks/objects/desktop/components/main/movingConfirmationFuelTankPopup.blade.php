@@ -88,7 +88,7 @@
                         text: 'Отмена',
                     },
                     onClick() {
-                        movemingFuelTankForm.hide()
+                        movingConfirmationFuelTankFormPopup.hide()
                     }
                 }
             ],

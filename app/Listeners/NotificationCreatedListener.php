@@ -41,6 +41,12 @@ class NotificationCreatedListener
         }
 
         $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);
+
+        if(str_contains($text, 'notificationHook'))
+        {
+            $text = (new NotificationService())->setNotificationHookLink($text);
+        }
+
         try {
             if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
                 Telegram::sendMessage([

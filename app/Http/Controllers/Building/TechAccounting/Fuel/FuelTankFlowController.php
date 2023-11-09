@@ -228,13 +228,15 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function createFuelTankTransferHystory($fuelTankId, $fuel_level, $lastFuelTankTransferHystory, $fuel_tank_flow_id = null, $event_date = null)
     {
+        $fuelTankFlow = FuelTankFlow::find($fuel_tank_flow_id);
         FuelTankTransferHystory::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $fuelTankId,
-            'previous_object_id' => $lastFuelTankTransferHystory->previous_object_id ?? null,
-            'object_id' => $lastFuelTankTransferHystory->object_id ?? null,
-            'previous_responsible_id' => $lastFuelTankTransferHystory->previous_responsible_id ?? null,
-            'responsible_id' => $lastFuelTankTransferHystory->responsible_id ?? null,
+            'previous_object_id' => $lastFuelTankTransferHystory->previous_object_id,
+            'object_id' => $fuelTankFlow->object_id,
+            'previous_responsible_id' => $lastFuelTankTransferHystory->previous_responsible_id,
+            // 'responsible_id' => $lastFuelTankTransferHystory->responsible_id ?? null,
+            'responsible_id' => $fuelTankFlow->responsible_id,
             'fuel_tank_flow_id' => $fuel_tank_flow_id,
             'fuel_level' => $fuel_level,
             'event_date' => $event_date ? $event_date : now()

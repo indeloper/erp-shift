@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Company\Company;
 use App\Models\Group;
+use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
@@ -166,6 +167,18 @@ class FuelTankController extends StandardEntityResourceController
         $tank->awaiting_confirmation = true;
         $tank->save();
 
+        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
+        $notificationText = 
+            'Подтвердите получение топливной емкости № '
+            .$tank->tank_number.' на объекте '.ProjectObject::find($tank->object_id)->short_name
+            .' '.$notificationHook;
+
+        Notification::create([
+            'name' => $notificationText,
+            'user_id' => 538,
+            'type' => 0,
+        ]);
+
         return json_encode($tank);
     }
 
@@ -194,5 +207,27 @@ class FuelTankController extends StandardEntityResourceController
 
         $tank->awaiting_confirmation = false;
         $tank->save();
+    }
+
+    public function getFuelTankConfirmationFormData(Request $request)
+    {
+        $fuelTankId = (int)json_decode($request->fuelTankId);
+        $tank = $this->baseModel::findOrFail($fuelTankId);
+        $responseData = new \stdClass();
+        
+        if(!$tank->awaiting_confirmation) 
+        {
+            $responseData->status = 'not need confirmation';
+            return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        }
+
+        $responseData->status = 'need confirmation';
+        $responseData->id = $tank->id;
+        $responseData->tank_number = $tank->tank_number;
+        $responseData->fuel_level = $tank->fuel_level;
+        $responseData->object_name = ProjectObject::find($tank->object_id)->short_name;
+        $responseData->responsible_name = User::find($tank->responsible_id)->full_name;
+        
+        return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }
