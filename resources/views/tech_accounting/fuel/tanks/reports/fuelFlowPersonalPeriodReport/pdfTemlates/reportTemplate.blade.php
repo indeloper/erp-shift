@@ -154,22 +154,26 @@
                         @endif
 
 
-                        @continue($flowTypeSlug === 'notIncludedTank' || !$flowTypeSlug)
-                        <tr>
-                            <td class="td-normal row-without-borders" colspan=4></td>
-                        </tr>
+                    {{--   @continue($flowTypeSlug === 'notIncludedTank' || !$flowTypeSlug) --}} 
+                    
 
-                        <tr class="table-summary">
-                            <td class="td-center table-summary" colspan=4>
-                                @if(empty($isEmptyIncomeRegionRendered) && $flowTypeSlug==='income')
-                                    Приход
-                                @endif
-                                @if(empty($isEmptyOutcomeRegionRendered) && $flowTypeSlug==='outcome')
-                                    Расход
-                                @endif
+                        @if($flowTypeSlug==='income' || $flowTypeSlug==='outcome')
+                            <tr>
+                                <td class="td-normal row-without-borders" colspan=4></td>
+                            </tr>
 
-                            </td>
-                        </tr>
+                            <tr class="table-summary">
+                                <td class="td-center table-summary" colspan=4>
+                                    @if(empty($isEmptyIncomeRegionRendered) && $flowTypeSlug==='income')
+                                        Приход
+                                    @endif
+                                    @if(empty($isEmptyOutcomeRegionRendered) && $flowTypeSlug==='outcome')
+                                        Расход
+                                    @endif
+
+                                </td>
+                            </tr>
+                        @endif
 
                         @foreach($objectTransferGroup as $fuelFlowOperation)
 
@@ -304,12 +308,13 @@
                         </td>
                     </tr>
                 </table>
-
-                @foreach($summaryData['fuelPeriodMovementsOrResponsibleChanges'] as $event)
+                
+                @foreach($summaryData['confirmedTankMovements'] as $event)
                     @continue(!isset($event['object_id']))
                     @continue($event['object_id']===$event['previous_object_id'])
                     @continue(!$objectModelInstance::find($event['previous_object_id']))
-
+                    @continue(!$objectModelInstance::find($event['tank_moving_confirmation']))
+                    
                     <table style="margin-top: 10px;">
                         <tr>
                             <td>
@@ -322,7 +327,7 @@
                                     <b>{{$objectModelInstance::find($event['previous_object_id'])->short_name}}</b>
                                 @else
                                     перемещена на объект
-                                    <b>{{$objectModelInstance::find($event['previous_object_id'])->short_name}}</b>
+                                    <b>{{$objectModelInstance::find($event['object_id'])->short_name}}</b>
                                 @endif
                             </td>
                         </tr>

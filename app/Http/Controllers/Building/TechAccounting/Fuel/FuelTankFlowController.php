@@ -99,51 +99,38 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         $tank = FuelTank::findOrFail($data['fuel_tank_id']);
         $tankCurrentFuelLevel = $tank->fuel_level;
-        $lastFuelTankFlowRemains = FuelTankFlowRemains::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
-        // $lastFuelTankTransferHystory = FuelTankTransferHystory::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
-        
-        if($lastFuelTankFlowRemains)
-            $lastFuelTankFlowRemainsVolume = $lastFuelTankFlowRemains->volume;
-        else {
-            $lastFuelTankFlowRemainsVolume = 0;
-        }
-           
-        // if($lastFuelTankTransferHystory)
-        //     $lastFuelTankTransferHystoryVolume = $lastFuelTankTransferHystory->volume;
+        // $lastFuelTankFlowRemains = FuelTankFlowRemains::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first(); 
+             
+        // if($lastFuelTankFlowRemains)
+        //     $lastFuelTankFlowRemainsVolume = $lastFuelTankFlowRemains->volume;
         // else {
-        //     $lastFuelTankTransferHystoryVolume = 0;
-        //     $lastFuelTankTransferHystory = new FuelTankTransferHystory;
+        //     $lastFuelTankFlowRemainsVolume = 0;
         // }
+           
             
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'outcome') {
             $tank->fuel_level = round($tankCurrentFuelLevel - $data['volume']);
-            $newFuelRamain = round($lastFuelTankFlowRemainsVolume - $data['volume']);
-            FuelTankFlowRemains::create([
-                'fuel_tank_id' => $data['fuel_tank_id'],
-                'volume' => $newFuelRamain
-            ]);
-
-            // $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
+            // $newFuelRamain = round($lastFuelTankFlowRemainsVolume - $data['volume']);
+            // FuelTankFlowRemains::create([
+            //     'fuel_tank_id' => $data['fuel_tank_id'],
+            //     'volume' => $newFuelRamain
+            // ]);
         }
     
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'income') {
             $tank->fuel_level = round($tankCurrentFuelLevel + $data['volume'], 3);
-            FuelTankFlowRemains::create([
-                'fuel_tank_id' => $data['fuel_tank_id'],
-                'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
-            ]);
-
-            // $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
+            // FuelTankFlowRemains::create([
+            //     'fuel_tank_id' => $data['fuel_tank_id'],
+            //     'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
+            // ]);
         }
             
         if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'adjustment') {
             $tank->fuel_level = round($tankCurrentFuelLevel + $data['volume'], 3);
-            FuelTankFlowRemains::create([
-                'fuel_tank_id' => $data['fuel_tank_id'],
-                'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
-            ]);
-
-            // $this->createFuelTankTransferHystory($data['fuel_tank_id'], $tank->fuel_level, $lastFuelTankTransferHystory);
+            // FuelTankFlowRemains::create([
+            //     'fuel_tank_id' => $data['fuel_tank_id'],
+            //     'volume' => round($lastFuelTankFlowRemainsVolume + $data['volume'], 3)
+            // ]);
         }
             
         $tank->save();
@@ -155,7 +142,6 @@ class FuelTankFlowController extends StandardEntityResourceController
         
         return [
             'data' => $data, 
-            // 'ignoreDataKeys' => ['newAttachments', 'deletedAttachments']
         ];
     }
 
@@ -182,43 +168,47 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         $tank = FuelTank::findOrFail($entity->fuel_tank_id);
         $tankCurrentFuelLevel = $tank->fuel_level;
-        $lastFuelTankFlowRemains = FuelTankFlowRemains::where('fuel_tank_id', $entity->fuel_tank_id)->orderBy('id', 'desc')->first(); 
+        // $lastFuelTankFlowRemains = FuelTankFlowRemains::where('fuel_tank_id', $entity->fuel_tank_id)->orderBy('id', 'desc')->first(); 
         $lastFuelTankTransferHystory = FuelTankTransferHystory::where('fuel_tank_id', $entity->fuel_tank_id)->orderBy('id', 'desc')->first(); 
         
-        if($lastFuelTankFlowRemains->count())
-            $lastFuelTankFlowRemainsVolume = $lastFuelTankFlowRemains->volume;
-            
-        else {
-            $lastFuelTankFlowRemainsVolume = 0;
+        if(!$lastFuelTankTransferHystory) {
             $lastFuelTankTransferHystory = new FuelTankTransferHystory;
         }
+        
+        // if($lastFuelTankFlowRemains->count())
+        //     $lastFuelTankFlowRemainsVolume = $lastFuelTankFlowRemains->volume;
+            
+        // else {
+        //     $lastFuelTankFlowRemainsVolume = 0;
+        //     $lastFuelTankTransferHystory = new FuelTankTransferHystory;
+        // }
 
         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
             $tank->fuel_level = round($tankCurrentFuelLevel + $entity->volume, 3);
-            FuelTankFlowRemains::create([
-                'fuel_tank_id' => $entity->fuel_tank_id,
-                'volume' => round($lastFuelTankFlowRemainsVolume + $entity->volume, 3)
-            ]);
+            // FuelTankFlowRemains::create([
+            //     'fuel_tank_id' => $entity->fuel_tank_id,
+            //     'volume' => round($lastFuelTankFlowRemainsVolume + $entity->volume, 3)
+            // ]);
 
             $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHystory);
         }
 
         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
             $tank->fuel_level = round($tankCurrentFuelLevel - $entity->volume, 3);
-            FuelTankFlowRemains::create([
-                'fuel_tank_id' => $entity->fuel_tank_id,
-                'volume' => round($lastFuelTankFlowRemainsVolume - $entity->volume, 3)
-            ]);
+            // FuelTankFlowRemains::create([
+            //     'fuel_tank_id' => $entity->fuel_tank_id,
+            //     'volume' => round($lastFuelTankFlowRemainsVolume - $entity->volume, 3)
+            // ]);
 
             $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHystory);
         }
 
         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
             $tank->fuel_level = round($tankCurrentFuelLevel - $entity->volume, 3);
-            FuelTankFlowRemains::create([
-                'fuel_tank_id' => $entity->fuel_tank_id,
-                'volume' => round($lastFuelTankFlowRemainsVolume - $entity->volume, 3)
-            ]);
+            // FuelTankFlowRemains::create([
+            //     'fuel_tank_id' => $entity->fuel_tank_id,
+            //     'volume' => round($lastFuelTankFlowRemainsVolume - $entity->volume, 3)
+            // ]);
 
             $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHystory);
         }
@@ -235,7 +225,6 @@ class FuelTankFlowController extends StandardEntityResourceController
             'previous_object_id' => $lastFuelTankTransferHystory->previous_object_id,
             'object_id' => $fuelTankFlow->object_id,
             'previous_responsible_id' => $lastFuelTankTransferHystory->previous_responsible_id,
-            // 'responsible_id' => $lastFuelTankTransferHystory->responsible_id ?? null,
             'responsible_id' => $fuelTankFlow->responsible_id,
             'fuel_tank_flow_id' => $fuel_tank_flow_id,
             'fuel_level' => $fuel_level,
@@ -247,7 +236,6 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         return User::query()->active()
                 ->orWhereIn('group_id', Group::FOREMEN)
-                // ->select(['id', 'first_name', 'last_name', 'patronymic'])
                 ->orderBy('last_name')
                 ->get();
     }

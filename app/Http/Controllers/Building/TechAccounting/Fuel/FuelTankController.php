@@ -50,12 +50,12 @@ class FuelTankController extends StandardEntityResourceController
     
     public function afterStore($tank, $data, $dataToStore)
     {
-        FuelTankMovement::create([
-            'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $tank->id,
-            'object_id' => $tank->object_id,
-            'fuel_level' => 0
-        ]);
+        // FuelTankMovement::create([
+        //     'author_id' => Auth::user()->id,
+        //     'fuel_tank_id' => $tank->id,
+        //     'object_id' => $tank->object_id,
+        //     'fuel_level' => 0
+        // ]);
 
         FuelTankTransferHystory::create([
             'author_id' => Auth::user()->id,
@@ -69,13 +69,13 @@ class FuelTankController extends StandardEntityResourceController
 
     public function beforeUpdate($tank, $data)
     {
-        FuelTankMovement::create([
-            'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $tank->id,
-            'previous_object_id' => $tank->object_id,
-            'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
-            'fuel_level' => $tank->fuel_level
-        ]);
+        // FuelTankMovement::create([
+        //     'author_id' => Auth::user()->id,
+        //     'fuel_tank_id' => $tank->id,
+        //     'previous_object_id' => $tank->object_id,
+        //     'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
+        //     'fuel_level' => $tank->fuel_level
+        // ]);
 
         FuelTankTransferHystory::create([
             'author_id' => Auth::user()->id,

@@ -283,12 +283,38 @@ class FuelReportController extends Controller
                 $query->whereIn('id', $filteredByCompanyArr);
             })
             ->get();
-// dd($baseReportArray);
+
+        foreach($fuelTanksNotIncludedinReport as $notIncludedTank){
+            // if (!isset($baseReportArray[$notIncludedTank->responsible_id])){
+            //     $baseReportArray[$notIncludedTank->responsible_id] = [];
+            //     $baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id] = [];                    
+            // } else {
+            //     if (!isset($baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id])){
+            //         $baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id] = [];
+            //     }
+            // }
+
+            $baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id][$notIncludedTank->object_id] = [
+                0 => ["notIncludedTank" => []]
+            ];
+        }
+
+        // добавляем бочки, у которых сменился объект, но операций на новом объекте не было 
+        $includedTanksInReport = FuelTank::whereIn('id', $fuelTanksIncludedinReportIds)->get();
+        foreach($includedTanksInReport as $includedTank)
+        {
+            if(!isset($baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id])) {
+                $baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id] = [
+                    0 => ["notIncludedTank" => []]
+                ];
+            }
+        }
+
         // return view('tech_accounting.fuel.tanks.reports.fuelFlowPersonalPeriodReport.pdfTemlates.reportTemplate',
         //     [
         //         'baseReportArray' => $baseReportArray,
         //         'dateFrom' => $currentMonthBegin->format('d.m.Y'),
-        //         'dateTo' => $nextMonthBegin->subDay()->format('d.m.Y'),
+        //         'dateTo' => $nextMonthBegin->format('d.m.Y'),
         //         'companyModelInstance' => new Company,
         //         'fuelTankModelInstance' => new FuelTank,
         //         'objectModelInstance' => new ProjectObject,
@@ -300,88 +326,137 @@ class FuelReportController extends Controller
         //     ]
         // );
 
-            foreach($fuelTanksNotIncludedinReport as $notIncludedTank){
-                 if (!isset($baseReportArray[$notIncludedTank->responsible_id])){
-                    $baseReportArray[$notIncludedTank->responsible_id] = [];
-                    $baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id] = [];                    
-                } else {
-                    if (!isset($baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id])){
-                        $baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id] = [];
-                    }
-                }
-
-                $baseReportArray[$notIncludedTank->responsible_id][$notIncludedTank->id][$notIncludedTank->object_id] = [
-                    0 => ["notIncludedTank" => []]
-                ];
-            }
-
-            $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelFlowPersonalPeriodReport.pdfTemlates.reportTemplate', 
-                [
-                    'baseReportArray' => $baseReportArray,
-                    'dateFrom' => $currentMonthBegin->format('d.m.Y'),
-                    'dateTo' => $nextMonthBegin->format('d.m.Y'),
-                    'companyModelInstance' => new Company,
-                    'fuelTankModelInstance' => new FuelTank,
-                    'objectModelInstance' => new ProjectObject,
-                    'userModelInstance' => new User,
-                    'employeeModelInstance' => new Employee,
-                    'employees1cPostModelInstance' => new Employees1cPost,
-                    'carbonInstance' => new Carbon,
-                    'reportControllerInstance' => $this,
-                ]
-            );
+        $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelFlowPersonalPeriodReport.pdfTemlates.reportTemplate', 
+            [
+                'baseReportArray' => $baseReportArray,
+                'dateFrom' => $currentMonthBegin->format('d.m.Y'),
+                'dateTo' => $nextMonthBegin->format('d.m.Y'),
+                'companyModelInstance' => new Company,
+                'fuelTankModelInstance' => new FuelTank,
+                'objectModelInstance' => new ProjectObject,
+                'userModelInstance' => new User,
+                'employeeModelInstance' => new Employee,
+                'employees1cPostModelInstance' => new Employees1cPost,
+                'carbonInstance' => new Carbon,
+                'reportControllerInstance' => $this,
+            ]
+        );
 
         return $pdf->stream('Отчет по дизельному топливу '.$currentMonthBegin->format('d.m.Y'). '-' .$nextMonthBegin->subDay()->format('d.m.Y').'.pdf');
     }
 
     public function getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $fuelTankId, $responsibleId, $globalDateFrom, $globalDateTo)
     {
-        if(isset($objectTransferGroups['notIncludedTank'])) {
-            $fuelTankFuelLevel = FuelTank::find($fuelTankId)->fuel_level;
-            return [
-                'fuelLevelPeriodStart' => $fuelTankFuelLevel,
-                'fuelLevelPeriodFinish' => $fuelTankFuelLevel,
-                'fuelPeriodMovementsOrResponsibleChanges' => [],
-                'dateFrom' => $globalDateFrom,
-                'dateTo' => $globalDateTo,
-            ];
-        }
+        [$dateFrom, $dateTo] = $this->getPeriodDatesFromTo($objectTransferGroups, $fuelTankId, $responsibleId, $globalDateFrom, $globalDateTo);
+
+        // if(isset($objectTransferGroups['notIncludedTank'])) {
+        //     $fuelTankFuelLevel = FuelTank::find($fuelTankId)->fuel_level;
+        //     return [
+        //         'fuelLevelPeriodStart' => $fuelTankFuelLevel,
+        //         'fuelLevelPeriodFinish' => $fuelTankFuelLevel,
+        //         'confirmedTankMovements' => [],
+        //         'dateFrom' => $dateFrom,
+        //         'dateTo' => $dateTo,
+        //         // 'dateFrom' => $globalDateFrom,
+        //         // 'dateTo' => Carbon::create(min($globalDateTo, now()))->format('d.m.Y'),
+        //     ];
+        // }
+
+        [$fuelLevelPeriodStart, $fuelLevelPeriodFinish] = $this->getPeriodFuelRemains($fuelTankId, $dateFrom, $dateTo);
+
+        $confirmedTankMovements = FuelTankTransferHystory::query()
+        ->where([
+            ['fuel_tank_id', $fuelTankId],
+            ['event_date', '>=',  $dateFrom],
+            ['event_date', '<=',  $dateTo],
+            ['responsible_id', $responsibleId],
+            ['tank_moving_confirmation', '<>', null]
+        ])
+        ->orWhere([
+            ['fuel_tank_id', $fuelTankId],
+            ['event_date', '>=',  $dateFrom],
+            ['event_date', '<=',  $dateTo],
+            ['previous_responsible_id', $responsibleId],
+            ['tank_moving_confirmation', '<>', null]
+        ])
+        // ->whereNull('fuel_tank_flow_id')
+        // ->whereNotNull('tank_moving_confirmation')
+        ->whereNotNull('object_id')
+        ->whereNotNull('previous_object_id')
+        ->get()
+        ->toArray();
+        
+        return [
+            'fuelLevelPeriodStart' => $fuelLevelPeriodStart,
+            'fuelLevelPeriodFinish' => $fuelLevelPeriodFinish,
+            'confirmedTankMovements' => $confirmedTankMovements,
+            'dateFrom' => $dateFrom->format('d.m.Y'),
+            'dateTo' => $dateTo->format('d.m.Y'),
+        ];
+
+    }
+
+    public function getPeriodDatesFromTo($objectTransferGroups, $fuelTankId, $responsibleId, $globalDateFrom, $globalDateTo)
+    {
         $eventDates = [];
         array_walk_recursive($objectTransferGroups, function($value, $key) use(&$eventDates) {
             if($key === 'event_date')
             $eventDates[] = $value;
         });
 
-        $dateToTmp = Carbon::create(max($eventDates));
-        if( 
-            FuelTankTransferHystory::where([
-                ['fuel_tank_id', $fuelTankId],
-                ['event_date', '>=',  $dateToTmp],
-                ['event_date', '<',  Carbon::create($globalDateTo)],
-            ])
-            ->whereNull('fuel_tank_flow_id')
-            ->whereNotNull('tank_moving_confirmation')
-            ->exists()
-        ) {
-            $dateTo = FuelTankTransferHystory::where([
-                ['fuel_tank_id', $fuelTankId],
-                ['event_date', '>=',  $dateToTmp],
-                ['event_date', '<',  Carbon::create($globalDateTo)],
-            ])
-            ->whereNull('fuel_tank_flow_id')
-            ->whereNotNull('tank_moving_confirmation')
+        if(empty($eventDates)) {
+            $dateFromTmp = Carbon::create($globalDateFrom);
+            $dateToTmp = Carbon::create($globalDateTo);
+        } else {
+            $dateFromTmp = Carbon::create(min($eventDates));
+            $dateToTmp = Carbon::create(max($eventDates));
+        }
+
+        $dateToQuery = FuelTankTransferHystory::query()
+        ->where([
+            ['fuel_tank_id', $fuelTankId],
+            ['event_date', '=<',  $dateToTmp],
+            ['event_date', '<',  Carbon::create($globalDateTo)],
+            ['responsible_id', $responsibleId]
+        ])
+        ->whereNull('fuel_tank_flow_id')
+        ->whereNotNull('tank_moving_confirmation');
+
+        if($dateToQuery->exists()) {
+            $dateTo = $dateToQuery
             ->first()
             ->event_date;
         } else {
-            $dateTo = $globalDateTo;
+            $dateTo = min($globalDateTo, now());
         }
 
-        $dateFrom = Carbon::create(min($eventDates));
-        $dateTo = Carbon::create($dateTo);
+        $dateFromQuery = FuelTankTransferHystory::query()
+        ->where([
+            ['fuel_tank_id', $fuelTankId],
+            ['event_date', '>=', $dateFromTmp],
+            ['event_date', '>',  Carbon::create($globalDateFrom)],
+            ['responsible_id', $responsibleId]
+        ])
+        ->whereNull('fuel_tank_flow_id')
+        ->whereNotNull('tank_moving_confirmation');
 
+        if($dateFromQuery->exists()) {
+            $dateFrom = $dateFromQuery
+            ->orderByDesc('id')
+            ->first()
+            ->event_date;
+        } else {
+            $dateFrom = $globalDateFrom;
+        }
+
+        return [Carbon::create($dateFrom), Carbon::create($dateTo)];
+    }
+
+    public function getPeriodFuelRemains($fuelTankId, $dateFrom, $dateTo)
+    {
         $fuelPeriodPreviousTransaction = FuelTankTransferHystory::where([
             ['fuel_tank_id', $fuelTankId],
-            ['event_date', '<',  $dateFrom],
+            ['event_date', '<=',  $dateFrom],
         ])
         ->orderBy('id', 'desc')
         ->first();
@@ -406,24 +481,7 @@ class FuelReportController extends Controller
             $fuelLevelPeriodFinish = $fuelLevelPeriodStart;
         }
 
-        $fuelPeriodMovementsOrResponsibleChanges = FuelTankTransferHystory::where([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFrom],
-            ['event_date', '<=',  $dateTo],
-        ])
-        ->whereNull('fuel_tank_flow_id')
-        ->whereNotNull('tank_moving_confirmation')
-        ->get()
-        ->toArray();
-        
-        return [
-            'fuelLevelPeriodStart' => $fuelLevelPeriodStart,
-            'fuelLevelPeriodFinish' => $fuelLevelPeriodFinish,
-            'fuelPeriodMovementsOrResponsibleChanges' => $fuelPeriodMovementsOrResponsibleChanges,
-            'dateFrom' => $dateFrom->format('d.m.Y'),
-            'dateTo' => $dateTo->format('d.m.Y'),
-        ];
-
+        return [$fuelLevelPeriodStart, $fuelLevelPeriodFinish];
     }
 
     public function getFilteredArray($filterData, $filterKey)
