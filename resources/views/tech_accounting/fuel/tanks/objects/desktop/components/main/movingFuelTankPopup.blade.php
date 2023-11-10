@@ -77,7 +77,6 @@
 
 
     const showMovingFuelTankPopup = (rowData) => {
-        console.log(rowData);
         const movingFuelTankFormPopup = $("#externalPopup").dxPopup({
             visible: true,
             title: 'Перемещение емкости',

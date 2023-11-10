@@ -31,7 +31,7 @@
                     dataField: 'fuel_tank_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksStore,
+                        dataSource: fuelTanksStore.__rawData.filter(el=>el.awaiting_confirmation != 1),
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
                         readOnly: editingRowId,
@@ -87,7 +87,9 @@
                 {
                     dataField: 'event_date',
                     editorType: "dxDateBox",
-                    editorOptions: {},
+                    editorOptions: {
+                        value: new Date(),
+                    },
                     label: {
                         text: 'Дата операции'
                     },

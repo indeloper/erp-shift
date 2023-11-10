@@ -89,6 +89,9 @@
                 {
                     dataField: 'event_date',
                     editorType: "dxDateBox",
+                    editorOptions: {
+                        value: new Date(),
+                    },
                     label: {
                         text: 'Дата операции'
                     },
