@@ -345,9 +345,9 @@ class FuelReportController extends Controller
         return $pdf->stream('Отчет по дизельному топливу '.$currentMonthBegin->format('d.m.Y'). '-' .$nextMonthBegin->subDay()->format('d.m.Y').'.pdf');
     }
 
-    public function getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $fuelTankId, $responsibleId, $globalDateFrom, $globalDateTo)
+    public function getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
     {
-        [$dateFrom, $dateTo] = $this->getPeriodDatesFromTo($objectTransferGroups, $fuelTankId, $responsibleId, $globalDateFrom, $globalDateTo);
+        [$dateFrom, $dateTo] = $this->getPeriodDatesFromTo($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo);
 
         // if(isset($objectTransferGroups['notIncludedTank'])) {
         //     $fuelTankFuelLevel = FuelTank::find($fuelTankId)->fuel_level;
@@ -396,7 +396,7 @@ class FuelReportController extends Controller
 
     }
 
-    public function getPeriodDatesFromTo($objectTransferGroups, $fuelTankId, $responsibleId, $globalDateFrom, $globalDateTo)
+    public function getPeriodDatesFromTo($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
     {
         $eventDates = [];
         array_walk_recursive($objectTransferGroups, function($value, $key) use(&$eventDates) {
@@ -405,46 +405,55 @@ class FuelReportController extends Controller
         });
 
         if(empty($eventDates)) {
-            $dateFromTmp = Carbon::create($globalDateFrom);
+            //Проверка если последняя запись в журнале - смена ответственного
+            $lastTankObjectOrResponsibleChanged = FuelTankTransferHystory::where([
+                ['fuel_tank_id', $fuelTankId],
+                ['event_date', '<=', Carbon::create($globalDateTo)->addday()],
+                ['event_date', '>=', Carbon::create($globalDateFrom)],
+                ['object_id', $objectId], 
+                ['responsible_id', $responsibleId], 
+                ['tank_moving_confirmation', true]
+            ])
+            ->orderByDesc('id')->first();
+
+            if($lastTankObjectOrResponsibleChanged) {
+                $dateFromTmp = $lastTankObjectOrResponsibleChanged->event_date;
+            } else {
+                $dateFromTmp = Carbon::create($globalDateFrom);
+            }
+        
             $dateToTmp = Carbon::create($globalDateTo);
         } else {
             $dateFromTmp = Carbon::create(min($eventDates));
             $dateToTmp = Carbon::create(max($eventDates));
         }
 
-        $dateToQuery = FuelTankTransferHystory::query()
-        ->where([
+        $to = FuelTankTransferHystory::where([
             ['fuel_tank_id', $fuelTankId],
-            ['event_date', '=<',  $dateToTmp],
-            ['event_date', '<',  Carbon::create($globalDateTo)],
-            ['responsible_id', $responsibleId]
-        ])
-        ->whereNull('fuel_tank_flow_id')
-        ->whereNotNull('tank_moving_confirmation');
+            ['event_date', '>=',  $dateToTmp],
+            ['event_date', '<=',  Carbon::create($globalDateTo)],
+            ['previous_object_id', $objectId], 
+            ['previous_responsible_id', $responsibleId],
+            ['tank_moving_confirmation', true]
+        ])->orderByDesc('id')->first();
 
-        if($dateToQuery->exists()) {
-            $dateTo = $dateToQuery
-            ->first()
-            ->event_date;
+        if($to) {
+            $dateTo = $to->event_date;
         } else {
-            $dateTo = min($globalDateTo, now());
+            $dateTo = $globalDateTo;
         }
 
-        $dateFromQuery = FuelTankTransferHystory::query()
-        ->where([
+        $from = FuelTankTransferHystory::where([
             ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=', $dateFromTmp],
-            ['event_date', '>',  Carbon::create($globalDateFrom)],
-            ['responsible_id', $responsibleId]
-        ])
-        ->whereNull('fuel_tank_flow_id')
-        ->whereNotNull('tank_moving_confirmation');
+            ['event_date', '<=',  $dateFromTmp],
+            ['event_date', '>=', Carbon::create($globalDateFrom)],
+            ['object_id', $objectId], 
+            ['responsible_id', $responsibleId], 
+            ['tank_moving_confirmation', true]
+        ])->orderByDesc('id')->first();
 
-        if($dateFromQuery->exists()) {
-            $dateFrom = $dateFromQuery
-            ->orderByDesc('id')
-            ->first()
-            ->event_date;
+        if($from) {
+            $dateFrom = $from->event_date;
         } else {
             $dateFrom = $globalDateFrom;
         }

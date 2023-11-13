@@ -52,7 +52,7 @@
         @foreach ($fuelTankIdData as $objectId=>$objectData)
             @foreach($objectData as $objectTransferGroups)
                 @php
-                    $summaryData = $reportControllerInstance->getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $fuelTankId, $responsibleId, $dateFrom, $dateTo);
+                    $summaryData = $reportControllerInstance->getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
                     $incomesTotalAmount = 0;
                     $outcomesTotalAmount = 0;
                 @endphp
