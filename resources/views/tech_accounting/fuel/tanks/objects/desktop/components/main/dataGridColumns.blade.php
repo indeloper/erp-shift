@@ -30,7 +30,19 @@
             dataField: "tank_number",
             width: 150,
             sortIndex: 0,
-            sortOrder: "asc"
+            sortOrder: "asc",
+            cellTemplate(container, options) {
+                const spanText = $('<span>').text(options.text)
+                if(options.data.awaiting_confirmation) {
+                    spanText
+                        .css({
+                            color: '#dd5e5e',
+                            fontWeight: 'bold',
+                        })
+                        .attr({title: 'Требуется подтверждение нового ответственного'})
+                }
+                spanText.appendTo(container)
+            }
         },
         {
             caption: "Объект",
@@ -40,6 +52,18 @@
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
+            cellTemplate(container, options) {
+                const spanText = $('<span>').text(options.displayValue)
+                if(options.data.awaiting_confirmation) {
+                    spanText
+                        .css({
+                            color: '#dd5e5e',
+                            fontWeight: 'bold',
+                        })
+                        .attr({title: 'Требуется подтверждение нового ответственного'})
+                }
+                spanText.appendTo(container)
+            }
         },
         {
             caption: "Ответственный",
@@ -49,6 +73,18 @@
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
+            cellTemplate(container, options) {
+                const spanText = $('<span>').text(options.displayValue)
+                if(options.data.awaiting_confirmation) {
+                    spanText
+                        .css({
+                            color: '#dd5e5e',
+                            fontWeight: 'bold',
+                        })
+                        .attr({title: 'Требуется подтверждение нового ответственного'})
+                }
+                spanText.appendTo(container)
+            }
         },
         {
             caption: "Текущий остаток (л)",
