@@ -31,8 +31,11 @@
             onShowing(e){
                 if(isArchivedOrDeletedDocuments())
                 e.component.option('toolbarItems', [])
-
                 getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', false);
+
+                let popupTitleWrapper = $('.dx-toolbar-items-container')[1]
+                let popupTitleElem = $(popupTitleWrapper).find('.dx-toolbar-before').find('.dx-toolbar-item-content').find('div')
+                popupTitleElem.append(' [id: ' + editingRowId + ']')
 
                 // Прогружаем за один запрос комментарии и файлы, и после этого перерисовываем форму (.repaint())
                 // комментарии и файлы содержатся в projectObjectDocumentInfoByID
