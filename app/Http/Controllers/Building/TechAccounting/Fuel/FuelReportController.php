@@ -385,7 +385,7 @@ class FuelReportController extends Controller
         //     ];
         // }
 
-        [$fuelLevelPeriodStart, $fuelLevelPeriodFinish] = $this->getPeriodFuelRemains($fuelTankId, $dateFrom, $dateTo);
+        [$fuelLevelPeriodStart, $fuelLevelPeriodFinish] = $this->getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
 
         $confirmedTankMovements = FuelTankTransferHystory::query()
         ->where([
@@ -484,10 +484,12 @@ class FuelReportController extends Controller
         return [Carbon::create($dateFrom), Carbon::create($dateTo)];
     }
 
-    public function getPeriodFuelRemains($fuelTankId, $dateFrom, $dateTo)
+    public function getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo)
     {
         $fuelPeriodPreviousTransaction = FuelTankTransferHystory::where([
+            ['responsible_id', $responsibleId],
             ['fuel_tank_id', $fuelTankId],
+            ['object_id', $objectId],
             ['event_date', '<=',  $dateFrom],
         ])
         ->orderBy('id', 'desc')
@@ -500,7 +502,9 @@ class FuelReportController extends Controller
         }
 
         $fuelPeriodLastTransaction = $fuelPeriodPreviousTransaction = FuelTankTransferHystory::where([
+            ['responsible_id', $responsibleId],
             ['fuel_tank_id', $fuelTankId],
+            ['object_id', $objectId],
             ['event_date', '>=',  $dateFrom],
             ['event_date', '<=',  $dateTo],
         ])
