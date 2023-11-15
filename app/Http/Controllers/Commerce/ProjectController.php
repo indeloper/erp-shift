@@ -154,13 +154,6 @@ class ProjectController extends Controller
             ]);
         }
 
-        $contract_worker = Group::find(54/*26*/)->getUsers()->last();
-
-        if ($contract_worker) {
-            $RespRole7 = ProjectResponsibleUser::insert(['project_id' => $project->id, 'role' => 7, 'user_id'=> $contract_worker->id]);
-
-        }
-
         DB::commit();
 
         if ($request->has('contractor_contact_ids'))
