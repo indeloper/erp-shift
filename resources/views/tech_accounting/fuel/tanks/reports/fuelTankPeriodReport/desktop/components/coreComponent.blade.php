@@ -45,14 +45,14 @@
                                         text: 'Емкость'
                                     },
                                     editorOptions: {
+                                        searchEnabled: true,
                                         dataSource: fuelTanksStore,
                                         valueExpr: 'id',
                                         displayExpr: 'tank_number',
+                                        onFocusIn() {
+                                            clearCurrentLoadOptionsFilterParam('fuel_tank_id')
+                                        }
                                     },
-                                    validationRules: [{
-                                        type: 'required',
-                                        message: 'Укажите значение',
-                                    }],
                                 },
 
                                 {
@@ -62,14 +62,14 @@
                                         text: 'Объект'
                                     },
                                     editorOptions: {
+                                        searchEnabled: true,
                                         dataSource: projectObjectsStore,
                                         valueExpr: 'id',
                                         displayExpr: 'short_name',
+                                        onFocusIn() {
+                                            clearCurrentLoadOptionsFilterParam('object_id')
+                                        }
                                     },
-                                    validationRules: [{
-                                        type: 'required',
-                                        message: 'Укажите значение',
-                                    }],
                                 },
 
                                 {
@@ -79,14 +79,14 @@
                                         text: 'Ответственный'
                                     },
                                     editorOptions: {
+                                        searchEnabled: true,
                                         dataSource: fuelTanksResponsiblesStore,
                                         valueExpr: 'id',
                                         displayExpr: 'user_full_name',
+                                        onFocusIn() {
+                                            clearCurrentLoadOptionsFilterParam('responsible_id')
+                                        }
                                     },
-                                    validationRules: [{
-                                        type: 'required',
-                                        message: 'Укажите значение',
-                                    }],
                                 },
 
 
@@ -105,12 +105,19 @@
                                             const formData = $("#dataGridAncor").dxForm('instance').option('formData')
                                             const dateFrom = new Date(formData.date_from).toLocaleString()
                                             const dateTo = new Date(formData.date_to).toLocaleString()
-                                            // const dateTo = formData.date_to.toISOString()
-                                            const fuelTankId = formData.fuel_tank_id
-                                            const objectId = formData.object_id
-                                            const responsibleId = formData.responsible_id
+                                            
+                                            if(formData.fuel_tank_id) {
+                                                addFilterParamToCurrentLoadOptions('fuel_tank_id', formData.fuel_tank_id)
+                                            }
+                                            if(formData.object_id) {
+                                                addFilterParamToCurrentLoadOptions('object_id', formData.object_id)
+                                            }
+                                            if(formData.responsible_id) {
+                                                addFilterParamToCurrentLoadOptions('responsible_id', formData.responsible_id)
+                                            }
+                                            console.log('onSubmit', currentLoadOptions);
+                                            let url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&loadOptions=' + JSON.stringify(currentLoadOptions)
 
-                                            const url = "{{route($routeNameFixedPart.'resource.index')}}?" + 'fuelTankId=' + fuelTankId + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&objectId=' + objectId + '&responsibleId=' + responsibleId
                                             window.open(url, '_blank');
                                         },
 

@@ -98,5 +98,20 @@
 
     // Конец Общие
 
+    function addFilterParamToCurrentLoadOptions(param, value) {
+        if(currentLoadOptions.filter.length) {
+            currentLoadOptions.filter.push("and")
+        }
+        const newParamArr = []
+        newParamArr.push(param)
+        newParamArr.push("=")
+        newParamArr.push(value)
+        currentLoadOptions.filter.push(newParamArr)
+    }
+
+    function clearCurrentLoadOptionsFilterParam(param) {
+        currentLoadOptions.filter = currentLoadOptions.filter.filter(el=>el[0] != param)
+    }
+
 
 </script>

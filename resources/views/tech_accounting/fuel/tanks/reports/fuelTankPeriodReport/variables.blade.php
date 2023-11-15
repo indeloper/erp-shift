@@ -4,5 +4,7 @@
     // Используется при подтверждении закрытия формы без сохранения
     let skipStoppingEditingRow = 0;
     // Конец Общие
-
+    const currentLoadOptions = {
+        filter: []
+    }
 </script>
