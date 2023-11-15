@@ -58,8 +58,10 @@ class FuelReportController extends Controller
 
     public function tanksMovementReportData(Request $request) {
         $options = json_decode($request['data']);
-        $entities = (new FuelTankMovement)
+        // $entities = (new FuelTankMovement)
+        $entities = (new FuelTankTransferHystory)
             ->dxLoadOptions($options)
+            ->whereNotNull('tank_moving_confirmation')
             ->orderBy('id', 'desc')
             ->get();
 
