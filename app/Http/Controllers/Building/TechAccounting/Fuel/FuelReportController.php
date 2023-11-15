@@ -292,6 +292,7 @@ class FuelReportController extends Controller
         $filteredByResponsiblesArr = $this->getFilteredArray($options->filter, 'responsible_id');
         $filteredByTankArr = $this->getFilteredArray($options->filter, 'fuel_tank_id');
         $filteredByCompanyArr = $this->getFilteredArray($options->filter, 'company_id');
+        $filteredByObjectArr = $this->getFilteredArray($options->filter, 'object_id');
 
         if(
             !User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows') 
@@ -351,7 +352,7 @@ class FuelReportController extends Controller
             }
         }
 
-        // return view('tech_accounting.fuel.tanks.reports.fuelTankFlowsAndMovementsReport.reportTemplate',
+        // return view('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportTemplate',
         //     [
         //         'baseReportArray' => $baseReportArray,
         //         'dateFrom' => $currentMonthBegin->format('d.m.Y'),
@@ -367,7 +368,20 @@ class FuelReportController extends Controller
         //     ]
         // );
 
-        $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelTankFlowsAndMovementsReport.reportTemplate', 
+        if(!count($baseReportArray)) {
+
+            return view('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.emptyReportTemplate',
+                [
+                    'dateFrom' => $globalDateFrom->format('d.m.Y'),
+                    'dateTo' => $globalDateTo->format('d.m.Y'),
+                    'responsiblesFilter' => User::whereIn('id', $filteredByResponsiblesArr)->get(),
+                    'tanksFilter' => FuelTank::whereIn('id', $filteredByTankArr)->get(),
+                    'objectsFilter' => ProjectObject::whereIn('id', $filteredByObjectArr)->get(),
+                ]
+            );
+        }
+
+        $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportTemplate', 
             [
                 'baseReportArray' => $baseReportArray,
                 // 'dateFrom' => $currentMonthBegin->format('d.m.Y'),
