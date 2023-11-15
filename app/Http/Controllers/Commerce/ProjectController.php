@@ -155,11 +155,7 @@ class ProjectController extends Controller
         }
 
         $contract_worker = Group::find(54/*26*/)->getUsers()->last();
-        $lawer = Group::find(49/*32*/)->getUsers()->first();
 
-        if ($lawer) {
-            $RespRole7 = ProjectResponsibleUser::insert(['project_id' => $project->id, 'role' => 7, 'user_id'=> $lawer->id]);
-        }
         if ($contract_worker) {
             $RespRole7 = ProjectResponsibleUser::insert(['project_id' => $project->id, 'role' => 7, 'user_id'=> $contract_worker->id]);
 
@@ -575,31 +571,8 @@ class ProjectController extends Controller
 
         if ($request->has('role')) {
             $role = $request->role;
-            if ($role == 1) {
-                $user_27 = User::find(27)->last_vacation;
-                if ($user_27) {
-                    $first_role = [$user_27->support_user_id, 27, 54];
-                } else {
-                    $first_role = [27, 54];
-                }
-                $users->where('users.id', $first_role);
-            } else if ($role == 2) {
-                //Коммерческий отдел
+            if ($role == 1 || $role == 2 || $role == 3) {
                 $users->whereIn('users.department_id', [14]);
-
-                // Старый код
-                // $usersFromGroup = Group::find(50)->getUsers()->pluck('group_id')->toArray();
-                // $users->whereIn('users.group_id',
-                //     array_unique(array_merge(['50'/*'7'*//* remove because Users::where('group_id', 36)->count() == 0, '36'*/], $usersFromGroup))
-                // );
-            } else if ($role == 3) {
-                $user_27 = User::find(27)->last_vacation;
-                if ($user_27) {
-                    $third_role = [$user_27->support_user_id, 27];
-                } else {
-                    $third_role = [27];
-                }
-                $users->whereIn('users.id', $third_role);
             } else if ($role == 4) {
                 $usersFromGroup = $this->findAllUsersAndReturnGroupIds([53, 52, 54, 50, 74]);
 
