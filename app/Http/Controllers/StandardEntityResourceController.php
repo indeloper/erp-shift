@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\FileEntry;
+use App\Models\Permission;
+use App\Models\User;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use Carbon\Carbon;
@@ -20,6 +22,7 @@ class StandardEntityResourceController extends Controller
     protected $componentsPath;
     protected $components;
     protected $ignoreDataKeys;
+    protected $modulePermissionsGroups;
 
     public function __construct()
     {
@@ -37,7 +40,8 @@ class StandardEntityResourceController extends Controller
             'routeNameFixedPart' => $this->routeNameFixedPart,
             'sectionTitle' => $this->sectionTitle, 
             'baseBladePath' => $this->baseBladePath, 
-            'components' => $this->components
+            'components' => $this->components,
+            'userPermissions' => json_encode($this->getUserPermissions())
         ]);
     }
 
@@ -325,6 +329,23 @@ class StandardEntityResourceController extends Controller
             }
         }
 
+    }
+
+    public function getUserPermissions()
+    {
+        $permissionsGroups = $this->modulePermissionsGroups ?? null;
+        $permissionsArray = [];
+
+        if(empty($permissionsGroups))
+        return  $permissionsArray;
+
+        $permissions = Permission::whereIn("category", $permissionsGroups)->get();
+
+        foreach ($permissions as $permission){
+            $permissionsArray[$permission->codename] = User::find(Auth::user()->id)->can($permission->codename);
+        }
+
+        return $permissionsArray;
     }
 
 }

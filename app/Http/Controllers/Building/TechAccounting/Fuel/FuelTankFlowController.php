@@ -36,7 +36,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/flow';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
-        
+        $this->modulePermissionsGroups = [17];
     }
 
     public function index(Request $request)
@@ -57,6 +57,12 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $entities = $this->baseModel
             ->dxLoadOptions($options)
+            ->when(!User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'), function($query) {
+                return $query->where('fuel_tank_flow_type_id', '<>', FuelTankFlowType::where('slug', 'adjustment')->first()->id);
+            })
+            ->when(!User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows'), function($query) {
+                return $query->where('responsible_id', Auth::user()->id);
+            })
             ->get();
 
     
@@ -68,7 +74,15 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function handleCustomGroupResponse($options)
     {
-        $entities = (new FuelTankFlow)->dxLoadOptions($options);
+        $entities = (new FuelTankFlow)
+            ->dxLoadOptions($options)
+            ->when(!User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'), function($query) {
+                return $query->where('fuel_tank_flow_type_id', '<>', FuelTankFlowType::where('slug', 'adjustment')->first()->id);
+            })
+            ->when(!User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows'), function($query) {
+                return $query->where('responsible_id', Auth::user()->id);
+            })
+            ;
 
         $groupsData = 
             $entities
@@ -260,7 +274,10 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function getFuelFlowTypes()
     {
+        if(User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'))
         return FuelTankFlowType::all();
+
+        return FuelTankFlowType::where('slug', '<>', 'adjustment')->get();
     }
 
     public function uploadFile(Request $request)

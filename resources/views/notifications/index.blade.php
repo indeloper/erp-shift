@@ -41,7 +41,7 @@
                     </div>
                 </div>
                 @if($notifications->count())
-                    @include('notifications.hooksHandlers')
+                    
                     <div class="table-responsive">
                         <table class="table table-hover mobile-table">
                             <thead>
@@ -56,9 +56,18 @@
                             <tbody class="notify_place">
                             @foreach($notifications as $key => $notify)
                                 <tr class="notify {{ $notify->is_seen ? 'bg-color-snow' : 'notSeen' }}">
-                                    @include('notifications.hooks', ['text' => $notify->name])
+
+                                    @php
+                                        if(str_contains($notify->name, 'notificationHook_')) {
+                                            $hookTypeAndId = explode('notificationHook_', explode('_endNotificationHook', $notify->name)[0])[1];
+                                            $text = str_replace('notificationHook_'.$hookTypeAndId.'_endNotificationHook', '', $notify->name);
+                                        } else {
+                                            $text = $notify->name;
+                                        }
+                                    @endphp
                                     
-                                    {{--<td data-label="Уведомления">{{ $notify->name }}</td>--}}
+                                    <td data-label="Уведомления">{{ $text }}</td>
+                                    
                                     <td data-label="Контрагент">{{ $notify->short_name ? $notify->short_name : 'Не указан' }}</td>
                                     <td data-label="Адрес объекта" style="max-width: 500px">{{ $notify->address ? $notify->address : 'Не указан' }}</td>
                                     <td data-label="Дата">{{ $notify->created_at }}</td>
@@ -123,6 +132,16 @@
                                             <a href="{{ route('tasks::index') }}" target="_blank" rel="tooltip"
                                                class="btn-info btn-link" data-original-title="Перейти к списку задач">
                                                 <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                                            </a>
+                                        @endif
+                                        @if(str_contains($notify->name, 'notificationHook_'))
+                                            <a href="#" 
+                                               class="btn-info btn-link" 
+                                               data-original-title="Перейти к задаче"
+                                               id="{{$hookTypeAndId}}"
+                                               onclick='hookHandlerDispatcher("{{$hookTypeAndId}}")'
+                                            >
+                                                <i class="fa fa-arrow-right" ></i>
                                             </a>
                                         @endif
                                         @if(!$notify->is_seen)
@@ -243,15 +262,7 @@
 @endsection
 
 @section('js_footer')
-    <div id="externalPopup"></div>
-    <script>
-        const urlParams = window.location.search
-        if(urlParams.includes('notificationHook')) {
-            const notificationHook = urlParams.split('notificationHook=')[1]
-            hookHandlerDispatcher(notificationHook)
-        }
-    </script>
-
+    
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <script type="text/javascript">
         function ban_notification(e, id) {
@@ -394,4 +405,8 @@
             }
         });
     </script>
+
+    <div id="externalPopup"></div>
+
+    @include('notifications.hooksHandlers')
 @endsection

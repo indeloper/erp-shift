@@ -433,6 +433,12 @@
 -->
 <!-- СТРЫЙ РАЗДЕЛ ТЕХНИКИ КОНЕЦ -->
 <!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
+            @canany([
+                'fuel_tanks_access', 
+                'fuel_tank_flows_access', 
+                'fuel_tank_operations_report_advanced_filter_settings_access', 
+                'fuel_tanks_movements_report_access'
+                ])
                 <li class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#fuel">
                             <i class="pe-7s-note2"></i>
@@ -443,28 +449,33 @@
                         <div class="collapse @if(Request::is('building/tech_acc/fuel/*') ) show @endif"
                             id="fuel">
                             <ul class="nav">
-                                <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
-                                    <a class="nav-link"
-                                         href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Топливные ёмкости</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/fuelFlow*') ) active @endif">
-                                    <a class="nav-link"
-                                       href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Топливный журнал</span>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelTankPeriodReport*') ) active @endif">
-                                    <a class="nav-link"
-                                       href="{{ route('building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Отчет по топливу</span>
-                                    </a>
-                                </li>
+                                @can('fuel_tanks_access')
+                                    <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
+                                        <a class="nav-link"
+                                            href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Топливные ёмкости</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('fuel_tank_flows_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/fuelFlow*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Топливный журнал</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('fuel_tank_operations_report_advanced_filter_settings_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelTankPeriodReport*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Отчет по топливу</span>
+                                        </a>
+                                    </li>
+                                @endcan
 
                                 <!-- <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
                                     <a class="nav-link"
@@ -473,19 +484,21 @@
                                         <span class="sidebar-normal">Оборотная ведомость<br>по всем ёмкостям</span>
                                     </a>
                                 </li> -->
-
-                                <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
-                                    <a class="nav-link"
-                                       href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Перемещение ёмкостей</span>
-                                    </a>
-                                </li>
+                                @can('fuel_tanks_movements_report_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Перемещение ёмкостей</span>
+                                        </a>
+                                    </li>
+                                @endcan
                                 <hr>
 
                             </ul>
                         </div>
-                    </li>
+                </li>
+            @endcanany
     <!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
     <!-- СТАРЫЙ ТОПЛИВНЫЙ РАЗДЕЛ
 

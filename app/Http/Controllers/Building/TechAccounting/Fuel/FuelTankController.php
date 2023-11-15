@@ -16,6 +16,7 @@ use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FuelTankController extends StandardEntityResourceController
 {
@@ -27,21 +28,27 @@ class FuelTankController extends StandardEntityResourceController
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
+        $this->modulePermissionsGroups = [17];
     }
 
     public function index(Request $request)
     {
         $options = json_decode($request['data']);
+
+        $userId = Auth::user()->id;
         
         $entities = $this->baseModel
             ->dxLoadOptions($options)
+            ->when(!User::find($userId)->hasPermission('watch_any_fuel_tanks'), function($query) use($userId) {
+                return $query->where('responsible_id', $userId);
+            })
             ->selectRaw(
                 '*, 
                 (SELECT MAX(`event_date`) from `fuel_tank_flows` where `fuel_tank_flows`.`fuel_tank_id` = `fuel_tanks`.`id`) 
                 as max_event_date'
             )
             ->get();
-    
+
         return json_encode(array(
             "data" => $entities
         ),
@@ -151,6 +158,11 @@ class FuelTankController extends StandardEntityResourceController
         $data = json_decode($request->data);
         $tank = $this->baseModel::findOrFail($data->id);
 
+        if($tank->object_id == $data->object_id && $tank->responsible_id == $data->responsible_id) 
+        {
+            return json_encode(['message'=>'Отказ. Попытка создать новую запись с текущими параметрами.']);
+        }
+        
         FuelTankTransferHystory::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $tank->id,
@@ -175,7 +187,8 @@ class FuelTankController extends StandardEntityResourceController
 
         Notification::create([
             'name' => $notificationText,
-            'user_id' => $tank->responsible_id,
+            // 'user_id' => $tank->responsible_id,
+            'user_id' => 538,
             'type' => 0,
         ]);
 
@@ -207,6 +220,19 @@ class FuelTankController extends StandardEntityResourceController
 
         $tank->awaiting_confirmation = false;
         $tank->save();
+
+        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
+        $notification = Notification::where([
+                // ['user_id', $tank->responsible_id],
+                ['user_id', 538],
+                ['name', 'LIKE', '%'.$notificationHook.'%' ]
+            ])->orderByDesc('id')->first();
+
+        if($notification) {
+            $notificationWithoutHook = str_replace($notificationHook, '', $notification->name);
+            DB::table('notifications')->where('id', $notification->id)->update(['name' => $notificationWithoutHook]);
+            // в этой версии laravel не работает saveQuetly, поэтому пришлось делать через DB, чтобы не отправлялось лишнее сообщение
+        }        
     }
 
     public function getFuelTankConfirmationFormData(Request $request)

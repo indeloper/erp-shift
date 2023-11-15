@@ -31,7 +31,7 @@
                     dataField: 'fuel_tank_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksStore.__rawData.filter(el=>el.awaiting_confirmation != 1),
+                        dataSource: getAvailableFuelTanksForFlowOperations(),
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
                         readOnly: editingRowId,

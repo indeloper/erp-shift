@@ -7,8 +7,8 @@
             showCloseButton: true,
             maxWidth: '40vw',
             height: 'auto',
-            onInitialized: (e) => {
-                console.log("onInitialized", e.component.container)
+            onShowing() {
+                setReadonlyFormElemsProperties(!userPermissions.update_fuel_tanks, 'mainDataGrid')
             },
             onHiding() {
                 resetVars();

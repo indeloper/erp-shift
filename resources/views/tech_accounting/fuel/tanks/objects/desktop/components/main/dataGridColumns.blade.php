@@ -124,7 +124,12 @@
                     },
                 },
                 'edit',
-                'delete'
+                {
+                    name: 'delete',
+                    visible: userPermissions.delete_fuel_tanks
+                }
+
+                
             ],
 
             headerCellTemplate: (container, options) => {
@@ -133,6 +138,7 @@
                     .dxButton({
                         text: "Добавить",
                         icon: "fas fa-plus",
+                        disabled: !userPermissions.add_fuel_tanks,
                         onClick: (e) => {
                             options.component.addRow();
                             $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);

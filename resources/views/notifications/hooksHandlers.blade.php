@@ -1,4 +1,5 @@
 <script>
+
     function hookHandlerDispatcher(hookTypeAndId) {
         if(hookTypeAndId.includes('confirmFuelTankRecieve'))
             confirmFuelTankRecieve(hookTypeAndId)
@@ -22,6 +23,10 @@
             success: function (data, textStatus, jqXHR) {
                 DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
                 movingConfirmationFuelTankFormPopup.hide()
+                let notificationActionButton = $("#"+"{{$hookTypeAndId ?? null}}")
+                if(notificationActionButton) {
+                    notificationActionButton.remove()
+                }
             },
         })
     }
@@ -90,7 +95,7 @@
                     fuelTankId: JSON.stringify(fuelTankId),
                 }).done(function( data ) {
                     if(data.status === 'not need confirmation') {
-                        alert ('Подтверждение не требуется');
+                        DevExpress.ui.notify("Подтверждение не требуется", "success", 1000)
                         movingConfirmationFuelTankFormPopup.hide()
                         return;
                     }
@@ -123,10 +128,16 @@
                 }
             ],
             contentTemplate: () => {
-                // fuelTankFormData = {id: 12}
                 return getConfirmPopupContentTemplate()
 
             }
         }).dxPopup('instance')
+    }
+
+    const urlParams = window.location.search
+
+    if(urlParams.includes('notificationHook')) {
+        const notificationHook = urlParams.split('notificationHook=')[1]
+        hookHandlerDispatcher(notificationHook)
     }
 </script>

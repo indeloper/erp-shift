@@ -16,7 +16,7 @@
         },
         {
             caption: "Ответственный",
-            dataField: "author_id",
+            dataField: "responsible_id",
             lookup: {
                 dataSource: fuelResponsiblesStore,
                 valueExpr: "id",

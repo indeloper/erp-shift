@@ -145,4 +145,11 @@
         })
     }
 
+    function setReadonlyFormElemsProperties(isReadonly, dataGridId) {
+        let dataGrid = $("#"+dataGridId).dxDataGrid("instance")
+        dataGrid.option("columns").forEach((columnItem) => {    
+            dataGrid.columnOption(columnItem.dataField, "allowEditing", !isReadonly)
+        });
+    }
+
 </script>

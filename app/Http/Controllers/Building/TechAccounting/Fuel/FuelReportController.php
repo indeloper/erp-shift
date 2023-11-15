@@ -201,6 +201,9 @@ class FuelReportController extends Controller
                 ['event_date', '>=', $currentMonthBegin],
                 ['event_date', '<=', $currentMonthEnd],
             ])
+            ->when(!User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows'), function($query) {
+                return $query->where('responsible_id', Auth::user()->id);
+            })
             ->pluck('id')
             ->unique()
             ->toArray();
@@ -270,6 +273,13 @@ class FuelReportController extends Controller
         $filteredByTankArr = $this->getFilteredArray($options->filter, 'fuel_tank_id');
         $filteredByCompanyArr = $this->getFilteredArray($options->filter, 'company_id');
 
+        if(
+            !User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows') 
+            && !in_array(Auth::user()->id, $filteredByResponsiblesArr)
+        ) {
+            $filteredByResponsiblesArr[] = Auth::user()->id;
+        }
+
         $fuelTanksNotIncludedinReport = 
             FuelTank::query()
             ->whereNotIn('id', $fuelTanksIncludedinReportIds)
@@ -300,7 +310,18 @@ class FuelReportController extends Controller
         }
 
         // добавляем бочки, у которых сменился объект, но операций на новом объекте не было 
-        $includedTanksInReport = FuelTank::whereIn('id', $fuelTanksIncludedinReportIds)->get();
+        $includedTanksInReport = FuelTank::whereIn('id', $fuelTanksIncludedinReportIds)
+            ->when(!empty($filteredByResponsiblesArr), function($query) use($filteredByResponsiblesArr) {
+                $query->whereIn('responsible_id', $filteredByResponsiblesArr);
+            })
+            ->when(!empty($filteredByTankArr), function($query) use($filteredByTankArr) {
+                $query->whereIn('id', $filteredByTankArr);
+            })
+            ->when(!empty($filteredByCompanyArr), function($query) use($filteredByCompanyArr) {
+                $query->whereIn('id', $filteredByCompanyArr);
+            })
+            ->get();
+
         foreach($includedTanksInReport as $includedTank)
         {
             if(!isset($baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id])) {
@@ -408,7 +429,7 @@ class FuelReportController extends Controller
             //Проверка если последняя запись в журнале - смена ответственного
             $lastTankObjectOrResponsibleChanged = FuelTankTransferHystory::where([
                 ['fuel_tank_id', $fuelTankId],
-                ['event_date', '<=', Carbon::create($globalDateTo)->addday()],
+                ['event_date', '<', Carbon::create($globalDateTo)->addday()],
                 ['event_date', '>=', Carbon::create($globalDateFrom)],
                 ['object_id', $objectId], 
                 ['responsible_id', $responsibleId], 
@@ -431,7 +452,7 @@ class FuelReportController extends Controller
         $to = FuelTankTransferHystory::where([
             ['fuel_tank_id', $fuelTankId],
             ['event_date', '>=',  $dateToTmp],
-            ['event_date', '<=',  Carbon::create($globalDateTo)],
+            ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
             ['previous_object_id', $objectId], 
             ['previous_responsible_id', $responsibleId],
             ['tank_moving_confirmation', true]
@@ -517,28 +538,28 @@ class FuelReportController extends Controller
         return $resultArr;
     }
 
-    public function getFilteredResponsiblesArr($filter)
-    {
-        if(!str_contains(json_encode($filter), 'responsible_id'))
-        return [];
+    // public function getFilteredResponsiblesArr($filter)
+    // {
+    //     if(!str_contains(json_encode($filter), 'responsible_id'))
+    //     return [];
 
-        $filter = (array)$filter;
-        $resultArr = [];
-        $i=0;
-        array_walk_recursive($filter, function($value, $key) use(&$resultArr, &$i) {
-            if($value === 'responsible_id') {
-                $i++;
-            }
-            if($i) {
-                $i++;
-                if($i===4) {
-                    $resultArr[] = $value;
-                    $i=0;
-                }
-            }
-        });
+    //     $filter = (array)$filter;
+    //     $resultArr = [];
+    //     $i=0;
+    //     array_walk_recursive($filter, function($value, $key) use(&$resultArr, &$i) {
+    //         if($value === 'responsible_id') {
+    //             $i++;
+    //         }
+    //         if($i) {
+    //             $i++;
+    //             if($i===4) {
+    //                 $resultArr[] = $value;
+    //                 $i=0;
+    //             }
+    //         }
+    //     });
 
-        return $resultArr;
-    }
+    //     return $resultArr;
+    // }
 
 }
