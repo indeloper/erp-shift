@@ -98,25 +98,25 @@
                         message: 'Укажите значение',
                     }],
                 },
-                {
-                    itemType: "group",
-                    caption: 'Файлы',
-                    items: [
-                        {
-                            item: 'simple',
-                            template: (data, itemElement) => {
-                                renderFileUploader(itemElement)
-                            }
-                        },
+                // {
+                //     itemType: "group",
+                //     caption: 'Файлы',
+                //     items: [
+                //         {
+                //             item: 'simple',
+                //             template: (data, itemElement) => {
+                //                 renderFileUploader(itemElement)
+                //             }
+                //         },
 
-                        {
-                            item: 'simple',
-                            template: (data, itemElement) => {
-                                renderFileDisplayer(itemElement)
-                            }
-                        },
-                    ]
-                }
+                //         {
+                //             item: 'simple',
+                //             template: (data, itemElement) => {
+                //                 renderFileDisplayer(itemElement)
+                //             }
+                //         },
+                //     ]
+                // }
 
             ]
         })

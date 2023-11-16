@@ -44,7 +44,7 @@
                     widget: 'dxButton',
                     validationGroup: "entityValidationGroup",
                     options: {
-                        template: '<div style="color:#4993df">Сохранить</div>',
+                        template: '<div class="text-color-blue">Сохранить</div>',
                         stylingMode: 'text',
                         elementAttr: {
                             'id': 'popupSaveButton'

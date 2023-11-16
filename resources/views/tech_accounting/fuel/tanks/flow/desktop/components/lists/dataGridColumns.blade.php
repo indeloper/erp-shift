@@ -49,12 +49,8 @@
                 const month = months[mothNum]
 
                 const headerContent = $('<div>')
-                    .css({
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        width: '100%'
-                    }).appendTo(element)
+                    .addClass('group-cell-template-content-justify-space-between')
+                    .appendTo(element)
 
                 const groupHeader = $('<div>')
                     .text(month + ' ' + year)
@@ -96,31 +92,31 @@
                 const marker = $('<div>')
 
                 if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
-                    fontColor = '#dd5e5e'
+                    // fontColor = '#dd5e5e'
+                    cssTextColor = 'text-color-red'
                     marker.addClass('fa fa-arrow-down')
                 } else if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
-                    fontColor = '#1f931f'
+                    // fontColor = '#1f931f'
+                    cssTextColor = 'text-color-green'
                     marker.addClass('fa fa-arrow-up')
                 } else {
-                    fontColor = '#3a6fcb'
+                    // fontColor = '#3a6fcb'
+                    cssTextColor = 'text-color-blue'
                     marker.addClass('fas fa-exchange-alt')
                 }
 
-                const wrapper =
+                const wrapper = 
                     $('<div>')
-                        .css({
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'start'
-                        }).appendTo(container)
+                        .addClass('cell-template-content-wrapper-justify-start')
+                        .appendTo(container)
 
-                marker.css({
-                    marginRight: '6px',
-                    color: fontColor
-                }).appendTo(wrapper)
+                marker
+                    .addClass('icon-marker-location-left')
+                    .addClass(cssTextColor)
+                    .appendTo(wrapper)
 
                 $('<div>')
-                    .css('color', fontColor)
+                    .addClass(cssTextColor)
                     .text(displayValue)
                     .appendTo(wrapper)
             }
@@ -190,13 +186,15 @@
                 }
 
                 if (displayValue > 0) {
-                    fontColor = '#1f931f'
+                    cssTextColor = 'text-color-green'
+                    // fontColor = '#1f931f'
                 } else {
-                    fontColor = '#dd5e5e'
+                    cssTextColor = 'text-color-red'
+                    // fontColor = '#dd5e5e'
                 }
 
                 $('<span>')
-                    .css('color', fontColor)
+                    .addClass(cssTextColor)
                     .text(new Intl.NumberFormat('ru-RU').format(displayValue * 1000 / 1000))
                     .appendTo(container)
             }

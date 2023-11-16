@@ -1,9 +1,7 @@
 <script>
     const handleOnUploadStarted = (e) => {
         const newFileDiv = $('<div>').addClass('newFileDivWrapper')
-        const progressBarDiv = $('<div>').css({
-            'width': '90%'
-        })
+        const progressBarDiv = $('<div>').css({'width': '90%'})
         uploadingFiles.push(e);
         let newFile = newFileDiv.attr('id', 'newFile' + uploadingFiles.length)
         let progressBar = progressBarDiv.attr('id', 'progressBar' + uploadingFiles.length).addClass('progressBar')

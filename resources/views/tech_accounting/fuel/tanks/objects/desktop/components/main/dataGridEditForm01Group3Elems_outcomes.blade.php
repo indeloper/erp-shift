@@ -1,7 +1,7 @@
 <script>
     const dataGridEditForm01Group3Elems_outcomes = {
         tabTemplate(data, index, element) {
-            return '<div style="display: flex; align-items:center"><div class="fa fa-arrow-down" style="padding-top: 1px; color: #dd5e5e"></div><div style="margin-left:6px">Списания</div></div>'
+            return '<div class="tab-template-header-wrapper"><div class="fa fa-arrow-down tab-template-header-icon-elem text-color-red"></div><div>Списания</div></div>'
         },
         onClick() {
             choosedFormTab = 'fuelOutcomes'

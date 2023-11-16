@@ -29,10 +29,8 @@
 
                 if(options.data.awaiting_confirmation) {
                     spanText
-                        .css({
-                            color: '#dd5e5e',
-                            fontWeight: 'bold',
-                        })
+                        .addClass('text-color-red')
+                        .addClass('text-bold')
 
                     const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
                     const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
@@ -68,11 +66,10 @@
                 spanText.attr('id', 'tank_id-' + options.data.id + '-tank_number')
 
                 if(options.data.awaiting_confirmation) {
+
                     spanText
-                        .css({
-                            color: '#dd5e5e',
-                            fontWeight: 'bold',
-                        })
+                        .addClass('text-color-red')
+                        .addClass('text-bold')
 
                     const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
                     const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
@@ -110,10 +107,8 @@
 
                 if(options.data.awaiting_confirmation) {
                     spanText
-                        .css({
-                            color: '#dd5e5e',
-                            fontWeight: 'bold',
-                        })
+                        .addClass('text-color-red')
+                        .addClass('text-bold')
 
                     const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
                     const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
@@ -151,10 +146,8 @@
 
                 if(options.data.awaiting_confirmation) {
                     spanText
-                        .css({
-                            color: '#dd5e5e',
-                            fontWeight: 'bold',
-                        })
+                        .addClass('text-color-red')
+                        .addClass('text-bold')
 
                     const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
                     const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
@@ -187,15 +180,13 @@
             cellTemplate(container, options) {
                 fontColor = 'black'
                 if (options.text > 0)
-                    fontColor = '#1f931f';
+                    cssTextColor = 'text-color-green'
                 if (options.text < 0)
-                    fontColor = '#dd5e5e'
-
+                    cssTextColor = 'text-color-red'
                 $('<span>')
-                    .css('color', fontColor)
+                    .addClass(cssTextColor)
                     .text(new Intl.NumberFormat('ru-RU').format(options.text * 1000 / 1000))
                     .appendTo(container)
-
             }
 
         },

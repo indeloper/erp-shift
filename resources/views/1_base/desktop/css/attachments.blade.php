@@ -142,5 +142,11 @@
         height: 22px !important;
     }
 
+    .file-displayer-preview-label {
+        width: 100px;
+        height: 80px;
+        border-radius: 5px;
+    }
+
     
 </style>

@@ -10,7 +10,7 @@
 
 @section('content')
 
-    <div style="display: flex; justify-content:end">
+    <div  class="new-entity-button-mobile">
         <div id="newEntityButtonMobile"></div>
     </div>
 

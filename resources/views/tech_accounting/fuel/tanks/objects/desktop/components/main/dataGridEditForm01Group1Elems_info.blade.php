@@ -1,7 +1,7 @@
 <script>
     const dataGridEditForm01Group1Elems_info = {
         tabTemplate(data, index, element) {
-            return '<div style="display: flex; align-items:center"><div class="fa fa-info-circle info-circle-icon-color" style="padding-top: 1px; color: #725fdb"></div><div style="margin-left:6px">Инфо</div></div>'
+            return '<div class="tab-template-header-wrapper"><div class="fa fa-info-circle info-circle-icon-color tab-template-header-icon-elem"></div><div>Инфо</div></div>'
         },
         colCount: 2,
         onClick() {

@@ -2,11 +2,7 @@
 
     const popupEditingModeContentTemplate = function () {
         const popupContentWrapper = $('<div id="popupContentWrapper">')
-            .css({
-                'width': '100%',
-                'height': '100%',
-                'positon': 'relative'
-            })
+            .addClass('popup-content-wrapper-mobile')
 
         $('<div id="popupContainer">')
             .appendTo(popupContentWrapper)

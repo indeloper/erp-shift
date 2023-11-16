@@ -79,11 +79,8 @@
             const fileLableWrapper = getFileLableWrapper(fileType, deviceType, fileDisplayContext, file)
                 .addClass('fileOnServerDivWrapper')
 
-            let fileImg = $('<img>').css({
-                'width': '100px',
-                'height': '80px',
-                'border-radius': '5px'
-            })
+            let fileImg = $('<img>')
+                .addClass('file-displayer-preview-label')
 
             if (fileType === 'img') {
                 fileImg.css('object-fit', 'cover')

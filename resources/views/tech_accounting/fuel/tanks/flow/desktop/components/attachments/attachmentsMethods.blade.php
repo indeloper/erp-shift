@@ -2,7 +2,7 @@
     function getFileLableWrapper(fileType, deviceType, fileDisplayContext, file) {
 
         if (fileType === 'img') {
-            return $('<a>').css({'cursor': 'pointer'})
+            return $('<a>')
         }
 
         const filePathBase = window.location.protocol + '//' + window.location.host + '/'
@@ -10,7 +10,7 @@
         const filePath = filePathBase + filePathTail
 
         if (fileType === 'video') {
-            const fileLableWrapper = $('<a>').css({'cursor': 'pointer'})
+            const fileLableWrapper = $('<a>')
 
             const dataAttributes = {
                 "source": [{
@@ -29,7 +29,6 @@
         }
 
         return $('<a>')
-            .css({'cursor': 'pointer'})
             .attr({
                 href: filePath,
                 target: '_blanc'

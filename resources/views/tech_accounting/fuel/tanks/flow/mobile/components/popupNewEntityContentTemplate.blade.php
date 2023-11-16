@@ -2,11 +2,7 @@
 
     const popupNewEntityContentTemplate = () => {
         const popupContentWrapper = $('<div>')
-            .css({
-                'width': '100%',
-                'height': '100%',
-                'positon': 'relative'
-            })
+            .addClass('popup-content-wrapper-mobile')
 
         $('<div id="entityName" class="mobile-new-entity-form-element">').dxSelectBox({
             label: 'Наименование',
