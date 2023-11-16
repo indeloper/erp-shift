@@ -24,9 +24,9 @@
             },
 
             cellTemplate(container, options) {
+                container.attr('id', 'tank_id-' + options.data.id + '-company_id')
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-                spanText.attr('id', 'tank_id-' + options.data.id + '-company_id')
-
+                
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .addClass('text-color-red')
@@ -62,9 +62,9 @@
             sortIndex: 0,
             sortOrder: "asc",
             cellTemplate(container, options) {
+                container.attr('id', 'tank_id-' + options.data.id + '-tank_number')
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-                spanText.attr('id', 'tank_id-' + options.data.id + '-tank_number')
-
+                
                 if(options.data.awaiting_confirmation) {
 
                     spanText
@@ -102,9 +102,9 @@
             },
 
             cellTemplate(container, options) {
+                container.attr('id', 'tank_id-' + options.data.id + '-object_id')
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-                spanText.attr('id', 'tank_id-' + options.data.id + '-object_id')
-
+                
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .addClass('text-color-red')
@@ -141,9 +141,10 @@
             },
             
             cellTemplate(container, options) {
+                container.attr('id', 'tank_id-' + options.data.id + '-responsible_id')
+                
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-                spanText.attr('id', 'tank_id-' + options.data.id + '-responsible_id')
-
+               
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .addClass('text-color-red')
