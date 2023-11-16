@@ -22,7 +22,39 @@
                 valueExpr: "id",
                 displayExpr: "name"
             },
-            // groupIndex: 0,
+
+            cellTemplate(container, options) {
+                const spanText = $('<span>').text(options.displayValue).appendTo(container)
+                spanText.attr('id', 'tank_id-' + options.data.id + '-company_id')
+
+                if(options.data.awaiting_confirmation) {
+                    spanText
+                        .css({
+                            color: '#dd5e5e',
+                            fontWeight: 'bold',
+                        })
+
+                    const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
+                    const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
+                    
+                    const popoverDiv = $('<div>')
+                        .attr('id', 'tank_id-' + options.data.id + '-company_id' + '_popover')
+                        .append(`<div><b>Передал:</b> ${previousResponsible}</div>`)
+                        .append(`<div><b>Предыдущий объект:</b> ${previousObject}</div>`)
+                        .appendTo(container)
+
+                    $('#' + 'tank_id-' + options.data.id + '-company_id' + '_popover').dxPopover({
+                        target: '#' + 'tank_id-' + options.data.id + '-company_id',
+                        showEvent: 'mouseenter',
+                        hideEvent: 'mouseleave',
+                        position: 'bottom',
+                        width: 300,
+                        showTitle: true,
+                        title: 'Требуется подтверждение нового ответственного',
+                    })
+                }
+            }
+
         },
 
         {
@@ -32,16 +64,35 @@
             sortIndex: 0,
             sortOrder: "asc",
             cellTemplate(container, options) {
-                const spanText = $('<span>').text(options.text)
+                const spanText = $('<span>').text(options.displayValue).appendTo(container)
+                spanText.attr('id', 'tank_id-' + options.data.id + '-tank_number')
+
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .css({
                             color: '#dd5e5e',
                             fontWeight: 'bold',
                         })
-                        .attr({title: 'Требуется подтверждение нового ответственного'})
+
+                    const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
+                    const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
+                    
+                    const popoverDiv = $('<div>')
+                        .attr('id', 'tank_id-' + options.data.id + '-tank_number' + '_popover')
+                        .append(`<div><b>Передал:</b> ${previousResponsible}</div>`)
+                        .append(`<div><b>Предыдущий объект:</b> ${previousObject}</div>`)
+                        .appendTo(container)
+
+                    $('#' + 'tank_id-' + options.data.id + '-tank_number' + '_popover').dxPopover({
+                        target: '#' + 'tank_id-' + options.data.id + '-tank_number',
+                        showEvent: 'mouseenter',
+                        hideEvent: 'mouseleave',
+                        position: 'bottom',
+                        width: 300,
+                        showTitle: true,
+                        title: 'Требуется подтверждение нового ответственного',
+                    })
                 }
-                spanText.appendTo(container)
             }
         },
         {
@@ -52,17 +103,37 @@
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
+
             cellTemplate(container, options) {
-                const spanText = $('<span>').text(options.displayValue)
+                const spanText = $('<span>').text(options.displayValue).appendTo(container)
+                spanText.attr('id', 'tank_id-' + options.data.id + '-object_id')
+
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .css({
                             color: '#dd5e5e',
                             fontWeight: 'bold',
                         })
-                        .attr({title: 'Требуется подтверждение нового ответственного'})
+
+                    const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
+                    const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
+                    
+                    const popoverDiv = $('<div>')
+                        .attr('id', 'tank_id-' + options.data.id + '-object_id' + '_popover')
+                        .append(`<div><b>Передал:</b> ${previousResponsible}</div>`)
+                        .append(`<div><b>Предыдущий объект:</b> ${previousObject}</div>`)
+                        .appendTo(container)
+
+                    $('#' + 'tank_id-' + options.data.id + '-object_id' + '_popover').dxPopover({
+                        target: '#' + 'tank_id-' + options.data.id + '-object_id',
+                        showEvent: 'mouseenter',
+                        hideEvent: 'mouseleave',
+                        position: 'bottom',
+                        width: 300,
+                        showTitle: true,
+                        title: 'Требуется подтверждение нового ответственного',
+                    })
                 }
-                spanText.appendTo(container)
             }
         },
         {
@@ -71,19 +142,39 @@
             lookup: {
                 dataSource: fuelTanksResponsiblesStore,
                 valueExpr: "id",
-                displayExpr: "user_full_name"
+                displayExpr: "full_name"
             },
+            
             cellTemplate(container, options) {
-                const spanText = $('<span>').text(options.displayValue)
+                const spanText = $('<span>').text(options.displayValue).appendTo(container)
+                spanText.attr('id', 'tank_id-' + options.data.id + '-responsible_id')
+
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .css({
                             color: '#dd5e5e',
                             fontWeight: 'bold',
                         })
-                        .attr({title: 'Требуется подтверждение нового ответственного'})
+
+                    const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
+                    const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
+                    
+                    const popoverDiv = $('<div>')
+                        .attr('id', 'tank_id-' + options.data.id + '-responsible_id' + '_popover')
+                        .append(`<div><b>Передал:</b> ${previousResponsible}</div>`)
+                        .append(`<div><b>Предыдущий объект:</b> ${previousObject}</div>`)
+                        .appendTo(container)
+
+                    $('#' + 'tank_id-' + options.data.id + '-responsible_id' + '_popover').dxPopover({
+                        target: '#' + 'tank_id-' + options.data.id + '-responsible_id',
+                        showEvent: 'mouseenter',
+                        hideEvent: 'mouseleave',
+                        position: 'bottom',
+                        width: 300,
+                        showTitle: true,
+                        title: 'Требуется подтверждение нового ответственного',
+                    })
                 }
-                spanText.appendTo(container)
             }
         },
         {

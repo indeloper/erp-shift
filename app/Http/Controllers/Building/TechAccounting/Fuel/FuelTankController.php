@@ -42,10 +42,24 @@ class FuelTankController extends StandardEntityResourceController
             ->when(!User::find($userId)->hasPermission('watch_any_fuel_tanks'), function($query) use($userId) {
                 return $query->where('responsible_id', $userId);
             })
+            // ->leftJoin('fuel_tank_transfer_hystories', 'fuel_tank_transfer_hystories.fuel_tank_id', '=', 'fuel_tanks.id')
             ->selectRaw(
-                '*, 
+                '
+                fuel_tanks.id, 
+                fuel_tanks.explotation_start, 
+                fuel_tanks.company_id, 
+                fuel_tanks.tank_number, 
+                fuel_tanks.object_id, 
+                fuel_tanks.responsible_id, 
+                fuel_tanks.fuel_level,
+                fuel_tanks.awaiting_confirmation,
                 (SELECT MAX(`event_date`) from `fuel_tank_flows` where `fuel_tank_flows`.`fuel_tank_id` = `fuel_tanks`.`id`) 
-                as max_event_date'
+                as max_event_date,
+                (SELECT `previous_object_id` from `fuel_tank_transfer_hystories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_hystories` where `fuel_tank_transfer_hystories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_hystories`.`fuel_tank_flow_id` is null))
+                as previous_object_id,
+                (SELECT `previous_responsible_id` from `fuel_tank_transfer_hystories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_hystories` where `fuel_tank_transfer_hystories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_hystories`.`fuel_tank_flow_id` is null))
+                as previous_responsible_id
+                '
             )
             ->get();
 
