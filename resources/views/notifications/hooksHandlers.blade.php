@@ -27,6 +27,10 @@
                 if(notificationActionButton) {
                     notificationActionButton.remove()
                 }
+
+                if(window.location.search.includes('notificationHook') && DevExpress.devices.current().deviceType === 'phone'){
+                    window.close()
+                }
             },
         })
     }
