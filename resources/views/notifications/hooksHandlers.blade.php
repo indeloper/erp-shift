@@ -89,6 +89,7 @@
             title: 'Подтверждение перемещения емкости',
             height: 'auto',
             width: '400px',
+            fullScreen: DevExpress.devices.current().deviceType === 'phone',
             onContentReady() {
                 const url = "{{route('building::tech_acc::fuel::tanks::'.'getFuelTankConfirmationFormData')}}"
                 $.getJSON( url, {

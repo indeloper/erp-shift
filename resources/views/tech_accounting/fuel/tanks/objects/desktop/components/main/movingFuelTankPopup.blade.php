@@ -80,6 +80,7 @@
         const movingFuelTankFormPopup = $("#externalPopup").dxPopup({
             visible: true,
             title: 'Перемещение емкости',
+            fullScreen: DevExpress.devices.current().deviceType === 'phone',
             contentTemplate: () => {
                 return getMovingPopupContentTemplate(rowData)
             },

@@ -67,7 +67,7 @@
         const movingConfirmationFuelTankFormPopup = $("#externalPopup").dxPopup({
             visible: true,
             title: 'Подтверждение перемещения емкости',
-
+            fullScreen: DevExpress.devices.current().deviceType === 'phone',
             toolbarItems: [
                 {
                     widget: 'dxButton',
