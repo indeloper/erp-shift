@@ -109,6 +109,10 @@ class FuelTankController extends StandardEntityResourceController
             'event_date' => $data['event_date'] ?? now()
         ]);
 
+        if($tank->object_id != $data['responsible_id'] || $tank->responsible_id != $data['responsible_id']) {
+            $data['awaiting_confirmation'] = false;
+        }
+
         return [
             'data' => $data, 
             // 'ignoreDataKeys' => []
@@ -188,23 +192,30 @@ class FuelTankController extends StandardEntityResourceController
             'event_date' => $data->event_date
         ]);
         
+        if($tank->responsible_id != $data->responsible_id) {
+            $needNotification = true;
+            $tank->awaiting_confirmation = true;
+        }
+        
         $tank->object_id = $data->object_id;
         $tank->responsible_id = $data->responsible_id;
-        $tank->awaiting_confirmation = true;
+        
         $tank->save();
 
-        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
-        $notificationText = 
-            'Подтвердите получение топливной емкости № '
-            .$tank->tank_number.' на объекте '.ProjectObject::find($tank->object_id)->short_name
-            .' '.$notificationHook;
-
-        Notification::create([
-            'name' => $notificationText,
-            // 'user_id' => $tank->responsible_id,
-            'user_id' => 538,
-            'type' => 0,
-        ]);
+        if(!empty($needNotification)) {
+            $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
+            $notificationText = 
+                'Подтвердите получение топливной емкости № '
+                .$tank->tank_number.' на объекте '.ProjectObject::find($tank->object_id)->short_name
+                .' '.$notificationHook;
+    
+            Notification::create([
+                'name' => $notificationText,
+                'user_id' => $tank->responsible_id,
+                // 'user_id' => 538,
+                'type' => 0,
+            ]);
+        }
 
         return json_encode($tank);
     }
@@ -237,8 +248,8 @@ class FuelTankController extends StandardEntityResourceController
 
         $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
         $notification = Notification::where([
-                // ['user_id', $tank->responsible_id],
-                ['user_id', 538],
+                ['user_id', $tank->responsible_id],
+                // ['user_id', 538],
                 ['name', 'LIKE', '%'.$notificationHook.'%' ]
             ])->orderByDesc('id')->first();
 
