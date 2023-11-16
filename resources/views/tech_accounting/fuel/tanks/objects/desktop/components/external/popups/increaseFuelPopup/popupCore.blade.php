@@ -89,7 +89,9 @@
                 {
                     dataField: 'event_date',
                     editorType: "dxDateBox",
-                    editorOptions: {},
+                    editorOptions: {
+                        readOnly: externalEditingRowId,
+                    },
                     label: {
                         text: 'Дата операции'
                     },
@@ -101,6 +103,9 @@
                 {
                     dataField: 'document',
                     editorType: "dxTextBox",
+                    editorOptions: {
+                        readOnly: externalEditingRowId,
+                    },
                     label: {
                         text: 'Номер документа'
                     },

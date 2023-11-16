@@ -90,6 +90,9 @@
                 {
                     dataField: 'event_date',
                     editorType: "dxDateBox",
+                    editorOptions: {
+                        readOnly: externalEditingRowId,
+                    },
                     label: {
                         text: 'Дата операции'
                     },

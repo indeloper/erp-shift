@@ -88,6 +88,7 @@
                     dataField: 'event_date',
                     editorType: "dxDateBox",
                     editorOptions: {
+                        readOnly: editingRowId,
                         value: new Date(),
                     },
                     label: {
@@ -101,6 +102,9 @@
                 {
                     dataField: 'document',
                     editorType: "dxTextBox",
+                    editorOptions: {
+                        readOnly: editingRowId,
+                    },
                     label: {
                         text: 'Номер документа'
                     },

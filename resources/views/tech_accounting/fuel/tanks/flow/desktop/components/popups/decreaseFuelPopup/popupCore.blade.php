@@ -90,6 +90,7 @@
                     dataField: 'event_date',
                     editorType: "dxDateBox",
                     editorOptions: {
+                        readOnly: editingRowId,
                         value: new Date(),
                     },
                     label: {

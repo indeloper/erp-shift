@@ -221,7 +221,7 @@
                     .dxButton({
                         text: "Добавить",
                         icon: "fas fa-plus",
-                        disabled: !userPermissions.add_fuel_tanks,
+                        visible: userPermissions.add_fuel_tanks,
                         onClick: (e) => {
                             options.component.addRow();
                             $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
