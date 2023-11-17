@@ -34,7 +34,7 @@
             visible: false
         },
         {
-            dataField: "event_date",
+            dataField: "event_date_custom",
             dataType: "date",
             groupIndex: 0,
             sortOrder: 'desc',

@@ -110,6 +110,18 @@
                     },
                 },
                 {
+                    dataField: 'comment',
+                    editorType: "dxTextBox",
+                    editorOptions: {
+                        readOnly: editingRowId,
+                    },
+                    label: {
+                        text: 'Комментарий'
+                    },
+                },
+
+
+                {
                     itemType: "group",
                     caption: 'Файлы',
                     items: [

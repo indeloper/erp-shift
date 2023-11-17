@@ -1,5 +1,5 @@
 <script>
-    function showDecreaseFuelPopup(formItem = {}) {
+    function showDecreaseFuelPopup(formItem = {fuelConsumerType: 'our_technik_radio_elem'}) {
 
         externalPopup.option({
             visible: true,
@@ -46,24 +46,24 @@
                         message: 'Укажите значение',
                     }],
                 },
-                {
 
-                    dataField: 'our_technic_id',
-                    editorType: "dxSelectBox",
+                {
+                    dataField: 'event_date',
+                    editorType: "dxDateBox",
                     editorOptions: {
-                        dataSource: fuelConsumersStore,
-                        valueExpr: 'id',
-                        displayExpr: 'name',
                         readOnly: externalEditingRowId,
+                        value: new Date(),
                     },
                     label: {
-                        text: 'Потребитель'
+                        text: 'Дата операции'
                     },
                     validationRules: [{
                         type: 'required',
                         message: 'Укажите значение',
                     }],
                 },
+
+                
                 {
                     dataField: 'volume',
                     editorType: "dxNumberBox",
@@ -87,20 +87,103 @@
                         }
                     ],
                 },
+
+
+
                 {
-                    dataField: 'event_date',
-                    editorType: "dxDateBox",
+                    dataField: 'comment',
+                    editorType: "dxTextBox",
                     editorOptions: {
                         readOnly: externalEditingRowId,
                     },
                     label: {
-                        text: 'Дата операции'
+                        text: 'Комментарий'
                     },
-                    validationRules: [{
-                        type: 'required',
-                        message: 'Укажите значение',
-                    }],
                 },
+                
+
+                {
+                    itemType: "group",
+                    caption: 'Потребитель топлива',
+                    name: "fuelConsumerGroup",
+                    items: [
+                        {
+                            dataField: 'fuelConsumerType',
+                            editorType: "dxRadioGroup",
+                            label: {
+                                    visible: false
+                            },                                
+                            editorOptions: {
+                                items: [
+                                    {id: 'our_technik_radio_elem', text: 'Своя техника'},
+                                    {id: 'third_party_technik_radio_elem', text: 'Сторонняя техника'}, 
+                                ],
+                                valueExpr: 'id',
+                                displayExpr: 'text',
+                                layout: 'horizontal',
+                                disabled: externalEditingRowId
+                            }
+                        }, 
+                        {
+                            dataField: 'our_technic_id',
+                            editorType: "dxSelectBox",
+                            visible: formItem.our_technic_id || !externalEditingRowId,
+                            editorOptions: {
+                                elementAttr: {id: "our_technic_id_dxSelectBox"},
+                                dataSource: fuelConsumersStore,
+                                valueExpr: 'id',
+                                displayExpr: 'name',
+                                readOnly: externalEditingRowId,
+                            },
+                            label: {
+                                text: 'Потребитель'
+                            },
+                            validationRules: [{
+                                type: 'required',
+                                message: 'Укажите значение',
+                            }],
+                        },
+                        {
+                            dataField: 'third_party_consumer',
+                            editorType: "dxAutocomplete",
+                            visible: !formItem.our_technic_id && externalEditingRowId,
+                            editorOptions: {
+                                elementAttr: {id: "third_party_consumer_dxAutocomplete"},
+                                valueExpr: 'id',
+                                displayExpr: 'name',
+                                readOnly: externalEditingRowId,
+                            },
+                            label: {
+                                text: 'Потребитель'
+                            },
+                            validationRules: [{
+                                type: 'required',
+                                message: 'Укажите значение',
+                            }],
+                        },
+                    ]
+                }
+                
+
+
+                // {
+                //     dataField: 'our_technic_id',
+                //     editorType: "dxSelectBox",
+                //     editorOptions: {
+                //         dataSource: fuelConsumersStore,
+                //         valueExpr: 'id',
+                //         displayExpr: 'name',
+                //         readOnly: externalEditingRowId,
+                //     },
+                //     label: {
+                //         text: 'Потребитель'
+                //     },
+                //     validationRules: [{
+                //         type: 'required',
+                //         message: 'Укажите значение',
+                //     }],
+                // },
+
                 // {
                 //     itemType: "group",
                 //     caption: 'Файлы',
@@ -121,7 +204,23 @@
                 //     ]
                 // }
 
-            ]
+            ],
+            onFieldDataChanged: (e) => {
+
+                if (e.dataField === 'fuelConsumerType') {
+                    if (e.value === 'third_party_technik_radio_elem') {
+                        e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
+                        e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', true)
+                        delete e.component.option('formData').our_technic_id
+                    } 
+                    
+                    if (e.value === 'our_technik_radio_elem') { 
+                        e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
+                        e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
+                        delete e.component.option('formData').third_party_consumer
+                    }
+                }
+            }
         })
     }
 </script>

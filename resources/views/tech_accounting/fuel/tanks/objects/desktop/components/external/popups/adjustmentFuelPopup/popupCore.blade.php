@@ -64,6 +64,18 @@
 
                     ],
                 },
+
+                {
+                    dataField: 'comment',
+                    editorType: "dxTextBox",
+                    editorOptions: {
+                        readOnly: externalEditingRowId,
+                    },
+                    label: {
+                        text: 'Комментарий'
+                    },
+                },
+
                 {
                     visible: false,
                     dataField: 'event_date',

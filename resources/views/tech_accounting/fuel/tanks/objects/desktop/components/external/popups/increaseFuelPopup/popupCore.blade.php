@@ -91,6 +91,7 @@
                     editorType: "dxDateBox",
                     editorOptions: {
                         readOnly: externalEditingRowId,
+                        value: new Date(),
                     },
                     label: {
                         text: 'Дата операции'
@@ -110,6 +111,18 @@
                         text: 'Номер документа'
                     },
                 },
+
+                {
+                    dataField: 'comment',
+                    editorType: "dxTextBox",
+                    editorOptions: {
+                        readOnly: externalEditingRowId,
+                    },
+                    label: {
+                        text: 'Комментарий'
+                    },
+                },
+
                 {
                     itemType: "group",
                     caption: 'Файлы',

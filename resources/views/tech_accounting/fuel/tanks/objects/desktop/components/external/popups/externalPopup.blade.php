@@ -18,9 +18,11 @@
                 text: 'Сохранить',
             },
             onClick(e) {
+
                 if (!DevExpress.validationEngine.validateGroup("documentExternalValidationGroup").isValid) {
                     return;
                 }
+
                 formData = $('#externalForm').dxForm('instance').option('formData')
                 formData.newAttachments = externalNewAttachments;
                 formData.deletedAttachments = externalDeletedAttachments;
