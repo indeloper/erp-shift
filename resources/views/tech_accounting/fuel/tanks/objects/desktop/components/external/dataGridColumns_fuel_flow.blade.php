@@ -9,10 +9,11 @@
             visible: false
         },
         {
-            caption: "Дата",
-            dataField: "created_at",
+            caption: "Дата операции",
+            dataField: "event_date",
             dataType: "date",
             width: 150,
+            sortOrder: 'desc',
         },
         {
             caption: "Ответственный",
@@ -96,7 +97,7 @@
                         icon: "fas fa-plus",
 
                         visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
-                        
+
                         onClick: (e) => {
                             if (choosedFormTab === 'fuelIncomes') {
                                 showIncreaseFuelPopup();

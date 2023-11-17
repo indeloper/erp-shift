@@ -34,13 +34,13 @@
             visible: false
         },
         {
-            dataField: "event_date", // Replace with your date field name
+            dataField: "event_date",
             dataType: "date",
             groupIndex: 0,
             sortOrder: 'desc',
 
             calculateGroupValue: function (data) {
-                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1); // Group by year and month
+                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1); 
             },
             groupCellTemplate: function (element, options) {
 
@@ -69,13 +69,7 @@
 
             }
         },
-        // {
-        //     caption: 'Дата операции',
-        //     dataField: 'event_date',
-        //     dataType: "date",
-        //     // groupIndex: 0,
-        //     // sortOrder: 'desc',
-        // },
+        
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
@@ -121,11 +115,13 @@
                     .appendTo(wrapper)
             }
         },
+
         {
-            caption: "Дата записи",
-            dataField: "created_at",
+            caption: 'Дата операции',
+            dataField: 'event_date',
             dataType: "date",
             width: 150,
+            sortOrder: 'desc',
         },
 
         {
