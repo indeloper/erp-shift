@@ -222,6 +222,8 @@
                         valueExpr: 'id',
                         displayExpr: 'name',
 
+                        visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
+
                         onItemClick(e) {
 
                             if (e.itemData.slug === 'income')

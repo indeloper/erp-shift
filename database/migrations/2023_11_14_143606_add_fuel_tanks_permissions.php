@@ -78,6 +78,11 @@ class AddFuelTanksPermissions extends Migration
             'category' => 17,
         ],
         [
+            'name' => 'Топливные операции: возможность создавать записи для своих емкостей', 
+            'codename' => 'create_fuel_tank_flows_for_reportable_tanks',
+            'category' => 17,
+        ],
+        [
             'name' => 'Топливные операции: возможность создавать записи для всех емкостей', 
             'codename' => 'create_fuel_tank_flows_for_any_tank',
             'category' => 17,
