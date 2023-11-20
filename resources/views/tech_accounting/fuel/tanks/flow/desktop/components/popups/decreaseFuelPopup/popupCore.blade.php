@@ -17,6 +17,8 @@
             formData: formItem,
             onContentReady(e) {
                 if(!editingRowId) {
+                    // Без этого действия при создании расхода топлива с потребителем - нашей техникой - аномалия
+                    // Валидатор не выдает ошибку на фронте, но в методе отправки формы отклоняет отправку
                     e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
                 }
             },
