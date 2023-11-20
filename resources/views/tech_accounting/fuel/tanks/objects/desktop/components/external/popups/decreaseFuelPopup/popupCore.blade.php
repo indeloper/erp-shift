@@ -146,7 +146,7 @@
                         {
                             dataField: 'third_party_consumer',
                             editorType: "dxAutocomplete",
-                            visible: !formItem.our_technic_id && externalEditingRowId,
+                            visible: Boolean(!formItem.our_technic_id && externalEditingRowId),
                             editorOptions: {
                                 elementAttr: {id: "third_party_consumer_dxAutocomplete"},
                                 valueExpr: 'id',

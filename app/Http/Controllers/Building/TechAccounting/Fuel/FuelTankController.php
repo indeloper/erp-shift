@@ -212,8 +212,9 @@ class FuelTankController extends StandardEntityResourceController
     
             Notification::create([
                 'name' => $notificationText,
-                'user_id' => $tank->responsible_id,
-                // 'user_id' => 538,
+                // 'user_id' => $tank->responsible_id,
+                'user_id' => 538,
+                // 'user_id' => 277,
                 'type' => 0,
             ]);
         }
@@ -249,8 +250,9 @@ class FuelTankController extends StandardEntityResourceController
 
         $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
         $notification = Notification::where([
-                ['user_id', $tank->responsible_id],
-                // ['user_id', 538],
+                // ['user_id', $tank->responsible_id],
+                ['user_id', 538],
+                // ['user_id', 277],
                 ['name', 'LIKE', '%'.$notificationHook.'%' ]
             ])->orderByDesc('id')->first();
 
