@@ -16,8 +16,9 @@
             labelLocation: 'left',
             formData: formItem,
             onContentReady(e) {
-                e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
-                e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
+                if(!editingRowId) {
+                    e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
+                }
             },
             items: [
                 {
@@ -198,7 +199,7 @@
 
             ],
             // onFieldDataChanged: (e) => {
-
+            // console.log("field value changed");
             //     if (e.dataField === 'fuelConsumerType') {
             //         if (e.value === 'third_party_technik_radio_elem') {
             //             e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
@@ -212,7 +213,7 @@
             //             delete e.component.option('formData').third_party_consumer
             //         }
             //     }
-            // },           
+            //  },           
         })
     }
 </script>
