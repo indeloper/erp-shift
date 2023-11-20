@@ -9,6 +9,14 @@
             font-family: 'calibri', sans-serif;
         }
 
+        footer {
+            position: fixed; 
+            bottom: -40; 
+            width: 100%;
+            font-size: 12;
+            color: grey;
+        }
+
         .report-caption {
             font-size: 16;
             width: 100%;
@@ -186,7 +194,7 @@
                                         {{$fuelFlowOperation['fuel_consumer']}}
                                     @endif
                                 </td>
-                                <td class="td-normal">
+                                <td class="td-center">
                                     {{$fuelFlowOperation['event_date'] ? $carbonInstance::create($fuelFlowOperation['event_date'])->format('d.m.Y') : ''}}
                                 </td>
                                 <td class="td-normal">{{$fuelFlowOperation['document']}}</td>
@@ -391,6 +399,8 @@
                         <td style="text-align: center; font-size: 10; color: #3f3f3f"><i>Ф.И.О.</i></td>
                     </tr>
                 </table>
+
+                <footer>{{$carbonInstance::create(now())->format('d.m.Y H:i')}}, {{$userModelInstance::find(Auth::user()->id)->user_full_name}}</footer>
 
             @endforeach
         @endforeach

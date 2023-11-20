@@ -356,8 +356,10 @@ class FuelReportController extends Controller
         // return view('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportTemplate',
         //     [
         //         'baseReportArray' => $baseReportArray,
-        //         'dateFrom' => $currentMonthBegin->format('d.m.Y'),
-        //         'dateTo' => $nextMonthBegin->format('d.m.Y'),
+        //         // 'dateFrom' => $currentMonthBegin->format('d.m.Y'),
+        //         // 'dateTo' => $nextMonthBegin->format('d.m.Y'),
+        //         'dateFrom' => $globalDateFrom->format('d.m.Y'),
+        //         'dateTo' => $globalDateTo->format('d.m.Y'),
         //         'companyModelInstance' => new Company,
         //         'fuelTankModelInstance' => new FuelTank,
         //         'objectModelInstance' => new ProjectObject,
