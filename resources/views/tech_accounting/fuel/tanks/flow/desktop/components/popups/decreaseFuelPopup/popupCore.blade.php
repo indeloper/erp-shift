@@ -15,6 +15,10 @@
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
+            onContentReady(e) {
+                e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
+                e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
+            },
             items: [
                 {
                     visible: false,
@@ -116,6 +120,22 @@
                                 displayExpr: 'text',
                                 layout: 'horizontal',
                                 disabled: editingRowId,
+                                onValueChanged(e) {
+
+                                    const mainForm = $('#mainForm').dxForm('instance')
+
+                                    if (e.value === 'third_party_technik_radio_elem') {
+                                        mainForm.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
+                                        mainForm.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', true)
+                                        delete mainForm.option('formData').our_technic_id
+                                    } 
+                                    
+                                    if (e.value === 'our_technik_radio_elem') { 
+                                        mainForm.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
+                                        mainForm.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
+                                        delete mainForm.option('formData').third_party_consumer
+                                    }
+                                }
                             },
                         }, 
                         {
@@ -177,22 +197,22 @@
                 // }
 
             ],
-            onFieldDataChanged: (e) => {
+            // onFieldDataChanged: (e) => {
 
-                if (e.dataField === 'fuelConsumerType') {
-                    if (e.value === 'third_party_technik_radio_elem') {
-                        e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
-                        e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', true)
-                        delete e.component.option('formData').our_technic_id
-                    } 
+            //     if (e.dataField === 'fuelConsumerType') {
+            //         if (e.value === 'third_party_technik_radio_elem') {
+            //             e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
+            //             e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', true)
+            //             delete e.component.option('formData').our_technic_id
+            //         } 
                     
-                    if (e.value === 'our_technik_radio_elem') { 
-                        e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
-                        e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
-                        delete e.component.option('formData').third_party_consumer
-                    }
-                }
-            },           
+            //         if (e.value === 'our_technik_radio_elem') { 
+            //             e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
+            //             e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
+            //             delete e.component.option('formData').third_party_consumer
+            //         }
+            //     }
+            // },           
         })
     }
 </script>
