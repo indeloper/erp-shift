@@ -302,5 +302,21 @@ class FuelTankFlowController extends StandardEntityResourceController
         ], 200);
     }
 
+    public function getThirdPartyFuelConsumers(Request $request)
+    {
+        $options = json_decode($request['data']);
+        
+        $thirdPartyFuelConsumers =
+            (new FuelTankFlow)
+                ->dxLoadOptions($options)
+                ->whereNotNull('third_party_consumer')
+                ->pluck('third_party_consumer')
+                ->unique();
+
+        return json_encode(array(
+            "data" => $thirdPartyFuelConsumers
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
 
 }

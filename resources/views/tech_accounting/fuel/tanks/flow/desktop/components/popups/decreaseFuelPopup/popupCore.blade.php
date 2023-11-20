@@ -115,8 +115,8 @@
                                 valueExpr: 'id',
                                 displayExpr: 'text',
                                 layout: 'horizontal',
-                                disabled: editingRowId
-                            }
+                                disabled: editingRowId,
+                            },
                         }, 
                         {
                             dataField: 'our_technic_id',
@@ -142,9 +142,7 @@
                             editorType: "dxAutocomplete",
                             visible: !formItem.our_technic_id && editingRowId,
                             editorOptions: {
-                                elementAttr: {id: "third_party_consumer_dxAutocomplete"},
-                                valueExpr: 'id',
-                                displayExpr: 'name',
+                                dataSource: thirdPartyFuelConsumers,
                                 readOnly: editingRowId,
                             },
                             label: {
@@ -194,7 +192,7 @@
                         delete e.component.option('formData').third_party_consumer
                     }
                 }
-            }
+            },           
         })
     }
 </script>

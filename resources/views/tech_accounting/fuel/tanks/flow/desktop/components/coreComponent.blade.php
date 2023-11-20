@@ -20,6 +20,9 @@
                         text: 'Сохранить',
                     },
                     onClick() {
+                        // console.log('formData', $('#mainForm').dxForm('instance').option('formData'));
+                        // console.log('validation', DevExpress.validationEngine.validateGroup("documentValidationGroup"));
+                        // return
                         if (!DevExpress.validationEngine.validateGroup("documentValidationGroup").isValid) {
                             return;
                         }

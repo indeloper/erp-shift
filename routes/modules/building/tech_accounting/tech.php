@@ -137,6 +137,7 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::get('getFuelConsumers', 'FuelTankFlowController@getFuelConsumers')->name('getFuelConsumers');
         Route::get('getFuelFlowTypes', 'FuelTankFlowController@getFuelFlowTypes')->name('getFuelFlowTypes');
         Route::post('uploadFile', 'FuelTankFlowController@uploadFile')->name('uploadFile');
+        Route::get('getThirdPartyFuelConsumers', 'FuelTankFlowController@getThirdPartyFuelConsumers')->name('getThirdPartyFuelConsumers');
 
         Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
         Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
