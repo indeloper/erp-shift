@@ -189,7 +189,8 @@ class FuelTankController extends StandardEntityResourceController
             'previous_responsible_id' => $tank->responsible_id,
             'responsible_id' => $data->responsible_id,
             'fuel_level' => $tank->fuel_level,
-            'event_date' => $data->event_date
+            'event_date' => $data->event_date,
+            'tank_moving_confirmation' => $tank->responsible_id == $data->responsible_id
         ]);
         
         if($tank->responsible_id != $data->responsible_id) {
