@@ -15,13 +15,7 @@
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
-            onContentReady(e) {
-                if(!editingRowId) {
-                    // Без этого действия при создании расхода топлива с потребителем - нашей техникой - аномалия
-                    // Валидатор не выдает ошибку на фронте, но в методе отправки формы отклоняет отправку
-                    e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
-                }
-            },
+           
             items: [
                 {
                     visible: false,
@@ -163,10 +157,10 @@
                         {
                             dataField: 'third_party_consumer',
                             editorType: "dxAutocomplete",
-                            visible: !formItem.our_technic_id && editingRowId,
+                            visible: Boolean(!formItem.our_technic_id && editingRowId),
                             editorOptions: {
                                 dataSource: thirdPartyFuelConsumers,
-                                readOnly: editingRowId,
+                                readOnly: editingRowId, 
                             },
                             label: {
                                 text: 'Потребитель'
@@ -217,5 +211,7 @@
             //     }
             //  },           
         })
+
+        
     }
 </script>
