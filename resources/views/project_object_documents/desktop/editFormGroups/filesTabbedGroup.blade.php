@@ -27,14 +27,14 @@
                                                 uploadUrl: "{{route('projectObjectDocument.uploadFiles')}}"  + '?id=' + 0,
                                                 uploadHeaders: {
                                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                                }, 
+                                                },
                                                 onUploadStarted(e) {
 
-                                                    const newFileDiv = 
+                                                    const newFileDiv =
                                                         $('<div>')
                                                             .addClass('newFileDivCSS')
 
-                                                    const progressBarDiv = 
+                                                    const progressBarDiv =
                                                         $('<div>')
                                                             .css({'width': '90%'})
 
@@ -43,7 +43,7 @@
                                                     let progressBar = progressBarDiv.attr('id', 'progressBar' + uploadingFiles.length).addClass('progressBar')
                                                     $(newFile).append(progressBar)
                                                     $('#newFilesListWrapper').append(newFile)
-                                                    
+
                                                 },
 
                                                 onProgress(e) {
@@ -64,17 +64,17 @@
                                                     let isFilePdf = e.file.type.includes('pdf')
                                                     // let isFileImg = e.file.name.includes('.jpg') || e.file.name.includes('.jpeg') || e.file.name.includes('.png');
                                                     // let isFilePdf = e.file.name.includes('.pdf')
-                                                    
+
                                                     newAttachments.push(newFileEntryId)
 
                                                     $('#newFile' + uploadingFiles.length).remove()
-                                                    
+
                                                     const { file } = e;
                                                     const fileReader = new FileReader();
                                                     fileReader.readAsDataURL(file);
-                                                    let i=0;                                                    
+                                                    let i=0;
                                                     fileReader.onload = function () {
-                                                        $('#newFile' + uploadingFiles.length).remove() 
+                                                        $('#newFile' + uploadingFiles.length).remove()
 
                                                         // if(isFileImg || isFilePdf){
                                                         if(isFileImg){
@@ -89,15 +89,15 @@
 
                                                             if(e.file.name.includes('.pdf'))
                                                             newFileURL = 'img/fileIcons/pdf-icon.png'
-                                                        } 
-                                                                                                              
+                                                        }
+
                                                         if(isFileImg) {
                                                             // newFileImgWrapper = $('<a>').addClass('newFileDivCSS').attr('id', 'newFileImgWrapper' + uploadingFiles.length).attr('href', newFileURL)
                                                             newFileImgWrapper = $('<div>').css({'cursor': 'pointer'}).addClass('newFileImgWrapper newFileDivCSS')
                                                         } else {
                                                             newFileImgWrapper = $('<div>').addClass('newFileDivCSS').css({'padding': '10px', 'height': 'auto'})
                                                         }
-                                                        
+
                                                         newFileImgWrapper.attr('id', 'fileId-' + newFileEntryId).addClass('attachmentFileWrapper')
 
                                                         // if(!isFilePdf) {
@@ -128,16 +128,16 @@
                                                         // }
 
                                                         if(isFileImg) {
-                                                            $(newFilesListWrapper).append(newFileImgWrapper) 
+                                                            $(newFilesListWrapper).append(newFileImgWrapper)
                                                         } else {
-                                                            $(newFilesNotImgListWrapper).append(newFileImgWrapper) 
+                                                            $(newFilesNotImgListWrapper).append(newFileImgWrapper)
                                                         }
-                                                        
-                                                        uploadingFiles.pop()  
-                                                        
-                                                        i++;     
+
+                                                        uploadingFiles.pop()
+
+                                                        i++;
                                                         if(!uploadingFiles.length && i>0) {
-                                                            // addLightGallery('newFilesListWrapper') 
+                                                            // addLightGallery('newFilesListWrapper')
                                                             let images = document.querySelectorAll('.newFileImg')
                                                             if(images)
                                                             for (let index = 0; index < images.length; index++) {
@@ -149,9 +149,9 @@
 
                                                             $('.newFileDivCSS').hover(
 
-                                                                
+
                                                                 function(){
-                                                                   
+
                                                                     let deleteButton = $('<div id="attachmentNewHoverDeleteButton">').dxButton({
                                                                         icon: "fas fa-trash",
                                                                         hint: "Удалить",
@@ -164,12 +164,12 @@
                                                                     })
 
                                                                     $( this ).append( $( deleteButton ) );
-                                                                }, 
+                                                                },
                                                                 function(){
                                                                     $('#attachmentNewHoverDeleteButton').remove()
                                                                 }
                                                             )
-                                                            
+
 
                                                             let fakeCoverPdfElems =  document.getElementById('newFilesNotImgListWrapper')?.querySelectorAll('.fakeCoverPDF');
                                                             if(fakeCoverPdfElems) {
@@ -177,33 +177,33 @@
                                                                     const element = fakeCoverPdfElems[index];
                                                                     lightGallery(element, {
                                                                         selector: 'this',
-                                                                    }); 
+                                                                    });
                                                                 }
                                                             }
                                                         }
-                                                         
 
 
-                                                    
-                                                        
+
+
+
                                                     }
-                                                    
+
 
                                                 }
-                                                                                               
+
                                             });
 
-                                            const buttonsWrapper = 
+                                            const buttonsWrapper =
                                                 $('<div>')
                                                     .attr('id', 'buttonsWrapper')
                                                     .css({
-                                                        'position': 'absolute', 
+                                                        'position': 'absolute',
                                                         'top': '10px',
                                                         'right': '10px',
                                                         'display': 'flex'
                                                     });
 
-                                            const downloadFilesButton = 
+                                            const downloadFilesButton =
                                                 $('<div>')
                                                     .attr('id', 'downloadFilesButton')
                                                     .css({'marginRight': '10px'})
@@ -221,14 +221,14 @@
                                                                 if(checkbox.value == 'true') {
                                                                     let choosedFileId = checkbox.closest('.attachmentFileWrapper').id.split('-')[1];
                                                                     filesIdsToDownload.push(choosedFileId);
-                                                                } 
+                                                                }
                                                             })
-                                                            
+
                                                             downloadAttachments(filesIdsToDownload)
                                                         }
                                                     }).appendTo(buttonsWrapper);
-                                            
-                                            const fileUploadButton = 
+
+                                            const fileUploadButton =
                                                 $('<div>')
                                                     .attr('id', 'fileUploadButton')
                                                     .dxButton({
@@ -239,33 +239,33 @@
                                                         }
                                                     }).appendTo(buttonsWrapper);
 
-                                            const newFilesListWrapper = 
+                                            const newFilesListWrapper =
                                                 $('<div>')
                                                     .attr('id', 'newFilesListWrapper')
                                                     .addClass('filesGroupWrapperClass')
                                                     .css({
-                                                        'width': '100%', 
-                                                        // 'height': '20vh', 
+                                                        'width': '100%',
+                                                        // 'height': '20vh',
                                                         // 'margin-top': '40px',
                                                         'overflow-y': 'auto'
                                                     });
 
-                                            const newFilesNotImgListWrapper = 
+                                            const newFilesNotImgListWrapper =
                                                 $('<div>')
                                                     .attr('id', 'newFilesNotImgListWrapper')
                                                     .css({
-                                                        'width': '100%', 
-                                                        // 'height': '20vh', 
+                                                        'width': '100%',
+                                                        // 'height': '20vh',
                                                         // 'margin-top': '40px',
                                                         'overflow-y': 'auto'
                                                     });
-                                            
+
                                             itemElement.css('padding-top', '30px');
                                             itemElement.append(buttonsWrapper)
                                             itemElement.append(fileUploader);
                                             itemElement.append(newFilesListWrapper);
                                             itemElement.append(newFilesNotImgListWrapper);
-                                            
+
 
                                         }
                                     },
@@ -274,15 +274,15 @@
                                         item: 'simple',
                                         template: (data, itemElement) => {
 
-                                            const filesOnServerListWrapper = 
+                                            const filesOnServerListWrapper =
                                                 $('<div>')
                                                     .attr('id', 'filesOnServerListWrapper')
                                                     .css({
-                                                        'width': '100%', 
+                                                        'width': '100%',
                                                         'height': '50vh',
                                                         // 'overflow-y': 'auto'
                                                     });
-                                            
+
                                                     if(projectObjectDocumentInfoByID.items()[0]) {
                                                         const filesDataArr = projectObjectDocumentInfoByID.items()[0]?.attachments.original
 
@@ -302,17 +302,17 @@
                                                             let filesNotImgGroupWrapper = $('<div>').attr('id', 'filesNotImgGroupWrapper' + i);
                                                             const filesArr = filesDataArr[group]
 
-                                                            handleFilesDataArr(filesArr, filesGroupWrapper, filesNotImgGroupWrapper, 'filesTab') 
+                                                            handleFilesDataArr(filesArr, filesGroupWrapper, filesNotImgGroupWrapper, 'filesTab')
 
                                                             $(filesOnServerListWrapper).append(filesGroupWrapper)
-                                                            $(filesOnServerListWrapper).append(filesNotImgGroupWrapper)                                                         
-                                                            
+                                                            $(filesOnServerListWrapper).append(filesNotImgGroupWrapper)
+
                                                         })
-                                                    } 
-                                                    else 
+                                                    }
+                                                    else
                                                     $(itemElement).append('<span class="popup-field-nodata">Нет данных</span>')
 
-                                                    
+
                                         }
 
                                             // Старые кнопки управления
@@ -345,10 +345,10 @@
                                             //         //     },
                                             //         // }).appendTo(fileOnServerDivWrapper);
 
-                                            
-                                         
+
+
                                     },
-                                    
+
                                     // {
                                     //     name: "attachmentsGrid",
                                     //     editorType: "dxDataGrid",
@@ -357,7 +357,6 @@
                                     //         dataSource: projectObjectAttachmentsDataSource,
                                     //         wordWrapEnabled: true,
                                     //         height: '20vh',
-                                    //         columnHidingEnabled: true,
                                     //         columns: [
                                     //         {
                                     //             caption: "Добавлен",
@@ -407,11 +406,11 @@
                                     //                 }).appendTo(container);
                                     //             },
                                     //         },
-                                            
-                                                                                       
+
+
                                     //     ]
                                     //     },
-                                        
+
                                     // },
 
                                     // {
@@ -443,10 +442,10 @@
                                     //         uploadUrl: "{{route('projectObjectDocument.uploadFile')}}"  + '?id=' + editingRowId,
                                     //         uploadHeaders: {
                                     //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                    //         }, 
-                                    //         // height: 32, 
+                                    //         },
+                                    //         // height: 32,
                                     //     }
-                                                                     
+
                                     // },
                                 ],
 
