@@ -14,7 +14,6 @@
         columnMinWidth: 50,
         columnResizingMode: 'nextColumn',
         syncLookupFilterValues: false,
-        columnHidingEnabled: false,
         // wordWrapEnabled: true,
         showRowLines: true,
         remoteOperations: true,
