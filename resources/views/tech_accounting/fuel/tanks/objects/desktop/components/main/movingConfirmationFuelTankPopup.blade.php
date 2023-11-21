@@ -59,6 +59,17 @@
                     },
                 },
 
+                {
+                    dataField: 'comment_movement_tmp',
+                    editorType: "dxTextBox",
+                    editorOptions: {
+                        readOnly: true
+                    },
+                    label: {
+                        text: 'Комментарий'
+                    },
+                },
+
             ]
         })
     }

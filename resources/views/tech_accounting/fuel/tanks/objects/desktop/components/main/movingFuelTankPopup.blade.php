@@ -69,8 +69,15 @@
                         message: 'Укажите значение',
                     }],
                 },
-
-
+                
+                {
+                    dataField: 'comment_movement_tmp',
+                    editorType: "dxTextBox",
+                    label: {
+                        text: 'Комментарий'
+                    },
+                },
+            
             ]
         })
     }

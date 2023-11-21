@@ -1,1 +1,1 @@
-// dataSource находится components/dataSource
+{{-- dataSource находится components/dataSource --}}

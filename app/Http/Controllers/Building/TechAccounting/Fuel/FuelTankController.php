@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
+use App\Models\Comment;
 use App\Models\Company\Company;
 use App\Models\Group;
 use App\Models\Notification;
@@ -53,6 +54,7 @@ class FuelTankController extends StandardEntityResourceController
                 fuel_tanks.responsible_id, 
                 fuel_tanks.fuel_level,
                 fuel_tanks.awaiting_confirmation,
+                fuel_tanks.comment_movement_tmp,
                 (SELECT MAX(`event_date`) from `fuel_tank_flows` where `fuel_tank_flows`.`fuel_tank_id` = `fuel_tanks`.`id`) 
                 as max_event_date,
                 (SELECT `previous_object_id` from `fuel_tank_transfer_hystories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_hystories` where `fuel_tank_transfer_hystories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_hystories`.`fuel_tank_flow_id` is null))
@@ -190,12 +192,25 @@ class FuelTankController extends StandardEntityResourceController
             'responsible_id' => $data->responsible_id,
             'fuel_level' => $tank->fuel_level,
             'event_date' => $data->event_date,
-            'tank_moving_confirmation' => $tank->responsible_id == $data->responsible_id
+            'tank_moving_confirmation' => (int)$tank->responsible_id === (int)$data->responsible_id
         ]);
+
+        if(!empty($data->comment_movement_tmp)) {
+            Comment::create([
+                'commentable_id' => $tank->id,
+                'commentable_type' => 'App\Models\TechAcc\FuelTank\FuelTank',
+                'comment' => $data->comment_movement_tmp,
+                'author_id' => Auth::user()->id,
+    
+            ]);
+        }
         
-        if($tank->responsible_id != $data->responsible_id) {
+        if((int)$tank->responsible_id !== (int)$data->responsible_id) {
             $needNotification = true;
-            $tank->awaiting_confirmation = true;
+            $tank->awaiting_confirmation = true;  
+            $tank->comment_movement_tmp = $data->comment_movement_tmp ?? null;
+        } else {
+            $tank->comment_movement_tmp = null;
         }
         
         $tank->object_id = $data->object_id;
@@ -246,6 +261,7 @@ class FuelTankController extends StandardEntityResourceController
         ]);
 
         $tank->awaiting_confirmation = false;
+        $tank->comment_movement_tmp = null;
         $tank->save();
 
         $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
