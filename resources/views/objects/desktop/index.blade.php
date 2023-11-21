@@ -9,20 +9,10 @@
 @endsection
 
 @section('content')
-
-<!-- <div id="container">
-    <div id="headerRow">
-        <div id="gridHeader">
-            Объекты
-        </div>
-    </div>
-    <div id="dataGridContainer"></div>
-</div> -->
-<div id="dataGridAnchor"></div>
-<div id="mainPopup"></div>
-<div id="bitrixProjectsPopup"></div>
-<div id="shortNameConfigurationPopup"></div>
-
+    <div id="dataGridAnchor"></div>
+    <div id="mainPopup"></div>
+    <div id="bitrixProjectsPopup"></div>
+    <div id="shortNameConfigurationPopup"></div>
 @endsection
 
 @section('js_footer')

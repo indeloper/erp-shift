@@ -1,5 +1,5 @@
 <script>
-    function showShortNameConfiguratorPopup() {
+    function showShortNameConfiguratorPopup(contractors) {
         const shortNameConfigurationPopup = $('#shortNameConfigurationPopup').dxPopup({
             title: 'Конфигуратор сокращенного наименования',
             width: '50vw',
@@ -9,8 +9,13 @@
             showCloseButton: true,
             contentTemplate: () => {
                 let dataGridInstance = $('#dataGridContainer').dxDataGrid('instance');
-                let bitrixId = dataGridInstance.cellValue(dataGridInstance.option('focusedRowIndex'), 'bitrix_id');
-                return shortNameConfiguratorPopupContentTemplate(bitrixId)
+                let bitrixId;
+                if (dataGridInstance.option('focusedRowIndex')) {
+                    bitrixId = dataGridInstance.cellValue(dataGridInstance.option('focusedRowIndex'), 'bitrix_id');
+                } else {
+                    bitrixId = dataGridInstance.cellValue(0, 'bitrix_id');
+                }
+                return shortNameConfiguratorPopupContentTemplate(bitrixId, contractors)
             },
             toolbarItems: [
                 {
@@ -24,7 +29,7 @@
                         let shortNameFormInstance = $('#shortNameConfiguratorForm').dxForm('instance');
                         let dataGridInstance = $('#dataGridContainer').dxDataGrid('instance');
                         let shortName = shortNameFormInstance.option("formData")['generatedShortName'];
-                        if (!dataGridInstance.option('focusedRowIndex')){
+                        if (!dataGridInstance.option('focusedRowIndex')) {
                             dataGridInstance.cellValue(0, 'short_name', shortName);
                         } else {
                             dataGridInstance.cellValue(dataGridInstance.option('focusedRowIndex'), 'short_name', shortName);
@@ -48,7 +53,7 @@
         }).dxPopup('instance')
     }
 
-    function shortNameConfiguratorPopupContentTemplate(bitrixId) {
+    function shortNameConfiguratorPopupContentTemplate(bitrixId, contractors) {
         return $('<div id="shortNameConfiguratorForm">').dxForm({
             formData: {
                 bitrixId: bitrixId,
@@ -75,7 +80,7 @@
             items: [
                 {
                     itemType: "group",
-                    colCount: 2,
+                    colCount: 1,
                     colSpan: 4,
                     items: [{
                         dataField: 'objectName',
@@ -85,27 +90,27 @@
                         editorType: 'dxTextBox',
                         colSpan: 1
                     },
-                    {
-                        dataField: 'objectCaption',
-                        label: {
-                            text: 'Название объекта'
-                        },
-                        editorType: 'dxTextBox',
-                        colSpan: 1
-                    }],
+                        {
+                            dataField: 'objectCaption',
+                            label: {
+                                text: 'Название объекта'
+                            },
+                            editorType: 'dxTextBox',
+                            colSpan: 1
+                        }],
                 },
                 {
                     itemType: "group",
                     colCount: 8,
                     colSpan: 4,
                     items: [{
-                            dataField: 'postalCode',
-                            label: {
-                                text: 'Индекс'
-                            },
-                            editorType: 'dxTextBox',
-                            colSpan: 2
+                        dataField: 'postalCode',
+                        label: {
+                            text: 'Индекс'
                         },
+                        editorType: 'dxTextBox',
+                        colSpan: 2
+                    },
                         {
                             dataField: 'city',
                             label: {
@@ -128,13 +133,13 @@
                     colCount: 5,
                     colSpan: 4,
                     items: [{
-                            dataField: 'street',
-                            label: {
-                                text: 'Улица'
-                            },
-                            editorType: 'dxTextBox',
-                            colSpan: 3
+                        dataField: 'street',
+                        label: {
+                            text: 'Улица'
                         },
+                        editorType: 'dxTextBox',
+                        colSpan: 3
+                    },
                         {
                             dataField: 'section',
                             label: {
@@ -241,12 +246,13 @@
                 }
             ],
             onFieldDataChanged: function (e) {
-                if (e.dataField === "generatedShortName" || e.dataField === "bitrixId"){
+                if (e.dataField === "generatedShortName" || e.dataField === "bitrixId") {
                     return
                 }
 
                 let filteredData = {}
                 let data = e.component.option("formData");
+
                 for (const key in data) {
                     if (data[key] !== "") {
                         switch (key) {
@@ -303,11 +309,13 @@
 
                 let generatedShortName = Object.values(filteredData).join(", ");
 
+                let formattedContractors = contractors?.[0]?.short_name ? `${contractors?.[0]?.short_name}, ` : '';
+
                 let formattedBitrixId = "";
                 if (bitrixId) {
                     formattedBitrixId = `[ID${bitrixId}] - `;
                 }
-                generatedShortName = `${formattedBitrixId}${generatedShortName}`;
+                generatedShortName = `${formattedBitrixId}${formattedContractors}${generatedShortName}`;
                 e.component.updateData('generatedShortName', generatedShortName)
                 $('#generated-short-name').html(`Сокращенное наименование: <b>${generatedShortName}</b>`)
 
