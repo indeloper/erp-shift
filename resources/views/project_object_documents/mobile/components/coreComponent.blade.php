@@ -11,6 +11,15 @@
             dragOutsideBoundary: false,
             enableBodyScroll: false,
 
+            onContentReady() {
+                $('#popupContainer').on('dxswipe', function (e) {
+                    e.stopPropagation();
+                    if(e.offset>0.25 || e.offset<-0.25) {
+                        popupForm.hide();
+                    }
+                });
+            },
+
             onShowing(e) {
                 if(e.component.option('newDocumentMode')){
                     $('#menuButtons').remove()
@@ -242,4 +251,5 @@
         hideOnOutsideClick: false,
         wrapperAttr: {},
     }).dxLoadPanel('instance')
+
 </script>
