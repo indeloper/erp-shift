@@ -60,7 +60,6 @@
         store: new DevExpress.data.CustomStore({
             loadMode: "raw",
             load: function (loadOptions) {
-                // let rowId = dataGridInstance.option().focusedRowKey;
                 return $.getJSON("{{route('objects::getObjectInfoByID')}}" + '?id=' + editingRowId);
             }
         })

@@ -8,15 +8,12 @@
             maxWidth: '60vw',
             height: 'auto',
             onHiding() {
-                // $('#dataGridContainer').dxDataGrid('instance').option("focusedRowKey", undefined);
-                // $('#dataGridContainer').dxDataGrid('instance').option("focusedRowIndex", undefined);
                 resetVars();
                 resetStores();
                 setReadonlyFormElemsProperties(false)
             },
             onShowing() {
                 checkSaveButtonAvailable()
-               
             }
         }
 </script>
