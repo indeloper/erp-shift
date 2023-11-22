@@ -4,9 +4,6 @@
             key: "id",
             loadMode: "processed",
             load: function (loadOptions) {
-                // loadOptions = getFormatedLoadOptions(loadOptions)
-                filterOptions =  loadOptions;
-
                 return $.getJSON("{{route('project-object-document.index')}}",
                     {
                         data: JSON.stringify(loadOptions),
@@ -16,6 +13,7 @@
 
                     });
             },
+
             insert: function (values) {
 
                 return $.ajax({
@@ -53,7 +51,6 @@
             },
 
             remove: function (key) {
-
                 return $.ajax({
                     url: getUrlWithId("{{route('project-object-document.destroy', ['id'=>'setId'])}}", key),
                     method: "DELETE",
@@ -66,7 +63,6 @@
                 })
 
             },
-
         })
     });
 
@@ -83,7 +79,6 @@
             }
         })
     })
-
 
     let documentTypesStore = new DevExpress.data.CustomStore({
         key: "id",
@@ -183,29 +178,8 @@
 
     responsibles_all.load()
 
-    // let projectObjectCommentsDataSource = new DevExpress.data.DataSource({
-    //     store: new DevExpress.data.CustomStore({
-    //         key: "id",
-    //         loadMode: "raw",
-    //         load: function (loadOptions) {
-    //             return $.getJSON("{{route('projectObjectDocument.getProjectObjectDocumentComments')}}" + '?id=' + editingRowId);
-    //         }
-    //     })
-    // })
-
-    // let projectObjectAttachmentsDataSource = new DevExpress.data.DataSource({
-    //     store: new DevExpress.data.CustomStore({
-    //         key: "id",
-    //         loadMode: "raw",
-    //         load: function (loadOptions) {
-    //             return $.getJSON("{{route('projectObjectDocument.getProjectObjectDocumentAttachments')}}" + '?id=' + editingRowId);
-    //         }
-    //     })
-    // })
-
     let projectObjectDocumentInfoByID = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
-            // key: "id",
             loadMode: "raw",
             load: function (loadOptions) {
                 return $.getJSON("{{route('projectObjectDocument.getProjectObjectDocumentInfoByID')}}" + '?id=' + editingRowId);
@@ -215,7 +189,6 @@
 
     let dataForLookupsAndFilters = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
-            // key: "id",
             loadMode: "raw",
             load: function (loadOptions) {
                 return $.getJSON("{{route('projectObjectDocument.getDataForLookupsAndFilters')}}");
@@ -226,6 +199,5 @@
     let documentStatusesByTypeStoreDataSource = new DevExpress.data.DataSource({
         store: documentStatusesByTypeStore,
     })
-
 </script>
 
