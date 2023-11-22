@@ -50,7 +50,8 @@ class User extends Authenticatable
         'birthday',
         'person_phone',
         'image',
-        'gender'
+        'gender',
+        'INN'
     ];
 
     protected $table = 'users';
