@@ -203,7 +203,10 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             );
 
             $actualEmployee = Employee::where('user_id', $user->id)
-                ->where('dismissal_date', '>=', date("Y-m-d"))
+                ->where(function ($query) {
+                    $query->where('dismissal_date', '>=', date("Y-m-d"))
+                        ->orWhere('dismissal_date', '=', '0000-00-00');
+                })
                 ->orderBy('company_id')
                 ->first();
 
