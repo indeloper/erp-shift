@@ -1,11 +1,5 @@
 <style>
-    /* #popupContainer {
-        width: 100%; 
-        height: 80vh;
-    } */
-
     #containerScrollableWrapper {
-        /* height: 80vh; */
         overflow-y: scroll;
     }
 
@@ -49,7 +43,6 @@
         margin-right: 5px;
     }
 
-
     .dx-popup-bottom.dx-toolbar {
         padding: 0 !important;
         padding-bottom: 5px !important;
@@ -60,7 +53,7 @@
         margin-top: -18px;
     }
 
-    .dx-popup-wrapper>.dx-overlay-content {
+    .dx-popup-wrapper > .dx-overlay-content {
         background: #f7f7f8 !important;
     }
 
@@ -100,14 +93,6 @@
         width: 150px;
         height: auto;
         border-radius: 5px;
-        /* display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            float: left; */
-        /* margin-right: 20px; */
-        /* margin-bottom: 10px; */
-        /* padding: 10px; */
         display: flow;
     }
 
@@ -164,7 +149,6 @@
 
     .newFileDivCSS {
         width: 100px;
-        /* height: 100px;  */
         height: auto;
         border: 1px solid grey;
         border-radius: 10px;

@@ -22,7 +22,6 @@
         responsibles_foreman.clearRawDataCache()
         responsibles_manager.clearRawDataCache()
         projectObjectDocumentInfoByID.store().clearRawDataCache()
-        // projectObjectDocumentInfoByID.items().splice(0, 1)
     }
 
     function addLightGallery(id) {
@@ -56,7 +55,6 @@
             if (index === galleryElems.length - 1)
                 openDynamicLightGallery(galleryElemsWrapper, lightGalleryElemsArr, clickedElemIndex)
         }
-
     }
 
     function openDynamicLightGallery(rootElem, elemsArr, elemIndex) {
@@ -92,7 +90,6 @@
 
         toolbarRightTop.insertBefore(deleteButton, closeBtn)
         toolbarRightTop.insertBefore(copyButton, closeBtn)
-
     }
 
     function customConfirmDialog(message) {
@@ -112,64 +109,64 @@
     function deleteDocument(deletingRowId) {
         customConfirmDialog("Вы уверены, что хотите удалить документ?")
             .show().then((dialogResult) => {
-                if (dialogResult) {
-                    return $.ajax({
-                        url: getUrlWithId("{{route('project-object-document.destroy', ['id'=>'setId'])}}", deletingRowId),
-                        method: "DELETE",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data, textStatus, jqXHR) {
-                            document.querySelector('.dx-icon-close')?.click()
-                            dataSourceList.reload();
-                            DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
-                        },
-                    })
-                }
-            })
+            if (dialogResult) {
+                return $.ajax({
+                    url: getUrlWithId("{{route('project-object-document.destroy', ['id'=>'setId'])}}", deletingRowId),
+                    method: "DELETE",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        document.querySelector('.dx-icon-close')?.click()
+                        dataSourceList.reload();
+                        DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                    },
+                })
+            }
+        })
     }
 
     function restoreDocument(undeletingRowId) {
         customConfirmDialog("Вы уверены, что хотите восстановить документ?")
             .show().then((dialogResult) => {
-                if (dialogResult) {
-                    return $.ajax({
-                        url: getUrlWithId("{{route('project-object-document.restoreDocument', ['id'=>'setId'])}}", undeletingRowId),
-                        method: "POST",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data, textStatus, jqXHR) {
-                            dataSourceList.reload();
-                            DevExpress.ui.notify("Документ успешно восстановлен", "success", 1000)
-                        },
-                    })
-                }
-            })
+            if (dialogResult) {
+                return $.ajax({
+                    url: getUrlWithId("{{route('project-object-document.restoreDocument', ['id'=>'setId'])}}", undeletingRowId),
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        dataSourceList.reload();
+                        DevExpress.ui.notify("Документ успешно восстановлен", "success", 1000)
+                    },
+                })
+            }
+        })
     }
 
     function copyDocument(copyRowId) {
         customConfirmDialog("Создать копию документа?")
             .show().then((dialogResult) => {
-                if (dialogResult) {
-                    return $.ajax({
-                        url: getUrlWithId("{{route('projectObjectDocument.clone', ['id'=>'setId'])}}", copyRowId),
-                        method: "POST",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data, textStatus, jqXHR) {
-                            document.querySelector('.dx-icon-close')?.click()
-                            dataSourceList.reload().done((res) => {
-                                let coreDataGridInstance = getCoreDataGridInstance();
-                                let newRowIndex = coreDataGridInstance.getRowIndexByKey((data.newDocument.id))
-                                coreDataGridInstance.editRow(newRowIndex)
-                            });
-                            DevExpress.ui.notify("Создана копия документа", "success", 1000)
-                        },
-                    })
-                }
-            })
+            if (dialogResult) {
+                return $.ajax({
+                    url: getUrlWithId("{{route('projectObjectDocument.clone', ['id'=>'setId'])}}", copyRowId),
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        document.querySelector('.dx-icon-close')?.click()
+                        dataSourceList.reload().done((res) => {
+                            let coreDataGridInstance = getCoreDataGridInstance();
+                            let newRowIndex = coreDataGridInstance.getRowIndexByKey((data.newDocument.id))
+                            coreDataGridInstance.editRow(newRowIndex)
+                        });
+                        DevExpress.ui.notify("Создана копия документа", "success", 1000)
+                    },
+                })
+            }
+        })
     }
 
     function downloadXls() {
@@ -188,9 +185,9 @@
 
         customConfirmDialog("Вы уверены, что хотите удалить файл?")
             .show().then((dialogResult) => {
-                if (dialogResult)
-                    deleteFile();
-            })
+            if (dialogResult)
+                deleteFile();
+        })
 
         function deleteFile() {
             deletedAttachments.push(fileId)
@@ -198,57 +195,6 @@
         }
 
     }
-
-    // *** НАЧАЛО *** Подготовка loadOptions в связи с отказом от lookup на верхнем уровне
-
-    // function getFormatedLoadOptions(loadOptions) {
-    //     loadOptions.filter = updateLoadOptionsKeys(loadOptions.filter)
-    //     return loadOptions
-    // }
-
-    // function updateLoadOptionsKeys(loadOption) {
-    //     if (!loadOption)
-    //         return
-
-    //     if (typeof loadOption[0] != 'object')
-    //         return getUpdatedLoadOption(loadOption)
-    //     else
-    //         return getUpdatedLoadOptionsArr(loadOption)
-    // }
-
-    // function getUpdatedLoadOption(loadOption) {
-    //     let formatedLoadOption = []
-    //     loadOption.forEach(elem => {
-    //         if (typeof elem == 'number')
-    //             formatedLoadOption.push(elem)
-
-    //         if (typeof elem == 'string')
-    //             formatedLoadOption.push(getFormatedElem(elem))
-    //     })
-
-    //     return formatedLoadOption
-    // }
-
-    // function getUpdatedLoadOptionsArr(loadOption) {
-    //     let loadOptionsArr = []
-    //     loadOption.forEach(elem => {
-    //         if (typeof elem == 'object')
-    //             loadOptionsArr.push(getUpdatedLoadOption(elem))
-    //         else
-    //             loadOptionsArr.push(elem)
-    //     })
-
-    //     return loadOptionsArr;
-    // }
-
-    // function getFormatedElem(elem) {
-    //     formatedElem = elem
-    //     formatedElem = formatedElem.replace('status.name', 'document_status_id')
-    //     formatedElem = formatedElem.replace('type.name', 'document_type_id')
-    //     return formatedElem
-    // }
-
-    // *** КОНЕЦ *** Подготовка loadOptions в связи с отказом от lookup на верхнем уровне
 
     function getCoreDataGridInstance() {
         return $('#dataGridContainer').dxDataGrid("instance");
@@ -294,7 +240,7 @@
                 e.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
                     let tagBoxFilterExpression = [];
                     let tagBox = $(item).dxTagBox(`instance`);
-                    tagBox.option(`value`).forEach(function(value) {
+                    tagBox.option(`value`).forEach(function (value) {
                         tagBoxFilterExpression.push([tagBox.option().dataFieldName, `=`, Number(value)]);
                         tagBoxFilterExpression.push(`or`);
                     });
@@ -328,6 +274,7 @@
         permissions = await response.json();
         return await permissions;
     }
+
     getPermissions();
 
     function checkDocumentStatusIsGreen() {
@@ -354,7 +301,6 @@
     }
 
     function handleNewCommentAdded(comment, textBoxInstance = null) {
-
         if (!comment)
             return;
 
@@ -369,13 +315,13 @@
 
         newCommentsArr.unshift(newCommentObj)
 
-        if(document.querySelector('#newAddedComments'))
+        if (document.querySelector('#newAddedComments'))
             document.querySelector('#newAddedComments').innerHTML = ''
-        if(document.querySelector('#newAddedCommentsInfoTab'))
+        if (document.querySelector('#newAddedCommentsInfoTab'))
             document.querySelector('#newAddedCommentsInfoTab').innerHTML = ''
-        if($('#newAddedComments').length)
+        if ($('#newAddedComments').length)
             handleCommentsDataArr(newCommentsArr, $('#newAddedComments'))
-        if($('#newAddedCommentsInfoTab').length)
+        if ($('#newAddedCommentsInfoTab').length)
             handleCommentsDataArr(newCommentsArr, $('#newAddedCommentsInfoTab'))
         textBoxInstance?.option('value', '')
 
@@ -405,8 +351,6 @@
             .then(() => {
                 hideMobilePopupAndReloadDocsList()
             })
-
-
     }
 
     function getMobileFormData() {
@@ -426,8 +370,6 @@
 
         if ($('#documentMobileStatusId').dxSelectBox('instance')?.option('value'))
             formData.document_status_id = $('#documentMobileStatusId').dxSelectBox('instance').option('value');
-        // if(editingRowNewStatusId)
-        // formData.document_status_id = editingRowNewStatusId;
 
         formData.newAttachments = newAttachments;
         formData.deletedAttachments = deletedAttachments;
@@ -463,9 +405,9 @@
             displayExpr: 'text',
 
             items: [{
-                    text: 'Скачать XLS',
-                    disabled: isDownloadXlsDisabled
-                },
+                text: 'Скачать XLS',
+                disabled: isDownloadXlsDisabled
+            },
                 {
                     text: 'Открыть архив',
                     visible: !isArchivedOrDeletedDocuments(),
@@ -492,24 +434,21 @@
     function getCheckedCheckboxesFilesToDownload() {
         const attachmentsWrapper = document.getElementById('filesOnServerListWrapper')
         const checkboxes = attachmentsWrapper.querySelectorAll('input');
-        
-        if(!checkboxes.length)
-        return [];
+
+        if (!checkboxes.length)
+            return [];
 
         const checkedCheckboxes = [];
-        checkboxes.forEach(el=>{
-            if(el.value) {
+        checkboxes.forEach(el => {
+            if (el.value) {
                 checkedCheckboxes.push(el)
             }
-            
         })
 
         return checkedCheckboxes;
     }
 
-
     const setNewCommentElementMobile = (container) => {
-
         const newCommentArea = $('<div>')
             .css({
                 marginBottom: '10px',
@@ -519,32 +458,31 @@
         const newCommentTextArea = $('<div id="newCommentTextArea">').appendTo(newCommentArea)
         const newCommentButton = $('<div id="newCommentButton" style="margin-top:10px">').appendTo(newCommentArea)
         const newCommentsWrapper = $('<div id="newCommentsWrapper">').appendTo(newCommentArea)
-        
+
         $('#newCommentButton').dxButton({
             text: "Добавить комментарий",
-                // icon: 'upload',
-                elementAttr: {
-                    width: '100%',
-                },
-                onClick() {
-                    const textAreaInstance = $('#newCommentTextArea').dxTextArea('instance')
-                    renderNewCommentMobile(textAreaInstance.option('value'), newCommentsWrapper)
-                    textAreaInstance.option('value', '')                    
-                }
+            // icon: 'upload',
+            elementAttr: {
+                width: '100%',
+            },
+            onClick() {
+                const textAreaInstance = $('#newCommentTextArea').dxTextArea('instance')
+                renderNewCommentMobile(textAreaInstance.option('value'), newCommentsWrapper)
+                textAreaInstance.option('value', '')
+            }
         })
 
         $('#newCommentTextArea').dxTextArea({
             placeholder: 'Новый комментарий',
             height: '10vh',
-            onEnterKey: function(e) {
+            onEnterKey: function (e) {
                 renderNewCommentMobile(e.component.option('text'), newCommentsWrapper)
                 e.component.reset()
             }
-        })   
+        })
     }
 
     const renderNewCommentMobile = (value, container) => {
-
         if (!value)
             return;
 

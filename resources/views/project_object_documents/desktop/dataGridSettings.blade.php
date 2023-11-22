@@ -100,7 +100,6 @@
             editingRowId = e.key;
         },
         onEditorPreparing: (e) => {
-
             if (e.dataField === `document_type_id` && e.parentType === `dataRow`)
                 e.editorOptions.readOnly = Boolean(editingRowId);
 
@@ -115,6 +114,7 @@
                 e.changes[0] = {
                     'data': {}
                 };
+
                 if (newAttachments.length || deletedAttachments.length || editingRowTypeStatusOptions.length || newCommentsArr.length) {
                     e.changes[0].key = editingRowId;
                     e.changes[0].type = 'update'
@@ -125,6 +125,7 @@
             e.changes[0].data.deletedAttachments = deletedAttachments
             e.changes[0].data.typeStatusOptions = editingRowTypeStatusOptions
             e.changes[0].data.newCommentsArr = newCommentsArr
+
             if (editingRowNewStatusId)
                 e.changes[0].data.document_status_id = editingRowNewStatusId
         },
@@ -149,19 +150,10 @@
                 resetVars();
                 resetStores();
             }
-
-        },
-        onCellPrepared: function (e) {
-            // if (e.rowType === "data" && e.column.dataField === "status.name") {
-            //     e.cellElement.css("color", e.data.status.style);
-            // }
         },
         toolbar: {
             visible: false,
-            items: [{
-                // name: 'addRowButton',
-                // showText: 'always',
-            }]
+            items: [{}]
         },
     }
 </script>

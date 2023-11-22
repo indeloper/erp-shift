@@ -2,24 +2,19 @@
     const renderStatusOptions = (statusAndOptionsWrapper) => {
 
         let optionsLoadIndicator = optionsLoadIndicatorHandler()
-
         getOptionsDxList([]);
 
         optionsByTypeAndStatusStore.load().done((options) => {
-            
-            if(optionsLoadIndicator)
-            optionsLoadIndicator.remove()
+            if (optionsLoadIndicator)
+                optionsLoadIndicator.remove()
 
             options = JSON.parse(options);
-
             getOptionsDxList(options);
         })
     }
 
     const optionsLoadIndicatorHandler = () => {
-
         const optionsListWrapper = $("<div>").attr("id", "optionsList").appendTo(statusAndOptionsWrapper)
-
         const optionsLoadIndicatorWrapper = $('<div>')
             .attr('id', 'optionsLoadIndicatorWrapper')
             .css({
@@ -110,8 +105,11 @@
     }
 
     const getStartOptionValue = (optionId) => {
-
-        if (typeof(editingRowStartOptions) === null || typeof(editingRowStartOptions) === 'undefined' || editingRowStartOptions === null)
+        if (
+            typeof (editingRowStartOptions) === null
+            || typeof (editingRowStartOptions) === 'undefined'
+            || editingRowStartOptions === null
+        )
             return false
 
         if (typeof editingRowStartOptions[optionId] === 'undefined')

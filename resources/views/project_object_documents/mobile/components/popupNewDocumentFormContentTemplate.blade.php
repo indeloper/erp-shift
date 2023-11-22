@@ -1,5 +1,4 @@
 <script>
-    // Шаблон нового - создаваемого документа
     const popupNewDocumentFormContentTemplate = () => {
         const popupContentWrapper = $('<div>')
             .css({
@@ -55,7 +54,6 @@
                 editingRowNewStatusId = editingRowStatusId
 
                 $('#documentMobileStatusId').dxSelectBox('instance').option('disabled', true)
-                // disabled у #popupSaveButton визуально срабатывает, но продолжает функционировать, поэтому сделал через visible
                 $('#popupSaveButton').dxButton('instance').option('visible', false)
 
                 documentStatusesByTypeStoreDataSource.reload().done(() => {
@@ -104,7 +102,7 @@
 
                 container.append(result);
             },
-            onValueChanged: function(e) {
+            onValueChanged: function (e) {
                 resetStatusOptionsVars()
                 optionsByTypeAndStatusStore.clearRawDataCache();
                 editingRowNewStatusId = e.value;
