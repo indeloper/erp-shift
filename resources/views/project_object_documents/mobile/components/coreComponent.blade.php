@@ -7,21 +7,20 @@
             hideOnOutsideClick: false,
             showCloseButton: false,
             dragAndResizeArea: false,
-            dragEnabled: false,
             dragOutsideBoundary: false,
             enableBodyScroll: false,
 
             onContentReady() {
                 $('#popupContainer').on('dxswipe', function (e) {
                     e.stopPropagation();
-                    if(e.offset>0.25 || e.offset<-0.25) {
+                    if (e.offset > 0.25 || e.offset < -0.25) {
                         popupForm.hide();
                     }
                 });
             },
 
             onShowing(e) {
-                if(e.component.option('newDocumentMode')){
+                if (e.component.option('newDocumentMode')) {
                     $('#menuButtons').remove()
                 }
 
@@ -30,11 +29,11 @@
                     renderInfoTemplate()
                 }
 
-                if($('#addNewCommentsNewDocumentWrapper').length) {
+                if ($('#addNewCommentsNewDocumentWrapper').length) {
                     const addNewCommentsNewDocumentWrapper = $('#addNewCommentsNewDocumentWrapper')
                     setNewCommentElementMobile(addNewCommentsNewDocumentWrapper);
                 }
-                
+
                 setDocumentStatusesByTypeStoreDataSourceFilter()
             },
 
@@ -46,7 +45,8 @@
                 resetStatusOptionsVars()
             },
 
-            toolbarItems: [{
+            toolbarItems: [
+                {
                     location: "before",
                     widget: 'dxButton',
                     options: {
@@ -59,7 +59,6 @@
                     onClick(e) {
                         popupForm.hide()
                     }
-
                 },
                 {
                     location: "after",
@@ -80,59 +79,53 @@
                         } else {
                             submitMobileDocumentForm()
                         }
-
-
                     }
-
                 },
                 {
                     toolbar: 'bottom',
                     location: "before",
                     widget: 'dxButtonGroup',
                     options: {
-                        height: '60px', 
-                        elementAttr: { class: 'mt-18px', id: 'menuButtons'},                    
-                        items: [{
-                                            text: 'Инфо',
-                                            template: '<div style="display: flex; align-items:center; font-size: 18px"><div class="fa fa-info-circle info-circle-icon-color" style="padding-top: 1px; color: #725fdb; "></div><div style="margin-left:6px">Инфо</div></div>',
-                                            elementAttr: {
-                                                width: '33.5vw',
-                                                // height: '60px',
-                                                id: 'menuInfoButton'
-                                            }
-                                        },
-                                        {
-                                            text: 'История',
-                                            template: '<div style="display: flex; align-items:center; font-size: 18px"><span class="fa fa-comment comment-icon-color" style="padding-top: 1px; color: #1b91d7;"></span><span style="margin-left:6px">История</span></div>',
-                                            elementAttr: {
-                                                width: '33.5vw',
-                                                // height: '60px'
-                                            }
-                                        },
-                                        {
-                                            text: 'Файлы',
-                                            template: '<div style="display: flex; align-items:center; font-size: 18px"><span class="fa fa-file" style="padding-top: 1px;"></span><span style="margin-left:6px">Файлы</span></div>',
-                                            elementAttr: {
-                                                width: '33.5vw',
-                                                // height: '60px'
-                                            }
-                                        },
-                                    ],
-                                    stylingMode: 'outlined',
-                                    keyExpr: 'text',
-                                    onItemClick(e) {
-                                        if (e.itemData.text === 'Инфо')
-                                            renderInfoTemplate()
-                                        if (e.itemData.text === 'История')
-                                            renderHistoryTemplate()
-                                        if (e.itemData.text === 'Файлы')
-                                            renderFilesTemplate()
-                                    },
+                        height: '60px',
+                        elementAttr: {class: 'mt-18px', id: 'menuButtons'},
+                        items: [
+                            {
+                                text: 'Инфо',
+                                template: '<div style="display: flex; align-items:center; font-size: 18px"><div class="fa fa-info-circle info-circle-icon-color" style="padding-top: 1px; color: #725fdb; "></div><div style="margin-left:6px">Инфо</div></div>',
+                                elementAttr: {
+                                    width: '33.5vw',
+                                    id: 'menuInfoButton'
+                                }
+                            },
+                            {
+                                text: 'История',
+                                template: '<div style="display: flex; align-items:center; font-size: 18px"><span class="fa fa-comment comment-icon-color" style="padding-top: 1px; color: #1b91d7;"></span><span style="margin-left:6px">История</span></div>',
+                                elementAttr: {
+                                    width: '33.5vw'
+                                }
+                            },
+                            {
+                                text: 'Файлы',
+                                template: '<div style="display: flex; align-items:center; font-size: 18px"><span class="fa fa-file" style="padding-top: 1px;"></span><span style="margin-left:6px">Файлы</span></div>',
+                                elementAttr: {
+                                    width: '33.5vw'
+                                }
+                            },
+                        ],
+                        stylingMode: 'outlined',
+                        keyExpr: 'text',
+                        onItemClick(e) {
+                            if (e.itemData.text === 'Инфо')
+                                renderInfoTemplate()
+                            if (e.itemData.text === 'История')
+                                renderHistoryTemplate()
+                            if (e.itemData.text === 'Файлы')
+                                renderFilesTemplate()
+                        },
                     }
                 },
             ]
         }).dxPopup('instance');
-
 
         $('#documentsListMobile').dxList({
             dataSource: dataSourceListMobile,
@@ -144,26 +137,24 @@
             onItemClick(e) {
                 setPopupItemVariablesMobile(e.itemData)
                 projectObjectDocumentInfoByID.load()
-
                 const popup = $('#popupFormMobile').dxPopup('instance')
                 popup.option('contentTemplate', popupContentTemplate)
                 popup.option('newDocumentMode', false)
                 popup.show()
             },
-            // height: '90%',
             grouped: true,
             collapsibleGroups: true,
             groupTemplate(data) {
                 return $(`<div>Объект: ${data.key}</div>`);
             },
-            itemTemplate(data) {
+            itemTemplate: function (data) {
                 const listElement = $('<div>').addClass('documentsListElemWrapper')
                 listElement.append('<div>').text(data.document_name)
 
                 const statusInfoWrapper = $('<div>').css({
-                        'display': 'flex',
-                        'alignItems': 'center'
-                    })
+                    'display': 'flex',
+                    'alignItems': 'center'
+                })
                     .appendTo(listElement)
 
                 const statusMarker = $('<div>')
@@ -176,16 +167,12 @@
                     })
                     .appendTo(statusInfoWrapper)
 
-                const statusName = $('<div>')
-                    .css({
-                        // 'color': data.status.project_object_documents_status_type.style
-                    })
+                $('<div>')
                     .text(data.status.name)
                     .appendTo(statusInfoWrapper)
 
                 return listElement;
             },
-
         });
     })
 
@@ -202,7 +189,6 @@
                 popup.option('newDocumentMode', true)
                 popup.show()
 
-                // fileUploader
                 const filesContainer = $('#popupNewDocumentFilesContainer')
                 filesContainer.html('')
                 const containerScrollableWrapper = $('<div id="containerScrollableWrapper">').appendTo(filesContainer)
@@ -210,46 +196,39 @@
             }
         })
 
-    $('#responsiblesFilterMobile').dxTagBox({
-        dataSource: responsibles_all,
-        valueExpr: 'id',
-        displayExpr: 'user_full_name',
-        maxDisplayedTags: 1,
-        searchEnabled: true,
-        showSelectionControls: true,
-        wrapItemText: true,
-        showDropDownButton: true,
-        onInitialized(e) {
-            // getPermissions().then((permissions) => {
-            //     if (permissions.project_object_documents_default_filtering_by_responsible_user) {
-            //         e.component.option('value', [+"{{Auth::user()->id}}"])
-            //     }
-            // })
-        },
-        onSelectionChanged(e) {
-            oldFilterVal = customFilter['projectResponsiblesFilter']
-            customFilter['projectResponsiblesFilter'] = [];
-            for (let i = 0; i < this._selectedItems.length; i++) {
-                customFilter['projectResponsiblesFilter'].push(this._selectedItems[i].id)
-            }
+    $('#responsiblesFilterMobile')
+        .dxTagBox({
+            dataSource: responsibles_all,
+            valueExpr: 'id',
+            displayExpr: 'user_full_name',
+            maxDisplayedTags: 1,
+            searchEnabled: true,
+            showSelectionControls: true,
+            wrapItemText: true,
+            showDropDownButton: true,
+            onSelectionChanged(e) {
+                customFilter['projectResponsiblesFilter'] = [];
+                for (let i = 0; i < this._selectedItems.length; i++) {
+                    customFilter['projectResponsiblesFilter'].push(this._selectedItems[i].id)
+                }
 
-            dataSourceListMobile.reload();
-            // window.history.pushState("", "", window.location.origin + window.location.pathname + "?projectResponsiblesFilter=" + JSON.stringify(customFilter['projectResponsiblesFilter']));
-        },
-        placeholder: 'Выберите ответственного...',
-    })
+                dataSourceListMobile.reload();
+            },
+            placeholder: 'Выберите ответственного...',
+        })
 
-    const popupLoadPanel = $('#popupLoadPanel').dxLoadPanel({
-        shadingColor: 'rgba(0,0,0,0.4)',
-        position: {
-            of: '#popupContainer'
-        },
-        visible: false,
-        showIndicator: true,
-        showPane: true,
-        shading: true,
-        hideOnOutsideClick: false,
-        wrapperAttr: {},
-    }).dxLoadPanel('instance')
+    const popupLoadPanel = $('#popupLoadPanel')
+        .dxLoadPanel({
+            shadingColor: 'rgba(0,0,0,0.4)',
+            position: {
+                of: '#popupContainer'
+            },
+            visible: false,
+            showIndicator: true,
+            showPane: true,
+            shading: true,
+            hideOnOutsideClick: false,
+            wrapperAttr: {},
+        }).dxLoadPanel('instance')
 
 </script>

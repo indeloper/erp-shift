@@ -33,7 +33,7 @@
                     </div>
                 `).appendTo(container)
             },
-            calculateFilterExpression: function(filterValue, selectedFilterOperation) {
+            calculateFilterExpression: function (filterValue, selectedFilterOperation) {
                 let fullDataFieldName = `${this.tableName}.${this.dataField}`;
                 if (selectedFilterOperation === "between" && $.isArray(filterValue)) {
                     return [
@@ -90,43 +90,11 @@
             sortOrder: 'asc',
             width: '25%'
         },
-
-        // {
-        //     caption: "Тип",
-        //     dataField: "type.name",
-        //     width: '25%',
-        //     // allowSorting: false,
-        //     validationRules: [{
-        //         type: 'required',
-        //         message: 'Укажите значение',
-        //     }],
-        //     headerFilter: {
-        //         allowSearch: true,
-        //         // Работает устаревшая версия - allowSearch
-        //         // search: {
-        //         //     enabled: true,
-        //         // },
-        //         dataSource: [
-        //             {text: 'РД', value: 1},
-        //             {text: 'Акт с площадки', value: 2},
-        //             {text: 'Журнал', value: 3},
-        //             {text: 'ППР', value: 4},
-        //             {text: 'ИД', value: 5},
-        //             {text: 'Выполнение', value: 6},
-        //             {text: 'Прочее', value: 7},
-        //         ]
-        //     },
-        // },
-
         {
             caption: "Документ",
             dataField: "document_name",
-            // allowFiltering: false,
-            // allowSorting: false,
-            // hidingPriority: 1,
             width: '25%'
         },
-
         {
             visible: true,
             dataField: "document_status_id",
@@ -143,59 +111,17 @@
                 displayExpr: "name"
             },
             width: '25%'
-
         },
-
-        // {
-        //     caption: "Статус",
-        //     dataField: "status.name",
-        //     cellTemplate: (container, options) => {
-        //         $('<span>')
-        //             .text(options.value)
-        //             .css('color', options.row.data.status.style)
-        //             .appendTo(container)
-        //     },
-        //     validationRules: [{
-        //         type: 'required',
-        //         message: 'Укажите значение',
-        //     }],
-        //     headerFilter: {
-        //         allowSearch: true,
-        //         // Работает устаревшая версия - allowSearch
-        //         // search: {
-        //         //     enabled: true,
-        //         // },
-        //         dataSource: [
-        //             {text: 'Не оформлен', value: 1},
-        //             {text: 'Не получен', value: 2},
-        //             {text: 'В работе', value: 3},
-        //             {text: 'На площадке', value: 4},
-        //             {text: 'Ведется, на площадке', value: 5},
-        //             {text: 'Подписан, на площадке', value: 6},
-        //             {text: 'Оформлен и готов к передаче', value: 7},
-        //             {text: 'Передан заказчику', value: 8},
-        //             {text: 'Передан в офис', value: 9},
-        //             {text: 'Получен офисом', value: 10},
-        //         ],
-        //     },
-        //     // filterValues: [1,2,3,4,5] ,
-        //     width: '25%'
-        // },
         {
             visible: false,
             caption: "Дата",
             dataField: "document_date",
             dataType: "date"
         },
-
         {
             type: "buttons",
-            // hidingPriority: 10,
             width: '15%',
             buttons: [
-                // 'edit',
-                // 'delete',
-
                 {
                     hint: 'Копировать',
                     icon: 'copy',
@@ -204,8 +130,8 @@
                     },
                     visible(e) {
                         // одной стройчкой через return не работает
-                        if(e.row.data.status.project_object_documents_status_type.slug === 'document_archived_or_deleted')
-                        return false
+                        if (e.row.data.status.project_object_documents_status_type.slug === 'document_archived_or_deleted')
+                            return false
                         return true;
                     }
                 },
@@ -217,8 +143,8 @@
                     },
                     visible(e) {
                         // одной стройчкой через return не работает
-                        if(e.row.data.status.project_object_documents_status_type.slug === 'document_archived_or_deleted')
-                        return false
+                        if (e.row.data.status.project_object_documents_status_type.slug === 'document_archived_or_deleted')
+                            return false
                         return true;
                     }
                 },
@@ -229,8 +155,8 @@
                         deleteDocument(e.row.key)
                     },
                     visible(e) {
-                        if(e.row.data.status.project_object_documents_status_type.slug === 'document_archived_or_deleted')
-                        return false
+                        if (e.row.data.status.project_object_documents_status_type.slug === 'document_archived_or_deleted')
+                            return false
                         return !e.row.data.deleted_at;
                     }
                 },
@@ -245,7 +171,6 @@
                     }
                 }
             ],
-
             headerCellTemplate: (container, options) => {
                 $('<div>')
                     .appendTo(container)
@@ -258,6 +183,5 @@
                     })
             }
         }
-
     ];
 </script>

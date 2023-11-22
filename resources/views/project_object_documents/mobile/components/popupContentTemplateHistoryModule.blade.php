@@ -1,34 +1,33 @@
 <script>
-    const renderHistoryTemplate = function() {
-        // $('.dx-toolbar-center .dx-item-content').html('<div>История</div>') 
+    const renderHistoryTemplate = function () {
         const container = $('#popupContainer')
         container.html('')
         const containerScrollableWrapper = $('<div id="containerScrollableWrapper">').appendTo(container)
-        
+
         setNewCommentElementMobile(containerScrollableWrapper);
         const commentsOnServerListWrapper = $('<div id="commentsOnServerListWrapper">').appendTo(containerScrollableWrapper)
-        
+
         popupLoadPanel.option({
-            position: {of: '#commentsOnServerListWrapper'}, 
-            container:  '#commentsOnServerListWrapper',
+            position: {of: '#commentsOnServerListWrapper'},
+            container: '#commentsOnServerListWrapper',
         })
-    
+
         popupLoadPanel.option({
-            visible: true,             
+            visible: true,
         })
-        projectObjectDocumentInfoByID.reload().done(()=>{
+
+        projectObjectDocumentInfoByID.reload().done(() => {
 
             popupLoadPanel.option('visible', false)
             let comments = projectObjectDocumentInfoByID.items()[0]?.comments.original
 
-            if(!comments.length) {
+            if (!comments.length) {
                 containerScrollableWrapper.append('<div class="documentElemMobile"><span class="popup-field-nodata">Нет данных</span></div>')
                 return
             }
 
-            comments.forEach(comment=>renderCommentMobile(comment, commentsOnServerListWrapper))
+            comments.forEach(comment => renderCommentMobile(comment, commentsOnServerListWrapper))
         })
-        
     }
 
     const renderCommentMobile = (comment, container) => {
@@ -54,7 +53,4 @@
             `)
             .appendTo(container)
     }
-
-    
-    
 </script>
