@@ -34,6 +34,7 @@
                 displayExpr: "name",
                 value: editingRowStatusId,
                 disabled: isStatusSelectDisabled(),
+                searchEnabled: true,
                 itemTemplate(data) {
                     return $(`
                             <div style="display:flex; align-items:center">

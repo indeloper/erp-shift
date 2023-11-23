@@ -14,6 +14,7 @@
                             dataField: "project_object_id",
                             editorType: "dxSelectBox",
                             editorOptions: {
+                                searchEnabled: true,
                                 onSelectionChanged(e) {
                                     let responsiblesPtoEngineerDiv = document.getElementById('responsiblesPtoEngineerDiv')
                                     let responsiblesProjectManagerEngineerDiv = document.getElementById('responsiblesProjectManagerEngineerDiv')
@@ -59,6 +60,7 @@
                             dataField: "document_type_id",
                             editorType: "dxSelectBox",
                             editorOptions: {
+                                searchEnabled: true,
                                 onSelectionChanged(e) {
                                     editingRowTypeId = e.selectedItem.id
                                     documentStatusesByTypeStoreDataSource.reload()

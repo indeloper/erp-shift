@@ -64,6 +64,7 @@
                         displayExpr: 'user_full_name',
                         label: data.label,
                         labelMode: "floating",
+                        searchEnabled: true,
                         onValueChanged(e) {
                             editingRowTypeStatusOptions.push({
                                 id: data.id,

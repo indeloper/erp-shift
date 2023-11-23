@@ -122,7 +122,7 @@
             valueExpr: "id",
             displayExpr: "name",
             value: editingRowStatusId,
-
+            searchEnabled: true,
             itemTemplate(data) {
                 return $(`
                             <div style="display:flex; align-items:center">
@@ -235,6 +235,7 @@
                         displayExpr: 'user_full_name',
                         label: data.label,
                         labelMode: "floating",
+                        searchEnabled: true,
                         onValueChanged(e) {
                             editingRowTypeStatusOptions_tmp.push(
                                 {
