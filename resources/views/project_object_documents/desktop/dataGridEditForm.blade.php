@@ -5,6 +5,7 @@
 <script>
     const dataGridEditForm = {
         colCount: 6,
+        height: "60vh",
         elementAttr: {
             id: "documentEditingForm"
         },
@@ -118,7 +119,7 @@
                 itemType: 'simpleItem',
                 template: (data, itemElement) => {
                     let dxPopupContentElems = document.querySelectorAll('.dx-popup-content')
-                    itemElement.append('<div id="formLoadPanel" >')
+                    itemElement.append('<div id="formLoadPanel" style="height: 60vh;">')
                     itemElement.append(
                         $('#formLoadPanel').dxLoadPanel({
                             shadingColor: 'rgba(0,0,0,0.4)',

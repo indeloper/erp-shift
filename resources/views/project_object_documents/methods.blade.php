@@ -169,13 +169,18 @@
         })
     }
 
-    function downloadXls() {
+    function downloadXls(reportType) {
         delete filterOptions.skip;
         delete filterOptions.take;
 
         $('#filterOptions').val(JSON.stringify(filterOptions))
         $('#projectObjectsFilter').val(JSON.stringify(customFilter['projectObjectsFilter']))
         $('#projectResponsiblesFilter').val(JSON.stringify(customFilter['projectResponsiblesFilter']))
+
+        const downloadXlsForm = document.getElementById('downloadXlsForm')
+        const connector = downloadXlsForm.action.includes('?') ? '&' : '?';
+        downloadXlsForm.action = downloadXlsForm.action + connector + 'reportType=' + reportType
+
         downloadXlsForm.submit()
     }
 
@@ -404,23 +409,43 @@
             },
             displayExpr: 'text',
 
-            items: [{
-                text: 'Скачать XLS',
-                disabled: isDownloadXlsDisabled
-            },
+            items: [
                 {
+                    icon: 'fa fa-file-excel-o',
+                    text: 'Скачать отчет для РП',
+                    disabled: isDownloadXlsDisabled
+                },
+                {
+                    icon: 'fa fa-file-excel-o',
+                    text: 'Скачать отчет для ПТО',
+                    disabled: isDownloadXlsDisabled
+                },
+                {
+                    icon: 'fa fa-file-excel-o',
+                    text: 'Скачать',
+                    disabled: isDownloadXlsDisabled
+                },
+                {
+                    icon: 'fas fa-archive',
                     text: 'Открыть архив',
                     visible: !isArchivedOrDeletedDocuments(),
                 },
                 {
+                    icon: 'fas fa-long-arrow-alt-left',
                     text: 'Документы в работе',
                     visible: isArchivedOrDeletedDocuments(),
                 },
 
             ],
             onItemClick(e) {
-                if (e.itemData.text === 'Скачать XLS')
-                    downloadXls();
+                if (e.itemData.text === 'Скачать отчет для РП')
+                    downloadXls('groupedByPM');
+
+                if (e.itemData.text === 'Скачать отчет для ПТО')
+                    downloadXls('groupedByPTO');
+
+                if (e.itemData.text === 'Скачать')
+                    downloadXls('ungrouped');
 
                 if (e.itemData.text === 'Открыть архив')
                     window.location.href = "{{route('project-object-documents', ['showArchive'=>'1'])}}"

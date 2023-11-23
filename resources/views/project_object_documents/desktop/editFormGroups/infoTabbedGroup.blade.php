@@ -187,7 +187,7 @@
                                 {
                                     itemType: 'simple',
                                     template: (data, itemElement) => {
-                                        itemElement.attr('id', 'commentsWrapperInfoTab').css('height', '20vh')
+                                        itemElement.attr('id', 'commentsWrapperInfoTab').css('height', '25vh')
                                         itemElement.append('<div id="newAddedCommentsInfoTab" style="color:#829be3;  background: #fbfbfb"></div>')
                                         const commentsInfoTab = $('<div id="commentsInfoTab">').appendTo(itemElement)
                                         if (projectObjectDocumentInfoByID.items()[0])
@@ -210,7 +210,7 @@
                                                 .attr('id', 'filesOnServerListWrapperInfoTab')
                                                 .css({
                                                     'width': '100%',
-                                                    'height': '20vh',
+                                                    'height': '25vh',
                                                     'position': 'relative'
                                                 });
 

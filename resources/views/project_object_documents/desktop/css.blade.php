@@ -266,6 +266,10 @@
         margin-right: 5px;
     }
 
+    .dx-popup-bottom.dx-widget.dx-toolbar {
+        padding-top: 0;
+    }
+
     @media screen and (max-width: 1200px) {
 
         #headerRow, #headerToolbarWrapper {
