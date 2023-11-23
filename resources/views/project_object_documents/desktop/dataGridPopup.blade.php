@@ -6,6 +6,7 @@
             hideOnOutsideClick: false,
             showCloseButton: true,
             maxWidth: '75%',
+            height: "auto",
             animation: {
                 show: {
                     type: 'pop',
@@ -28,8 +29,10 @@
                 }
             },
             onShowing(e) {
-                if (isArchivedOrDeletedDocuments())
+                if (isArchivedOrDeletedDocuments()) {
                     e.component.option('toolbarItems', [])
+                }
+
                 getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', false);
 
                 let popupTitleWrapper = $('.dx-toolbar-items-container')[1]
@@ -41,8 +44,8 @@
                     getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
                     getFormInstance()?.repaint();
 
-                    $('.dx-popup-content').css({'height': '', 'paddingBottom': 0})
-                    $('.dx-popup-normal').css({'height': ''})
+                    // $('.dx-popup-content').css({'height': '', 'paddingBottom': 0})
+                    // $('.dx-popup-normal').css({'height': ''})
 
                 });
             },

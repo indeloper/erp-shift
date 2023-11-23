@@ -23,6 +23,9 @@ use App\Models\User;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReport;
+use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReportGrouped;
+
+
 use App\Services\ProjectObjectDocuments\Reports\TestDownload;
 use App\Services\SystemService;
 use Carbon\Carbon;
@@ -878,18 +881,32 @@ class ProjectObjectDocumentsController extends Controller
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_pto_engineer_full_names`"),
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR ', ' ) AS `tongue_foreman_full_names`")
             ])
+            ->addSelect(DB::raw("DATEDIFF(CURRENT_DATE(), project_object_documents.created_at) as days_from_doc_created"))
             ->groupBy(['project_object_documents.id'])
             ->orderBy('project_objects.short_name')
+            ->orderBy('project_object_documents.created_at')
             ->orderBy('sortOrder')
             ->with([
                 'projectObject:id,short_name',
                 'type',
                 'status.projectObjectDocumentsStatusType',
-            ])
-            ->get()->toArray();
+            ])->get();
+            
 
-        return (new ProjectObjectDocumentsXLSXReport($projectObjectDocuments))->export();
+        if ($request->reportType === 'ungrouped') {
+            $projectObjectDocuments = $projectObjectDocuments->toArray();
+            return (new ProjectObjectDocumentsXLSXReport($projectObjectDocuments))->export();
+        }
 
+        if ($request->reportType === 'groupedByPM') {
+            $projectObjectDocuments = $projectObjectDocuments->groupBy(['tongue_project_manager_full_names', 'tongue_pto_engineer_full_names'])->toArray();
+            return (new ProjectObjectDocumentsXLSXReportGrouped($projectObjectDocuments, 'groupedByPM'))->export();
+        }
+
+        if ($request->reportType === 'groupedByPTO') {
+            $projectObjectDocuments = $projectObjectDocuments->groupBy(['tongue_pto_engineer_full_names', 'tongue_project_manager_full_names', ])->toArray();
+            return (new ProjectObjectDocumentsXLSXReportGrouped($projectObjectDocuments, 'groupedByPTO'))->export();
+        }
     }
 
     public function getProjectObjectDocumentInfoByID(Request $request)

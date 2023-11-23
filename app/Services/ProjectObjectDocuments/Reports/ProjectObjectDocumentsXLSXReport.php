@@ -53,6 +53,7 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
             'Документ',
             'Дата документа',
             'Дата создания',
+            'Дней от создания',
             'Тип',
             'Статус',
             'Дата изменения статуса',
@@ -89,7 +90,8 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
                 $projectObjectDocument['project_object']['short_name'],
                 $projectObjectDocument['document_name'] ?? null,
                 $projectObjectDocument['document_date'] ?? null,
-                $projectObjectDocument['created_at'] ?? null,
+                Carbon::create($projectObjectDocument['created_at'])->format('d.m.Y') ?? null,
+                $projectObjectDocument['days_from_doc_created'] ?? null,
                 $projectObjectDocument['type']['name'] ?? null,
                 $projectObjectDocument['status']['name'] ?? null, 
                 $projectObjectDocument['status_updated_at'] ?? null,
@@ -115,11 +117,11 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $event->sheet->setAutoFilter('A4:J4');
+                $event->sheet->setAutoFilter('A4:K4');
 
                 //Main header styles
-                $event->sheet->getDelegate()->mergeCells('A1:'.'J1');
-                $event->sheet->getDelegate()->mergeCells('A2:'.'J2');
+                $event->sheet->getDelegate()->mergeCells('A1:'.'K1');
+                $event->sheet->getDelegate()->mergeCells('A2:'.'K2');
                 
                 $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_CENTER);
                 $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_RIGHT);
@@ -134,7 +136,7 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
 
                 
                 //Table headers
-                $event->sheet->getStyle('A4:'.'J4')
+                $event->sheet->getStyle('A4:'.'K4')
                     ->applyFromArray([
                         'font' => [
                             'bold' => true
@@ -151,7 +153,7 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
                         ]
                     ]);
 
-                    $event->sheet->getStyle('A' . self::startLineNumber . ':'. 'J' . $this->lastLineNumber)
+                    $event->sheet->getStyle('A' . self::startLineNumber . ':'. 'K' . $this->lastLineNumber)
                         ->applyFromArray([
                            
                             'borders' => [
@@ -209,6 +211,7 @@ class ProjectObjectDocumentsXLSXReport implements FromCollection, WithHeadings, 
             'H' => 30,
             'I' => 30,
             'J' => 30,
+            'K' => 30,
         ];
     }
 
