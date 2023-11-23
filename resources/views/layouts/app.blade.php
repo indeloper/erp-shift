@@ -315,17 +315,78 @@
                         </div>
                     </li>
                 @endif
-                @canany(['tech_acc_our_technic_tickets_see', 'tech_acc_defects_see', 'tech_acc_see_technic_ticket_module'])
-                    <li class="nav-item @if((Request::is('building/tech_acc/*') || Request::is('building/tech_acc/') || Request::is('building/vehicles/') || Request::is('building/vehicles/*')) && !(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*'))) active @endif">
+                <li class="nav-item @if(Request::is('building/tech_acc/technic/*') ) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#technics">
                             <i class="pe-7s-note2"></i>
                             <p>Учёт техники
                                 <b class="caret"></b>
                             </p>
                         </a>
+                        <div class="collapse @if(Request::is('building/tech_acc/technic/*') ) show @endif"
+                            id="technics">
+                            <ul class="nav">
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/ourTechnicList*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::ourTechnicList::getPageCore') }}">
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
+                                        <span class="sidebar-normal">Список техники</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicCategory*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::technicCategory::getPageCore') }}">
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
+                                        <span class="sidebar-normal">Категории техники</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrand*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::technicBrand::getPageCore') }}">
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
+                                        <span class="sidebar-normal">Марки техники</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrandModel*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::technicBrandModel::getPageCore') }}">
+                                        <span class="sidebar-mini">
+                                            <i class="pe-7s-mini">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
+                                            </i>
+                                        </span>
+                                        <span class="sidebar-normal">Модели техники</span>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                </li>
+<!-- СТАРЫЙ РАЗДЕЛ ТЕХНИКИ
+                    <li  style="background: grey;" class="nav-item active">
+                        <a class="nav-link" data-toggle="collapse" href="#technics-old">
+                            <i class="pe-7s-note2"></i>
+                            <p>Учёт техники - OLD
+                                <b class="caret"></b>
+                            </p>
+                        </a>
                         <div
                             class="collapse @if((Request::is('building/tech_acc/*') || Request::is('building/tech_acc/') || Request::is('building/vehicles/') || Request::is('building/vehicles/*')) && !(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*'))) show @endif"
-                            id="technics">
+                            id="technics-old">
                             <ul class="nav">
                                 <li class="nav-item @if (Request::is('building/tech_acc/technic_category') || Request::is('building/tech_acc/technic_category/*')) active @endif">
                                     <a class="nav-link"
@@ -364,23 +425,94 @@
                                             <span class="sidebar-normal">Неисправности</span>
                                         </a>
                                     </li>
-                                    <hr>
+
                             </ul>
                             @endcan
                         </div>
                     </li>
-                @endcanany
-                @can('store', 'App\Models\TechAcc\FuelTank\FuelTank')
-                    <li class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
+-->
+<!-- СТРЫЙ РАЗДЕЛ ТЕХНИКИ КОНЕЦ -->
+<!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
+            @canany([
+                'fuel_tanks_access', 
+                'fuel_tank_flows_access', 
+                'fuel_tank_operations_report_advanced_filter_settings_access', 
+                'fuel_tanks_movements_report_access'
+                ])
+                <li class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#fuel">
                             <i class="pe-7s-note2"></i>
                             <p>Учёт топлива
                                 <b class="caret"></b>
                             </p>
                         </a>
+                        <div class="collapse @if(Request::is('building/tech_acc/fuel/*') ) show @endif"
+                            id="fuel">
+                            <ul class="nav">
+                                @can('fuel_tanks_access')
+                                    <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
+                                        <a class="nav-link"
+                                            href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Топливные ёмкости</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('fuel_tank_flows_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/fuelFlow*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Топливный журнал</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('fuel_tank_operations_report_advanced_filter_settings_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelTankPeriodReport*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Отчет по топливу</span>
+                                        </a>
+                                    </li>
+                                @endcan
+
+                                <!-- <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
+                                    <a class="nav-link"
+                                       href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
+                                        <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                        <span class="sidebar-normal">Оборотная ведомость<br>по всем ёмкостям</span>
+                                    </a>
+                                </li> -->
+                                @can('fuel_tanks_movements_report_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Перемещение ёмкостей</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                <hr>
+
+                            </ul>
+                        </div>
+                </li>
+            @endcanany
+    <!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
+    <!-- СТАРЫЙ ТОПЛИВНЫЙ РАЗДЕЛ
+
+                @can('store', 'App\Models\TechAcc\FuelTank\FuelTank')
+                    <li style="background: grey;" class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
+                        <a class="nav-link" data-toggle="collapse" href="#oldfuel">
+                            <i class="pe-7s-note2"></i>
+                            <p>Учёт топлива - OLD
+                                <b class="caret"></b>
+                            </p>
+                        </a>
                         <div
                             class="collapse @if(Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) show @endif"
-                            id="fuel">
+                            id="oldfuel">
                             <ul class="nav">
                                 <li class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*')) active @endif">
                                     <a class="nav-link" href="{{ route('building::tech_acc::fuel_tank.index') }}">
@@ -399,7 +531,7 @@
                             </ul>
                         </div>
                     </li>
-                @endcan
+                @endcan -->
                 @if(Gate::check('project_documents') || Gate::check('commercial_offers') || Gate::check('work_volumes') || Gate::check('contracts') || Gate::check('project_object_documents_access'))
                     <li class="nav-item @if(Request::is('project_documents') || Request::is('project_documents/*') || Request::is('commercial_offers') || Request::is('commercial_offers/*') || Request::is('contracts') || Request::is('contracts/*') || Request::is('work_volumes') || Request::is('work_volumes/*')) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#documentsExamples">
@@ -787,7 +919,12 @@
 
 <!-- DevExtreme themes -->
 <link rel="stylesheet" href="{{ asset('css/devextreme/dx.common.css')}}">
-@if (Request::is('project-object-documents') || Request::is('objects'))
+@if (
+        Request::is('project-object-documents')
+        || Request::is('objects')
+        || Request::is('building/tech_acc/technic*')
+        || Request::is('building/tech_acc/fuel*')
+    )
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.generic.light.css')}}">
 @else
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.material.blue.light.compact.css')}}">
@@ -809,6 +946,8 @@
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-thumbnail.umd.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-zoom.umd.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-rotate.umd.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-video.umd.js')}}"></script>
+
 <!-- END lightgalleryjs.com -->
 
 

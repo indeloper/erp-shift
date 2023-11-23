@@ -173,7 +173,7 @@
                                 </button>
                             @endcan
                             @can('tech_acc_vehicles_trashed')
-                                <a href="{{ route('building::vehicles::vehicle_categories.our_vehicles.index_trashed', $data['category']->id) }}" class="float-right btn btn-outline btn-sm">Просмотр удалённых записей</a>
+                                <a href="{{ route('building::vehicles::vehicle_categories.our_vehicles.index_trashed', $data['category']->id) }}" class="float-right btn btn-outline btn-sm">Просмотр удаленных записей</a>
                             @endcan
                         </div>
                     </div>

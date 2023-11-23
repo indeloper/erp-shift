@@ -194,7 +194,7 @@
                                 </button>
                             @endcan
                             @can('tech_acc_techs_trashed')
-                                <a href="{{ route('building::tech_acc::technic_category.our_technic.trashed_index', $data['category']->id) }}" class="float-right btn btn-outline btn-sm">Просмотр удалённых записей</a>
+                                <a href="{{ route('building::tech_acc::technic_category.our_technic.trashed_index', $data['category']->id) }}" class="float-right btn btn-outline btn-sm">Просмотр удаленных записей</a>
                             @endcan
                         </div>
                     </div>
