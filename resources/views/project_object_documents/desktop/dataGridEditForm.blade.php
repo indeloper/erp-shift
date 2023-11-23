@@ -69,6 +69,14 @@
                                         })
                                     }
                                 }
+                            },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
                             }
                         })
                         $(this).append($(checkBox));
@@ -84,6 +92,14 @@
                             onClick(e) {
                                 deleteAttachment(e);
                             },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
+                            }
                         })
                         $(this).append($(deleteButton));
                     }

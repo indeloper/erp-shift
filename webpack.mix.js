@@ -143,6 +143,7 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('resources/assets/img/delivery-truck.svg', 'public/img');
 
  mix.copy('resources/assets/img/fileIcons/*', 'public/img/fileIcons');
+ mix.copy('resources/assets/img/logotypes/*', 'public/img/logotypes');
 
  mix.js('resources/assets/js/plugins/pusher_and_vue.js', 'public/js/plugins');
 
@@ -176,5 +177,6 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.umd.js', 'public/js/lightgallery/lg-thumbnail.umd.js');
  mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.umd.js', 'public/js/lightgallery/lg-zoom.umd.js');
  mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.umd.js', 'public/js/lightgallery/lg-rotate.umd.js');
+ mix.copy('node_modules/lightgallery/plugins/rotate/lg-video.umd.js', 'public/js/lightgallery/lg-video.umd.js');
 
  mix.version();

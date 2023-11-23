@@ -10,11 +10,13 @@ class ContractorAdditionalTypes extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = [
-        'contractor_id',
-        'additional_type',
-        'user_id'
-    ];
+    protected $guarded = ['id'];
+
+    // protected $fillable = [
+    //     'contractor_id',
+    //     'additional_type',
+    //     'user_id'
+    // ];
 
     protected $appends = ['type_name'];
 

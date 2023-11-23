@@ -13,12 +13,14 @@ class Contractor extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable, SmartSearchable;
 
-    protected $fillable = [
-        'full_name', 'short_name', 'inn', 'kpp',
-        'ogrn', 'legal_address', 'physical_adress',
-        'general_manager', 'phone_number', 'email',
-        'main_type', 'in_archive', 'notify', 'user_id'
-    ];
+    protected $guarded = ['id'];
+
+    // protected $fillable = [
+    //     'full_name', 'short_name', 'inn', 'kpp',
+    //     'ogrn', 'legal_address', 'physical_adress',
+    //     'general_manager', 'phone_number', 'email',
+    //     'main_type', 'in_archive', 'notify', 'user_id'
+    // ];
 
     protected $appends = ['types'];
 
@@ -40,7 +42,8 @@ class Contractor extends Model
         3 => 'Субподряд',
         4 => 'Услуги',
         5 => 'Оформление проектов',
-        6 => 'Аренда техники'
+        6 => 'Аренда техники',
+        7 => 'Поставка топлива'
     ];
 
     // indexes from CONTRACTOR_TYPES

@@ -18,7 +18,7 @@
                                 <a href="{{ route('building::vehicles::vehicle_categories.create') }}" class="btn btn-sm btn-primary btn-round" style="margin-right: 10px">Создать категорию</a>
                             @endcan
                             @can('tech_acc_vehicle_categories_trashed')
-                                <a href="{{ route('building::vehicles::vehicle_categories.display_trashed') }}" class="float-right btn btn-outline btn-sm">Просмотр удалённых записей</a>
+                                <a href="{{ route('building::vehicles::vehicle_categories.display_trashed') }}" class="float-right btn btn-outline btn-sm">Просмотр удаленных записей</a>
                             @endcan
                         </div>
                     </div>
