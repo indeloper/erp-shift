@@ -3,25 +3,18 @@
 namespace App\Http\Controllers\System;
 
 
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Employees\Employee;
 use App\Models\Employees\Employees1cPost;
-use App\Models\Employees\Employees1cSubdivision;
 use App\Models\Employees\Employees1cPostInflection;
+use App\Models\Employees\Employees1cSubdivision;
+use App\Models\Notification;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use SebastianBergmann\Environment\Console;
-use Telegram\Bot\Laravel\Facades\Telegram;
-
-
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Notification;
-
 use function morphos\Russian\pluralize;
+
 
 class UpdateEmployeesInfoFrom1cController extends Controller
 {
@@ -34,8 +27,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
 
         if (empty($jsonData->apiKey) || $jsonData->apiKey != config('auth.SYNC_1C_API_KEY'))
             return response()->json([
-                'result' => 'forbidden',
-                '$request->getContent()' => $request->getContent()
+                'result' => 'Forbidden. API Key is not valid'
             ], 403);
 
         if ($jsonData->apiAction == 'subdivisionsSync')
@@ -123,7 +115,8 @@ class UpdateEmployeesInfoFrom1cController extends Controller
         }
     }
 
-    function employeesSync($employeeList) {
+    function employeesSync($employeeList)
+    {
         $notificationRecipients = User::where('is_su', 1)->get();
 
         foreach ($employeeList as $employee) {
@@ -166,18 +159,19 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             }
 
             $existingEmployee = Employee::where('employee_1c_uid', $employee->employeeUID)->first();
-
             if ($existingEmployee) {
-                if ($existingEmployee->dismissal_date == '0000-00-00' && !empty($employee->dismissalDate)) {
-                    $dismissedEmployeesList[] = (object)[
-                        "fullName" => $employee->employeeName,
-                        "postName" => $employeePost->name,
-                        "companyName" => $company->name,
-                        "birthday" => Carbon::parse($employee->birthday)->format('d.m.Y')
-                    ];
+                if (Carbon::parse($employee->dismissalDate) == Carbon::today()) {
+                        $dismissedEmployeesList[] = (object)[
+                            "userId" => $user->id,
+                            "fullName" => $employee->employeeName,
+                            "postName" => $employeePost->name,
+                            "companyName" => $company->name,
+                            "birthday" => Carbon::parse($employee->birthday)->format('d.m.Y')
+                        ];
                 }
             } else {
                 $newEmployeesList[] = (object)[
+                    "userId" => $user->id,
                     "fullName" => $employee->employeeName,
                     "postName" => $employeePost->name,
                     "companyName" => $company->name,
@@ -224,7 +218,8 @@ class UpdateEmployeesInfoFrom1cController extends Controller
         if (isset($newEmployeesList)) {
             $newEmployeesNotificationMessageText = "<b>" . pluralize(count($newEmployeesList), "новый сотрудник") . ":</b>";
             foreach ($newEmployeesList as $newEmployee) {
-                $newEmployeesNotificationMessageText .= "\n{$newEmployee->fullName} ({$newEmployee->birthday} г.р) — {$newEmployee->postName}, {$newEmployee->companyName}";
+                $userCardUrl = route('users::card', $newEmployee->userId);
+                $newEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$newEmployee->fullName}</a> ({$newEmployee->birthday} г.р) — {$newEmployee->postName}, {$newEmployee->companyName}";
             }
 
             foreach ($notificationRecipients as $recipient) {
@@ -239,7 +234,8 @@ class UpdateEmployeesInfoFrom1cController extends Controller
         if (isset($dismissedEmployeesList)) {
             $dismissedEmployeesNotificationMessageText = "<b>" . pluralize(count($dismissedEmployeesList), "уволенный сотрудник") . ":</b>";
             foreach ($dismissedEmployeesList as $dismissedEmployee) {
-                $dismissedEmployeesNotificationMessageText .= "\n{$dismissedEmployee->fullName} ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
+                $userCardUrl = route('users::card', $dismissedEmployee->userId);
+                $dismissedEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$dismissedEmployee->fullName}<a> ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
             }
             foreach ($notificationRecipients as $recipient) {
                 Notification::create([
