@@ -109,64 +109,64 @@
     function deleteDocument(deletingRowId) {
         customConfirmDialog("Вы уверены, что хотите удалить документ?")
             .show().then((dialogResult) => {
-            if (dialogResult) {
-                return $.ajax({
-                    url: getUrlWithId("{{route('project-object-document.destroy', ['id'=>'setId'])}}", deletingRowId),
-                    method: "DELETE",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (data, textStatus, jqXHR) {
-                        document.querySelector('.dx-icon-close')?.click()
-                        dataSourceList.reload();
-                        DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
-                    },
-                })
-            }
-        })
+                if (dialogResult) {
+                    return $.ajax({
+                        url: getUrlWithId("{{route('project-object-document.destroy', ['id'=>'setId'])}}", deletingRowId),
+                        method: "DELETE",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(data, textStatus, jqXHR) {
+                            document.querySelector('.dx-icon-close')?.click()
+                            dataSourceList.reload();
+                            DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                        },
+                    })
+                }
+            })
     }
 
     function restoreDocument(undeletingRowId) {
         customConfirmDialog("Вы уверены, что хотите восстановить документ?")
             .show().then((dialogResult) => {
-            if (dialogResult) {
-                return $.ajax({
-                    url: getUrlWithId("{{route('project-object-document.restoreDocument', ['id'=>'setId'])}}", undeletingRowId),
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (data, textStatus, jqXHR) {
-                        dataSourceList.reload();
-                        DevExpress.ui.notify("Документ успешно восстановлен", "success", 1000)
-                    },
-                })
-            }
-        })
+                if (dialogResult) {
+                    return $.ajax({
+                        url: getUrlWithId("{{route('project-object-document.restoreDocument', ['id'=>'setId'])}}", undeletingRowId),
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(data, textStatus, jqXHR) {
+                            dataSourceList.reload();
+                            DevExpress.ui.notify("Документ успешно восстановлен", "success", 1000)
+                        },
+                    })
+                }
+            })
     }
 
     function copyDocument(copyRowId) {
         customConfirmDialog("Создать копию документа?")
             .show().then((dialogResult) => {
-            if (dialogResult) {
-                return $.ajax({
-                    url: getUrlWithId("{{route('projectObjectDocument.clone', ['id'=>'setId'])}}", copyRowId),
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (data, textStatus, jqXHR) {
-                        document.querySelector('.dx-icon-close')?.click()
-                        dataSourceList.reload().done((res) => {
-                            let coreDataGridInstance = getCoreDataGridInstance();
-                            let newRowIndex = coreDataGridInstance.getRowIndexByKey((data.newDocument.id))
-                            coreDataGridInstance.editRow(newRowIndex)
-                        });
-                        DevExpress.ui.notify("Создана копия документа", "success", 1000)
-                    },
-                })
-            }
-        })
+                if (dialogResult) {
+                    return $.ajax({
+                        url: getUrlWithId("{{route('projectObjectDocument.clone', ['id'=>'setId'])}}", copyRowId),
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(data, textStatus, jqXHR) {
+                            document.querySelector('.dx-icon-close')?.click()
+                            dataSourceList.reload().done((res) => {
+                                let coreDataGridInstance = getCoreDataGridInstance();
+                                let newRowIndex = coreDataGridInstance.getRowIndexByKey((data.newDocument.id))
+                                coreDataGridInstance.editRow(newRowIndex)
+                            });
+                            DevExpress.ui.notify("Создана копия документа", "success", 1000)
+                        },
+                    })
+                }
+            })
     }
 
     function downloadXls(reportType) {
@@ -214,7 +214,6 @@
             fliesIds: filesIdsToDownload
         }
         let response = await fetch("{{route('projectObjectDocument.downloadAttachments')}}", {
-        // let response = await fetch("{{route('fileEntry.downloadAttachments')}}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -224,11 +223,9 @@
         });
 
         let result = await response.json();
-        console.log('result', result);
         let a = document.createElement("a");
         a.href = result.zipFileLink
         a.download = 'documentFilesArchive';
-        console.log('a', a);
         a.click();
     }
 
@@ -248,7 +245,7 @@
                 e.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
                     let tagBoxFilterExpression = [];
                     let tagBox = $(item).dxTagBox(`instance`);
-                    tagBox.option(`value`).forEach(function (value) {
+                    tagBox.option(`value`).forEach(function(value) {
                         tagBoxFilterExpression.push([tagBox.option().dataFieldName, `=`, Number(value)]);
                         tagBoxFilterExpression.push(`or`);
                     });
@@ -282,7 +279,6 @@
         permissions = await response.json();
         return await permissions;
     }
-
     getPermissions();
 
     function checkDocumentStatusIsGreen() {
@@ -309,6 +305,7 @@
     }
 
     function handleNewCommentAdded(comment, textBoxInstance = null) {
+
         if (!comment)
             return;
 
@@ -323,13 +320,13 @@
 
         newCommentsArr.unshift(newCommentObj)
 
-        if (document.querySelector('#newAddedComments'))
+        if(document.querySelector('#newAddedComments'))
             document.querySelector('#newAddedComments').innerHTML = ''
-        if (document.querySelector('#newAddedCommentsInfoTab'))
+        if(document.querySelector('#newAddedCommentsInfoTab'))
             document.querySelector('#newAddedCommentsInfoTab').innerHTML = ''
-        if ($('#newAddedComments').length)
+        if($('#newAddedComments').length)
             handleCommentsDataArr(newCommentsArr, $('#newAddedComments'))
-        if ($('#newAddedCommentsInfoTab').length)
+        if($('#newAddedCommentsInfoTab').length)
             handleCommentsDataArr(newCommentsArr, $('#newAddedCommentsInfoTab'))
         textBoxInstance?.option('value', '')
 
@@ -463,20 +460,23 @@
         const attachmentsWrapper = document.getElementById('filesOnServerListWrapper')
         const checkboxes = attachmentsWrapper.querySelectorAll('input');
 
-        if (!checkboxes.length)
-            return [];
+        if(!checkboxes.length)
+        return [];
 
         const checkedCheckboxes = [];
-        checkboxes.forEach(el => {
-            if (el.value) {
+        checkboxes.forEach(el=>{
+            if(el.value) {
                 checkedCheckboxes.push(el)
             }
+
         })
 
         return checkedCheckboxes;
     }
 
+
     const setNewCommentElementMobile = (container) => {
+
         const newCommentArea = $('<div>')
             .css({
                 marginBottom: '10px',
@@ -489,21 +489,21 @@
 
         $('#newCommentButton').dxButton({
             text: "Добавить комментарий",
-            // icon: 'upload',
-            elementAttr: {
-                width: '100%',
-            },
-            onClick() {
-                const textAreaInstance = $('#newCommentTextArea').dxTextArea('instance')
-                renderNewCommentMobile(textAreaInstance.option('value'), newCommentsWrapper)
-                textAreaInstance.option('value', '')
-            }
+                // icon: 'upload',
+                elementAttr: {
+                    width: '100%',
+                },
+                onClick() {
+                    const textAreaInstance = $('#newCommentTextArea').dxTextArea('instance')
+                    renderNewCommentMobile(textAreaInstance.option('value'), newCommentsWrapper)
+                    textAreaInstance.option('value', '')
+                }
         })
 
         $('#newCommentTextArea').dxTextArea({
             placeholder: 'Новый комментарий',
             height: '10vh',
-            onEnterKey: function (e) {
+            onEnterKey: function(e) {
                 renderNewCommentMobile(e.component.option('text'), newCommentsWrapper)
                 e.component.reset()
             }
@@ -511,6 +511,7 @@
     }
 
     const renderNewCommentMobile = (value, container) => {
+
         if (!value)
             return;
 
