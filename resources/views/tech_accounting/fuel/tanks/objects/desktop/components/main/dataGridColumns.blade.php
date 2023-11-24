@@ -156,11 +156,13 @@
                 min: 0.001
             },
             cellTemplate(container, options) {
-                if (options.text > 0) {
-                    let cssTextColor = 'text-color-green'
+                let cssTextColor = ''
+                
+                if (options.value > 0) {
+                    cssTextColor = 'text-color-green'
                 }
-                if (options.text < 0) {
-                    let cssTextColor = 'text-color-red'
+                if (options.value < 0) {
+                    cssTextColor = 'text-color-red'
                 }
                 $('<span>')
                     .addClass(cssTextColor)

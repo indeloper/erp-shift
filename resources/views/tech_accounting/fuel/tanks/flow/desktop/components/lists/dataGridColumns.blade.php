@@ -81,18 +81,18 @@
             cellTemplate(container, options) {
 
                 let displayValue = options.text
-                fontColor = ''
+                let cssTextColor = ''
 
                 const marker = $('<div>')
 
                 if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
-                    let cssTextColor = 'text-color-red'
+                    cssTextColor = 'text-color-red'
                     marker.addClass('fa fa-arrow-down')
                 } else if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
-                    let cssTextColor = 'text-color-green'
+                    cssTextColor = 'text-color-green'
                     marker.addClass('fa fa-arrow-up')
                 } else {
-                    let cssTextColor = 'text-color-blue'
+                    cssTextColor = 'text-color-blue'
                     marker.addClass('fas fa-exchange-alt')
                 }
 
@@ -170,7 +170,8 @@
             alignment: 'right',
             cellTemplate(container, options) {
 
-                let displayValue = fontColor = ''
+                let displayValue = ''
+                let cssTextColor = ''
 
                 if (options.row.data.fuel_tank_flow_type_id === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
                     displayValue = options.value * -1
@@ -179,17 +180,9 @@
                 }
 
                 if (displayValue > 0) {
-<<<<<<< HEAD
-                    let cssTextColor = 'text-color-green'
-                } else {
-                    let cssTextColor = 'text-color-red'
-=======
                     cssTextColor = 'text-color-green'
-                    // fontColor = '#1f931f'
                 } else {
                     cssTextColor = 'text-color-red'
-                    // fontColor = '#dd5e5e'
->>>>>>> master
                 }
 
                 $('<span>')
