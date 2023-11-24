@@ -156,11 +156,12 @@
                 min: 0.001
             },
             cellTemplate(container, options) {
-                fontColor = 'black'
-                if (options.text > 0)
-                    cssTextColor = 'text-color-green'
-                if (options.text < 0)
+                if (options.text > 0) {
+                    let cssTextColor = 'text-color-green'
+                }
+                if (options.text < 0) {
                     cssTextColor = 'text-color-red'
+                }
                 $('<span>')
                     .addClass(cssTextColor)
                     .text(new Intl.NumberFormat('ru-RU').format(options.text * 1000 / 1000))
