@@ -30,6 +30,7 @@ class Contractor extends Model
         '2' => 'Было вторичное уведомление (начальнику)',
     ];
 
+    // Создана табл contractor_types, пользоваться ей
     const CONTRACTOR_TYPES = [
         1 => 'Заказчик',
         2 => 'Подрядчик',
@@ -80,7 +81,8 @@ class Contractor extends Model
         if ($this->additional_types->count()) {
             $types = $this->type_name;
             foreach ($this->additional_types as $type) {
-                $typeText = self::CONTRACTOR_TYPES[$type->additional_type];
+                // $typeText = self::CONTRACTOR_TYPES[$type->additional_type];
+                $typeText = ContractorType::find($type->additional_type)->name;
                 $types .= ", {$typeText}";
             }
             return $types;
@@ -91,7 +93,8 @@ class Contractor extends Model
 
     public function getTypeNameAttribute()
     {
-        return self::CONTRACTOR_TYPES[$this->main_type] ?? 'Не указан';
+        // return self::CONTRACTOR_TYPES[$this->main_type] ?? 'Не указан';
+        return ContractorType::find($this->main_type)->name ?? 'Не указан';
     }
 
     public function file()
