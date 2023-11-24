@@ -160,7 +160,7 @@
                     let cssTextColor = 'text-color-green'
                 }
                 if (options.text < 0) {
-                    cssTextColor = 'text-color-red'
+                    let cssTextColor = 'text-color-red'
                 }
                 $('<span>')
                     .addClass(cssTextColor)

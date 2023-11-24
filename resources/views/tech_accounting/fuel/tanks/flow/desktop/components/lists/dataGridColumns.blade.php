@@ -86,16 +86,13 @@
                 const marker = $('<div>')
 
                 if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
-                    // fontColor = '#dd5e5e'
-                    cssTextColor = 'text-color-red'
+                    let cssTextColor = 'text-color-red'
                     marker.addClass('fa fa-arrow-down')
                 } else if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
-                    // fontColor = '#1f931f'
-                    cssTextColor = 'text-color-green'
+                    let cssTextColor = 'text-color-green'
                     marker.addClass('fa fa-arrow-up')
                 } else {
-                    // fontColor = '#3a6fcb'
-                    cssTextColor = 'text-color-blue'
+                    let cssTextColor = 'text-color-blue'
                     marker.addClass('fas fa-exchange-alt')
                 }
 
@@ -182,11 +179,9 @@
                 }
 
                 if (displayValue > 0) {
-                    cssTextColor = 'text-color-green'
-                    // fontColor = '#1f931f'
+                    let cssTextColor = 'text-color-green'
                 } else {
-                    cssTextColor = 'text-color-red'
-                    // fontColor = '#dd5e5e'
+                    let cssTextColor = 'text-color-red'
                 }
 
                 $('<span>')
