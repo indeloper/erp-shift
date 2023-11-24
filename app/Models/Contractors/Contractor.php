@@ -34,7 +34,9 @@ class Contractor extends Model
     const CONTRACTOR_TYPES = [
         1 => 'Заказчик',
         2 => 'Подрядчик',
-        3 => 'Поставщик',
+        // 3 => 'Поставщик',
+        3 => 'Поставщик материалов',
+        4 => 'Поставщик топлива',
     ];
 
     public $contractor_type = [
