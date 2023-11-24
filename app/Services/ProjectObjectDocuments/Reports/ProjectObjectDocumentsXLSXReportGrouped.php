@@ -140,11 +140,15 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
 
                     $results->push($tableFields);
 
-                    if ($groupLevel1Name != $this->groupLevel1NameLastElement) {
+
+
+                    // if ($groupLevel1Name != $this->groupLevel1NameLastElement) {
+                    if($groupedByDependedElements[0] != $this->groupLevel1NameLastElement) {
                         $this->Column1Merges[] = $lineNumber;
                     }
 
-                    if ($groupLevel2Name != $this->groupLevel2NameLastElement) {
+                    // if ($groupLevel2Name != $this->groupLevel2NameLastElement) {
+                    if($groupedByDependedElements[1] != $this->groupLevel2NameLastElement) {
                         $this->Column2Merges[] = $lineNumber;
                     }
 
