@@ -63,8 +63,14 @@ class ContractorController extends Controller
 
     public function create()
     {
-        $contractorTypes = Contractor::CONTRACTOR_TYPES;
-
+        // $contractorTypes = Contractor::CONTRACTOR_TYPES;
+        // $contractorTypes = ContractorType::pluck('name')->toArray();
+        
+        $contractorTypes = [];
+        foreach(ContractorType::all() as $contractorType) {
+            $contractorTypes[$contractorType->id] = $contractorType->name;
+        }
+            
         return view('contractors.create', compact('contractorTypes'));
     }
 
