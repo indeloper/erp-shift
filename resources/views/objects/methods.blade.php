@@ -1,6 +1,6 @@
 <script>
 
-// Общие
+    // Общие
     function getUrlWithId(url, id) {
         return url.replace("/setId", "/" + id)
     }
@@ -48,7 +48,7 @@
                 e.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
                     let tagBoxFilterExpression = [];
                     let tagBox = $(item).dxTagBox(`instance`);
-                    tagBox.option(`value`).forEach(function(value) {
+                    tagBox.option(`value`).forEach(function (value) {
                         tagBoxFilterExpression.push([tagBox.option().dataFieldName, `=`, Number(value)]);
                         tagBoxFilterExpression.push(`or`);
                     });
@@ -82,10 +82,11 @@
         permissions = await response.json();
         return await permissions;
     }
+
     getPermissions();
 
     function checkSaveButtonAvailable() {
-        if((!permissions.objects_create && !editingRowId) || (!permissions.objects_edit && editingRowId)) {
+        if ((!permissions.objects_create && !editingRowId) || (!permissions.objects_edit && editingRowId)) {
             const saveButton = $('[aria-label="Сохранить"]')
             saveButton.remove()
         }
@@ -97,22 +98,22 @@
 
         let dataGrid = $("#dataGridContainer").dxDataGrid("instance")
         dataGrid.option("columns").forEach((columnItem) => {
-            if(![
-                    'responsibles_pto',
-                    'responsibles_managers',
-                    'responsibles_foremen'
-                ]
+            if (![
+                'responsibles_pto',
+                'responsibles_managers',
+                'responsibles_foremen'
+            ]
                 .includes(columnItem.dataField)
             ) {
                 dataGrid.columnOption(columnItem.dataField, "allowEditing", !isReadonly)
             }
         });
     }
-   
-// Конец Общие
+
+    // Конец Общие
 
     function setLoadedObjectInfo() {
-        objectInfoByID.reload().done((data)=>{
+        objectInfoByID.reload().done((data) => {
             objectInfo = objectInfoByID.store().__rawData;
             setResponsiblesObjectInfo(objectInfo.allAvailableResponsibles, objectInfo.objectResponsibles);
             // setContractorsObjectInfo(objectInfo.contractors);
@@ -149,16 +150,16 @@
     function setContractorsObjectInfo(contractors) {
         const objectContractorsWrapper = $('#objectContractorsWrapper');
 
-        if(contractors.length>3)
-        objectContractorsWrapper.css({columnCount: 2})
+        if (contractors.length > 3)
+            objectContractorsWrapper.css({columnCount: 2})
 
-        if(contractors.length)
+        if (contractors.length)
             objectContractorsWrapper.html('');
         else
             objectContractorsWrapper.html('<span class="popup-field-nodata">Нет данных</span>');
-        let i=0;
-        contractors.forEach(el=>{
-            if(i>0) {
+        let i = 0;
+        contractors.forEach(el => {
+            if (i > 0) {
                 objectContractorsWrapper.append(',<br>')
             }
             objectContractorsWrapper.append(el.short_name)
@@ -172,49 +173,34 @@
     }
 
     function handleChoosingBitrixProject() {
-
         saveResponsiblesEditorsValues()
 
-        const choosedBitrixProjectId = $('#bitrixProjectsDataGrid').dxDataGrid('instance').option('focusedRowKey')
-        const choosedDataGridRowIndex = $('#dataGridContainer').dxDataGrid('instance').option('focusedRowIndex')
+        const objectDataGridInstance = $('#dataGridContainer').dxDataGrid('instance');
+        const bitrixProjectId = $('#bitrixProjectsDataGrid').dxDataGrid('instance').option('focusedRowKey');
+        const isNewRow = objectDataGridInstance.option('focusedRowIndex') === undefined;
+        const objectDataGridRowIndex = isNewRow ? 0 : objectDataGridInstance.option('focusedRowIndex');
+        const currentObjectShortName = objectDataGridInstance.cellValue(objectDataGridRowIndex, 'short_name')
 
-        if(choosedBitrixProjectId) {
-            const choosedBitrixProject = bitrixProjectsArray.find(el=>el.ID === choosedBitrixProjectId)
-            const currentObjectShortName = $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'short_name')
+        if (bitrixProjectId) {
+            const bitrixProjectName = getBitrixProjectFormDisplayValue(bitrixProjectId)
+            const showShortNameChangingConfirmationDialog = currentObjectShortName && currentObjectShortName !== bitrixProjectName;
 
-            // if(choosedBitrixProject.NAME === currentObjectShortName){
-            //     $('#bitrixProjectsPopup').dxPopup('instance').hide()
-            //     return
-            // }
+            objectDataGridInstance.cellValue(objectDataGridRowIndex, 'bitrix_id', bitrixProjectId);
+            if (showShortNameChangingConfirmationDialog) {
+                const confirmDialogText = `Изменить сокращенное наименование на ${bitrixProjectName}?`
+                customConfirmDialog(confirmDialogText).show().then((dialogResult) => {
+                    if (dialogResult) {
+                        objectDataGridInstance.cellValue(objectDataGridRowIndex, 'short_name', bitrixProjectName);
+                    } else {
+                        let shortName = objectDataGridInstance.cellValue(objectDataGridRowIndex, 'short_name');
+                        shortName = shortName.replace(/\[ID(\d+)]\s*-\s*/, `[ID${bitrixProjectId}] - `);
+                        objectDataGridInstance.cellValue(objectDataGridRowIndex, 'short_name', shortName);
+                    }
 
-            if(choosedDataGridRowIndex >= 0){
-                if(!currentObjectShortName) {
-                    $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'short_name', choosedBitrixProject.NAME);
-                    operationsWithFormDataAfterFormRepaint(choosedDataGridRowIndex, choosedBitrixProjectId)
-
-                } else {
-                    customConfirmDialog(`Изменить сокращенное наименование на ${choosedBitrixProject.NAME}?`)
-                        .show().then((dialogResult) => {
-                            if (dialogResult) {
-                                $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'short_name', choosedBitrixProject.NAME);
-                            }
-
-                            operationsWithFormDataAfterFormRepaint(choosedDataGridRowIndex, choosedBitrixProjectId)
-
-                            // $('#dataGridContainer').dxDataGrid('instance').cellValue(choosedDataGridRowIndex, 'bitrixId', choosedBitrixProjectId)
-                            // $('#bitrix-project-name').dxTextBox({value: bitrixProjectFormElement})
-
-                            // const objectInfo = objectInfoByID.store().__rawData;
-                            // setResponsiblesObjectInfo(objectInfo.allAvailableResponsibles, objectInfo.objectResponsibles)
-                            // setContractorsObjectInfo(objectInfo.contractors);
-                        })
-                }
-
-
+                    operationsWithFormDataAfterFormRepaint(objectDataGridRowIndex, bitrixProjectId)
+                })
             } else {
-                $('#bitrixIdFormField').dxSelectBox('instance').option('value', choosedBitrixProjectId)
-                $('#objectShotrNameFormField').dxTextBox('instance').option('value', choosedBitrixProject.NAME)
-                $('#bitrix-project-name').dxTextBox({value: getBitrixProjectFormDisplayValue(choosedBitrixProjectId)})
+                objectDataGridInstance.cellValue(objectDataGridRowIndex, 'short_name', bitrixProjectName);
             }
         }
 
@@ -233,15 +219,15 @@
     }
 
     function getBitrixProjectFormDisplayValue(bitrix_id) {
-        if(!bitrix_id)
-        return 'Выбрать...';
+        if (!bitrix_id)
+            return 'Выбрать...';
 
-        const bitrixProject = bitrixProjectsArray.find(el=>+el.ID === +bitrix_id)
-        return '[ID' + bitrix_id + ']' + ' - ' + bitrixProject.NAME
+        const bitrixProject = bitrixProjectsArray.find(el => +el.ID === +bitrix_id)
+        return `[ID${bitrix_id}] - ${bitrixProject.NAME}`
     }
 
-    function saveResponsiblesEditorsValues()  {
-        if(!$('#dataGridContainer').dxDataGrid('instance').option("focusedRowKey"))
+    function saveResponsiblesEditorsValues() {
+        if (!$('#dataGridContainer').dxDataGrid('instance').option("focusedRowKey"))
             return;
 
         objectInfoByID.store().__rawData.objectResponsibles.foremen = $('#responsiblesForemenfield').dxTagBox('instance').option('value')

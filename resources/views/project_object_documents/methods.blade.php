@@ -22,7 +22,6 @@
         responsibles_foreman.clearRawDataCache()
         responsibles_manager.clearRawDataCache()
         projectObjectDocumentInfoByID.store().clearRawDataCache()
-        // projectObjectDocumentInfoByID.items().splice(0, 1)
     }
 
     function addLightGallery(id) {
@@ -56,7 +55,6 @@
             if (index === galleryElems.length - 1)
                 openDynamicLightGallery(galleryElemsWrapper, lightGalleryElemsArr, clickedElemIndex)
         }
-
     }
 
     function openDynamicLightGallery(rootElem, elemsArr, elemIndex) {
@@ -92,7 +90,6 @@
 
         toolbarRightTop.insertBefore(deleteButton, closeBtn)
         toolbarRightTop.insertBefore(copyButton, closeBtn)
-
     }
 
     function customConfirmDialog(message) {
@@ -172,13 +169,18 @@
             })
     }
 
-    function downloadXls() {
+    function downloadXls(reportType) {
         delete filterOptions.skip;
         delete filterOptions.take;
 
         $('#filterOptions').val(JSON.stringify(filterOptions))
         $('#projectObjectsFilter').val(JSON.stringify(customFilter['projectObjectsFilter']))
         $('#projectResponsiblesFilter').val(JSON.stringify(customFilter['projectResponsiblesFilter']))
+
+        const downloadXlsForm = document.getElementById('downloadXlsForm')
+        const connector = downloadXlsForm.action.includes('?') ? '&' : '?';
+        downloadXlsForm.action = downloadXlsForm.action + connector + 'reportType=' + reportType
+
         downloadXlsForm.submit()
     }
 
@@ -188,9 +190,9 @@
 
         customConfirmDialog("Вы уверены, что хотите удалить файл?")
             .show().then((dialogResult) => {
-                if (dialogResult)
-                    deleteFile();
-            })
+            if (dialogResult)
+                deleteFile();
+        })
 
         function deleteFile() {
             deletedAttachments.push(fileId)
@@ -198,57 +200,6 @@
         }
 
     }
-
-    // *** НАЧАЛО *** Подготовка loadOptions в связи с отказом от lookup на верхнем уровне
-
-    // function getFormatedLoadOptions(loadOptions) {
-    //     loadOptions.filter = updateLoadOptionsKeys(loadOptions.filter)
-    //     return loadOptions
-    // }
-
-    // function updateLoadOptionsKeys(loadOption) {
-    //     if (!loadOption)
-    //         return
-
-    //     if (typeof loadOption[0] != 'object')
-    //         return getUpdatedLoadOption(loadOption)
-    //     else
-    //         return getUpdatedLoadOptionsArr(loadOption)
-    // }
-
-    // function getUpdatedLoadOption(loadOption) {
-    //     let formatedLoadOption = []
-    //     loadOption.forEach(elem => {
-    //         if (typeof elem == 'number')
-    //             formatedLoadOption.push(elem)
-
-    //         if (typeof elem == 'string')
-    //             formatedLoadOption.push(getFormatedElem(elem))
-    //     })
-
-    //     return formatedLoadOption
-    // }
-
-    // function getUpdatedLoadOptionsArr(loadOption) {
-    //     let loadOptionsArr = []
-    //     loadOption.forEach(elem => {
-    //         if (typeof elem == 'object')
-    //             loadOptionsArr.push(getUpdatedLoadOption(elem))
-    //         else
-    //             loadOptionsArr.push(elem)
-    //     })
-
-    //     return loadOptionsArr;
-    // }
-
-    // function getFormatedElem(elem) {
-    //     formatedElem = elem
-    //     formatedElem = formatedElem.replace('status.name', 'document_status_id')
-    //     formatedElem = formatedElem.replace('type.name', 'document_type_id')
-    //     return formatedElem
-    // }
-
-    // *** КОНЕЦ *** Подготовка loadOptions в связи с отказом от lookup на верхнем уровне
 
     function getCoreDataGridInstance() {
         return $('#dataGridContainer').dxDataGrid("instance");
@@ -408,8 +359,6 @@
             .then(() => {
                 hideMobilePopupAndReloadDocsList()
             })
-
-
     }
 
     function getMobileFormData() {
@@ -429,8 +378,6 @@
 
         if ($('#documentMobileStatusId').dxSelectBox('instance')?.option('value'))
             formData.document_status_id = $('#documentMobileStatusId').dxSelectBox('instance').option('value');
-        // if(editingRowNewStatusId)
-        // formData.document_status_id = editingRowNewStatusId;
 
         formData.newAttachments = newAttachments;
         formData.deletedAttachments = deletedAttachments;
@@ -465,23 +412,43 @@
             },
             displayExpr: 'text',
 
-            items: [{
-                    text: 'Скачать XLS',
+            items: [
+                {
+                    icon: 'fa fa-file-excel-o',
+                    text: 'Скачать отчет для РП',
                     disabled: isDownloadXlsDisabled
                 },
                 {
+                    icon: 'fa fa-file-excel-o',
+                    text: 'Скачать отчет для ПТО',
+                    disabled: isDownloadXlsDisabled
+                },
+                {
+                    icon: 'fa fa-file-excel-o',
+                    text: 'Скачать',
+                    disabled: isDownloadXlsDisabled
+                },
+                {
+                    icon: 'fas fa-archive',
                     text: 'Открыть архив',
                     visible: !isArchivedOrDeletedDocuments(),
                 },
                 {
+                    icon: 'fas fa-long-arrow-alt-left',
                     text: 'Документы в работе',
                     visible: isArchivedOrDeletedDocuments(),
                 },
 
             ],
             onItemClick(e) {
-                if (e.itemData.text === 'Скачать XLS')
-                    downloadXls();
+                if (e.itemData.text === 'Скачать отчет для РП')
+                    downloadXls('groupedByPM');
+
+                if (e.itemData.text === 'Скачать отчет для ПТО')
+                    downloadXls('groupedByPTO');
+
+                if (e.itemData.text === 'Скачать')
+                    downloadXls('ungrouped');
 
                 if (e.itemData.text === 'Открыть архив')
                     window.location.href = "{{route('project-object-documents', ['showArchive'=>'1'])}}"
@@ -495,7 +462,7 @@
     function getCheckedCheckboxesFilesToDownload() {
         const attachmentsWrapper = document.getElementById('filesOnServerListWrapper')
         const checkboxes = attachmentsWrapper.querySelectorAll('input');
-        
+
         if(!checkboxes.length)
         return [];
 
@@ -504,7 +471,7 @@
             if(el.value) {
                 checkedCheckboxes.push(el)
             }
-            
+
         })
 
         return checkedCheckboxes;
@@ -522,7 +489,7 @@
         const newCommentTextArea = $('<div id="newCommentTextArea">').appendTo(newCommentArea)
         const newCommentButton = $('<div id="newCommentButton" style="margin-top:10px">').appendTo(newCommentArea)
         const newCommentsWrapper = $('<div id="newCommentsWrapper">').appendTo(newCommentArea)
-        
+
         $('#newCommentButton').dxButton({
             text: "Добавить комментарий",
                 // icon: 'upload',
@@ -532,7 +499,7 @@
                 onClick() {
                     const textAreaInstance = $('#newCommentTextArea').dxTextArea('instance')
                     renderNewCommentMobile(textAreaInstance.option('value'), newCommentsWrapper)
-                    textAreaInstance.option('value', '')                    
+                    textAreaInstance.option('value', '')
                 }
         })
 
@@ -543,7 +510,7 @@
                 renderNewCommentMobile(e.component.option('text'), newCommentsWrapper)
                 e.component.reset()
             }
-        })   
+        })
     }
 
     const renderNewCommentMobile = (value, container) => {

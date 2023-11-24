@@ -1,8 +1,6 @@
 <script>
     // Форма. Элементы группы Объект
     const dataGridEditForm01Group1Elems = [
-
-
         {
             dataField: "name",
             colSpan: 2,
@@ -17,9 +15,24 @@
             editorType: 'dxTextBox',
             editorOptions: {
                 elementAttr: {
-                    id: 'objectShotrNameFormField'
+                    id: 'objectShortNameFormField'
                 },
+                buttons: [
+                    {
+                        name: 'short_name_configurator',
+                        location: 'after',
+                        options: {
+                            icon: 'more',
+                            type: 'default',
+                            onClick: (e) => {
+                                const contractors = $('#objectDataGridEditForm').dxForm('instance').option('formData').contractors;
+                                showShortNameConfiguratorPopup(contractors);
+                            }
+                        },
+                    },
+                ],
             },
+
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',
@@ -57,7 +70,6 @@
                 elementAttr: {
                     id: "bitrixIdFormField"
                 },
-
                 buttons: [
                     {
                         name: 'clear-bitrix-projects-editor-button',
@@ -75,7 +87,6 @@
                             },
                         },
                     },
-
                     {
                         name: 'bitrix-projects-editor-button',
                         location: 'after',
@@ -104,7 +115,7 @@
                         .dxTextBox({
                             value: () => {
                                 const bitrixId = $('#bitrixIdFormField').dxSelectBox('instance').option('value')
-                                if(bitrixId) {
+                                if (bitrixId) {
                                     return getBitrixProjectFormDisplayValue(bitrixId)
                                 }
                                 return 'Выбрать...'

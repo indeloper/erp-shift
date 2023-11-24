@@ -138,9 +138,20 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 $formattedPhone = substr_replace($formattedPhone, '7', 0, 1);
             }
 
-            $user = User::withoutGlobalScopes()->updateOrCreate(
-                ['INN' => trim($employee->employeeINN)],
-                [
+            $user = User::withoutGlobalScopes()
+                ->where('INN', trim($employee->employeeINN))
+                ->first();
+
+            if ($user) {
+                $user->update([
+                    'first_name' => trim($employee->employeeFirstName),
+                    'last_name' => trim($employee->employeeLastName),
+                    'patronymic' => trim($employee->employeePatronymic),
+                    'birthday' => $formattedBirthday,
+                    'gender' => trim($employee->employeeGender)
+                ]);
+            } else {
+                $user = User::create([
                     'first_name' => trim($employee->employeeFirstName),
                     'last_name' => trim($employee->employeeLastName),
                     'patronymic' => trim($employee->employeePatronymic),
@@ -149,14 +160,15 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                     'person_phone' => $formattedPhone,
                     'department_id' => 0,
                     'group_id' => 0,
+                    'INN' => trim($employee->employeeINN),
                     'gender' => trim($employee->employeeGender)
-                    ]
-            );
+                ]);
+            }
 
             $existingEmployee = Employee::where('employee_1c_uid', $employee->employeeUID)->first();
 
             if ($existingEmployee) {
-                if ($existingEmployee->dismissal_date == '0000-00-00' && $employee->dismissalDate) {
+                if ($existingEmployee->dismissal_date == '0000-00-00' && !empty($employee->dismissalDate)) {
                     $dismissedEmployeesList[] = (object)[
                         "fullName" => $employee->employeeName,
                         "postName" => $employeePost->name,
@@ -191,40 +203,45 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             );
 
             $actualEmployee = Employee::where('user_id', $user->id)
-                ->where('dismissal_date', '<>', '0000-00-00')
+                ->where(function ($query) {
+                    $query->where('dismissal_date', '>=', date("Y-m-d"))
+                        ->orWhere('dismissal_date', '=', '0000-00-00');
+                })
                 ->orderBy('company_id')
                 ->first();
 
             $userStatus = $actualEmployee ? 1 : 0;
+            $actualCompanyId = $actualEmployee ? $actualEmployee->company_id : $user->company_id;
 
             $user->update(
                 [
-                    'company_id' => $actualEmployee->company_id,
+                    'company' => $actualCompanyId,
                     'status' => $userStatus
                 ]
             );
+        }
 
-            if (isset($newEmployeesList)) {
-                $newEmployeesNotificationMessageText = "<b>" . pluralize(count($newEmployeesList), "новый сотрудник") . ":</b>";
-                foreach ($newEmployeesList as $newEmployee) {
-                    $newEmployeesNotificationMessageText .= "\n{$newEmployee->fullName} ({$newEmployee->birthday} г.р) — {$newEmployee->postName}, {$newEmployee->companyName}";
-                }
-
-                foreach ($notificationRecipients as $recipient) {
-                    Notification::create([
-                        'name' => $newEmployeesNotificationMessageText,
-                        'user_id' => $recipient->id,
-                        'type' => 0,
-                    ]);
-                }
+        if (isset($newEmployeesList)) {
+            $newEmployeesNotificationMessageText = "<b>" . pluralize(count($newEmployeesList), "новый сотрудник") . ":</b>";
+            foreach ($newEmployeesList as $newEmployee) {
+                $newEmployeesNotificationMessageText .= "\n{$newEmployee->fullName} ({$newEmployee->birthday} г.р) — {$newEmployee->postName}, {$newEmployee->companyName}";
             }
 
-            if (isset($dismissedEmployeesList)) {
-                $dismissedEmployeesNotificationMessageText = "<b>" . pluralize(count($dismissedEmployeesList), "уволенный сотрудник") . ":</b>";
-                foreach ($dismissedEmployeesList as $dismissedEmployee) {
-                    $dismissedEmployeesNotificationMessageText .= "\n{$dismissedEmployee->fullName} ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
-                }
+            foreach ($notificationRecipients as $recipient) {
+                Notification::create([
+                    'name' => $newEmployeesNotificationMessageText,
+                    'user_id' => $recipient->id,
+                    'type' => 0,
+                ]);
+            }
+        }
 
+        if (isset($dismissedEmployeesList)) {
+            $dismissedEmployeesNotificationMessageText = "<b>" . pluralize(count($dismissedEmployeesList), "уволенный сотрудник") . ":</b>";
+            foreach ($dismissedEmployeesList as $dismissedEmployee) {
+                $dismissedEmployeesNotificationMessageText .= "\n{$dismissedEmployee->fullName} ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
+            }
+            foreach ($notificationRecipients as $recipient) {
                 Notification::create([
                     'name' => $dismissedEmployeesNotificationMessageText,
                     'user_id' => $recipient->id,

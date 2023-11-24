@@ -1,16 +1,14 @@
 <script>
-
     function handleCommentsDataArr(commentsArr, itemElement) {
-        
-        if(commentsArr.length === 0) {
+        if (commentsArr.length === 0) {
             $(itemElement).append('<span class="popup-field-nodata">Нет данных</span>')
             return
         }
 
-        let itemElementContent = 
+        let itemElementContent =
             '<div class="form-group-list-wrapper">'
-                + '<div class="form-group-comments-list">'
-                + '<table style="width:100%">'
+            + '<div class="form-group-comments-list">'
+            + '<table style="width:100%">'
 
         itemElementContent += getCommentsListHTML(commentsArr)
         itemElementContent += '</table></div></div>'
@@ -21,8 +19,7 @@
         let itemsProcessed = 0;
         let itemElementContent = ''
 
-        commentsArr.forEach(comment=>{
-
+        commentsArr.forEach(comment => {
             itemsProcessed++;
 
             if (comment.author.image) {
@@ -30,54 +27,24 @@
             } else {
                 photoUrl = `{{ mix('img/user-male-black-shape.png') }}`;
             }
-            itemElementContent += 
+
+            itemElementContent +=
                 '<tr class="form-comments-list-elem" style="">'
-                    +'<td style="width:50px; padding-bottom:10px; padding-left:10px; padding-top: 10px"><div class="comments-list-user-photo">'
-                        + '<img src="' + photoUrl + '" class="photo">'
-                    +'</div></td>'
-                    +'<td style="width: 180px; padding-left:20px; padding-bottom:10px; padding-top: 10px; ">'
-                        + '<div style="border-right: 1px dashed #dddddd; padding-right: 20px;">'
-                            + '<div>' + comment.author.full_name + '</div>'
-                            + '<div>' + new Date(comment.created_at).toLocaleString() + '</div>'
-                        + '</div>'
-                    +'</td>'
-                    +'<td style="padding-left:20px;  padding-right: 20px; padding-bottom:10px; padding-top: 10px">'
-                        + comment.comment
-                    +'</td>'
-                +'</tr>'
-
-
-            // itemElementContent += 
-
-            //         '<tr class="form-comments-list-elem">'
-            //             + '<td><div class="comments-list-user-photo">'
-            //                 + '<img src="' + photoUrl + '" class="photo">'
-            //             + '</div></td>'
-            //             + '<td style=""><div class="comment-date-fio-wrapper">'
-            //                 + '<div>' + comment.author.full_name + '</div>'
-            //                 + '<div>' + new Date(comment.created_at).toLocaleString() + '</div>'
-            //             + '</div></td>'
-            //             + '<td ><div class="group-list-comment-field">' + comment.comment + '</div></td>'
-            //         +'</tr>'
-
-            // itemElementContent += 
-
-            //         '<div class="form-comments-list-elem" style="">'
-            //             + '<div class="comments-list-user-photo">'
-            //                 + '<img src="' + photoUrl + '" class="photo">'
-            //             + '</div>'
-            //             + '<div class="comment-date-fio-wrapper">'
-            //                 + '<div>' + comment.author.full_name + '</div>'
-            //                 + '<div>' + new Date(comment.created_at).toLocaleString() + '</div>'
-            //             + '</div>'
-            //             + '<div class="group-list-comment-field">' + comment.comment + '</div>'
-            //         +'</div>'
-                    
+                + '<td style="width:50px; padding-bottom:10px; padding-left:10px; padding-top: 10px"><div class="comments-list-user-photo">'
+                + '<img src="' + photoUrl + '" class="photo">'
+                + '</div></td>'
+                + '<td style="width: 180px; padding-left:20px; padding-bottom:10px; padding-top: 10px; ">'
+                + '<div style="border-right: 1px dashed #dddddd; padding-right: 20px;">'
+                + '<div>' + comment.author.full_name + '</div>'
+                + '<div>' + new Date(comment.created_at).toLocaleString() + '</div>'
+                + '</div>'
+                + '</td>'
+                + '<td style="padding-left:20px;  padding-right: 20px; padding-bottom:10px; padding-top: 10px">'
+                + comment.comment
+                + '</td>'
+                + '</tr>'
         })
 
         return itemElementContent
     }
-
-    
-
 </script>

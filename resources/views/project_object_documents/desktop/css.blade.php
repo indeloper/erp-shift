@@ -359,7 +359,11 @@
             margin-right: 5px;
         }
 
-        @media screen and (max-width: 1200px) {
+    .dx-popup-bottom.dx-widget.dx-toolbar {
+        padding-top: 0;
+    }
+
+    @media screen and (max-width: 1200px) {
 
             #headerRow, #headerToolbarWrapper{
                 flex-direction: column;

@@ -5,6 +5,7 @@
 <script>
     const dataGridEditForm = {
         colCount: 6,
+        height: "60vh",
         elementAttr: {
             id: "documentEditingForm"
         },
@@ -12,7 +13,6 @@
             setDocumentStatusesByTypeStoreDataSourceFilter()
         },
         onContentReady() {
-            
             $('#filesOnServerListWrapper').dxScrollView({
                 scrollByContent: true,
                 scrollByThumb: true,
@@ -41,9 +41,6 @@
             if (documentStatusButton)
                 documentStatusButton.option('disabled', checkDocumentStatusButtonIsDisabled())
 
-            
-            // не работает во внешнем файле и при переносе в onInitialized
-
             let images = document.querySelectorAll('.fileImg')
             if (images)
                 for (let index = 0; index < images.length; index++) {
@@ -53,21 +50,8 @@
                     })
                 }
 
-            // // let fakeCoverPdfElems = document.getElementById('filesNotImgGroupWrapper')?.querySelectorAll('.fakeCoverPDF');
-            // let fakeCoverPdfElems = document.querySelectorAll('.fakeCoverPDF');
-            // if (fakeCoverPdfElems) {
-            //     for (let index = 0; index <= fakeCoverPdfElems.length; index++) {
-            //         const element = fakeCoverPdfElems[index];
-            //         lightGallery(element, {
-            //             selector: 'this',
-            //         });
-            //     }
-            // }
-            // Всплывающие элементы над файлами - чекбокс и кнопка удаления
-            // не работает в onInitialized
-
             $('.fileOnServerDivWrapper').hover(
-                function() {
+                function () {
                     if (!$(this).find('.dx-checkbox').length) {
                         let checkBox = $('<div>').dxCheckBox({
                             hint: "Скачать",
@@ -75,14 +59,12 @@
                                 class: 'attacmentHoverCheckbox'
                             },
                             onValueChanged(e) {
-                                if(e.value) {
+                                if (e.value) {
                                     $('#downloadFilesButton').dxButton({
                                         disabled: false
                                     })
                                 } else {
-                                    // getCheckedCheckboxesFilesToDownload() в данном месте возвращает не отмеченные чекбоксы, а все
-                                    // поэтому проверка события отмены выбора при единственном имеющемся чекбоксе
-                                    if(getCheckedCheckboxesFilesToDownload().length<2) {
+                                    if (getCheckedCheckboxesFilesToDownload().length < 2) {
                                         $('#downloadFilesButton').dxButton({
                                             disabled: true
                                         })
@@ -123,7 +105,7 @@
                         $(this).append($(deleteButton));
                     }
                 },
-                function() {
+                function () {
                     let checkBox = $(this).find('.dx-checkbox').dxCheckBox('instance')
                     if (!checkBox.option('value'))
                         $(this).find('.attacmentHoverCheckbox').last().remove();
@@ -131,7 +113,8 @@
                 }
             )
         },
-        items: [{
+        items: [
+            {
                 name: "dataGridEditFormMainGroup",
                 visible: false,
                 itemType: 'tabbed',
@@ -146,14 +129,13 @@
                     filesTabbedGroup,
                 ],
             },
-
             {
                 colSpan: 6,
                 name: "dataGridEditFormLoadPanel",
                 itemType: 'simpleItem',
                 template: (data, itemElement) => {
                     let dxPopupContentElems = document.querySelectorAll('.dx-popup-content')
-                    itemElement.append('<div id="formLoadPanel" >')
+                    itemElement.append('<div id="formLoadPanel" style="height: 60vh;">')
                     itemElement.append(
                         $('#formLoadPanel').dxLoadPanel({
                             shadingColor: 'rgba(0,0,0,0.4)',
@@ -170,7 +152,6 @@
                     )
                 },
                 visible: false,
-
             }
         ],
     }

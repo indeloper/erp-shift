@@ -40,7 +40,7 @@
             sortOrder: 'desc',
 
             calculateGroupValue: function (data) {
-                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1); 
+                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1);
             },
             groupCellTemplate: function (element, options) {
 
@@ -69,7 +69,7 @@
 
             }
         },
-        
+
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
@@ -96,7 +96,7 @@
                     marker.addClass('fas fa-exchange-alt')
                 }
 
-                const wrapper = 
+                const wrapper =
                     $('<div>')
                         .addClass('cell-template-content-wrapper-justify-start')
                         .appendTo(container)
@@ -179,9 +179,17 @@
                 }
 
                 if (displayValue > 0) {
+<<<<<<< HEAD
                     let cssTextColor = 'text-color-green'
                 } else {
                     let cssTextColor = 'text-color-red'
+=======
+                    cssTextColor = 'text-color-green'
+                    // fontColor = '#1f931f'
+                } else {
+                    cssTextColor = 'text-color-red'
+                    // fontColor = '#dd5e5e'
+>>>>>>> master
                 }
 
                 $('<span>')

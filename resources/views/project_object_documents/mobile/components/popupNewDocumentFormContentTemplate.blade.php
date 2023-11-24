@@ -1,5 +1,4 @@
 <script>
-    // Шаблон нового - создаваемого документа
     const popupNewDocumentFormContentTemplate = () => {
         const popupContentWrapper = $('<div>')
             .css({
@@ -14,6 +13,7 @@
             dataSource: projectObjectsStore,
             valueExpr: 'id',
             displayExpr: 'short_name',
+            searchEnabled: true
         }).dxValidator({
             validationGroup: "documentValidationGroup",
             validationRules: [{
@@ -45,7 +45,7 @@
             dataSource: documentTypesStore,
             valueExpr: 'id',
             displayExpr: 'name',
-
+            searchEnabled: true,
             onSelectionChanged(e) {
                 editingRowTypeId = e.selectedItem.id
                 let defaultStatusId = e.selectedItem.project_object_document_status_type_relations.filter(el => el.default_selection === 1)[0]?.document_status_id
@@ -55,7 +55,6 @@
                 editingRowNewStatusId = editingRowStatusId
 
                 $('#documentMobileStatusId').dxSelectBox('instance').option('disabled', true)
-                // disabled у #popupSaveButton визуально срабатывает, но продолжает функционировать, поэтому сделал через visible
                 $('#popupSaveButton').dxButton('instance').option('visible', false)
 
                 documentStatusesByTypeStoreDataSource.reload().done(() => {
@@ -79,6 +78,7 @@
             valueExpr: 'id',
             displayExpr: 'name',
             disabled: true,
+            searchEnabled: true,
             itemTemplate(data) {
                 return $(`
                                 <div style="display:flex; align-items:center">
@@ -104,7 +104,7 @@
 
                 container.append(result);
             },
-            onValueChanged: function(e) {
+            onValueChanged: function (e) {
                 resetStatusOptionsVars()
                 optionsByTypeAndStatusStore.clearRawDataCache();
                 editingRowNewStatusId = e.value;
