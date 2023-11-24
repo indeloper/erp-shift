@@ -26,7 +26,7 @@
             cellTemplate(container, options) {
                 container.attr('id', 'tank_id-' + options.data.id + '-company_id')
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-                
+
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .addClass('text-color-red')
@@ -45,7 +45,7 @@
             cellTemplate(container, options) {
                 container.attr('id', 'tank_id-' + options.data.id + '-tank_number')
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-                
+
                 if(options.data.awaiting_confirmation) {
 
                     spanText
@@ -67,7 +67,7 @@
 
                 container.attr('id', 'tank_id-' + options.data.id + '-object_id')
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-                
+
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .addClass('text-color-red')
@@ -80,12 +80,12 @@
 
                     const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
                     const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
-                    
+
                     const popoverDiv = $('<div>')
                         .attr('id', 'tank_id-' + options.data.id + '-object_id' + '_popover')
                         .append(`<div><b>Передал:</b> ${previousResponsible}</div>`)
                         .append(`<div><b>Предыдущий объект:</b> ${previousObject}</div>`)
-                        
+
                         if(options.data.comment_movement_tmp) {
                             popoverDiv
                                 .append(`<div><b>Комментарий:</b> ${options.data.comment_movement_tmp}</div>`)
@@ -96,7 +96,7 @@
                             .append('<hr style="margin-left: -20px; margin-right: -20px;">')
                             .appendTo(container)
 
-                        confirmationButtonWrapper = 
+                        confirmationButtonWrapper =
                             $('<div>')
                             .css({
                                 width: '100%',
@@ -109,7 +109,7 @@
                             type: 'default',
                             visible: Boolean(+options.data.responsible_id === +authUserId),
                             elementAttr: {
-                                class: 'confirmationButton' 
+                                class: 'confirmationButton'
                             },
                             onClick() {
                                 confirmMovingFuelTank(options.data.id, popover)
@@ -123,7 +123,7 @@
                         width: 300,
                         showTitle: true,
                         title: 'Требуется подтверждение нового ответственного'
-                    }).dxPopover('instance')                
+                    }).dxPopover('instance')
                 }
             }
         },
@@ -135,12 +135,12 @@
                 valueExpr: "id",
                 displayExpr: "full_name"
             },
-            
+
             cellTemplate(container, options) {
                 container.attr('id', 'tank_id-' + options.data.id + '-responsible_id')
-                
+
                 const spanText = $('<span>').text(options.displayValue).appendTo(container)
-               
+
                 if(options.data.awaiting_confirmation) {
                     spanText
                         .addClass('text-color-red')
@@ -156,11 +156,12 @@
                 min: 0.001
             },
             cellTemplate(container, options) {
-                fontColor = 'black'
-                if (options.text > 0)
-                    cssTextColor = 'text-color-green'
-                if (options.text < 0)
-                    cssTextColor = 'text-color-red'
+                if (options.text > 0) {
+                    let cssTextColor = 'text-color-green'
+                }
+                if (options.text < 0) {
+                    let cssTextColor = 'text-color-red'
+                }
                 $('<span>')
                     .addClass(cssTextColor)
                     .text(new Intl.NumberFormat('ru-RU').format(options.text * 1000 / 1000))
@@ -192,7 +193,7 @@
                     visible: userPermissions.delete_fuel_tanks
                 }
 
-                
+
             ],
 
             headerCellTemplate: (container, options) => {

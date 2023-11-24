@@ -40,7 +40,7 @@
             sortOrder: 'desc',
 
             calculateGroupValue: function (data) {
-                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1); 
+                return data.event_date.getFullYear() + "-" + (data.event_date.getMonth() + 1);
             },
             groupCellTemplate: function (element, options) {
 
@@ -69,7 +69,7 @@
 
             }
         },
-        
+
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
@@ -86,20 +86,17 @@
                 const marker = $('<div>')
 
                 if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
-                    // fontColor = '#dd5e5e'
-                    cssTextColor = 'text-color-red'
+                    let cssTextColor = 'text-color-red'
                     marker.addClass('fa fa-arrow-down')
                 } else if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
-                    // fontColor = '#1f931f'
-                    cssTextColor = 'text-color-green'
+                    let cssTextColor = 'text-color-green'
                     marker.addClass('fa fa-arrow-up')
                 } else {
-                    // fontColor = '#3a6fcb'
-                    cssTextColor = 'text-color-blue'
+                    let cssTextColor = 'text-color-blue'
                     marker.addClass('fas fa-exchange-alt')
                 }
 
-                const wrapper = 
+                const wrapper =
                     $('<div>')
                         .addClass('cell-template-content-wrapper-justify-start')
                         .appendTo(container)
@@ -182,11 +179,17 @@
                 }
 
                 if (displayValue > 0) {
+<<<<<<< HEAD
+                    let cssTextColor = 'text-color-green'
+                } else {
+                    let cssTextColor = 'text-color-red'
+=======
                     cssTextColor = 'text-color-green'
                     // fontColor = '#1f931f'
                 } else {
                     cssTextColor = 'text-color-red'
                     // fontColor = '#dd5e5e'
+>>>>>>> master
                 }
 
                 $('<span>')
