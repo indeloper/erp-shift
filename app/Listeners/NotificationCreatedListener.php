@@ -40,7 +40,13 @@ class NotificationCreatedListener
             $this->userHasChatIdAndAllowThisNotification($user, $type) ? dump('need send ', $user->id) : dump('no need send ', $user->id);
         }
 
-        $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);
+        $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);     
+
+        if(str_contains($text, 'notificationHook'))
+        {
+            $text = (new NotificationService())->setNotificationHookLink($text);
+        }
+
         try {
             if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
                 Telegram::sendMessage([

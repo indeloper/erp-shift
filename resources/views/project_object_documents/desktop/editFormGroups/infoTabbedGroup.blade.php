@@ -113,108 +113,139 @@
                                         <div class='status-name'></div>
                                     </div>
                                 `);
-                                    result
-                                        .find('.status-name')
-                                        .dxTextBox({
-                                            value: data?.name,
-                                            readOnly: true,
-                                            inputAttr: {id: "documentStatusMainFormSelector"},
-                                        });
+                                result
+                                    .find('.status-name')
+                                    .dxTextBox({
+                                        value: data?.name,
+                                        readOnly: true,
+                                        inputAttr: { id: "documentStatusMainFormSelector" },
+                                    });
 
-                                    container.append(result);
-                                },
+                                container.append(result);
                             },
-                            colSpan: 2
                         },
-                    ]
-                },
-                {
-                    itemType: 'group',
-                    colCount: 3,
-                    items: [
-                        {
-                            itemType: 'simple',
-                            template: (data, itemElement) => {
-                                let itemElementContent = '<b>Ответственные ПТО:</b><div id="responsiblesPtoEngineerDiv"></div>';
-                                itemElement.append(itemElementContent)
-                                let coreDataGridInstance = getCoreDataGridInstance();
-                                let currentObjectId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "project_object_id");
-                                let responsibles = projectObjectsStore?.__rawData?.filter(el => el.id === currentObjectId)[0]?.tongue_pto_engineer_full_names
-                                if (responsibles)
-                                    responsiblesPtoEngineerDiv.innerHTML = responsibles
-                                else
-                                    responsiblesPtoEngineerDiv.innerHTML = '<span class="popup-field-nodata">Нет данных</span>'
-                            }
-                        },
-                        {
-                            itemType: 'simple',
-                            template: (data, itemElement) => {
-                                let itemElementContent = '<b>Ответственные прорабы:</b><div id="responsiblesForemanDiv"></div>';
-                                itemElement.append(itemElementContent)
-                                let coreDataGridInstance = getCoreDataGridInstance();
-                                let currentObjectId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "project_object_id");
-                                let responsibles = projectObjectsStore?.__rawData?.filter(el => el.id === currentObjectId)[0]?.tongue_foreman_full_names
-                                if (responsibles)
-                                    responsiblesForemanDiv.innerHTML = responsibles
-                                else
-                                    responsiblesForemanDiv.innerHTML = '<span class="popup-field-nodata">Нет данных</span>'
-                            }
-                        },
-                        {
-                            itemType: 'simple',
-                            template: (data, itemElement) => {
-                                let itemElementContent = '<b>Ответственные РП:</b><div id="responsiblesProjectManagerEngineerDiv">tongue_project_manager_full_names</div>';
-                                itemElement.append(itemElementContent)
-                                let coreDataGridInstance = getCoreDataGridInstance();
-                                let currentObjectId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "project_object_id");
-                                let responsibles = projectObjectsStore?.__rawData?.filter(el => el.id === currentObjectId)[0]?.tongue_project_manager_full_names
-                                if (responsibles)
-                                    responsiblesProjectManagerEngineerDiv.innerHTML = responsibles
-                                else
-                                    responsiblesProjectManagerEngineerDiv.innerHTML = '<span class="popup-field-nodata">Нет данных</span>'
-                            }
-                        },
-                    ],
-                },
-                {
-                    itemType: 'group',
-                    colCount: 2,
-                    items: [
-                        {
-                            itemType: 'group',
-                            caption: 'Последние комментарии',
-                            items: [
-                                {
-                                    itemType: 'simple',
-                                    template: (data, itemElement) => {
-                                        itemElement.attr('id', 'commentsWrapperInfoTab').css('height', '20vh')
-                                        itemElement.append('<div id="newAddedCommentsInfoTab" style="color:#829be3;  background: #fbfbfb"></div>')
-                                        const commentsInfoTab = $('<div id="commentsInfoTab">').appendTo(itemElement)
-                                        if (projectObjectDocumentInfoByID.items()[0])
-                                            handleCommentsDataArr(projectObjectDocumentInfoByID.items()[0]?.comments.original.slice(0, 3), commentsInfoTab)
-                                        else
-                                            $(itemElement).append('<span class="popup-field-nodata">Нет данных</span>')
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            itemType: 'group',
-                            caption: 'Последние файлы',
-                            items: [
-                                {
-                                    itemType: 'simple',
-                                    template: (data, itemElement) => {
-                                        const filesOnServerListWrapper =
-                                            $('<div>')
-                                                .attr('id', 'filesOnServerListWrapperInfoTab')
-                                                .css({
-                                                    'width': '100%',
-                                                    'height': '20vh',
-                                                    'position': 'relative'
-                                                });
+                        // validationRules: [{
+                        //     type: 'custom',
+                        //     validationCallback(params) {
+                        //         return params.value || editingRowNewStatusId ? true : false;
+                        //     },
+                        //     message: 'Укажите значение',
+                        // }],
 
-                                        if (projectObjectDocumentInfoByID.items()[0]) {
+                        colSpan: 2
+                    },
+
+                ]
+
+            },
+
+
+            {
+                itemType: 'group',
+                // caption: 'Ответственные',
+                colCount: 3,
+                items: [
+
+                    {
+                        itemType: 'simple',
+                        template: (data, itemElement) => {
+
+                            let itemElementContent = '<b>Ответственные ПТО:</b><div id="responsiblesPtoEngineerDiv"></div>';
+                            itemElement.append(itemElementContent)
+
+                            let coreDataGridInstance = getCoreDataGridInstance();
+                            let currentObjectId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "project_object_id");
+
+                            let responsibles = projectObjectsStore?.__rawData?.filter(el=>el.id === currentObjectId)[0]?.tongue_pto_engineer_full_names
+
+                            if(responsibles)
+                                responsiblesPtoEngineerDiv.innerHTML = responsibles
+                            else
+                                responsiblesPtoEngineerDiv.innerHTML = '<span class="popup-field-nodata">Нет данных</span>'
+                        }
+                    },
+
+                    {
+                        itemType: 'simple',
+                        template: (data, itemElement) => {
+                            let itemElementContent = '<b>Ответственные прорабы:</b><div id="responsiblesForemanDiv"></div>';
+                            itemElement.append(itemElementContent)
+
+                            let coreDataGridInstance = getCoreDataGridInstance();
+                            let currentObjectId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "project_object_id");
+
+                            let responsibles = projectObjectsStore?.__rawData?.filter(el=>el.id === currentObjectId)[0]?.tongue_foreman_full_names
+                            if(responsibles)
+                            responsiblesForemanDiv.innerHTML = responsibles
+                            else
+                            responsiblesForemanDiv.innerHTML = '<span class="popup-field-nodata">Нет данных</span>'
+                        }
+                    },
+
+                    {
+                        itemType: 'simple',
+                        template: (data, itemElement) => {
+                            let itemElementContent = '<b>Ответственные РП:</b><div id="responsiblesProjectManagerEngineerDiv">tongue_project_manager_full_names</div>';
+                            itemElement.append(itemElementContent)
+
+                            let coreDataGridInstance = getCoreDataGridInstance();
+                            let currentObjectId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "project_object_id");
+
+                            let responsibles = projectObjectsStore?.__rawData?.filter(el=>el.id === currentObjectId)[0]?.tongue_project_manager_full_names
+                            if(responsibles)
+                            responsiblesProjectManagerEngineerDiv.innerHTML = responsibles
+                            else
+                            responsiblesProjectManagerEngineerDiv.innerHTML = '<span class="popup-field-nodata">Нет данных</span>'
+                        }
+                    },
+                ],
+
+            },
+
+            {
+                itemType: 'group',
+                colCount: 2,
+                items: [
+
+                    {
+                        itemType: 'group',
+                        caption: 'Последние комментарии',
+                        items: [
+                            {
+                                itemType: 'simple',
+                                template: (data, itemElement) => {
+                                    itemElement.attr('id', 'commentsWrapperInfoTab').css('height', '20vh')
+                                    itemElement.append('<div id="newAddedCommentsInfoTab" style="color:#829be3;  background: #fbfbfb"></div>')
+                                    const commentsInfoTab = $('<div id="commentsInfoTab">').appendTo(itemElement)
+                                    if(projectObjectDocumentInfoByID.items()[0])
+                                    handleCommentsDataArr(projectObjectDocumentInfoByID.items()[0]?.comments.original.slice(0,3), commentsInfoTab)
+                                    else
+                                    $(itemElement).append('<span class="popup-field-nodata">Нет данных</span>')
+                                }
+                            }
+                        ]
+
+                    },
+                    {
+                        itemType: 'group',
+                        caption: 'Последние файлы',
+                        items: [
+                            {
+                                itemType: 'simple',
+                                template: (data, itemElement) => {
+
+                                    const filesOnServerListWrapper =
+                                        $('<div>')
+                                            .attr('id', 'filesOnServerListWrapperInfoTab')
+                                            .css({
+                                                'width': '100%',
+                                                'height': '20vh',
+                                                // 'max-height': '50vh',
+                                                // 'overflow-y': 'auto',
+                                                'position': 'relative'
+                                            });
+
+                                        if(projectObjectDocumentInfoByID.items()[0]) {
                                             const filesDataArr = projectObjectDocumentInfoByID.items()[0]?.attachments.original
 
                                             if (filesDataArr.length === 0) {

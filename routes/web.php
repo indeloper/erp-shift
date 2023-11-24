@@ -239,6 +239,8 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::apiResource('permission', 'PermissionsController');
     });
 
+
+    Route::post('file_entry/downloadAttachments', 'FileEntryController@downloadAttachments')->name('fileEntry.downloadAttachments');
     Route::resource('file_entry', 'FileEntryController')
         ->only(['destroy', 'store']);
 

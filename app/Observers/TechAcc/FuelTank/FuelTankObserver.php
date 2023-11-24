@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Auth;
 class FuelTankObserver
 {
 
-    public function deleting(FuelTank $fuelTank)
-    {
-        $fuelTank->operations->each(function($operation) {$operation->delete();});
-    }
+
+    // deleting закомментировал Антон. По идее записи в журнале операций должны сохраняться
+    // public function deleting(FuelTank $fuelTank)
+    // {
+    //     $fuelTank->operations->each(function($operation) {$operation->delete();});
+    // }
 
 //    /**
 //     * Handle the fuel tank "updated" event.

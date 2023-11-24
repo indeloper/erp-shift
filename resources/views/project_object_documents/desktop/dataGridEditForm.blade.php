@@ -5,6 +5,7 @@
 <script>
     const dataGridEditForm = {
         colCount: 6,
+        height: "60vh",
         elementAttr: {
             id: "documentEditingForm"
         },
@@ -69,6 +70,14 @@
                                         })
                                     }
                                 }
+                            },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
                             }
                         })
                         $(this).append($(checkBox));
@@ -84,6 +93,14 @@
                             onClick(e) {
                                 deleteAttachment(e);
                             },
+                            onInitialized(e) {
+                                // переключаем кликабельность картинки
+                                // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                                $(e.element).hover(
+                                    () => $(e.element).parent().on('click', ()=>{return false}),
+                                    () => $(e.element).parent().off('click')
+                                )
+                            }
                         })
                         $(this).append($(deleteButton));
                     }
@@ -118,7 +135,7 @@
                 itemType: 'simpleItem',
                 template: (data, itemElement) => {
                     let dxPopupContentElems = document.querySelectorAll('.dx-popup-content')
-                    itemElement.append('<div id="formLoadPanel" >')
+                    itemElement.append('<div id="formLoadPanel" style="height: 60vh;">')
                     itemElement.append(
                         $('#formLoadPanel').dxLoadPanel({
                             shadingColor: 'rgba(0,0,0,0.4)',

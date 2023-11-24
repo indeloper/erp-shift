@@ -1,0 +1,7 @@
+@include('1_base.desktop.css.attachments')
+@include('1_base.desktop.css.custom-colours')
+@include('1_base.desktop.css.dataGridStyles')
+@include('1_base.desktop.css.popupStyles')
+@include('1_base.desktop.css.mixedUpElements')
+@include('1_base.desktop.css.mixedUpElements')
+@include('1_base.desktop.css.pdf-report')

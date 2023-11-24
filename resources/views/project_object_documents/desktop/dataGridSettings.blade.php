@@ -19,7 +19,6 @@
         columnMinWidth: 50,
         columnResizingMode: 'nextColumn',
         syncLookupFilterValues: false,
-        columnHidingEnabled: true,
         showRowLines: true,
         filterRow: {
             visible: true,

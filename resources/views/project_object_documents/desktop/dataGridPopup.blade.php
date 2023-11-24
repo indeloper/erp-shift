@@ -4,8 +4,9 @@
             showTitle: true,
             title: "Информация о документе",
             hideOnOutsideClick: false,
-            showCloseButton: true,
+            showCloseButton:true,
             maxWidth: '75%',
+            height: "auto",
             animation: {
                 show: {
                     type: 'pop',
@@ -28,39 +29,45 @@
                 }
             },
             onShowing(e) {
-                if (isArchivedOrDeletedDocuments())
+                if (isArchivedOrDeletedDocuments()) {
                     e.component.option('toolbarItems', [])
+                }
+
                 getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', false);
 
                 let popupTitleWrapper = $('.dx-toolbar-items-container')[1]
                 let popupTitleElem = $(popupTitleWrapper).find('.dx-toolbar-before').find('.dx-toolbar-item-content').find('div')
                 popupTitleElem.append(' [id: ' + editingRowId + ']')
 
-                projectObjectDocumentInfoByID.reload().done((data) => {
-                    getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', true);
-                    getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
-                    getFormInstance()?.repaint();
-
-                    $('.dx-popup-content').css({'height': '', 'paddingBottom': 0})
-                    $('.dx-popup-normal').css({'height': ''})
-
+                // Прогружаем за один запрос комментарии и файлы, и после этого перерисовываем форму (.repaint())
+                // комментарии и файлы содержатся в projectObjectDocumentInfoByID
+                projectObjectDocumentInfoByID.reload().done((data)=>{
+                        getFormInstance()?.itemOption('dataGridEditFormMainGroup', 'visible', true);
+                        getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
+                        getFormInstance()?.repaint();
                 });
             },
-            onShown() {
-                if (!projectObjectDocumentInfoByID.isLoaded())
+            onShown(){
+                // setTimeout(() => {
+                    if(!projectObjectDocumentInfoByID.isLoaded())
                     getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', true);
+                // }, 300)
             },
-            onHiding() {
+            onHiding(){
                 getFormInstance()?.itemOption('dataGridEditFormLoadPanel', 'visible', false);
             }
         }
 
+
     // Дополнительный Popup для статусов и опций
+
     function showOptionsPopup() {
+
         let coreDataGridInstance = getCoreDataGridInstance();
+
         setOptionPopupVariables(coreDataGridInstance)
 
-        const statusOptionsFormPopup = $('#statusOptionsForm').dxPopup({
+        const statusOptionsFormPopup =  $('#statusOptionsForm').dxPopup({
             title: 'Статус и опции',
             width: 300,
             height: 300,
@@ -78,7 +85,7 @@
                         text: 'OK',
                     },
                     onClick() {
-                        if (editingRowNewStatusId) {
+                        if(editingRowNewStatusId) {
                             coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "document_status_id", editingRowNewStatusId)
                             let allStatuses = documentStatusesStore.__rawData;
                             let currentStatus = allStatuses.filter(el => el.id === editingRowNewStatusId)[0];
@@ -96,7 +103,7 @@
                 renderStatusSelector();
             },
 
-            contentTemplate: function (contentElement) {
+            contentTemplate: function(contentElement){
                 return contentElement.append('<div id="documentStatusSelector"></div><div id="optionsList"></div>')
             },
 
@@ -104,9 +111,8 @@
     }
 
     function setOptionPopupVariables(coreDataGridInstance) {
-        if (editingRowId) {
-            editingRowTypeId = coreDataGridInstance
-                .cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "document_type_id")
+        if(editingRowId) {
+            editingRowTypeId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "document_type_id")
             editingRowStatusId = coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "document_status_id")
             editingRowStartOptions = JSON.parse(coreDataGridInstance.cellValue(coreDataGridInstance.getRowIndexByKey(editingRowId), "options"))
         }
@@ -119,7 +125,7 @@
             valueExpr: "id",
             displayExpr: "name",
             value: editingRowStatusId,
-
+            searchEnabled: true,
             itemTemplate(data) {
                 return $(`
                             <div style="display:flex; align-items:center">
@@ -127,41 +133,43 @@
                                 <div class='status-name'>${data?.name}</div>
                             </div>
                         `);
-            },
+                    },
 
-            fieldTemplate(data, container) {
-                const result = $(`
+                    fieldTemplate(data, container) {
+                        const result = $(`
                             <div style="display:flex; align-items:center">
                                 <div class="round-color-marker" style="background-color: ${data?.project_object_documents_status_type?.style}; margin-right:0; margin-left:10px" />
                                 <div class='status-name'></div>
                             </div>
                         `);
-                result
-                    .find('.status-name')
-                    .dxTextBox({
-                        value: data?.name,
-                        readOnly: true,
-                    });
+                        result
+                            .find('.status-name')
+                            .dxTextBox({
+                                value: data?.name,
+                                readOnly: true,
+                            });
 
-                container.append(result);
-            },
+                        container.append(result);
+                    },
 
-            onValueChanged: function (e) {
-                resetStatusOptionsVars()
-                optionsByTypeAndStatusStore.clearRawDataCache();
-                editingRowNewStatusId = e.value;
+                    onValueChanged: function (e) {
+                        resetStatusOptionsVars()
+                        optionsByTypeAndStatusStore.clearRawDataCache();
+                        editingRowNewStatusId = e.value;
 
-                getDocumentOptionsByTypeAndStatus()
+                        getDocumentOptionsByTypeAndStatus()
 
-                documentStatusesByTypeStore.load().done((statuses) => {
-                    let choosedStatus = statuses.filter(el => el.id === editingRowNewStatusId)
-                    documentStatusMainFormSelector.value = choosedStatus[0].name
+                        documentStatusesByTypeStore.load().done((statuses)=>{
+                            let choosedStatus = statuses.filter(el=>el.id===editingRowNewStatusId)
+                            documentStatusMainFormSelector.value = choosedStatus[0].name
+                        })
+                    }
                 })
-            }
-        })
+
     }
 
     function renderOptionsLoadIndicator() {
+
         try {
             $('#optionsList').dxList('dispose')
         } catch (err) {
@@ -224,7 +232,7 @@
                     }).appendTo(result)
                 }
 
-                if (data.type === 'select') {
+                if(data.type === 'select') {
                     $('<div />').dxSelectBox({
                         dataSource: getOptionsSelectSource(data.source),
                         value: getStartOptionValue(data.id),
@@ -232,6 +240,7 @@
                         displayExpr: 'user_full_name',
                         label: data.label,
                         labelMode: "floating",
+                        searchEnabled: true,
                         onValueChanged(e) {
                             editingRowTypeStatusOptions_tmp.push(
                                 {
@@ -246,12 +255,12 @@
                     }).appendTo(result)
                 }
 
-                if (data.type === 'text') {
+                if(data.type === 'text') {
                     $('<div />').dxTextBox({
                         label: data.label,
                         labelMode: "floating",
                         value: getStartOptionValue(data.id),
-                        onValueChanged(e) {
+                        onValueChanged(e){
                             editingRowTypeStatusOptions_tmp.push(
                                 {
                                     id: data.id,
@@ -270,18 +279,19 @@
     }
 
     function getOptionsSelectSource(selectSourceName) {
-        if (selectSourceName === 'responsible_managers_and_pto')
-            return responsible_managers_and_pto
-        if (selectSourceName === 'responsible_managers_and_foremen')
-            return responsible_managers_and_foremen
+        if(selectSourceName === 'responsible_managers_and_pto')
+        return responsible_managers_and_pto
+        if(selectSourceName === 'responsible_managers_and_foremen')
+        return responsible_managers_and_foremen
     }
 
     function getStartOptionValue(optionId) {
-        if (typeof (editingRowStartOptions) === null || typeof (editingRowStartOptions) === 'undefined' || editingRowStartOptions === null)
-            return false
 
-        if (typeof editingRowStartOptions[optionId] === 'undefined')
-            return false
+        if(typeof(editingRowStartOptions) === null || typeof(editingRowStartOptions) === 'undefined' || editingRowStartOptions === null)
+        return false
+
+        if(typeof editingRowStartOptions[optionId] === 'undefined')
+        return false
 
         return editingRowStartOptions[optionId].value;
     }

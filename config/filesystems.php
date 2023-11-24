@@ -222,6 +222,27 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public/docs/project_object_documents'),
             'url' => env('APP_URL').'/project_object_documents',
+            'visibility' => 'public',
+        ],
+
+        'technic' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/technic'),
+            'url' => env('APP_URL').'/building/tech_acc/technic/ourTechnicList',
+            'visibility' => 'private',
+        ],
+
+        'fuel_flow' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/fuel_flow'),
+            'url' => env('APP_URL').'storage/docs/fuel_flow/',
+            'visibility' => 'private',
+        ],
+        
+        'zip_archives' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/zip_archives'),
+            'url' => env('APP_URL').'/storage/docs/zip_archives/',
             'visibility' => 'private',
         ],
 

@@ -13,20 +13,20 @@ class FileSystemService {
 
 
 
-    public function getBladeTemplateFileNamesInDirectory($componentsPath, $basePath)
+    public function getBladeTemplateFileNamesInDirectory($componentsPath, $baseBladePath)
     {
-        $this->getFixedBladeTemplateFilesNames($basePath);
+        $this->getFixedBladeTemplateFilesNames($baseBladePath);
         $this->getBladeTemplateComponentsFilesNames($componentsPath);
         return $this->fileNames;
     }
 
-    public function getFixedBladeTemplateFilesNames($basePath)
+    public function getFixedBladeTemplateFilesNames($baseBladePath)
     {
-        $cleanBasePath = str_replace(resource_path().'/views/', '',  $basePath );
-        $cleanBasePath = str_replace('.blade.php', '', $cleanBasePath );
-        $this->fileNames[] = $cleanBasePath.'/dataSource';
-        $this->fileNames[] = $cleanBasePath.'/variables';
-        $this->fileNames[] = $cleanBasePath.'/methods';
+        $cleanbaseBladePath = str_replace(resource_path().'/views/', '',  $baseBladePath );
+        $cleanbaseBladePath = str_replace('.blade.php', '', $cleanbaseBladePath );
+        $this->fileNames[] = $cleanbaseBladePath.'/dataSource';
+        $this->fileNames[] = $cleanbaseBladePath.'/variables';
+        $this->fileNames[] = $cleanbaseBladePath.'/methods';
     }
 
     public function getBladeTemplateComponentsFilesNames($componentsPath)

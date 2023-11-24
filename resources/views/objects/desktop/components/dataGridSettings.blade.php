@@ -14,7 +14,6 @@
         columnMinWidth: 50,
         columnResizingMode: 'nextColumn',
         syncLookupFilterValues: false,
-        columnHidingEnabled: false,
         // wordWrapEnabled: true,
         showRowLines: true,
         remoteOperations: true,
@@ -55,7 +54,7 @@
             useIcons: true,
         },
 
-        onRowDblClick: function(e) {
+        onRowDblClick: function (e) {
             if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
                 e.component.editRow(e.rowIndex);
             }
