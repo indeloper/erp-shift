@@ -6,13 +6,64 @@ namespace App\Services\System;
 
 use App\Models\Notification;
 use App\Models\Notifications\TgNotificationUrl;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Exception;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class NotificationService
 {
+    /**
+     * @param $encoded_url
+     * @return mixed
+     */
+    public function decodeNotificationUrl($encoded_url)
+    {
+        $url = TgNotificationUrl::where('encoded_url', $encoded_url)->firstOrFail();
+        Notification::findOrFail($url->notification_id)->update(['is_seen' => 1]);
+
+        return $url->target_url;
+    }
+
+    public function replaceUrl($message, $notificationId)
+    {
+        if (!$notificationId) {
+            return $message;
+        }
+
+        try {
+            $urlPattern = '/\b(?:https?|ftp|tg|mailto):\/\/[^\s\'"<>]+/i';
+
+            preg_match_all($urlPattern, $message, $urls);
+
+            if (empty($urls[0])) {
+                return $message;
+            }
+
+            foreach ($urls[0] as $predictedUrl) {
+                $explodedMessage = explode($predictedUrl, $message);
+                $encodedUrl = $this->encodeNotificationUrl($notificationId, $predictedUrl);
+                $message = implode($encodedUrl, $explodedMessage);
+            }
+
+            return $message;
+        } catch (\Throwable $e) {
+            $text = ($e instanceof ValidationException) ? $this->reportValidationErrors($e) : $this->createErrorMessage($e);
+
+            try {
+                Telegram::sendMessage([
+                    'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                    'parse_mode' => 'HTML',
+                    'text' => $text,
+                ]);
+            } catch (\Throwable $t) {
+                // Неудачная отправка сообщения в Telegram
+            }
+
+            return $message;
+        }
+    }
+
     /**
      * @param $notification_id
      * @param $url
@@ -45,56 +96,6 @@ class NotificationService
         return $encoded_url;
     }
 
-    /**
-     * @param $encoded_url
-     * @return mixed
-     */
-    public function decodeNotificationUrl($encoded_url)
-    {
-        $url = TgNotificationUrl::where('encoded_url', $encoded_url)->firstOrFail();
-        Notification::findOrFail($url->notification_id)->update(['is_seen' => 1]);
-
-        return $url->target_url;
-    }
-
-    public function replaceUrl($message, $notification_id)
-    {
-        if (!$notification_id) return $message;
-        try {
-            $predicted_url = mb_stristr($message, 'http');
-            if ($predicted_url === false) return $message;
-
-            if (mb_stripos($predicted_url, ' ') !== false) {
-                $predicted_url = substr($predicted_url, 0, mb_stripos($predicted_url, ' '));
-            }
-
-
-            $exploded_message = explode($predicted_url, $message);
-            $encoded_url = $this->encodeNotificationUrl($notification_id, $predicted_url);
-            $new_message = implode($encoded_url, $exploded_message);
-
-            return $new_message;
-
-        } catch (\Throwable $e) {
-            if ($e instanceof ValidationException) {
-                $text = $this->reportValidationErrors($e);
-            } else {
-                $text = $this->createErrorMessage($e);
-            }
-            try {
-                Telegram::sendMessage([
-                    'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
-                    'parse_mode' => 'HTML',
-                    'text' => $text
-                ]);
-            } catch (\Throwable $t) {
-                // unsuccess
-            }
-            return $message;
-        }
-    }
-
-
     public function reportValidationErrors(ValidationException $exception)
     {
         $user = auth()->user();
@@ -106,8 +107,8 @@ class NotificationService
         $line = $exception->getLine() ? 'На строке ' . $exception->getLine() . '.' : '';
 
         $general_info = 'Пользователь ' . $user->long_full_name .
-            ' с id ' . $user->id . ' не прошёл валидацию на стороне сервера.'.PHP_EOL.
-            'URL: ' . request()->fullUrl() . '. Метод: ' . request()->method() . '.' .PHP_EOL;
+            ' с id ' . $user->id . ' не прошёл валидацию на стороне сервера.' . PHP_EOL .
+            'URL: ' . request()->fullUrl() . '. Метод: ' . request()->method() . '.' . PHP_EOL;
 
         $data = '';
         foreach (request()->all() as $name => $value) {
@@ -116,7 +117,7 @@ class NotificationService
             }
         }
 
-        $dataInfo = ($data != '') ? ('Переданные данные: '. PHP_EOL . $data) : '';
+        $dataInfo = ($data != '') ? ('Переданные данные: ' . PHP_EOL . $data) : '';
 
         $fileErrors = '';
         foreach (request()->allFiles() as $name => $files) {
@@ -130,22 +131,22 @@ class NotificationService
             $fileErrors .= ']';
         }
 
-        $filesInfo = ($fileErrors != '') ? ('Переданные файлы: '. PHP_EOL . $fileErrors) : '';
+        $filesInfo = ($fileErrors != '') ? ('Переданные файлы: ' . PHP_EOL . $fileErrors) : '';
 
         if ($errorsBag) {
             $errors = '';
             $fails = $errorsBag;
             foreach ($fails as $name => $fail) {
-                $errors .= $name . ' => ' . implode($fail).PHP_EOL;
+                $errors .= $name . ' => ' . implode($fail) . PHP_EOL;
             }
         } else {
             $errors = 'Отсутствуют';
         }
 
-        $error_bag = 'Ошибки валидации: '.PHP_EOL. $errors;
+        $error_bag = 'Ошибки валидации: ' . PHP_EOL . $errors;
 
         $final = $error . PHP_EOL . $exceptionClass . PHP_EOL . $file . PHP_EOL . $line .
-            PHP_EOL . $general_info . $dataInfo . PHP_EOL . $filesInfo. PHP_EOL . PHP_EOL .$error_bag;
+            PHP_EOL . $general_info . $dataInfo . PHP_EOL . $filesInfo . PHP_EOL . PHP_EOL . $error_bag;
 
         return $final;
     }
