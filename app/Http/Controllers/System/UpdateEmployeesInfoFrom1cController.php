@@ -220,6 +220,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             foreach ($newEmployeesList as $newEmployee) {
                 $userCardUrl = route('users::card', $newEmployee->userId);
                 $newEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$newEmployee->fullName}</a> ({$newEmployee->birthday} г.р) — {$newEmployee->postName}, {$newEmployee->companyName}";
+                $newEmployeesNotificationMessageText;
             }
 
             foreach ($notificationRecipients as $recipient) {
@@ -235,7 +236,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             $dismissedEmployeesNotificationMessageText = "<b>" . pluralize(count($dismissedEmployeesList), "уволенный сотрудник") . ":</b>";
             foreach ($dismissedEmployeesList as $dismissedEmployee) {
                 $userCardUrl = route('users::card', $dismissedEmployee->userId);
-                $dismissedEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$dismissedEmployee->fullName}<a> ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
+                $dismissedEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$dismissedEmployee->fullName}</a> ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
             }
             foreach ($notificationRecipients as $recipient) {
                 Notification::create([

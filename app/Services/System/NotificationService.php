@@ -36,17 +36,15 @@ class NotificationService
 
             preg_match_all($urlPattern, $message, $urls);
 
-            if (empty($urls)) {
+            if (empty($urls[0])) {
                 return $message;
             }
 
-            foreach ($urls as $predictedUrl) {
+            foreach ($urls[0] as $predictedUrl) {
                 $explodedMessage = explode($predictedUrl, $message);
                 $encodedUrl = $this->encodeNotificationUrl($notificationId, $predictedUrl);
                 $message = implode($encodedUrl, $explodedMessage);
             }
-
-            dd($message);
 
             return $message;
         } catch (\Throwable $e) {
