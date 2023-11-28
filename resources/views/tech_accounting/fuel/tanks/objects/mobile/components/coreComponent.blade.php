@@ -64,17 +64,6 @@
             dataSource: fuelTanksStore,
             searchEnabled: true,
             
-            // onItemClick(e) {
-            //     setPopupItemVariablesMobile(e.itemData)
-
-            //     entityInfoByID.load()
-
-            //     const popup = $('#popupMobile').dxPopup('instance')
-            //     popup.option('contentTemplate', popupEditingModeContentTemplate)
-            //     popup.option('newEntityMode', false)
-            //     popup.show()
-            // },
-
             itemTemplate(data) {
                 console.log(data);
                 const listElement = $('<div>')
@@ -91,13 +80,11 @@
                         .addClass('list-element-item-text-info-wrapper')
                         .appendTo(listElementRowWrapper)
                     
-                
                 let colorClass = ''
                 if(data.fuel_level > 0)
                     colorClass = 'text-color-green' 
                 if(data.fuel_level < 0)
                     colorClass = 'text-color-red' 
-
 
                 if(data.awaiting_confirmation) {
                     $('<p>')
@@ -112,7 +99,6 @@
                         .text(`Ответственный: ${data.responsible.full_name}`)
                         .appendTo(textInfoWrapper)
                 }
-
                
                 $('<p>')
                     .addClass('list-element-item-info-text ')
@@ -130,7 +116,7 @@
                 const buttonsWrapper = $('<div>').addClass('buttons-wrapper').appendTo(listElementRowWrapper2)
 
                 $('<div>').dxButton({
-                        text: 'Приход'
+                        text: 'Приход',
                 }).appendTo(buttonsWrapper)
 
                 $('<div>').dxButton({
@@ -147,33 +133,4 @@
 
         });
     })
-
-    $('#newEntityButtonMobile')
-        .dxButton({
-            text: "Добавить",
-            icon: "fas fa-plus",
-            elementAttr: {
-                width: '50%',
-            },
-            onClick: (e) => {
-                const popup = $('#popupMobile').dxPopup('instance')
-                popup.option('contentTemplate', popupNewEntityContentTemplate)
-                popup.option('newEntityMode', true)
-                popup.show()
-
-            }
-        })
-
-    const popupLoadPanel = $('#popupLoadPanel').dxLoadPanel({
-        shadingColor: 'rgba(0,0,0,0.4)',
-        position: {
-            of: '#popupContainer'
-        },
-        visible: false,
-        showIndicator: true,
-        showPane: true,
-        shading: true,
-        hideOnOutsideClick: false,
-        wrapperAttr: {},
-    }).dxLoadPanel('instance')
 </script>
