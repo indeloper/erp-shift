@@ -24,6 +24,7 @@ class StandardEntityResourceController extends Controller
     protected $components;
     protected $ignoreDataKeys;
     protected $modulePermissionsGroups;
+    protected $isMobile;
 
     public function __construct()
     {
@@ -37,16 +38,10 @@ class StandardEntityResourceController extends Controller
     public function getPageCore() 
     {
         $bladePath = '1_base.desktop.index';
-
-        if(is_dir($this->baseBladePath.'/mobile'))
-        {
-            if (SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile') 
-            {
-                $bladePath = '1_base.mobile.index';
-            }
-                
-        } 
-
+        if($this->isMobile) {
+            $bladePath = '1_base.mobile.index';
+        }
+        
         return view($bladePath,
         [
             'routeNameFixedPart' => $this->routeNameFixedPart,

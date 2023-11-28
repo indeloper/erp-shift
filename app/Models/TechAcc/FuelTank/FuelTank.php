@@ -2,6 +2,7 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
+use App\Models\Company\Company;
 use App\Traits\Defectable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\Logable;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\ProjectObject;
+use App\Models\User;
 
 class FuelTank extends Model
 {
@@ -42,6 +44,16 @@ class FuelTank extends Model
     public function object()
     {
         return $this->belongsTo(ProjectObject::class);
+    }
+
+    public function responsible()
+    {
+        return $this->belongsTo(User::class, 'responsible_id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     public function getNameAttribute()
