@@ -11,12 +11,6 @@
             dragOutsideBoundary: false,
             enableBodyScroll: false,
 
-            onShowing(e) {
-                if (e.component.option('newEntityMode')) {
-                    $('#menuButtons').remove()
-                }
-            },
-
             onHiding() {
                 $('.dx-toolbar-center .dx-item-content').html('')
                 $('#popupContainer').html('')
@@ -66,20 +60,14 @@
             ]
         }).dxPopup('instance');
 
-
+console.log(123123);
         $('#entitiesListMobile').dxList({
             dataSource: entitiesDataSourceListMobile,
             searchEnabled: true,
-            // searchExpr: ['name', ],
-            // grouped: true,
-            // collapsibleGroups: true,
-            // groupTemplate(data) {
-            //     return $(`<div>Объект: ${data.key}</div>`);
+            
+            // onGroupRendered(e) {
+            //     e.component.collapseGroup(e.groupIndex)
             // },
-
-            onGroupRendered(e) {
-                e.component.collapseGroup(e.groupIndex)
-            },
 
             onItemClick(e) {
                 setPopupItemVariablesMobile(e.itemData)
@@ -118,8 +106,8 @@
             }
         })
 
-    $('#filterTagBox').dxTagBox({
-        dataSource: [],
+    $('#filterElementMobile1').dxTagBox({
+        dataSource: ['aaa', 'bbb'],
         valueExpr: 'id',
         displayExpr: 'name',
         maxDisplayedTags: 1,

@@ -16,6 +16,7 @@ use App\Models\TechAcc\FuelTank\FuelTankMovement;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
+use App\Services\SystemService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +28,14 @@ class FuelTankController extends StandardEntityResourceController
         $this->routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
         $this->sectionTitle = 'Топливные емкости';
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
-        $this->componentsPath = $this->baseBladePath.'/desktop/components';
+        
+        $this->componentsPath = 
+            is_dir($this->baseBladePath.'/mobile') 
+            && SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile' 
+            ? 
+            $this->baseBladePath.'/mobile/components' 
+            :  $this->baseBladePath.'/desktop/components';
+
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
         $this->modulePermissionsGroups = [17];
     }

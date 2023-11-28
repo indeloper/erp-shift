@@ -7,6 +7,7 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
+use App\Services\SystemService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +36,18 @@ class StandardEntityResourceController extends Controller
     
     public function getPageCore() 
     {
-        return view('1_base.desktop.index',
+        $bladePath = '1_base.desktop.index';
+
+        if(is_dir($this->baseBladePath.'/mobile'))
+        {
+            if (SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile') 
+            {
+                $bladePath = '1_base.mobile.index';
+            }
+                
+        } 
+
+        return view($bladePath,
         [
             'routeNameFixedPart' => $this->routeNameFixedPart,
             'sectionTitle' => $this->sectionTitle, 

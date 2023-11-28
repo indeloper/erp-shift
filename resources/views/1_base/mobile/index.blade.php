@@ -11,9 +11,18 @@
 
 @section('content')
 
-<div id="dataGridAncor"></div>
-<div id="mainPopup"></div>
-<div id="externalPopup"></div>
+    <div class="new-entity-button-wrapper">
+        <div id="newEntityButtonMobile"></div>
+    </div>
+
+    <div id="filterElementMobile1" class="filter-element-mobile"></div>
+    <div id="filterElementMobile2" class="filter-element-mobile"></div>
+    <div id="filterElementMobile3" class="filter-element-mobile"></div>
+
+    <div id="entitiesListMobile"></div>
+
+    <div id="popupMobile"></div>
+    <div id="popupLoadPanelMobile"></div>
 
 @endsection
 
