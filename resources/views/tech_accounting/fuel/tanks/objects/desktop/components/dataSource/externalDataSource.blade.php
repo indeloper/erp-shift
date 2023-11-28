@@ -148,9 +148,10 @@
         if (!loadOptions.filter) {
             loadOptions.filter = []
         }
+
         loadOptions.filter.push(['fuel_tank_id', '=', editingRowId])
         loadOptions.filter.push("and")
-        loadOptions.filter.push(["fuel_tank_flow_type_id", "=", fuelFlowTypesStore.__rawData.find(el => el.slug === fuelFlowType).id])
+        loadOptions.filter.push(["fuel_tank_flow_type_id", "=", fuelFlowTypesStore?.__rawData?.find(el => el.slug === fuelFlowType).id])
 
         return loadOptions
     }

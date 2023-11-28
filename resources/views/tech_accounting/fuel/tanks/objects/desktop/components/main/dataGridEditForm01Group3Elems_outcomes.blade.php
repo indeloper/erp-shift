@@ -3,6 +3,7 @@
         tabTemplate(data, index, element) {
             return '<div class="tab-template-header-wrapper"><div class="fa fa-arrow-down tab-template-header-icon-elem text-color-red"></div><div>Списания</div></div>'
         },
+        visible: userPermissions.fuel_tank_flows_access,
         onClick() {
             choosedFormTab = 'fuelOutcomes'
         },

@@ -334,12 +334,7 @@ class StandardEntityResourceController extends Controller
     public function getUserPermissions()
     {
         $permissionsGroups = $this->modulePermissionsGroups ?? null;
-        $permissionsArray = [];
-
-        if(empty($permissionsGroups))
-        return  $permissionsArray;
-
-        $permissions = Permission::whereIn("category", $permissionsGroups)->get();
+        $permissions = empty($permissionsGroups) ? Permission::all() : Permission::whereIn("category", $permissionsGroups)->get();
 
         foreach ($permissions as $permission){
             $permissionsArray[$permission->codename] = User::find(Auth::user()->id)->can($permission->codename);
