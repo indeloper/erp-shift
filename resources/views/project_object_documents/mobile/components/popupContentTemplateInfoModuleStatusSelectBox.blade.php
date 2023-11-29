@@ -1,8 +1,6 @@
 <script>
     const renderStatusSelectBox = (statusAndOptionsWrapper) => {
-
         const statusSelectWrapper = $("<div>").attr("id", "statusSelect").appendTo(statusAndOptionsWrapper)
-
         const statusLoadIndicatorWrapper = $('<div>')
             .attr('id', 'statusLoadIndicatorWrapper')
             .css({
@@ -27,7 +25,6 @@
                     return true;
 
                 let currentStatus = documentStatusesStore.__rawData.filter(el => el.id === editingRowStatusId)[0];
-
                 return currentStatus?.project_object_documents_status_type.slug === 'work_with_document_is_finished' && !permissions.can_setup_final_project_object_document_status
             }
 
@@ -37,6 +34,7 @@
                 displayExpr: "name",
                 value: editingRowStatusId,
                 disabled: isStatusSelectDisabled(),
+                searchEnabled: true,
                 itemTemplate(data) {
                     return $(`
                             <div style="display:flex; align-items:center">
@@ -63,11 +61,11 @@
                     container.append(result);
                 },
 
-                onValueChanged: function(e) {
+                onValueChanged: function (e) {
                     resetStatusOptionsVars()
                     optionsByTypeAndStatusStore.clearRawDataCache();
                     editingRowNewStatusId = e.value;
-                    
+
                     renderStatusOptions();
 
                     let allStatuses = documentStatusesStore.__rawData;
@@ -81,9 +79,6 @@
                     message: 'Укажите значение',
                 }]
             }).appendTo(statusSelectWrapper)
-
-
         })
-
     }
 </script>

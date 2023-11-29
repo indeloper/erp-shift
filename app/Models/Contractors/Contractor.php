@@ -13,12 +13,14 @@ class Contractor extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable, SmartSearchable;
 
-    protected $fillable = [
-        'full_name', 'short_name', 'inn', 'kpp',
-        'ogrn', 'legal_address', 'physical_adress',
-        'general_manager', 'phone_number', 'email',
-        'main_type', 'in_archive', 'notify', 'user_id'
-    ];
+    protected $guarded = ['id'];
+
+    // protected $fillable = [
+    //     'full_name', 'short_name', 'inn', 'kpp',
+    //     'ogrn', 'legal_address', 'physical_adress',
+    //     'general_manager', 'phone_number', 'email',
+    //     'main_type', 'in_archive', 'notify', 'user_id'
+    // ];
 
     protected $appends = ['types'];
 
@@ -28,10 +30,13 @@ class Contractor extends Model
         '2' => 'Было вторичное уведомление (начальнику)',
     ];
 
+    // Создана табл contractor_types, пользоваться ей
     const CONTRACTOR_TYPES = [
         1 => 'Заказчик',
         2 => 'Подрядчик',
-        3 => 'Поставщик',
+        // 3 => 'Поставщик',
+        3 => 'Поставщик материалов',
+        4 => 'Поставщик топлива',
     ];
 
     public $contractor_type = [
@@ -40,7 +45,8 @@ class Contractor extends Model
         3 => 'Субподряд',
         4 => 'Услуги',
         5 => 'Оформление проектов',
-        6 => 'Аренда техники'
+        6 => 'Аренда техники',
+        7 => 'Поставка топлива'
     ];
 
     // indexes from CONTRACTOR_TYPES
@@ -77,7 +83,8 @@ class Contractor extends Model
         if ($this->additional_types->count()) {
             $types = $this->type_name;
             foreach ($this->additional_types as $type) {
-                $typeText = self::CONTRACTOR_TYPES[$type->additional_type];
+                // $typeText = self::CONTRACTOR_TYPES[$type->additional_type];
+                $typeText = ContractorType::find($type->additional_type)->name;
                 $types .= ", {$typeText}";
             }
             return $types;
@@ -88,7 +95,8 @@ class Contractor extends Model
 
     public function getTypeNameAttribute()
     {
-        return self::CONTRACTOR_TYPES[$this->main_type] ?? 'Не указан';
+        // return self::CONTRACTOR_TYPES[$this->main_type] ?? 'Не указан';
+        return ContractorType::find($this->main_type)->name ?? 'Не указан';
     }
 
     public function file()

@@ -43,7 +43,7 @@
                                     {{-- I think we might have some method for video modals --}}
                                 </template>
                                 <template v-else>
-                                    <p class="p-light">Прикреплённые видео отсутствуют</p>
+                                    <p class="p-light">Прикрепленные видео отсутствуют</p>
                                 </template>
                             </div>
                             <h6 class="decor-h6-modal mt-40">Фото</h6>
@@ -61,7 +61,7 @@
                                     </div>
                                 </template>
                                 <template v-else>
-                                    <p class="p-light">Прикреплённые фото отсутствуют</p>
+                                    <p class="p-light">Прикрепленные фото отсутствуют</p>
                                 </template>
                             </div>
                         </div>
@@ -205,11 +205,11 @@
                             </div>
                         </div>
                         <template v-if="defect.defectable.tank_number">
-                            <h6 class="decor-h6-modal mt-30 mb-20">Информация о топливной ёмкости</h6>
+                            <h6 class="decor-h6-modal mt-30 mb-20">Информация о топливной емкости</h6>
                             <div class="dec-section">
                                 <div class="sidebar-info__text-unit">
                                     <span class="sidebar-info__head-title">
-                                        Номер топливной ёмкости
+                                        Номер топливной емкости
                                     </span>
                                     <span class="sidebar-info__body-title">
                                         @{{ defect.defectable.tank_number }}

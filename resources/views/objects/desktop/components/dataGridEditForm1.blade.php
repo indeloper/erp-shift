@@ -1,15 +1,16 @@
 <script>
     const dataGridEditForm = {
+        elementAttr: {
+            id: "objectDataGridEditForm"
+        },
         onInitialized(e) {
             setLoadedObjectInfo();
         },
-
         onContentReady() {
-            if(!permissions.objects_edit && editingRowId) {
+            if (!permissions.objects_edit && editingRowId) {
                 setReadonlyFormElemsProperties(true)
             }
         },
-        
         colCount: 1,
         items: [
             {
@@ -29,8 +30,6 @@
                 caption: 'Контрагенты',
                 items: dataGridEditForm01Group3Elems
             },
-
         ],
     }
-
 </script>

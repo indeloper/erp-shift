@@ -10,19 +10,22 @@ class ContractorAdditionalTypes extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = [
-        'contractor_id',
-        'additional_type',
-        'user_id'
-    ];
+    protected $guarded = ['id'];
+
+    // protected $fillable = [
+    //     'contractor_id',
+    //     'additional_type',
+    //     'user_id'
+    // ];
 
     protected $appends = ['type_name'];
 
-    const CONTRACTOR_TYPES = Contractor::CONTRACTOR_TYPES;
+    // const CONTRACTOR_TYPES = Contractor::CONTRACTOR_TYPES;
 
     public function getTypeNameAttribute()
     {
-        return self::CONTRACTOR_TYPES[$this->main_type] ?? 'Не указан';
+        // return self::CONTRACTOR_TYPES[$this->main_type] ?? 'Не указан';
+        return ContractorType::find($this->main_type)->name ?? 'Не указан';
     }
 
     /**

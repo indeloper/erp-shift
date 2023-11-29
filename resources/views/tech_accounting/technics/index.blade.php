@@ -28,7 +28,7 @@
                                 <a href="{{ route('building::tech_acc::technic_category.create') }}" class="btn btn-sm btn-primary btn-round" style="margin-right: 10px">Создать категорию</a>
                             @endcan
                             @can('tech_acc_tech_categories_trashed')
-                                <a href="{{ route('building::tech_acc::technic_category.display_trashed') }}" class="float-right btn btn-outline btn-sm">Просмотр удалённых записей</a>
+                                <a href="{{ route('building::tech_acc::technic_category.display_trashed') }}" class="float-right btn btn-outline btn-sm">Просмотр удаленных записей</a>
                             @endcan
                         </div>
                     </div>

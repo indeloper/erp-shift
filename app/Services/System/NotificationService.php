@@ -175,4 +175,12 @@ class NotificationService
         return $text;
     }
 
+    public function setNotificationHookLink($text)
+    {
+        $hookTypeAndId = explode('notificationHook_', explode('_endNotificationHook', $text)[0])[1];
+        $notificationHookLink = asset('/notifications').'?notificationHook='.$hookTypeAndId;
+        $text = str_replace('notificationHook_'.$hookTypeAndId.'_endNotificationHook', '', $text);
+        return $text.' '.$notificationHookLink;
+    }
+
 }

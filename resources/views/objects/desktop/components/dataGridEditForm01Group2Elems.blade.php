@@ -1,13 +1,13 @@
 <script>
     // Форма. Элементы группы Производство работ и документооборот
     const dataGridEditForm01Group2Elems = [{
-            dataField: "material_accounting_type",
-            colSpan: 2
-            // validationRules: [{
-            //     type: 'required',
-            //     message: 'Укажите значение',
-            // }],
-        },
+        dataField: "material_accounting_type",
+        colSpan: 2
+        // validationRules: [{
+        //     type: 'required',
+        //     message: 'Укажите значение',
+        // }],
+    },
         {
             editorType: 'dxCheckBox',
             editorOptions: {

@@ -1,8 +1,6 @@
 <script>
     // Форма. Элементы группы Объект
     const dataGridEditForm01Group1Elems = [
-
-
         {
             dataField: "name",
             colSpan: 2,
@@ -26,8 +24,9 @@
                         options: {
                             icon: 'more',
                             type: 'default',
-                            onClick: () => {
-                                showShortNameConfiguratorPopup();
+                            onClick: (e) => {
+                                const contractors = $('#objectDataGridEditForm').dxForm('instance').option('formData').contractors;
+                                showShortNameConfiguratorPopup(contractors);
                             }
                         },
                     },
@@ -116,7 +115,7 @@
                         .dxTextBox({
                             value: () => {
                                 const bitrixId = $('#bitrixIdFormField').dxSelectBox('instance').option('value')
-                                if(bitrixId) {
+                                if (bitrixId) {
                                     return getBitrixProjectFormDisplayValue(bitrixId)
                                 }
                                 return 'Выбрать...'

@@ -1,22 +1,22 @@
 <style>
-/* ОБЩЕЕ  */
+    /* ОБЩЕЕ  */
 
     /* Элементы файла index */
-    #container{
+    #container {
         background: white;
         padding: 5px;
         padding: 20px;
     }
 
-    #headerRow, #headerToolbarWrapper{
+    #headerRow, #headerToolbarWrapper {
         display: flex;
     }
 
-    #headerRow{
+    #headerRow {
         justify-content: space-between;
     }
 
-    #headerToolbarWrapper{
+    #headerToolbarWrapper {
         width: 100%;
         justify-content: end;
     }
@@ -47,7 +47,7 @@
 
     /* Конец Элементы файла index */
 
-/* КОНЕЦ ОБЩЕЕ */
+    /* КОНЕЦ ОБЩЕЕ */
 
     /* reset bitrix id */
     #clearBitrixProjectsOpenPopupButton.dx-button-mode-text.dx-button-default .dx-icon {

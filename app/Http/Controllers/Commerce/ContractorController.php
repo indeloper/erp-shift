@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Commerce;
 
 use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
-use App\Models\Contractors\{ContractorContactPhone, ContractorPhone, ContractorContact, Contractor, BankDetail};
+use App\Models\Contractors\{ContractorContactPhone, ContractorPhone, ContractorContact, Contractor, BankDetail, ContractorType};
 use App\Models\Group;
 use App\Models\Notification;
 use App\Models\WorkVolume\WorkVolume;
@@ -23,6 +23,7 @@ use App\Models\TaskFile;
 use App\Models\TaskRedirect;
 use App\Models\User;
 use App\Models\Contract\Contract;
+use App\Models\Contractors\CotractorType;
 
 use App\Http\Requests\ContractorRequests\ContractorStoreRequest;
 use App\Http\Requests\ContractorRequests\ContractorUpdateRequest;
@@ -62,8 +63,14 @@ class ContractorController extends Controller
 
     public function create()
     {
-        $contractorTypes = Contractor::CONTRACTOR_TYPES;
-
+        // $contractorTypes = Contractor::CONTRACTOR_TYPES;
+        // $contractorTypes = ContractorType::pluck('name')->toArray();
+        
+        $contractorTypes = [];
+        foreach(ContractorType::all() as $contractorType) {
+            $contractorTypes[$contractorType->id] = $contractorType->name;
+        }
+            
         return view('contractors.create', compact('contractorTypes'));
     }
 
@@ -266,8 +273,12 @@ class ContractorController extends Controller
     public function edit($id)
     {
         $contractor = Contractor::findOrFail($id);
-        $contractorTypes = Contractor::CONTRACTOR_TYPES;
-
+        // $contractorTypes = Contractor::CONTRACTOR_TYPES;
+        $contractorTypes = [];
+        foreach(ContractorType::all() as $contractorType) {
+            $contractorTypes[$contractorType->id] = $contractorType->name;
+        }
+    
         if($contractor->in_archive) {
             abort(403);
         }
