@@ -1,64 +1,64 @@
 <script>
     $(() => {
-        const popupMobile = $('#popupMobile').dxPopup({
-            fullScreen: true,
-            visible: false,
-            dragEnabled: false,
-            hideOnOutsideClick: false,
-            showCloseButton: false,
-            dragAndResizeArea: false,
-            dragEnabled: false,
-            dragOutsideBoundary: false,
-            enableBodyScroll: false,
+        // const popupMobile = $('#popupMobile').dxPopup({
+        //     fullScreen: true,
+        //     visible: false,
+        //     dragEnabled: false,
+        //     hideOnOutsideClick: false,
+        //     showCloseButton: false,
+        //     dragAndResizeArea: false,
+        //     dragEnabled: false,
+        //     dragOutsideBoundary: false,
+        //     enableBodyScroll: false,
 
-            onHiding() {
-                $('.dx-toolbar-center .dx-item-content').html('')
-                $('#popupContainer').html('')
-                resetVars()
-                resetStores()
-            },
+        //     onHiding() {
+        //         $('.dx-toolbar-center .dx-item-content').html('')
+        //         $('#popupContainer').html('')
+        //         resetVars()
+        //         resetStores()
+        //     },
 
-            toolbarItems: [{
-                location: "before",
-                widget: 'dxButton',
-                options: {
-                    icon: 'back',
-                    stylingMode: 'text',
-                    elementAttr: {
-                        style: 'padding-top:4px'
-                    }
-                },
-                onClick(e) {
-                    popupMobile.hide()
-                }
+        //     toolbarItems: [{
+        //         location: "before",
+        //         widget: 'dxButton',
+        //         options: {
+        //             icon: 'back',
+        //             stylingMode: 'text',
+        //             elementAttr: {
+        //                 style: 'padding-top:4px'
+        //             }
+        //         },
+        //         onClick(e) {
+        //             popupMobile.hide()
+        //         }
 
-            },
-                {
-                    location: "after",
-                    widget: 'dxButton',
-                    validationGroup: "entityValidationGroup",
-                    options: {
-                        template: '<div class="text-color-blue">Сохранить</div>',
-                        stylingMode: 'text',
-                        elementAttr: {
-                            'id': 'popupSaveButton'
-                        }
-                    },
-                    onClick(e) {
-                        if ($('#popupMobile').dxPopup('instance').option('newEntityMode')) {
-                            if (DevExpress.validationEngine.validateGroup("entityValidationGroup").isValid) {
-                                submitMobileDocumentForm()
-                            }
-                        } else {
-                            submitMobileDocumentForm()
-                        }
+        //     },
+        //         {
+        //             location: "after",
+        //             widget: 'dxButton',
+        //             validationGroup: "entityValidationGroup",
+        //             options: {
+        //                 template: '<div class="text-color-blue">Сохранить</div>',
+        //                 stylingMode: 'text',
+        //                 elementAttr: {
+        //                     'id': 'popupSaveButton'
+        //                 }
+        //             },
+        //             onClick(e) {
+        //                 if ($('#popupMobile').dxPopup('instance').option('newEntityMode')) {
+        //                     if (DevExpress.validationEngine.validateGroup("entityValidationGroup").isValid) {
+        //                         submitMobileDocumentForm()
+        //                     }
+        //                 } else {
+        //                     submitMobileDocumentForm()
+        //                 }
 
 
-                    }
+        //             }
 
-                },
-            ]
-        }).dxPopup('instance');
+        //         },
+        //     ]
+        // }).dxPopup('instance');
 
         $('#entitiesListMobile').dxList({
             dataSource: fuelTanksStore,
@@ -117,6 +117,11 @@
 
                 $('<div>').dxButton({
                         text: 'Приход',
+                        onClick(e) {
+                            editingRowId = data.id;
+                            shownMobileFormType = 'increaseFuelForm';
+                            showIncreaseFuelPopup();
+                        }
                 }).appendTo(buttonsWrapper)
 
                 $('<div>').dxButton({
@@ -124,7 +129,12 @@
                 }).appendTo(buttonsWrapper)
 
                 $('<div>').dxButton({
-                        text: 'Расход'
+                        text: 'Расход',
+                        onClick(e) {
+                            editingRowId = data.id;
+                            shownMobileFormType = 'decreaseFuelForm';
+                            showDecreaseFuelPopup();
+                        }
                 }).appendTo(buttonsWrapper)
 
                 
