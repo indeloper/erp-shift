@@ -116,7 +116,11 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
 
 Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], function () {
     
-    Route::group(['prefix' => 'tanks', 'as' => 'tanks::', 'middleware' => 'can:fuel_tanks_access'], function () {
+    Route::group([
+        'prefix' => 'tanks', 
+        'as' => 'tanks::', 
+        // 'middleware' => 'can:fuel_tanks_access'
+    ], function () {
         Route::get('validateTankNumberUnique', 'FuelTankController@validateTankNumberUnique')->name('validateTankNumberUnique');
         Route::get('getProjectObjects', 'FuelTankController@getProjectObjects')->name('getProjectObjects');
         Route::get('getFuelTanksResponsibles', 'FuelTankController@getFuelTanksResponsibles')->name('getFuelTanksResponsibles');
@@ -130,7 +134,11 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::apiResource('resource', 'FuelTankController');
     });
 
-    Route::group(['prefix' => 'fuelFlow', 'as' => 'fuelFlow::', 'middleware' => 'can:fuel_tank_flows_access'], function () {
+    Route::group([
+        'prefix' => 'fuelFlow', 
+        'as' => 'fuelFlow::', 
+        // 'middleware' => 'can:fuel_tank_flows_access'
+    ], function () {
         Route::get('getFuelResponsibles', 'FuelTankFlowController@getFuelResponsibles')->name('getFuelResponsibles');
         Route::get('getFuelTanks', 'FuelTankFlowController@getFuelTanks')->name('getFuelTanks');
         Route::get('getFuelContractors', 'FuelTankFlowController@getFuelContractors')->name('getFuelContractors');

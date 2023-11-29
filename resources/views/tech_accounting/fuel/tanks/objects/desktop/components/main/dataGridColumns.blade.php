@@ -35,7 +35,6 @@
             }
 
         },
-
         {
             caption: "Номер емкости",
             dataField: "tank_number",
