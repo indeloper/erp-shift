@@ -768,7 +768,7 @@ class ProjectObjectDocumentsController extends Controller
         $documentable_id = $request->input('id');
         $documentable_type = 'App\Models\ProjectObjectDocuments\ProjectObjectDocument';
 
-        [$fileEntry, $fileName] 
+        [$fileEntry, $fileName]
             = (new FilesUploadService)
             ->uploadFile($uploadedFile, $documentable_id, $documentable_type, $storage_name, $storage_path);
 
@@ -883,6 +883,18 @@ class ProjectObjectDocumentsController extends Controller
             ])
             ->addSelect(DB::raw("DATEDIFF(CURRENT_DATE(), project_object_documents.created_at) as days_from_doc_created"))
             ->groupBy(['project_object_documents.id'])
+            ->when($request->reportType === 'groupedByPM', function ($query) {
+                return $query
+                    ->orderBy('tongue_project_manager_full_names')
+                    ->orderBy('tongue_pto_engineer_full_names')
+                    ->orderBy('tongue_foreman_full_names');
+            })
+            ->when($request->reportType === 'groupedByPTO', function ($query) {
+                return $query
+                    ->orderBy('tongue_pto_engineer_full_names')
+                    ->orderBy('tongue_project_manager_full_names')
+                    ->orderBy('tongue_foreman_full_names');
+            })
             ->orderBy('project_objects.short_name')
             ->orderBy('project_object_documents.created_at')
             ->orderBy('sortOrder')
@@ -891,7 +903,7 @@ class ProjectObjectDocumentsController extends Controller
                 'type',
                 'status.projectObjectDocumentsStatusType',
             ])->get();
-            
+
 
         if ($request->reportType === 'ungrouped') {
             $projectObjectDocuments = $projectObjectDocuments->toArray();
