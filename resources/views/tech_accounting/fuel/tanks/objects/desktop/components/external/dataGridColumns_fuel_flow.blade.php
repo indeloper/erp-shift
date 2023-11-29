@@ -85,8 +85,48 @@
         {
             type: "buttons",
             buttons: [
-                'edit',
-                'delete'
+                {
+                    icon: 'fas fa-list-alt dx-link-icon',
+                    onClick(e) {
+
+                        externalEditingRowId = e.row.data.id;
+
+                        let dataGrid = {}
+
+                        if (choosedFormTab === 'fuelIncomes')
+                                dataGridItems = $('#mainDataGrid_fuel_flow_incomes')
+
+                        if (choosedFormTab === 'fuelOutcomes')
+                            dataGridItems = $('#mainDataGrid_fuel_flow_outcomes')
+
+                        if (choosedFormTab === 'fuelAdjustments')
+                            dataGridItems = $('#mainDataGrid_fuel_flow_adjusments')
+
+                        let choosedItem = dataGridItems.dxDataGrid('instance').getDataSource().items().find(el => el.id === e.row.data.id)
+                        let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
+                        
+                        
+
+                        if (fuelFlowType === 'outcome') {
+                            if(choosedItem.our_technic_id) {
+                                choosedItem.fuelConsumerType = 'our_technik_radio_elem'
+                            } else {
+                                choosedItem.fuelConsumerType = 'third_party_technik_radio_elem'
+                            }
+                            
+                            showDecreaseFuelPopup(choosedItem)
+                        }
+                            
+                        if (fuelFlowType === 'income')
+                            showIncreaseFuelPopup(choosedItem)
+
+                        if (fuelFlowType === 'adjustment')
+                            showAdjustmentFuelPopup(choosedItem)
+                    }
+                    
+                },
+                // 'edit',
+                // 'delete'
             ],
 
             headerCellTemplate: (container, options) => {
