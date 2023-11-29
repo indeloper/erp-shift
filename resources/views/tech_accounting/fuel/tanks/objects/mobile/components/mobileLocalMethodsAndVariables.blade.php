@@ -19,8 +19,6 @@
         if(shownMobileFormType === 'movingConfirmationTankForm') {
             submitMovingConfirmationTankForm(formData);
         }
-
-        console.log(formData);
     }
 
     function submitFuelFlowForm(formData) {

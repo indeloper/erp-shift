@@ -49,6 +49,14 @@ class FuelTankController extends StandardEntityResourceController
     {
         $options = json_decode($request['data']);
 
+        $searchValueQuery = '';
+
+        if($this->isMobile && $options->searchValue) {
+            $searchValueQuery = $options->searchValue;
+            unset($options->searchValue);
+            unset($options->searchOperation);
+        }
+
         $userId = Auth::user()->id;
         
         $entities = $this->baseModel
@@ -56,7 +64,6 @@ class FuelTankController extends StandardEntityResourceController
             ->when(!User::find($userId)->hasPermission('watch_any_fuel_tanks'), function($query) use($userId) {
                 return $query->where('responsible_id', $userId);
             })
-            // ->leftJoin('fuel_tank_transfer_hystories', 'fuel_tank_transfer_hystories.fuel_tank_id', '=', 'fuel_tanks.id')
             ->selectRaw(
                 '
                     fuel_tanks.id, 
@@ -78,6 +85,10 @@ class FuelTankController extends StandardEntityResourceController
             )
             ->when($this->isMobile, function($query) {
                 return $query->with('object', 'responsible');
+            })
+            ->when(!empty($searchValueQuery), function($query) use ($searchValueQuery) {
+                $objectIds = ProjectObject::where('short_name', 'LIKE', '%'.$searchValueQuery.'%')->pluck('id')->toArray();
+                return $query->whereIn('object_id', $objectIds);
             })
             ->get();
 

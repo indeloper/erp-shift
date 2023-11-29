@@ -5,7 +5,7 @@
             searchEnabled: true,
             
             itemTemplate(data) {
-                console.log(data);
+
                 const listElement = $('<div>')
 
                 const listElementRowWrapper = 
