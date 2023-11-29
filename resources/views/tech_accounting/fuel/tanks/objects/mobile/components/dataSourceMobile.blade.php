@@ -1,5 +1,5 @@
 <script>
-    const fuelTanksStore = 
+    const entitiesDataSource = 
         new DevExpress.data.DataSource({
             store: new DevExpress.data.CustomStore({
                 key: "id",
@@ -33,7 +33,8 @@
             return $.getJSON(url);
         }
     })
-
+    projectObjectsStore.load()
+    
     const fuelFlowTypesStore = new DevExpress.data.CustomStore({
         key: "id",
         loadMode: "raw",

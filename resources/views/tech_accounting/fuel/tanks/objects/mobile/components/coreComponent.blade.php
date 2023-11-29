@@ -1,67 +1,7 @@
 <script>
     $(() => {
-        // const popupMobile = $('#popupMobile').dxPopup({
-        //     fullScreen: true,
-        //     visible: false,
-        //     dragEnabled: false,
-        //     hideOnOutsideClick: false,
-        //     showCloseButton: false,
-        //     dragAndResizeArea: false,
-        //     dragEnabled: false,
-        //     dragOutsideBoundary: false,
-        //     enableBodyScroll: false,
-
-        //     onHiding() {
-        //         $('.dx-toolbar-center .dx-item-content').html('')
-        //         $('#popupContainer').html('')
-        //         resetVars()
-        //         resetStores()
-        //     },
-
-        //     toolbarItems: [{
-        //         location: "before",
-        //         widget: 'dxButton',
-        //         options: {
-        //             icon: 'back',
-        //             stylingMode: 'text',
-        //             elementAttr: {
-        //                 style: 'padding-top:4px'
-        //             }
-        //         },
-        //         onClick(e) {
-        //             popupMobile.hide()
-        //         }
-
-        //     },
-        //         {
-        //             location: "after",
-        //             widget: 'dxButton',
-        //             validationGroup: "entityValidationGroup",
-        //             options: {
-        //                 template: '<div class="text-color-blue">Сохранить</div>',
-        //                 stylingMode: 'text',
-        //                 elementAttr: {
-        //                     'id': 'popupSaveButton'
-        //                 }
-        //             },
-        //             onClick(e) {
-        //                 if ($('#popupMobile').dxPopup('instance').option('newEntityMode')) {
-        //                     if (DevExpress.validationEngine.validateGroup("entityValidationGroup").isValid) {
-        //                         submitMobileDocumentForm()
-        //                     }
-        //                 } else {
-        //                     submitMobileDocumentForm()
-        //                 }
-
-
-        //             }
-
-        //         },
-        //     ]
-        // }).dxPopup('instance');
-
         $('#entitiesListMobile').dxList({
-            dataSource: fuelTanksStore,
+            dataSource: entitiesDataSource,
             searchEnabled: true,
             
             itemTemplate(data) {
@@ -117,7 +57,7 @@
 
                 $('<div>').dxButton({
                         text: 'Приход',
-                        onClick(e) {
+                        onClick() {
                             editingRowId = data.id;
                             shownMobileFormType = 'increaseFuelForm';
                             showIncreaseFuelPopup();
@@ -125,19 +65,30 @@
                 }).appendTo(buttonsWrapper)
 
                 $('<div>').dxButton({
-                        text: 'Перемещение'
+                        text: 'Перемещение',
+                        onClick() {
+                            editingRowId = data.id;
+
+                            if (data.awaiting_confirmation) {
+                                shownMobileFormType = 'movingConfirmationTankForm';
+                                showMovingConfirmationTankPopup(data);
+                            }
+                            else {
+                                shownMobileFormType = 'movingTankForm';
+                                showMovingTankPopup();
+                            }
+                        } 
                 }).appendTo(buttonsWrapper)
 
                 $('<div>').dxButton({
                         text: 'Расход',
-                        onClick(e) {
+                        onClick() {
                             editingRowId = data.id;
                             shownMobileFormType = 'decreaseFuelForm';
                             showDecreaseFuelPopup();
                         }
                 }).appendTo(buttonsWrapper)
 
-                
                 return listElement;
             },
 

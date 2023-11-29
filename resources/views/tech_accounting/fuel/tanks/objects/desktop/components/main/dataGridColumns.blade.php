@@ -178,9 +178,9 @@
                 {
                     hint: 'Переместить',
                     icon: 'fas fa-exchange-alt',
-                    visible: function (e) {
-                        return Boolean(+e.row.data.responsible_id === +authUserId);
-                    },
+                    // visible: function (e) {
+                    //     return Boolean(+e.row.data.responsible_id === +authUserId);
+                    // },
                     onClick(e) {
                         if (!e.row.data.awaiting_confirmation) {
                             showMovingFuelTankPopup(e.row.data)

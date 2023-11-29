@@ -6,6 +6,11 @@
             contentTemplate: () => {
                 return getIncreaseFuelPopupContentTemplate(formItem)
             },
+            onContentReady(e) {
+                $('#popupSaveButton').dxButton({
+                    template: '<div class="text-color-blue">Сохранить</div>'
+                })
+            }
         })
     }
 
@@ -32,7 +37,7 @@
                     dataField: 'fuel_tank_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksStore,
+                        dataSource: entitiesDataSource,
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
                         value: editingRowId

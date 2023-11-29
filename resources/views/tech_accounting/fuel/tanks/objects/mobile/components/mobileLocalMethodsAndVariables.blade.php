@@ -9,16 +9,32 @@
         const formData = $('#externalForm').dxForm('instance').option('formData')
         
         if(shownMobileFormType === 'increaseFuelForm' || shownMobileFormType === 'decreaseFuelForm') {
-            submitIncreaseFuelForm(formData);
+            submitFuelFlowForm(formData);
+        }
+
+        if(shownMobileFormType === 'movingTankForm') {
+            submitMovingTankForm(formData);
+        }
+
+        if(shownMobileFormType === 'movingConfirmationTankForm') {
+            submitMovingConfirmationTankForm(formData);
         }
 
         console.log(formData);
     }
 
-    function submitIncreaseFuelForm(formData) {
+    function submitFuelFlowForm(formData) {
         if(shownMobileFormType === 'increaseFuelForm') {
             formData.newAttachments = externalNewAttachments;
         }
         externalEntitiesDataSource.store().insert(formData);
+    }
+
+    function submitMovingTankForm(formData) {
+        moveFuelTank(formData, popupMobile)
+    }
+
+    function submitMovingConfirmationTankForm(formData) {
+        confirmMovingFuelTank(editingRowId, popupMobile)
     }
 </script>
