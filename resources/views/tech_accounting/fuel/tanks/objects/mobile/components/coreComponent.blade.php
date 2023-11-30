@@ -47,7 +47,7 @@
 
                 $('<p>')
                     .addClass('list-element-item-info-text ')
-                    .html(`<b>Объект: </b>${data.object.short_name}`)
+                    .html(`<b>Объект: </b>${data.object?.short_name}`)
                     .appendTo(textInfoWrapper)
 
                 const listElementRowWrapper2 = 
@@ -57,6 +57,7 @@
 
                 $('<div>').dxButton({
                         text: 'Приход',
+                        visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
                         onClick() {
                             editingRowId = data.id;
                             shownMobileFormType = 'increaseFuelForm';
@@ -66,6 +67,7 @@
 
                 $('<div>').dxButton({
                         text: 'Перемещение',
+                        visible: Boolean( Boolean("{{App::environment('local')}}") ? true : +data.responsible_id === +authUserId),
                         onClick() {
                             editingRowId = data.id;
 
@@ -82,6 +84,7 @@
 
                 $('<div>').dxButton({
                         text: 'Расход',
+                        visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
                         onClick() {
                             editingRowId = data.id;
                             shownMobileFormType = 'decreaseFuelForm';
