@@ -156,7 +156,7 @@
             },
             cellTemplate(container, options) {
                 let cssTextColor = ''
-                
+
                 if (options.value > 0) {
                     cssTextColor = 'text-color-green'
                 }
@@ -178,6 +178,9 @@
                     hint: 'Переместить',
                     icon: 'fas fa-exchange-alt',
                     visible: function (e) {
+                        if (Boolean("{{App::environment('local')}}")) {
+                            return true;
+                        }
                         return Boolean(+e.row.data.responsible_id === +authUserId);
                     },
                     onClick(e) {
