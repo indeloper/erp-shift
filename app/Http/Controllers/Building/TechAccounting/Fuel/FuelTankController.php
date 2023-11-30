@@ -31,14 +31,14 @@ class FuelTankController extends StandardEntityResourceController
         $this->sectionTitle = 'Топливные емкости';
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
 
-        $this->isMobile = 
-            is_dir($this->baseBladePath.'/mobile') 
-            && SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile'; 
+        $this->isMobile =
+            is_dir($this->baseBladePath.'/mobile')
+            && SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile';
 
-        $this->componentsPath = 
+        $this->componentsPath =
             $this->isMobile
-            ? 
-            $this->baseBladePath.'/mobile/components' 
+            ?
+            $this->baseBladePath.'/mobile/components'
             :  $this->baseBladePath.'/desktop/components';
 
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
@@ -58,7 +58,7 @@ class FuelTankController extends StandardEntityResourceController
         }
 
         $userId = Auth::user()->id;
-        
+
         $entities = $this->baseModel
             ->dxLoadOptions($options)
             ->when(!User::find($userId)->hasPermission('watch_any_fuel_tanks'), function($query) use($userId) {
@@ -66,16 +66,16 @@ class FuelTankController extends StandardEntityResourceController
             })
             ->selectRaw(
                 '
-                    fuel_tanks.id, 
-                    fuel_tanks.explotation_start, 
-                    fuel_tanks.company_id, 
-                    fuel_tanks.tank_number, 
-                    fuel_tanks.object_id, 
-                    fuel_tanks.responsible_id, 
+                    fuel_tanks.id,
+                    fuel_tanks.explotation_start,
+                    fuel_tanks.company_id,
+                    fuel_tanks.tank_number,
+                    fuel_tanks.object_id,
+                    fuel_tanks.responsible_id,
                     fuel_tanks.fuel_level,
                     fuel_tanks.awaiting_confirmation,
                     fuel_tanks.comment_movement_tmp,
-                    (SELECT MAX(`event_date`) from `fuel_tank_flows` where `fuel_tank_flows`.`fuel_tank_id` = `fuel_tanks`.`id`) 
+                    (SELECT MAX(`event_date`) from `fuel_tank_flows` where `fuel_tank_flows`.`fuel_tank_id` = `fuel_tanks`.`id`)
                     as max_event_date,
                     (SELECT `previous_object_id` from `fuel_tank_transfer_hystories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_hystories` where `fuel_tank_transfer_hystories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_hystories`.`fuel_tank_flow_id` is null))
                     as previous_object_id,
@@ -97,7 +97,7 @@ class FuelTankController extends StandardEntityResourceController
         ),
         JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
-    
+
     public function afterStore($tank, $data, $dataToStore)
     {
         // FuelTankMovement::create([
@@ -143,7 +143,7 @@ class FuelTankController extends StandardEntityResourceController
         }
 
         return [
-            'data' => $data, 
+            'data' => $data,
             // 'ignoreDataKeys' => []
         ];
     }
@@ -151,7 +151,8 @@ class FuelTankController extends StandardEntityResourceController
     public function getFuelTanksResponsibles()
     {
         return User::query()->active()
-                ->whereIn('group_id', Group::FOREMEN)
+            ->whereIn('group_id', Group::FOREMEN)
+            ->orWhere('group_id', 43)
                 ->select(['id', 'user_full_name'])
                 ->orderBy('last_name')
                 ->get();
@@ -165,7 +166,7 @@ class FuelTankController extends StandardEntityResourceController
     public function getProjectObjects(Request $request)
     {
         $options = json_decode($request['data']);
-        
+
         $objects = (new ProjectObject)
             ->where('is_participates_in_material_accounting', 1)
             ->whereNotNull('short_name')
@@ -181,13 +182,13 @@ class FuelTankController extends StandardEntityResourceController
 
     public function validateTankNumberUnique(Request $request)
     {
-        
+
         if(!$request->id) {
             return json_encode([
                 'result' => !FuelTank::where(
                     'tank_number', $request->value
                 )->exists()
-            ], 
+            ],
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         } else {
             return json_encode([
@@ -195,7 +196,7 @@ class FuelTankController extends StandardEntityResourceController
                     ['id', '<>', $request->id],
                     ['tank_number', $request->value]
                 ])->exists()
-            ], 
+            ],
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         }
     }
@@ -205,11 +206,11 @@ class FuelTankController extends StandardEntityResourceController
         $data = json_decode($request->data);
         $tank = $this->baseModel::findOrFail($data->id);
 
-        if($tank->object_id == $data->object_id && $tank->responsible_id == $data->responsible_id) 
+        if($tank->object_id == $data->object_id && $tank->responsible_id == $data->responsible_id)
         {
             return json_encode(['message'=>'Отказ. Попытка создать новую запись с текущими параметрами.']);
         }
-        
+
         FuelTankTransferHystory::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $tank->id,
@@ -228,30 +229,30 @@ class FuelTankController extends StandardEntityResourceController
                 'commentable_type' => 'App\Models\TechAcc\FuelTank\FuelTank',
                 'comment' => $data->comment_movement_tmp,
                 'author_id' => Auth::user()->id,
-    
+
             ]);
         }
-        
+
         if((int)$tank->responsible_id !== (int)$data->responsible_id) {
             $needNotification = true;
-            $tank->awaiting_confirmation = true;  
+            $tank->awaiting_confirmation = true;
             $tank->comment_movement_tmp = $data->comment_movement_tmp ?? null;
         } else {
             $tank->comment_movement_tmp = null;
         }
-        
+
         $tank->object_id = $data->object_id;
         $tank->responsible_id = $data->responsible_id;
-        
+
         $tank->save();
 
         if(!empty($needNotification)) {
             $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
-            $notificationText = 
+            $notificationText =
                 'Подтвердите получение топливной емкости № '
                 .$tank->tank_number.' на объекте '.ProjectObject::find($tank->object_id)->short_name
                 .' '.$notificationHook;
-    
+
             Notification::create([
                 'name' => $notificationText,
                 // 'user_id' => $tank->responsible_id,
@@ -303,7 +304,7 @@ class FuelTankController extends StandardEntityResourceController
             $notificationWithoutHook = str_replace($notificationHook, '', $notification->name);
             DB::table('notifications')->where('id', $notification->id)->update(['name' => $notificationWithoutHook]);
             // в этой версии laravel не работает saveQuetly, поэтому пришлось делать через DB, чтобы не отправлялось лишнее сообщение
-        }        
+        }
     }
 
     public function getFuelTankConfirmationFormData(Request $request)
@@ -311,8 +312,8 @@ class FuelTankController extends StandardEntityResourceController
         $fuelTankId = (int)json_decode($request->fuelTankId);
         $tank = $this->baseModel::findOrFail($fuelTankId);
         $responseData = new \stdClass();
-        
-        if(!$tank->awaiting_confirmation) 
+
+        if(!$tank->awaiting_confirmation)
         {
             $responseData->status = 'not need confirmation';
             return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
@@ -324,7 +325,7 @@ class FuelTankController extends StandardEntityResourceController
         $responseData->fuel_level = $tank->fuel_level;
         $responseData->object_name = ProjectObject::find($tank->object_id)->short_name;
         $responseData->responsible_name = User::find($tank->responsible_id)->full_name;
-        
+
         return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

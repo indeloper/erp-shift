@@ -41,7 +41,7 @@
             // form: dataGridEditForm,
             allowUpdating: false,
             allowAdding: false,
-            allowDeleting: true,
+            allowDeleting: false,
             selectTextOnEditStart: false,
             useIcons: true,
         },

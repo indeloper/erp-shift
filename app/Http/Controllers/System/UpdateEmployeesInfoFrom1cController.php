@@ -220,7 +220,6 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             foreach ($newEmployeesList as $newEmployee) {
                 $userCardUrl = route('users::card', $newEmployee->userId);
                 $newEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$newEmployee->fullName}</a> ({$newEmployee->birthday} г.р) — {$newEmployee->postName}, {$newEmployee->companyName}";
-                $newEmployeesNotificationMessageText;
             }
 
             foreach ($notificationRecipients as $recipient) {

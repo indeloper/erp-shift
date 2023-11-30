@@ -5,7 +5,7 @@
             title: "Информация о топливной емкости",
             hideOnOutsideClick: true,
             showCloseButton: true,
-            maxWidth: '40vw',
+            width: '800px',
             height: 'auto',
             onShowing() {
                 setReadonlyFormElemsProperties(!userPermissions.update_fuel_tanks, 'mainDataGrid')
