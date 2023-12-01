@@ -7,6 +7,7 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
+use App\Services\SystemService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,7 @@ class StandardEntityResourceController extends Controller
     protected $components;
     protected $ignoreDataKeys;
     protected $modulePermissionsGroups;
+    protected $isMobile;
 
     public function __construct()
     {
@@ -35,7 +37,12 @@ class StandardEntityResourceController extends Controller
     
     public function getPageCore() 
     {
-        return view('1_base.desktop.index',
+        $bladePath = '1_base.desktop.index';
+        if($this->isMobile) {
+            $bladePath = '1_base.mobile.index';
+        }
+        
+        return view($bladePath,
         [
             'routeNameFixedPart' => $this->routeNameFixedPart,
             'sectionTitle' => $this->sectionTitle, 
@@ -334,12 +341,7 @@ class StandardEntityResourceController extends Controller
     public function getUserPermissions()
     {
         $permissionsGroups = $this->modulePermissionsGroups ?? null;
-        $permissionsArray = [];
-
-        if(empty($permissionsGroups))
-        return  $permissionsArray;
-
-        $permissions = Permission::whereIn("category", $permissionsGroups)->get();
+        $permissions = empty($permissionsGroups) ? Permission::all() : Permission::whereIn("category", $permissionsGroups)->get();
 
         foreach ($permissions as $permission){
             $permissionsArray[$permission->codename] = User::find(Auth::user()->id)->can($permission->codename);
