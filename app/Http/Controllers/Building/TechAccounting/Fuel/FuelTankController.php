@@ -125,8 +125,11 @@ class FuelTankController extends StandardEntityResourceController
             'tank_moving_confirmation' => true
         ]);
 
-        if($tank->object_id != $data['responsible_id'] || $tank->responsible_id != $data['responsible_id']) {
+        if (empty($data['responsible_id'])) {
             $data['awaiting_confirmation'] = false;
+        } else {
+            $data['awaiting_confirmation'] = true;
+            $this->notifyNewTankResponsible($tank);
         }
 
         return [
@@ -234,17 +237,7 @@ class FuelTankController extends StandardEntityResourceController
         $tank->save();
 
         if(!empty($needNotification)) {
-            $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
-            $notificationText =
-                'Подтвердите получение топливной емкости № '
-                .$tank->tank_number.' на объекте '.ProjectObject::find($tank->object_id)->short_name
-                .' '.$notificationHook;
-
-            Notification::create([
-                'name' => $notificationText,
-                'user_id' => App::environment('local') ? Auth::user()->id : $tank->responsible_id,
-                'type' => 0,
-            ]);
+            $this->notifyNewTankResponsible($tank);
         }
 
         return json_encode($tank);
@@ -277,13 +270,16 @@ class FuelTankController extends StandardEntityResourceController
         $tank->comment_movement_tmp = null;
         $tank->save();
 
-        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
+        $userId = App::environment('local') ? Auth::user()->id : $tank->responsible_id;
+        $isLocal = App::environment('local');
+
+        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-' . $tank->id . '_endNotificationHook';
         $notification = Notification::where([
-            ['user_id' => App::environment('local') ? Auth::user()->id : $tank->responsible_id],
+            ['user_id', $userId],
             ['name', 'LIKE', '%' . $notificationHook . '%']
         ])->orderByDesc('id')->first();
 
-        if($notification) {
+        if ($notification) {
             $notificationWithoutHook = str_replace($notificationHook, '', $notification->name);
             DB::table('notifications')->where('id', $notification->id)->update(['name' => $notificationWithoutHook]);
             // в этой версии laravel не работает saveQuetly, поэтому пришлось делать через DB, чтобы не отправлялось лишнее сообщение
@@ -310,5 +306,22 @@ class FuelTankController extends StandardEntityResourceController
         $responseData->responsible_name = User::find($tank->responsible_id)->full_name;
 
         return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function notifyNewTankResponsible($tank)
+    {
+        // if(!empty($needNotification)) {
+        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-' . $tank->id . '_endNotificationHook';
+        $notificationText =
+            'Подтвердите получение топливной емкости № '
+            . $tank->tank_number . ' на объекте ' . ProjectObject::find($tank->object_id)->short_name
+            . ' ' . $notificationHook;
+
+        Notification::create([
+            'name' => $notificationText,
+            'user_id' => App::environment('local') ? Auth::user()->id : $tank->responsible_id,
+            'type' => 0,
+        ]);
+        // }
     }
 }
