@@ -305,7 +305,7 @@ class TaskCommerceController extends Controller
                     $project->status = 8;
                     $project->save();
                 } else if ($com_offer->is_tongue == 0) {
-                    if (Auth::user()->isInGroup(5, 6)/*3*/) {
+                    if (Auth::user()->isInGroup(5, 6, 73)/*3*/) {
                         // sign our CO
                         $com_offer->status = 5;
                         $com_offer->save();
@@ -348,7 +348,6 @@ class TaskCommerceController extends Controller
                             'type' => 34
                         ]);
                     } else {
-                        // find mikhail task and add user comment
                         Task::where('project_id', $project->id)->where('target_id', $com_offer->id)->where('is_solved', 0)->where('id', '!=', $task_id)->update(['description' => $request->final_note ? 'Комментарий от ' . Auth::user()->full_name . ': ' . $request->final_note : '']);
                     }
 
