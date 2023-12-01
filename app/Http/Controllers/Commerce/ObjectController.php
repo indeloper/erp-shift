@@ -18,6 +18,7 @@ use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
 use App\Models\Notification;
+use App\Models\Permission;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
@@ -211,6 +212,16 @@ class ObjectController extends Controller
 
             if ($request->$roleKey) {
                 foreach ($request->$roleKey as $user_id) {
+                    if($roleKey === 'responsibles_managers') {
+                        if(!ObjectResponsibleUser::where([
+                            'object_id' => $id,
+                            'user_id' => $user_id,
+                            'object_responsible_user_role_id' => $roleValue
+                        ])->first()) {
+                            $this->notifyAboutNewObjectProjectManager($objectId = $id, $projectManagerId = $user_id);
+                        }
+                    }
+
                     $newResponsible = ObjectResponsibleUser::firstOrCreate([
                         'object_id' => $id,
                         'user_id' => $user_id,
@@ -452,6 +463,21 @@ class ObjectController extends Controller
         foreach ($notificationRecipients as $userId) {
             Notification::create([
                 'name' => 'Вы добавлены ответственным на объект' . "\n" . $objectName,
+                'user_id' => $userId,
+                'type' => 0,
+            ]);
+        }
+    }
+
+    public function notifyAboutNewObjectProjectManager($objectId, $projectManagerId)
+    {
+        $notificationRecipients = (new Permission)->getUsersIdsByCodename('notify_about_new_object_project_manager');
+        $objectName = ProjectObject::findOrFail($objectId)->short_name;
+        $projectManagerName = User::findOrFail($projectManagerId)->full_name;
+
+        foreach ($notificationRecipients as $userId) {
+            Notification::create([
+                'name' => 'На объект' . "\n" . $objectName . "\n" . 'назначен руководитель проекта ' . "\n" . $projectManagerName,
                 'user_id' => $userId,
                 'type' => 0,
             ]);
