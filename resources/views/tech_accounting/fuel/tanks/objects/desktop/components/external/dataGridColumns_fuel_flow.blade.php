@@ -86,6 +86,10 @@
             type: "buttons",
             buttons: [
                 {
+                    visible(e) {
+                        const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
+                        return dateDiff > 1
+                    },
                     icon: 'fas fa-list-alt dx-link-icon',
                     onClick(e) {
 
@@ -126,7 +130,14 @@
                     
                 },
                 // 'edit',
-                // 'delete'
+                {
+                    name: 'delete',
+                    visible(e) {
+                        console.log(e);
+                        const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
+                        return dateDiff <= 1
+                    }
+                }
             ],
 
             headerCellTemplate: (container, options) => {

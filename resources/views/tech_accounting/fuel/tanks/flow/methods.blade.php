@@ -112,5 +112,11 @@
         return availableFuelTanks;
     }
 
+    function getDatesDaysDiff(date1, date2) {
+        date1 = new Date(date1);
+        date2 = new Date(date2);
+        return Math.floor((date2 - date1) / (1000*60*60*24))
+    }
+
 
 </script>

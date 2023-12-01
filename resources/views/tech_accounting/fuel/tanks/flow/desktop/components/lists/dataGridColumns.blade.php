@@ -196,6 +196,10 @@
             type: "buttons",
             buttons: [
                 {
+                    visible(e) {
+                        const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
+                        return dateDiff > 1
+                    },
                     icon: 'fas fa-list-alt dx-link-icon',
                     onClick(e) {
 
@@ -218,10 +222,17 @@
 
                         if (fuelFlowType === 'adjustment')
                             showAdjustmentFuelPopup(choosedItem)
-                    }
+                    }, 
                 },
                 // 'edit',
-                // 'delete'
+                {
+                    name: 'delete',
+                    visible(e) {
+                        const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
+                        return dateDiff <= 1
+                    }
+                }
+                
             ],
 
             headerCellTemplate: (container, options) => {
