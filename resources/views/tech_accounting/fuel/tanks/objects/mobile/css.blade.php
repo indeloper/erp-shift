@@ -23,7 +23,7 @@
     .list-element-item-info-header {
         font-weight: bold;
     }
-    
+
     .list-element-item-info-text {
         white-space: normal;
         margin-bottom: 0;
@@ -32,8 +32,10 @@
     .buttons-wrapper {
         margin-top: 20px;
         display: flex;
-        width: 100%;
         justify-content: space-between;
+        margin-left: -10px;
+        margin-right: -10px;
+        width: -webkit-fill-available;
     }
 
 </style>
