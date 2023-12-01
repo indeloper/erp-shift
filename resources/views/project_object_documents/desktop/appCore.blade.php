@@ -58,7 +58,7 @@
                 }
                 dataSourceList.reload();
             },
-            placeholder: 'Выбрать...',
+            placeholder: 'Выбрать отвественного',
         })
 
         $('#objectsFilterSelect').dxTagBox({
@@ -79,7 +79,7 @@
                 }
                 dataSourceList.reload();
             },
-            placeholder: 'Выбрать...',
+            placeholder: 'Выбрать объект',
         })
 
         $('#groupingAutoExpandAllTrue').dxButton({
