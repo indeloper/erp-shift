@@ -16,6 +16,7 @@ use App\Models\TechAcc\FuelTank\FuelTankMovement;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -228,9 +229,7 @@ class FuelTankController extends StandardEntityResourceController
 
             Notification::create([
                 'name' => $notificationText,
-                // 'user_id' => $tank->responsible_id,
-                'user_id' => 538,
-                // 'user_id' => 277,
+                'user_id' => App::environment('local') ? Auth::user()->id : $tank->responsible_id,
                 'type' => 0,
             ]);
         }
@@ -267,11 +266,9 @@ class FuelTankController extends StandardEntityResourceController
 
         $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
         $notification = Notification::where([
-                // ['user_id', $tank->responsible_id],
-                ['user_id', 538],
-                // ['user_id', 277],
-                ['name', 'LIKE', '%'.$notificationHook.'%' ]
-            ])->orderByDesc('id')->first();
+            ['user_id', App::environment('local') ? Auth::user()->id : $tank->responsible_id],
+            ['name', 'LIKE', '%' . $notificationHook . '%']
+        ])->orderByDesc('id')->first();
 
         if($notification) {
             $notificationWithoutHook = str_replace($notificationHook, '', $notification->name);
