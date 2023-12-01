@@ -156,7 +156,7 @@
             },
             cellTemplate(container, options) {
                 let cssTextColor = ''
-                
+
                 if (options.value > 0) {
                     cssTextColor = 'text-color-green'
                 }
@@ -177,9 +177,12 @@
                 {
                     hint: 'Переместить',
                     icon: 'fas fa-exchange-alt',
-                    // visible: function (e) {
-                    //     return Boolean(+e.row.data.responsible_id === +authUserId);
-                    // },
+                    visible: function (e) {
+                        if (Boolean("{{App::environment('local')}}")) {
+                            return true;
+                        }
+                        return Boolean(+e.row.data.responsible_id === +authUserId);
+                    },
                     onClick(e) {
                         if (!e.row.data.awaiting_confirmation) {
                             showMovingFuelTankPopup(e.row.data)

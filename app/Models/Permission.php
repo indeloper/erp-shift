@@ -51,4 +51,24 @@ class Permission extends Model
     {
         return $this->hasMany(NotificationsForPermissions::class, 'permission', 'codename');
     }
+
+    public function getUsersIdsByCodename($codename = null)
+    {
+        if (!$codename) {
+            return [];
+        }
+
+        $permissionId = Permission::where('codename', $codename)->firstOrFail()->id;
+        $relatedUsersIdsArr = UserPermission::where('permission_id', $permissionId)->pluck('user_id')->toArray();
+        $relatedGroupsIdsArr = GroupPermission::where('permission_id', $permissionId)->pluck('group_id')->toArray();
+
+        $permissionUsers = User::query()
+            ->whereIn('group_id', $relatedGroupsIdsArr)
+            ->orWhereIn('id', $relatedUsersIdsArr)
+            ->active()
+            ->pluck('id')
+            ->toArray();
+
+        return $permissionUsers;
+    }
 }

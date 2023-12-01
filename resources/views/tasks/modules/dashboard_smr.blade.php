@@ -34,6 +34,7 @@
         content: "";
         background-color: #E4E7ED;
     }
+
     .el-tabs__active-bar {
         background-color: #E4E7ED;
     }
@@ -44,7 +45,7 @@
 
 </style>
 
-<div class="row" id="dashboard">
+<div class="row" id="dashboard" v-if="false">
     <template>
         <div class="col-md-4 col-sm-12" style="margin-bottom: 5px">
             <el-card class="box-card" style="height:100%">
@@ -53,7 +54,7 @@
                 </div>
                 <div style="margin-bottom: 10px;">
                     <div class="el-input">
-                        <input class="el-input__inner" placeholder="Поиск"  @input="debounceInput"></input>
+                        <input class="el-input__inner" placeholder="Поиск" @input="debounceInput"></input>
                     </div>
                 </div>
                 <el-tabs tab-position="left" v-model="tabPosition" style="height: 100%; width: 100%; float:left; padding-bottom: 10px;">
