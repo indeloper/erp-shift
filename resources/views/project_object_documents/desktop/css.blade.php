@@ -11,6 +11,9 @@
             padding: 0 0 2px 5px !important;
         }
 
+        .dx-placeholder {
+            padding-left: 5px;
+        }
 
     /* Common */
 

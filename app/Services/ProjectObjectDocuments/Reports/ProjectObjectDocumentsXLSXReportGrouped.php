@@ -27,7 +27,7 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
     use Exportable;
 
     const startLineNumber = 5;
-   
+
     /**
      * @var Collection
      */
@@ -53,7 +53,7 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
     {
         $this->projectObjectDocuments = $projectObjectDocuments;
         $this->groupedBy = $groupedBy;
-        
+
         $this->statusStyles = [];
         $this->Column1Merges = [];
         $this->Column2Merges = [];
@@ -65,14 +65,14 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
     {
         if ($this->groupedBy === 'groupedByPM') {
             $groupedByDependedElements = ['Ответственные РП', 'Ответственные ПТО'];
-        } 
-        
+        }
+
         if ($this->groupedBy === 'groupedByPTO') {
             $groupedByDependedElements = ['Ответственные ПТО', 'Ответственные РП'];
         }
-        
+
         $tableHeaders = array_merge(
-            
+
             $groupedByDependedElements,
 
             [
@@ -97,7 +97,7 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
             [
 
             ],
-            $tableHeaders         
+            $tableHeaders
         ];
 
     }
@@ -107,7 +107,7 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
         $results = collect();
         $number = 1;
         $lineNumber = self::startLineNumber;
-        
+
         foreach ($this->projectObjectDocuments as $groupLevel1Name=>$groupsLevel1) {
 
             foreach ($groupsLevel1 as $groupLevel2Name=>$groupsLevel2) {
@@ -116,31 +116,13 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
 
                     if ($this->groupedBy === 'groupedByPM') {
                         $groupedByDependedElements = [$projectObjectDocument['tongue_project_manager_full_names'] ?? null, $projectObjectDocument['tongue_pto_engineer_full_names'] ?? null];
-                    } 
-                    
+                    }
+
                     if ($this->groupedBy === 'groupedByPTO') {
                         $groupedByDependedElements = [$projectObjectDocument['tongue_pto_engineer_full_names'] ?? null, $projectObjectDocument['tongue_project_manager_full_names'] ?? null];
                     }
 
                     $documentCreatedAtDate = Carbon::create($projectObjectDocument['created_at'])->format('d.m.Y') ?? null;
-                    
-                    $tableFields = array_merge(
-
-                        $groupedByDependedElements,
-
-                        [
-                            $projectObjectDocument['tongue_foreman_full_names'] ?? null,
-                            $projectObjectDocument['project_object']['short_name'],
-                            $projectObjectDocument['document_name'] ?? null,
-                            $documentCreatedAtDate,
-                            $projectObjectDocument['days_from_doc_created'] ?? null,
-                            $projectObjectDocument['status']['name'] ?? null, 
-                        ]
-                    );
-
-                    $results->push($tableFields);
-
-
 
                     // if ($groupLevel1Name != $this->groupLevel1NameLastElement) {
                     if($groupedByDependedElements[0] != $this->groupLevel1NameLastElement) {
@@ -159,6 +141,22 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
                     if ($documentCreatedAtDate != $this->lastDocumentDate) {
                         $this->columnsDatesMerges[] = $lineNumber;
                     }
+
+                    $tableFields = array_merge(
+
+                        $groupedByDependedElements,
+
+                        [
+                            $projectObjectDocument['tongue_foreman_full_names'] ?? null,
+                            $projectObjectDocument['project_object']['short_name'],
+                            $projectObjectDocument['document_name'] ?? null,
+                            $documentCreatedAtDate,
+                            $projectObjectDocument['days_from_doc_created'] ?? null,
+                            $projectObjectDocument['status']['name'] ?? null,
+                        ]
+                    );
+
+                    $results->push($tableFields);
 
                     $this->groupLevel1NameLastElement = $groupLevel1Name;
                     $this->groupLevel2NameLastElement = $groupLevel2Name;
@@ -189,10 +187,10 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
                 //Main header styles
                 $event->sheet->getDelegate()->mergeCells('A1:'.'H1');
                 $event->sheet->getDelegate()->mergeCells('A2:'.'H2');
-                
+
                 $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_CENTER);
                 $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_RIGHT);
-                
+
                 $event->sheet->getStyle('A1')
                     ->applyFromArray([
                         'font' => [
@@ -201,7 +199,7 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
                         ]
                     ]);
 
-                
+
                 //Table headers
                 $event->sheet->getStyle('A4:'.'H4')
                     ->applyFromArray([
@@ -225,95 +223,72 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
                         ]
                     ]);
 
-                    $event->sheet->getStyle('A' . self::startLineNumber . ':'. 'H' . $this->lastLineNumber)
-                        ->applyFromArray([
-                           
-                            'borders' => [
-                                'allBorders' => [
-                                    'borderStyle' => Border::BORDER_THIN,
-                                    'color' => array('rgb' => '303030')
-                                ],
-                                'outline' => [
-                                    'borderStyle' => Border::BORDER_MEDIUM,
-                                    'color' => array('rgb' => '303030')
-                                ],
-                            ]
-                        ]);
-                    
-                        foreach($this->statusStyles as $key=>$value) {
-                            $event->sheet->getStyle('H' . $key )
-                                ->applyFromArray([
-                                    'font' => [
-                                        'color' => array('rgb' => self::CELLS_COLOR[$value]['color']),
-                                    ],
-                                    'fill' => [
-                                        'fillType' => Fill::FILL_SOLID,
-                                        'color' => array('rgb' => self::CELLS_COLOR[$value]['background']),
-                                    ],
-                                ]);
-                        }  
+                $event->sheet->getStyle('A' . self::startLineNumber . ':' . 'H' . $this->lastLineNumber)
+                    ->applyFromArray([
 
-                        $event->sheet->getStyle('A' . self::startLineNumber . ':'. 'C' . $this->lastLineNumber)
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => array('rgb' => '303030')
+                            ],
+                            'outline' => [
+                                'borderStyle' => Border::BORDER_MEDIUM,
+                                'color' => array('rgb' => '303030')
+                            ],
+                        ]
+                    ]);
+
+                foreach ($this->statusStyles as $key => $value) {
+                    $event->sheet->getStyle('H' . $key)
                         ->applyFromArray([
-                            'alignment' => [
-                                'vertical' => 'center',
-                                'horizontal' => 'center',
-                                'textRotation' => 90,
-                                'wrapText' => true
+                            'font' => [
+                                'color' => array('rgb' => self::CELLS_COLOR[$value]['color']),
+                            ],
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'color' => array('rgb' => self::CELLS_COLOR[$value]['background']),
                             ],
                         ]);
+                }
 
-                        $event->sheet->getStyle('D' . self::startLineNumber . ':'. 'H' . $this->lastLineNumber)
-                        ->applyFromArray([
-                            'alignment' => [
-                                'vertical' => 'center',
-                                'wrapText' => true
-                            ],
-                        ]);
-                        
-                        
-                        $previousMergeBreakpoint = self::startLineNumber;
-                        $i = 0;
-                        foreach ($this->Column1Merges as $lineNumber) {
-                            if ($i>0) {
-                                $event->sheet->getDelegate()->mergeCells('A'.$previousMergeBreakpoint.':'.'A'.($lineNumber-1));
-                            }
-                                
-                            $i++;
-                            $previousMergeBreakpoint = $lineNumber;
-                        }
+                $event->sheet->getStyle('A' . self::startLineNumber . ':' . 'C' . $this->lastLineNumber)
+                    ->applyFromArray([
+                        'alignment' => [
+                            'vertical' => 'center',
+                            'horizontal' => 'center',
+                            'textRotation' => 90,
+                            'wrapText' => true
+                        ],
+                    ]);
 
-                        $previousMergeBreakpoint = self::startLineNumber;
-                        $i = 0;
-                        foreach ($this->Column2Merges as $lineNumber) {
-                            if ($i>0) 
-                                $event->sheet->getDelegate()->mergeCells('B'.$previousMergeBreakpoint.':'.'B'.($lineNumber-1));
-                            $i++;
-                            $previousMergeBreakpoint = $lineNumber;
-                        }
+                $event->sheet->getStyle('D' . self::startLineNumber . ':' . 'H' . $this->lastLineNumber)
+                    ->applyFromArray([
+                        'alignment' => [
+                            'vertical' => 'center',
+                            'wrapText' => true
+                        ],
+                    ]);
 
-                        $previousMergeBreakpoint = self::startLineNumber;
-                        $i = 0;
-                        foreach ($this->Column3And4Merges as $lineNumber) {
-                            if ($i>0) {
-                                $event->sheet->getDelegate()->mergeCells('C'.$previousMergeBreakpoint.':'.'C'.($lineNumber-1));
-                                $event->sheet->getDelegate()->mergeCells('D'.$previousMergeBreakpoint.':'.'D'.($lineNumber-1));
-                            }   
-                            $i++;
-                            $previousMergeBreakpoint = $lineNumber;
-                        }
-
-                        $previousMergeBreakpoint = self::startLineNumber;
-                        $i = 0;
-                        foreach ($this->columnsDatesMerges as $lineNumber) {
-                            if ($i>0) {
-                                $event->sheet->getDelegate()->mergeCells('F'.$previousMergeBreakpoint.':'.'F'.($lineNumber-1));
-                                $event->sheet->getDelegate()->mergeCells('G'.$previousMergeBreakpoint.':'.'G'.($lineNumber-1));
-                            }   
-                            $i++;
-                            $previousMergeBreakpoint = $lineNumber;
-                        }
-
+                $this->mergeTableCells([
+                    [
+                        'array' => $this->Column1Merges,
+                        'columns' => ['A']
+                    ],
+                    [
+                        'array' => $this->Column2Merges,
+                        'columns' => ['B']
+                    ],
+                    [
+                        'array' => $this->Column3And4Merges,
+                        'columns' => ['C', 'D']
+                    ],
+                    [
+                        'array' => $this->columnsDatesMerges,
+                        'columns' => ['F', 'G']
+                    ],
+                ],
+                    $event->sheet->getDelegate()
+                );
             }
         ];
     }
@@ -328,8 +303,27 @@ class ProjectObjectDocumentsXLSXReportGrouped implements FromCollection, WithHea
 
     public function export()
     {
-        $fileName = 'Площадка ⇆ Офис '.now().'.xlsx';
+        $fileName = 'Площадка ⇆ Офис ' . now() . '.xlsx';
         return $this->download($fileName);
+    }
+
+    public function mergeTableCells($mergeArr, $event)
+    {
+        foreach ($mergeArr as $mergeArrElem) {
+            $previousMergeBreakpoint = self::startLineNumber;
+            $i = 0;
+            $mergeArrElem['array'][] = ($this->lastLineNumber + 1);
+
+            foreach ($mergeArrElem['array'] as $lineNumber) {
+                if ($i > 0) {
+                    foreach ($mergeArrElem['columns'] as $column) {
+                        $event->mergeCells($column . $previousMergeBreakpoint . ':' . $column . ($lineNumber - 1));
+                    }
+                }
+                $i++;
+                $previousMergeBreakpoint = $lineNumber;
+            }
+        }
     }
 
     public function columnWidths(): array
