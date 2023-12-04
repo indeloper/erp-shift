@@ -138,9 +138,7 @@
                             editorType: "dxAutocomplete",
                             visible: false,
                             editorOptions: {
-                                elementAttr: {id: "third_party_consumer_dxAutocomplete"},
-                                valueExpr: 'id',
-                                displayExpr: 'name',
+                                dataSource: thirdPartyFuelConsumers,
                             },
                             label: {
                                 text: 'Потребитель'
