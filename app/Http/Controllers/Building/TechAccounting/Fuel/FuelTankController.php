@@ -13,7 +13,7 @@ use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
-use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
+use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
 use App\Services\SystemService;
@@ -77,9 +77,9 @@ class FuelTankController extends StandardEntityResourceController
                     fuel_tanks.comment_movement_tmp,
                     (SELECT MAX(`event_date`) from `fuel_tank_flows` where `fuel_tank_flows`.`fuel_tank_id` = `fuel_tanks`.`id`)
                     as max_event_date,
-                    (SELECT `previous_object_id` from `fuel_tank_transfer_hystories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_hystories` where `fuel_tank_transfer_hystories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_hystories`.`fuel_tank_flow_id` is null))
+                    (SELECT `previous_object_id` from `fuel_tank_transfer_histories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_histories` where `fuel_tank_transfer_histories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_histories`.`fuel_tank_flow_id` is null))
                     as previous_object_id,
-                    (SELECT `previous_responsible_id` from `fuel_tank_transfer_hystories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_hystories` where `fuel_tank_transfer_hystories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_hystories`.`fuel_tank_flow_id` is null))
+                    (SELECT `previous_responsible_id` from `fuel_tank_transfer_histories` where id = (SELECT MAX(`id`) from `fuel_tank_transfer_histories` where `fuel_tank_transfer_histories`.`fuel_tank_id` = `fuel_tanks`.`id` and `fuel_tank_transfer_histories`.`fuel_tank_flow_id` is null))
                     as previous_responsible_id
                 '
             )
@@ -104,7 +104,7 @@ class FuelTankController extends StandardEntityResourceController
 
     public function afterStore($tank, $data, $dataToStore)
     {
-        FuelTankTransferHystory::create([
+        FuelTankTransferHistory::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $tank->id,
             'object_id' => $tank->object_id,
@@ -116,7 +116,7 @@ class FuelTankController extends StandardEntityResourceController
 
     public function beforeUpdate($tank, $data)
     {
-        FuelTankTransferHystory::create([
+        FuelTankTransferHistory::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $tank->id,
             'previous_object_id' => $tank->object_id,
@@ -204,7 +204,7 @@ class FuelTankController extends StandardEntityResourceController
             return json_encode(['message'=>'Отказ. Попытка создать новую запись с текущими параметрами.']);
         }
 
-        FuelTankTransferHystory::create([
+        FuelTankTransferHistory::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $tank->id,
             'previous_object_id' => $tank->object_id,
@@ -251,13 +251,13 @@ class FuelTankController extends StandardEntityResourceController
         $fuelTankId = json_decode($request->fuelTankId);
         $tank = $this->baseModel::findOrFail($fuelTankId);
 
-        $lastTankTransferHistory = FuelTankTransferHystory::query()
+        $lastTankTransferHistory = FuelTankTransferHistory::query()
             ->whereNull('fuel_tank_flow_id')
             ->whereNull('tank_moving_confirmation')
             ->orderByDesc('id')
             ->firstOrFail();
 
-        FuelTankTransferHystory::create([
+        FuelTankTransferHistory::create([
             'author_id' => Auth::user()->id,
             'fuel_tank_id' => $tank->id,
             'previous_object_id' => $lastTankTransferHistory->previous_object_id,
