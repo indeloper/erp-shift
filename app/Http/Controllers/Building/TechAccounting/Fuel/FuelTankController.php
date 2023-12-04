@@ -88,7 +88,10 @@ class FuelTankController extends StandardEntityResourceController
             })
             ->when(!empty($searchValueQuery), function ($query) use ($searchValueQuery) {
                 $objectIds = ProjectObject::where('short_name', 'LIKE', '%' . $searchValueQuery . '%')->pluck('id')->toArray();
-                return $query->whereIn('object_id', $objectIds);
+                $tankIds = FuelTank::where('tank_number', 'LIKE', '%' . $searchValueQuery . '%')->pluck('id')->toArray();
+                return $query
+                    ->whereIn('object_id', $objectIds)
+                    ->orWhereIn('id', $tankIds);
             })
             ->get();
 
