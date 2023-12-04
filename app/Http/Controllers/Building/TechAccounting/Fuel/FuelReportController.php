@@ -13,7 +13,7 @@ use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankFlowRemains;
 use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
-use App\Models\TechAcc\FuelTank\FuelTankTransferHystory;
+use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
 use App\Services\Common\FileSystemService;
 use Carbon\Carbon;
@@ -59,7 +59,7 @@ class FuelReportController extends Controller
     public function tanksMovementReportData(Request $request) {
         $options = json_decode($request['data']);
         // $entities = (new FuelTankMovement)
-        $entities = (new FuelTankTransferHystory)
+        $entities = (new FuelTankTransferHistory)
             ->dxLoadOptions($options)
             ->whereNotNull('tank_moving_confirmation')
             ->orderBy('id', 'desc')
@@ -232,19 +232,19 @@ class FuelReportController extends Controller
             ->unique()
             ->toArray();
 
-        $baseReportArraySource = FuelTankTransferHystory::query()
+        $baseReportArraySource = FuelTankTransferHistory::query()
             ->where([
-                // ['fuel_tank_transfer_hystories.event_date', '>=', $currentMonthBegin],
-                // ['fuel_tank_transfer_hystories.event_date', '<=', $currentMonthEnd],
-                ['fuel_tank_transfer_hystories.event_date', '>=', $globalDateFrom],
-                ['fuel_tank_transfer_hystories.event_date', '<=', $globalDateToNextDay],
+                // ['fuel_tank_transfer_histories.event_date', '>=', $currentMonthBegin],
+                // ['fuel_tank_transfer_histories.event_date', '<=', $currentMonthEnd],
+                ['fuel_tank_transfer_histories.event_date', '>=', $globalDateFrom],
+                ['fuel_tank_transfer_histories.event_date', '<=', $globalDateToNextDay],
             ])
-            ->whereIn('fuel_tank_transfer_hystories.fuel_tank_flow_id', $fuelTankFlowsIds);
+            ->whereIn('fuel_tank_transfer_histories.fuel_tank_flow_id', $fuelTankFlowsIds);
 
         $baseReportArraySource_ = clone $baseReportArraySource;
 
         $baseReportArray = $baseReportArraySource
-            ->leftJoin('fuel_tank_flows', 'fuel_tank_transfer_hystories.fuel_tank_flow_id', '=', 'fuel_tank_flows.id')
+            ->leftJoin('fuel_tank_flows', 'fuel_tank_transfer_histories.fuel_tank_flow_id', '=', 'fuel_tank_flows.id')
             ->leftJoin('fuel_tank_flow_types', 'fuel_tank_flows.fuel_tank_flow_type_id', '=', 'fuel_tank_flow_types.id')
             ->leftJoin('contractors', 'fuel_tank_flows.contractor_id', '=', 'contractors.id')
             ->leftJoin('our_technics', 'fuel_tank_flows.our_technic_id', '=', 'our_technics.id')
@@ -252,18 +252,18 @@ class FuelReportController extends Controller
             ->leftJoin('project_objects', 'fuel_tank_flows.object_id', '=', 'project_objects.id')
             ->leftJoin('users', 'fuel_tank_flows.responsible_id', '=', 'users.id')
             ->leftJoin('fuel_tanks', 'fuel_tank_flows.fuel_tank_id', '=', 'fuel_tanks.id')
-            ->orderBy('fuel_tank_transfer_hystories.responsible_id') 
-            ->orderBy('fuel_tank_transfer_hystories.fuel_tank_id')
-            ->orderBy('fuel_tank_transfer_hystories.object_id')
-            ->orderBy('fuel_tank_transfer_hystories.event_date')
-            ->orderBy('fuel_tank_transfer_hystories.id')
-            ->get(['fuel_tank_transfer_hystories.responsible_id as responsible_id',
-                'fuel_tank_transfer_hystories.previous_responsible_id as previos_responsible_id',
-                'fuel_tank_transfer_hystories.fuel_tank_id',
-                'fuel_tank_transfer_hystories.object_id',
-                'fuel_tank_transfer_hystories.previous_object_id',
-                'fuel_tank_transfer_hystories.event_date',
-                'fuel_tank_transfer_hystories.fuel_level',
+            ->orderBy('fuel_tank_transfer_histories.responsible_id') 
+            ->orderBy('fuel_tank_transfer_histories.fuel_tank_id')
+            ->orderBy('fuel_tank_transfer_histories.object_id')
+            ->orderBy('fuel_tank_transfer_histories.event_date')
+            ->orderBy('fuel_tank_transfer_histories.id')
+            ->get(['fuel_tank_transfer_histories.responsible_id as responsible_id',
+                'fuel_tank_transfer_histories.previous_responsible_id as previos_responsible_id',
+                'fuel_tank_transfer_histories.fuel_tank_id',
+                'fuel_tank_transfer_histories.object_id',
+                'fuel_tank_transfer_histories.previous_object_id',
+                'fuel_tank_transfer_histories.event_date',
+                'fuel_tank_transfer_histories.fuel_level',
                 'fuel_tank_flows.volume',
                 'fuel_tank_flow_types.slug as fuel_tank_flow_type_slug',
                 'contractors.short_name as contractor',
@@ -278,11 +278,11 @@ class FuelReportController extends Controller
                         IF(volume IS NULL, 1, 0))
                         OVER 
                             (
-                                ORDER BY fuel_tank_transfer_hystories.responsible_id, 
-                                fuel_tank_transfer_hystories.fuel_tank_id,
-                                fuel_tank_transfer_hystories.object_id, 
-                                fuel_tank_transfer_hystories.event_date,
-                                fuel_tank_transfer_hystories.id
+                                ORDER BY fuel_tank_transfer_histories.responsible_id, 
+                                fuel_tank_transfer_histories.fuel_tank_id,
+                                fuel_tank_transfer_histories.object_id, 
+                                fuel_tank_transfer_histories.event_date,
+                                fuel_tank_transfer_histories.id
                             ) AS group_marker
                         ')
             ])
@@ -417,7 +417,7 @@ class FuelReportController extends Controller
 
         [$fuelLevelPeriodStart, $fuelLevelPeriodFinish] = $this->getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
 
-        $confirmedTankMovements = FuelTankTransferHystory::query()
+        $confirmedTankMovements = FuelTankTransferHistory::query()
         ->where([
             ['fuel_tank_id', $fuelTankId],
             ['event_date', '>=',  $dateFrom],
@@ -459,7 +459,7 @@ class FuelReportController extends Controller
 
         if(empty($eventDates)) {
             //Проверка если последняя запись в журнале - смена ответственного
-            $lastTankObjectOrResponsibleChanged = FuelTankTransferHystory::where([
+            $lastTankObjectOrResponsibleChanged = FuelTankTransferHistory::where([
                 ['fuel_tank_id', $fuelTankId],
                 ['event_date', '<', Carbon::create($globalDateTo)->addday()],
                 ['event_date', '>=', Carbon::create($globalDateFrom)],
@@ -481,7 +481,7 @@ class FuelReportController extends Controller
             $dateToTmp = Carbon::create(max($eventDates));
         }
 
-        $to = FuelTankTransferHystory::where([
+        $to = FuelTankTransferHistory::where([
             ['fuel_tank_id', $fuelTankId],
             ['event_date', '>=',  $dateToTmp],
             ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
@@ -496,7 +496,7 @@ class FuelReportController extends Controller
             $dateTo = $globalDateTo;
         }
 
-        $from = FuelTankTransferHystory::where([
+        $from = FuelTankTransferHistory::where([
             ['fuel_tank_id', $fuelTankId],
             ['event_date', '<=',  $dateFromTmp],
             ['event_date', '>=', Carbon::create($globalDateFrom)],
@@ -516,7 +516,7 @@ class FuelReportController extends Controller
 
     public function getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo)
     {
-        $fuelPeriodPreviousTransaction = FuelTankTransferHystory::where([
+        $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
             ['responsible_id', $responsibleId],
             ['fuel_tank_id', $fuelTankId],
             ['object_id', $objectId],
@@ -531,7 +531,7 @@ class FuelReportController extends Controller
             $fuelLevelPeriodStart = 0;
         }
 
-        $fuelPeriodLastTransaction = $fuelPeriodPreviousTransaction = FuelTankTransferHystory::where([
+        $fuelPeriodLastTransaction = $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
             ['responsible_id', $responsibleId],
             ['fuel_tank_id', $fuelTankId],
             ['object_id', $objectId],
