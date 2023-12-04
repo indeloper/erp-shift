@@ -196,11 +196,25 @@
             type: "buttons",
             buttons: [
                 {
+                    icon: 'fas fa-list-alt dx-link-icon',
+                    
                     visible(e) {
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
-                        return dateDiff > 1
+                        if (dateDiff > 1) {
+                            return true
+                        }
+
+                        if (Boolean("{{App::environment('local')}}")) {
+                            return false;
+                        }
+                        
+                        if (!Boolean(+e.row.data.author_id === +authUserId)) {
+                            return true;
+                        }
+
+                        return false
                     },
-                    icon: 'fas fa-list-alt dx-link-icon',
+                    
                     onClick(e) {
 
                         editingRowId = e.row.data.id;
@@ -229,7 +243,16 @@
                     name: 'delete',
                     visible(e) {
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
-                        return dateDiff <= 1
+                        if (dateDiff > 1) {
+                            return false
+                        }
+                        if (Boolean("{{App::environment('local')}}")) {
+                            return true;
+                        }
+                        if (!Boolean(+e.row.data.author_id === +authUserId)) {
+                            return false;
+                        }
+                        return true;
                     }
                 }
                 
