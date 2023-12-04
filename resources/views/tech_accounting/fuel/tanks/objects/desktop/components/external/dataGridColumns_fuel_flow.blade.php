@@ -133,9 +133,16 @@
                 {
                     name: 'delete',
                     visible(e) {
-                        console.log(e);
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
                         return dateDiff <= 1
+                    }, 
+                    onClick(e) {
+                        customConfirmDialog("Вы уверены, что хотите удалить запись?")
+                            .show().then((dialogResult) => {
+                                if (dialogResult) {
+                                    externalEntitiesDataSource.store().remove(e.row.data.id)
+                                }
+                            })
                     }
                 }
             ],
