@@ -2,6 +2,7 @@
 
 namespace App\Models\CommercialOffer;
 
+use App\Models\Company\Company;
 use App\Services\Commerce\SplitService;
 use App\Traits\Commentable;
 use App\Models\Contractors\{Contractor, ContractorContact};
@@ -406,6 +407,9 @@ class CommercialOffer extends Model
             ->select('project_responsible_users.*', 'users.first_name', 'users.last_name', 'users.patronymic', 'users.work_phone', 'users.person_phone', 'groups.name as profession');
 
         $contact = ContractorContact::with('phones')->find($offer->contact_id);
+        $commercialOfferProject = Project::findOrFail($offer->project_id);
+        $commercialOfferCompany = Company::findOrFail($commercialOfferProject->entity);
+
         if (isset($contact->phones)) {
             $contact->phone_number = $contact->phones->where('is_main', 1)->count() > 0 ? $contact->phones->where('is_main', 1)->pluck('phone_number')->first() : $contact->phones->pluck('phone_number')->first();
             $contact->dop_phone = $contact->phones->where('is_main', 1)->count() > 0 ? $contact->phones->where('is_main', 1)->pluck('dop_phone')->first() : $contact->phones->pluck('dop_phone')->first();
@@ -423,7 +427,8 @@ class CommercialOffer extends Model
                 'split_wv_mat' => $split_wv_mat,
                 'splits' => $splits,
                 'contact' => $contact,
-                'project' => Project::findOrFail($offer->project_id),
+                'project' => $commercialOfferProject,
+                'company' => $commercialOfferCompany,
                 'work_groups' => (new ManualWork())->work_group,
             ];
         } else {
@@ -439,7 +444,8 @@ class CommercialOffer extends Model
                 'split_wv_mat' => $split_wv_mat,
                 'splits' => $splits,
                 'contact' => $contact,
-                'project' => Project::findOrFail($offer->project_id),
+                'project' => $commercialOfferProject,
+                'company' => $commercialOfferCompany,
                 'work_groups' => (new ManualWork())->work_group,
             ];
         }
@@ -525,7 +531,8 @@ class CommercialOffer extends Model
         }
         $file_name = 'project-' . $offer->project_id . '_commercial_offer-' . uniqid() . '.' . 'pdf';
 
-        $pdf_new->save(storage_path('app/public/docs/commercial_offers/') . $file_name);
+        $filenamePathParts = ['app', 'public', 'docs', 'commercial_offers', $file_name];
+        $pdf_new->save(storage_path(implode(DIRECTORY_SEPARATOR, $filenamePathParts)));
 
         FileEntry::create(['filename' => $file_name, 'size' => 0,
             'mime' => 'pdf', 'original_filename' => $file_name, 'user_id' => Auth::user()->id,]);

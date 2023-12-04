@@ -97,7 +97,6 @@
         </div>
         <div class="col-md-9 text-right btn-center">
             @if(Auth::id() == $task->responsible_user_id and ! $task->is_solved)
-
                 @if(Auth::id() == 6 and $com_offers->where('id', $task->target_id)->first() and !$com_offers->where('id', $task->target_id)->first()->is_signed and $com_offers->where('id', $task->target_id)->first()->status != 1 and $com_offers->where('id', $task->target_id)->first()->file_name and !$com_offers->where('id', $task->target_id)->first()->is_uploaded)
                 <div class="dropdown d-inline-block">
                   <button class="btn btn-primary dropdown-toggle mb-2" type="button" data-toggle="dropdown">Выполнить
@@ -109,7 +108,6 @@
                               Выполнить и подписать с ЭЦП
                           </button>
                       </li>
-
                   </ul>
                 </div>
                 @else

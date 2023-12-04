@@ -40,9 +40,9 @@
 
     <body>
         <htmlpageheader name="page-header">
-            @if($project->entity == 1)
+            @if($company->id == 1)
                 <img src="{{ asset('img/kp_head.png') }}" width="500px;" style="padding-left: 45px; padding-right: 35px;">
-            @else
+            @elseif($company->id == 2)
                 <img src="{{ asset('img/kp_head_2.png') }}" width="500px;" style="padding-left: 45px; padding-right: 35px;">
             @endif
         </htmlpageheader>
@@ -481,19 +481,36 @@
                                     </div>
                                 </div>
                             @else
-                                <div>
-                                    <div style="text-align: left; margin-top: -14px">
-                                        Генеральный директор {{ $project::$entities[$project->entity] }}
-                                    </div>
-                                    <div style="text-align: right; margin-top: -14px">
-                                        М.Д. Исмагилов
-                                    </div>
-                                    @if(in_array($offer->status, [4, 5]) || $offer->is_tongue == 2)
-                                        <div style="text-align: right; margin-right: 80px; margin-top: -80px">
-                                            <img src="{{ asset('img/small.png') }}" max-width="1px;" max-height="1px;">
+                                @if($company->id == 1)
+                                    <div>
+                                        <div style="text-align: left; margin-top: -14px">
+                                            Генеральный директор {{ $company->name }}
                                         </div>
-                                    @endif
-                                </div>
+                                        <div style="text-align: right; margin-top: -14px">
+                                            М.Д. Исмагилов
+                                        </div>
+                                        @if(in_array($offer->status, [4, 5]) || $offer->is_tongue == 2)
+                                            <div style="text-align: right; margin-right: 80px; margin-top: -80px">
+                                                <img src="{{ asset('img/small.png') }}" max-width="1px;" max-height="1px;">
+                                            </div>
+                                        @endif
+                                    </div>
+                                @elseif($company->id == 2)
+                                    <div>
+                                        <div style="text-align: left; margin-top: -14px">
+                                            Директор по строительству {{ $company->name }}
+                                        </div>
+                                        <div style="text-align: right; margin-top: -14px">
+                                            С.А. Левичев
+                                        </div>
+                                        @if(in_array($offer->status, [4, 5]))
+                                            <div style="text-align: right; margin-right: 80px; margin-top: -80px">
+                                                <img src="{{ asset('img/small_2.png') }}" max-width="1px;" max-height="1px;">
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
                             @endif
                         </div>
 

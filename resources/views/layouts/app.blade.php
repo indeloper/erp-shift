@@ -316,13 +316,13 @@
                     </li>
                 @endif
                 <li class="nav-item @if(Request::is('building/tech_acc/technic/*') ) active @endif">
-                        <a class="nav-link" data-toggle="collapse" href="#technics">
-                            <i class="pe-7s-note2"></i>
-                            <p>Учёт техники
-                                <b class="caret"></b>
-                            </p>
-                        </a>
-                        <div class="collapse @if(Request::is('building/tech_acc/technic/*') ) show @endif"
+                    <a class="nav-link" data-toggle="collapse" href="#technics">
+                        <i class="pe-7s-note2"></i>
+                        <p>Учет техники
+                            <b class="caret"></b>
+                        </p>
+                    </a>
+                    <div class="collapse @if(Request::is('building/tech_acc/technic/*') ) show @endif"
                             id="technics">
                             <ul class="nav">
                                 <li class="nav-item @if(Request::is('building/tech_acc/technic/ourTechnicList*')) active @endif">
@@ -374,13 +374,13 @@
                                 </li>
 
                             </ul>
-                        </div>
+                    </div>
                 </li>
-<!-- СТАРЫЙ РАЗДЕЛ ТЕХНИКИ
+                    <!-- СТАРЫЙ РАЗДЕЛ ТЕХНИКИ
                     <li  style="background: grey;" class="nav-item active">
                         <a class="nav-link" data-toggle="collapse" href="#technics-old">
                             <i class="pe-7s-note2"></i>
-                            <p>Учёт техники - OLD
+                            <p>Учет техники - OLD
                                 <b class="caret"></b>
                             </p>
                         </a>
@@ -434,27 +434,28 @@
 <!-- СТРЫЙ РАЗДЕЛ ТЕХНИКИ КОНЕЦ -->
 <!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
             @canany([
-                'fuel_tanks_access', 
-                'fuel_tank_flows_access', 
-                'fuel_tank_operations_report_advanced_filter_settings_access', 
+                'fuel_tanks_access',
+                'fuel_tank_flows_access',
+                'fuel_tank_operations_report_advanced_filter_settings_access',
                 'fuel_tanks_movements_report_access'
                 ])
                 <li class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
-                        <a class="nav-link" data-toggle="collapse" href="#fuel">
-                            <i class="pe-7s-note2"></i>
-                            <p>Учёт топлива
-                                <b class="caret"></b>
-                            </p>
-                        </a>
-                        <div class="collapse @if(Request::is('building/tech_acc/fuel/*') ) show @endif"
+                    <a class="nav-link" data-toggle="collapse" href="#fuel">
+                        <i class="pe-7s-note2"></i>
+                        <p>Учет топлива
+                            <b class="caret"></b>
+                        </p>
+                    </a>
+                    <div class="collapse @if(Request::is('building/tech_acc/fuel/*') ) show @endif"
                             id="fuel">
                             <ul class="nav">
                                 @can('fuel_tanks_access')
                                     <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
                                         <a class="nav-link"
                                             href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
-                                            <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
-                                            <span class="sidebar-normal">Топливные ёмкости</span>
+                                            <span class="sidebar-mini"><i
+                                                    class="pe-7s-paint-bucket pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Топливные емкости</span>
                                         </a>
                                     </li>
                                 @endcan
@@ -481,15 +482,16 @@
                                     <a class="nav-link"
                                        href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Оборотная ведомость<br>по всем ёмкостям</span>
+                                        <span class="sidebar-normal">Оборотная ведомость<br>по всем емкостям</span>
                                     </a>
                                 </li> -->
                                 @can('fuel_tanks_movements_report_access')
                                     <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
                                         <a class="nav-link"
                                         href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
-                                            <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                            <span class="sidebar-normal">Перемещение ёмкостей</span>
+                                            <span class="sidebar-mini"><i
+                                                    class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Перемещение емкостей</span>
                                         </a>
                                     </li>
                                 @endcan
@@ -506,7 +508,7 @@
                     <li style="background: grey;" class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
                         <a class="nav-link" data-toggle="collapse" href="#oldfuel">
                             <i class="pe-7s-note2"></i>
-                            <p>Учёт топлива - OLD
+                            <p>Учет топлива - OLD
                                 <b class="caret"></b>
                             </p>
                         </a>
@@ -517,7 +519,7 @@
                                 <li class="nav-item @if(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*')) active @endif">
                                     <a class="nav-link" href="{{ route('building::tech_acc::fuel_tank.index') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-paint-bucket pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Топливные ёмкости</span>
+                                        <span class="sidebar-normal">Топливные емкости</span>
                                     </a>
                                 </li>
                                 <li class="nav-item @if (Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')) active @endif">
@@ -580,11 +582,11 @@
                                     <li class="nav-item @if (Request::is('work_volumes') || Request::is('work_volumes/*')) active @endif">
                                         <a class="nav-link" href="{{ route('work_volumes::index') }}">
                                             <span class="sidebar-mini">ОР</span>
-                                            <span class="sidebar-normal">Объёмы работ</span>
+                                            <span class="sidebar-normal">Объемы работ</span>
                                         </a>
                                     </li>
 
-                                @endcan
+                                    @endcan
 
                                 <hr>
                             </ul>
@@ -681,9 +683,9 @@
                 {{--                                    @can('human_resources_report_group_view')--}}
                 {{--                                        <li class="nav-item @if (Request::is('human_resources/report_group') || Request::is('human_resources/report_group/*')) active @endif">--}}
                 {{--                                            <a class="nav-link" href="{{ route('human_resources.report_group.index') }}">--}}
-                {{--                                                <span class="sidebar-mini">ОГ</span>--}}
-                {{--                                                <span class="sidebar-normal">Отчётные группы</span>--}}
-                {{--                                            </a>--}}
+                    {{--                                                <span class="sidebar-mini">ОГ</span>--}}
+                    {{--                                                <span class="sidebar-normal">Отчетные группы</span>--}}
+                    {{--                                            </a>--}}
                 {{--                                        </li>--}}
                 {{--                                    @endcan--}}
                 {{--                                    @can('human_resources_brigade_view')--}}
@@ -1021,7 +1023,7 @@
             });
             if (show_swal) {
                 swal.fire({
-                    title: 'Идёт загрузка',
+                    title: 'Идет загрузка',
                     html:
                         '<div class="fa-4x">\n' +
                         '<i class="fa fa-spinner fa-spin" style="width: auto"></i>\n' +

@@ -1411,7 +1411,7 @@ class ProjectCommercialOfferController extends Controller
                 }
             }
         } else if ($offer->is_tongue == 0) {
-            foreach ([5, 6] as $group_id) {
+            foreach ([73] as $group_id) {
                 $prev_task = Task::where('target_id', $offer->id)->where('status', 5)->where('is_solved', 0)->first();
                 $task = new Task([
                     'project_id' => $offer->project_id,
@@ -1428,9 +1428,9 @@ class ProjectCommercialOfferController extends Controller
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = "\r\nЗаказчик: " . $project->contractor_name
-                    . "\r\nНазвание объекта: " . $project->object->name
-                    .  "\r\nАдрес объекта: " . $project->object->address . "\r\n" . 'Ссылка на задачу: ' . $task->task_route();
+                $notification->additional_info = "\r\n<b>Заказчик:</b> " . $project->contractor_name
+                    . "\r\n<b>Название объекта:</b> " . $project->object->name
+                    .  "\r\n<b>Адрес объекта:</b> " . $project->object->address . "\r\n" . '<b>Ссылка на задачу:</b> ' . $task->task_route();
                 $notification->update([
                     'name' => 'Новая задача «' . $task->name . '»',
                     'task_id' => $task->id,
@@ -1514,7 +1514,7 @@ class ProjectCommercialOfferController extends Controller
 
         if ($project->respUsers()->where('role', ($offer->is_tongue ? 6 : 5))->count() > 0) {
             $mainEngineerOfTonguePostId = 8;
-            $mainEngineerOfPilesPostId = 58;
+            $mainEngineerOfPilesPostId = 73;
 
             if ($offer->is_tongue) {
                 $mainEngineer = Group::find($mainEngineerOfTonguePostId)->getUsers()->first();
