@@ -314,96 +314,69 @@
                             </ul>
                         </div>
                     </li>
-                        <<<<<<< HEAD
-                    @endif
-                    @canany([
-                    'technics_access_permission',
-                    ])
-                        <li class="nav-item @if(Request::is('building/tech_acc/technic/*') ) active @endif">
-                            <a class="nav-link" data-toggle="collapse" href="#technics">
-                                <i class="pe-7s-note2"></i>
-                                <p>Учет техники
-                                    <b class="caret"></b>
-                                </p>
-                            </a>
-                            <div class="collapse @if(Request::is('building/tech_acc/technic/*') ) show @endif"
-                                 id="technics">
-                                <ul class="nav">
-                                    =======
-                                    @endif
-                                    <li class="nav-item @if(Request::is('building/tech_acc/technic/*') ) active @endif">
-                                        <a class="nav-link" data-toggle="collapse" href="#technics">
-                                            <i class="pe-7s-note2"></i>
-                                            <p>Учет техники
-                                                <b class="caret"></b>
-                                            </p>
-                                        </a>
-                                        <div
-                                            class="collapse @if(Request::is('building/tech_acc/technic/*') ) show @endif"
-                                            id="technics">
-                                            <ul class="nav">
-                                                >>>>>>> master
-                                                <li class="nav-item @if(Request::is('building/tech_acc/technic/ourTechnicList*')) active @endif">
-                                                    <a class="nav-link"
-                                                       href="{{ route('building::tech_acc::technic::ourTechnicList::getPageCore') }}">
+                @endif
+                <li class="nav-item @if(Request::is('building/tech_acc/technic/*') ) active @endif">
+                    <a class="nav-link" data-toggle="collapse" href="#technics">
+                        <i class="pe-7s-note2"></i>
+                        <p>Учет техники
+                            <b class="caret"></b>
+                        </p>
+                    </a>
+                    <div class="collapse @if(Request::is('building/tech_acc/technic/*') ) show @endif"
+                            id="technics">
+                            <ul class="nav">
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/ourTechnicList*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::ourTechnicList::getPageCore') }}">
                                         <span class="sidebar-mini">
                                             <i class="pe-7s-mini">
-                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20"
-                                                     class="pull-left" style="margin-bottom: 5px">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
                                             </i>
                                         </span>
-                                                        <span class="sidebar-normal">Список техники</span>
-                                                    </a>
-                                                </li>
+                                        <span class="sidebar-normal">Список техники</span>
+                                    </a>
+                                </li>
 
-                                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicCategory*')) active @endif">
-                                                    <a class="nav-link"
-                                                       href="{{ route('building::tech_acc::technic::technicCategory::getPageCore') }}">
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicCategory*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::technicCategory::getPageCore') }}">
                                         <span class="sidebar-mini">
                                             <i class="pe-7s-mini">
-                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20"
-                                                     class="pull-left" style="margin-bottom: 5px">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
                                             </i>
                                         </span>
-                                                        <span class="sidebar-normal">Категории техники</span>
-                                                    </a>
-                                                </li>
+                                        <span class="sidebar-normal">Категории техники</span>
+                                    </a>
+                                </li>
 
-                                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrand*')) active @endif">
-                                                    <a class="nav-link"
-                                                       href="{{ route('building::tech_acc::technic::technicBrand::getPageCore') }}">
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrand*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::technicBrand::getPageCore') }}">
                                         <span class="sidebar-mini">
                                             <i class="pe-7s-mini">
-                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20"
-                                                     class="pull-left" style="margin-bottom: 5px">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
                                             </i>
                                         </span>
-                                                        <span class="sidebar-normal">Марки техники</span>
-                                                    </a>
-                                                </li>
+                                        <span class="sidebar-normal">Марки техники</span>
+                                    </a>
+                                </li>
 
-                                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrandModel*')) active @endif">
-                                                    <a class="nav-link"
-                                                       href="{{ route('building::tech_acc::technic::technicBrandModel::getPageCore') }}">
+                                <li class="nav-item @if(Request::is('building/tech_acc/technic/technicBrandModel*')) active @endif">
+                                    <a class="nav-link"
+                                         href="{{ route('building::tech_acc::technic::technicBrandModel::getPageCore') }}">
                                         <span class="sidebar-mini">
                                             <i class="pe-7s-mini">
-                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20"
-                                                     class="pull-left" style="margin-bottom: 5px">
+                                                <img src="{{ mix('img/crane.svg') }}" alt="" width="20" class="pull-left" style="margin-bottom: 5px">
                                             </i>
                                         </span>
-                                                        <span class="sidebar-normal">Модели техники</span>
-                                                    </a>
-                                                </li>
+                                        <span class="sidebar-normal">Модели техники</span>
+                                    </a>
+                                </li>
 
-                                            </ul>
-                                        </div>
-                                    </li>
-                                    <<<<<<< HEAD
-                                    @endcanany
-                                    <!-- СТАРЫЙ РАЗДЕЛ ТЕХНИКИ
-=======
+                            </ul>
+                    </div>
+                </li>
                     <!-- СТАРЫЙ РАЗДЕЛ ТЕХНИКИ
->>>>>>> master
                     <li  style="background: grey;" class="nav-item active">
                         <a class="nav-link" data-toggle="collapse" href="#technics-old">
                             <i class="pe-7s-note2"></i>
@@ -412,15 +385,10 @@
                             </p>
                         </a>
                         <div
-                            class="collapse @if((Request::is('building/tech_acc/*') || Request::is('building/tech_acc/') || Request::is('building/vehicles/') || Request::is('building/vehicles/*')) && !(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*')))
-                                        show
-
-                                    @endif"
+                            class="collapse @if((Request::is('building/tech_acc/*') || Request::is('building/tech_acc/') || Request::is('building/vehicles/') || Request::is('building/vehicles/*')) && !(Request::is('building/tech_acc/fuel_tank') || Request::is('building/tech_acc/fuel_tank/*') || Request::is('building/tech_acc/fuel_tank_operations') || Request::is('building/tech_acc/fuel_tank_operations/*'))) show @endif"
                             id="technics-old">
                             <ul class="nav">
-                                <li class="nav-item @if (Request::is('building/tech_acc/technic_category') || Request::is('building/tech_acc/technic_category/*'))
-                                        active
-                                    @endif">
+                                <li class="nav-item @if (Request::is('building/tech_acc/technic_category') || Request::is('building/tech_acc/technic_category/*')) active @endif">
                                     <a class="nav-link"
                                        href="{{ route('building::tech_acc::technic_category.index') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-mini"><img
@@ -459,72 +427,65 @@
                                     </li>
 
                             </ul>
-
-
-                                    @endcan
-                                    </div>
-                                </li>
+                            @endcan
+                        </div>
+                    </li>
 -->
-                                    <!-- СТРЫЙ РАЗДЕЛ ТЕХНИКИ КОНЕЦ -->
-                                    <!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
-                                    @canany([
-                                        'fuel_tanks_access',
-                                        'fuel_tank_flows_access',
-                                        'fuel_tank_operations_report_advanced_filter_settings_access',
-                                        'fuel_tanks_movements_report_access'
-                                        ])
-                                        <li class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
-                                            <a class="nav-link" data-toggle="collapse" href="#fuel">
-                                                <i class="pe-7s-note2"></i>
-                                                <p>Учет топлива
-                                                    <b class="caret"></b>
-                                                </p>
-                                            </a>
-                                            <div
-                                                class="collapse @if(Request::is('building/tech_acc/fuel/*') ) show @endif"
-                                                id="fuel">
-                                                <ul class="nav">
-                                                    @can('fuel_tanks_access')
-                                                        <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
-                                                            <a class="nav-link"
-                                                               href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
+<!-- СТРЫЙ РАЗДЕЛ ТЕХНИКИ КОНЕЦ -->
+<!-- НОВЫЙ ТОПЛИВНЫЙ РАЗДЕЛ -->
+            @canany([
+                'fuel_tanks_access',
+                'fuel_tank_flows_access',
+                'fuel_tank_operations_report_advanced_filter_settings_access',
+                'fuel_tanks_movements_report_access'
+                ])
+                <li class="nav-item @if(Request::is('building/tech_acc/fuel/*') ) active @endif">
+                    <a class="nav-link" data-toggle="collapse" href="#fuel">
+                        <i class="pe-7s-note2"></i>
+                        <p>Учет топлива
+                            <b class="caret"></b>
+                        </p>
+                    </a>
+                    <div class="collapse @if(Request::is('building/tech_acc/fuel/*') ) show @endif"
+                            id="fuel">
+                            <ul class="nav">
+                                @can('fuel_tanks_access')
+                                    <li class="nav-item @if(Request::is('building/tech_acc/fuel/tank*')) active @endif">
+                                        <a class="nav-link"
+                                            href="{{ route('building::tech_acc::fuel::tanks::getPageCore') }}">
                                             <span class="sidebar-mini"><i
                                                     class="pe-7s-paint-bucket pe-7s-mini"></i></span>
-                                                                <span class="sidebar-normal">Топливные емкости</span>
-                                                            </a>
-                                                        </li>
-                                                    @endcan
-                                                    @can('fuel_tank_flows_access')
-                                                        <li class="nav-item @if (Request::is('building/tech_acc/fuel/fuelFlow*') ) active @endif">
-                                                            <a class="nav-link"
-                                                               href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
-                                                                <span class="sidebar-mini"><i
-                                                                        class="pe-7s-drop pe-7s-mini"></i></span>
-                                                                <span class="sidebar-normal">Топливный журнал</span>
-                                                            </a>
-                                                        </li>
-                                                    @endcan
-                                                    @can('fuel_tank_operations_report_advanced_filter_settings_access')
-                                                        <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelTankPeriodReport*') ) active @endif">
-                                                            <a class="nav-link"
-                                                               href="{{ route('building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore') }}">
-                                                                <span class="sidebar-mini"><i
-                                                                        class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                                                <span class="sidebar-normal">Отчет по топливу</span>
-                                                            </a>
-                                                        </li>
-                                                    @endcan
+                                            <span class="sidebar-normal">Топливные емкости</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('fuel_tank_flows_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/fuelFlow*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::fuelFlow::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-drop pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Топливный журнал</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('fuel_tank_operations_report_advanced_filter_settings_access')
+                                    <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelTankPeriodReport*') ) active @endif">
+                                        <a class="nav-link"
+                                        href="{{ route('building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore') }}">
+                                            <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
+                                            <span class="sidebar-normal">Отчет по топливу</span>
+                                        </a>
+                                    </li>
+                                @endcan
 
-                                                    <!-- <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') )
-                                                        active
-                                                    @endif">
+                                <!-- <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') ) active @endif">
                                     <a class="nav-link"
                                        href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
                                         <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
                                         <span class="sidebar-normal">Оборотная ведомость<br>по всем емкостям</span>
                                     </a>
                                 </li> -->
-                                                    @can('fuel_tanks_movements_report_access')
+                                @can('fuel_tanks_movements_report_access')
                                     <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
                                         <a class="nav-link"
                                         href="{{ route('building::tech_acc::fuel::reports::tanksMovementReport::getPageCore') }}">
@@ -533,7 +494,7 @@
                                             <span class="sidebar-normal">Перемещение емкостей</span>
                                         </a>
                                     </li>
-                                                    @endcan
+                                @endcan
                                 <hr>
 
                             </ul>
@@ -700,61 +661,61 @@
                             </ul>
                         </div>
                     </li>
-                                    @endif
-                                    {{--                    @canany(['human_resources_job_categories_view', 'human_resources_report_groups_view', 'human_resources_timecards_view'])--}}
-                                    {{--                        <li class="nav-item @if(Request::is('human_resources') || Request::is('human_resources/*')) active @endif">--}}
-                                    {{--                            <a class="nav-link" data-toggle="collapse" href="#humanResources">--}}
-                                    {{--                                <i class="pe-7s-users"></i>--}}
-                                    {{--                                <p>Человеческие ресурсы--}}
-                                    {{--                                    <b class="caret"></b>--}}
-                                    {{--                                </p>--}}
-                                    {{--                            </a>--}}
-                                    {{--                            <div class="collapse @if(Request::is('human_resources') || Request::is('human_resources/*')) show @endif" id="humanResources">--}}
-                                    {{--                                <ul class="nav">--}}
-                                    {{--                                    @can('human_resources_job_categories_view')--}}
-                                    {{--                                        <li class="nav-item @if (Request::is('human_resources/job_category') || Request::is('human_resources/job_category/*')) active @endif">--}}
-                                    {{--                                            <a class="nav-link" href="{{ route('human_resources.job_category.index') }}">--}}
-                                    {{--                                                <span class="sidebar-mini">ДК</span>--}}
-                                    {{--                                                <span class="sidebar-normal">Должностные категории</span>--}}
-                                    {{--                                            </a>--}}
-                                    {{--                                        </li>--}}
-                                    {{--                                    @endcan--}}
-                                    {{--                                    @can('human_resources_report_group_view')--}}
-                                    {{--                                        <li class="nav-item @if (Request::is('human_resources/report_group') || Request::is('human_resources/report_group/*')) active @endif">--}}
-                                    {{--                                            <a class="nav-link" href="{{ route('human_resources.report_group.index') }}">--}}
-                                    {{--                                                <span class="sidebar-mini">ОГ</span>--}}
-                                    {{--                                                <span class="sidebar-normal">Отчетные группы</span>--}}
-                                    {{--                                            </a>--}}
-                                    {{--                                        </li>--}}
-                                    {{--                                    @endcan--}}
-                                    {{--                                    @can('human_resources_brigade_view')--}}
-                                    {{--                                        <li class="nav-item @if (Request::is('human_resources/brigade') || Request::is('human_resources/brigade/*')) active @endif">--}}
-                                    {{--                                            <a class="nav-link" href="{{ route('human_resources.brigade.index') }}">--}}
-                                    {{--                                                <span class="sidebar-mini">БР</span>--}}
-                                    {{--                                                <span class="sidebar-normal">Бригады</span>--}}
-                                    {{--                                            </a>--}}
-                                    {{--                                        </li>--}}
-                                    {{--                                    @endcan--}}
-                                    {{--                                    @can('human_resources_pay_and_hold_see')--}}
-                                    {{--                                        <li class="nav-item @if (Request::is('human_resources/payment') || Request::is('human_resources/payment/*')) active @endif">--}}
-                                    {{--                                            <a class="nav-link" href="{{ route('human_resources.payment.index') }}">--}}
-                                    {{--                                                <span class="sidebar-mini">ВУ</span>--}}
-                                    {{--                                                <span class="sidebar-normal">Выплаты и удержания</span>--}}
-                                    {{--                                            </a>--}}
-                                    {{--                                        </li>--}}
-                                    {{--                                    @endcan--}}
-                                    {{--                                    @can('human_resources_timecards_view')--}}
-                                    {{--                                        <li class="nav-item @if (Request::is('human_resources/report') || Request::is('human_resources/report/*')) active @endif">--}}
-                                    {{--                                            <a class="nav-link" href="{{ route('human_resources.report.detailed_report') }}">--}}
-                                    {{--                                                <span class="sidebar-mini"><i class="pe-7s-display2 pe-7s-mini"></i></span>--}}
-                                    {{--                                                <span class="sidebar-normal">Табели</span>--}}
-                                    {{--                                            </a>--}}
-                                    {{--                                        </li>--}}
-                                    {{--                                    @endcan--}}
-                                    {{--                                </ul>--}}
-                                    {{--                            </div>--}}
-                                    {{--                        </li>--}}
-                                    {{--                    @endcanany--}}
+                @endif
+                {{--                    @canany(['human_resources_job_categories_view', 'human_resources_report_groups_view', 'human_resources_timecards_view'])--}}
+                {{--                        <li class="nav-item @if(Request::is('human_resources') || Request::is('human_resources/*')) active @endif">--}}
+                {{--                            <a class="nav-link" data-toggle="collapse" href="#humanResources">--}}
+                {{--                                <i class="pe-7s-users"></i>--}}
+                {{--                                <p>Человеческие ресурсы--}}
+                {{--                                    <b class="caret"></b>--}}
+                {{--                                </p>--}}
+                {{--                            </a>--}}
+                {{--                            <div class="collapse @if(Request::is('human_resources') || Request::is('human_resources/*')) show @endif" id="humanResources">--}}
+                {{--                                <ul class="nav">--}}
+                {{--                                    @can('human_resources_job_categories_view')--}}
+                {{--                                        <li class="nav-item @if (Request::is('human_resources/job_category') || Request::is('human_resources/job_category/*')) active @endif">--}}
+                {{--                                            <a class="nav-link" href="{{ route('human_resources.job_category.index') }}">--}}
+                {{--                                                <span class="sidebar-mini">ДК</span>--}}
+                {{--                                                <span class="sidebar-normal">Должностные категории</span>--}}
+                {{--                                            </a>--}}
+                {{--                                        </li>--}}
+                {{--                                    @endcan--}}
+                {{--                                    @can('human_resources_report_group_view')--}}
+                {{--                                        <li class="nav-item @if (Request::is('human_resources/report_group') || Request::is('human_resources/report_group/*')) active @endif">--}}
+                {{--                                            <a class="nav-link" href="{{ route('human_resources.report_group.index') }}">--}}
+                    {{--                                                <span class="sidebar-mini">ОГ</span>--}}
+                    {{--                                                <span class="sidebar-normal">Отчетные группы</span>--}}
+                    {{--                                            </a>--}}
+                {{--                                        </li>--}}
+                {{--                                    @endcan--}}
+                {{--                                    @can('human_resources_brigade_view')--}}
+                {{--                                        <li class="nav-item @if (Request::is('human_resources/brigade') || Request::is('human_resources/brigade/*')) active @endif">--}}
+                {{--                                            <a class="nav-link" href="{{ route('human_resources.brigade.index') }}">--}}
+                {{--                                                <span class="sidebar-mini">БР</span>--}}
+                {{--                                                <span class="sidebar-normal">Бригады</span>--}}
+                {{--                                            </a>--}}
+                {{--                                        </li>--}}
+                {{--                                    @endcan--}}
+                {{--                                    @can('human_resources_pay_and_hold_see')--}}
+                {{--                                        <li class="nav-item @if (Request::is('human_resources/payment') || Request::is('human_resources/payment/*')) active @endif">--}}
+                {{--                                            <a class="nav-link" href="{{ route('human_resources.payment.index') }}">--}}
+                {{--                                                <span class="sidebar-mini">ВУ</span>--}}
+                {{--                                                <span class="sidebar-normal">Выплаты и удержания</span>--}}
+                {{--                                            </a>--}}
+                {{--                                        </li>--}}
+                {{--                                    @endcan--}}
+                {{--                                    @can('human_resources_timecards_view')--}}
+                {{--                                        <li class="nav-item @if (Request::is('human_resources/report') || Request::is('human_resources/report/*')) active @endif">--}}
+                {{--                                            <a class="nav-link" href="{{ route('human_resources.report.detailed_report') }}">--}}
+                {{--                                                <span class="sidebar-mini"><i class="pe-7s-display2 pe-7s-mini"></i></span>--}}
+                {{--                                                <span class="sidebar-normal">Табели</span>--}}
+                {{--                                            </a>--}}
+                {{--                                        </li>--}}
+                {{--                                    @endcan--}}
+                {{--                                </ul>--}}
+                {{--                            </div>--}}
+                {{--                        </li>--}}
+                {{--                    @endcanany--}}
                 @can('users')
                     <li class="nav-item @if (Request::is('users') || Request::is('users/*')) active @endif">
                         <a class="nav-link" href="{{ route('users::index') }}">
