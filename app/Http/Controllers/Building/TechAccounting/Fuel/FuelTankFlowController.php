@@ -226,7 +226,8 @@ class FuelTankFlowController extends StandardEntityResourceController
 
             $this->createFuelTankTransferHistory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHistory);
         }
-
+        
+        $this->createFuelTankTransferHystory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHystory, $entity->id);
         $tank->save();
     }
 
