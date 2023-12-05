@@ -103,10 +103,10 @@
     // Конец Общие
 
     const getAvailableFuelTanksForFlowOperations = () => {
-        let availableFuelTanks = fuelTanksStore.__rawData.filter(el=>el.awaiting_confirmation != 1);
+        let availableFuelTanks = fuelTanksStore.__rawData.filter(el => el.awaiting_confirmation != 1);
 
-        if(!userPermissions.create_fuel_tank_flows_for_any_tank) {
-            availableFuelTanks = availableFuelTanks.filter(el=>el.responsible_id === authUserId)
+        if (!userPermissions.create_fuel_tank_flows_for_any_tank) {
+            availableFuelTanks = availableFuelTanks.filter(el => el.responsible_id === authUserId)
         }
 
         return availableFuelTanks;
@@ -116,6 +116,18 @@
         date1 = new Date(date1);
         date2 = new Date(date2);
         return Math.floor((date2 - date1) / (1000*60*60*24))
+    }
+    
+    function getChoosedItem(id) {
+        let choosedItem = {};
+        let dataGridItems = $('#mainDataGrid').dxDataGrid('instance').getDataSource().items();
+        dataGridItems.forEach(el => {
+            let targetItem = el.items.find(item => item.id === id)
+            if (targetItem) {
+                choosedItem = targetItem;
+            }
+        })
+        return choosedItem;
     }
 
 
