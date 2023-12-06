@@ -4,6 +4,7 @@
             visible: true,
             title: 'Расход топлива',
             contentTemplate: () => {
+                fuelFlowFormData = formItem
                 return getDecreaseFuelPopupContentTemplate(formItem)
             },
         })
@@ -35,7 +36,7 @@
                         dataSource: getAvailableFuelTanksForFlowOperations(),
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
-                        readOnly: editingRowId,
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('fuel_tank_id')),
                     },
                     label: {
                         text: 'Емкость'
@@ -49,8 +50,10 @@
                     dataField: 'event_date',
                     editorType: "dxDateBox",
                     editorOptions: {
-                        readOnly: editingRowId,
-                        value: new Date(),
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
+                        value: getEventDate(),
+                        max: Date(),
+                        min: getThreeDaysEarlierDate()
                     },
                     label: {
                         text: 'Дата операции'
@@ -66,7 +69,7 @@
                     editorType: "dxNumberBox",
                     editorOptions: {
                         min: 1,
-                        readOnly: editingRowId,
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('volume')),
                         format: "#0 л"
                     },
                     label: {
@@ -89,7 +92,7 @@
                     dataField: 'comment',
                     editorType: "dxTextBox",
                     editorOptions: {
-                        readOnly: editingRowId,
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('volume')),
                     },
                     label: {
                         text: 'Комментарий'
@@ -116,7 +119,7 @@
                                 valueExpr: 'id',
                                 displayExpr: 'text',
                                 layout: 'horizontal',
-                                disabled: editingRowId,
+                                disabled: Boolean(isFuelFlowDataFieldUpdateAvailable('fuelConsumerType')),
                                 onValueChanged(e) {
 
                                     const mainForm = $('#mainForm').dxForm('instance')
@@ -144,7 +147,7 @@
                                 dataSource: fuelConsumersStore,
                                 valueExpr: 'id',
                                 displayExpr: 'name',
-                                readOnly: editingRowId,
+                                readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('our_technic_id')),
                             },
                             label: {
                                 text: 'Потребитель'
@@ -160,7 +163,7 @@
                             visible: Boolean(!formItem.our_technic_id && editingRowId),
                             editorOptions: {
                                 dataSource: thirdPartyFuelConsumers,
-                                readOnly: editingRowId, 
+                                readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('third_party_consumer')), 
                             },
                             label: {
                                 text: 'Потребитель'
