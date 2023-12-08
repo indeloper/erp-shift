@@ -1,3 +1,5 @@
+@include('tech_accounting.fuel.tanks.moduleCommonVariables')
+
 <script>
     // Общие
     let editingRowId = 0;

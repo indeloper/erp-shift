@@ -95,7 +95,7 @@
         dynamicGallery.openGallery(elemIndex)
     }
 
-    function addHoverAttachmentElements(elementClass) {
+    function addHoverAttachmentElements(elementClass, isDeleteNotAvailable) {
         $('.' + elementClass).hover(
             function () {
                 if (!$(this).find('.dx-checkbox').length) {
@@ -133,7 +133,7 @@
                     $(this).append($(checkBox));
                 }
 
-                if (externalPermissions.can_delete_project_object_document_files) {
+                if (!isDeleteNotAvailable) {
                     let deleteButton = $('<div />').dxButton({
                         icon: "fas fa-trash",
                         hint: "Удалить",

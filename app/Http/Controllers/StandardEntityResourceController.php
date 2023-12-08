@@ -209,14 +209,7 @@ class StandardEntityResourceController extends Controller
     }
 
     public function beforeUpdate($entity, $data)
-    {
-        // $ignoreDataKeys = [];
-
-        // if(!empty($data['newAttachments']))
-        //     $ignoreDataKeys[] = 'newAttachments';
-        // if(!empty($data['deletedAttachments']))
-        //     $ignoreDataKeys[] = 'deletedAttachments';
-            
+    {            
         return [
             'data' => $data, 
             // 'ignoreDataKeys' => $ignoreDataKeys

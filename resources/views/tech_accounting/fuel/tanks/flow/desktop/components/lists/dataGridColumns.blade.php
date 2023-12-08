@@ -200,7 +200,7 @@
                     
                     visible(e) {
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
-                        if (dateDiff > 1) {
+                        if (dateDiff >= 1) {
                             return true
                         }
 
@@ -243,7 +243,7 @@
                     name: 'delete',
                     visible(e) {
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
-                        if (dateDiff > 1) {
+                        if (dateDiff >= 1) {
                             return false
                         }
                         if (Boolean("{{App::environment('local')}}")) {

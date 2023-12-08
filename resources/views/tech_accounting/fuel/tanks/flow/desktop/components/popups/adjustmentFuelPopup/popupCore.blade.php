@@ -67,7 +67,7 @@
                     dataField: 'comment',
                     editorType: "dxTextBox",
                     editorOptions: {
-                        readOnly: editingRowId,
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('comment')),
                     },
                     label: {
                         text: 'Комментарий'
@@ -91,12 +91,12 @@
                     }],
                 },
 
-                {
-                    item: 'simple',
-                    template: (data, itemElement) => {
-                        renderFileUploader(itemElement)
-                    }
-                },
+                // {
+                //     item: 'simple',
+                //     template: (data, itemElement) => {
+                //         renderFileUploader(itemElement)
+                //     }
+                // },
 
             ]
         })

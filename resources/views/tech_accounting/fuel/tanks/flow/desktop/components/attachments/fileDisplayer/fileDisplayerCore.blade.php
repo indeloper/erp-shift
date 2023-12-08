@@ -1,6 +1,6 @@
 <script>
 
-    const renderFileDisplayer = (wrapperElement) => {
+    const renderFileDisplayer = (wrapperElement, isDeleteNotAvailable) => {
 
         if (!editingRowId) {
             wrapperElement.append('<div id="noAttachmentsNotification" class="documentElemMobile"><div class="popup-field-nodata">Нет сохраненных файлов</div></div>')
@@ -18,20 +18,20 @@
             }).appendTo(wrapperElement);
 
         if (entityInfoByID.isLoaded()) {
-            renderLoadedAttachments(wrapperElement)
+            renderLoadedAttachments(wrapperElement, isDeleteNotAvailable)
         } else {
             entityInfoByID.load()
             let checkEntityInfoByIDAvailable = setInterval(() => {
                 if (entityInfoByID.isLoaded()) {
                     clearInterval(checkEntityInfoByIDAvailable);
-                    renderLoadedAttachments(wrapperElement)
+                    renderLoadedAttachments(wrapperElement, isDeleteNotAvailable)
                 }
             }, 100)
         }
     }
 
-    const renderLoadedAttachments = (filesOnServerListWrapper) => {
-
+    const renderLoadedAttachments = (filesOnServerListWrapper, isDeleteNotAvailable) => {
+        
         $('#loadIndicatorFilesOnServer').remove()
 
         let filesDataset = entityInfoByID.store()?.__rawData?.attachments
@@ -44,7 +44,7 @@
         Object.keys(filesDataset).forEach(group => renderFilesGroup(group, filesDataset[group]))
         addLightgalleryListenersImg('fileImg')
         addLightgalleryListenersVideo('videoFilesOnServer')
-        addHoverAttachmentElements('fileOnServerDivWrapper')
+        addHoverAttachmentElements('fileOnServerDivWrapper', isDeleteNotAvailable)
     }
 
     const renderFilesGroup = (group, groupItems) => {
