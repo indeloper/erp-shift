@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\NotificationCreated;
 use App\Models\User;
 use App\Services\System\NotificationService;
+use App\Telegram\TelegramApi;
+use App\Telegram\TelegramServices;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -40,20 +42,45 @@ class NotificationCreatedListener
             $this->userHasChatIdAndAllowThisNotification($user, $type) ? dump('need send ', $user->id) : dump('no need send ', $user->id);
         }
 
-        $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);     
+        $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);
 
-        if(str_contains($text, 'notificationHook'))
-        {
-            $text = (new NotificationService())->setNotificationHookLink($text);
+        $telegramServices = new TelegramServices;
+        $telegramNotificationTemplate = (new TelegramServices())->defineNotificationTemplate($text);
+        $messageParams = [];
+        if(!$telegramNotificationTemplate && str_contains($text, 'notificationHook')) {
+            $messageParams = ['text' => $telegramServices->setNotificationHookLink($text)];
+        }
+        else {
+            $notificationTemplateClassMethod = $telegramServices->defineNotificationTemplateClassMethod($telegramNotificationTemplate);
+
+            if (count($notificationTemplateClassMethod)) {
+                $notificationTemlateClass = new $notificationTemplateClassMethod['class']();
+                $notificationTemlateMethod = $notificationTemplateClassMethod['method'];
+
+                $messageParams = (new $notificationTemlateClass)->$notificationTemlateMethod($text);
+            }
+        }
+
+        if (!count($messageParams)) {
+            $messageParams['text'] = $text;
+        }
+
+        $message = [
+            'chat_id' => $userChatId,
+            'parse_mode' => 'HTML',
+        ];
+
+        if(!empty($messageParams['text'])) {
+            $message['text'] = $messageParams['text'];
+        }
+
+        if(!empty($messageParams['reply_markup'])) {
+            $message['reply_markup'] = $messageParams['reply_markup'];
         }
 
         try {
             if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
-                Telegram::sendMessage([
-                    'chat_id' => $userChatId,
-                    'parse_mode' => 'HTML',
-                    'text' => $text
-                ]);
+                new TelegramApi('sendMessage', $message);
             }
         } catch (\Throwable $e) {
             try {
@@ -64,18 +91,34 @@ class NotificationCreatedListener
                         $text = $this->createErrorMessage($e);
                     }
 
-                    Telegram::sendMessage([
+                    $message = [
                         'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
                         'parse_mode' => 'HTML',
                         'text' => $text
-                    ]);
+                    ];
+
+                    new TelegramApi('sendMessage', $message);
+
+                    // Telegram::sendMessage([
+                    //     'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                    //     'parse_mode' => 'HTML',
+                    //     'text' => $text
+                    // ]);
                 }
             } catch (\Throwable $e) {
-                Telegram::sendMessage([
+                $message = [
                     'chat_id' => '-1001558926749',
                     'parse_mode' => 'HTML',
                     'text' => $userChatId
-                ]);
+                ];
+
+                new TelegramApi('sendMessage', $message);
+
+                // Telegram::sendMessage([
+                //     'chat_id' => '-1001558926749',
+                //     'parse_mode' => 'HTML',
+                //     'text' => $userChatId
+                // ]);
             }
         }
     }
@@ -173,5 +216,20 @@ class NotificationCreatedListener
             PHP_EOL . $path . PHP_EOL . $userInfo . PHP_EOL . $dataInfo;
 
         return $text;
+    }
+
+    public function sendTelegramMessage($message)
+    {
+        $ch = curl_init('https://api.telegram.org/bot' . config('telegram.bot_token') . '/sendMessage');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($message, JSON_UNESCAPED_UNICODE));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        $res = curl_exec($ch);
+        curl_close($ch);
+
+        $res = json_encode($res, JSON_UNESCAPED_UNICODE);
     }
 }
