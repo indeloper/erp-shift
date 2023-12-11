@@ -148,6 +148,10 @@ class ObjectController extends Controller
 
         $this->syncResponsibles($data, $object->id);
 
+        if ($data->is_participates_in_material_accounting) {
+            $this->handleCheckedParticipatesInMaterialAccounting($object->id);
+        }
+
         if (!isset($data->is_participates_in_documents_flow) and $data->is_participates_in_documents_flow) {
             $this->handleCheckedParticipatesInDocumentsFlow($object->id);
             $this->notifyResponsibleUsers($object->id);
@@ -235,6 +239,28 @@ class ObjectController extends Controller
         ObjectResponsibleUser::where('object_id', $id)
             ->whereNotIn('user_id', $newResponsiblesIds)
             ->delete();
+    }
+
+    public function handleCheckedParticipatesInMaterialAccounting($objectId)
+    {
+        $notificationRecipients =
+            ObjectResponsibleUser::query()
+                ->where('object_id', $objectId)
+                ->where(
+                    'object_responsible_user_role_id',
+                    (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'))
+                ->pluck('user_id')->toArray();
+
+
+        $objectName = ProjectObject::findOrFail($objectId)->short_name;
+
+        foreach ($notificationRecipients as $userId) {
+            Notification::create([
+                'name' => 'Объект:' . "\n" . $objectName . "\n" . 'участвует в производстве работ.',
+                'user_id' => $userId,
+                'type' => 0,
+            ]);
+        }
     }
 
     public function handleCheckedParticipatesInDocumentsFlow($objectId)
@@ -494,6 +520,7 @@ class ObjectController extends Controller
 
         $object = ProjectObject::findOrFail($id);
         $oldIsParticipatesInDocumentsFlow = $object->is_participates_in_documents_flow;
+        $oldIsParticipatesInMaterialAccounting = $object->is_participates_in_material_accounting;
 
         $lastObjectResponsibleId = ObjectResponsibleUser::orderByDesc('id')->first()->id;
 
@@ -501,12 +528,17 @@ class ObjectController extends Controller
 
         $this->syncResponsibles($data, $id);
 
+        if (isset($data->is_participates_in_material_accounting)) {
+            if ($data->is_participates_in_material_accounting > $oldIsParticipatesInMaterialAccounting) {
+                $this->handleCheckedParticipatesInMaterialAccounting($id);
+            }
+        }
+
         if (isset($data->is_participates_in_documents_flow)) {
             if ($data->is_participates_in_documents_flow > $oldIsParticipatesInDocumentsFlow) {
                 $this->handleCheckedParticipatesInDocumentsFlow($id);
                 $this->notifyResponsibleUsers($id);
-            }
-            else if ($data->is_participates_in_documents_flow < $oldIsParticipatesInDocumentsFlow)
+            } else if ($data->is_participates_in_documents_flow < $oldIsParticipatesInDocumentsFlow)
                 $this->addDocumentsToArchive($id);
         }
 
@@ -532,7 +564,7 @@ class ObjectController extends Controller
             ProjectObjectDocument::find($id)->update([
                 'document_status_id' => $archivedStatusId
             ]);
-        
+
             (new ProjectObjectDocumentsController(['Документ перемещен в архив']))->addComment($id);
             (new ProjectObjectDocumentsController)->addDataToActionLog('archive', ['document_status_id' => $archivedStatusId], $id);
         }
