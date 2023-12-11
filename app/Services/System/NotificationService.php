@@ -6,6 +6,7 @@ namespace App\Services\System;
 
 use App\Models\Notification;
 use App\Models\Notifications\TgNotificationUrl;
+use App\Telegram\TelegramApi;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -51,11 +52,19 @@ class NotificationService
             $text = ($e instanceof ValidationException) ? $this->reportValidationErrors($e) : $this->createErrorMessage($e);
 
             try {
-                Telegram::sendMessage([
+                $message = [
                     'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
                     'parse_mode' => 'HTML',
                     'text' => $text,
-                ]);
+                ];
+
+                new TelegramApi('sendMessage', $message);
+
+                // Telegram::sendMessage([
+                //     'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                //     'parse_mode' => 'HTML',
+                //     'text' => $text,
+                // ]);
             } catch (\Throwable $t) {
                 // Неудачная отправка сообщения в Telegram
             }
@@ -174,13 +183,4 @@ class NotificationService
 
         return $text;
     }
-
-    public function setNotificationHookLink($text)
-    {
-        $hookTypeAndId = explode('notificationHook_', explode('_endNotificationHook', $text)[0])[1];
-        $notificationHookLink = asset('/notifications').'?notificationHook='.$hookTypeAndId;
-        $text = str_replace('notificationHook_'.$hookTypeAndId.'_endNotificationHook', '', $text);
-        return $text.' '.$notificationHookLink;
-    }
-
 }

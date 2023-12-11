@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
+use App\Actions\Fuel\FuelActions;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
@@ -98,7 +99,7 @@ class FuelTankController extends StandardEntityResourceController
         return json_encode(array(
             "data" => $entities
         ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 
     }
 
@@ -146,9 +147,9 @@ class FuelTankController extends StandardEntityResourceController
         return User::query()->active()
             ->whereIn('group_id', Group::FOREMEN)
             ->orWhere('group_id', 43)
-                ->select(['id', 'user_full_name'])
-                ->orderBy('last_name')
-                ->get();
+            ->select(['id', 'user_full_name'])
+            ->orderBy('last_name')
+            ->get();
     }
 
     public function getCompanies() {
@@ -169,8 +170,8 @@ class FuelTankController extends StandardEntityResourceController
 
         return json_encode(
             $objects
-        ,
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+            ,
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function validateTankNumberUnique(Request $request)
@@ -182,7 +183,7 @@ class FuelTankController extends StandardEntityResourceController
                     'tank_number', $request->value
                 )->exists()
             ],
-            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+                JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         } else {
             return json_encode([
                 'result' => !FuelTank::where([
@@ -190,7 +191,7 @@ class FuelTankController extends StandardEntityResourceController
                     ['tank_number', $request->value]
                 ])->exists()
             ],
-            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+                JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         }
     }
 
@@ -199,8 +200,7 @@ class FuelTankController extends StandardEntityResourceController
         $data = json_decode($request->data);
         $tank = $this->baseModel::findOrFail($data->id);
 
-        if($tank->object_id == $data->object_id && $tank->responsible_id == $data->responsible_id)
-        {
+        if($tank->object_id == $data->object_id && $tank->responsible_id == $data->responsible_id) {
             return json_encode(['message'=>'Отказ. Попытка создать новую запись с текущими параметрами.']);
         }
 
@@ -251,42 +251,14 @@ class FuelTankController extends StandardEntityResourceController
         $fuelTankId = json_decode($request->fuelTankId);
         $tank = $this->baseModel::findOrFail($fuelTankId);
 
-        $lastTankTransferHistory = FuelTankTransferHistory::query()
-            ->whereNull('fuel_tank_flow_id')
-            ->whereNull('tank_moving_confirmation')
-            ->orderByDesc('id')
-            ->firstOrFail();
-
-        FuelTankTransferHistory::create([
-            'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $tank->id,
-            'previous_object_id' => $lastTankTransferHistory->previous_object_id,
-            'object_id' => $tank->object_id,
-            'previous_responsible_id' => $lastTankTransferHistory->previous_responsible_id,
-            'responsible_id' => $tank->responsible_id,
-            'fuel_level' => $tank->fuel_level,
-            'event_date' => now(),
-            'tank_moving_confirmation' => true
-        ]);
-
-        $tank->awaiting_confirmation = false;
-        $tank->comment_movement_tmp = null;
-        $tank->save();
+        if (!$tank->awaiting_confirmation) {
+            return;
+        }
 
         $userId = App::environment('local') ? Auth::user()->id : $tank->responsible_id;
-        $isLocal = App::environment('local');
+        $user = User::find($userId);
 
-        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-' . $tank->id . '_endNotificationHook';
-        $notification = Notification::where([
-            ['user_id', $userId],
-            ['name', 'LIKE', '%' . $notificationHook . '%']
-        ])->orderByDesc('id')->first();
-
-        if ($notification) {
-            $notificationWithoutHook = str_replace($notificationHook, '', $notification->name);
-            DB::table('notifications')->where('id', $notification->id)->update(['name' => $notificationWithoutHook]);
-            // в этой версии laravel не работает saveQuetly, поэтому пришлось делать через DB, чтобы не отправлялось лишнее сообщение
-        }
+        (new FuelActions)->handleMovingFuelTankConfirmation($tank, $user);
     }
 
     public function getFuelTankConfirmationFormData(Request $request)
@@ -295,8 +267,7 @@ class FuelTankController extends StandardEntityResourceController
         $tank = $this->baseModel::findOrFail($fuelTankId);
         $responseData = new \stdClass();
 
-        if(!$tank->awaiting_confirmation)
-        {
+        if(!$tank->awaiting_confirmation) {
             $responseData->status = 'not need confirmation';
             return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         }

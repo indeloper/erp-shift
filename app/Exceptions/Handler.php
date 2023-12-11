@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Telegram\TelegramApi;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -53,6 +54,14 @@ class Handler extends ExceptionHandler
             }
 
             if (isset($text)) {
+                $message = [
+                    'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                    'parse_mode' => 'HTML',
+                    'text' => $text
+                ];
+
+                new TelegramApi('sendMessage', $message);
+
                 /*Telegram::sendMessage([
                     'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
                     'parse_mode' => 'HTML',
