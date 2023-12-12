@@ -255,6 +255,7 @@ class FuelReportController extends Controller
             ->orderBy('fuel_tank_transfer_histories.responsible_id') 
             ->orderBy('fuel_tank_transfer_histories.fuel_tank_id')
             ->orderBy('fuel_tank_transfer_histories.object_id')
+            ->orderBy('fuel_tank_flow_types.id')
             ->orderBy('fuel_tank_transfer_histories.event_date')
             ->orderBy('fuel_tank_transfer_histories.id')
             ->get(['fuel_tank_transfer_histories.responsible_id as responsible_id',
@@ -281,6 +282,7 @@ class FuelReportController extends Controller
                                 ORDER BY fuel_tank_transfer_histories.responsible_id, 
                                 fuel_tank_transfer_histories.fuel_tank_id,
                                 fuel_tank_transfer_histories.object_id, 
+                                fuel_tank_flow_types.id,
                                 fuel_tank_transfer_histories.event_date,
                                 fuel_tank_transfer_histories.id
                             ) AS group_marker
@@ -520,7 +522,7 @@ class FuelReportController extends Controller
             ['responsible_id', $responsibleId],
             ['fuel_tank_id', $fuelTankId],
             ['object_id', $objectId],
-            ['event_date', '<=',  $dateFrom],
+            ['event_date', '<',  $dateFrom],
         ])
         ->orderBy('id', 'desc')
         ->first();

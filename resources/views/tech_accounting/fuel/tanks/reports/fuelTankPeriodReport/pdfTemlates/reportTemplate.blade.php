@@ -131,12 +131,7 @@
                     @endphp
 
                     @foreach ($objectTransferGroups as $flowTypeSlug=>$objectTransferGroup)
-                        {{--
-                                        @if(!$flowTypeSlug)
-                                            @continue
-                                        @endif
-                        --}}
-
+                        
                         @if (!isset($objectTransferGroups['income']) && !$isEmptyIncomeRegionRendered)
                             @php $isEmptyIncomeRegionRendered = true; @endphp
                             <tr>
@@ -148,7 +143,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="td-normal" colspan=4>Нет данных</td>
+                                <td class="td-center" colspan=4>Нет данных</td>
                             </tr>
                             <tr class="table-summary">
                                 <td class="td-normal table-summary" colspan=3>
@@ -160,12 +155,9 @@
                             </tr>
 
                         @endif
+                   
 
-
-                    {{--   @continue($flowTypeSlug === 'notIncludedTank' || !$flowTypeSlug) --}} 
-                    
-
-                        @if($flowTypeSlug==='income' || $flowTypeSlug==='outcome')
+                        @if($flowTypeSlug==='income' || $flowTypeSlug==='outcome' || $flowTypeSlug==='adjustment')
                             <tr>
                                 <td class="td-normal row-without-borders" colspan=4></td>
                             </tr>
@@ -177,6 +169,9 @@
                                     @endif
                                     @if(empty($isEmptyOutcomeRegionRendered) && $flowTypeSlug==='outcome')
                                         Расход
+                                    @endif
+                                    @if($flowTypeSlug==='adjustment')
+                                        Корректировки
                                     @endif
 
                                 </td>
@@ -193,13 +188,28 @@
                                     @if($flowTypeSlug==='outcome')
                                         {{$fuelFlowOperation['fuel_consumer']}}
                                     @endif
+                                    @if($flowTypeSlug==='adjustment')
+                                        Корректировка остатков топлива
+                                    @endif
                                 </td>
                                 <td class="td-center">
                                     {{$fuelFlowOperation['event_date'] ? $carbonInstance::create($fuelFlowOperation['event_date'])->format('d.m.Y') : ''}}
                                 </td>
                                 <td class="td-normal">{{$fuelFlowOperation['document']}}</td>
                                 <td class="td-normal"
-                                    style="text-align:right">{{number_format($fuelFlowOperation['volume'], 0, ',', ' ')}}</td>
+                                    style="text-align:right"
+                                >
+                                    @if($flowTypeSlug==='adjustment')
+                                        @if($fuelFlowOperation['volume'] > 0)
+                                            + 
+                                        @endif
+                                        @if($fuelFlowOperation['volume'] < 0)
+                                            - 
+                                        @endif
+                                    @endif
+
+                                    {{number_format($fuelFlowOperation['volume'], 0, ',', ' ')}}
+                                </td>
                             </tr>
 
                             @php
@@ -214,31 +224,33 @@
                         @endforeach
 
                         @if($incomesTotalAmount || $outcomesTotalAmount)
-                            <tr class="table-summary">
-                                <td class="td-normal table-summary">
-                                    Итого по @if($flowTypeSlug==='income')
-                                        приходу
-                                    @else
-                                        расходу
-                                    @endif
-                                </td>
-                                <td class="td-center table-summary">
-                                    ×
-                                </td>
-                                <td class="td-center table-summary">
-                                    ×
-                                </td>
-                                <td class="td-normal table-summary" style="font-weight:bolder; text-align:right">
-                                    <b>
-                                        @if($flowTypeSlug==='income')
-                                            {{number_format($incomesTotalAmount, 0, ',', ' ')}}
-                                        @else
-                                            {{number_format($outcomesTotalAmount, 0, ',', ' ')}}
+                            @if($flowTypeSlug==='income' || $flowTypeSlug==='outcome')
+                                <tr class="table-summary">
+                                    <td class="td-normal table-summary">
+                                        Итого по @if($flowTypeSlug==='income')
+                                            приходу
+                                        @elseif($flowTypeSlug==='outcome')
+                                            расходу
                                         @endif
-                                    </b>
-                                </td>
+                                    </td>
+                                    <td class="td-center table-summary">
+                                        ×
+                                    </td>
+                                    <td class="td-center table-summary">
+                                        ×
+                                    </td>
+                                    <td class="td-normal table-summary" style="font-weight:bolder; text-align:right">
+                                        <b>
+                                            @if($flowTypeSlug==='income')
+                                                {{number_format($incomesTotalAmount, 0, ',', ' ')}}
+                                            @else
+                                                {{number_format($outcomesTotalAmount, 0, ',', ' ')}}
+                                            @endif
+                                        </b>
+                                    </td>
 
-                            </tr>
+                                </tr>
+                            @endif
                         @endif
 
                         @if($flowTypeSlug==='income')
@@ -266,12 +278,12 @@
                                 <td class="td-normal row-without-borders" colspan=4></td>
                             </tr>
                             <tr class="table-summary">
-                                <td class="td-center" colspan=4>
+                                <td class="td-center table-summary" colspan=4>
                                     Расход
                                 </td>
                             </tr>
                             <tr>
-                                <td class="td-normal" colspan=4>Нет данных</td>
+                                <td class="td-center" colspan=4>Нет данных</td>
                             </tr>
                         @endif
 

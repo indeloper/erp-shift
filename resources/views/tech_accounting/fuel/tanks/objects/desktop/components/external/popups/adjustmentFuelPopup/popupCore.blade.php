@@ -1,9 +1,10 @@
 <script>
-    function showAdjustmentFuelPopup(formItem) {
+    function showAdjustmentFuelPopup(formItem = {}) {
         externalPopup.option({
             visible: true,
             title: 'Корректировка остатков топлива',
             contentTemplate: () => {
+                fuelFlowFormData = formItem
                 return getAdjustmentFuelPopupContentTemplate(formItem)
             },
         })
@@ -47,6 +48,23 @@
                 },
 
                 {
+                    // visible: false,
+                    dataField: 'event_date',
+                    editorType: "dxDateBox",
+                    editorOptions: {
+                        readOnly: externalEditingRowId,
+                        value: getEventDate(),
+                    },
+                    label: {
+                        text: 'Дата операции'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+
+                {
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
@@ -76,22 +94,6 @@
                     },
                 },
 
-                {
-                    visible: false,
-                    dataField: 'event_date',
-                    editorType: "dxDateBox",
-                    editorOptions: {
-                        readOnly: externalEditingRowId,
-                        value: new Date(),
-                    },
-                    label: {
-                        text: 'Дата операции'
-                    },
-                    validationRules: [{
-                        type: 'required',
-                        message: 'Укажите значение',
-                    }],
-                },
                 {
                     itemType: "group",
                     caption: 'Файлы',
