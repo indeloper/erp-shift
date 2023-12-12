@@ -13,7 +13,7 @@ class FuelActions {
         $lastTankTransferHistory = FuelTankTransferHistory::query()
             ->where('fuel_tank_id', $tank->id)
             ->whereNull('fuel_tank_flow_id')
-            ->whereNull('tank_moving_confirmation')
+            // ->whereNull('tank_moving_confirmation')
             ->orderByDesc('id')
             ->firstOrFail();
 
