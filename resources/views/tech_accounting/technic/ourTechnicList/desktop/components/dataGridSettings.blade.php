@@ -1,7 +1,6 @@
 <script>
     const dataGridSettings = {
-        height: getGridHeight(),
-
+        height: "calc(100vh - 200px)",
         focusedRowEnabled: true,
         hoverStateEnabled: true,
         columnAutoWidth: false,

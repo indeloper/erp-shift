@@ -19,6 +19,7 @@ use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -156,15 +157,41 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->createFuelTankTransferHistory($entity->fuel_tank_id, $tankCurrentFuelLevel, $lastFuelTankTransferHistory, $entity->id, $entity->event_date);
 
     }
+    
+    public function beforeUpdate($entity, $data)
+    {
+        if ($entity->volume != $data['volume'] || $entity->fuel_tank_id != $data['fuel_tank_id']) {
+            $fuelLevel = $this->syncFuelLevelData($entity, $data);
+        }
+
+        $historyLog = FuelTankTransferHistory::where(['fuel_tank_flow_id' => $entity->id])->orderByDesc('id')->first();
+
+        $historyLog->fuel_tank_id = $data['fuel_tank_id'];
+        $historyLog->event_date = $data['event_date'];
+
+        if(isset($fuelLevel)) {
+            $historyLog->fuel_level = $fuelLevel;
+        }
+        
+        $historyLog->save();
+
+        unset($data['fuelConsumerType']);
+        $data['our_technic_id'] = $data['our_technic_id'] ?? null;
+        $data['third_party_consumer'] = $data['third_party_consumer'] ?? null;
+        
+        return [
+            'data' => $data,
+        ];
+    }
 
     public function beforeDelete($entity)
     {
         $tank = FuelTank::findOrFail($entity->fuel_tank_id);
         $tankCurrentFuelLevel = $tank->fuel_level;
-        $lastFuelTankTransferHistory = FuelTankTransferHistory::where('fuel_tank_id', $entity->fuel_tank_id)->orderBy('id', 'desc')->first();  
-        
-        if(!$lastFuelTankTransferHistory) {
-            $lastFuelTankTransferHistory = new FuelTankTransferHistory;
+
+        $fuelflowHistory = FuelTankTransferHistory::where('fuel_tank_flow_id', $entity->id)->orderByDesc('id')->first();
+        if($fuelflowHistory) {
+            $fuelflowHistory->delete();
         }
         
         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
@@ -179,7 +206,6 @@ class FuelTankFlowController extends StandardEntityResourceController
             $tank->fuel_level = round($tankCurrentFuelLevel - $entity->volume);
         }
         
-        $this->createFuelTankTransferHistory($entity->fuel_tank_id, $tank->fuel_level, $lastFuelTankTransferHistory, $entity->id);
         $tank->save();
     }
 
@@ -273,6 +299,62 @@ class FuelTankFlowController extends StandardEntityResourceController
             "data" => $thirdPartyFuelConsumers
         ),
         JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
+
+    public function syncFuelLevelData($entity, $data) 
+    {
+        $tank = FuelTank::find($data['fuel_tank_id']);
+
+        if ($entity->fuel_tank_id != $data['fuel_tank_id']) {
+            $oldTank = FuelTank::find($entity->fuel_tank_id);
+            
+            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
+                $oldTank->fuel_level = round($oldTank->fuel_level + $entity->volume);
+                $tank->fuel_level = round($tank->fuel_level - $entity->volume);
+            }
+    
+            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
+                $oldTank->fuel_level = round($oldTank->fuel_level - $entity->volume);
+                $tank->fuel_level = round($tank->fuel_level + $entity->volume);
+            }
+    
+            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
+                $oldTank->fuel_level = round($oldTank->fuel_level - $entity->volume);
+                $tank->fuel_level = round($tank->fuel_level + $entity->volume);
+            }
+
+            $oldTank->save();
+            $tank->save();
+        }
+
+        if ($entity->volume != $data['volume']) {
+
+            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
+                if ($data['volume'] > $entity->volume) {
+                    $tank->fuel_level = $tank->fuel_level - ($data['volume'] - $entity->volume);
+                }
+                else {
+                    $tank->fuel_level = $tank->fuel_level + ($data['volume'] - $entity->volume);
+                }
+            }
+   
+            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
+                if ($data['volume'] > $entity->volume) {
+                    $tank->fuel_level = $tank->fuel_level + ($data['volume'] - $entity->volume);
+                }
+                else {
+                    $tank->fuel_level = $tank->fuel_level - ($data['volume'] - $entity->volume);
+                }
+            }
+    
+            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
+                $tank->fuel_level - $entity->volume + $data['volume'];
+            }
+
+            $tank->save();
+        }
+
+        return $tank->fuel_level;
     }
 
 }

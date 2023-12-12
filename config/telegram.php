@@ -13,7 +13,8 @@ return [
     | https://core.telegram.org/bots#botfather
     |
     */
-    'bot_token' => env('TELEGRAM_BOT_TOKEN', '870110089:AAFR5XtfWTiKpn5FkhN_5I_BMj0P_lLHLVU'),
+    'bot_token' => env('TELEGRAM_BOT_TOKEN', ''),
+    'internal_bot_token' => env('INTERNAL_TELEGRAM_BOT_TOKEN', ''),
 
     /*
     |--------------------------------------------------------------------------

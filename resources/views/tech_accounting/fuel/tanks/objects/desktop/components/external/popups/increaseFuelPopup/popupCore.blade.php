@@ -5,6 +5,7 @@
             visible: true,
             title: 'Поступление топлива',
             contentTemplate: () => {
+                fuelFlowFormData = formItem
                 return getIncreaseFuelPopupContentTemplate(formItem)
             },
         })
@@ -53,7 +54,7 @@
                         dataSource: fuelContractorsStore,
                         valueExpr: 'id',
                         displayExpr: 'short_name',
-                        readOnly: externalEditingRowId,
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('contractor_id')),
                     },
                     label: {
                         text: 'Поставщик'
@@ -63,12 +64,31 @@
                         message: 'Укажите значение',
                     }],
                 },
+                
+                {
+                    dataField: 'event_date',
+                    editorType: "dxDateBox",
+                    editorOptions: {
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
+                        value: getEventDate(),
+                        max: Date(),
+                        min: getThreeDaysEarlierDate()
+                    },
+                    label: {
+                        text: 'Дата операции'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+
                 {
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
                         min: 1,
-                        readOnly: externalEditingRowId,
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('volume')),
                         format: "#0 л"
                     },
                     label: {
@@ -86,26 +106,12 @@
                         }
                     ],
                 },
-                {
-                    dataField: 'event_date',
-                    editorType: "dxDateBox",
-                    editorOptions: {
-                        readOnly: externalEditingRowId,
-                        value: new Date(),
-                    },
-                    label: {
-                        text: 'Дата операции'
-                    },
-                    validationRules: [{
-                        type: 'required',
-                        message: 'Укажите значение',
-                    }],
-                },
+                
                 {
                     dataField: 'document',
                     editorType: "dxTextBox",
                     editorOptions: {
-                        readOnly: externalEditingRowId,
+                        
                     },
                     label: {
                         text: 'Номер документа'
@@ -116,7 +122,7 @@
                     dataField: 'comment',
                     editorType: "dxTextBox",
                     editorOptions: {
-                        readOnly: externalEditingRowId,
+                        
                     },
                     label: {
                         text: 'Комментарий'
@@ -137,7 +143,7 @@
                         {
                             item: 'simple',
                             template: (data, itemElement) => {
-                                renderFileDisplayer(itemElement)
+                                renderFileDisplayer(itemElement, Boolean(isFuelFlowDataFieldUpdateAvailable('attachment')))
                             }
                         },
                     ]

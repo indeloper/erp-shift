@@ -4,6 +4,7 @@
             visible: true,
             title: 'Корректировка остатков топлива',
             contentTemplate: () => {
+                fuelFlowFormData = formItem
                 return getAdjustmentFuelPopupContentTemplate(formItem)
             },
         })
@@ -46,6 +47,23 @@
                 },
 
                 {
+                    // visible: false,
+                    dataField: 'event_date',
+                    editorType: "dxDateBox",
+                    editorOptions: {
+                        readOnly: editingRowId,
+                        value: getEventDate(),
+                    },
+                    label: {
+                        text: 'Дата операции'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+
+                {
                     dataField: 'volume',
                     editorType: "dxNumberBox",
                     editorOptions: {
@@ -67,36 +85,20 @@
                     dataField: 'comment',
                     editorType: "dxTextBox",
                     editorOptions: {
-                        readOnly: editingRowId,
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('comment')),
                     },
                     label: {
                         text: 'Комментарий'
                     },
                 },
 
-                {
-                    visible: false,
-                    dataField: 'event_date',
-                    editorType: "dxDateBox",
-                    editorOptions: {
-                        readOnly: editingRowId,
-                        value: new Date(),
-                    },
-                    label: {
-                        text: 'Дата операции'
-                    },
-                    validationRules: [{
-                        type: 'required',
-                        message: 'Укажите значение',
-                    }],
-                },
-
-                {
-                    item: 'simple',
-                    template: (data, itemElement) => {
-                        renderFileUploader(itemElement)
-                    }
-                },
+                
+                // {
+                //     item: 'simple',
+                //     template: (data, itemElement) => {
+                //         renderFileUploader(itemElement)
+                //     }
+                // },
 
             ]
         })

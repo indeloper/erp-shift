@@ -14,6 +14,7 @@
         },
 
         {
+            visible: false,
             caption: "Поставщик",
             dataField: "contractor_id",
             lookup: {
@@ -21,9 +22,9 @@
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
-            visible: false
         },
         {
+            visible: false,
             caption: "Потребитель",
             dataField: "our_technic_id",
             lookup: {
@@ -31,7 +32,6 @@
                 valueExpr: "id",
                 displayExpr: "name"
             },
-            visible: false
         },
         {
             dataField: "event_date_custom",
@@ -59,10 +59,7 @@
                 const reportButton = $('<div>').dxButton({
                     text: 'Отчет',
                     onClick: function () {
-                        // console.log(currentLoadOptions);
-                        // const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPersonalPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum
                         const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum + '&loadOptions=' + JSON.stringify(currentLoadOptions)
-
                         window.open(url, '_blank');
                     },
                 }).appendTo(headerContent);
@@ -73,6 +70,7 @@
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
+            width: '140px',
             lookup: {
                 dataSource: fuelFlowTypesStore,
                 valueExpr: "id",
@@ -119,6 +117,7 @@
             dataType: "date",
             width: 150,
             sortOrder: 'desc',
+            width: '90px',
         },
 
         {
@@ -133,7 +132,7 @@
                 const objectName = projectObjectsStore.__rawData?.find(el => el.id === options.row.data.object_id)?.short_name
                 $('<span>')
                     .attr('title', options.text + ' (' + objectName + ')')
-                    .text(options.text + ' (' + objectName + ')')
+                    .html(`<div><span style="font-weight:bold">${options.text}</span> (${objectName})</div>`)
                     .appendTo(container)
             }
         },
@@ -143,8 +142,9 @@
             lookup: {
                 dataSource: companiesStore,
                 valueExpr: "id",
-                displayExpr: "name"
+                displayExpr: "name",
             },
+            width: '150px',
             // groupIndex: 0,
         },
         {
@@ -155,6 +155,7 @@
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
+            width: '150px',
         },
         {
             caption: "Объем (л)",
@@ -189,7 +190,8 @@
                     .addClass(cssTextColor)
                     .text(new Intl.NumberFormat('ru-RU').format(displayValue * 1000 / 1000))
                     .appendTo(container)
-            }
+            },
+            width: '100px',
         },
 
         {
@@ -200,7 +202,7 @@
                     
                     visible(e) {
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
-                        if (dateDiff > 1) {
+                        if (dateDiff >= 1) {
                             return true
                         }
 
@@ -243,7 +245,7 @@
                     name: 'delete',
                     visible(e) {
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
-                        if (dateDiff > 1) {
+                        if (dateDiff >= 1) {
                             return false
                         }
                         if (Boolean("{{App::environment('local')}}")) {

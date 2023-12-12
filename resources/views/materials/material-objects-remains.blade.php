@@ -74,7 +74,7 @@
         .dx-datagrid-filter-panel {
             display: none !important;
         }
-        
+
         .material-name {
             text-overflow: ellipsis;
             overflow: hidden;
@@ -110,25 +110,15 @@
         let filterText = '';
         let dataSourceLoadOptions = {};
 
-        function getGridHeight() {
-            let contentDiv = document.querySelector('.content')
-            let footerDiv = document.querySelector('.footer')
-            return 0.85 * (contentDiv.clientHeight - footerDiv.clientHeight)
-        }
-
         function getKeyByValue(object, value) {
             return Object.keys(object).find(key => object[key] === value);
         }
-                        
+
         function getDetailingLevel() {
-            return detailing_level_codes[detailing_level] 
-                ? detailing_level_codes[detailing_level] 
+            return detailing_level_codes[detailing_level]
+                ? detailing_level_codes[detailing_level]
                 : new URL(window.location.href).searchParams.get('detailing_level')
         }
-
-        $(function () {
-            $("div.content").children(".container-fluid.pd-0-360").removeClass();
-        });
 
         $(function () {
             let projectObjectsStore = new DevExpress.data.CustomStore({
@@ -153,7 +143,7 @@
                         return $.getJSON("{{route('materials.objects.remains.list')}}",
                             {
                                 data: JSON.stringify(loadOptions),
-                                detailing_level: getDetailingLevel() 
+                                detailing_level: getDetailingLevel()
                             });
                     },
                     onLoaded: function (result) {
@@ -173,7 +163,7 @@
                             name: "materialsRemainsGrid",
                             editorType: "dxDataGrid",
                             editorOptions: {
-                                height: getGridHeight(),
+                                height: "calc(100vh - 250px)",
                                 dataSource: materialsRemainsDataSource,
                                 remoteOperations: true,
                                 focusedRowEnabled: false,
@@ -268,7 +258,7 @@
                                         dataField: "quantity",
                                         sortOrder: 'asc',
                                         dataType: "number",
-                                        calculateCellValue: function (rowData) { 
+                                        calculateCellValue: function (rowData) {
                                             return new Intl.NumberFormat('ru-RU').format( Math.round(rowData.quantity * 100) / 100) + " " + rowData.unit_measure_value;
                                         },
                                         width: 150
@@ -298,14 +288,14 @@
                     }
                 ]
             }).dxForm("instance");
-  
+
             function createGridReportButtons(){
                 let groupCaption = $('.material-snapshot-grid').find('.dx-form-group-with-caption');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
                 groupCaption.find('span').addClass('dx-form-group-caption-span-with-buttons');
                 let groupCaptionButtonsDiv = groupCaption.find('.dx-form-group-caption-buttons');
 
-                
+
                 $('<div>')
                     .dxButtonGroup({
                         keyExpr: "hint",
@@ -328,7 +318,7 @@
                             },
                             {
                                 icon: 'fas fa-square',
-                                hint: 'Минимальная детализация',   
+                                hint: 'Минимальная детализация',
                             }
                         ]
                 })
@@ -351,8 +341,8 @@
                         }
                     })
                     .addClass('dx-form-group-caption-button')
-                    .prependTo(groupCaptionButtonsDiv)                  
-                    
+                    .prependTo(groupCaptionButtonsDiv)
+
             }
 
             createGridReportButtons();
@@ -363,7 +353,7 @@
 
         });
 
-       
-        
+
+
     </script>
 @endsection

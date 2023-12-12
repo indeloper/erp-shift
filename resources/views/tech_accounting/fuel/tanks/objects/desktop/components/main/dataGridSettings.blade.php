@@ -1,7 +1,6 @@
 <script>
     const dataGridSettings = {
-        height: getGridHeight(),
-
+        height: "calc(100vh - 200px)",
         focusedRowEnabled: true,
         hoverStateEnabled: true,
         columnAutoWidth: false,
@@ -12,7 +11,7 @@
         syncLookupFilterValues: false,
         columnHidingEnabled: false,
         showRowLines: true,
-        remoteOperations: true,
+        remoteOperations: false,
 
         scrolling: {
             mode: 'infinite',

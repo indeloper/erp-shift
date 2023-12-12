@@ -54,7 +54,9 @@
                     dataField: 'event_date',
                     editorType: "dxDateBox",
                     editorOptions: {
-                        value: new Date(),
+                        value: getEventDate(),
+                        max: Date(),
+                        min: getThreeDaysEarlierDate()
                     },
                     label: {
                         text: 'Дата операции'

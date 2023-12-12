@@ -1,6 +1,6 @@
 <script>
     const dataGridSettings = {
-        height: getGridHeight(),
+        height: "calc(100vh - 200px)",
         remoteOperations: {
             filtering: true,
             groupPaging: false

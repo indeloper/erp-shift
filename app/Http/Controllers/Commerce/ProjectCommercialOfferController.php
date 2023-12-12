@@ -220,8 +220,8 @@ class ProjectCommercialOfferController extends Controller
         //     abort(403);
         // }
 
-        $manual_notes = CommercialOfferManualNote::all();
-        $manual_requirements = CommercialOfferManualRequirement::all();
+        $manual_notes = CommercialOfferManualNote::where('commercial_offer_type', '=', $commercial_offer->is_tongue ? 1 : 2)->get();
+        $manual_requirements = CommercialOfferManualRequirement::where('commercial_offer_type', '=', $commercial_offer->is_tongue ? 1 : 2)->get();
 
         $work_volume = WorkVolume::where('work_volumes.id', $commercial_offer->work_volume_id)
             ->leftJoin('projects', 'projects.id', '=', 'work_volumes.project_id')
@@ -318,8 +318,8 @@ class ProjectCommercialOfferController extends Controller
             return redirect()->route('projects::commercial_offer::card_'. ($commercial_offer->is_tongue ? 'tongue' : 'pile'), [$project_id, $com_offer_id]);
         }
 
-        $manual_notes = CommercialOfferManualNote::all();
-        $manual_requirements = CommercialOfferManualRequirement::all();
+        $manual_notes = CommercialOfferManualNote::where('commercial_offer_type', '=', $commercial_offer->is_tongue ? 1 : 2)->get();
+        $manual_requirements = CommercialOfferManualRequirement::where('commercial_offer_type', '=', $commercial_offer->is_tongue ? 1 : 2)->get();
 
         $work_volume = WorkVolume::where('work_volumes.id', $commercial_offer->work_volume_id)
             ->with('works_offer.materials', 'works_offer.manual')

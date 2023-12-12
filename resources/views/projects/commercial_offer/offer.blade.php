@@ -40,11 +40,26 @@
 
     <body>
         <htmlpageheader name="page-header">
-            @if($company->id == 1)
-                <img src="{{ asset('img/kp_head.png') }}" width="500px;" style="padding-left: 45px; padding-right: 35px;">
-            @elseif($company->id == 2)
-                <img src="{{ asset('img/kp_head_2.png') }}" width="500px;" style="padding-left: 45px; padding-right: 35px;">
-            @endif
+            <table>
+                <tr>
+                    <td style="width:70%; padding-left: 45px;">
+                        <img src="{{ $company->logo }}" width="250px">
+                    </td>
+                    <td style="text-align: right; padding-right: 35px; font-size: 10px">
+                        {{ $company->legal_address }}
+                        <br>
+                        Тел.: {{ $company->phone }}
+                        <br>
+                        ОГРН: {{ $company->ogrn }}
+                        <br>
+                        ИНН: {{ $company->inn }}
+                        <br>
+                        {{ $company->web_site }}
+                        <br>
+                        {{ $company->email }}
+                    </td>
+                </tr>
+            </table>
         </htmlpageheader>
         <div class="offer-list clearfix">
             <div class="main-content">

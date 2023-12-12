@@ -48,7 +48,8 @@ class Kernel extends ConsoleKernel
         Commands\CreateNewPlanMat::class,
 //        Commands\SendNotificationsNeedContract::class
         // q3w custom commands
-        Commands\CheckOverdueMaterialAccountingOperation::class
+        Commands\CheckOverdueMaterialAccountingOperation::class,
+        Commands\SetTelegramWebhook::class
     ];
 
     /**

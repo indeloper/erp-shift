@@ -251,3 +251,12 @@ i.fas.fa-random.minus, i.fas.fa-minus {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
+
+.main-panel .content {
+    padding: 10px 0;
+}
+
+.container-fluid {
+    padding-right:10px; 
+    padding-left: 10px;
+}
