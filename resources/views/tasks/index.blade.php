@@ -19,7 +19,6 @@
     @if(Auth::user()->can('dashboard_smr'))
         @include('tasks.modules.dashboard_smr')
     @endif
-    <br>
     @if(Auth::user()->can('dashbord'))
 
         <div class="row" id="statistic">

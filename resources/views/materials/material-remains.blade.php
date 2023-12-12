@@ -114,10 +114,6 @@
         let dataSourceLoadOptions = {};
 
         $(function () {
-            $("div.content").children(".container-fluid.pd-0-360").removeClass();
-        });
-
-        $(function () {
             //<editor-fold desc="JS: DataSources">
             let projectObjectsStore = new DevExpress.data.CustomStore({
                 key: "id",

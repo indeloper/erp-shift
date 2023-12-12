@@ -1,9 +1,4 @@
 <script>
-    function getGridHeight() {
-        let content = document.getElementsByClassName('content')[0]
-        return 0.82 * content.clientHeight;
-    }
-
     function getUrlWithId(url, id) {
         return url.replace("/setId", "/" + id)
     }
