@@ -1,20 +1,14 @@
 <script>
     const dataGridSettings = {
-        height: getGridHeight(),
-
-        // remoteOperations
-        // изменяли настройки, были вопросы в связи с группировкой по объектам и кастомным rowFilter
-
+        height: "calc(100vh - 200px)",
         focusedRowEnabled: true,
         hoverStateEnabled: true,
         columnAutoWidth: false,
         showBorders: true,
         showColumnLines: true,
-        // allowColumnResizing: true,
         columnMinWidth: 50,
         columnResizingMode: 'nextColumn',
         syncLookupFilterValues: false,
-        // wordWrapEnabled: true,
         showRowLines: true,
         remoteOperations: true,
         scrolling: {
@@ -28,15 +22,12 @@
         headerFilter: {
             visible: false,
         },
-
-
         filterPanel: {
             visible: false,
             customizeText: (e) => {
                 filterText = e.text;
             }
         },
-
         paging: {
             enabled: true,
             pageSize: 100,

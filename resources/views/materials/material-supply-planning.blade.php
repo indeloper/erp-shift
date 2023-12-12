@@ -75,9 +75,6 @@
 
         @section('js_footer')
             <script>
-                $(function () {
-                    $("div.content").children(".container-fluid.pd-0-360").removeClass();
-                });
 
                 $(function () {
                     let dataSourceLoadOptions = {};

@@ -5,11 +5,6 @@
         return url.replace("/setId", "/" + id)
     }
 
-    function getGridHeight() {
-        let content = document.getElementsByClassName('content')[0]
-        return 0.82 * content.clientHeight;
-    }
-
     function resetVars() {
         editingRowId = 0;
     }

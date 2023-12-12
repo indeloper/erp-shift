@@ -60,10 +60,6 @@
     <script>
         let dataSourceLoadOptions = {};
 
-        $(function () {
-            $("div.content").children(".container-fluid.pd-0-360").removeClass();
-        });
-
         let editForm = {
             colCount: 1,
             items: [

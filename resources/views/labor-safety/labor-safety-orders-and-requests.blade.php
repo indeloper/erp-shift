@@ -242,10 +242,6 @@
         })
 
         $(function () {
-            $("div.content").children(".container-fluid.pd-0-360").removeClass();
-        });
-
-        $(function () {
             //<editor-fold desc="JS: DataSources">
 
             let requestsDataSource = new DevExpress.data.DataSource({

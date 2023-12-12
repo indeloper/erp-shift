@@ -86,10 +86,6 @@
         let dataSourceLoadOptions = {};
 
         $(function () {
-            $("div.content").children(".container-fluid.pd-0-360").removeClass();
-        });
-
-        $(function () {
             //<editor-fold desc="JS: DataSources">
             let projectObjectsStore = new DevExpress.data.CustomStore({
                 key: "id",
@@ -235,9 +231,7 @@
                 paging: {
                     pageSize: 100
                 },
-                height: function () {
-                    return $("div.content").height()
-                },
+                height: "calc(100vh - 408px)",
                 showColumnLines: true,
                 focusedRowEnabled: false,
                 hoverStateEnabled: true,
@@ -717,7 +711,6 @@
                     {
                         itemType: "group",
                         caption: "Список операций",
-
                         items: [
                             {
                                 editorType: "dxDataGrid",
