@@ -12,7 +12,7 @@
         syncLookupFilterValues: false,
         columnHidingEnabled: false,
         showRowLines: true,
-        remoteOperations: true,
+        remoteOperations: false,
 
         scrolling: {
             mode: 'infinite',
