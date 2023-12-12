@@ -64,6 +64,25 @@
                         message: 'Укажите значение',
                     }],
                 },
+                
+                {
+                    dataField: 'event_date',
+                    editorType: "dxDateBox",
+                    editorOptions: {
+                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
+                        value: getEventDate(),
+                        max: Date(),
+                        min: getThreeDaysEarlierDate()
+                    },
+                    label: {
+                        text: 'Дата операции'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+
                 {
                     dataField: 'volume',
                     editorType: "dxNumberBox",
@@ -87,23 +106,7 @@
                         }
                     ],
                 },
-                {
-                    dataField: 'event_date',
-                    editorType: "dxDateBox",
-                    editorOptions: {
-                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
-                        value: getEventDate(),
-                        max: Date(),
-                        min: getThreeDaysEarlierDate()
-                    },
-                    label: {
-                        text: 'Дата операции'
-                    },
-                    validationRules: [{
-                        type: 'required',
-                        message: 'Укажите значение',
-                    }],
-                },
+                
                 {
                     dataField: 'document',
                     editorType: "dxTextBox",
