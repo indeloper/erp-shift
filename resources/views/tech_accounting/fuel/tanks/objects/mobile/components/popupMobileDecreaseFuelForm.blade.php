@@ -20,6 +20,15 @@
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
+            onContentReady(e) {
+                
+                if (formItem.third_party_mark) {
+                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===1))
+                }
+                else {
+                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===0))
+                }
+            },
             items: [
                 {
                     visible: false,
@@ -116,6 +125,16 @@
                                 valueExpr: 'id',
                                 displayExpr: 'text',
                                 layout: 'horizontal',
+                                onValueChanged(e) {
+                                    let technicSelectBox = $('#our_technic_id_dxSelectBox').dxSelectBox('instance')
+
+                                    if (e.value === 'third_party_technik_radio_elem') {
+                                        technicSelectBox.option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===1))
+                                    }
+                                    if (e.value === 'our_technik_radio_elem') {
+                                        technicSelectBox.option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===0))
+                                    }
+                                }
                             }
                         }, 
                         {
@@ -135,41 +154,12 @@
                                 message: 'Укажите значение',
                             }],
                         },
-                        {
-                            dataField: 'third_party_consumer',
-                            editorType: "dxAutocomplete",
-                            visible: false,
-                            editorOptions: {
-                                dataSource: thirdPartyFuelConsumers,
-                            },
-                            label: {
-                                text: 'Потребитель'
-                            },
-                            validationRules: [{
-                                type: 'required',
-                                message: 'Укажите значение',
-                            }],
-                        },
+                        
                     ]
                 }
                 
             ],
-            onFieldDataChanged: (e) => {
-
-                if (e.dataField === 'fuelConsumerType') {
-                    if (e.value === 'third_party_technik_radio_elem') {
-                        e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
-                        e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', true)
-                        delete e.component.option('formData').our_technic_id
-                    } 
-                    
-                    if (e.value === 'our_technik_radio_elem') { 
-                        e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
-                        e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
-                        delete e.component.option('formData').third_party_consumer
-                    }
-                }
-            }
+           
         })
     }
 </script>
