@@ -30,6 +30,16 @@
             },
 
             update: function (key, values) {
+
+                if(values.third_party_mark) {
+                    // values.company_id = null
+                    datafieldsTechnicOwnerGroupGroup1.forEach(el => values[el] = null )
+                } 
+                else {
+                    // values.contractor_id = null
+                    datafieldsTechnicOwnerGroupGroup2.forEach(el => values[el] = null )
+                }
+                
                 return $.ajax({
                     url: getUrlWithId("{{route($routeNameFixedPart.'resource.update', ['id'=>'setId'])}}", key),
                     method: "PUT",
@@ -100,6 +110,27 @@
             return $.getJSON(url);
         }
     })
+
+    const companiesStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getCompanies')}}"
+            return $.getJSON(url);
+        }
+    })
     
+    companiesStore.load()
+
+    const contractorsStore = new DevExpress.data.CustomStore({
+        key: "id",
+        loadMode: "raw",
+        load: function () {
+            let url = "{{route($routeNameFixedPart.'getContractors')}}"
+            return $.getJSON(url);
+        }
+    })
+
+    contractorsStore.load()
 
 </script>

@@ -57,7 +57,7 @@
                 let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
 
                 if (fuelFlowType === 'outcome') {
-                    if (choosedItem.our_technic_id) {
+                    if (!choosedItem.third_party_mark) {
                         choosedItem.fuelConsumerType = 'our_technik_radio_elem'
                     } else {
                         choosedItem.fuelConsumerType = 'third_party_technik_radio_elem'

@@ -56,6 +56,8 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $entities = $this->baseModel
             ->dxLoadOptions($options)
+            ->leftJoin('our_technics', 'our_technics.id', '=', 'fuel_tank_flows.our_technic_id')
+            ->select(['fuel_tank_flows.*', 'our_technics.third_party_mark'])
             ->when(!User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'), function($query) {
                 return $query->where('fuel_tank_flow_type_id', '<>', FuelTankFlowType::where('slug', 'adjustment')->first()->id);
             })
@@ -255,6 +257,18 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         return OurTechnic::all();
     }
+
+    public function getFuelConsumersOurTechnics()
+    {
+        return OurTechnic::where('third_party_mark', 0)->get();
+    }
+
+    public function getFuelConsumersThirdParty()
+    {
+        return OurTechnic::where('third_party_mark', 1)->get();
+    }
+
+    
 
     public function getFuelFlowTypes()
     {
