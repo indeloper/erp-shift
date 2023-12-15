@@ -338,7 +338,7 @@
                                                         <span class="sidebar-normal">Список техники</span>
                                                     </a>
                                                 </li>
-
+                                @canany(['technics_brands_models_categories_read_create_update_delete'])
                                                 <li class="nav-item @if(Request::is('building/tech_acc/technic/technicCategory*')) active @endif">
                                                     <a class="nav-link"
                                                        href="{{ route('building::tech_acc::technic::technicCategory::getPageCore') }}">
@@ -377,6 +377,7 @@
                                                         <span class="sidebar-normal">Модели техники</span>
                                                     </a>
                                                 </li>
+                                @endcanany
 
                             </ul>
                         </div>
