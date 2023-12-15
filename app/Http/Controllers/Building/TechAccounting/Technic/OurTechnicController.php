@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Building\TechAccounting\Technic;
 use Illuminate\Http\Request;
 use App\Models\TechAcc\OurTechnic;
 use App\Http\Controllers\StandardEntityResourceController;
+use App\Models\Company\Company;
+use App\Models\Contractors\Contractor;
+use App\Models\Employees\Employee;
 use App\Models\TechAcc\TechnicBrand;
 use App\Models\TechAcc\TechnicBrandModel;
 use App\Models\TechAcc\TechnicCategory;
@@ -21,14 +24,18 @@ class OurTechnicController extends StandardEntityResourceController
         $this->baseBladePath = resource_path().'/views/tech_accounting/technic/ourTechnicList';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
+        $this->modulePermissionsGroups = [13];
     }
 
     public function getTechnicResponsibles()
     {
-        return User::query()->active()
-                ->select(['id', 'user_full_name'])
-                ->orderBy('last_name')
-                ->get();
+        return Employee::query()
+            ->where('dismissal_date', '0000-00-00')
+            ->orWhereNull('dismissal_date')
+            ->leftJoin('users', 'users.id', '=', 'employees.user_id')
+            ->select(['employees.id', 'users.user_full_name'])
+            ->orderBy('last_name')
+            ->get();
     }
 
     public function getTechnicBrands()
@@ -39,6 +46,16 @@ class OurTechnicController extends StandardEntityResourceController
     public function getTechnicModels()
     {
         return TechnicBrandModel::all();
+    }
+
+    public function getCompanies()
+    {
+        return Company::all();
+    }
+
+    public function getContractors()
+    {
+        return Contractor::all();
     }
     
 }

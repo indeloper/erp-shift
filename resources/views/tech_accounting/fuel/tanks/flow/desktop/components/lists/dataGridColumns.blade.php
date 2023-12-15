@@ -28,7 +28,7 @@
             caption: "Потребитель",
             dataField: "our_technic_id",
             lookup: {
-                dataSource: fuelConsumersStore,
+                dataSource: fuelConsumers,
                 valueExpr: "id",
                 displayExpr: "name"
             },

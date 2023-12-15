@@ -2,30 +2,75 @@
     const dataGridColumns = [
         
         {
+            visible: false,
             dataField: "exploitation_start",
             caption: "Начало эксплуатации",
             dataType: "date",
-            visible: false
         },
 
         {
+            visible: false,
             caption: "Марка (old)",
             dataField: "brand",
-            visible: false,
             editorOptions: {
                 readOnly:true
             }
         },
         {
+            visible: false,
             caption: "Модель(old)",
             dataField: "model",
-            visible: false,
             editorOptions: {
                 readOnly:true
             }
         },
-        
 
+        {
+            visible: false,
+            caption: "Компания",
+            dataField: "company_id",
+            lookup: {
+                dataSource: companiesStore,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
+        },
+        {
+            visible: false,
+            caption: "Контрагент",
+            dataField: "contractor_id",
+            lookup: {
+                dataSource: contractorsStore,
+                valueExpr: "id",
+                displayExpr: "short_name"
+            },
+        },
+        {
+            visible: false,
+            caption: "Год выпуска",
+            dataField: "manufacture_year",
+            dataType: "number",
+        },
+        {
+            visible: false,
+            caption: "Заводской номер",
+            dataField: "serial_number",
+        },
+        {
+            visible: false,
+            caption: "Гос. номер",
+            dataField: "registration_number",
+        },
+        {
+            caption: "Сторонняя техника",
+            dataField: "third_party_mark",
+            dataType: "boolean",
+            // editorType: 'dxCheckBox',
+            editorOptions: {
+                enableThreeStateBehavior: false
+            },
+            width: 75,
+        },
         {
             caption: "Идентификатор",
             dataField: "id",
@@ -83,6 +128,7 @@
         
         
         {
+            visible: userPermissions.technics_create_update_delete,
             type: "buttons",
             buttons: [
                 'edit',

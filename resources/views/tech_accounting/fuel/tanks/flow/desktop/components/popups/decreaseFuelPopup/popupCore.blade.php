@@ -15,8 +15,16 @@
             validationGroup: "documentValidationGroup",
             labelMode: 'outside',
             labelLocation: 'left',
-            formData: formItem,
-           
+            formData: formItem,  
+             
+            onContentReady(e) {
+                if (formItem.third_party_mark) {
+                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumers.__rawData.filter(el=>el.third_party_mark===1))
+                }
+                else {
+                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumers.__rawData.filter(el=>el.third_party_mark===0))
+                }
+            },
             items: [
                 {
                     visible: false,
@@ -120,20 +128,15 @@
                                 displayExpr: 'text',
                                 layout: 'horizontal',
                                 disabled: Boolean(isFuelFlowDataFieldUpdateAvailable('fuelConsumerType')),
+                                
                                 onValueChanged(e) {
-
-                                    const mainForm = $('#mainForm').dxForm('instance')
+                                    let technicSelectBox = $('#our_technic_id_dxSelectBox').dxSelectBox('instance')
 
                                     if (e.value === 'third_party_technik_radio_elem') {
-                                        mainForm.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
-                                        mainForm.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', true)
-                                        delete mainForm.option('formData').our_technic_id
-                                    } 
-                                    
-                                    if (e.value === 'our_technik_radio_elem') { 
-                                        mainForm.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
-                                        mainForm.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
-                                        delete mainForm.option('formData').third_party_consumer
+                                        technicSelectBox.option('dataSource', fuelConsumers.__rawData.filter(el=>el.third_party_mark===1))
+                                    }
+                                    if (e.value === 'our_technik_radio_elem') {
+                                        technicSelectBox.option('dataSource', fuelConsumers.__rawData.filter(el=>el.third_party_mark===0))
                                     }
                                 }
                             },
@@ -141,29 +144,13 @@
                         {
                             dataField: 'our_technic_id',
                             editorType: "dxSelectBox",
-                            visible: formItem.our_technic_id || !editingRowId,
+
                             editorOptions: {
                                 elementAttr: {id: "our_technic_id_dxSelectBox"},
-                                dataSource: fuelConsumersStore,
+                                dataSource: fuelConsumers,
                                 valueExpr: 'id',
                                 displayExpr: 'name',
                                 readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('our_technic_id')),
-                            },
-                            label: {
-                                text: 'Потребитель'
-                            },
-                            validationRules: [{
-                                type: 'required',
-                                message: 'Укажите значение',
-                            }],
-                        },
-                        {
-                            dataField: 'third_party_consumer',
-                            editorType: "dxAutocomplete",
-                            visible: Boolean(!formItem.our_technic_id && editingRowId),
-                            editorOptions: {
-                                dataSource: thirdPartyFuelConsumers,
-                                readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('third_party_consumer')), 
                             },
                             label: {
                                 text: 'Потребитель'

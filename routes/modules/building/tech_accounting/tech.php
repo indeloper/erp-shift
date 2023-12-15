@@ -84,22 +84,24 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
     Route::group(['prefix' => 'ourTechnicList', 'as' => 'ourTechnicList::'], function () {
         Route::get('getTechnicBrands', 'OurTechnicController@getTechnicBrands')->name('getTechnicBrands');
         Route::get('getTechnicModels', 'OurTechnicController@getTechnicModels')->name('getTechnicModels');
+        Route::get('getCompanies', 'OurTechnicController@getCompanies')->name('getCompanies');
+        Route::get('getContractors', 'OurTechnicController@getContractors')->name('getContractors');
 
         Route::get('getPermissions', 'OurTechnicController@getPermissions')->name('getPermissions');
         Route::get('/', 'OurTechnicController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'OurTechnicController');
     });
-    Route::group(['prefix' => 'technicCategory', 'as' => 'technicCategory::'], function () {
+    Route::group(['prefix' => 'technicCategory', 'as' => 'technicCategory::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
         Route::get('getPermissions', 'TechnicCategoryController@getPermissions')->name('getPermissions');
         Route::get('/', 'TechnicCategoryController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'TechnicCategoryController');
     });
-    Route::group(['prefix' => 'technicBrand', 'as' => 'technicBrand::'], function () {
+    Route::group(['prefix' => 'technicBrand', 'as' => 'technicBrand::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
         Route::get('getPermissions', 'TechnicBrandController@getPermissions')->name('getPermissions');
         Route::get('/', 'TechnicBrandController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'TechnicBrandController');
     });
-    Route::group(['prefix' => 'technicBrandModel', 'as' => 'technicBrandModel::'], function () {
+    Route::group(['prefix' => 'technicBrandModel', 'as' => 'technicBrandModel::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
         Route::get('getPermissions', 'TechnicBrandModelController@getPermissions')->name('getPermissions');
         Route::get('/', 'TechnicBrandModelController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'TechnicBrandModelController');
@@ -108,6 +110,7 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
     Route::get('getTechnicBrands', 'TechnicBrandController@getTechnicBrands')->name('getTechnicBrands');
     Route::get('getTechnicCategories', 'TechnicCategoryController@getTechnicCategories')->name('getTechnicCategories');
     Route::get('getTechnicResponsibles', 'OurTechnicController@getTechnicResponsibles')->name('getTechnicResponsibles');
+    
 });
 
 // КОНЕЦ Новый раздел учета техники
@@ -143,10 +146,10 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::get('getFuelTanks', 'FuelTankFlowController@getFuelTanks')->name('getFuelTanks');
         Route::get('getFuelContractors', 'FuelTankFlowController@getFuelContractors')->name('getFuelContractors');
         Route::get('getFuelConsumers', 'FuelTankFlowController@getFuelConsumers')->name('getFuelConsumers');
+
         Route::get('getFuelFlowTypes', 'FuelTankFlowController@getFuelFlowTypes')->name('getFuelFlowTypes');
         Route::post('uploadFile', 'FuelTankFlowController@uploadFile')->name('uploadFile');
-        Route::get('getThirdPartyFuelConsumers', 'FuelTankFlowController@getThirdPartyFuelConsumers')->name('getThirdPartyFuelConsumers');
-
+        
         Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
         Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'FuelTankFlowController');
