@@ -62,7 +62,7 @@ class FuelTankFlowController extends StandardEntityResourceController
                 return $query->where('fuel_tank_flow_type_id', '<>', FuelTankFlowType::where('slug', 'adjustment')->first()->id);
             })
             ->when(!User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows'), function($query) {
-                return $query->where('responsible_id', Auth::user()->id);
+                return $query->where('fuel_tank_flows.responsible_id', Auth::user()->id);
             })
             ->get();
 
