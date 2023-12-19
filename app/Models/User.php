@@ -842,14 +842,15 @@ class User extends Authenticatable
      * @param $declension
      * @return array|string|string[]
      * @throws Exception
+     * @example User::find($userId)->format('L f. p.', 'родительный'); // returns Иванов -> Иванова А. С.
      */
-    public function format(string $format = 'LFP', $declension = null) {
+    public function format(string $format = 'LFP', $declension = null): string {
         $patronymicExcludes = ['Угли','угли', 'Оглы', 'оглы', 'Оглу', 'оглу'];
 
         $fullName = str_replace($patronymicExcludes, '', $this->long_full_name);
 
         if (!empty($declension)) {
-            $fullName = inflectName($fullName, $declension);
+            $fullName = inflectName($fullName, $declension, mb_strtolower($this->gender));
         }
 
         $lastName = explode(' ', $fullName)[0];
@@ -888,8 +889,13 @@ class User extends Authenticatable
             $result = str_replace('P', '', $result);
         }
 
-        $result = str_replace('. .', '.', $result);
+        return str_replace('. .', '.', $result);
+    }
 
-        return $result;
+    public function getExternalUserUrl()
+    {
+        return $this->chat_id 
+            ? 'tg://user?id='.$this->chat_id 
+            : asset('/users/card').'/'.$this->id ?? null;
     }
 }

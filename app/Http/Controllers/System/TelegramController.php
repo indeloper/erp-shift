@@ -12,47 +12,49 @@ class TelegramController extends Controller
     public function requestDispatching(Request $request)
     {
         $event = $request->callback_query ?? null;
+
         if (isset($event['data'])) {
 
-            $eventData = json_decode($event['data']);
+            // $eventData = json_decode($event['data']);
 
-            if ($eventData->eventName === 'fuelTankMovementConfirmation') {
-                $this->removeInlineButton(
-                    $event['message']['chat']['id'],
-                    $event['message']['message_id'],
-                    $event['message']['text']
-                );
-
-                (new FuelDialogs)
-                    ->fuelTankMovementConfirmation(
-                        $eventData->eventId,
-                        $event['from']['id']
-                    );
-
-                $this->closeDialog($event['message']['chat']['id']);
+            if (json_decode($event['data'])->eventName === 'fuelTankMovementConfirmation') {
+                (new FuelDialogs)->fuelTankMovementConfirmation($event);
+                // $this->handleFuelTankMovementConfirmation($event);
             }
         }
     }
 
-    public function removeInlineButton($chatId, $messageId, $text)
-    {
-        $data = array(
-            'chat_id' => $chatId,
-            'message_id' => $messageId,
-            'text' => $text,
-            'reply_markup' => json_encode(['inline_keyboard' => []])
-        );
+    // public function handleFuelTankMovementConfirmation($event)
+    // {
+    //     // $this->removeInlineButton(
+    //     //     $event['message']['chat']['id'],
+    //     //     $event['message']['message_id'],
+    //     //     $event['message']['text']
+    //     // );
 
-        new TelegramApi('editMessageText', $data);
-    }
+    //     (new FuelDialogs)->fuelTankMovementConfirmation($event);
 
-    public function closeDialog($chatId)
-    {
-        $data = array(
-            'chat_id' => $chatId,
-            'text' => '',
-        );
+    //     // $eventData = json_decode($event['data']);
+    //     // (new FuelDialogs)
+    //     //     ->fuelTankMovementConfirmation(
+    //     //         $eventData->eventId,
+    //     //         $event['from']['id']
+    //     //     );
 
-        new TelegramApi('sendMessage', $data);
-    }
+    //     // $this->closeDialog($event['message']['chat']['id']);
+    // }
+
+    // public function removeInlineButton($chatId, $messageId, $text)
+    // {
+    //     $data = array(
+    //         'chat_id' => $chatId,
+    //         'message_id' => $messageId,
+    //         'text' => $text,
+    //         'reply_markup' => json_encode(['inline_keyboard' => []])
+    //     );
+
+    //     new TelegramApi('editMessageText', $data);
+    // }
+
+    
 }

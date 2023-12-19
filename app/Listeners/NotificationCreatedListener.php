@@ -44,35 +44,13 @@ class NotificationCreatedListener
 
         $text = (new NotificationService())->replaceUrl($text, $notificationCreated->notification_id);
 
-        $telegramServices = new TelegramServices;
-        $telegramNotificationTemplate = (new TelegramServices())->defineNotificationTemplate($text);
-        $messageParams = [];
-        if(!$telegramNotificationTemplate && str_contains($text, 'notificationHook')) {
-            $messageParams = ['text' => $telegramServices->setNotificationHookLink($text)];
-        }
-        else {
-            $notificationTemplateClassMethod = $telegramServices->defineNotificationTemplateClassMethod($telegramNotificationTemplate);
-
-            if (count($notificationTemplateClassMethod)) {
-                $notificationTemlateClass = new $notificationTemplateClassMethod['class']();
-                $notificationTemlateMethod = $notificationTemplateClassMethod['method'];
-
-                $messageParams = (new $notificationTemlateClass)->$notificationTemlateMethod($text);
-            }
-        }
-
-        if (!count($messageParams)) {
-            $messageParams['text'] = $text;
-        }
+        $messageParams = (new TelegramServices)->getMessageParams(['text' => $text]);
 
         $message = [
             'chat_id' => $userChatId,
             'parse_mode' => 'HTML',
+            'text' => $messageParams['text'] ?? ''
         ];
-
-        if(!empty($messageParams['text'])) {
-            $message['text'] = $messageParams['text'];
-        }
 
         if(!empty($messageParams['reply_markup'])) {
             $message['reply_markup'] = $messageParams['reply_markup'];
@@ -80,7 +58,7 @@ class NotificationCreatedListener
 
         try {
             if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
-                new TelegramApi('sendMessage', $message);
+                new TelegramApi('sendMessage', $message, $messageParams['options'] ?? []);
             }
         } catch (\Throwable $e) {
             try {
