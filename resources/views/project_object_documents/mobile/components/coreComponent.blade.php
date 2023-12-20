@@ -145,7 +145,26 @@
             grouped: true,
             collapsibleGroups: true,
             groupTemplate(data) {
-                return $(`<div>Объект: ${data.key}</div>`);
+                let colorsArr = []
+                data.items.forEach((el)=>{
+                    if(!colorsArr[el.status.project_object_documents_status_type.style]){
+                        colorsArr.push(el.status.project_object_documents_status_type.style)
+                        colorsArr[el.status.project_object_documents_status_type.style] = 1
+                    } else {
+                        colorsArr[el.status.project_object_documents_status_type.style]++
+                    }
+                })
+
+                let objectInfoWrapper = $('<div>')
+                
+                $(`<div>Объект: ${data.key}</div>`).appendTo(objectInfoWrapper)
+                let groupRow = $('<div style="display:flex; margin-top: 10px">').appendTo(objectInfoWrapper)
+                colorsArr.forEach((el, i, arr)=>{
+                    $(`<div class="colored-couners-mobile" style="background:${el}">${arr[el]}</div>`)
+                        .appendTo(groupRow)
+                })
+
+                return objectInfoWrapper;
             },
             itemTemplate: function (data) {
                 const listElement = $('<div>').addClass('documentsListElemWrapper')

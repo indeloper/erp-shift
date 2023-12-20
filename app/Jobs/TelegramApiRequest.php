@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\Fuel\FuelActions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -21,11 +22,13 @@ class TelegramApiRequest implements ShouldQueue
 
     protected $url;
     protected $data;
+    protected $options;
 
-    public function __construct($url, $data)
+    public function __construct($url, $data, $options = [])
     {
         $this->url = $url;
         $this->data = $data;
+        $this->options = $options;
     }
 
     /**
@@ -42,6 +45,15 @@ class TelegramApiRequest implements ShouldQueue
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_exec($ch);
+        $response = json_decode(curl_exec($ch));
+
+        if(isset($this->options['tankId'])) {
+            (new FuelActions)->storeFuelTankChatMessageTmp(
+                $this->options['tankId'], 
+                $this->data['chat_id'], 
+                $this->data['text'],
+                $response->result->message_id
+            );
+        }
     }
 }

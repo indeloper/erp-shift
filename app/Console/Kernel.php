@@ -49,7 +49,8 @@ class Kernel extends ConsoleKernel
 //        Commands\SendNotificationsNeedContract::class
         // q3w custom commands
         Commands\CheckOverdueMaterialAccountingOperation::class,
-        Commands\SetTelegramWebhook::class
+        Commands\SetTelegramWebhook::class,
+        Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class
     ];
 
     /**
@@ -88,6 +89,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('materialOperation:checkOverdue')->everyThirtyMinutes();
 
         (new ProjectObjectDocumentsNotifications)->handle();
+
+        $schedule->command('fuelTank:notifyAboutMovingConfirmationDelay')->dailyAt('09:09');
     }
 
     /**

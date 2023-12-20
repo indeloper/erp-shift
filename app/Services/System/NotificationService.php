@@ -33,7 +33,7 @@ class NotificationService
         }
 
         try {
-            $urlPattern = '/\b(?:https?|ftp|tg|mailto):\/\/[^\s\'"<>]+/i';
+            $urlPattern = '/\b(?:https?|ftp|mailto):\/\/[^\s\'"<>]+/i';
 
             preg_match_all($urlPattern, $message, $urls);
 

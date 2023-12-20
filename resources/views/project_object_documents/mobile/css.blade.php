@@ -196,4 +196,16 @@
         width: 22px !important;
         height: 22px !important;
     }
+
+    .colored-couners-mobile {
+        display: flex; 
+        align-items:center; 
+        justify-content: center;
+        padding: 3px; 
+        margin-right: 6px; 
+        width: 30px; 
+        height: 30px; 
+        border-radius: 50%; 
+        color: white
+    }
 </style>

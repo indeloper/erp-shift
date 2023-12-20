@@ -16,6 +16,7 @@ use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankMovement;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
+use App\Notifications\Fuel\FuelNotifications;
 use App\Services\Common\FileSystemService;
 use App\Services\SystemService;
 use Illuminate\Support\Facades\App;
@@ -126,7 +127,7 @@ class FuelTankController extends StandardEntityResourceController
             'responsible_id' => $data['responsible_id'] ?? $tank->responsible_id ?? null,
             'fuel_level' => $tank->fuel_level,
             'event_date' => $data['event_date'] ?? now(),
-            'tank_moving_confirmation' => true
+            'tank_moving_confirmation' => null
         ]);
 
         if (empty($data['responsible_id'])) {
@@ -213,7 +214,8 @@ class FuelTankController extends StandardEntityResourceController
             'responsible_id' => $data->responsible_id,
             'fuel_level' => $tank->fuel_level,
             'event_date' => $data->event_date,
-            'tank_moving_confirmation' => (int)$tank->responsible_id === (int)$data->responsible_id
+            'tank_moving_confirmation' => null
+            // 'tank_moving_confirmation' => (int)$tank->responsible_id === (int)$data->responsible_id
         ]);
 
         if(!empty($data->comment_movement_tmp)) {
@@ -284,18 +286,6 @@ class FuelTankController extends StandardEntityResourceController
 
     public function notifyNewTankResponsible($tank)
     {
-        // if(!empty($needNotification)) {
-        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-' . $tank->id . '_endNotificationHook';
-        $notificationText =
-            'Подтвердите получение топливной емкости № '
-            . $tank->tank_number . ' на объекте ' . ProjectObject::find($tank->object_id)->short_name
-            . ' ' . $notificationHook;
-
-        Notification::create([
-            'name' => $notificationText,
-            'user_id' => App::environment('local') ? Auth::user()->id : $tank->responsible_id,
-            'type' => 0,
-        ]);
-        // }
+        (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
     }
 }
