@@ -211,6 +211,7 @@ return [
          */
         \App\Providers\ObserversServiceProvider::class,
         \App\Providers\BladeDirectivesProvider::class,
+        \App\Providers\BlueprintMacroServiceProvider::class
     ],
 
     /*
