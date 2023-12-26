@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Models\Notifications\NotificationsForPermissions;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Permission extends Model
@@ -70,5 +71,14 @@ class Permission extends Model
             ->toArray();
 
         return $permissionUsers;
+    }
+
+    public function scopeUsersIdsByCodename(Builder $query, $codename = null)
+    {
+        if (!$codename) {
+            return [];
+        }
+        
+        return $this->getUsersIdsByCodename($codename);
     }
 }

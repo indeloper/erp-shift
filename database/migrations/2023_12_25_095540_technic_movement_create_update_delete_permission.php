@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddTechnicLessorContractorType extends Migration
+class TechnicMovementCreateUpdateDeletePermission extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddTechnicLessorContractorType extends Migration
      */
     public function up()
     {
-        DB::table('contractor_types')->insert($this->getNewEntrises());
+        DB::table('permissions')->insert($this->getNewEntrises());
     }
 
     /**
@@ -23,13 +23,13 @@ class AddTechnicLessorContractorType extends Migration
      * @return void
      */
     public function down()
-    { 
+    {  
         foreach(self::NEW_ENTRIES as $newEntry) {
-            DB::table('contractor_types')->where('slug', $newEntry['slug'])->delete();
+            DB::table('permissions')->where('codename', $newEntry['codename'])->delete();
         }
     }
 
-    public function getNewEntrises() {
+    public function getNewEntrises() { 
         $newEntries = self::NEW_ENTRIES;
         foreach($newEntries as $key=>$newEntry) {
             $newEntries[$key]['created_at'] = now();
@@ -40,8 +40,14 @@ class AddTechnicLessorContractorType extends Migration
 
     const NEW_ENTRIES = [
         [
-            'name' => 'Арендодатель техники', 
-            'slug' => 'technic_lessor',
+            'name' => 'Топливные емкости: перемещение техники - создание, редактирование, удаление', 
+            'codename' => 'technics_movement_crud',
+            'category' => 13,
+        ],
+        [
+            'name' => 'Топливные емкости: перемещение техники - просмотр', 
+            'codename' => 'technics_movement_read',
+            'category' => 13,
         ],
     ];
 }

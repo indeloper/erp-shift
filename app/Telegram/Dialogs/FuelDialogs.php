@@ -52,18 +52,27 @@ class FuelDialogs
 
     public function confirmFuelTankMovingNewResponsible($newResponsibleMessageParams)
     {
+        if(empty($newResponsibleMessageParams))
+        return;
+
         new TelegramApi('editMessageText', $newResponsibleMessageParams['message']);
         (new TelegramServices)->closeDialog($newResponsibleMessageParams['message']['chat_id']);
     }
 
     public function confirmFuelTankMovingPreviousResponsible($previousResponsibleMessageParams)
     {
+        if(empty($previousResponsibleMessageParams))
+        return;
+
         new TelegramApi('sendMessage', $previousResponsibleMessageParams['message']);
         (new TelegramServices)->closeDialog($previousResponsibleMessageParams['message']['chat_id']);
     }
 
     public function informFuelTankMovingOfficeResponsibles($officeResponsiblesMessageParams)
     {
+        if(empty($officeResponsiblesMessageParams))
+        return;
+
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
         foreach ($notificationRecipientsOffice as $userId) { 
             $user =  User::find($userId);

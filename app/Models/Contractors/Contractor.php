@@ -54,6 +54,20 @@ class Contractor extends Model
     const CONTRACTOR = 2;
     const SUPPLIER = 3;
 
+    public function scopeByTypeSlug(Builder $query, $slug)
+    {
+        $mainTypeId = ContractorType::where('slug', $slug)->first()->id;
+        $contractorAddotionalTypes = ContractorAdditionalTypes::where(
+            'additional_type', $mainTypeId)->pluck('contractor_id'
+        )->toArray();
+        
+        return 
+            $query 
+            ->where('main_type', $mainTypeId)
+            ->orWhereIn('id', $contractorAddotionalTypes)
+            ->get();
+    }
+
     public function scopeByType(Builder $query, $type)
     {
         if ($type === 0) {

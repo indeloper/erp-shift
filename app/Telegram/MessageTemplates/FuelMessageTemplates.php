@@ -50,6 +50,11 @@ class FuelMessageTemplates
     public function getFuelTankMovingConfirmationForNewResponsibleMessageParams($params)
     {
         $chatMessage = json_decode($params['tank']->chat_message_tmp);
+        
+        if(!$chatMessage) {
+            return [];
+        }
+
         $chatId = $chatMessage->chatId;
         $messageId = $chatMessage->messageId;
         $text = $chatMessage->text;

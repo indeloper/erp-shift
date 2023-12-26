@@ -50,6 +50,7 @@
     46 => 'App\\Providers\\PHPExcelMacroServiceProvider',
     47 => 'App\\Providers\\ObserversServiceProvider',
     48 => 'App\\Providers\\BladeDirectivesProvider',
+    49 => 'App\\Providers\\BlueprintMacroServiceProvider',
   ),
   'eager' => 
   array (
@@ -87,6 +88,7 @@
     31 => 'App\\Providers\\PHPExcelMacroServiceProvider',
     32 => 'App\\Providers\\ObserversServiceProvider',
     33 => 'App\\Providers\\BladeDirectivesProvider',
+    34 => 'App\\Providers\\BlueprintMacroServiceProvider',
   ),
   'deferred' => 
   array (
