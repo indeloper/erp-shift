@@ -1,7 +1,7 @@
 <script>
     const dataGridEditForm01Group3Elems_outcomes = {
         tabTemplate(data, index, element) {
-            return '<div class="tab-template-header-wrapper"><div class="fa fa-arrow-down tab-template-header-icon-elem text-color-red"></div><div>Списания</div></div>'
+            return '<div class="tab-template-header-wrapper"><div class="fa fa-arrow-down tab-template-header-icon-elem text-color-red"></div><div>Расход</div></div>'
         },
         visible: userPermissions.fuel_tank_flows_access,
         onClick() {

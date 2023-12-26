@@ -3,7 +3,8 @@
         $('#entitiesListMobile').dxList({
             dataSource: entitiesDataSource,
             searchEnabled: true,
-
+            activeStateEnabled: false,
+            
             itemTemplate(data) {
 
                 const listElement = $('<div>')
@@ -35,6 +36,12 @@
 
                     $('<p>')
                         .addClass('list-element-item-info-text text-color-red')
+                        .css('margin-bottom', '10px')
+                        .text(`Ответственный: ${data.responsible.full_name}`)
+                        .appendTo(textInfoWrapper)
+                } else {
+                    $('<p>')
+                        .addClass('list-element-item-info-text')
                         .css('margin-bottom', '10px')
                         .text(`Ответственный: ${data.responsible.full_name}`)
                         .appendTo(textInfoWrapper)

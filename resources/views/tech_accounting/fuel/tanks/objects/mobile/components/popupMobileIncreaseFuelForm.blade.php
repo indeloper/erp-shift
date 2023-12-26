@@ -2,7 +2,7 @@
     function showIncreaseFuelPopup(formItem = {}) {
         popupMobile.option({
             visible: true,
-            title: 'Поступление топлива',
+            title: 'Приход топлива',
             contentTemplate: () => {
                 return getIncreaseFuelPopupContentTemplate(formItem)
             },

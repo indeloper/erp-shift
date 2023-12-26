@@ -270,11 +270,28 @@
                         dropDownOptions: {
                             width: 200
                         },
+                        itemTemplate(item) {
+                            let iconTemplate;
+                            switch(item.name) {
+                                case 'Приход':
+                                    iconTemplate = 'fa fa-arrow-up text-color-green mr5'
+                                    break
+                                case 'Расход':
+                                    iconTemplate = 'fa fa-arrow-down text-color-red mr5'
+                                    break
+                                case 'Корректировка':
+                                    iconTemplate = 'fas fa-exchange-alt text-color-blue mr5'
+                                    break
+                                default:
+                                    iconTemplate = ''
+                            }
+
+                            return `<span class="${iconTemplate}"></span> ` + item.name
+                        },
 
                         dataSource: fuelFlowTypesStore,
                         valueExpr: 'id',
-                        displayExpr: 'name',
-
+                       
                         visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
 
                         onItemClick(e) {
