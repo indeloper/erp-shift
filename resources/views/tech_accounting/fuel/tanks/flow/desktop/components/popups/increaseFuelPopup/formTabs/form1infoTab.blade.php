@@ -13,18 +13,16 @@
                     dataSource: fuelFlowTypesStore,
                     valueExpr: 'id',
                     displayExpr: 'name',
-                    // value: fuelFlowTypesStore?.__rawData?.find(el => el.slug === 'income')?.id
+                    // value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id,
                 }
             },
             {
-                visible: false,
                 dataField: 'fuel_tank_id',
                 editorType: "dxSelectBox",
                 editorOptions: {
                     dataSource: fuelTanksStore,
                     valueExpr: 'id',
                     displayExpr: 'tank_number',
-                    // value: editingRowId
                 },
                 label: {
                     text: 'Емкость'

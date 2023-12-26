@@ -29,6 +29,7 @@
             return $.getJSON(url);
         }
     })
+    
     fuelFlowTypesStore.load()
 
     const tankFuelIncomesStore = new DevExpress.data.DataSource({
