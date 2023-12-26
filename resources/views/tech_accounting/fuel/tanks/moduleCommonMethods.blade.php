@@ -26,10 +26,13 @@
 
         if (
             !Boolean("{{App::environment('local')}}")
-            && Boolean(fuelFlowFormData['author_id'].author_id === authUserId)
+            && Boolean(fuelFlowFormData['author_id'].author_id != authUserId)
             ) {
-
             return true;
+        }
+
+        if (dataField==='comment' ) {
+            return false;
         }
         
         const dateDiff = getDatesDaysDiff(fuelFlowFormData['created_at'], Date());
@@ -42,15 +45,10 @@
             || dataField==='fuelConsumerType'
             || dataField==='our_technic_id'
             || dataField==='third_party_consumer'
+            || dataField==='event_date'
             
         ) {
-            if ( dateDiff < 1 ) {
-                return false;
-            }
-        }
-
-        if (dataField==='event_date') {
-            if ( dateDiff < 3 ) {
+            if ( dateDiff < 35 ) {
                 return false;
             }
         }

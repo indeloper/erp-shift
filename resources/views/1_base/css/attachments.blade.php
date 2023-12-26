@@ -4,6 +4,11 @@
         margin-left: 10px;
     }
 
+    #newFilesUpperLevelWrapper {
+        overflow-y: auto;
+        max-height: 20vh;
+    }
+
     #newFilesListWrapper,
     #newFilesNotImgListWrapper,
     #filesOnServerListWrapper
@@ -13,21 +18,7 @@
         overflow-y: auto;
         max-height: 40vh;
     }
-    /* .newFileDivCSS{
-        border: 1px solid grey;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        width: 100px;
-        height: 80px;
-        border-radius: 5px;
-        float: left;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        position: relative;
-    } */
-
+  
     .newFileDivWrapper,
     .fileOnServerDivWrapper{
         border-radius: 5px;
@@ -49,7 +40,8 @@
     }
 
     .newFileImg{
-        width: 100%;
+        max-width: 100%;
+        max-height: 100%;
         object-fit: cover;
         border-radius: 10px;
     }

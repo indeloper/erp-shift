@@ -100,7 +100,7 @@
                     dataField: 'comment',
                     editorType: "dxTextBox",
                     editorOptions: {
-                        readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('volume')),
+                        // readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('comment')),
                     },
                     label: {
                         text: 'Комментарий'

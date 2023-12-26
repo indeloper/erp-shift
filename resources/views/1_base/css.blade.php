@@ -5,3 +5,4 @@
 @include('1_base.css.mixedUpElements')
 @include('1_base.css.mixedUpElements')
 @include('1_base.css.pdf-report')
+@include('1_base.css.margins-paddings')

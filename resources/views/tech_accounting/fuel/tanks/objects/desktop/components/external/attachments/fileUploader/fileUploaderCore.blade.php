@@ -5,9 +5,13 @@
         wrapperElement.append('<div id="fileUploaderAnchorDiv" >')
         wrapperElement.append('<div id="fileUploaderNewFileButtonAnchorDiv" >')
         wrapperElement.append('<div id="downloadFilesButton">')
-        wrapperElement.append('<div id="newFilesListWrapper" class="filesGroupWrapperClass">')
-        wrapperElement.append('<div id="newFilesNotImgListWrapper" class="filesGroupWrapperClass">')
-        wrapperElement.append('<div id="newVideoFilesWrapper" class="filesGroupWrapperClass newVideoFiles">')
+
+        newFilesUpperLevelWrapper = $('<div id="newFilesUpperLevelWrapper">')
+        wrapperElement.append(newFilesUpperLevelWrapper)
+        
+        newFilesUpperLevelWrapper.append('<div id="newFilesListWrapper" class="filesGroupWrapperClass">')
+        newFilesUpperLevelWrapper.append('<div id="newFilesNotImgListWrapper" class="filesGroupWrapperClass">')
+        newFilesUpperLevelWrapper.append('<div id="newVideoFilesWrapper" class="filesGroupWrapperClass newVideoFiles">')
 
         let checkDropZoneIsAvailable = setInterval(() => {
 

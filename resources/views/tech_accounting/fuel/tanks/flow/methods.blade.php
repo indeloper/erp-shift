@@ -105,10 +105,10 @@
     // Конец Общие
 
     const getAvailableFuelTanksForFlowOperations = () => {
-        let availableFuelTanks = fuelTanksStore.__rawData.filter(el => el.awaiting_confirmation != 1);
+        let availableFuelTanks = fuelTanksStore?.__rawData?.filter(el => el.awaiting_confirmation != 1);
 
         if (!userPermissions.create_fuel_tank_flows_for_any_tank) {
-            availableFuelTanks = availableFuelTanks.filter(el => el.responsible_id === authUserId)
+            availableFuelTanks = availableFuelTanks?.filter(el => el.responsible_id === authUserId)
         }
 
         return availableFuelTanks;
