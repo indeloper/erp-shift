@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\Timesheet\Employees1cSalariesGroup;
+use App\Models\Timesheet\ProductionCalendarDayType;
+use App\Models\Timesheet\TimesheetDayCategory;
+use App\Models\Timesheet\TimesheetState;
+use App\Models\Timesheet\TimesheetTariff;
+use App\Models\Timesheet\TimesheetTariffsType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -23,12 +29,17 @@ class CreateTimesheetTables extends Migration
         if (!Schema::hasTable('timesheet_states')) {
             Schema::create('timesheet_states', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор записи');
-                $table->string('state_name')->comment('Наименование состояния');
+                $table->string('name')->comment('Наименование состояния');
 
                 $table->timestamps();
                 $table->softDeletes();
             });
         }
+
+        TimesheetState::insert([
+            ['name' => 'Открыт', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Закрыт', 'created_at' => now(), 'updated_at' => now()]
+        ]);
 
         if (!Schema::hasTable('production_calendar_day_types')) {
             Schema::create('production_calendar_day_types', function (Blueprint $table) {
@@ -39,6 +50,12 @@ class CreateTimesheetTables extends Migration
                 $table->softDeletes();
             });
         }
+
+        ProductionCalendarDayType::insert([
+            ['name' => 'Выходной', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Перенесенный выходной', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Предпраздничный день', 'created_at' => now(), 'updated_at' => now()]
+        ]);
 
         if (!Schema::hasTable('timesheet_tariffs_types')) {
             Schema::create('timesheet_tariffs_types', function (Blueprint $table) {
@@ -51,16 +68,35 @@ class CreateTimesheetTables extends Migration
             });
         }
 
+        TimesheetTariffsType::insert([
+            ['name' => 'Часы', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Сделки', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Часы (штрафы)', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Часы (оклад)', 'created_at' => now(), 'updated_at' => now()]
+        ]);
+
         if (!Schema::hasTable('timesheet_day_categories')) {
             Schema::create('timesheet_day_categories', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор категории дня в табеле учета рабочего времени');
-                $table->string('name')->comment('Наименование категории дня');
-                $table->string('shortname')->comment('Краткое наименование категории дня');
+                $table->string('name')->unique()->comment('Наименование категории дня');
+                $table->string('shortname')->unique()->comment('Краткое наименование категории дня');
 
                 $table->timestamps();
                 $table->softDeletes();
             });
         }
+
+        TimesheetDayCategory::insert([
+            ['name' => 'Отпуск', 'shortname' => 'О', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Учебный отпуск', 'shortname' => 'У', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Больничный', 'shortname' => 'Б', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Отпуск без сохранения заработной платы', 'shortname' => 'З', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Прогул', 'shortname' => 'П', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Отсутствие по невыясненной причине', 'shortname' => 'Н', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Отпуск по беременности и родам', 'shortname' => 'БиР', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Отпуск по уходу за ребенком', 'shortname' => 'Д', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Мобилизация', 'shortname' => 'М', 'created_at' => now(), 'updated_at' => now()]
+        ]);
 
         if (!Schema::hasTable('employees_1c_payments_deductions')) {
             Schema::create('employees_1c_payments_deductions', function (Blueprint $table) {
@@ -83,6 +119,12 @@ class CreateTimesheetTables extends Migration
                 $table->softDeletes();
             });
         }
+
+        Employees1cSalariesGroup::insert([
+            ['name' => 'Начислено', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Удержано', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Выплачено', 'created_at' => now(), 'updated_at' => now()]
+        ]);
 
         // Данные
         if (!Schema::hasTable('production_calendars')) {
@@ -114,7 +156,7 @@ class CreateTimesheetTables extends Migration
                 $table->unsignedBigInteger('employee_id')->comment('Идентификатор сотрудника, для которого ведется табель');
                 $table->unsignedInteger('month')->index()->comment('Месяц табеля, с индексированием для ускорения поиска');
                 $table->unsignedInteger('year')->index()->comment('Год табеля, с индексированием для ускорения поиска');
-                $table->unsignedBigInteger('timesheet_state_id')->default(0)->comment('Идентификатор состояния табеля');
+                $table->unsignedBigInteger('timesheet_state_id')->default(1)->comment('Идентификатор состояния табеля');
                 $table->unsignedDecimal('ktu', 8, 2)->default(0)->comment('Коэффициент трудоемкости (KTU)');
 
                 $table->audit();
@@ -175,8 +217,9 @@ class CreateTimesheetTables extends Migration
         if (!Schema::hasTable('timesheet_tariffs')) {
             Schema::create('timesheet_tariffs', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор тарифа по часам');
-                $table->string('tariff_name')->comment('Наименование тарифа');
-                $table->unsignedBigInteger('timesheet_tariffs_type_id')->comment('Тип тарифа (например, стандартный, повышенный)');
+                $table->string('name')->comment('Наименование тарифа');
+                $table->unsignedBigInteger('timesheet_tariffs_type_id')->comment('Тип тарифа');
+                $table->boolean('is_overwork')->default(0)->comment('Является ли тариф переработкой');
                 $table->string('tariff_color')->nullable()->comment('Цвет тарифа');
                 $table->unsignedInteger('sort_order')->comment('Порядок сортировки тарифа');
 
@@ -186,6 +229,29 @@ class CreateTimesheetTables extends Migration
                 $table->foreign('timesheet_tariffs_type_id')->references('id')->on('timesheet_tariffs_types');
             });
         }
+
+        TimesheetTariff::insert([
+            ['name' => 'Обычный час', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 10, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Переработки', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 20, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Монтаж крепления', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 30, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Монтаж крепления (Переработка)', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 40, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Демонтаж крепления', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 50, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Демонтаж крепления (Переработка)', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 60, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Обычный час с г/м', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 70, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Переработки с г/м', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 80, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Zoomlion', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 90, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Zoomlion (переработка)', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 100, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Вспомогательные работы', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 110, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Простой (дома)', 'timesheet_tariffs_type_id' => 1, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 120, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Опоздание', 'timesheet_tariffs_type_id' => 3, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 130, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Погружение вибро', 'timesheet_tariffs_type_id' => 2, 'is_overwork' => false, 'tariff_color' => '#FF6666', 'sort_order' => 140, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Погружение вдвоем вибро', 'timesheet_tariffs_type_id' => 2, 'is_overwork' => false, 'tariff_color' => '#FFA0A0', 'sort_order' => 150, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Извлечение вибро', 'timesheet_tariffs_type_id' => 2, 'is_overwork' => false, 'tariff_color' => '#E6B9B8', 'sort_order' => 160, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Погружение статика', 'timesheet_tariffs_type_id' => 2, 'is_overwork' => false, 'tariff_color' => '#0070C0', 'sort_order' => 170, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Извлечение статика', 'timesheet_tariffs_type_id' => 2, 'is_overwork' => false, 'tariff_color' => '#8DB4E3', 'sort_order' => 180, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Обычный час', 'timesheet_tariffs_type_id' => 4, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 190, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Переработки', 'timesheet_tariffs_type_id' => 4, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 200, 'created_at' => now(), 'updated_at' => now()]
+        ]);
 
         if (!Schema::hasTable('timesheet_tariff_rates')) {
             Schema::create('timesheet_tariff_rates', function (Blueprint $table) {
@@ -236,16 +302,10 @@ class CreateTimesheetTables extends Migration
                 $table->unsignedBigInteger('employee_id')->comment('Идентификатор сотрудника');
                 $table->date('date')->index()->comment('Дата связи между сотрудником и объектом проекта');
 
-                $table->unsignedInteger('author_id')->comment('Идентификатор автора записи');
-                $table->unsignedInteger('editor_id')->comment('Идентификатор редактора записи');
-
-                $table->timestamps();
-                $table->softDeletes();
+                $table->audit();
 
                 $table->foreign('project_object_id')->references('id')->on('project_objects');
                 $table->foreign('employee_id')->references('id')->on('employees');
-                $table->foreign('author_id')->references('id')->on('users');
-                $table->foreign('editor_id')->references('id')->on('users');
             });
         }
 
@@ -259,17 +319,11 @@ class CreateTimesheetTables extends Migration
                 $table->tinyInteger('prolongation')->default(0)->comment('Флаг пролонгации');
                 $table->unsignedBigInteger('prolongation_compensation_id')->nullable()->comment('ID пролонгированной записи');
 
-                $table->unsignedInteger('author_id')->comment('Идентификатор автора записи');
-                $table->unsignedInteger('editor_id')->comment('Идентификатор редактора записи');
-
-                $table->timestamps();
-                $table->softDeletes();
+                $table->audit();
 
                 $table->index('prolongation_compensation_id', 'prolongation_compensation_id_index');
 
                 $table->foreign('timesheet_card_id')->references('id')->on('timesheet_cards');
-                $table->foreign('author_id')->references('id')->on('users');
-                $table->foreign('editor_id')->references('id')->on('users');
             });
         }
 
@@ -280,15 +334,9 @@ class CreateTimesheetTables extends Migration
                 $table->unsignedInteger('penalty_value')->comment('Значение штрафа');
                 $table->string('penalty_comment')->nullable()->comment('Комментарий к штрафу');
 
-                $table->unsignedInteger('author_id')->comment('Идентификатор автора записи');
-                $table->unsignedInteger('editor_id')->comment('Идентификатор редактора записи');
-
-                $table->timestamps();
-                $table->softDeletes();
+                $table->audit();
 
                 $table->foreign('timesheet_card_id')->references('id')->on('timesheet_cards');
-                $table->foreign('author_id')->references('id')->on('users');
-                $table->foreign('editor_id')->references('id')->on('users');
             });
         }
 
@@ -296,20 +344,14 @@ class CreateTimesheetTables extends Migration
             Schema::create('timesheet_employees_summary_hours', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор сводных часов сотрудника');
                 $table->unsignedBigInteger('timesheet_card_id')->comment('Идентификатор табеля учета рабочего времени');
-                $table->unsignedBigInteger('timesheet_day_category_id')->comment('Тип часов (например, отработанные, отпускные, больничные)');
+                $table->unsignedBigInteger('timesheet_day_category_id')->nullable()->comment('Тип часов (например, отработанные, отпускные, больничные)');
                 $table->date('date')->index()->comment('Дата сводных часов');
                 $table->unsignedInteger('count')->comment('Количество часов');
 
-                $table->unsignedInteger('author_id')->comment('Идентификатор автора записи');
-                $table->unsignedInteger('editor_id')->comment('Идентификатор редактора записи');
-
-                $table->timestamps();
-                $table->softDeletes();
+                $table->audit();
 
                 $table->foreign('timesheet_day_category_id', 'summary_hours_timesheet_date_category_id_foreign')->references('id')->on('timesheet_day_categories');
                 $table->foreign('timesheet_card_id')->references('id')->on('timesheet_cards');
-                $table->foreign('author_id')->references('id')->on('users');
-                $table->foreign('editor_id')->references('id')->on('users');
             });
         }
 
@@ -321,15 +363,9 @@ class CreateTimesheetTables extends Migration
                 $table->float('deal_multiplier')->nullable()->comment('Множитель для сделок (если применяется)');
                 $table->unsignedInteger('count')->comment('Количество (количество часов или метров (для сделок))');
 
-                $table->unsignedInteger('author_id')->comment('Идентификатор автора записи');
-                $table->unsignedInteger('editor_id')->comment('Идентификатор редактора записи');
-
-                $table->timestamps();
-                $table->softDeletes();
+                $table->audit();
 
                 $table->foreign('timesheet_card_id')->references('id')->on('timesheet_cards');
-                $table->foreign('author_id')->references('id')->on('users');
-                $table->foreign('editor_id')->references('id')->on('users');
             });
         }
 
