@@ -25,6 +25,9 @@ class StandardEntityResourceController extends Controller
     protected $ignoreDataKeys;
     protected $modulePermissionsGroups;
     protected $isMobile;
+    protected $morphable_type;
+    protected $storage_name;
+    protected $resources;
 
     public function __construct()
     {
@@ -33,6 +36,9 @@ class StandardEntityResourceController extends Controller
             'deletedAttachments',
             'newComments'
         ];
+
+        $this->resources = new \stdClass;
+        $this->setResources();
     }
     
     public function getPageCore() 
@@ -48,7 +54,8 @@ class StandardEntityResourceController extends Controller
             'sectionTitle' => $this->sectionTitle, 
             'baseBladePath' => $this->baseBladePath, 
             'components' => $this->components,
-            'userPermissions' => json_encode($this->getUserPermissions())
+            'userPermissions' => json_encode($this->getUserPermissions()),
+            'resources' => json_encode($this->resources, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK)
         ]);
     }
 
@@ -341,6 +348,28 @@ class StandardEntityResourceController extends Controller
         }
 
         return $permissionsArray;
+    }
+
+    public function uploadFile(Request $request)
+    {
+        $uploadedFile = $request->files->all()['files'][0];
+        $documentable_id = $request->input('id');
+
+        [$fileEntry, $fileName] 
+            = (new FilesUploadService)
+            ->uploadFile($uploadedFile, $documentable_id, $this->morphable_type, $this->storage_name);
+
+        return response()->json([
+            'result' => 'ok',
+            'fileEntryId' => $fileEntry->id,
+            'filename' =>  $fileName,
+            'fileEntry' => $fileEntry
+        ], 200);
+    }
+
+    public function setResources()
+    {
+        return;
     }
 
 }

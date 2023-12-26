@@ -57,18 +57,7 @@ class OurTechnicController extends StandardEntityResourceController
 
     public function getContractors()
     {
-        return Contractor::query() 
-        ->where(
-            'main_type', ContractorType::where('slug', 'technic_lessor')
-            ->first()->id
-            )
-        ->orWhereIn('id', ContractorAdditionalTypes::where(
-            'additional_type', ContractorType::where(
-                'slug', 'technic_lessor'
-                )
-            ->first()->id)->pluck('contractor_id')->toArray()
-        )
-        ->get();
+        return Contractor::byTypeSlug('technic_lessor');
     }
     
 }

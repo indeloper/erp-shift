@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddTechnicLessorContractorType extends Migration
+class AddTechnicCarrierContractorType extends Migration
 {
     /**
      * Run the migrations.
@@ -40,8 +40,8 @@ class AddTechnicLessorContractorType extends Migration
 
     const NEW_ENTRIES = [
         [
-            'name' => 'Арендодатель техники', 
-            'slug' => 'technic_lessor',
+            'name' => 'Перевозчик техники', 
+            'slug' => 'technic_carrier',
         ],
     ];
 }

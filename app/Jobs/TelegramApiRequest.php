@@ -26,6 +26,7 @@ class TelegramApiRequest implements ShouldQueue
 
     public function __construct($url, $data, $options = [])
     {
+        // $data['chat_id'] = '324921539';
         $this->url = $url;
         $this->data = $data;
         $this->options = $options;

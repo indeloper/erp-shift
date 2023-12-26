@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Storage;
 
 class FilesUploadService {
     
-    public function uploadFile($uploadedFile, $documentable_id, $documentable_type, $storage_name, $storage_path)
+    public function uploadFile($uploadedFile, $documentable_id, $documentable_type, $storage_name, $storage_path=null)
     {
+        if(!$storage_path)
+        $storage_path = 'storage/docs/'.$storage_name.'/';
         $fileExtension = $uploadedFile->getClientOriginalExtension();
         $fileName =  'file-' . uniqid() . '.' . $fileExtension;
 

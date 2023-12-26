@@ -246,6 +246,13 @@ return [
             'visibility' => 'private',
         ],
 
+        'technic_movements' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/technic_movements'),
+            'url' => env('APP_URL').'storage/docs/technic_movements/',
+            'visibility' => 'private',
+        ],
+
     ],
 
 ];

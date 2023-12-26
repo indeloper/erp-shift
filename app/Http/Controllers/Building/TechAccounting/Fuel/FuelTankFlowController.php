@@ -36,6 +36,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
         $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
         $this->modulePermissionsGroups = [17];
+        $this->ignoreDataKeys[] = 'third_party_mark';
     }
 
     public function index(Request $request)

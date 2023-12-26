@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddTechnicLessorContractorType extends Migration
+class AddTechicMovementResponsiblePermissions extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddTechnicLessorContractorType extends Migration
      */
     public function up()
     {
-        DB::table('contractor_types')->insert($this->getNewEntrises());
+        DB::table('permissions')->insert($this->getNewEntrises());
     }
 
     /**
@@ -25,7 +25,7 @@ class AddTechnicLessorContractorType extends Migration
     public function down()
     { 
         foreach(self::NEW_ENTRIES as $newEntry) {
-            DB::table('contractor_types')->where('slug', $newEntry['slug'])->delete();
+            DB::table('permissions')->where('codename', $newEntry['codename'])->delete();
         }
     }
 
@@ -40,8 +40,14 @@ class AddTechnicLessorContractorType extends Migration
 
     const NEW_ENTRIES = [
         [
-            'name' => 'Арендодатель техники', 
-            'slug' => 'technic_lessor',
+            'name' => 'Техника: обработка заявок на перемещение негабаритной техники', 
+            'codename' => 'technics_processing_movement_oversized_equipment',
+            'category' => 13,
+        ],
+        [
+            'name' => 'Техника: обработка заявок на перемещение габаритной техники', 
+            'codename' => 'technics_processing_movement_standart_sized_equipment',
+            'category' => 13,
         ],
     ];
 }

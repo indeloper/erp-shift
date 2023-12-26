@@ -1,4 +1,5 @@
 <?php
+
 Route::resource('technic_category', 'Technic\old\TechnicCategoryController');
 Route::get('technic_category_trashed', 'Technic\old\TechnicCategoryController@display_trashed')->name('technic_category.display_trashed');
 Route::get('technic_category_trashed/{technic_category}', 'Technic\old\TechnicCategoryController@show_trashed')->name('technic_category.show_trashed');
@@ -105,6 +106,16 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
         Route::get('getPermissions', 'TechnicBrandModelController@getPermissions')->name('getPermissions');
         Route::get('/', 'TechnicBrandModelController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'TechnicBrandModelController');
+    });
+
+    Route::group(['prefix' => 'movements', 'as' => 'movements::'], function () {
+        $controller = 'TechnicMovementController';
+        Route::get('/getTechnicCarriers', $controller.'@getTechnicCarriers')->name('getTechnicCarriers');
+        Route::get('/getProjectObjects', $controller.'@getProjectObjects')->name('getProjectObjects');
+               
+        Route::get('/', $controller.'@getPageCore')->name('getPageCore');
+        Route::apiResource('resource', $controller);
+        Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
     });
 
     Route::get('getTechnicBrands', 'TechnicBrandController@getTechnicBrands')->name('getTechnicBrands');
