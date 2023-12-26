@@ -125,6 +125,8 @@
             return $.getJSON(url);
         }
     })
+    
+    fuelFlowTypesStore.load()
 
     const projectObjectsStore = new DevExpress.data.CustomStore({
         key: "id",
