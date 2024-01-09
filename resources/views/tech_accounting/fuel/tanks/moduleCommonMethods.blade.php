@@ -6,21 +6,22 @@
     }
 
     function getEventDate() {
-        if (typeof fuelFlowFormData['event_date'] === 'undefined') {
+        if (typeof fuelFlowFormData === 'undefined' || typeof fuelFlowFormData['event_date'] === 'undefined') {
             return new Date();
         }
         return new Date(fuelFlowFormData['event_date'])
     }
 
-    function getThreeDaysEarlierDate() {
+    function getDaysEarlierDate(qty) {
         let date = new Date();
-        date.setDate( date.getDate() - 3 )
+        date.setDate( date.getDate() - qty )
         return date;
     }
 
     function isFuelFlowDataFieldUpdateAvailable(dataField) {
         // Если новая запись
-        if (!Object.keys(fuelFlowFormData).includes('id')) {
+
+        if (typeof fuelFlowFormData === 'undefined' || !Object.keys(fuelFlowFormData).includes('id')) {
             return false;
         }
 
