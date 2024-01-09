@@ -11,11 +11,12 @@ class FileSystemService {
         $this->fileNames = $fileNames;
     }
 
-
-
     public function getBladeTemplateFileNamesInDirectory($componentsPath, $baseBladePath)
     {
         $this->getFixedBladeTemplateFilesNames($baseBladePath);
+        if(is_dir($baseBladePath . '/attachments')) {
+            $this->getBladeTemplateComponentsFilesNames($baseBladePath . '/attachments');
+        }
         $this->getBladeTemplateComponentsFilesNames($componentsPath);
         return $this->fileNames;
     }

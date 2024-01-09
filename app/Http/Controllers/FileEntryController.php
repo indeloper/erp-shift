@@ -27,6 +27,8 @@ class FileEntryController extends Controller
         ]);
     }
 
+    // для использования метода надо в модели прописать STORAGE_PATH 
+    // есть метод с похожим функционалом в 
     public function downloadAttachments(Request $request)
     {
         if(!count($request->fliesIds))

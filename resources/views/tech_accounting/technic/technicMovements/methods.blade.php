@@ -15,6 +15,7 @@
         uploadingFiles = [];
         newAttachments = [];
         deletedAttachments = [];
+        choosedItemData = {};
     }
 
     function resetStores() {

@@ -1,17 +1,28 @@
 <script>
 
     const dataGridEditForm = {
-        onInitialized() {
+        onInitialized(e) {
             if(editingRowId) {
                 dataGrid = $('#mainDataGrid').dxDataGrid('instance')
                 choosedItem = entitiesDataSource.items().find(el=>el.id===editingRowId)
-                setReadonlyFormElemsProperties(choosedItem.author_id != authUserId, dataGrid)
+                setReadonlyFormElemsProperties(choosedItem.author_id != authUserId && choosedItem.responsible_id != authUserId, dataGrid)
+                
+                const movementStatus = technicMovementStatusesStore.find(el=>el.id === choosedItem.technic_movement_status_id)
+                if(movementStatus.slug === 'completed') {
+                    choosedItem.finish_result = 'completed'
+                }
+                if(movementStatus.slug === 'cancelled') {
+                    choosedItem.finish_result = 'cancelled'
+                }
             }
         },
-        onContentReady() {
+        onContentReady(e) {
             if(!editingRowId) {
+                $('#finishResultRadioGroup').dxRadioGroup('instance').option('visible', false)
+                $('#technicMovementStatusId').dxSelectBox('instance').option('value', technicMovementStatusesStore.find(el=>el.slug === 'created').id)
                 return;
             }
+            
             const technicIdDatafieldInstance = $('#technicIdDatafield').dxSelectBox('instance')
             const responsibleIdDatafieldInstance = $('#responsibleIdDatafield').dxSelectBox('instance')
             const technicCategoryIdDatafieldInstance = $('#technicCategoryIdDatafield').dxSelectBox('instance')

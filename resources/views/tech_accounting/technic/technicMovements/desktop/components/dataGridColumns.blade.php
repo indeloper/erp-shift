@@ -2,7 +2,7 @@
     const dataGridColumns = [
         {
             visible: false,
-            dataField: "newAttachments",
+            dataField: "finish_result",
         },
         {
             visible: false,

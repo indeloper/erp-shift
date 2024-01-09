@@ -31,7 +31,7 @@
                 })
             },
 
-            update: function (key, values) {   
+            update: function (key, values, isMobile=false) {   
 
                 return $.ajax({
                     url: getUrlWithId("{{route($routeNameFixedPart.'resource.update', ['id'=>'setId'])}}", key),
@@ -45,6 +45,7 @@
                     },
                     success: function (data, textStatus, jqXHR) {
                         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                        $('#entitiesListMobile').dxList('instance')?.reload()                        
                     },
                 })
 
@@ -60,6 +61,7 @@
                     },
                     success: function (data, textStatus, jqXHR) {
                         DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                        entitiesDataSource.reload()
                     },
                 })
 
@@ -84,6 +86,7 @@
     const technicsListStore = resources.technicsList;
     const technicResponsiblesByTypesStore = resources.technicResponsiblesByTypes;
     const technicResponsiblesAllTypesStore = resources.technicResponsiblesAllTypes;
+    const technicCategoryNameAttrsStore = resources.technicCategoryNameAttrs;
     // const technicCarriersStore = resources.technicCarriers;
     // const projectObjectsStore = resources.projectObjects;
 
@@ -104,5 +107,6 @@
             return $.getJSON(url);
         }
     })
+    projectObjectsStore.load()
    
 </script>

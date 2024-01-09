@@ -7,6 +7,7 @@
     const authUserId = +"{{Auth::user()->id}}"
 // Конец Общие
 let newComments = [];
+let choosedItemData = {};
 
 
 </script>

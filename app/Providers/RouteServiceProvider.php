@@ -23,7 +23,14 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Route::macro('registerBaseRoutes', function($controller, $attachmentsRoutes = false) {
+            Route::get('/', $controller.'@getPageCore')->name('getPageCore');
+            Route::apiResource('resource', $controller);
+            if($attachmentsRoutes) {
+                Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
+                Route::post('downloadAttachments', $controller.'@downloadAttachments')->name('downloadAttachments');
+            }
+        });
 
         parent::boot();
     }

@@ -7,8 +7,15 @@
             {
                 name: 'delete',
                 visible: Boolean(userPermissions.technics_movement_crud),
+                onClick(e) {
+                    customConfirmDialog("Вы уверены, что хотите удалить эту запись?")
+                        .show().then((dialogResult) => {
+                            if (dialogResult) {
+                                entitiesDataSource.store().remove(e.row.data.id);
+                            }
+                        })
+                }
             }
-            
         ],
 
         headerCellTemplate: (container, options) => {
