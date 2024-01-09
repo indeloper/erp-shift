@@ -238,7 +238,12 @@ class ProjectObjectDocumentsController extends Controller
         $id = ProjectObjectDocument::insertGetId(
             [
                 'document_type_id' => $data->document_type_id,
-                'document_status_id' => $data->document_status_id,
+                'document_status_id' => $data->document_status_id 
+                    ?? ProjectObjectDocumentStatusTypeRelation::query()
+                        ->where('document_type_id', $data->document_type_id)
+                        ->where('default_selection', 1)
+                        ->first()
+                        ->document_status_id,
                 'project_object_id' => $data->project_object_id,
                 'author_id' => Auth::user()->id,
                 'document_name' => $data->document_name,
