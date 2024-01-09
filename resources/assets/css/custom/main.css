@@ -1,3 +1,8 @@
+/* DataGrid filter popup */
+.dx-overlay-content.dx-popup-normal.dx-resizable {
+    width: auto !important;
+}
+
 /*File uploader*/
 .dropzone-external {
     width: 120px;
