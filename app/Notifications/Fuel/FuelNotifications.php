@@ -6,10 +6,9 @@ use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 
-class FuelNotifications {
+class FuelNotifications 
+{
     public function notifyNewFuelTankResponsibleUser($tank)
     {
         $lastFuelHistoryTransfer = FuelTankTransferHistory::query()

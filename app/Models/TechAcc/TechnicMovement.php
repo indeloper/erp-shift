@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\FileEntry;
+use App\Models\ProjectObject;
 
 class TechnicMovement extends Model
 {
@@ -24,5 +25,10 @@ class TechnicMovement extends Model
     public function attachments()
     {
         return $this->morphMany(FileEntry::class, 'documentable');
+    }
+
+    public function object()
+    {
+        return $this->belongsTo(ProjectObject::class);
     }
 }

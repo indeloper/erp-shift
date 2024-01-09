@@ -1,8 +1,12 @@
 <style>
 
-    #downloadFilesButton {
-        margin-left: 10px;
+    #fileUploaderNewFileButton {
+        margin-right: 10px;
     }
+
+    /* #downloadFilesButton {
+        margin-left: 10px;
+    } */
 
     #newFilesUpperLevelWrapper {
         overflow-y: auto;

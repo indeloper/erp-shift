@@ -1,26 +1,36 @@
 <script>
+   
     const infoTabbedGroup = {
         tabTemplate(data, index, element) {
             return '<div class="tab-template-header-wrapper"><div class="fa fa-info-circle info-circle-icon-color tab-template-header-icon-elem"></div><div>Инфо</div></div>'
         },
-        colCount: 2,
-        onClick() {
-            choosedFormTab = 'info'
-        },
+       
         items: [
             {
                 itemType: "group",
-                colSpan: 2,
                 caption: 'Заявка',
                 name: 'technicFormGroup',
                 items: [
                     {
                         dataField: "technic_category_id",
+                        editorType: 'dxSelectBox',
+                        label: {
+                            text: 'Категория техники'
+                        },
+                       
                         editorOptions: {
+                            dataSource: technicCategoriesStore,
+                            valueExpr: "id",
+                            displayExpr: "name",
+
                             elementAttr: {
                                 id: 'technicCategoryIdDatafield'
                             },
+                            
                             onSelectionChanged(e) {
+
+                                if(!e.selectedItem)
+                                return;
 
                                 const technicIdDatafieldInstance = $('#technicIdDatafield').dxSelectBox('instance')
                                 technicIdDatafieldInstance?.option('dataSource', technicsListStore.filter(el=>el.technic_category_id === e.selectedItem.id));
@@ -49,15 +59,30 @@
                     {
                         dataField: "technic_id",
                         editorType: 'dxSelectBox',
+                        label: {
+                            text: 'Техника'
+                        },
                         editorOptions: {
                             elementAttr: {
                                 id: 'technicIdDatafield'
-                            }
+                            },
+
+                            dataSource: technicsListStore,
+                            valueExpr: "id",
+                            displayExpr: "name"
                         }
                     },
                     {
                         dataField: "object_id",
-                        colSpan: 2,
+                        editorType: 'dxSelectBox',
+                        label: {
+                            text: 'Объект назначения'
+                        },
+                        editorOptions: {
+                            dataSource: projectObjectsStore,
+                            valueExpr: "id",
+                            displayExpr: "short_name"
+                        },
                         validationRules: [{
                             type: 'required',
                             message: 'Укажите значение',
@@ -65,23 +90,36 @@
                     },
                     {
                         dataField: "previous_object_id",
-                        colSpan: 2,
+                        editorType: 'dxSelectBox',
+                        label: {
+                            text: 'Объект отправки'
+                        },
+                        editorOptions: {
+                            dataSource: projectObjectsStore,
+                            valueExpr: "id",
+                            displayExpr: "short_name"
+                        },
                     },
                     {
                         dataField: "order_comment",
-                        colSpan: 2,
+                        editorType: "dxTextBox",
+                        label: {
+                            text: 'Комментарий'
+                        },
                     },
 
                 ]
             },
             {
                 itemType: "group",
-                colSpan: 2,
-                colCount: 2,
                 caption: 'Период эксплуатации план',
                 items: [
                     {
                         dataField: "order_start_date",
+                        editorType: "dxDateBox",
+                        label: {
+                            text: 'Начало'
+                        },                        
                         validationRules: [{
                             type: 'required',
                             message: 'Укажите значение',
@@ -89,20 +127,28 @@
                     },
                     {
                         dataField: "order_end_date",
+                        editorType: "dxDateBox",
+                        label: {
+                            text: 'Окончание'
+                        },                
                     },
-
                 ]
             },
             {
                 itemType: "group",
-                colSpan: 2,
-                colCount: 2,
                 caption: 'Перевозка',
                 name: 'transportationGroup',
                 items: [
                     {
                         dataField: "technic_movement_status_id",
+                        editorType: 'dxSelectBox',
+                        label: {
+                            text: 'Статус'
+                        },
                         editorOptions: {
+                            dataSource: technicMovementStatusesStore,
+                            valueExpr: "id",
+                            displayExpr: "name",
                             readOnly: true,
                             elementAttr: {
                                 id: 'technicMovementStatusId'
@@ -112,7 +158,15 @@
                 
                     {
                         dataField: "responsible_id",
+                        editorType: 'dxSelectBox',
+                        label: {
+                            text: 'Ответственный'
+                        },
+
                         editorOptions: {
+                            dataSource: technicResponsiblesAllTypesStore,
+                            valueExpr: "id",
+                            displayExpr: "user_full_name",
                             elementAttr: {
                                 id: 'responsibleIdDatafield'
                             }
@@ -126,16 +180,27 @@
                     {
                         dataField: "movement_start_datetime",
                         editorType: "dxDateBox",
+                        label: {
+                            text: 'Начало перевозки'
+                        },
                         editorOptions: {
                             type: "datetime",
                         }
                     },
                     {
                         dataField: "contractor_id",
+                        editorType: 'dxSelectBox',
+                        label: {
+                            text: 'Перевозчик'
+                        },
+                        editorOptions: {
+                            dataSource: technicCarriersStore,
+                            valueExpr: "id",
+                            displayExpr: "short_name"
+                        },
                     },
                     {
                         dataField: "finish_result",
-                        colSpan: 2,
                         editorType: "dxRadioGroup",
                         
                         label: {

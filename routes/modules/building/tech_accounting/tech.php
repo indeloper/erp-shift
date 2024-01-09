@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 Route::resource('technic_category', 'Technic\old\TechnicCategoryController');
 Route::get('technic_category_trashed', 'Technic\old\TechnicCategoryController@display_trashed')->name('technic_category.display_trashed');
 Route::get('technic_category_trashed/{technic_category}', 'Technic\old\TechnicCategoryController@show_trashed')->name('technic_category.show_trashed');
@@ -109,19 +111,16 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
     });
 
     Route::group(['prefix' => 'movements', 'as' => 'movements::'], function () {
-        $controller = 'TechnicMovementController';
-        Route::get('/getTechnicCarriers', $controller.'@getTechnicCarriers')->name('getTechnicCarriers');
-        Route::get('/getProjectObjects', $controller.'@getProjectObjects')->name('getProjectObjects');
-               
-        Route::get('/', $controller.'@getPageCore')->name('getPageCore');
-        Route::apiResource('resource', $controller);
-        Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
+        Route::registerBaseRoutes('TechnicMovementController', $attachmentsRoutes = true);
+
+        Route::get('/getTechnicCarriers', 'TechnicMovementController'.'@getTechnicCarriers')->name('getTechnicCarriers');
+        Route::get('/getProjectObjects', 'TechnicMovementController'.'@getProjectObjects')->name('getProjectObjects');
     });
 
     Route::get('getTechnicBrands', 'TechnicBrandController@getTechnicBrands')->name('getTechnicBrands');
     Route::get('getTechnicCategories', 'TechnicCategoryController@getTechnicCategories')->name('getTechnicCategories');
     Route::get('getTechnicResponsibles', 'OurTechnicController@getTechnicResponsibles')->name('getTechnicResponsibles');
-    
+
 });
 
 // КОНЕЦ Новый раздел учета техники
@@ -129,10 +128,10 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
 // Новый раздел учета топлива
 
 Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], function () {
-    
+
     Route::group([
-        'prefix' => 'tanks', 
-        'as' => 'tanks::', 
+        'prefix' => 'tanks',
+        'as' => 'tanks::',
         // 'middleware' => 'can:fuel_tanks_access'
     ], function () {
         Route::get('validateTankNumberUnique', 'FuelTankController@validateTankNumberUnique')->name('validateTankNumberUnique');
@@ -149,8 +148,8 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
     });
 
     Route::group([
-        'prefix' => 'fuelFlow', 
-        'as' => 'fuelFlow::', 
+        'prefix' => 'fuelFlow',
+        'as' => 'fuelFlow::',
         // 'middleware' => 'can:fuel_tank_flows_access'
     ], function () {
         Route::get('getFuelResponsibles', 'FuelTankFlowController@getFuelResponsibles')->name('getFuelResponsibles');
@@ -160,7 +159,7 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
 
         Route::get('getFuelFlowTypes', 'FuelTankFlowController@getFuelFlowTypes')->name('getFuelFlowTypes');
         Route::post('uploadFile', 'FuelTankFlowController@uploadFile')->name('uploadFile');
-        
+
         Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
         Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
         Route::apiResource('resource', 'FuelTankFlowController');
@@ -187,8 +186,8 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
             Route::get('data', 'FuelReportController@fuelFlowPeriodReport')->name('resource.index');
         });
 
-        
-        
+
+
         Route::group(['prefix' => 'tanksMovementReport', 'as' => 'tanksMovementReport::', 'middleware' => 'can:fuel_tanks_movements_report_access'], function () {
             Route::get('getPageCore', 'FuelReportController@tanksMovementReportPageCore')->name('getPageCore');
             Route::get('data', 'FuelReportController@tanksMovementReportData')->name('resource.index');

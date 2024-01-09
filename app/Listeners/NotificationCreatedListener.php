@@ -57,9 +57,9 @@ class NotificationCreatedListener
         }
 
         try {
-            if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
+            // if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
                 new TelegramApi('sendMessage', $message, $messageParams['options'] ?? []);
-            }
+            // }
         } catch (\Throwable $e) {
             try {
                 if (auth()->check() and $this->appInProduction()) {

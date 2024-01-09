@@ -3,8 +3,12 @@
     const renderFileUploader = (wrapperElement) => {
         wrapperElement.append('<div id="dropZone" >')
         wrapperElement.append('<div id="fileUploaderAnchorDiv" >')
-        wrapperElement.append('<div id="fileUploaderNewFileButton" >')
-        wrapperElement.append('<div id="downloadFilesButton">')
+        
+        const filesUploadDownloadButtonsWrapper = $('<div id="filesUploadDownloadButtonsWrapper">')
+        filesUploadDownloadButtonsWrapper.append('<div id="fileUploaderNewFileButton" >')
+        filesUploadDownloadButtonsWrapper.append('<div id="downloadFilesButton">')
+        wrapperElement.append(filesUploadDownloadButtonsWrapper)
+        
         wrapperElement.append('<div id="newFilesListWrapper" class="filesGroupWrapperClass">')
         wrapperElement.append('<div id="newFilesNotImgListWrapper" class="filesGroupWrapperClass">')
         wrapperElement.append('<div id="newVideoFilesWrapper" class="filesGroupWrapperClass newVideoFiles">')
@@ -40,7 +44,7 @@
 
                     $('#fileUploaderNewFileButton')
                         .dxButton({
-                            text: "Загрузить файлы",
+                            text: "Загрузить",
                             icon: 'upload',
                             onClick() {
                                 dropZone.click()
@@ -49,7 +53,7 @@
 
                     $('#downloadFilesButton')
                         .dxButton({
-                            text: "Скачать файлы",
+                            text: "Скачать",
                             icon: 'download',
                             disabled: true,
                             onClick() {
