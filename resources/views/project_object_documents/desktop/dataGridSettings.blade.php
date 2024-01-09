@@ -138,7 +138,7 @@
                 e.cancel = true
                 skipStoppingEditingRow = 0
 
-                customConfirmDialog("Вы уверены, что отменить изменения?").show().then((dialogResult) => {
+                customConfirmDialog("Вы уверены, что хотите отменить изменения?").show().then((dialogResult) => {
                     if (dialogResult) {
                         resetVars();
                         resetStores();
