@@ -1,6 +1,6 @@
 <script>
     $(() => {
-        $("#dataGridAncor").dxForm({
+        $("#dataGridAnchor").dxForm({
             validationGroup: "documentValidationGroup",
             items: [
                 {
@@ -102,7 +102,7 @@
                                             if (!DevExpress.validationEngine.validateGroup("documentValidationGroup").isValid) {
                                                 return;
                                             }
-                                            const formData = $("#dataGridAncor").dxForm('instance').option('formData')
+                                            const formData = $("#dataGridAnchor").dxForm('instance').option('formData')
                                             const dateFrom = new Date(formData.date_from).toLocaleString()
                                             const dateTo = new Date(formData.date_to).toLocaleString()
                                             
