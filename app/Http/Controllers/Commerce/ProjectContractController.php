@@ -16,7 +16,6 @@ use App\Models\User;
 use App\Models\FileEntry;
 use App\Models\ProjectResponsibleUser;
 use App\Models\Task;
-use App\Traits\TimeCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -40,8 +39,6 @@ use PDF;
 
 class ProjectContractController extends Controller
 {
-    use TimeCalculator;
-
     public function card($project_id, $contract_id)
     {
         $contract = Contract::where('contracts.id', $contract_id)

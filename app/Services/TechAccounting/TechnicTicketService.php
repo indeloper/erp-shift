@@ -8,7 +8,6 @@ use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
 use App\Services\SystemService;
 use App\Traits\NotificationGenerator;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +17,6 @@ use Illuminate\Http\Request;
 
 class TechnicTicketService
 {
-    use TimeCalculator;
     use NotificationGenerator;
 
     /**

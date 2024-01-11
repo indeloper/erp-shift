@@ -35,15 +35,6 @@ class ViewComposerServiceProvider extends ServiceProvider
             ],
             'App\Http\ViewComposers\ManualMaterialCategoryComposer'
         );
-
-        View::composer(
-            [
-                'human_resources.reports.summary_report',
-                'human_resources.reports.daily_report',
-                'human_resources.reports.detailed_report',
-            ],
-            'App\Http\ViewComposers\TimecardComposer'
-        );
     }
 
     /**

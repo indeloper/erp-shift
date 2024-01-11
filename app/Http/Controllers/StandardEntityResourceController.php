@@ -28,6 +28,7 @@ class StandardEntityResourceController extends Controller
     protected $morphable_type;
     protected $storage_name;
     protected $resources;
+    protected $additionalData;
 
     public function __construct()
     {
@@ -40,22 +41,23 @@ class StandardEntityResourceController extends Controller
         $this->resources = new \stdClass;
         $this->setResources();
     }
-    
-    public function getPageCore() 
+
+    public function getPageCore()
     {
         $bladePath = '1_base.desktop.index';
         if($this->isMobile) {
             $bladePath = '1_base.mobile.index';
         }
-        
+
         return view($bladePath,
         [
             'routeNameFixedPart' => $this->routeNameFixedPart,
-            'sectionTitle' => $this->sectionTitle, 
-            'baseBladePath' => $this->baseBladePath, 
+            'sectionTitle' => $this->sectionTitle,
+            'baseBladePath' => $this->baseBladePath,
             'components' => $this->components,
             'userPermissions' => json_encode($this->getUserPermissions()),
             'resources' => json_encode($this->resources, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK)
+            'additionalData' => $this->additionalData
         ]);
     }
 
@@ -67,7 +69,7 @@ class StandardEntityResourceController extends Controller
     public function index(Request $request)
     {
         $options = json_decode($request['data']);
-        
+
         $entities = $this->baseModel
             ->dxLoadOptions($options)
             ->get();
@@ -84,7 +86,7 @@ class StandardEntityResourceController extends Controller
                     JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
             }
         }
-    
+
         return json_encode(array(
             "data" => $entities
         ),
@@ -134,12 +136,12 @@ class StandardEntityResourceController extends Controller
         ], JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 
         $resultArr = ['data' => $entity];
-        
+
         if(method_exists($this->baseModel, 'comments'))
             $resultArr['comments'] = $entity->comments;
         if(method_exists($this->baseModel, 'attachments'))
             $resultArr['attachments'] = $this->getGroupedAttachments($entity->attachments);
-            
+
         return json_encode($resultArr, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
@@ -201,7 +203,7 @@ class StandardEntityResourceController extends Controller
         //     $ignoreDataKeys[] = 'deletedAttachments';
 
         return [
-            'data' => $data, 
+            'data' => $data,
             // 'ignoreDataKeys' => $ignoreDataKeys
         ];
     }
@@ -216,9 +218,9 @@ class StandardEntityResourceController extends Controller
     }
 
     public function beforeUpdate($entity, $data)
-    {            
+    {
         return [
-            'data' => $data, 
+            'data' => $data,
             // 'ignoreDataKeys' => $ignoreDataKeys
         ];
     }
@@ -249,7 +251,7 @@ class StandardEntityResourceController extends Controller
 
         $dataToStore = [];
         foreach($data as $key=>$value){
-            if(!in_array($key, $this->ignoreDataKeys)) 
+            if(!in_array($key, $this->ignoreDataKeys))
                 $dataToStore[$key] = $value;
         }
 
@@ -282,7 +284,7 @@ class StandardEntityResourceController extends Controller
             if($isSortOrderDesc) {
                 arsort($groupByArr);
             }
-      
+
             foreach($groupByArr as $groupKey) {
                 $projectObjectDocumentsGrouped = $entities->where($groupBy, $groupKey);
                 $groupData = new \stdClass;
@@ -297,7 +299,7 @@ class StandardEntityResourceController extends Controller
                 $groups[] = $groupData;
             }
         }
-       
+
         return $groups;
     }
 
@@ -306,11 +308,11 @@ class StandardEntityResourceController extends Controller
     //     foreach($groupRequest as $groupRequestElement){
     //         $groupBy = $groupRequestElement->selector;
     //         $groupByArr = $entities->pluck($groupBy)->unique();
-    
+
     //         $groups = [];
     //         $groups['groupCount'] = 0;
     //         $groups['totalCount'] = $entities->count();
-    
+
     //         foreach($groupByArr as $groupKey) {
     //             $projectObjectDocumentsGrouped = $entities->where($groupBy, $groupKey);
     //             $groupData = new \stdClass;
@@ -322,7 +324,7 @@ class StandardEntityResourceController extends Controller
     //             ++ $groups['groupCount'];
     //         }
     //     }
-       
+
     //     return $groups;
     // }
 
@@ -355,7 +357,7 @@ class StandardEntityResourceController extends Controller
         $uploadedFile = $request->files->all()['files'][0];
         $documentable_id = $request->input('id');
 
-        [$fileEntry, $fileName] 
+        [$fileEntry, $fileName]
             = (new FilesUploadService)
             ->uploadFile($uploadedFile, $documentable_id, $this->morphable_type, $this->storage_name);
 

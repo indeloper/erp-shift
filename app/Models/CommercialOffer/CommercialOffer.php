@@ -20,7 +20,6 @@ use App\Models\WorkVolume\WorkVolume;
 use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\WorkVolume\WorkVolumeWorkMaterial;
 use App\Traits\Reviewable;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +32,7 @@ use phpDocumentor\Reflection\Types\Integer;
 
 class CommercialOffer extends Model
 {
-    use Commentable, Reviewable, TimeCalculator, SoftDeletes;
+    use Commentable, Reviewable, SoftDeletes;
 
 
     public $com_offer_status = [

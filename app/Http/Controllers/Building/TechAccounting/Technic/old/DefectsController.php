@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Services\AuthorizeService;
-use App\Traits\{TimeCalculator, NotificationGenerator, AdditionalFunctions};
+use App\Traits\{NotificationGenerator, AdditionalFunctions};
 use App\Models\FileEntry;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\TechAcc\OurTechnic;
@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 
 class DefectsController extends Controller
 {
-    use NotificationGenerator, TimeCalculator, AdditionalFunctions;
+    use NotificationGenerator, AdditionalFunctions;
 
     public function index(Request $request)
     {

@@ -94,10 +94,6 @@ class RouteServiceProvider extends ServiceProvider
                 Route::namespace('System')->prefix('messages')->as('messages::')->group(function() {
                     require base_path('routes/modules/messages.php');
                 });
-
-                Route::namespace('HumanResources')->prefix('human_resources')->as('human_resources.')->group(function() {
-                    require base_path('routes/modules/human_resources.php');
-                });
             });
     }
 

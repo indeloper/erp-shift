@@ -231,9 +231,7 @@ class Task extends Model
         elseif (in_array($this->status, self::LINK_TO_TICKET_STATUS)) return route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $this->taskable->id ?? '']);
         elseif ($this->status >= 26 and $this->status < 36) return route('tasks::tech_task', $this->id);
         elseif ($this->status == 36) return route('tasks::partial_36', $this->id);
-        elseif ($this->status === 40) return route('human_resources.timecard_day.appearance_task', $this->id);
         // TODO ADD SOMETHING HERE
-        elseif ($this->status === 41) return route('human_resources.timecard_day.working_time_task', $this->id);
         else return route('tasks::common_task', $this->id);
     }
 

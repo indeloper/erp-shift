@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
 use App\Services\Commerce\SplitService;
-use App\Traits\TimeCalculator;
 
 use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
 
@@ -28,8 +27,6 @@ use Illuminate\Support\Facades\{Auth, DB, File, Session, Storage};
 
 class ProjectCommercialOfferController extends Controller
 {
-    use TimeCalculator;
-
     public function card_tongue($project_id, $com_offer_id)
     {
         $commercial_offer = CommercialOffer::with('notes', 'requirements', 'advancements', 'project')
