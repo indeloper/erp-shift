@@ -6,14 +6,11 @@ use App\Models\Notification;
 use App\Models\Task;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
 class TechnicTicketReportService
 {
-    use TimeCalculator;
-
     public function checkAndCloseTaskForUserIdForDate($user_id, $date = null)
     {
         $date = $date ?? Carbon::now();
