@@ -13,7 +13,11 @@ class DefaultSortOrderScope implements Scope
         if (!$builder->getQuery()->orders) {
             if (isset($model->defaultSortOrder)){
                 foreach ($model->defaultSortOrder as $key => $value){
-                    $builder->orderBy($model->getTable().'.'.$key, $value);
+                    if ($value == 'raw'){
+                        $builder->orderByRaw($key);
+                    } else {
+                        $builder->orderBy($model->getTable().'.'.$key, $value);
+                    }
                 }
             }
         }
