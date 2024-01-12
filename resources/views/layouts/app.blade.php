@@ -1001,6 +1001,9 @@
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.all.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
 
+<!-- DevExtreme default-settings -->
+<script type="text/javascript" src="{{ asset('js/devextreme/default-settings.js')}}"></script>
+
 <!-- lightgalleryjs.com -->
 <script type="text/javascript" src="{{ asset('js/lightgallery/lightgallery.min.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/lightgallery/lg-thumbnail.min.js')}}"></script>
@@ -1054,7 +1057,7 @@
         }).done(function (data) {
             csrfToken = data;
         });
-    }, 1 * 60 * 60 * 1000);
+    }, 60 * 60 * 1000);
 
     Vue.component('span-notify', {
         props: ['notify'],

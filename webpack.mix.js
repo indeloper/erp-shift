@@ -171,7 +171,10 @@ mix.copy('resources/assets/img/logosvg.png', 'public/img');
 //  mix.copy('node_modules/devextreme/dist/css/dx.generic.light.compact.css', 'public/css/devextreme/dx.generic.light.compact.css');
 // *** Не собирается
 //  mix.copy('node_modules/devextreme/dist/dx.all.js', 'public/js/devextreme/dx.all.js');
-  
+  mix.scripts([
+  'resources/assets/js/common/devextreme/settings/dxSelectBox.js'
+  ], 'public/js/devextreme/default-settings.js');
+
  //Q3W 
  mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
 
@@ -189,6 +192,6 @@ mix.copy('node_modules/lightgallery/lightgallery.min.js', 'public/js/lightgaller
 mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.min.js', 'public/js/lightgallery/lg-thumbnail.min.js');
 mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.min.js', 'public/js/lightgallery/lg-zoom.min.js');
 mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.min.js', 'public/js/lightgallery/lg-rotate.min.js');
-mix.copy('node_modules/lightgallery/plugins/rotate/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
+mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
 
 mix.version();
