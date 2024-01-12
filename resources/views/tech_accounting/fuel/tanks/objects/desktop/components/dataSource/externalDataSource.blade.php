@@ -162,17 +162,19 @@
             tankFuelIncomesStore.reload().done(() => {
                 DevExpress.ui.notify(message, "success", 1000)
             })
+            entitiesDataSource.reload()
         }
         if (choosedFormTab === 'fuelOutcomes') {
             tankFuelOutcomesStore.reload().done(() => {
                 DevExpress.ui.notify(message, "success", 1000)
             })
+            entitiesDataSource.reload()
         }
         if (choosedFormTab === 'fuelAdjustments') {
             tankFuelAdjustmentsStore.reload().done(() => {
                 DevExpress.ui.notify(message, "success", 1000)
             })
         }
-        // entitiesDataSource.reload()
+        entitiesDataSource.reload()
     }
 </script>
