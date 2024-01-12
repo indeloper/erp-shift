@@ -49,7 +49,7 @@
             ]
         }).dxPopup('instance')
 
-        $("#dataGridAncor").dxForm({
+        $("#dataGridAnchor").dxForm({
             items: [
                 {
                     itemType: "group",

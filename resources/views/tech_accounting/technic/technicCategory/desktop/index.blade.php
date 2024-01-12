@@ -10,7 +10,7 @@
 
 @section('content')
 
-<div id="dataGridAncor"></div>
+<div id="dataGridAnchor"></div>
 <div id="mainPopup"></div>
 
 <form id="downloadXlsForm" target="_blank" method="post" action="{{route($routeNameFixedPart.'downloadXls')}}">
