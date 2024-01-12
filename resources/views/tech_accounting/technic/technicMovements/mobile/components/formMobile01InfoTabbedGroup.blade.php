@@ -19,7 +19,7 @@
                         },
                        
                         editorOptions: {
-                            dataSource: technicCategoriesStore,
+                            dataSource: additionalResources.technicCategories,
                             valueExpr: "id",
                             displayExpr: "name",
 
@@ -33,7 +33,7 @@
                                 return;
 
                                 const technicIdDatafieldInstance = $('#technicIdDatafield').dxSelectBox('instance')
-                                technicIdDatafieldInstance?.option('dataSource', technicsListStore.filter(el=>el.technic_category_id === e.selectedItem.id));
+                                technicIdDatafieldInstance?.option('dataSource', additionalResources.technicsList.filter(el=>el.technic_category_id === e.selectedItem.id));
                                 technicIdDatafieldInstance?.option('value', null)
 
                                 const responsibleIdDatafieldInstance = $('#responsibleIdDatafield').dxSelectBox('instance')
@@ -44,9 +44,9 @@
                                 } else {
                                     choosedCategory = 'standartSize';
                                 }
-                                responsibleIdDatafieldInstance?.option('dataSource', technicResponsiblesByTypesStore[choosedCategory]);
+                                responsibleIdDatafieldInstance?.option('dataSource', additionalResources.technicResponsiblesByTypes[choosedCategory]);
                                 
-                                if(!technicResponsiblesByTypesStore[choosedCategory].find(el=>el.id === responsibleIdDatafieldInstance?.option('value'))) {
+                                if(!additionalResources.technicResponsiblesByTypes[choosedCategory].find(el=>el.id === responsibleIdDatafieldInstance?.option('value'))) {
                                     responsibleIdDatafieldInstance?.option('value', null);
                                 }
                             }
@@ -67,7 +67,7 @@
                                 id: 'technicIdDatafield'
                             },
 
-                            dataSource: technicsListStore,
+                            dataSource: additionalResources.technicsList,
                             valueExpr: "id",
                             displayExpr: "name"
                         }
@@ -79,7 +79,7 @@
                             text: 'Объект назначения'
                         },
                         editorOptions: {
-                            dataSource: projectObjectsStore,
+                            dataSource: additionalResources.projectObjects,
                             valueExpr: "id",
                             displayExpr: "short_name"
                         },
@@ -95,7 +95,7 @@
                             text: 'Объект отправки'
                         },
                         editorOptions: {
-                            dataSource: projectObjectsStore,
+                            dataSource: additionalResources.projectObjects,
                             valueExpr: "id",
                             displayExpr: "short_name"
                         },
@@ -146,7 +146,7 @@
                             text: 'Статус'
                         },
                         editorOptions: {
-                            dataSource: technicMovementStatusesStore,
+                            dataSource: additionalResources.technicMovementStatuses,
                             valueExpr: "id",
                             displayExpr: "name",
                             readOnly: true,
@@ -164,7 +164,7 @@
                         },
 
                         editorOptions: {
-                            dataSource: technicResponsiblesAllTypesStore,
+                            dataSource: additionalResources.technicResponsiblesAllTypes,
                             valueExpr: "id",
                             displayExpr: "user_full_name",
                             elementAttr: {
@@ -194,7 +194,7 @@
                             text: 'Перевозчик'
                         },
                         editorOptions: {
-                            dataSource: technicCarriersStore,
+                            dataSource: additionalResources.technicCarriers,
                             valueExpr: "id",
                             displayExpr: "short_name"
                         },

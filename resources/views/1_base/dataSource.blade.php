@@ -78,35 +78,5 @@
             }
         })
     })
-
-    const resources = JSON.parse("{{$resources}}".replace(/&quot;/g,'"'));
-
-    const technicCategoriesStore = resources.technicCategories;
-    const technicMovementStatusesStore = resources.technicMovementStatuses;
-    const technicsListStore = resources.technicsList;
-    const technicResponsiblesByTypesStore = resources.technicResponsiblesByTypes;
-    const technicResponsiblesAllTypesStore = resources.technicResponsiblesAllTypes;
-    const technicCategoryNameAttrsStore = resources.technicCategoryNameAttrs;
-    // const technicCarriersStore = resources.technicCarriers;
-    // const projectObjectsStore = resources.projectObjects;
-
-    const technicCarriersStore = new DevExpress.data.CustomStore({
-        key: "id",
-        loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getTechnicCarriers')}}" 
-            return $.getJSON(url);
-        }
-    })
-
-    const projectObjectsStore = new DevExpress.data.CustomStore({
-        key: "id",
-        loadMode: "raw",
-        load: function () {        
-            let url = "{{route($routeNameFixedPart.'getProjectObjects')}}" 
-            return $.getJSON(url);
-        }
-    })
-    projectObjectsStore.load()
-   
+    
 </script>

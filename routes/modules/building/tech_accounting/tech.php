@@ -90,31 +90,32 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
         Route::get('getCompanies', 'OurTechnicController@getCompanies')->name('getCompanies');
         Route::get('getContractors', 'OurTechnicController@getContractors')->name('getContractors');
 
-        Route::get('getPermissions', 'OurTechnicController@getPermissions')->name('getPermissions');
-        Route::get('/', 'OurTechnicController@getPageCore')->name('getPageCore');
-        Route::apiResource('resource', 'OurTechnicController');
+        // Route::get('getPermissions', 'OurTechnicController@getPermissions')->name('getPermissions');
+        // Route::get('/', 'OurTechnicController@getPageCore')->name('getPageCore');
+        // Route::apiResource('resource', 'OurTechnicController');
+        Route::registerBaseRoutes('OurTechnicController', $attachmentsRoutes = false);
     });
     Route::group(['prefix' => 'technicCategory', 'as' => 'technicCategory::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
-        Route::get('getPermissions', 'TechnicCategoryController@getPermissions')->name('getPermissions');
-        Route::get('/', 'TechnicCategoryController@getPageCore')->name('getPageCore');
-        Route::apiResource('resource', 'TechnicCategoryController');
+        // Route::get('getPermissions', 'TechnicCategoryController@getPermissions')->name('getPermissions');
+        // Route::get('/', 'TechnicCategoryController@getPageCore')->name('getPageCore');
+        // Route::apiResource('resource', 'TechnicCategoryController');
+        Route::registerBaseRoutes('TechnicCategoryController', $attachmentsRoutes = false);
     });
     Route::group(['prefix' => 'technicBrand', 'as' => 'technicBrand::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
-        Route::get('getPermissions', 'TechnicBrandController@getPermissions')->name('getPermissions');
-        Route::get('/', 'TechnicBrandController@getPageCore')->name('getPageCore');
-        Route::apiResource('resource', 'TechnicBrandController');
+        // Route::get('getPermissions', 'TechnicBrandController@getPermissions')->name('getPermissions');
+        // Route::get('/', 'TechnicBrandController@getPageCore')->name('getPageCore');
+        // Route::apiResource('resource', 'TechnicBrandController');
+        Route::registerBaseRoutes('TechnicBrandController', $attachmentsRoutes = false);
     });
     Route::group(['prefix' => 'technicBrandModel', 'as' => 'technicBrandModel::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
-        Route::get('getPermissions', 'TechnicBrandModelController@getPermissions')->name('getPermissions');
-        Route::get('/', 'TechnicBrandModelController@getPageCore')->name('getPageCore');
-        Route::apiResource('resource', 'TechnicBrandModelController');
+        // Route::get('getPermissions', 'TechnicBrandModelController@getPermissions')->name('getPermissions');
+        // Route::get('/', 'TechnicBrandModelController@getPageCore')->name('getPageCore');
+        // Route::apiResource('resource', 'TechnicBrandModelController');
+        Route::registerBaseRoutes('TechnicBrandModelController', $attachmentsRoutes = false);
     });
 
     Route::group(['prefix' => 'movements', 'as' => 'movements::'], function () {
         Route::registerBaseRoutes('TechnicMovementController', $attachmentsRoutes = true);
-
-        Route::get('/getTechnicCarriers', 'TechnicMovementController'.'@getTechnicCarriers')->name('getTechnicCarriers');
-        Route::get('/getProjectObjects', 'TechnicMovementController'.'@getProjectObjects')->name('getProjectObjects');
     });
 
     Route::get('getTechnicBrands', 'TechnicBrandController@getTechnicBrands')->name('getTechnicBrands');
@@ -142,9 +143,11 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::post('confirmMovingFuelTank', 'FuelTankController@confirmMovingFuelTank')->name('confirmMovingFuelTank');
         Route::get('getFuelTankConfirmationFormData', 'FuelTankController@getFuelTankConfirmationFormData')->name('getFuelTankConfirmationFormData');
 
-        Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
-        Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
-        Route::apiResource('resource', 'FuelTankController');
+        // Route::get('getPermissions', 'FuelTankController@getPermissions')->name('getPermissions');
+        // Route::get('/', 'FuelTankController@getPageCore')->name('getPageCore');
+        // Route::apiResource('resource', 'FuelTankController');
+
+        Route::registerBaseRoutes('FuelTankController', $attachmentsRoutes = false);
     });
 
     Route::group([
@@ -160,9 +163,10 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::get('getFuelFlowTypes', 'FuelTankFlowController@getFuelFlowTypes')->name('getFuelFlowTypes');
         Route::post('uploadFile', 'FuelTankFlowController@uploadFile')->name('uploadFile');
 
-        Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
-        Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
-        Route::apiResource('resource', 'FuelTankFlowController');
+        // Route::get('getPermissions', 'FuelTankFlowController@getPermissions')->name('getPermissions');
+        // Route::get('/', 'FuelTankFlowController@getPageCore')->name('getPageCore');
+        // Route::apiResource('resource', 'FuelTankFlowController');
+        Route::registerBaseRoutes('FuelTankFlowController', $attachmentsRoutes = true);
     });
 
     Route::group(['prefix' => 'reports', 'as' => 'reports::'], function () {

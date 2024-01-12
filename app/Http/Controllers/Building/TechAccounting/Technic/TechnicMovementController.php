@@ -27,25 +27,15 @@ class TechnicMovementController extends StandardEntityResourceController
     {
         parent::__construct();
 
+        $this->sectionTitle = 'Перемещения техники';
         $this->baseModel = new TechnicMovement();
         $this->routeNameFixedPart = 'building::tech_acc::technic::movements::';
-        $this->sectionTitle = 'Перемещения техники';
         $this->baseBladePath = resource_path() . '/views/tech_accounting/technic/technicMovements';
-
-        $this->isMobile =
-            is_dir($this->baseBladePath . '/mobile')
-            && SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile';
-
-        $this->componentsPath =
-            $this->isMobile
-                ?
-                $this->baseBladePath . '/mobile/components'
-                : $this->baseBladePath . '/desktop/components';
-
-        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
-        $this->modulePermissionsGroups = [13];
-        $this->morphable_type = 'App\Models\TechAcc\TechnicMovement';
+        $this->needAttachments = true;
         $this->storage_name = 'technic_movements';
+        $this->isMobile = $this->isMobile($this->baseBladePath);
+        $this->components = $this->getModuleComponents(); 
+        $this->modulePermissionsGroups = [13];
         $this->ignoreDataKeys[] = 'finish_result';
         $this->ignoreDataKeys[] = 'object';
     }
@@ -147,51 +137,34 @@ class TechnicMovementController extends StandardEntityResourceController
         $dataObj->order_comment = $newData['order_comment'] ?? $dbData->order_comment ?? null;
         $dataObj->finish_result = $newData['finish_result'] ?? $dbData->finish_result ?? null;
         $dataObj->movement_start_datetime = $newData['movement_start_datetime'] ?? $dbData->movement_start_datetime ?? null;
-        $dataObj->contractor_id = $newData['finish_result'] ?? $dbData->contractor_id ?? null;
+        $dataObj->contractor_id = $newData['contractor_id'] ?? $dbData->contractor_id ?? null;
 
         return $dataObj;
     }
 
-    public function setResources()
+    public function setAdditionalResources()
     {
-        $this->resources->technicCategories = TechnicCategory::all();
-        $this->resources->technicMovementStatuses = TechnicMovementStatus::all();
-        $this->resources->technicsList = OurTechnic::all();
-        $this->resources->technicResponsiblesByTypes = $this->getTechnicResponsiblesByTypes();
-        $this->resources->technicResponsiblesAllTypes = $this->getTechnicResponsiblesAllTypes();
-        $this->resources->technicCategoryNameAttrs = TechnicMovementNotifications::nameAttrs;
-        // $this->resources->technicCarriers = $this->getTechnicCarriers();
-        // $this->resources->projectObjects = $this->getProjectObjects();
-    }
-
-    public function getTechnicResponsiblesByTypes()
-    {
-        return [
-            'oversize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))->get(),
-            'standartSize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))->get()
-        ];
-    }
-
-    public function getTechnicResponsiblesAllTypes()
-    {
-        return
-            User::
-                whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))
+        // $this->additionalResources->technicCategories = TechnicCategory::all();
+        $this->additionalResources->technicCategories = TechnicCategory::all();
+        $this->additionalResources->technicMovementStatuses = TechnicMovementStatus::all();
+        $this->additionalResources->technicsList = OurTechnic::all();
+        $this->additionalResources->technicResponsiblesByTypes = 
+            [
+                'oversize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))->get(),
+                'standartSize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))->get()
+            ];
+        $this->additionalResources->technicResponsiblesAllTypes = 
+            User::query()
+                ->whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))
                 ->orWhereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))
             ->get();
-    }
-
-    public function getTechnicCarriers()
-    {
-        return Contractor::byTypeSlug('technic_carrier');
-    }
-    
-    public function getProjectObjects()
-    {
-        return ProjectObject::
-            where('is_participates_in_material_accounting', 1)
-            ->whereNotNull('short_name')
-            ->orderBy('short_name')
-            ->get();
+        $this->additionalResources->technicCategoryNameAttrs = TechnicMovementNotifications::nameAttrs;
+        $this->additionalResources->technicCarriers = Contractor::byTypeSlug('technic_carrier');
+        $this->additionalResources->projectObjects = 
+            ProjectObject::query()
+                ->where('is_participates_in_material_accounting', 1)
+                ->whereNotNull('short_name')
+                ->orderBy('short_name')
+                ->get();
     }
 }

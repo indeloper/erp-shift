@@ -7,7 +7,7 @@
                 choosedItem = entitiesDataSource.items().find(el=>el.id===editingRowId)
                 setReadonlyFormElemsProperties(choosedItem.author_id != authUserId && choosedItem.responsible_id != authUserId, dataGrid)
                 
-                const movementStatus = technicMovementStatusesStore.find(el=>el.id === choosedItem.technic_movement_status_id)
+                const movementStatus = additionalResources.technicMovementStatuses.find(el=>el.id === choosedItem.technic_movement_status_id)
                 if(movementStatus.slug === 'completed') {
                     choosedItem.finish_result = 'completed'
                 }
@@ -19,7 +19,7 @@
         onContentReady(e) {
             if(!editingRowId) {
                 $('#finishResultRadioGroup').dxRadioGroup('instance').option('visible', false)
-                $('#technicMovementStatusId').dxSelectBox('instance').option('value', technicMovementStatusesStore.find(el=>el.slug === 'created').id)
+                $('#technicMovementStatusId').dxSelectBox('instance').option('value', additionalResources.technicMovementStatuses.find(el=>el.slug === 'created').id)
                 return;
             }
             
@@ -28,15 +28,15 @@
             const technicCategoryIdDatafieldInstance = $('#technicCategoryIdDatafield').dxSelectBox('instance')
             const categoryId = technicCategoryIdDatafieldInstance.option('value')
    
-            technicIdDatafieldInstance.option('dataSource', technicsListStore.filter(el=>el.technic_category_id === categoryId));
+            technicIdDatafieldInstance.option('dataSource', additionalResources.technicsList.filter(el=>el.technic_category_id === categoryId));
  
-            if(technicCategoriesStore.find(el=>el.id === categoryId).name === 'Гусеничные краны') {
+            if(additionalResources.technicCategories.find(el=>el.id === categoryId).name === 'Гусеничные краны') {
                 choosedCategory = 'oversize';
                 
             } else {
                 choosedCategory = 'standartSize';
             }
-            responsibleIdDatafieldInstance.option('dataSource', technicResponsiblesByTypesStore[choosedCategory]);
+            responsibleIdDatafieldInstance.option('dataSource', additionalResources.technicResponsiblesByTypes[choosedCategory]);
         },
         elementAttr: {
             id: "mainForm"

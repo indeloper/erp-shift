@@ -1,8 +1,8 @@
 <script>
     const getTechnicCategoryName = (categoryId) => {
-        const rawCategoryName = technicCategoriesStore.find(el=>el.id===categoryId).name.toLowerCase()
+        const rawCategoryName = additionalResources.technicCategories.find(el=>el.id===categoryId).name.toLowerCase()
         let categoryName
-        technicCategoryNameAttrsStore.forEach(el=>{
+        additionalResources.technicCategoryNameAttrs.forEach(el=>{
             if(rawCategoryName.startsWith(el.starts) && rawCategoryName.includes(el.contains))
             categoryName = el.result
         })    

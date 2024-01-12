@@ -31,7 +31,7 @@
                     .html(`<b>Техника: </b>${technicCategoryName}`)
                     .appendTo(textInfoWrapper)
                 
-                const status = technicMovementStatusesStore.find(el=>el.id===data.technic_movement_status_id).name
+                const status = additionalResources.technicMovementStatuses.find(el=>el.id===data.technic_movement_status_id).name
                 $('<p>')
                     .addClass('list-element-item-info-text ')
                     .html(`<b>Статус: </b>${status.toLowerCase()}`)

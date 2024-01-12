@@ -31,20 +31,9 @@ class FuelTankController extends StandardEntityResourceController
         $this->routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
         $this->sectionTitle = 'Топливные емкости';
         $this->baseBladePath = resource_path() . '/views/tech_accounting/fuel/tanks/objects';
-
-        $this->isMobile =
-            is_dir($this->baseBladePath . '/mobile')
-            && SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile';
-
-        $this->componentsPath =
-            $this->isMobile
-                ?
-                $this->baseBladePath . '/mobile/components'
-                : $this->baseBladePath . '/desktop/components';
-
-        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
+        $this->isMobile = $this->isMobile($this->baseBladePath);
+        $this->components = $this->getModuleComponents(); 
         $this->modulePermissionsGroups = [17];
-
     }
 
     public function index(Request $request)
