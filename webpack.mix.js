@@ -107,25 +107,32 @@ mix.copy('resources/assets/fonts/googleFonts/*', 'public/fonts');
  mix.copy('resources/assets/fonts/nucleo-icons.svg', 'public/fonts');
  mix.copy('resources/assets/fonts/nucleo-icons.ttf', 'public/fonts');
  mix.copy('resources/assets/fonts/nucleo-icons.woff', 'public/fonts');
- mix.copy('resources/assets/fonts/nucleo-icons.woff2', 'public/fonts');
+mix.copy('resources/assets/fonts/nucleo-icons.woff2', 'public/fonts');
 
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.eot', 'public/fonts');
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.svg', 'public/fonts');
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.ttf', 'public/fonts');
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.woff', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.eot', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.svg', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.woff', 'public/fonts');
 
- mix.copy('resources/assets/fonts/element-icons.ttf', 'public/fonts');
- mix.copy('resources/assets/fonts/element-icons.woff', 'public/fonts');
+mix.copy('resources/assets/fonts/element-icons.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/element-icons.woff', 'public/fonts');
+
+mix.copy('resources/assets/fonts/calibri.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibrib.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibrii.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibriz.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibril.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibrili.ttf', 'public/fonts');
 
 mix.copy('resources/assets/img/favicon.ico', 'public/img');
- mix.copy('resources/assets/img/sidebar-5.jpg', 'public/img');
- mix.copy('resources/assets/img/full-screen-image-2.jpg', 'public/img');
- mix.copy('resources/assets/img/faces/face-0.jpg', 'public/img/person');
- mix.copy('resources/assets/img/apple-icon.png', 'public/img');
+mix.copy('resources/assets/img/sidebar-5.jpg', 'public/img');
+mix.copy('resources/assets/img/full-screen-image-2.jpg', 'public/img');
+mix.copy('resources/assets/img/faces/face-0.jpg', 'public/img/person');
+mix.copy('resources/assets/img/apple-icon.png', 'public/img');
 
- mix.copy('resources/assets/img/logo-mini.png', 'public/img');
- mix.copy('resources/assets/img/logo-normal.png', 'public/img');
- mix.copy('resources/assets/img/logosvg.png', 'public/img');
+mix.copy('resources/assets/img/logo-mini.png', 'public/img');
+mix.copy('resources/assets/img/logo-normal.png', 'public/img');
+mix.copy('resources/assets/img/logosvg.png', 'public/img');
  mix.copy('resources/assets/img/kp_head.png', 'public/img');
  mix.copy('resources/assets/img/kp_head_rotate.png', 'public/img');
  mix.copy('resources/assets/img/kp_head_2.png', 'public/img');
@@ -181,7 +188,7 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('node_modules/lightgallery/lightgallery.umd.js', 'public/js/lightgallery/lightgallery.umd.js');
  mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.umd.js', 'public/js/lightgallery/lg-thumbnail.umd.js');
  mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.umd.js', 'public/js/lightgallery/lg-zoom.umd.js');
- mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.umd.js', 'public/js/lightgallery/lg-rotate.umd.js');
+mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.umd.js', 'public/js/lightgallery/lg-rotate.umd.js');
 mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.umd.js');
 
  mix.version();
