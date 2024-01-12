@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contractors\Contractor;
 use App\Models\FileEntry;
 use App\Models\Permission;
+use App\Models\TechAcc\TechnicMovementStatus;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
@@ -12,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 use ZipArchive;
 
 class StandardEntityResourceController extends Controller
@@ -25,9 +28,9 @@ class StandardEntityResourceController extends Controller
     protected $ignoreDataKeys;
     protected $modulePermissionsGroups;
     protected $isMobile;
-    protected $morphable_type;
     protected $storage_name;
-    protected $resources;
+    protected $additionalResources;
+    protected $needAttachments;
 
     public function __construct()
     {
@@ -37,8 +40,8 @@ class StandardEntityResourceController extends Controller
             'newComments'
         ];
 
-        $this->resources = new \stdClass;
-        $this->setResources();
+        $this->additionalResources = new \stdClass;
+        $this->setAdditionalResources();
     }
 
     public function getPageCore()
@@ -54,9 +57,24 @@ class StandardEntityResourceController extends Controller
             'sectionTitle' => $this->sectionTitle,
             'baseBladePath' => $this->baseBladePath,
             'components' => $this->components,
-            'userPermissions' => json_encode($this->getUserPermissions()),
-            'resources' => json_encode($this->resources, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK)
+            'authUserId' => Auth::id(),
+            'userPermissions' => json_encode($this->getUserPermissions(), JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK),
+            'additionalResources' => json_encode($this->additionalResources, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK),
         ]);
+    }
+
+    public function isMobile($baseBladePath)
+    {
+        return is_dir($baseBladePath . '/mobile') && SystemService::determineClientDeviceType($_SERVER["HTTP_USER_AGENT"]) === 'mobile';
+    }
+
+    public function getComponentsPath() {
+        return $this->isMobile ? $this->baseBladePath . '/mobile/components' : $this->baseBladePath . '/desktop/components';
+    }
+
+    public function getModuleComponents()
+    {
+        return (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->getComponentsPath(), $this->baseBladePath, $this->needAttachments ?? false);
     }
 
     /**
@@ -77,9 +95,6 @@ class StandardEntityResourceController extends Controller
                 $groups = $this->handleGroupResponse($entities, $options->group);
                 return json_encode(array(
                         'data' => $groups
-                        // "data" => $groups['data'],
-                        // "groupCount" => $groups['groupCount'],
-                        // "totalCount" => $groups['totalCount'],
                     ),
                     JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
             }
@@ -104,7 +119,6 @@ class StandardEntityResourceController extends Controller
         DB::beginTransaction();
             $beforeStoreResult = $this->beforeStore($data);
             $data = $beforeStoreResult['data'];
-            // $ignoreDataKeys = $this->ignoreDataKeys;
             $dataToStore = $this->getDataToStore($data);
             $entity = $this->baseModel->create($dataToStore);
             $this->afterStore($entity, $data, $dataToStore);
@@ -158,7 +172,6 @@ class StandardEntityResourceController extends Controller
         DB::beginTransaction();
             $beforeUpdateResult = $this->beforeUpdate($entity, $data);
             $data = $beforeUpdateResult['data'];
-            // $ignoreDataKeys = $beforeUpdateResult['ignoreDataKeys'];
             $dataToUpdate = $this->getDataToStore($data);
             $entity->update($dataToUpdate);
             $this->afterUpdate($entity, $data, $dataToUpdate);
@@ -260,13 +273,14 @@ class StandardEntityResourceController extends Controller
         return $groupedAttachments;
     }
 
+
+    /**
+     * Группировка списка entites, связан с методом index
+     * Сырой, доделать
+     */
     public function handleGroupResponse($entities, $groupRequest, $groups = [])
     {
         for ($i=0; $i<count($groupRequest); $i++) {
-
-        // foreach($groupRequest as $groupRequestElement){
-            // $groupBy = $groupRequestElement->selector;
-
             $groupBy = $groupRequest[$i]->selector;
             $isSortOrderDesc = $groupRequest[$i]->desc;
             $groupByArr = $entities->pluck($groupBy)->unique()->toArray();
@@ -292,43 +306,6 @@ class StandardEntityResourceController extends Controller
         return $groups;
     }
 
-    // public function handleGroupResponse($entities, $groupRequest)
-    // {
-    //     foreach($groupRequest as $groupRequestElement){
-    //         $groupBy = $groupRequestElement->selector;
-    //         $groupByArr = $entities->pluck($groupBy)->unique();
-
-    //         $groups = [];
-    //         $groups['groupCount'] = 0;
-    //         $groups['totalCount'] = $entities->count();
-
-    //         foreach($groupByArr as $groupKey) {
-    //             $projectObjectDocumentsGrouped = $entities->where($groupBy, $groupKey);
-    //             $groupData = new \stdClass;
-    //             $groupData->key = $groupKey;
-    //             $groupData->count = $projectObjectDocumentsGrouped->count();
-    //             $groupData->items = null;
-    //             $groupData->summary = [];
-    //             $groups['data'][] = $groupData;
-    //             ++ $groups['groupCount'];
-    //         }
-    //     }
-
-    //     return $groups;
-    // }
-
-    public function deleteFiles($deletedAttachments)
-    {
-        foreach($deletedAttachments as $fileId){
-            $fileEntry = FileEntry::find($fileId);
-            if($fileEntry){
-                $fileEntry->documentable_id = NULL;
-                $fileEntry->save();
-            }
-        }
-
-    }
-
     public function getUserPermissions()
     {
         $permissionsGroups = $this->modulePermissionsGroups ?? null;
@@ -348,7 +325,7 @@ class StandardEntityResourceController extends Controller
 
         [$fileEntry, $fileName]
             = (new FilesUploadService)
-            ->uploadFile($uploadedFile, $documentable_id, $this->morphable_type, $this->storage_name);
+            ->uploadFile($uploadedFile, $documentable_id, get_class($this->baseModel), $this->storage_name);
 
         return response()->json([
             'result' => 'ok',
@@ -356,6 +333,18 @@ class StandardEntityResourceController extends Controller
             'filename' =>  $fileName,
             'fileEntry' => $fileEntry
         ], 200);
+    }
+
+    public function deleteFiles($deletedAttachments)
+    {
+        foreach($deletedAttachments as $fileId){
+            $fileEntry = FileEntry::find($fileId);
+            if($fileEntry){
+                $fileEntry->documentable_id = NULL;
+                $fileEntry->save();
+            }
+        }
+
     }
 
     public function downloadAttachments(Request $request, FilesUploadService $filesUploadService) {
@@ -368,7 +357,7 @@ class StandardEntityResourceController extends Controller
 
     }
 
-    public function setResources()
+    public function setAdditionalResources()
     {
         return;
     }

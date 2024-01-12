@@ -23,7 +23,7 @@
                             onSelectionChanged(e) {
 
                                 const technicIdDatafieldInstance = $('#technicIdDatafield').dxSelectBox('instance')
-                                technicIdDatafieldInstance?.option('dataSource', technicsListStore.filter(el=>el.technic_category_id === e.selectedItem.id));
+                                technicIdDatafieldInstance?.option('dataSource', additionalResources.technicsList.filter(el=>el.technic_category_id === e.selectedItem.id));
                                 technicIdDatafieldInstance?.option('value', null)
 
                                 const responsibleIdDatafieldInstance = $('#responsibleIdDatafield').dxSelectBox('instance')
@@ -34,9 +34,9 @@
                                 } else {
                                     choosedCategory = 'standartSize';
                                 }
-                                responsibleIdDatafieldInstance?.option('dataSource', technicResponsiblesByTypesStore[choosedCategory]);
+                                responsibleIdDatafieldInstance?.option('dataSource', additionalResources.technicResponsiblesByTypes[choosedCategory]);
                                 
-                                if(!technicResponsiblesByTypesStore[choosedCategory].find(el=>el.id === responsibleIdDatafieldInstance?.option('value'))) {
+                                if(!additionalResources.technicResponsiblesByTypes[choosedCategory].find(el=>el.id === responsibleIdDatafieldInstance?.option('value'))) {
                                     responsibleIdDatafieldInstance?.option('value', null);
                                 }
                             }
