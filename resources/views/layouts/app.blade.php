@@ -1002,11 +1002,11 @@
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
 
 <!-- lightgalleryjs.com -->
-<script type="text/javascript" src="{{ asset('js/lightgallery/lightgallery.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-thumbnail.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-zoom.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-rotate.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-video.umd.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lightgallery.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-thumbnail.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-zoom.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-rotate.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-video.min.js')}}"></script>
 
 <!-- END lightgalleryjs.com -->
 

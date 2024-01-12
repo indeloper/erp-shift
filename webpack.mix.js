@@ -175,20 +175,20 @@ mix.copy('resources/assets/img/logosvg.png', 'public/img');
  //Q3W 
  mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
 
- // lightgalleryjs.com
- mix.copy('node_modules/lightgallery/css/lightgallery.css', 'public/css/lightgallery/lightgallery.css');
- mix.copy('node_modules/lightgallery/css/lg-thumbnail.css', 'public/css/lightgallery/lg-thumbnail.css');
- mix.copy('node_modules/lightgallery/css/lg-zoom.css', 'public/css/lightgallery/lg-zoom.css');
- mix.copy('node_modules/lightgallery/css/lg-rotate.css', 'public/css/lightgallery/lg-rotate.css');
- mix.copy('node_modules/lightgallery/css/lightgallery-bundle.css', 'public/css/lightgallery/lightgallery-bundle.css');
+// lightgalleryjs.com
+mix.copy('node_modules/lightgallery/css/lightgallery.css', 'public/css/lightgallery/lightgallery.css');
+mix.copy('node_modules/lightgallery/css/lg-thumbnail.css', 'public/css/lightgallery/lg-thumbnail.css');
+mix.copy('node_modules/lightgallery/css/lg-zoom.css', 'public/css/lightgallery/lg-zoom.css');
+mix.copy('node_modules/lightgallery/css/lg-rotate.css', 'public/css/lightgallery/lg-rotate.css');
+mix.copy('node_modules/lightgallery/css/lightgallery-bundle.css', 'public/css/lightgallery/lightgallery-bundle.css');
 
- mix.copyDirectory('node_modules/lightgallery/fonts', 'public/css/fonts');
- mix.copyDirectory('node_modules/lightgallery/images', 'public/css/images');
+mix.copyDirectory('node_modules/lightgallery/fonts', 'public/css/fonts');
+mix.copyDirectory('node_modules/lightgallery/images', 'public/css/images');
 
- mix.copy('node_modules/lightgallery/lightgallery.umd.js', 'public/js/lightgallery/lightgallery.umd.js');
- mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.umd.js', 'public/js/lightgallery/lg-thumbnail.umd.js');
- mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.umd.js', 'public/js/lightgallery/lg-zoom.umd.js');
-mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.umd.js', 'public/js/lightgallery/lg-rotate.umd.js');
-mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.umd.js');
+mix.copy('node_modules/lightgallery/lightgallery.min.js', 'public/js/lightgallery/lightgallery.min.js');
+mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.min.js', 'public/js/lightgallery/lg-thumbnail.min.js');
+mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.min.js', 'public/js/lightgallery/lg-zoom.min.js');
+mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.min.js', 'public/js/lightgallery/lg-rotate.min.js');
+mix.copy('node_modules/lightgallery/plugins/rotate/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
 
- mix.version();
+mix.version();
