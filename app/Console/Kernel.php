@@ -14,6 +14,10 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        // Dev commandscls
+        Commands\Generators\MakeErpModelCommand::class,
+
+        // Other commands
         Commands\MakePermission::class,
         Commands\MakeUser::class,
         Commands\MakeTestCall::class,
