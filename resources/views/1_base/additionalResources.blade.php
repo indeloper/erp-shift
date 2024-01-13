@@ -1,5 +1,5 @@
 <script>
-    const authUserId = {!! $authUserId !!}
-    const userPermissions = {!! $userPermissions !!} 
-    const additionalResources = {!! $additionalResources !!}
+    const authUserId = {!! Auth::id() !!};
+    const userPermissions = {!! $userPermissions ?? '[]' !!};
+    const additionalResources = {!! $additionalResources ?? '[]' !!};
 </script>
