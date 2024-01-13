@@ -22,7 +22,7 @@ class FileSystemService {
 
         $this->getBladeTemplateComponentsFilesNames(resource_path().'/views/1_base/assets', $needAttachments);
         $this->getBladeTemplateComponentsFilesNames($componentsPath);
-        
+
         return $this->fileNames;
     }
 
@@ -32,11 +32,18 @@ class FileSystemService {
         $cleanbaseBladePath = str_replace('.blade.php', '', $cleanbaseBladePath );
         if(!is_file($baseBladePath.'/dataSource.blade.php')) {
             $this->fileNames[] = '1_base/dataSource';
-        } 
+        }
         else {
             $this->fileNames[] = $cleanbaseBladePath.'/dataSource';
         }
-        $this->fileNames[] = '1_base/additionalResources';
+
+        if(!is_file($baseBladePath.'/additionalResources.blade.php')) {
+            $this->fileNames[] = '1_base/additionalResources';
+        }
+        else {
+            $this->fileNames[] = $cleanbaseBladePath.'/additionalResources';
+        }
+
         $this->fileNames[] = '1_base/variables';
         $this->fileNames[] = $cleanbaseBladePath.'/variables';
         $this->fileNames[] = $cleanbaseBladePath.'/methods';
