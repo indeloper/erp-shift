@@ -296,7 +296,7 @@
                                <div class="col-md-12">
                                    <div class="form-group">
                                        <label>Название<star class="star">*</star></label>
-                                       <input id="edit_material_name" name="name" type="text" placeholder="Укажите название" class="form-control edit-field" maxlength="256" required>
+                                       <input id="edit_material_name" name="name" type="text" placeholder="Укажите название" class="form-control edit-field" maxlength="250" required>
                                     </div>
                                </div>
                            </div>
