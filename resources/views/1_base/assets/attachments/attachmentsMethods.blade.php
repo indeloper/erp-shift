@@ -217,7 +217,7 @@
             fliesIds: filesIdsToDownload
         }
 
-        let response = await fetch("{{route('fileEntry.downloadAttachments')}}", {
+        let response = await fetch("{{route($routeNameFixedPart.'downloadAttachments')}}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',

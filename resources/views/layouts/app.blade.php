@@ -999,24 +999,25 @@
 <!-- DevExtreme library -->
 <script src="https://unpkg.com/devextreme-quill@1.5.16/dist/dx-quill.min.js"></script>
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.all.js')}}"></script>
-<!-- DevExtreme localization -->
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
 
-<!-- DevExtreme localization -->
-<script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
+<!-- DevExtreme default-settings -->
+<script type="text/javascript" src="{{ asset('js/devextreme/default-settings.js')}}"></script>
 
 <!-- lightgalleryjs.com -->
-<script type="text/javascript" src="{{ asset('js/lightgallery/lightgallery.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-thumbnail.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-zoom.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-rotate.umd.js')}}"></script>
-<script type="text/javascript" src="{{ asset('js/lightgallery/lg-video.umd.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lightgallery.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-thumbnail.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-zoom.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-rotate.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/lightgallery/lg-video.min.js')}}"></script>
 
 <!-- END lightgalleryjs.com -->
 
 
 <meta name="csrf-token" content="{{ csrf_token() }}"/>
-<script>
+
+
+<script>    
     var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
     ELEMENT.locale(ELEMENT.lang.ruRU);
 
@@ -1025,7 +1026,7 @@
         editorStylingMode: "outlined",
         forceIsoDateParsing: true
     })
-
+  
     function iOS() {
         return [
                 'iPad Simulator',
@@ -1056,7 +1057,7 @@
         }).done(function (data) {
             csrfToken = data;
         });
-    }, 1 * 60 * 60 * 1000);
+    }, 60 * 60 * 1000);
 
     Vue.component('span-notify', {
         props: ['notify'],

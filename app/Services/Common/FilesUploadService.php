@@ -6,6 +6,7 @@ use App\Models\FileEntry;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class FilesUploadService {
     
@@ -35,5 +36,30 @@ class FilesUploadService {
     {
         foreach($newAttachments as $fileId)
             FileEntry::find($fileId)->update(['documentable_id' => $entity->id]);
+    }
+
+    public function getDownloadableAttachments($fliesIds, $storage_path)
+    {
+        if(!count($fliesIds))
+        return response()->json('no files recieved', 200);
+
+        $storagePath = config('filesystems.disks')['zip_archives']['root'];
+
+        $zip = new ZipArchive();
+        $zipFileName = "file-". uniqid(). "-" . "archive.zip";
+        $zipFilePath = $storagePath."/".$zipFileName ;
+        $zip->open($zipFilePath, ZIPARCHIVE::CREATE);
+
+        foreach($fliesIds as $fileId)
+        {
+            $file = FileEntry::find($fileId);
+            $filenameElems = explode('/', $file->filename);
+            $filename = $filenameElems[count($filenameElems) - 1];
+            $zip->addFile($storage_path.'/'.$filename, $file->original_filename);
+        }
+
+        $zip->close();
+
+        return['zipFileLink'=>'storage/docs/zip_archives/'.$zipFileName];
     }
 }

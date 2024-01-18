@@ -90,6 +90,10 @@
                     label: {
                         text: 'Комментарий'
                     },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
                 },
 
                 

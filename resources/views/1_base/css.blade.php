@@ -1,8 +1,0 @@
-@include('1_base.css.attachments')
-@include('1_base.css.custom-colours')
-@include('1_base.css.dataGridStyles')
-@include('1_base.css.popupStyles')
-@include('1_base.css.mixedUpElements')
-@include('1_base.css.mixedUpElements')
-@include('1_base.css.pdf-report')
-@include('1_base.css.margins-paddings')

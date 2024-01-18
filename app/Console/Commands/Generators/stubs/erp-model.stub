@@ -1,0 +1,21 @@
+<?php
+/**  * @mixin ..\Eloquent  */
+namespace DummyNamespace;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+use App\Traits\AuthorAndEditorUserFields;
+use App\Traits\DefaultSortable;
+use App\Traits\DevExtremeDataSourceLoadable;
+
+class DummyClass extends Model
+{
+    use SoftDeletes, AuthorAndEditorUserFields, DefaultSortable, DevExtremeDataSourceLoadable;
+
+    protected $guarded = ['id'];
+
+    public $defaultSortOrder = [
+        'field_name_for_default_sorting' => 'asc'
+    ];
+}

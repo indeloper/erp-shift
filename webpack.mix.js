@@ -107,25 +107,32 @@ mix.copy('resources/assets/fonts/googleFonts/*', 'public/fonts');
  mix.copy('resources/assets/fonts/nucleo-icons.svg', 'public/fonts');
  mix.copy('resources/assets/fonts/nucleo-icons.ttf', 'public/fonts');
  mix.copy('resources/assets/fonts/nucleo-icons.woff', 'public/fonts');
- mix.copy('resources/assets/fonts/nucleo-icons.woff2', 'public/fonts');
+mix.copy('resources/assets/fonts/nucleo-icons.woff2', 'public/fonts');
 
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.eot', 'public/fonts');
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.svg', 'public/fonts');
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.ttf', 'public/fonts');
- mix.copy('resources/assets/fonts/Pe-icon-7-stroke.woff', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.eot', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.svg', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/Pe-icon-7-stroke.woff', 'public/fonts');
 
- mix.copy('resources/assets/fonts/element-icons.ttf', 'public/fonts');
- mix.copy('resources/assets/fonts/element-icons.woff', 'public/fonts');
+mix.copy('resources/assets/fonts/element-icons.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/element-icons.woff', 'public/fonts');
+
+mix.copy('resources/assets/fonts/calibri.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibrib.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibrii.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibriz.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibril.ttf', 'public/fonts');
+mix.copy('resources/assets/fonts/calibrili.ttf', 'public/fonts');
 
 mix.copy('resources/assets/img/favicon.ico', 'public/img');
- mix.copy('resources/assets/img/sidebar-5.jpg', 'public/img');
- mix.copy('resources/assets/img/full-screen-image-2.jpg', 'public/img');
- mix.copy('resources/assets/img/faces/face-0.jpg', 'public/img/person');
- mix.copy('resources/assets/img/apple-icon.png', 'public/img');
+mix.copy('resources/assets/img/sidebar-5.jpg', 'public/img');
+mix.copy('resources/assets/img/full-screen-image-2.jpg', 'public/img');
+mix.copy('resources/assets/img/faces/face-0.jpg', 'public/img/person');
+mix.copy('resources/assets/img/apple-icon.png', 'public/img');
 
- mix.copy('resources/assets/img/logo-mini.png', 'public/img');
- mix.copy('resources/assets/img/logo-normal.png', 'public/img');
- mix.copy('resources/assets/img/logosvg.png', 'public/img');
+mix.copy('resources/assets/img/logo-mini.png', 'public/img');
+mix.copy('resources/assets/img/logo-normal.png', 'public/img');
+mix.copy('resources/assets/img/logosvg.png', 'public/img');
  mix.copy('resources/assets/img/kp_head.png', 'public/img');
  mix.copy('resources/assets/img/kp_head_rotate.png', 'public/img');
  mix.copy('resources/assets/img/kp_head_2.png', 'public/img');
@@ -154,29 +161,37 @@ mix.copy('resources/assets/img/favicon.ico', 'public/img');
  mix.copy('resources/assets/css/emojione.css', 'public/css/');
 
  //Devextreme
-//  mix.copy('node_modules/devextreme/dist/css/dx.common.css', 'public/css/devextreme/dx.common.css');
-//  mix.copy('node_modules/devextreme/dist/css/dx.material.blue.light.compact.css', 'public/css/devextreme/dx.material.blue.light.compact.css');
-//  mix.copyDirectory('node_modules/devextreme/dist/css/fonts', 'public/css/devextreme/fonts');
-//  mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextreme/icons');
-//  mix.copy('node_modules/devextreme/dist/js/dx.all.js', 'public/js/devextreme/dx.all.js');
-//  mix.copy('node_modules/devextreme/dist/js/localization/dx.messages.ru.js', 'public/js/devextreme/dx.messages.ru.js');
-  //Q3W
+ mix.copy('node_modules/devextreme/dist/css/dx.common.css', 'public/css/devextreme/dx.common.css');
+ mix.copy('node_modules/devextreme/dist/css/dx.material.blue.light.compact.css', 'public/css/devextreme/dx.material.blue.light.compact.css');
+ mix.copyDirectory('node_modules/devextreme/dist/css/fonts', 'public/css/devextreme/fonts');
+ mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextreme/icons');
+
+// *** переносим вручную  dx.generic.light.css, dx.generic.light.compact.css, dx.messages.ru.json
+// mix.copy('node_modules/devextreme/dist/css/dx.generic.light.css', 'public/css/devextreme/dx.generic.light.css');
+//  mix.copy('node_modules/devextreme/dist/css/dx.generic.light.compact.css', 'public/css/devextreme/dx.generic.light.compact.css');
+// *** Не собирается
+//  mix.copy('node_modules/devextreme/dist/dx.all.js', 'public/js/devextreme/dx.all.js');
+  mix.scripts([
+  'resources/assets/js/common/devextreme/settings/dxSelectBox.js'
+  ], 'public/js/devextreme/default-settings.js');
+
+ //Q3W 
  mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
 
- // lightgalleryjs.com
- mix.copy('node_modules/lightgallery/css/lightgallery.css', 'public/css/lightgallery/lightgallery.css');
- mix.copy('node_modules/lightgallery/css/lg-thumbnail.css', 'public/css/lightgallery/lg-thumbnail.css');
- mix.copy('node_modules/lightgallery/css/lg-zoom.css', 'public/css/lightgallery/lg-zoom.css');
- mix.copy('node_modules/lightgallery/css/lg-rotate.css', 'public/css/lightgallery/lg-rotate.css');
- mix.copy('node_modules/lightgallery/css/lightgallery-bundle.css', 'public/css/lightgallery/lightgallery-bundle.css');
+// lightgalleryjs.com
+mix.copy('node_modules/lightgallery/css/lightgallery.css', 'public/css/lightgallery/lightgallery.css');
+mix.copy('node_modules/lightgallery/css/lg-thumbnail.css', 'public/css/lightgallery/lg-thumbnail.css');
+mix.copy('node_modules/lightgallery/css/lg-zoom.css', 'public/css/lightgallery/lg-zoom.css');
+mix.copy('node_modules/lightgallery/css/lg-rotate.css', 'public/css/lightgallery/lg-rotate.css');
+mix.copy('node_modules/lightgallery/css/lightgallery-bundle.css', 'public/css/lightgallery/lightgallery-bundle.css');
 
- mix.copyDirectory('node_modules/lightgallery/fonts', 'public/css/fonts');
- mix.copyDirectory('node_modules/lightgallery/images', 'public/css/images');
+mix.copyDirectory('node_modules/lightgallery/fonts', 'public/css/fonts');
+mix.copyDirectory('node_modules/lightgallery/images', 'public/css/images');
 
- mix.copy('node_modules/lightgallery/lightgallery.umd.js', 'public/js/lightgallery/lightgallery.umd.js');
- mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.umd.js', 'public/js/lightgallery/lg-thumbnail.umd.js');
- mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.umd.js', 'public/js/lightgallery/lg-zoom.umd.js');
- mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.umd.js', 'public/js/lightgallery/lg-rotate.umd.js');
- mix.copy('node_modules/lightgallery/plugins/rotate/lg-video.umd.js', 'public/js/lightgallery/lg-video.umd.js');
+mix.copy('node_modules/lightgallery/lightgallery.min.js', 'public/js/lightgallery/lightgallery.min.js');
+mix.copy('node_modules/lightgallery/plugins/thumbnail/lg-thumbnail.min.js', 'public/js/lightgallery/lg-thumbnail.min.js');
+mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.min.js', 'public/js/lightgallery/lg-zoom.min.js');
+mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.min.js', 'public/js/lightgallery/lg-rotate.min.js');
+mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
 
- mix.version();
+mix.version();

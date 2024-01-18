@@ -5,12 +5,27 @@ namespace App\Models\TechAcc;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\DevExtremeDataSourceLoadable;
+use Illuminate\Database\Eloquent\Builder;
 
 class TechnicCategory extends Model
 {
     use SoftDeletes, DevExtremeDataSourceLoadable;
 
     protected $guarded = ['id'];
+
+    protected $sortOrder = ['name', 'id', ['created_at', 'desc']];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('orderBy', function (Builder $builder) {
+            if(empty($builder->getQuery()->orders)) {
+                $builder->orderBy('name');
+            } 
+        });
+    }
+
     // protected $fillable = ['name', 'description', 'characteristic_id'];
 
     // public function __construct($attributes = [])

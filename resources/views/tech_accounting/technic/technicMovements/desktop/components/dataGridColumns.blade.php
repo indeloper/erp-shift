@@ -2,7 +2,7 @@
     const dataGridColumns = [
         {
             visible: false,
-            dataField: "newAttachments",
+            dataField: "finish_result",
         },
         {
             visible: false,
@@ -12,7 +12,7 @@
             dataField: "technic_movement_status_id",
             caption: 'Статус',
             lookup: {
-                dataSource: technicMovementStatusesStore,
+                dataSource: additionalResources.technicMovementStatuses,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -22,7 +22,7 @@
             dataField: "technic_category_id",
             caption: 'Категория техники',
             lookup: {
-                dataSource: technicCategoriesStore,
+                dataSource: additionalResources.technicCategories,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -32,7 +32,7 @@
             dataField: "technic_id",
             caption: 'Техника',
             lookup: {
-                dataSource: technicsListStore,
+                dataSource: additionalResources.technicsList,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -62,7 +62,7 @@
             caption: 'Перевозчик',
             lookup: {
                 dataSource: {
-                    store: technicCarriersStore
+                    store: additionalResources.technicCarriers
                 },
                 valueExpr: "id",
                 displayExpr: "short_name"
@@ -72,7 +72,7 @@
             dataField: "responsible_id",
             caption: 'Ответственный',
             lookup: {
-                dataSource: technicResponsiblesAllTypesStore,
+                dataSource: additionalResources.technicResponsiblesAllTypes,
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
@@ -82,7 +82,7 @@
             dataField: "previous_responsible_id",
             caption: 'Предыдущий ответственный',
             lookup: {
-                dataSource: technicResponsiblesAllTypesStore,
+                dataSource: additionalResources.technicResponsiblesAllTypes,
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
@@ -92,7 +92,7 @@
             dataField: "object_id",
             caption: 'Объект назначения',
             lookup: {
-                dataSource: projectObjectsStore,
+                dataSource: additionalResources.projectObjects,
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
@@ -102,7 +102,7 @@
             dataField: "previous_object_id",
             caption: 'Объект отправки',
             lookup: {
-                dataSource: projectObjectsStore,
+                dataSource: additionalResources.projectObjects,
                 valueExpr: "id",
                 displayExpr: "short_name"
             },

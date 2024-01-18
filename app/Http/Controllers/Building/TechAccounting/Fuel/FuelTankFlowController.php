@@ -34,7 +34,9 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->sectionTitle = 'Топливный журнал';
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/flow';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
-        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
+        $this->needAttachments = true;
+        $this->storage_name = 'fuel_flow';
+        $this->components = $this->getModuleComponents(); 
         $this->modulePermissionsGroups = [17];
         $this->ignoreDataKeys[] = 'third_party_mark';
     }

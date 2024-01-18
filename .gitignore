@@ -8,6 +8,7 @@
 /public/fonts
 /public/temp
 /public/plugins
+/public/my-local-tests
 /storage/*.key
 /vendor
 .env

@@ -61,7 +61,7 @@
                         readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
                         value: getEventDate(),
                         max: Date(),
-                        min: getThreeDaysEarlierDate()
+                        min: getDaysEarlierDate(35)
                     },
                     label: {
                         text: 'Дата операции'
@@ -106,8 +106,6 @@
                         text: 'Комментарий'
                     },
                 },
-                
-
                 {
                     itemType: "group",
                     caption: 'Потребитель топлива',

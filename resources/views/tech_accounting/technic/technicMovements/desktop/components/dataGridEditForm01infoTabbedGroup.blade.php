@@ -11,7 +11,7 @@
             {
                 itemType: "group",
                 colSpan: 2,
-                caption: 'Техника',
+                caption: 'Заявка',
                 name: 'technicFormGroup',
                 items: [
                     {
@@ -23,7 +23,7 @@
                             onSelectionChanged(e) {
 
                                 const technicIdDatafieldInstance = $('#technicIdDatafield').dxSelectBox('instance')
-                                technicIdDatafieldInstance?.option('dataSource', technicsListStore.filter(el=>el.technic_category_id === e.selectedItem.id));
+                                technicIdDatafieldInstance?.option('dataSource', additionalResources.technicsList.filter(el=>el.technic_category_id === e.selectedItem.id));
                                 technicIdDatafieldInstance?.option('value', null)
 
                                 const responsibleIdDatafieldInstance = $('#responsibleIdDatafield').dxSelectBox('instance')
@@ -34,9 +34,9 @@
                                 } else {
                                     choosedCategory = 'standartSize';
                                 }
-                                responsibleIdDatafieldInstance?.option('dataSource', technicResponsiblesByTypesStore[choosedCategory]);
+                                responsibleIdDatafieldInstance?.option('dataSource', additionalResources.technicResponsiblesByTypes[choosedCategory]);
                                 
-                                if(!technicResponsiblesByTypesStore[choosedCategory].find(el=>el.id === responsibleIdDatafieldInstance?.option('value'))) {
+                                if(!additionalResources.technicResponsiblesByTypes[choosedCategory].find(el=>el.id === responsibleIdDatafieldInstance?.option('value'))) {
                                     responsibleIdDatafieldInstance?.option('value', null);
                                 }
                             }
@@ -98,13 +98,16 @@
                 colSpan: 2,
                 colCount: 2,
                 caption: 'Перевозка',
+                name: 'transportationGroup',
                 items: [
                     {
                         dataField: "technic_movement_status_id",
-                        validationRules: [{
-                            type: 'required',
-                            message: 'Укажите значение',
-                        }],
+                        editorOptions: {
+                            readOnly: true,
+                            elementAttr: {
+                                id: 'technicMovementStatusId'
+                            }
+                        },
                     },
                 
                     {
@@ -129,6 +132,27 @@
                     },
                     {
                         dataField: "contractor_id",
+                    },
+                    {
+                        dataField: "finish_result",
+                        colSpan: 2,
+                        editorType: "dxRadioGroup",
+                        
+                        label: {
+                            visible: false
+                        },    
+                        editorOptions: {
+                            items: [
+                                {id: 'completed', text: 'Исполнена'},
+                                {id: 'cancelled', text: 'Отменена'}, 
+                            ],
+                            valueExpr: 'id',
+                            displayExpr: 'text',
+                            layout: 'horizontal',
+                            elementAttr: {
+                                id: 'finishResultRadioGroup'
+                            },
+                        }
                     },
                 ]
             },

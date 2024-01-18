@@ -94,7 +94,7 @@
                     editorOptions: {
                         value: getEventDate(),
                         max: Date(),
-                        min: getThreeDaysEarlierDate()
+                        min: getDaysEarlierDate(35)
                     },
                     label: {
                         text: 'Дата операции'

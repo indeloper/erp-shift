@@ -21,7 +21,6 @@
             labelLocation: 'left',
             formData: formItem,
             onContentReady(e) {
-                
                 if (formItem.third_party_mark) {
                     e.component.getEditor("our_technic_id").option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===1))
                 }
@@ -65,7 +64,7 @@
                     editorOptions: {
                         value: getEventDate(),
                         max: Date(),
-                        min: getThreeDaysEarlierDate()
+                        min: getDaysEarlierDate(35)
                     },
                     label: {
                         text: 'Дата операции'
