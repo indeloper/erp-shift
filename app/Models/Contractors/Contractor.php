@@ -5,16 +5,20 @@ namespace App\Models\Contractors;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\SmartSearchable;
 use App\Models\{Notification, Project, ProjectContractors, Task, User};
+use App\Traits\DefaultSortable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 
 class Contractor extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable, SmartSearchable;
+    use SoftDeletes, DevExtremeDataSourceLoadable, SmartSearchable, DefaultSortable;
 
     protected $guarded = ['id'];
 
+    public $defaultSortOrder = [
+        'short_name' => 'asc'
+    ];
     // protected $fillable = [
     //     'full_name', 'short_name', 'inn', 'kpp',
     //     'ogrn', 'legal_address', 'physical_adress',

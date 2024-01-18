@@ -13,13 +13,17 @@ use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Traits\DefaultSortable;
 
 class ProjectObject extends Model
 {
-    use DevExtremeDataSourceLoadable, Logable, SmartSearchable;
+    use DevExtremeDataSourceLoadable, Logable, SmartSearchable, DefaultSortable;
 
     protected $guarded = ['id'];
-    // protected $fillable = ['name', 'address', 'cadastral_number', 'short_name', 'material_accounting_type'];
+
+    public $defaultSortOrder = [
+        'short_name' => 'asc'
+    ];
 
     protected $appends = ['location', 'name_tag'];
 

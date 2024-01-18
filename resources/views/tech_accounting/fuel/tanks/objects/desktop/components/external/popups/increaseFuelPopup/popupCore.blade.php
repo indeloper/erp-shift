@@ -5,7 +5,7 @@
             visible: true,
             title: 'Приход топлива',
             contentTemplate: () => {
-                formItem.fuel_tank_flow_type_id = fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id
+                formItem.fuel_tank_flow_type_id = additionalResources.fuelFlowTypes.find(el => el.slug === 'income').id
                 formItem.fuel_tank_id = editingRowId
                 fuelFlowFormData = formItem
                 return getIncreaseFuelPopupContentTemplate(formItem)

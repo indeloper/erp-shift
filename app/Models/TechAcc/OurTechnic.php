@@ -5,6 +5,7 @@ namespace App\Models\TechAcc;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\User;
+use App\Traits\DefaultSortable;
 use App\Traits\Defectable;
 use App\Traits\Documentable;
 use Carbon\Carbon;
@@ -16,9 +17,14 @@ use App\Traits\DevExtremeDataSourceLoadable;
 
 class OurTechnic extends Model
 {
-    use DevExtremeDataSourceLoadable, Documentable, Defectable, SoftDeletes;
+    use DevExtremeDataSourceLoadable, Documentable, Defectable, SoftDeletes, DefaultSortable;
 
     protected $guarded = ['id'];
+
+    public $defaultSortOrder = [
+        'name' => 'asc'
+    ];
+
     // protected $fillable = ['brand','model','owner','start_location_id','technic_category_id','exploitation_start','inventory_number',];
 
     // protected $appends = 

@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Building\TechAccounting\Technic;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Contractors\Contractor;
-use App\Models\Contractors\ContractorAdditionalTypes;
-use App\Models\Contractors\ContractorType;
 use App\Models\Permission;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
@@ -16,10 +13,7 @@ use App\Models\TechAcc\TechnicMovement;
 use App\Models\TechAcc\TechnicMovementStatus;
 use App\Models\User;
 use App\Notifications\Technic\TechnicMovementNotifications;
-use App\Services\Common\FileSystemService;
-use App\Services\SystemService;
 use Illuminate\Support\Facades\Auth;
-use stdClass;
 
 class TechnicMovementController extends StandardEntityResourceController
 {
@@ -31,7 +25,6 @@ class TechnicMovementController extends StandardEntityResourceController
         $this->baseModel = new TechnicMovement();
         $this->routeNameFixedPart = 'building::tech_acc::technic::movements::';
         $this->baseBladePath = resource_path() . '/views/tech_accounting/technic/technicMovements';
-        $this->needAttachments = true;
         $this->storage_name = 'technic_movements';
         $this->isMobile = $this->isMobile($this->baseBladePath);
         $this->components = $this->getModuleComponents(); 
@@ -144,7 +137,6 @@ class TechnicMovementController extends StandardEntityResourceController
 
     public function setAdditionalResources()
     {
-        // $this->additionalResources->technicCategories = TechnicCategory::all();
         $this->additionalResources->technicCategories = TechnicCategory::all();
         $this->additionalResources->technicMovementStatuses = TechnicMovementStatus::all();
         $this->additionalResources->technicsList = OurTechnic::all();

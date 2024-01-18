@@ -39,9 +39,6 @@
             pageSize: 100,
         },
         editing: {
-            // mode: "popup",
-            // popup: dataGridPopup,
-            // form: dataGridEditForm,
             allowUpdating: false,
             allowAdding: false,
             allowDeleting: true,
@@ -54,7 +51,7 @@
                 editingRowId = e.key;
 
                 let choosedItem = getChoosedItem(e.key)
-                let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
+                let fuelFlowType = additionalResources.fuelFlowTypes.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
 
                 if (fuelFlowType === 'outcome') {
                     if (!choosedItem.third_party_mark) {

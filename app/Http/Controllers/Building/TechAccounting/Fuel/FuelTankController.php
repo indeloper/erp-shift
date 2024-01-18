@@ -8,28 +8,27 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Comment;
 use App\Models\Company\Company;
+use App\Models\Contractors\Contractor;
 use App\Models\Group;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\FuelTankFlow;
-use App\Models\TechAcc\FuelTank\FuelTankMovement;
+use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
+use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
-use App\Services\Common\FileSystemService;
-use App\Services\SystemService;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class FuelTankController extends StandardEntityResourceController
 {
     public function __construct()
     {
+        parent::__construct();
+        
+        $this->sectionTitle = 'Топливные емкости';
         $this->baseModel = new FuelTank;
         $this->routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
-        $this->sectionTitle = 'Топливные емкости';
         $this->baseBladePath = resource_path() . '/views/tech_accounting/fuel/tanks/objects';
         $this->isMobile = $this->isMobile($this->baseBladePath);
         $this->components = $this->getModuleComponents(); 
@@ -138,7 +137,6 @@ class FuelTankController extends StandardEntityResourceController
             ->whereIn('group_id', Group::FOREMEN)
             ->orWhere('group_id', 43)
             ->select(['id', 'user_full_name'])
-            ->orderBy('last_name')
             ->get();
     }
 
@@ -276,5 +274,49 @@ class FuelTankController extends StandardEntityResourceController
     public function notifyNewTankResponsible($tank)
     {
         (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
+    }
+
+    public function setAdditionalResources()
+    {
+        $this->additionalResources->
+        projectObjects = 
+            ProjectObject::query()
+                ->where('is_participates_in_material_accounting', 1)
+                ->whereNotNull('short_name')
+                ->get();
+
+        $this->additionalResources->
+        fuelTanksResponsibles = 
+            User::query()->active()
+                ->whereIn('group_id', Group::FOREMEN)
+                ->orWhere('group_id', 43)
+                ->select(['id', 'user_full_name'])
+                ->get();
+
+        $this->additionalResources->
+        companies = 
+            Company::all();
+
+        $this->additionalResources->
+        fuelFlowTypes = 
+            FuelTankFlowType::all();
+
+        $this->additionalResources->
+        fuelTanks = 
+            FuelTank::all();
+        
+        $this->additionalResources->
+            fuelResponsibles = 
+                User::query()->active()
+                    ->orWhereIn('group_id', Group::FOREMEN)
+                    ->get();
+
+        $this->additionalResources->
+        fuelContractors = 
+            Contractor::byTypeSlug('fuel_supplier');
+
+        $this->additionalResources->
+        fuelConsumers = 
+            OurTechnic::all();
     }
 }

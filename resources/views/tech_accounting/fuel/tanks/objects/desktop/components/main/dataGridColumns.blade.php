@@ -18,7 +18,7 @@
             caption: "Компания",
             dataField: "company_id",
             lookup: {
-                dataSource: companiesStore,
+                dataSource: additionalResources.companies,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -57,7 +57,7 @@
             caption: "Объект",
             dataField: "object_id",
             lookup: {
-                dataSource: projectObjectsStore,
+                dataSource: additionalResources.projectObjects,
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
@@ -77,8 +77,8 @@
                             cursor: 'pointer'
                         })
 
-                    const previousResponsible = fuelTanksResponsiblesStore.__rawData.find(el=>el.id === options.data.previous_responsible_id).full_name
-                    const previousObject = projectObjectsStore.__rawData.find(el=>el.id === options.data.previous_object_id).short_name
+                    const previousResponsible = additionalResources.fuelTanksResponsibles.find(el=>el.id === options.data.previous_responsible_id).full_name
+                    const previousObject = additionalResources.projectObjects.find(el=>el.id === options.data.previous_object_id).short_name
 
                     const popoverDiv = $('<div>')
                         .attr('id', 'tank_id-' + options.data.id + '-object_id' + '_popover')
@@ -130,7 +130,7 @@
             caption: "Ответственный",
             dataField: "responsible_id",
             lookup: {
-                dataSource: fuelTanksResponsiblesStore,
+                dataSource: additionalResources.fuelTanksResponsibles,
                 valueExpr: "id",
                 displayExpr: "full_name"
             },

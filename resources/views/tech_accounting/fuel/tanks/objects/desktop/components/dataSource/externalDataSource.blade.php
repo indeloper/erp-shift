@@ -1,36 +1,4 @@
 <script>
-    //external
-
-    const fuelContractorsStore = new DevExpress.data.CustomStore({
-        key: "id",
-        loadMode: "raw",
-        load: function () {
-            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelContractors')}}"
-            return $.getJSON(url);
-        }
-    })
-    fuelContractorsStore.load()
-
-    const fuelConsumersStore = new DevExpress.data.CustomStore({
-        key: "id",
-        loadMode: "raw",
-        load: function () {
-            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelConsumers')}}"
-            return $.getJSON(url);
-        }
-    })
-    fuelConsumersStore.load()
-
-    const fuelFlowTypesStore = new DevExpress.data.CustomStore({
-        key: "id",
-        loadMode: "raw",
-        load: function () {
-            let url = "{{route('building::tech_acc::fuel::fuelFlow::'.'getFuelFlowTypes')}}"
-            return $.getJSON(url);
-        }
-    })
-    
-    fuelFlowTypesStore.load()
 
     const tankFuelIncomesStore = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
@@ -139,7 +107,6 @@
         store: new DevExpress.data.CustomStore({
             loadMode: "raw",
             load: function (loadOptions) {
-                // return $.getJSON("{{route('objects::getObjectInfoByID')}}" + '?id=' + editingRowId);
                 return $.getJSON(getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.show', ['id'=>'setId'])}}", externalEditingRowId));
             }
         })
@@ -152,7 +119,7 @@
 
         loadOptions.filter.push(['fuel_tank_id', '=', editingRowId])
         loadOptions.filter.push("and")
-        loadOptions.filter.push(["fuel_tank_flow_type_id", "=", fuelFlowTypesStore?.__rawData?.find(el => el.slug === fuelFlowType).id])
+        loadOptions.filter.push(["fuel_tank_flow_type_id", "=", additionalResources.fuelFlowTypes.find(el => el.slug === fuelFlowType).id])
 
         return loadOptions
     }
@@ -174,7 +141,7 @@
             tankFuelAdjustmentsStore.reload().done(() => {
                 DevExpress.ui.notify(message, "success", 1000)
             })
+            entitiesDataSource.reload()
         }
-        entitiesDataSource.reload()
     }
 </script>

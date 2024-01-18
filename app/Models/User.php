@@ -15,7 +15,7 @@ use App\Models\Vacation\{
     ProjectResponsibleUserRedirectHistory,
     VacationsHistory
 };
-use App\Traits\{DevExtremeDataSourceLoadable, Appointmentable, Logable, Messagable, Reviewable, TicketResponsibleUser};
+use App\Traits\{DevExtremeDataSourceLoadable, Appointmentable, DefaultSortable, Logable, Messagable, Reviewable, TicketResponsibleUser};
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -26,7 +26,11 @@ use function morphos\Russian\inflectName;
 
 class User extends Authenticatable
 {
-    use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, Appointmentable, DevExtremeDataSourceLoadable;
+    use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, Appointmentable, DevExtremeDataSourceLoadable, DefaultSortable;
+
+    public $defaultSortOrder = [
+        'user_full_name' => 'asc',
+    ];
 
     /**
      * The attributes that are mass assignable.

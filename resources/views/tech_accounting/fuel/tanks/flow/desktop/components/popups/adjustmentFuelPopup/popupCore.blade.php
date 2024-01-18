@@ -22,10 +22,10 @@
                     dataField: 'fuel_tank_flow_type_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelFlowTypesStore,
+                        dataSource: additionalResources.fuelFlowTypes,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'adjustment').id
+                        value: additionalResources.fuelFlowTypes.find(el => el.slug === 'adjustment').id
                     }
                 },
                 {

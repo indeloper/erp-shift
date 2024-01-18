@@ -11,7 +11,7 @@
                     dataField: "id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksStore,
+                        dataSource: additionalResources.fuelTanks,
                         valueExpr: "id",
                         displayExpr: "tank_number",
                         readOnly: true
@@ -24,7 +24,7 @@
                     dataField: "object_id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: projectObjectsStore,
+                        dataSource: additionalResources.projectObjects,
                         valueExpr: "id",
                         displayExpr: "short_name",
                         value: fuelTankFormData.object_id,
@@ -38,7 +38,7 @@
                     dataField: "responsible_id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksResponsiblesStore,
+                        dataSource: additionalResources.fuelTanksResponsibles,
                         valueExpr: "id",
                         displayExpr: "user_full_name",
                         readOnly: true

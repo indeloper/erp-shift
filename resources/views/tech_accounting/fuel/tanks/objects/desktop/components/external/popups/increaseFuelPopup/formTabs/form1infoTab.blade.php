@@ -10,10 +10,9 @@
                 dataField: 'fuel_tank_flow_type_id',
                 editorType: "dxSelectBox",
                 editorOptions: {
-                    dataSource: fuelFlowTypesStore,
+                    dataSource: additionalResources.fuelFlowTypes,
                     valueExpr: 'id',
                     displayExpr: 'name',
-                    // value: fuelFlowTypesStore?.__rawData?.find(el => el.slug === 'income')?.id
                 }
             },
             {
@@ -21,10 +20,9 @@
                 dataField: 'fuel_tank_id',
                 editorType: "dxSelectBox",
                 editorOptions: {
-                    dataSource: fuelTanksStore,
+                    dataSource: additionalResources.fuelTanks,
                     valueExpr: 'id',
                     displayExpr: 'tank_number',
-                    // value: editingRowId
                 },
                 label: {
                     text: 'Емкость'
@@ -38,7 +36,7 @@
                 dataField: 'contractor_id',
                 editorType: "dxSelectBox",
                 editorOptions: {
-                    dataSource: fuelContractorsStore,
+                    dataSource: additionalResources.fuelContractors,
                     valueExpr: 'id',
                     displayExpr: 'short_name',
                     readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('contractor_id')),

@@ -10,7 +10,7 @@
             caption: "Марка",
             dataField: "technic_brand_id",
             lookup: {
-                dataSource: technicBrandsStore,
+                dataSource: additionalResources.technicBrands,
                 valueExpr: "id",
                 displayExpr: "name"
             },
