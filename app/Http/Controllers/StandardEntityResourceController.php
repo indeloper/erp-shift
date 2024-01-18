@@ -25,7 +25,6 @@ class StandardEntityResourceController extends Controller
     protected $isMobile;
     protected $storage_name;
     protected $additionalResources;
-    protected $needAttachments;
 
     public function __construct()
     {
@@ -69,7 +68,7 @@ class StandardEntityResourceController extends Controller
 
     public function getModuleComponents()
     {
-        return (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->getComponentsPath(), $this->baseBladePath, $this->needAttachments ?? false);
+        return (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->getComponentsPath(), $this->baseBladePath, !empty($this->storage_name));
     }
 
     /**

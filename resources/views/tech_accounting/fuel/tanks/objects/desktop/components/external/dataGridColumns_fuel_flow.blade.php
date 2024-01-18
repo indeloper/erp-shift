@@ -19,7 +19,7 @@
             caption: "Ответственный",
             dataField: "responsible_id",
             lookup: {
-                dataSource: fuelResponsiblesStore,
+                dataSource: additionalResources.fuelResponsibles,
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
@@ -30,7 +30,7 @@
             caption: "Топливная емкость",
             dataField: "fuel_tank_id",
             lookup: {
-                dataSource: fuelTanksStore,
+                dataSource: additionalResources.fuelTanks,
                 valueExpr: "id",
                 displayExpr: "tank_number"
             },
@@ -41,7 +41,7 @@
             caption: "Поставщик",
             dataField: "contractor_id",
             lookup: {
-                dataSource: fuelContractorsStore,
+                dataSource: additionalResources.fuelFlowTypes,
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
@@ -51,7 +51,7 @@
             caption: "Потребитель",
             dataField: "our_technic_id",
             lookup: {
-                dataSource: fuelConsumersStore,
+                dataSource: additionalResources.fuelConsumers,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -62,7 +62,7 @@
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
             lookup: {
-                dataSource: fuelFlowTypesStore,
+                dataSource: additionalResources.fuelFlowTypes,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -117,9 +117,7 @@
                             dataGridItems = $('#mainDataGrid_fuel_flow_adjusments')
 
                         let choosedItem = dataGridItems.dxDataGrid('instance').getDataSource().items().find(el => el.id === e.row.data.id)
-                        let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
-                        
-                        
+                        let fuelFlowType = additionalResources.fuelFlowTypes.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug                 
 
                         if (fuelFlowType === 'outcome') {
                             if(choosedItem.our_technic_id) {

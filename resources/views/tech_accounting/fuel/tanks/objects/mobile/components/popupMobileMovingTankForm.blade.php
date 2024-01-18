@@ -39,7 +39,7 @@
                     dataField: "object_id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: projectObjectsStore,
+                        dataSource: additionalResources.projectObjects,
                         valueExpr: "id",
                         displayExpr: "short_name"
                     },
@@ -55,7 +55,7 @@
                     dataField: "responsible_id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksResponsiblesStore,
+                        dataSource: additionalResources.fuelTanksResponsibles,
                         valueExpr: "id",
                         displayExpr: "user_full_name"
                     },
@@ -74,7 +74,7 @@
                     editorOptions: {
                         value: new Date(),
                         max: new Date(),
-                        min: entitiesDataSource.items()?.find(el=>el.id===editingRowId).max_event_date
+                        min: entitiesDataSource.items()?.find(el=>el.id===editingRowId)?.max_event_date
                     },
                     label: {
                         text: 'Дата отправки',

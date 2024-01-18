@@ -3,23 +3,18 @@
 namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Services\Common\FileSystemService;
 use App\Http\Controllers\StandardEntityResourceController;
+use App\Models\Company\Company;
 use App\Models\Contractors\Contractor;
-use App\Models\Contractors\ContractorAdditionalTypes;
-use App\Models\Contractors\ContractorType;
-use App\Models\FileEntry;
 use App\Models\Group;
+use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
-use App\Models\TechAcc\FuelTank\FuelTankFlowRemains;
 use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +29,6 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->sectionTitle = 'Топливный журнал';
         $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/flow';
         $this->componentsPath = $this->baseBladePath.'/desktop/components';
-        $this->needAttachments = true;
         $this->storage_name = 'fuel_flow';
         $this->components = $this->getModuleComponents(); 
         $this->modulePermissionsGroups = [17];
@@ -233,45 +227,7 @@ class FuelTankFlowController extends StandardEntityResourceController
             'fuel_level' => $fuel_level,
             'event_date' => $event_date ? $event_date : now()
         ]);
-    }
-
-    public function getFuelResponsibles()
-    {
-        return User::query()->active()
-                ->orWhereIn('group_id', Group::FOREMEN)
-                ->orderBy('last_name')
-                ->get();
-    }
-   
-    public function getFuelTanks()
-    {
-        return FuelTank::all();
-    }
-
-    public function getFuelContractors()
-    {
-        return Contractor::query()
-            ->whereIn('main_type', ContractorType::where('name', 'Поставщик топлива')->pluck('id')->toArray())
-            ->orWhereIn('id', ContractorAdditionalTypes::where('additional_type', ContractorType::where('name', 'Поставщик топлива')->first()->id)->pluck('contractor_id')->toArray() )
-            ->get();
-    }
-
-    public function getFuelConsumers()
-    {
-        return OurTechnic::all();
-    }
-
-    public function getFuelConsumersOurTechnics()
-    {
-        return OurTechnic::where('third_party_mark', 0)->get();
-    }
-
-    public function getFuelConsumersThirdParty()
-    {
-        return OurTechnic::where('third_party_mark', 1)->get();
-    }
-
-    
+    }  
 
     public function getFuelFlowTypes()
     {
@@ -372,6 +328,42 @@ class FuelTankFlowController extends StandardEntityResourceController
         }
 
         return $tank->fuel_level;
+    }
+
+    public function setAdditionalResources()
+    {
+        $this->additionalResources->
+        projectObjects = 
+            ProjectObject::query()
+                ->where('is_participates_in_material_accounting', 1)
+                ->whereNotNull('short_name')
+                ->get();
+
+        $this->additionalResources->
+        companies = 
+            Company::all();
+
+        $this->additionalResources->
+        fuelFlowTypes = 
+            FuelTankFlowType::all();
+
+        $this->additionalResources->
+        fuelTanks = 
+            FuelTank::all();
+        
+        $this->additionalResources->
+        fuelResponsibles = 
+            User::query()->active()
+                ->orWhereIn('group_id', Group::FOREMEN)
+                ->get();
+
+        $this->additionalResources->
+        fuelContractors = 
+            Contractor::byTypeSlug('fuel_supplier');
+
+        $this->additionalResources->
+        fuelConsumers = 
+            OurTechnic::all();
     }
 
 }

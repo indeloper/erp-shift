@@ -6,7 +6,7 @@
             caption: "Объект",
             dataField: "object_id",
             lookup: {
-                dataSource: projectObjectsStore,
+                dataSource: additionalResources.projectObjects,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -18,7 +18,7 @@
             caption: "Поставщик",
             dataField: "contractor_id",
             lookup: {
-                dataSource: fuelContractorsStore,
+                dataSource: additionalResources.fuelContractors,
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
@@ -28,7 +28,7 @@
             caption: "Потребитель",
             dataField: "our_technic_id",
             lookup: {
-                dataSource: fuelConsumers,
+                dataSource: additionalResources.fuelConsumers,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -72,7 +72,7 @@
             dataField: "fuel_tank_flow_type_id",
             width: '140px',
             lookup: {
-                dataSource: fuelFlowTypesStore,
+                dataSource: additionalResources.fuelFlowTypes,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -83,10 +83,10 @@
 
                 const marker = $('<div>')
 
-                if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
+                if (options.value === additionalResources.fuelFlowTypes.find(el => el.slug === 'outcome').id) {
                     cssTextColor = 'text-color-red'
                     marker.addClass('fa fa-arrow-down')
-                } else if (options.value === fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id) {
+                } else if (options.value === additionalResources.fuelFlowTypes.find(el => el.slug === 'income').id) {
                     cssTextColor = 'text-color-green'
                     marker.addClass('fa fa-arrow-up')
                 } else {
@@ -124,12 +124,12 @@
             caption: "Топливная емкость",
             dataField: "fuel_tank_id",
             lookup: {
-                dataSource: fuelTanksStore,
+                dataSource: additionalResources.fuelTanks,
                 valueExpr: "id",
                 displayExpr: "tank_number"
             },
             cellTemplate(container, options) {
-                const objectName = projectObjectsStore.__rawData?.find(el => el.id === options.row.data.object_id)?.short_name
+                const objectName = additionalResources.projectObjects.find(el => el.id === options.row.data.object_id)?.short_name
                 $('<span>')
                     .attr('title', options.text + ' (' + objectName + ')')
                     .html(`<div><span style="font-weight:bold">${options.text}</span> (${objectName})</div>`)
@@ -140,7 +140,7 @@
             caption: "Компания",
             dataField: "company_id",
             lookup: {
-                dataSource: companiesStore,
+                dataSource: additionalResources.companies,
                 valueExpr: "id",
                 displayExpr: "name",
             },
@@ -151,7 +151,7 @@
             caption: "Ответственный",
             dataField: "responsible_id",
             lookup: {
-                dataSource: fuelResponsiblesStore,
+                dataSource: additionalResources.fuelResponsibles,
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
@@ -174,7 +174,7 @@
                 let displayValue = ''
                 let cssTextColor = ''
 
-                if (options.row.data.fuel_tank_flow_type_id === fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id) {
+                if (options.row.data.fuel_tank_flow_type_id === additionalResources.fuelFlowTypes.find(el => el.slug === 'outcome').id) {
                     displayValue = options.value * -1
                 } else {
                     displayValue = options.value
@@ -221,7 +221,7 @@
                         editingRowId = e.row.data.id;
 
                         let choosedItem = getChoosedItem(e.row.data.id)
-                        let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
+                        let fuelFlowType = additionalResources.fuelFlowTypes.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
 
                         if (fuelFlowType === 'outcome') {
                             if (choosedItem.our_technic_id) {
@@ -289,7 +289,7 @@
                             return `<span class="${iconTemplate}"></span> ` + item.name
                         },
 
-                        dataSource: fuelFlowTypesStore,
+                        dataSource: additionalResources.fuelFlowTypes,
                         valueExpr: 'id',
                        
                         visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,

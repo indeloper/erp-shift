@@ -20,10 +20,10 @@
             onContentReady(e) {
                 
                 if (formItem.third_party_mark) {
-                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===1))
+                    e.component.getEditor("our_technic_id").option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===1))
                 }
                 else {
-                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===0))
+                    e.component.getEditor("our_technic_id").option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===0))
                 }
             },
             items: [
@@ -32,10 +32,10 @@
                     dataField: 'fuel_tank_flow_type_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelFlowTypesStore,
+                        dataSource: additionalResources.fuelFlowTypes,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id
+                        value: additionalResources.fuelFlowTypes.find(el => el.slug === 'outcome').id
                     }
                 },
                 {
@@ -43,7 +43,7 @@
                     dataField: 'fuel_tank_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksStore,
+                        dataSource: additionalResources.fuelTanks,
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
                         value: editingRowId
@@ -139,10 +139,10 @@
                                     let technicSelectBox = $('#our_technic_id_dxSelectBox').dxSelectBox('instance')
 
                                     if (e.value === 'third_party_technik_radio_elem') {
-                                        technicSelectBox.option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===1))
+                                        technicSelectBox.option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===1))
                                     }
                                     if (e.value === 'our_technik_radio_elem') {
-                                        technicSelectBox.option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===0))
+                                        technicSelectBox.option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===0))
                                     }
                                 }
                             }
@@ -153,7 +153,7 @@
                             visible: formItem.our_technic_id || !externalEditingRowId,
                             editorOptions: {
                                 elementAttr: {id: "our_technic_id_dxSelectBox"},
-                                dataSource: fuelConsumersStore,
+                                dataSource: additionalResources.fuelConsumers,
                                 valueExpr: 'id',
                                 displayExpr: 'name',
                                 readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('our_technic_id')),
@@ -166,84 +166,9 @@
                                 message: 'Укажите значение',
                             }],
                         },
-                        // {
-                        //     dataField: 'third_party_consumer',
-                        //     editorType: "dxAutocomplete",
-                        //     visible: Boolean(!formItem.our_technic_id && externalEditingRowId),
-                        //     editorOptions: {
-                        //         elementAttr: {id: "third_party_consumer_dxAutocomplete"},
-                        //         valueExpr: 'id',
-                        //         displayExpr: 'name',
-                        //         readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('third_party_consumer')),
-                        //     },
-                        //     label: {
-                        //         text: 'Потребитель'
-                        //     },
-                        //     validationRules: [{
-                        //         type: 'required',
-                        //         message: 'Укажите значение',
-                        //     }],
-                        // },
                     ]
                 }
-                
-
-
-                // {
-                //     dataField: 'our_technic_id',
-                //     editorType: "dxSelectBox",
-                //     editorOptions: {
-                //         dataSource: fuelConsumersStore,
-                //         valueExpr: 'id',
-                //         displayExpr: 'name',
-                //         readOnly: externalEditingRowId,
-                //     },
-                //     label: {
-                //         text: 'Потребитель'
-                //     },
-                //     validationRules: [{
-                //         type: 'required',
-                //         message: 'Укажите значение',
-                //     }],
-                // },
-
-                // {
-                //     itemType: "group",
-                //     caption: 'Файлы',
-                //     items: [
-                //         {
-                //             item: 'simple',
-                //             template: (data, itemElement) => {
-                //                 renderFileUploader(itemElement)
-                //             }
-                //         },
-
-                //         {
-                //             item: 'simple',
-                //             template: (data, itemElement) => {
-                //                 renderFileDisplayer(itemElement)
-                //             }
-                //         },
-                //     ]
-                // }
-
             ],
-            // onFieldDataChanged: (e) => {
-
-            //     if (e.dataField === 'fuelConsumerType') {
-            //         if (e.value === 'third_party_technik_radio_elem') {
-            //             e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', false)
-            //             e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', true)
-            //             delete e.component.option('formData').our_technic_id
-            //         } 
-                    
-            //         if (e.value === 'our_technik_radio_elem') { 
-            //             e.component.itemOption('fuelConsumerGroup.our_technic_id', 'visible', true)
-            //             e.component.itemOption('fuelConsumerGroup.third_party_consumer', 'visible', false)
-            //             delete e.component.option('formData').third_party_consumer
-            //         }
-            //     }
-            // }
         })
     }
 </script>

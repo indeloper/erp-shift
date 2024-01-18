@@ -6,25 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\DefaultSortable;
 
 class TechnicCategory extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use SoftDeletes, DevExtremeDataSourceLoadable, DefaultSortable;
 
     protected $guarded = ['id'];
 
-    protected $sortOrder = ['name', 'id', ['created_at', 'desc']];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope('orderBy', function (Builder $builder) {
-            if(empty($builder->getQuery()->orders)) {
-                $builder->orderBy('name');
-            } 
-        });
-    }
+    public $defaultSortOrder = [
+        'name' => 'asc'
+    ];
 
     // protected $fillable = ['name', 'description', 'characteristic_id'];
 

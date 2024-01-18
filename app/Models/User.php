@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\HumanResources\{Appointment, Brigade, JobCategory, ReportGroup, Timecard};
 use App\Models\MatAcc\MaterialAccountingOperation;
 use Exception;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -14,7 +15,7 @@ use App\Models\Vacation\{
     ProjectResponsibleUserRedirectHistory,
     VacationsHistory
 };
-use App\Traits\{DevExtremeDataSourceLoadable, Logable, Messagable, Reviewable, TicketResponsibleUser};
+use App\Traits\{DevExtremeDataSourceLoadable, Appointmentable, DefaultSortable, Logable, Messagable, Reviewable, TicketResponsibleUser};
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -25,7 +26,11 @@ use function morphos\Russian\inflectName;
 
 class User extends Authenticatable
 {
-    use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, DevExtremeDataSourceLoadable;
+    use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, DevExtremeDataSourceLoadable, DefaultSortable;
+
+    public $defaultSortOrder = [
+        'user_full_name' => 'asc',
+    ];
 
     /**
      * The attributes that are mass assignable.
