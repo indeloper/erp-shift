@@ -30,7 +30,7 @@
             caption: "Компания",
             dataField: "company_id",
             lookup: {
-                dataSource: companiesStore,
+                dataSource: additionalResources.companies,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -40,7 +40,7 @@
             caption: "Контрагент",
             dataField: "contractor_id",
             lookup: {
-                dataSource: contractorsStore,
+                dataSource: additionalResources.contractors,
                 valueExpr: "id",
                 displayExpr: "short_name"
             },
@@ -85,7 +85,7 @@
             caption: "Категория",
             dataField: "technic_category_id",
             lookup: {
-                dataSource: technicCategoriesStore,
+                dataSource: additionalResources.technicCategories,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -94,7 +94,7 @@
             caption: "Ответственный",
             dataField: "responsible_id",
             lookup: {
-                dataSource: technicResponsiblesStore,
+                dataSource: additionalResources.technicResponsibles,
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
@@ -103,7 +103,7 @@
             caption: "Марка",
             dataField: "technic_brand_id",
             lookup: {
-                dataSource: technicBrandsStore,
+                dataSource: additionalResources.technicBrands,
                 valueExpr: "id",
                 displayExpr: "name"
             },
@@ -113,7 +113,7 @@
             caption: "Модель",
             dataField: "technic_brand_model_id",
             lookup: {
-                dataSource: technicModelsStore,
+                dataSource: additionalResources.technicModels,
                 valueExpr: "id",
                 displayExpr: "name"
             },

@@ -10,7 +10,7 @@
                     dataField: "id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksStore,
+                        dataSource: additionalResources.fuelTanks,
                         valueExpr: "id",
                         displayExpr: "tank_number",
                         value: rowData.id,
@@ -24,7 +24,7 @@
                     dataField: "object_id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: projectObjectsStore,
+                        dataSource: additionalResources.projectObjects,
                         valueExpr: "id",
                         displayExpr: "short_name"
                     },
@@ -40,7 +40,7 @@
                     dataField: "responsible_id",
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelTanksResponsiblesStore,
+                        dataSource: additionalResources.fuelTanksResponsibles,
                         valueExpr: "id",
                         displayExpr: "user_full_name"
                     },

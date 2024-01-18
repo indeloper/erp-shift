@@ -26,10 +26,10 @@
                     dataField: 'fuel_tank_flow_type_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelFlowTypesStore,
+                        dataSource: additionalResources.fuelFlowTypes,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'income').id
+                        value: additionalResources.fuelFlowTypes.find(el => el.slug === 'income').id
                     }
                 },
                 {
@@ -54,7 +54,7 @@
                     dataField: 'contractor_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelContractorsStore,
+                        dataSource: additionalResources.fuelContractors,
                         valueExpr: 'id',
                         displayExpr: 'short_name',
                     },

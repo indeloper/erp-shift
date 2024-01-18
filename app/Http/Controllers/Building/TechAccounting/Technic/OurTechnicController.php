@@ -2,62 +2,55 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic;
 
-use Illuminate\Http\Request;
 use App\Models\TechAcc\OurTechnic;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Company\Company;
 use App\Models\Contractors\Contractor;
-use App\Models\Contractors\ContractorAdditionalTypes;
-use App\Models\Contractors\ContractorType;
 use App\Models\Employees\Employee;
 use App\Models\TechAcc\TechnicBrand;
 use App\Models\TechAcc\TechnicBrandModel;
 use App\Models\TechAcc\TechnicCategory;
-use App\Models\User;
-use App\Services\Common\FileSystemService;
 
 class OurTechnicController extends StandardEntityResourceController
 {
     public function __construct()
     {
+        parent::__construct();
+
+        $this->sectionTitle = 'Учет техники';
         $this->baseModel = new OurTechnic;
         $this->routeNameFixedPart = 'building::tech_acc::technic::ourTechnicList::';
-        $this->sectionTitle = 'Учет техники';
         $this->baseBladePath = resource_path().'/views/tech_accounting/technic/ourTechnicList';
-        $this->componentsPath = $this->baseBladePath.'/desktop/components';
-        $this->components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($this->componentsPath, $this->baseBladePath);
+        $this->isMobile = $this->isMobile($this->baseBladePath);
+        $this->components = $this->getModuleComponents(); 
         $this->modulePermissionsGroups = [13];
     }
-
-    public function getTechnicResponsibles()
+    
+    public function setAdditionalResources()
     {
-        return Employee::query()
+        $this->additionalResources->
+        technicCategories = TechnicCategory::all();
+
+        $this->additionalResources->
+        technicResponsibles =
+            Employee::query()
             ->where('dismissal_date', '0000-00-00')
             ->orWhereNull('dismissal_date')
             ->leftJoin('users', 'users.id', '=', 'employees.user_id')
             ->select(['employees.id', 'users.user_full_name'])
             ->orderBy('last_name')
             ->get();
-    }
+        
+        $this->additionalResources->
+        technicBrands = TechnicBrand::all();
 
-    public function getTechnicBrands()
-    {
-        return TechnicBrand::all();
-    }
+        $this->additionalResources->
+        technicModels = TechnicBrandModel::all();
 
-    public function getTechnicModels()
-    {
-        return TechnicBrandModel::all();
-    }
+        $this->additionalResources->
+        companies = Company::all();
 
-    public function getCompanies()
-    {
-        return Company::all();
+        $this->additionalResources->
+        contractors = Contractor::byTypeSlug('technic_lessor');
     }
-
-    public function getContractors()
-    {
-        return Contractor::byTypeSlug('technic_lessor');
-    }
-    
 }

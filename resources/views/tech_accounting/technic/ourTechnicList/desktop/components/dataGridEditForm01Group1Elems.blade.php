@@ -53,7 +53,7 @@
                                 if(userPermissions.technics_create_update_delete) {
                                     $('#technic_brand_model_id').dxSelectBox('instance')?.option('readOnly', false);
                                 }
-                                $('#technic_brand_model_id').dxSelectBox('instance')?.option('dataSource', technicModelsStore.__rawData.filter(el=>el.technic_brand_id ===e.selectedItem.id));
+                                $('#technic_brand_model_id').dxSelectBox('instance')?.option('dataSource', additionalResources.technicModels.filter(el=>el.technic_brand_id ===e.selectedItem.id));
                             }
                         }, 100)
                     }
@@ -138,7 +138,7 @@
                     editorType: "dxSelectBox",
                     editorOptions: {
                         elementAttr: {id: "our_technic_id_dxSelectBox"},
-                        dataSource: companiesStore,
+                        dataSource: additionalResources.companies,
                         valueExpr: 'id',
                         displayExpr: 'name',
                         // readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('our_technic_id')),
@@ -176,7 +176,7 @@
                     editorType: "dxSelectBox",
                     // visible: Boolean(!formItem.our_technic_id && editingRowId),
                     editorOptions: {
-                        dataSource: contractorsStore,
+                        dataSource: additionalResources.contractors,
                         // readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('third_party_consumer')), 
                     },
                     label: {

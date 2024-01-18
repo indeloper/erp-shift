@@ -64,7 +64,7 @@
                 let choosedItem = dataGridItems.dxDataGrid('instance').getDataSource().items().find(el => el.id === e.key)
 
                 // let choosedItem = $('#externalDataGrid').dxDataGrid('instance').getDataSource().items().find(el=>el.id === e.key)
-                let fuelFlowType = fuelFlowTypesStore.__rawData.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
+                let fuelFlowType = additionalResources.fuelFlowTypes.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
 
                 if (fuelFlowType === 'outcome') {
                     if(!choosedItem.third_party_mark) {

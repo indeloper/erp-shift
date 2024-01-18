@@ -22,10 +22,10 @@
             formData: formItem,
             onContentReady(e) {
                 if (formItem.third_party_mark) {
-                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===1))
+                    e.component.getEditor("our_technic_id").option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===1))
                 }
                 else {
-                    e.component.getEditor("our_technic_id").option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===0))
+                    e.component.getEditor("our_technic_id").option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===0))
                 }
             },
             items: [
@@ -34,10 +34,10 @@
                     dataField: 'fuel_tank_flow_type_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: fuelFlowTypesStore,
+                        dataSource: additionalResources.fuelFlowTypes,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        value: fuelFlowTypesStore.__rawData.find(el => el.slug === 'outcome').id
+                        value: additionalResources.fuelFlowTypes.find(el => el.slug === 'outcome').id
                     }
                 },
                 {
@@ -128,10 +128,10 @@
                                     let technicSelectBox = $('#our_technic_id_dxSelectBox').dxSelectBox('instance')
 
                                     if (e.value === 'third_party_technik_radio_elem') {
-                                        technicSelectBox.option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===1))
+                                        technicSelectBox.option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===1))
                                     }
                                     if (e.value === 'our_technik_radio_elem') {
-                                        technicSelectBox.option('dataSource', fuelConsumersStore.__rawData.filter(el=>el.third_party_mark===0))
+                                        technicSelectBox.option('dataSource', additionalResources.fuelConsumers.filter(el=>el.third_party_mark===0))
                                     }
                                 }
                             }
@@ -141,7 +141,7 @@
                             editorType: "dxSelectBox",
                             editorOptions: {
                                 elementAttr: {id: "our_technic_id_dxSelectBox"},
-                                dataSource: fuelConsumersStore,
+                                dataSource: additionalResources.fuelConsumers,
                                 valueExpr: 'id',
                                 displayExpr: 'name',
                             },

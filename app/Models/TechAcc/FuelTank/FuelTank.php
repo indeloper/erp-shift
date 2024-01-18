@@ -15,12 +15,17 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\ProjectObject;
 use App\Models\User;
+use App\Traits\DefaultSortable;
 
 class FuelTank extends Model
 {
-    use SoftDeletes, Defectable, DevExtremeDataSourceLoadable, Logable;
+    use SoftDeletes, Defectable, DevExtremeDataSourceLoadable, Logable, DefaultSortable;
 
     protected $guarded = ['id'];
+
+    public $defaultSortOrder = [
+        'tank_number' => 'asc'
+    ];
 
     // protected $with = [
     //     'object',
