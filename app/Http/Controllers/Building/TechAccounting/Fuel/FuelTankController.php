@@ -422,5 +422,9 @@ class FuelTankController extends StandardEntityResourceController
         $this->additionalResources->
         fuelConsumers =
             OurTechnic::all();
+
+        $this->additionalResources->
+        users =
+            User::query()->active()->get();
     }
 }
