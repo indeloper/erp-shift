@@ -70,7 +70,7 @@
                 @endif
 
                 <p style="text-align: center">
-                    @if($companyModelInstance::find($fuelTankModelInstance::find($fuelTankId)->company_id)->logo)
+                    @if($fuelTankModelInstance::find($fuelTankId) && $companyModelInstance::find($fuelTankModelInstance::find($fuelTankId)->company_id)->logo)
                         <img
                             style="width:220px;"
                             src="{{asset('/')}}{{$companyModelInstance::find($fuelTankModelInstance::find($fuelTankId)->company_id)->logo}}"
