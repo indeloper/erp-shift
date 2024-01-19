@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FuelTankController extends StandardEntityResourceController
 {
