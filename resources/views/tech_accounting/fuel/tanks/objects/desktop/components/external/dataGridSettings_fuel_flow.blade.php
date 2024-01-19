@@ -4,6 +4,7 @@
         //     return 0.85*$('.dx-overlay-wrapper').find('.dx-popup-content').height()
         // },
         focusedRowEnabled: true,
+        keyExpr: 'id',
         hoverStateEnabled: true,
         columnAutoWidth: false,
         showBorders: true,

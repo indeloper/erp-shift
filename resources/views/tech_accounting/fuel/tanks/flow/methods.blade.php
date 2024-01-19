@@ -104,22 +104,12 @@
 
     // Конец Общие
 
-    const getAvailableFuelTanksForFlowOperations = () => {
-        let availableFuelTanks = additionalResources.fuelTanks.filter(el => el.awaiting_confirmation != 1);
-
-        if (!userPermissions.create_fuel_tank_flows_for_any_tank) {
-            availableFuelTanks = availableFuelTanks?.filter(el => el.responsible_id === authUserId)
-        }
-
-        return availableFuelTanks;
-    }
-
     // function getDatesDaysDiff(date1, date2) {
     //     date1 = new Date(date1);
     //     date2 = new Date(date2);
     //     return Math.floor((date2 - date1) / (1000*60*60*24))
     // }
-    
+
     function getChoosedItem(id) {
         let choosedItem = {};
         let dataGridItems = $('#mainDataGrid').dxDataGrid('instance').getDataSource().items();
@@ -132,5 +122,11 @@
         return choosedItem;
     }
 
+    const getAddFlowButtonDatasource = () => {
+        if(userPermissions.adjust_fuel_tank_remains) {
+            return additionalResources.fuelFlowTypes
+        }
+        return additionalResources.fuelFlowTypes.filter(el=>el.slug != 'adjustment')
+    }
 
 </script>

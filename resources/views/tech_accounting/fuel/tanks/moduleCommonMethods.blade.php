@@ -56,5 +56,16 @@
 
         return true;
     }
+
+    function getAvailableFuelTanksToCreateFlow(isAdjustmentPopup = null) {
+        if(isAdjustmentPopup && userPermissions.adjust_fuel_tank_remains) {
+            return additionalResources.fuelTanks
+        }
+
+        if(!userPermissions.create_fuel_tank_flows_for_any_tank) {
+            return additionalResources.fuelTanks.filter(el=>el.responsible_id === authUserId).filter(el=>el.awaiting_confirmation != 1) 
+        }
+        return additionalResources.fuelTanks.filter(el=>el.awaiting_confirmation != 1) 
+    }
     
 </script>

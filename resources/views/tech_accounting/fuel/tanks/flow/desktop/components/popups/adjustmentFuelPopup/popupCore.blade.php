@@ -32,7 +32,7 @@
                     dataField: 'fuel_tank_id',
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        dataSource: getAvailableFuelTanksForFlowOperations(),
+                        dataSource: getAvailableFuelTanksToCreateFlow('isAdjustmentPopup'),
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
                         readOnly: editingRowId,

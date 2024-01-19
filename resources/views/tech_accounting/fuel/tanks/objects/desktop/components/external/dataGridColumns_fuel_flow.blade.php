@@ -23,6 +23,13 @@
                 valueExpr: "id",
                 displayExpr: "user_full_name"
             },
+            cellTemplate(container, options) {
+                if (options.row.data.fuel_tank_flow_type_id === additionalResources.fuelFlowTypes.find(el => el.slug === 'adjustment').id) {
+                    $('<div>').text(additionalResources.users.find(el=>el.id===options.row.data.author_id).user_full_name).appendTo(container)
+                } else {
+                    $('<div>').text(additionalResources.users.find(el=>el.id===options.row.data.responsible_id).user_full_name).appendTo(container)
+                }
+            },
 
         },
 
@@ -171,7 +178,7 @@
                         text: "Добавить",
                         icon: "fas fa-plus",
 
-                        visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
+                        visible: isAddFlowButtonVisible(),
 
                         onClick: (e) => {
                             if (choosedFormTab === 'fuelIncomes') {
