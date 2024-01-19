@@ -22,6 +22,7 @@
                 valueExpr: "id",
                 displayExpr: "name"
             },
+            width: 150,
 
             cellTemplate(container, options) {
                 container.attr('id', 'tank_id-' + options.data.id + '-company_id')
@@ -38,7 +39,7 @@
         {
             caption: "Номер емкости",
             dataField: "tank_number",
-            width: 150,
+            width: 100,
             sortIndex: 0,
             sortOrder: "asc",
             cellTemplate(container, options) {
@@ -129,6 +130,7 @@
         {
             caption: "Ответственный",
             dataField: "responsible_id",
+            width: 150,
             lookup: {
                 dataSource: additionalResources.fuelTanksResponsibles,
                 valueExpr: "id",
@@ -151,6 +153,7 @@
             caption: "Текущий остаток (л)",
             dataField: "fuel_level",
             editorType: 'dxNumberBox',
+            width: 100,
             editorOptions: {
                 min: 0.001
             },

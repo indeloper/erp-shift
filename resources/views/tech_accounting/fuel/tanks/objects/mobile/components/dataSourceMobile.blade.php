@@ -1,7 +1,6 @@
 <script>
     const externalEntitiesDataSource = new DevExpress.data.DataSource({
         store: new DevExpress.data.CustomStore({
-            key: "id",
             loadMode: "processed",
             insert: function (values) {
                 return $.ajax({

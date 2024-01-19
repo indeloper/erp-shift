@@ -66,7 +66,7 @@
                     template(data, container) {
                         container.append('<div class="tab-template-header-wrapper"><div class="fa fa-arrow-up tab-template-header-icon-elem text-color-green"></div><div>Приход</div></div>')
                     },
-                    visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
+                    disabled: Boolean(data.awaiting_confirmation || (!userPermissions.create_fuel_tank_flows_for_reportable_tanks && !userPermissions.create_fuel_tank_flows_for_any_tank)),
                     onClick() {
                         editingRowId = data.id;
                         shownMobileFormType = 'increaseFuelForm';
@@ -96,7 +96,7 @@
                     template(data, container) {
                         container.append('<div class="tab-template-header-wrapper"><div class="fa fa-arrow-down tab-template-header-icon-elem text-color-red"></div><div>Расход</div></div>')
                     },
-                    visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
+                    disabled: Boolean(data.awaiting_confirmation || (!userPermissions.create_fuel_tank_flows_for_reportable_tanks && !userPermissions.create_fuel_tank_flows_for_any_tank)),
                     onClick() {
                         editingRowId = data.id;
                         shownMobileFormType = 'decreaseFuelForm';

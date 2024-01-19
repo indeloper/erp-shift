@@ -104,6 +104,7 @@
                         elementAttr: {
                             class: 'attacmentHoverCkeckbox'
                         },
+                        visible: Boolean(elementClass != 'newFileDivWrapper'),
                         onValueChanged(e) {
                             if (e.value) {
                                 $('#downloadFilesButton').dxButton({
@@ -133,29 +134,29 @@
                     $(this).append($(checkBox));
                 }
 
-                if (externalPermissions.can_delete_project_object_document_files) {
-                    let deleteButton = $('<div />').dxButton({
-                        icon: "fas fa-trash",
-                        hint: "Удалить",
-                        elementAttr: {
-                            class: 'attacmentHoverDeleteButton'
-                        },
-                        onClick(e) {
-                            deleteAttachment(e.element);
-                        },
-                        onInitialized(e) {
-                            // переключаем кликабельность картинки
-                            // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
-                            $(e.element).hover(
-                                () => $(e.element).parent().on('click', () => {
-                                    return false
-                                }),
-                                () => $(e.element).parent().off('click')
-                            )
-                        }
-                    })
-                    $(this).append($(deleteButton));
-                }
+
+                let deleteButton = $('<div />').dxButton({
+                    icon: "fas fa-trash",
+                    hint: "Удалить",
+                    elementAttr: {
+                        class: 'attacmentHoverDeleteButton'
+                    },
+                    onClick(e) {
+                        deleteAttachment(e.element);
+                    },
+                    onInitialized(e) {
+                        // // переключаем кликабельность картинки
+                        // // чтобы не было конфликта при клике по чекбоксу / кнопке / картинке
+                        // $(e.element).hover(
+                        //     () => $(e.element).parent().on('click', () => {
+                        //         return false
+                        //     }),
+                        //     () => $(e.element).parent().off('click')
+                        // )
+                    }
+                })
+                $(this).append($(deleteButton));
+
             },
             function () {
                 let checkBox = $(this).find('.dx-checkbox').dxCheckBox('instance')

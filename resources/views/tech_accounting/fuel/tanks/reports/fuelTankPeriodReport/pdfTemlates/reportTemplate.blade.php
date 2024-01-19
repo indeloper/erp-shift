@@ -189,7 +189,7 @@
                                         {{$fuelFlowOperation['fuel_consumer']}}
                                     @endif
                                     @if($flowTypeSlug==='adjustment')
-                                        Корректировка остатков топлива
+                                        Корректировка остатков топлива ({{ $userModelInstance::find($fuelFlowOperation['author_id'])->user_full_name }})
                                     @endif
                                 </td>
                                 <td class="td-center">

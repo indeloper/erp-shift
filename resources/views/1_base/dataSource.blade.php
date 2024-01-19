@@ -7,6 +7,8 @@
             
             load: function (loadOptions) {
 
+                currentLoadOptions = loadOptions
+
                 return $.getJSON("{{route($routeNameFixedPart.'resource.index')}}",
                     {
                         data: JSON.stringify(loadOptions),

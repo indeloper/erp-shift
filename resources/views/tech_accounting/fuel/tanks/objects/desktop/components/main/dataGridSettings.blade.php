@@ -66,6 +66,25 @@
             resetStores();
         },
 
+        onSaving(e) {
+            let changes = e.changes
+            if (changes.length === 0 && !externalOperations.length)
+            return;
+
+            if (changes.length === 0 || !changes[0].data) {
+                changes[0] = {
+                    'data': {}
+                };
+
+                if (externalOperations.length) {
+                    changes[0].key = editingRowId;
+                    changes[0].type = 'update'
+                }
+            }
+
+            changes[0].data.externalOperations = externalOperations
+        },
+
         onEditCanceling(e) {
 
             // if (!skipStoppingEditingRow && e.changes.length) {

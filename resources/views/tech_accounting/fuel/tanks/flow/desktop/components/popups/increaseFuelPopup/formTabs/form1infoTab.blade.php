@@ -19,7 +19,7 @@
                 dataField: 'fuel_tank_id',
                 editorType: "dxSelectBox",
                 editorOptions: {
-                    dataSource: additionalResources.fuelTanks,
+                    dataSource: getAvailableFuelTanksToCreateFlow(),
                     valueExpr: 'id',
                     displayExpr: 'tank_number',
                 },
@@ -48,7 +48,7 @@
                     message: 'Укажите значение',
                 }],
             },
-            
+
             {
                 dataField: 'event_date',
                 editorType: "dxDateBox",
@@ -90,12 +90,12 @@
                     }
                 ],
             },
-            
+
             {
                 dataField: 'document',
                 editorType: "dxTextBox",
                 editorOptions: {
-                    
+
                 },
                 label: {
                     text: 'Номер документа'
@@ -106,7 +106,7 @@
                 dataField: 'comment',
                 editorType: "dxTextBox",
                 editorOptions: {
-                    
+
                 },
                 label: {
                     text: 'Комментарий'

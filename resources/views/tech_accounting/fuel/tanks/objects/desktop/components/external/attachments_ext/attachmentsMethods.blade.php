@@ -101,6 +101,7 @@
                 if (!$(this).find('.dx-checkbox').length) {
                     let checkBox = $('<div>').dxCheckBox({
                         hint: "Скачать",
+                        visible: Boolean(elementClass != 'newFileDivWrapper'),
                         elementAttr: {
                             class: 'attacmentHoverCkeckbox'
                         },

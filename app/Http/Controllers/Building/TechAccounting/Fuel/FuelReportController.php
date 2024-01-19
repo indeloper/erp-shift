@@ -274,6 +274,7 @@ class FuelReportController extends Controller
                 'project_objects.address as adress',
                 'fuel_tanks.tank_number',
                 'fuel_tank_flows.document',
+                'fuel_tank_flows.author_id',
                 DB::raw('
                     SUM(
                         IF(volume IS NULL, 1, 0))
@@ -518,17 +519,30 @@ class FuelReportController extends Controller
 
     public function getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo)
     {
-        $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
-            ['responsible_id', $responsibleId],
-            ['fuel_tank_id', $fuelTankId],
-            ['object_id', $objectId],
-            ['event_date', '<',  $dateFrom],
-        ])
-        ->orderBy('id', 'desc')
-        ->first();
+        // $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
+        //     ['responsible_id', $responsibleId],
+        //     ['fuel_tank_id', $fuelTankId],
+        //     ['object_id', $objectId],
+        //     ['event_date', '<',  $dateFrom],
+        // ])
+        // ->orderBy('id', 'desc')
+        // ->first();
 
-        if($fuelPeriodPreviousTransaction) {
-            $fuelLevelPeriodStart = $fuelPeriodPreviousTransaction->fuel_level;
+        // if($fuelPeriodPreviousTransaction) {
+        //     $fuelLevelPeriodStart = $fuelPeriodPreviousTransaction->fuel_level;
+        // } else {
+        //     $fuelLevelPeriodStart = 0;
+        // }
+        $tankRecievedEvent = FuelTankTransferHistory::where([
+                ['responsible_id', $responsibleId],
+                ['fuel_tank_id', $fuelTankId],
+                ['object_id', $objectId],
+                ['tank_moving_confirmation', 1],
+                ['event_date', $dateFrom]
+        ])->first();
+
+        if($tankRecievedEvent) {
+            $fuelLevelPeriodStart =  $tankRecievedEvent->fuel_level;
         } else {
             $fuelLevelPeriodStart = 0;
         }
