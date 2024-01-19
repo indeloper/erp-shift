@@ -70,7 +70,7 @@
                 @endif
 
                 <p style="text-align: center">
-                    @if($companyModelInstance::find($fuelTankModelInstance::find($fuelTankId)->company_id)->logo)
+                    @if($fuelTankModelInstance::find($fuelTankId) && $companyModelInstance::find($fuelTankModelInstance::find($fuelTankId)->company_id)->logo)
                         <img
                             style="width:220px;"
                             src="{{asset('/')}}{{$companyModelInstance::find($fuelTankModelInstance::find($fuelTankId)->company_id)->logo}}"
@@ -189,7 +189,7 @@
                                         {{$fuelFlowOperation['fuel_consumer']}}
                                     @endif
                                     @if($flowTypeSlug==='adjustment')
-                                        Корректировка остатков топлива
+                                        Корректировка остатков топлива ({{ $userModelInstance::find($fuelFlowOperation['author_id'])->user_full_name }})
                                     @endif
                                 </td>
                                 <td class="td-center">

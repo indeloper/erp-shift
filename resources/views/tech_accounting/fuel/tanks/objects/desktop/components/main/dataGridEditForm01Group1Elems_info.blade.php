@@ -58,6 +58,11 @@
                 dataField: "responsible_id",
                 colSpan: 2,
                 editorType: "dxSelectBox",
+                editorOptions: {
+                    elementAttr: {
+                        id: 'fuel_tank_responsible_id'
+                    }
+                },
                 validationRules: [{
                     type: 'required',
                     message: 'Укажите значение',

@@ -15,7 +15,7 @@
             toolbar: 'bottom',
             location: 'after',
             options: {
-                text: 'Сохранить',
+                text: 'Добавить',
             },
             onClick(e) {
 
@@ -27,11 +27,8 @@
                 formData.newAttachments = externalNewAttachments;
                 formData.deletedAttachments = externalDeletedAttachments;
 
-                if (!externalEditingRowId)
-                    externalEntitiesDataSource.store().insert(formData);
-                else
-                    externalEntitiesDataSource.store().update(externalEditingRowId, formData);
-
+                externalOperations.push(formData)
+                updateFuelFlowDataGrid(formData)
                 externalPopup.hide()
             }
         },

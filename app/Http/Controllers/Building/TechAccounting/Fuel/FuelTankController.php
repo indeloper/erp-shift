@@ -12,6 +12,7 @@ use App\Models\Contractors\Contractor;
 use App\Models\Group;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\TechAcc\OurTechnic;
@@ -19,20 +20,22 @@ use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FuelTankController extends StandardEntityResourceController
 {
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->sectionTitle = 'Топливные емкости';
         $this->baseModel = new FuelTank;
         $this->routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
         $this->baseBladePath = resource_path() . '/views/tech_accounting/fuel/tanks/objects';
         $this->isMobile = $this->isMobile($this->baseBladePath);
-        $this->components = $this->getModuleComponents(); 
+        $this->components = $this->getModuleComponents();
         $this->modulePermissionsGroups = [17];
+        $this->ignoreDataKeys[] = 'externalOperations';
     }
 
     public function index(Request $request)
@@ -102,6 +105,10 @@ class FuelTankController extends StandardEntityResourceController
             'fuel_level' => 0,
             'event_date' => $data['event_date'] ?? now()
         ]);
+
+        if(!empty($data['externalOperations'])) {
+            $this->handleFuelOperations($data['externalOperations'], $tank->id);
+        }
     }
 
     public function beforeUpdate($tank, $data)
@@ -123,6 +130,10 @@ class FuelTankController extends StandardEntityResourceController
         } else {
             $data['awaiting_confirmation'] = true;
             $this->notifyNewTankResponsible($tank);
+        }
+
+        if(!empty($data['externalOperations'])) {
+            $this->handleFuelOperations($data['externalOperations']);
         }
 
         return [
@@ -276,17 +287,63 @@ class FuelTankController extends StandardEntityResourceController
         (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
     }
 
+    public function handleFuelOperations($operations, $newFuelTankId = null)
+    {
+        $fuelTankFlowController = new FuelTankFlowController;
+
+        foreach($operations as $operation) {
+
+            $data = (array)$operation;
+
+            if(!empty($data['id']) && empty($data['guid'])) {
+
+                $entity = FuelTankFlow::findOrFail($data['id']);
+
+                DB::beginTransaction();
+                    $beforeUpdateResult = $fuelTankFlowController->beforeUpdate($entity, $data);
+                    $data = $beforeUpdateResult['data'];
+                    $dataToUpdate = $this->getFuelFlowDataToStore($data);
+                    $entity->update($dataToUpdate);
+                    $fuelTankFlowController->afterUpdate($entity, $data, $dataToUpdate);
+                DB::commit();
+
+            } else {
+                DB::beginTransaction();
+                    if($newFuelTankId) {
+                        $data['fuel_tank_id'] = $newFuelTankId;
+                    }
+                    $beforeStoreResult = $fuelTankFlowController->beforeStore($data);
+                    $data = $beforeStoreResult['data'];
+                    $dataToStore = $this->getFuelFlowDataToStore($data);
+                    $entity = FuelTankFlow::create($dataToStore);
+                    $fuelTankFlowController->afterStore($entity, $data, $dataToStore);
+                DB::commit();
+            }
+        }
+    }
+
+    protected function getFuelFlowDataToStore($data)
+    {
+        unset($data['third_party_mark']);
+        unset($data['newAttachments']);
+        unset($data['deletedAttachments']);
+        unset($data['newComments']);
+        unset($data['guid']);
+
+        return $data;
+    }
+
     public function setAdditionalResources()
     {
         $this->additionalResources->
-        projectObjects = 
+        projectObjects =
             ProjectObject::query()
                 ->where('is_participates_in_material_accounting', 1)
                 ->whereNotNull('short_name')
                 ->get();
 
         $this->additionalResources->
-        fuelTanksResponsibles = 
+        fuelTanksResponsibles =
             User::query()->active()
                 ->whereIn('group_id', Group::FOREMEN)
                 ->orWhere('group_id', 43)
@@ -294,29 +351,33 @@ class FuelTankController extends StandardEntityResourceController
                 ->get();
 
         $this->additionalResources->
-        companies = 
+        companies =
             Company::all();
 
         $this->additionalResources->
-        fuelFlowTypes = 
+        fuelFlowTypes =
             FuelTankFlowType::all();
 
         $this->additionalResources->
-        fuelTanks = 
+        fuelTanks =
             FuelTank::all();
-        
+
         $this->additionalResources->
-            fuelResponsibles = 
+            fuelResponsibles =
                 User::query()->active()
                     ->orWhereIn('group_id', Group::FOREMEN)
                     ->get();
 
         $this->additionalResources->
-        fuelContractors = 
+        fuelContractors =
             Contractor::byTypeSlug('fuel_supplier');
 
         $this->additionalResources->
-        fuelConsumers = 
+        fuelConsumers =
             OurTechnic::all();
+
+        $this->additionalResources->
+        users =
+            User::query()->active()->get();
     }
 }

@@ -13,6 +13,7 @@
             onHiding() {
                 resetVars();
                 resetStores();
+                externalOperations = [];
             },
         }
 </script>

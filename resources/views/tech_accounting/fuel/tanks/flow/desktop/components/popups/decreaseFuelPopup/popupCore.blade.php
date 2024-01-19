@@ -41,7 +41,7 @@
                     dataField: 'fuel_tank_id',
                     editorType: 'dxSelectBox',
                     editorOptions: {
-                        dataSource: getAvailableFuelTanksForFlowOperations(),
+                        dataSource: getAvailableFuelTanksToCreateFlow(),
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
                         readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('fuel_tank_id')),

@@ -128,11 +128,12 @@
                 valueExpr: "id",
                 displayExpr: "tank_number"
             },
+            alignment: "left",
             cellTemplate(container, options) {
                 const objectName = additionalResources.projectObjects.find(el => el.id === options.row.data.object_id)?.short_name
                 $('<span>')
                     .attr('title', options.text + ' (' + objectName + ')')
-                    .html(`<div><span style="font-weight:bold">${options.text}</span> (${objectName})</div>`)
+                    .html(`<div class="flex"><span style="font-weight:bold">${options.text}</span><div class="ml_5 text-overflow-ellipsis">(${objectName})</div></div>`)
                     .appendTo(container)
             }
         },
@@ -154,6 +155,13 @@
                 dataSource: additionalResources.fuelResponsibles,
                 valueExpr: "id",
                 displayExpr: "user_full_name"
+            },
+            cellTemplate(container, options) {
+                if (options.row.data.fuel_tank_flow_type_id === additionalResources.fuelFlowTypes.find(el => el.slug === 'adjustment').id) {
+                    $('<div>').text(additionalResources.users.find(el=>el.id===options.row.data.author_id).user_full_name).appendTo(container)
+                } else {
+                    $('<div>').text(additionalResources.users.find(el=>el.id===options.row.data.responsible_id).user_full_name).appendTo(container)
+                }
             },
             width: '150px',
         },
@@ -199,7 +207,7 @@
             buttons: [
                 {
                     icon: 'fas fa-list-alt dx-link-icon',
-                    
+
                     visible(e) {
                         const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
                         if (dateDiff >= 1) {
@@ -209,14 +217,14 @@
                         if (Boolean("{{App::environment('local')}}")) {
                             return false;
                         }
-                        
+
                         if (!Boolean(+e.row.data.author_id === +authUserId)) {
                             return true;
                         }
 
                         return false
                     },
-                    
+
                     onClick(e) {
                         editingRowId = e.row.data.id;
 
@@ -238,7 +246,7 @@
 
                         if (fuelFlowType === 'adjustment')
                             showAdjustmentFuelPopup(choosedItem)
-                    }, 
+                    },
                 },
                 // 'edit',
                 {
@@ -257,7 +265,7 @@
                         return true;
                     }
                 }
-                
+
             ],
 
             headerCellTemplate: (container, options) => {
@@ -265,8 +273,9 @@
                 $('<div>')
                     .appendTo(container)
                     .dxDropDownButton({
-                        // icon: 'overflow',
                         text: 'Создать',
+                        dataSource: getAddFlowButtonDatasource(),
+                        valueExpr: 'id',
                         dropDownOptions: {
                             width: 200
                         },
@@ -289,10 +298,7 @@
                             return `<span class="${iconTemplate}"></span> ` + item.name
                         },
 
-                        dataSource: additionalResources.fuelFlowTypes,
-                        valueExpr: 'id',
-                       
-                        visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank,
+                        visible: userPermissions.create_fuel_tank_flows_for_reportable_tanks || userPermissions.create_fuel_tank_flows_for_any_tank || userPermissions.adjust_fuel_tank_remains,
 
                         onItemClick(e) {
 
