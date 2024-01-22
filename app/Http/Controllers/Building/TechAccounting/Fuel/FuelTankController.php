@@ -142,35 +142,10 @@ class FuelTankController extends StandardEntityResourceController
         ];
     }
 
-    public function getFuelTanksResponsibles()
+    public function afterDelete($entity)
     {
-        return User::query()->active()
-            ->whereIn('group_id', Group::FOREMEN)
-            ->orWhere('group_id', 43)
-            ->select(['id', 'user_full_name'])
-            ->get();
-    }
-
-    public function getCompanies() {
-        $companies = Company::all();
-        return response()->json($companies, 200, [], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
-    }
-
-    public function getProjectObjects(Request $request)
-    {
-        $options = json_decode($request['data']);
-
-        $objects = (new ProjectObject)
-            ->where('is_participates_in_material_accounting', 1)
-            ->whereNotNull('short_name')
-            ->orderBy('short_name')
-            ->get()
-            ->toArray();
-
-        return json_encode(
-            $objects
-            ,
-            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        FuelTankFlow::whereFuelTankId($entity->id)->delete();
+        FuelTankTransferHistory::whereFuelTankId($entity->id)->delete();
     }
 
     public function validateTankNumberUnique(Request $request)
@@ -325,6 +300,7 @@ class FuelTankController extends StandardEntityResourceController
     protected function getFuelFlowDataToStore($data)
     {
         unset($data['third_party_mark']);
+        unset($data['fuelConsumerType']);
         unset($data['newAttachments']);
         unset($data['deletedAttachments']);
         unset($data['newComments']);

@@ -29,6 +29,8 @@
                     },
                     success: function (data, textStatus, jqXHR) {
                         DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
+                        entitiesDataSource.reload()
+                        $('#entitiesListMobile').dxList('instance')?.reload() 
                     },
                 })
             },
@@ -47,6 +49,7 @@
                     },
                     success: function (data, textStatus, jqXHR) {
                         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                        entitiesDataSource.reload()
                         $('#entitiesListMobile').dxList('instance')?.reload()                        
                     },
                 })
@@ -64,6 +67,7 @@
                     success: function (data, textStatus, jqXHR) {
                         DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
                         entitiesDataSource.reload()
+                        $('#entitiesListMobile').dxList('instance')?.reload()
                     },
                 })
 

@@ -39,7 +39,7 @@
         deviceType = 'desktop'
         fileDisplayContext = 'entityNewFiles'
 
-        const fileLableWrapper = getFileLableWrapper(fileType, deviceType, fileDisplayContext, e.file).addClass('attachmentFileWrapper newFileDivWrapper')
+        const fileLableWrapper = getFileLableWrapper(fileType, deviceType, fileDisplayContext, e.file).addClass('fileLableWrapper newFileDivWrapper')
         let newFileImg = $('<img>')
 
         const {file} = e;

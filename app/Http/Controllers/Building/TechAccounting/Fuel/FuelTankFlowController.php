@@ -245,51 +245,6 @@ class FuelTankFlowController extends StandardEntityResourceController
         ]);
     }
 
-    public function getFuelFlowTypes()
-    {
-        if(User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'))
-        return FuelTankFlowType::all();
-
-        return FuelTankFlowType::where('slug', '<>', 'adjustment')->get();
-    }
-
-    public function uploadFile(Request $request)
-    {
-        $uploadedFile = $request->files->all()['files'][0];
-        $storage_name = 'fuel_flow';
-        $storage_path = 'storage/docs/fuel_flow/';
-        $documentable_id = $request->input('id');
-        $documentable_type = 'App\Models\TechAcc\FuelTank\FuelTankFlow';
-
-        [$fileEntry, $fileName]
-            = (new FilesUploadService)
-            ->uploadFile($uploadedFile, $documentable_id, $documentable_type, $storage_name, $storage_path);
-
-        return response()->json([
-            'result' => 'ok',
-            'fileEntryId' => $fileEntry->id,
-            'filename' =>  $fileName,
-            'fileEntry' => $fileEntry
-        ], 200);
-    }
-
-    public function getThirdPartyFuelConsumers(Request $request)
-    {
-        $options = json_decode($request['data']);
-
-        $thirdPartyFuelConsumers =
-            (new FuelTankFlow)
-                ->dxLoadOptions($options)
-                ->whereNotNull('third_party_consumer')
-                ->pluck('third_party_consumer')
-                ->unique();
-
-        return json_encode(array(
-            "data" => $thirdPartyFuelConsumers
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
-    }
-
     public function syncFuelLevelData($entity, $data)
     {
         $tank = FuelTank::find($data['fuel_tank_id']);

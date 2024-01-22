@@ -197,6 +197,12 @@
                 'edit',
                 {
                     name: 'delete',
+                    onClick(e) {
+                        customConfirmDialog("Вы уверены, что хотите удалить топливную емкость и связанные записи?")
+                        .show().then(dialogResult => {
+                            entitiesDataSource.store().remove(e.row.key)
+                        })
+                    },
                     visible: userPermissions.delete_fuel_tanks
                 }
 
