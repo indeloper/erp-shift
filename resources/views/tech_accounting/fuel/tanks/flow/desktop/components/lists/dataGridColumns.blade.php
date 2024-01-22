@@ -59,7 +59,7 @@
                 const reportButton = $('<div>').dxButton({
                     text: 'Отчет',
                     onClick: function () {
-                        const url = "{{route('building::tech_acc::fuel::reports::fuelTankPeriodReport::'.'getPdf')}}?" + 'year=' + year + '&month=' + mothNum + '&loadOptions=' + JSON.stringify(currentLoadOptions)
+                        const url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + 'year=' + year + '&month=' + mothNum + '&loadOptions=' + JSON.stringify(currentLoadOptions)
                         window.open(url, '_blank');
                     },
                 }).appendTo(headerContent);
