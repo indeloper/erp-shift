@@ -527,16 +527,6 @@
                                     </li>
                                 @endcan
 
-                                <!-- <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/fuelFlowMacroReport*') )
-                                    active
-
-                                @endif">
-                                    <a class="nav-link"
-                                       href="{{ route('building::tech_acc::fuel::reports::fuelFlowMacroReport::getPageCore') }}">
-                                        <span class="sidebar-mini"><i class="pe-7s-news-paper pe-7s-mini"></i></span>
-                                        <span class="sidebar-normal">Оборотная ведомость<br>по всем емкостям</span>
-                                    </a>
-                                </li> -->
                                 @can('fuel_tanks_movements_report_access')
                                     <li class="nav-item @if (Request::is('building/tech_acc/fuel/reports/tanksMovementReport*') ) active @endif">
                                         <a class="nav-link"
