@@ -26,7 +26,7 @@
         if(formData.fuel_tank_flow_type_id === 3) {
             dataGridInstance = $('#mainDataGrid_fuel_flow_adjusments').dxDataGrid('instance')
         }
-     
+
         let currentDatasource
         if(Array.isArray(dataGridInstance.option('dataSource')))
         {
@@ -34,14 +34,14 @@
         } else {
             currentDatasource = dataGridInstance.option('dataSource').items()
         }
-        
+
         if(formData.id) {
             currentDatasource.filter(el => el.id != formData.id)
             dataGridInstance.option('dataSource', currentDatasource)
             dataGridInstance.option('focusedRowKey', formData.id)
         } else {
             formData.responsible_id = $('#fuel_tank_responsible_id').dxSelectBox('instance').option('value')
-            // formData.responsible_id = $('#mainDataGrid').dxDataGrid('instance').option('dataSource').items().find(el=>el.id===editingRowId).responsible_id            
+            // formData.responsible_id = $('#mainDataGrid').dxDataGrid('instance').option('dataSource').items().find(el=>el.id===editingRowId).responsible_id
             formData.id = new DevExpress.data.Guid();
             formData.guid = true
             currentDatasource.unshift(formData)

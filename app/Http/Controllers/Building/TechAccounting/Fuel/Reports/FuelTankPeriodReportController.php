@@ -44,14 +44,14 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         $this->additionalResources->
         fuelTanks =
             FuelTank::all();
-        
+
         $this->additionalResources->
         fuelTanksResponsibles =
             User::query()->active()
                 ->whereIn('group_id', Group::FOREMEN)
                 ->orWhere('group_id', 43)
                 ->select(['id', 'user_full_name'])
-                ->get(); 
+                ->get();
     }
 
     public function getPdf(Request $request)
@@ -93,7 +93,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ->leftJoin('project_objects', 'fuel_tank_flows.object_id', '=', 'project_objects.id')
             ->leftJoin('users', 'fuel_tank_flows.responsible_id', '=', 'users.id')
             ->leftJoin('fuel_tanks', 'fuel_tank_flows.fuel_tank_id', '=', 'fuel_tanks.id')
-            ->orderBy('fuel_tank_transfer_histories.responsible_id') 
+            ->orderBy('fuel_tank_transfer_histories.responsible_id')
             ->orderBy('fuel_tank_transfer_histories.fuel_tank_id')
             ->orderBy('fuel_tank_transfer_histories.object_id')
             ->orderBy('fuel_tank_flow_types.id')
@@ -119,11 +119,11 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 DB::raw('
                     SUM(
                         IF(volume IS NULL, 1, 0))
-                        OVER 
+                        OVER
                             (
-                                ORDER BY fuel_tank_transfer_histories.responsible_id, 
+                                ORDER BY fuel_tank_transfer_histories.responsible_id,
                                 fuel_tank_transfer_histories.fuel_tank_id,
-                                fuel_tank_transfer_histories.object_id, 
+                                fuel_tank_transfer_histories.object_id,
                                 fuel_tank_flow_types.id,
                                 fuel_tank_transfer_histories.event_date,
                                 fuel_tank_transfer_histories.id
@@ -140,13 +140,13 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         $filteredByObjectArr = $this->getFilteredArray($options->filter, 'object_id');
 
         if(
-            !User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows') 
+            !User::find(Auth::user()->id)->hasPermission('watch_any_fuel_tank_flows')
             && !in_array(Auth::user()->id, $filteredByResponsiblesArr)
         ) {
             $filteredByResponsiblesArr[] = Auth::user()->id;
         }
 
-        $fuelTanksNotIncludedinReport = 
+        $fuelTanksNotIncludedinReport =
             FuelTank::query()
             ->whereNotIn('id', $fuelTanksIncludedinReportIds)
             ->when(!empty($filteredByResponsiblesArr), function($query) use($filteredByResponsiblesArr) {
@@ -166,7 +166,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ];
         }
 
-        // добавляем бочки, у которых сменился объект, но операций на новом объекте не было 
+        // добавляем бочки, у которых сменился объект, но операций на новом объекте не было
         $includedTanksInReport = FuelTank::whereIn('id', $fuelTanksIncludedinReportIds)
             ->when(!empty($filteredByResponsiblesArr), function($query) use($filteredByResponsiblesArr) {
                 $query->whereIn('responsible_id', $filteredByResponsiblesArr);
@@ -201,7 +201,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             );
         }
 
-        $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportTemplate', 
+        $pdf = PDF::loadView('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportTemplate',
             [
                 'baseReportArray' => $baseReportArray,
                 'dateFrom' => $globalDateFrom->format('d.m.Y'),
@@ -219,7 +219,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
         return $pdf->stream(
             'Отчет по дизельному топливу '
-            .$globalDateFrom->format('d.m.Y'). '-' 
+            .$globalDateFrom->format('d.m.Y'). '-'
             .$globalDateTo->format('d.m.Y')
             .'.pdf');
     }
@@ -267,7 +267,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         ->whereNotNull('previous_object_id')
         ->get()
         ->toArray();
-        
+
         return [
             'fuelLevelPeriodStart' => $fuelLevelPeriodStart,
             'fuelLevelPeriodFinish' => $fuelLevelPeriodFinish,
@@ -292,8 +292,8 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 ['fuel_tank_id', $fuelTankId],
                 ['event_date', '<', Carbon::create($globalDateTo)->addday()],
                 ['event_date', '>=', Carbon::create($globalDateFrom)],
-                ['object_id', $objectId], 
-                ['responsible_id', $responsibleId], 
+                ['object_id', $objectId],
+                ['responsible_id', $responsibleId],
                 ['tank_moving_confirmation', true]
             ])
             ->orderByDesc('id')->first();
@@ -303,7 +303,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             } else {
                 $dateFromTmp = Carbon::create($globalDateFrom);
             }
-        
+
             $dateToTmp = Carbon::create($globalDateTo);
         } else {
             $dateFromTmp = Carbon::create(min($eventDates));
@@ -314,7 +314,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['fuel_tank_id', $fuelTankId],
             ['event_date', '>=',  $dateToTmp],
             ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
-            ['previous_object_id', $objectId], 
+            ['previous_object_id', $objectId],
             ['previous_responsible_id', $responsibleId],
             ['tank_moving_confirmation', true]
         ])->orderByDesc('id')->first();
@@ -329,8 +329,8 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['fuel_tank_id', $fuelTankId],
             ['event_date', '<=',  $dateFromTmp],
             ['event_date', '>=', Carbon::create($globalDateFrom)],
-            ['object_id', $objectId], 
-            ['responsible_id', $responsibleId], 
+            ['object_id', $objectId],
+            ['responsible_id', $responsibleId],
             ['tank_moving_confirmation', true]
         ])->orderByDesc('id')->first();
 
