@@ -28,7 +28,7 @@ class MaterialsRequest extends FormRequest
     {
         return [
             'id' => 'sometimes|required|numeric|' . (($this->className == 'ManualReference') ? 'exists:manual_references,id' : 'exists:manual_materials,id'),
-            'name' => 'required|max:200',
+            'name' => 'required|max:255',
             'description' => 'nullable|max:250',
             'use_cost' => ($this->className == 'ManualReference') ? 'nullable' : 'required|min:1|max:20',
             'buy_cost' => ($this->className == 'ManualReference') ? 'nullable' : 'required|min:1|max:20',
