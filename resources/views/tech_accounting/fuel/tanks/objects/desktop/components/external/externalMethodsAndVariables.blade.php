@@ -44,6 +44,7 @@
             // formData.responsible_id = $('#mainDataGrid').dxDataGrid('instance').option('dataSource').items().find(el=>el.id===editingRowId).responsible_id
             formData.id = new DevExpress.data.Guid();
             formData.guid = true
+            formData.author_id = authUserId
             currentDatasource.unshift(formData)
             dataGridInstance.option('dataSource', currentDatasource)
             dataGridInstance.option('focusedRowKey', formData.id)
