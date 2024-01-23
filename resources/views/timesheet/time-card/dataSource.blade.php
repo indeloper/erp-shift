@@ -61,14 +61,4 @@
             }
         })
     });
-
-    const companiesStore = new DevExpress.data.CustomStore({
-        key: "id",
-        loadMode: "raw",
-        load: function () {
-            let url = "{{route('building::tech_acc::fuel::tanks::'.'getCompanies')}}"
-            return $.getJSON(url);
-        }
-    })
-
 </script>

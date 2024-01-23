@@ -338,7 +338,7 @@
                                         <span class="sidebar-normal">Список техники</span>
                                     </a>
                                 </li>
-                            
+
                             @canany([
                                 'technics_movement_crud',
                                 'technics_movement_read',
@@ -988,6 +988,7 @@
         || Request::is('objects')
         || Request::is('building/tech_acc/technic*')
         || Request::is('building/tech_acc/fuel*')
+        || Request::is('timesheet/*')
     )
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.generic.light.css')}}">
 @else
@@ -1017,7 +1018,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}"/>
 
 
-<script>    
+<script>
     var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
     ELEMENT.locale(ELEMENT.lang.ruRU);
 
@@ -1026,7 +1027,7 @@
         editorStylingMode: "outlined",
         forceIsoDateParsing: true
     })
-  
+
     function iOS() {
         return [
                 'iPad Simulator',

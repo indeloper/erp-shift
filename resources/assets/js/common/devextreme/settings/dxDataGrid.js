@@ -49,14 +49,6 @@ DevExpress.ui.dataGrid.defaultOptions({
             selectTextOnEditStart: true,
             useIcons: true,
         },
-
-        onEditorPreparing: (e) => {
-            if (typeof createFilterRowTagBoxFilterControlForLookupColumns === 'function') {
-                if (e.parentType === `filterRow` && e.lookup)
-                    createFilterRowTagBoxFilterControlForLookupColumns(e)
-            }
-        },
-
         toolbar: {
             visible: true,
             items: [{}]
