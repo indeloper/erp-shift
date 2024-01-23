@@ -100,6 +100,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ->orderBy('fuel_tank_transfer_histories.event_date')
             ->orderBy('fuel_tank_transfer_histories.id')
             ->get(['fuel_tank_transfer_histories.responsible_id as responsible_id',
+                'fuel_tank_transfer_histories.tank_moving_confirmation AS tank_moving_confirmation',
                 'fuel_tank_transfer_histories.previous_responsible_id as previos_responsible_id',
                 'fuel_tank_transfer_histories.fuel_tank_id',
                 'fuel_tank_transfer_histories.object_id',
@@ -118,7 +119,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 'fuel_tank_flows.author_id',
                 DB::raw('
                     SUM(
-                        IF(volume IS NULL, 1, 0))
+                        IF(tank_moving_confirmation = 1, 1, 0))
                         OVER
                             (
                                 ORDER BY fuel_tank_transfer_histories.responsible_id,
@@ -129,6 +130,19 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                                 fuel_tank_transfer_histories.id
                             ) AS group_marker
                         ')
+                // DB::raw('
+                //     SUM(
+                //         IF(volume IS NULL, 1, 0))
+                //         OVER
+                //             (
+                //                 ORDER BY fuel_tank_transfer_histories.responsible_id,
+                //                 fuel_tank_transfer_histories.fuel_tank_id,
+                //                 fuel_tank_transfer_histories.object_id,
+                //                 fuel_tank_flow_types.id,
+                //                 fuel_tank_transfer_histories.event_date,
+                //                 fuel_tank_transfer_histories.id
+                //             ) AS group_marker
+                //         ')
             ])
             ->groupBy(['responsible_id', 'fuel_tank_id', 'object_id', 'group_marker', 'fuel_tank_flow_type_slug'])->toArray();
 
@@ -356,7 +370,17 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         if($tankRecievedEvent) {
             $fuelLevelPeriodStart =  $tankRecievedEvent->fuel_level;
         } else {
-            $fuelLevelPeriodStart = 0;
+            $lastPreviousPeriodFuelRemain = FuelTankTransferHistory::where([
+                ['responsible_id', $responsibleId],
+                ['fuel_tank_id', $fuelTankId],
+                ['object_id', $objectId],
+                ['event_date', '<' ,$dateFrom]
+            ])->orderByDesc('id')->first();
+            if($lastPreviousPeriodFuelRemain) {
+                $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemain->fuel_level;
+            } else {
+                $fuelLevelPeriodStart = 0;
+            } 
         }
 
         $fuelPeriodLastTransaction = $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
