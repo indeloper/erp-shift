@@ -128,25 +128,10 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $tank->save();
 
-        // unset($data['fuelConsumerType']);
+        $data['author_id'] = Auth::id();
 
-        $data['author_id'] = Auth::user()->id;
-        if(!empty($adjustmentOperation) && $tank->awaiting_confirmation) {
-            $transferHistory = FuelTankTransferHistory::query()
-                ->where('fuel_tank_id', $tank->id)
-                ->whereNull('fuel_tank_flow_id')
-                ->orderByDesc('id')
-                ->first();
-            if($transferHistory && $transferHistory->previous_responsible_id) {
-                $data['responsible_id'] = $transferHistory->previous_responsible_id;
-            } else {
-                $data['responsible_id'] = $tank->responsible_id;
-            }
-        } else {
-            $data['responsible_id'] = $tank->responsible_id;
-        }
+        [$data['responsible_id'], $data['object_id']] = $this->getFuelFlowResponsibleAndObjectForAwaitingConfirmationTank($tank);
 
-        $data['object_id'] = $tank->object_id;
         $data['company_id'] = $tank->company_id;
 
         return [
@@ -167,9 +152,19 @@ class FuelTankFlowController extends StandardEntityResourceController
             $lastFuelTankTransferHistory = new FuelTankTransferHistory;
         }
 
-        $tankCurrentFuelLevel = FuelTank::find($entity->fuel_tank_id)->fuel_level;
+        $tank = FuelTank::find($entity->fuel_tank_id);
 
-        $this->createFuelTankTransferHistory($entity->fuel_tank_id, $tankCurrentFuelLevel, $lastFuelTankTransferHistory, $entity->id, $entity->event_date);
+        FuelTankTransferHistory::create([
+            'author_id' => Auth::id(),
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $lastFuelTankTransferHistory->previous_object_id ?? null,
+            'object_id' => $entity->object_id,
+            'previous_responsible_id' => $lastFuelTankTransferHistory->previous_responsible_id ?? null,
+            'responsible_id' => $entity->responsible_id,
+            'fuel_tank_flow_id' => $entity->id,
+            'fuel_level' => $tank->fuel_level,
+            'event_date' => $entity->event_date
+        ]);
 
     }
 
@@ -190,7 +185,6 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $historyLog->save();
 
-        // unset($data['fuelConsumerType']);
         $data['our_technic_id'] = $data['our_technic_id'] ?? null;
         $data['third_party_consumer'] = $data['third_party_consumer'] ?? null;
 
@@ -224,25 +218,23 @@ class FuelTankFlowController extends StandardEntityResourceController
         $tank->save();
     }
 
-    public function createFuelTankTransferHistory($fuelTankId, $fuel_level, $lastFuelTankTransferHistory, $fuel_tank_flow_id = null, $event_date = null)
+    public function getFuelFlowResponsibleAndObjectForAwaitingConfirmationTank($tank)
     {
-        $fuelTankFlow = FuelTankFlow::find($fuel_tank_flow_id);
-
-        if(!$fuelTankFlow) {
-            // Проверить, подумать. Кейс для удаления записи о движении топлива
-            $fuelTankFlow = $lastFuelTankTransferHistory;
+        if(!$tank->awaiting_confirmation) {
+            return [$tank->responsible_id, $tank->object_id];
         }
-        FuelTankTransferHistory::create([
-            'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $fuelTankId,
-            'previous_object_id' => $lastFuelTankTransferHistory->previous_object_id,
-            'object_id' => $fuelTankFlow->object_id,
-            'previous_responsible_id' => $lastFuelTankTransferHistory->previous_responsible_id,
-            'responsible_id' => $fuelTankFlow->responsible_id,
-            'fuel_tank_flow_id' => $fuel_tank_flow_id,
-            'fuel_level' => $fuel_level,
-            'event_date' => $event_date ? $event_date : now()
-        ]);
+
+        $transferHistory = FuelTankTransferHistory::query()
+            ->where('fuel_tank_id', $tank->id)
+            ->whereNull('fuel_tank_flow_id')
+            ->orderByDesc('id')
+            ->first();
+
+        if($transferHistory && $transferHistory->previous_responsible_id) {
+            return [$transferHistory->previous_responsible_id, $transferHistory->previous_object_id];
+        } else {
+            return [$tank->responsible_id, $tank->object_id];
+        }
     }
 
     public function syncFuelLevelData($entity, $data)
