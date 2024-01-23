@@ -202,6 +202,24 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             }
         }
 
+        $transtionPeriodTanksList = $this->getTransitionPeriodTanksList($globalDateFrom); 
+
+        foreach($transtionPeriodTanksList as $tank) {
+            if(!empty($filteredByTankArr) && !in_array($tank['fuel_tank_id'], $filteredByTankArr)) {
+                continue;
+            }
+            if(!empty($filteredByResponsiblesArr) && !in_array($tank['responsible_id'], $filteredByResponsiblesArr)) {
+                continue;
+            }
+            if(!empty($filteredByObjectArr) && !in_array($tank['object_id'], $filteredByObjectArr)) {
+                continue;
+            }
+
+            $baseReportArray[$tank['responsible_id']][$tank['fuel_tank_id']][$tank['object_id']] = [
+                0 => ["notIncludedTank" => []]
+            ];
+        }
+
         if(!count($baseReportArray)) {
 
             return view('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.emptyReportTemplate',
@@ -236,6 +254,24 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             .$globalDateFrom->format('d.m.Y'). '-'
             .$globalDateTo->format('d.m.Y')
             .'.pdf');
+    }
+
+    public function getTransitionPeriodTanksList($globalDateFrom)
+    {
+        $tanksList = [];
+        foreach(FuelTank::all() as $fuelTank) {
+            $lastTranferHistory = FuelTankTransferHistory::where([
+                ['fuel_tank_id', $fuelTank->id],
+                ['event_date', '<', $globalDateFrom]
+            ])->orderByDesc('event_date')->first();
+ 
+            $tanksList[] = [
+                'responsible_id' => $lastTranferHistory->responsible_id ??  $fuelTank->responsible_id,
+                'fuel_tank_id' => $fuelTank->id,
+                'object_id' => $lastTranferHistory->object_id ?? $fuelTank->object_id,
+            ];
+        }
+        return $tanksList;
     }
 
     public function getGlobalDatesFromTo($request)
@@ -279,6 +315,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         ])
         ->whereNotNull('object_id')
         ->whereNotNull('previous_object_id')
+        ->orderBy('event_date')
         ->get()
         ->toArray();
 
