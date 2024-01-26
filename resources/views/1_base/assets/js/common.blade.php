@@ -55,9 +55,13 @@
                     let tagBoxFilterExpression = [];
                     let tagBox = $(item).dxTagBox(`instance`);
                     tagBox.option(`value`).forEach(function(value) {
-                        tagBoxFilterExpression.push([tagBox.option().dataFieldName, `=`, Number(value)]);
+                        let dataFieldName = tagBox.option().dataFieldName
+                        if(e.tableName) {
+                            dataFieldName = e.tableName + '.' + tagBox.option().dataFieldName                            
+                        }
+                        tagBoxFilterExpression.push([dataFieldName, `=`, Number(value)]);
                         tagBoxFilterExpression.push(`or`);
-                    });
+                    }, e);
                     tagBoxFilterExpression.pop();
                     if (tagBoxFilterExpression.length) {
                         filterExpression.push(tagBoxFilterExpression);
