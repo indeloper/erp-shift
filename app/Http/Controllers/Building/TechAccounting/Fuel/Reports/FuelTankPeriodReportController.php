@@ -202,7 +202,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             }
         }
 
-        $transtionPeriodTanksList = $this->getTransitionPeriodTanksList($globalDateFrom); 
+        $transtionPeriodTanksList = $this->getTransitionPeriodTanksList($globalDateFrom);
 
         foreach($transtionPeriodTanksList as $tank) {
             if(!empty($filteredByTankArr) && !in_array($tank['fuel_tank_id'], $filteredByTankArr)) {
@@ -215,9 +215,11 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 continue;
             }
 
-            $baseReportArray[$tank['responsible_id']][$tank['fuel_tank_id']][$tank['object_id']] = [
-                0 => ["notIncludedTank" => []]
-            ];
+            if(!isset($baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id])) {
+                $baseReportArray[$tank['responsible_id']][$tank['fuel_tank_id']][$tank['object_id']] = [
+                    0 => ["transitionPeriod" => []]
+                ];
+            }
         }
 
         if(!count($baseReportArray)) {
@@ -263,8 +265,11 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             $lastTranferHistory = FuelTankTransferHistory::where([
                 ['fuel_tank_id', $fuelTank->id],
                 ['event_date', '<', $globalDateFrom]
-            ])->orderByDesc('event_date')->first();
- 
+            ])
+            ->orderByDesc('event_date')
+            ->orderByDesc('parent_fuel_level_id')
+            ->first();
+
             $tanksList[] = [
                 'responsible_id' => $lastTranferHistory->responsible_id ??  $fuelTank->responsible_id,
                 'fuel_tank_id' => $fuelTank->id,
@@ -368,12 +373,20 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['previous_object_id', $objectId],
             ['previous_responsible_id', $responsibleId],
             ['tank_moving_confirmation', true]
-        ])->orderByDesc('id')->first();
+        ])->orderByDesc('parent_fuel_level_id')->first();
 
-        if($to) {
+        if($to && !isset($objectTransferGroups['transitionPeriod'])) {
             $dateTo = $to->event_date;
         } else {
-            $dateTo = $globalDateTo;
+            $firstTankTransferHistory = FuelTankTransferHistory::where([
+                ['fuel_tank_id', $fuelTankId],
+                ['event_date', '<', Carbon::create($globalDateTo)->addday()],
+                ['event_date', '>=', Carbon::create($globalDateFrom)],
+            ])
+            ->orderBy('event_date')
+            ->first();
+
+            $dateTo = $firstTankTransferHistory->event_date ?? $globalDateTo;
         }
 
         $from = FuelTankTransferHistory::where([
@@ -383,7 +396,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['object_id', $objectId],
             ['responsible_id', $responsibleId],
             ['tank_moving_confirmation', true]
-        ])->orderByDesc('id')->first();
+        ])->orderByDesc('parent_fuel_level_id')->first();
 
         if($from) {
             $dateFrom = $from->event_date;
@@ -412,12 +425,12 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 ['fuel_tank_id', $fuelTankId],
                 ['object_id', $objectId],
                 ['event_date', '<' ,$dateFrom]
-            ])->orderByDesc('id')->first();
+            ])->orderByDesc('parent_fuel_level_id')->first();
             if($lastPreviousPeriodFuelRemain) {
                 $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemain->fuel_level;
             } else {
                 $fuelLevelPeriodStart = 0;
-            } 
+            }
         }
 
         $fuelPeriodLastTransaction = $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
@@ -427,7 +440,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['event_date', '>=',  $dateFrom],
             ['event_date', '<=',  $dateTo],
         ])
-        ->orderBy('id', 'desc')
+        ->orderBy('parent_fuel_level_id', 'desc')
         ->first();
 
         if($fuelPeriodLastTransaction) {
