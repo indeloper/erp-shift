@@ -5,10 +5,12 @@
             validationGroup: "documentValidationGroup",
             labelMode: 'outside',
             labelLocation: 'left',
+            colCount: 2,
             items: [
                 {
                     dataField: "id",
                     editorType: "dxSelectBox",
+                    colSpan: 1,
                     editorOptions: {
                         dataSource: additionalResources.fuelTanks,
                         valueExpr: "id",
@@ -19,43 +21,13 @@
                     label: {
                         text: 'Топливная емкость'
                     },
-                },
-                {
-                    dataField: "object_id",
-                    editorType: "dxSelectBox",
-                    editorOptions: {
-                        dataSource: additionalResources.projectObjects,
-                        valueExpr: "id",
-                        displayExpr: "short_name"
-                    },
-                    label: {
-                        text: 'Перемещение на объект'
-                    },
-                    validationRules: [{
-                        type: 'required',
-                        message: 'Укажите значение',
-                    }],
-                },
-                {
-                    dataField: "responsible_id",
-                    editorType: "dxSelectBox",
-                    editorOptions: {
-                        dataSource: additionalResources.fuelTanksResponsibles,
-                        valueExpr: "id",
-                        displayExpr: "user_full_name"
-                    },
-                    label: {
-                        text: 'Передача ответственному'
-                    },
-                    validationRules: [{
-                        type: 'required',
-                        message: 'Укажите значение',
-                    }],
+                    
                 },
 
                 {
                     dataField: 'event_date',
                     editorType: "dxDateBox",
+                    colSpan: 1,
                     editorOptions: {
                         value: new Date(),
                         max: new Date(),
@@ -69,10 +41,49 @@
                         message: 'Укажите значение',
                     }],
                 },
-                
+
+                {
+                    dataField: "object_id",
+                    editorType: "dxSelectBox",
+                    colSpan: 2,
+                    editorOptions: {
+                        dataSource: additionalResources.projectObjects,
+                        valueExpr: "id",
+                        displayExpr: "short_name",
+                        itemTemplate(e) {
+                            return `<div class="dx-list-item-line-break">${e.short_name}</div>`
+                        }
+                    },
+                    label: {
+                        text: 'Перемещение на объект'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+                {
+                    dataField: "responsible_id",
+                    editorType: "dxSelectBox",
+                    colSpan: 2,
+                    editorOptions: {
+                        dataSource: additionalResources.fuelTanksResponsibles,
+                        valueExpr: "id",
+                        displayExpr: "user_full_name"
+                    },
+                    label: {
+                        text: 'Передача ответственному'
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+               
                 {
                     dataField: 'comment_movement_tmp',
                     editorType: "dxTextBox",
+                    colSpan: 2,
                     label: {
                         text: 'Комментарий'
                     },
@@ -82,12 +93,12 @@
         })
     }
 
-
     const showMovingFuelTankPopup = (rowData) => {
         const movingFuelTankFormPopup = $("#externalPopup").dxPopup({
             visible: true,
             title: 'Перемещение емкости',
             fullScreen: DevExpress.devices.current().deviceType === 'phone',
+            maxWidth: '60%',
             contentTemplate: () => {
                 return getMovingPopupContentTemplate(rowData)
             },

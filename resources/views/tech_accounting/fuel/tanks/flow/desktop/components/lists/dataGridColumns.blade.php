@@ -146,7 +146,7 @@
                 displayExpr: "name",
             },
             width: '150px',
-            // groupIndex: 0,
+            tableName: "fuel_tank_flows",
         },
         {
             caption: "Ответственный",
@@ -164,6 +164,7 @@
                 }
             },
             width: '150px',
+            tableName: "fuel_tank_flows",
         },
         {
             caption: "Объем (л)",
@@ -173,9 +174,6 @@
                 min: 0.001
             },
             dataType: "number",
-            // customizeText: (data) => {
-            //     return new Intl.NumberFormat('ru-RU').format(data.value * 1000 / 1000);
-            // },
             alignment: 'right',
             cellTemplate(container, options) {
 
