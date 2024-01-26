@@ -26,6 +26,7 @@
     @continue($event['object_id']===$event['previous_object_id'])
     @continue(!$objectModelInstance::find($event['previous_object_id']))
     @continue(!$objectModelInstance::find($event['tank_moving_confirmation']))
+    @continue($event['object_id'] != $objectId && $event['previous_object_id'] != $objectId)
     
     <table style="margin-top: 10px;">
         <tr>
