@@ -36,6 +36,7 @@ class FuelTankController extends StandardEntityResourceController
         $this->components = $this->getModuleComponents();
         $this->modulePermissionsGroups = [17];
         $this->ignoreDataKeys[] = 'externalOperations';
+        $this->ignoreDataKeys[] = 'externalDeletedOperations';
     }
 
     public function index(Request $request)
@@ -107,7 +108,7 @@ class FuelTankController extends StandardEntityResourceController
         ]);
 
         if(!empty($data['externalOperations'])) {
-            $this->handleFuelOperations($data['externalOperations'], $tank->id);
+            $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations'], $tank->id);
         }
     }
 
@@ -133,7 +134,7 @@ class FuelTankController extends StandardEntityResourceController
         }
 
         if(!empty($data['externalOperations'])) {
-            $this->handleFuelOperations($data['externalOperations']);
+            $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations']);
         }
 
         return [
@@ -262,7 +263,7 @@ class FuelTankController extends StandardEntityResourceController
         (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
     }
 
-    public function handleFuelOperations($operations, $newFuelTankId = null)
+    public function handleFuelOperations($operations, $deletedOperations, $newFuelTankId = null)
     {
         $fuelTankFlowController = new FuelTankFlowController;
 
@@ -294,6 +295,15 @@ class FuelTankController extends StandardEntityResourceController
                     $fuelTankFlowController->afterStore($entity, $data, $dataToStore);
                 DB::commit();
             }
+        }
+
+        foreach ($deletedOperations as $deletedOperation) {
+            DB::beginTransaction();
+                $entity = FuelTankFlow::findOrFail($deletedOperation);
+                $fuelTankFlowController->beforeDelete($entity);
+                $entity->delete();
+                $fuelTankFlowController->afterDelete($entity);
+            DB::commit();
         }
     }
 
