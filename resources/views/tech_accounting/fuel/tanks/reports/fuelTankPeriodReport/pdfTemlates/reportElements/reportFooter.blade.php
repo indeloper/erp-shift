@@ -5,7 +5,7 @@
             л
         </td>
         <td style="padding: 5px 0 5px 20px; ">Итого поступило топлива:</td>
-        <td style="padding: 5px 0; text-align: right">{{number_format($incomesTotalAmount ?? 0, 0, ',', ' ')}}
+        <td style="padding: 5px 0; text-align: right">{{number_format($totlalOperationsValuesInstance->incomesTotalAmount ?? 0, 0, ',', ' ')}}
             л
         </td>
     </tr>
@@ -15,7 +15,7 @@
             л
         </td>
         <td style="padding:  5px 0 5px 20px;">Итого израсходовано топлива:</td>
-        <td style="padding: 5px 0; text-align: right">{{number_format($outcomesTotalAmount ?? 0, 0, ',', ' ')}}
+        <td style="padding: 5px 0; text-align: right">{{number_format($totlalOperationsValuesInstance->outcomesTotalAmount ?? 0, 0, ',', ' ')}}
             л
         </td>
     </tr>

@@ -51,16 +51,16 @@
 
     @php
         if($flowTypeSlug==='income') {
-            $incomesTotalAmount += $fuelFlowOperation['volume'];
+            $totlalOperationsValuesInstance->incomesTotalAmount += $fuelFlowOperation['volume'];
         }
         if($flowTypeSlug==='outcome') {
-            $outcomesTotalAmount += $fuelFlowOperation['volume'];
+            $totlalOperationsValuesInstance->outcomesTotalAmount += $fuelFlowOperation['volume'];
         }
     @endphp
 
 @endforeach
 
-@if($incomesTotalAmount || $outcomesTotalAmount)
+@if($totlalOperationsValuesInstance->incomesTotalAmount || $totlalOperationsValuesInstance->outcomesTotalAmount)
     @if($flowTypeSlug==='income' || $flowTypeSlug==='outcome')
         <tr class="table-summary">
             <td class="td-normal table-summary">
@@ -79,9 +79,9 @@
             <td class="td-normal table-summary" style="font-weight:bolder; text-align:right">
                 <b>
                     @if($flowTypeSlug==='income')
-                        {{number_format($incomesTotalAmount, 0, ',', ' ')}}
+                        {{number_format($totlalOperationsValuesInstance->incomesTotalAmount, 0, ',', ' ')}}
                     @else
-                        {{number_format($outcomesTotalAmount, 0, ',', ' ')}}
+                        {{number_format($totlalOperationsValuesInstance->outcomesTotalAmount , 0, ',', ' ')}}
                     @endif
                 </b>
             </td>
@@ -103,9 +103,8 @@
             ×
         </td>
         <td class="td-normal table-summary" style=" text-align:right">
-            {{number_format($incomesTotalAmount + $summaryData['fuelLevelPeriodStart'], 0, ',', ' ')}}
+            {{number_format($totlalOperationsValuesInstance->incomesTotalAmount + $summaryData['fuelLevelPeriodStart'], 0, ',', ' ')}}
         </td>
     </tr>
 
 @endif
-
