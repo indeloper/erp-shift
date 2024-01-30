@@ -197,7 +197,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         {
             if(!isset($baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id])) {
                 $baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id] = [
-                    0 => ["notIncludedTank" => []]
+                    0 => ["notIncludedTankNewObj" => []]
                 ];
             }
         }
@@ -425,7 +425,10 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                     ['previous_responsible_id', $responsibleId],
                     ['event_date', '<', Carbon::create($globalDateTo)->addday()],
                     ['event_date', '>=', Carbon::create($globalDateFrom)],
-                ])->orderByDesc('parent_fuel_level_id')->first();
+                ])
+                ->orderByDesc('event_date')
+                ->orderByDesc('parent_fuel_level_id')
+                ->first();
 
             $dateTo = $lastTankTransferHistory->event_date ?? $globalDateTo;
         }
@@ -455,8 +458,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 $dateFrom = $from->event_date ?? $globalDateFrom;
             } else {
                 $dateFrom = $globalDateFrom;
-            }
-            
+            }  
         }
 
         return [Carbon::create($dateFrom), Carbon::create($dateTo)];
@@ -476,15 +478,26 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             $fuelLevelPeriodStart =  $tankRecievedEvent->fuel_level;
         } else {
             $lastPreviousPeriodFuelRemain = FuelTankTransferHistory::where([
-                ['responsible_id', $responsibleId],
                 ['fuel_tank_id', $fuelTankId],
+                ['responsible_id', $responsibleId],
                 ['object_id', $objectId],
-                ['event_date', '<=' ,$dateFrom]
+                ['event_date', '=' , $dateFrom]
+                // ['event_date', '<=' , $dateFrom],
+                // ['event_date', '>=' , $dateTo]
             ])->orderByDesc('parent_fuel_level_id')->first();
             if($lastPreviousPeriodFuelRemain) {
                 $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemain->fuel_level;
             } else {
-                $fuelLevelPeriodStart = 0;
+                $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
+                    ['fuel_tank_id', $fuelTankId],
+                    ['previous_responsible_id', $responsibleId],
+                    ['previous_object_id', $objectId],
+                    ['event_date', '>=' , $dateFrom],
+                    ['event_date', '<=' , $dateTo]
+                ])->orderByDesc('parent_fuel_level_id')->first();
+
+                $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
+                // $fuelLevelPeriodStart = 0;
             }
         }
 
