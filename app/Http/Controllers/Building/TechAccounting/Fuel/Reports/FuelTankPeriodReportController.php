@@ -214,8 +214,8 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             if(!empty($filteredByObjectArr) && !in_array($tank['object_id'], $filteredByObjectArr)) {
                 continue;
             }
-
-            if(!isset($baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id])) {
+            
+            if(!isset($baseReportArray[$tank['responsible_id']][$tank['fuel_tank_id']][$tank['object_id']])) {
                 $baseReportArray[$tank['responsible_id']][$tank['fuel_tank_id']][$tank['object_id']] = [
                     0 => ["transitionPeriod" => []]
                 ];
@@ -262,19 +262,41 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
     {
         $tanksList = [];
         foreach(FuelTank::all() as $fuelTank) {
-            $lastTranferHistory = FuelTankTransferHistory::where([
-                ['fuel_tank_id', $fuelTank->id],
-                ['event_date', '<', $globalDateFrom]
-            ])
-            ->orderByDesc('event_date')
-            ->orderByDesc('parent_fuel_level_id')
-            ->first();
+            // $lastTranferHistory = FuelTankTransferHistory::where([
+            //     ['fuel_tank_id', $fuelTank->id],
+            //     ['event_date', '<', $globalDateFrom]
+            // ])
+            // ->orderBy('event_date')
+            // ->orderByDesc('parent_fuel_level_id')
+            // ->first();
 
-            $tanksList[] = [
-                'responsible_id' => $lastTranferHistory->responsible_id ??  $fuelTank->responsible_id,
-                'fuel_tank_id' => $fuelTank->id,
-                'object_id' => $lastTranferHistory->object_id ?? $fuelTank->object_id,
-            ];
+            // $tanksList[] = [
+            //     'responsible_id' => $lastTranferHistory->responsible_id ??  $fuelTank->responsible_id,
+            //     'fuel_tank_id' => $fuelTank->id,
+            //     'object_id' => $lastTranferHistory->object_id ?? $fuelTank->object_id,
+            // ];
+
+            $tansferHistories = FuelTankTransferHistory::where([
+                    ['fuel_tank_id', $fuelTank->id],
+                    ['event_date', '<', $globalDateFrom]
+                ])
+                ->get()
+                ->groupBy(['responsible_id', 'fuel_tank_id', 'object_id']);
+            
+            foreach($tansferHistories as $responsible_id=>$collectionByResponsibles) {
+                if(!$responsible_id) continue;
+                foreach($collectionByResponsibles as $fuel_tank_id=>$collectionByTanks) {
+                    if(!$fuel_tank_id) continue;
+                    foreach($collectionByTanks as $object_id=>$collectionByObjects) {
+                        if(!$object_id) continue;
+                        $tanksList[] = [
+                            'responsible_id' => $responsible_id,
+                            'fuel_tank_id' => $fuel_tank_id,
+                            'object_id' => $object_id,
+                        ];
+                    }
+                }
+            }
         }
         return $tanksList;
     }
