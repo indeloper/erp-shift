@@ -55,7 +55,9 @@ class Kernel extends ConsoleKernel
         Commands\CheckOverdueMaterialAccountingOperation::class,
         Commands\SetTelegramWebhook::class,
         Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class,
-        Commands\Support\FuelTransferHistoriesUploadData::class
+        Commands\Support\FuelTransferHistoriesUploadData::class,
+        Commands\Support\ShowFuelTanksWithDifferenceBetweenExpectedAndRealFuelLevel::class
+       
     ];
 
     /**

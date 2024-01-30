@@ -14,6 +14,7 @@
                 resetVars();
                 resetStores();
                 externalOperations = [];
+                externalDeletedOperations = [];
             },
         }
 </script>

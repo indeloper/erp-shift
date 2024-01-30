@@ -164,7 +164,8 @@
                         customConfirmDialog("Вы уверены, что хотите удалить запись?")
                             .show().then((dialogResult) => {
                                 if (dialogResult) {
-                                    externalEntitiesDataSource.store().remove(e.row.data.id)
+                                    removeRowFromFuelFlowDataGrid(e.row.data);
+                                    // externalEntitiesDataSource.store().remove(e.row.data.id)
                                 }
                             })
                     }

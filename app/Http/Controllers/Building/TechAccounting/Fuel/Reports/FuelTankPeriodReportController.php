@@ -148,9 +148,9 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
         $fuelTanksIncludedinReportIds = $baseReportArraySource_->pluck('fuel_tank_id')->unique()->toArray();
 
-        $filteredByResponsiblesArr = $this->getFilteredArray($options->filter, 'responsible_id');
+        $filteredByResponsiblesArr = $this->getFilteredArray($options->filter, 'fuel_tank_flows.responsible_id');
         $filteredByTankArr = $this->getFilteredArray($options->filter, 'fuel_tank_id');
-        $filteredByCompanyArr = $this->getFilteredArray($options->filter, 'company_id');
+        $filteredByCompanyArr = $this->getFilteredArray($options->filter, 'fuel_tank_flows.company_id');
         $filteredByObjectArr = $this->getFilteredArray($options->filter, 'object_id');
 
         if(
@@ -430,7 +430,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                     ['responsible_id', $responsibleId],
                 ])->orderByDesc('parent_fuel_level_id')->first();
 
-                $dateFrom = $from->event_date;
+                $dateFrom = $from->event_date ?? $globalDateFrom;
             } else {
                 $dateFrom = $globalDateFrom;
             }

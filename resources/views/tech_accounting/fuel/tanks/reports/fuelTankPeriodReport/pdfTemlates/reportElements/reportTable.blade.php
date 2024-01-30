@@ -44,9 +44,7 @@
             @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableEmptyIncomesOperations')
         @endif
         
-
         @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableOperations')
-
 
         @if(empty($objectTransferGroups['outcome']) && empty($isEmptyOutcomeRegionRendered))
         @php $isEmptyOutcomeRegionRendered = true; @endphp
@@ -71,3 +69,4 @@
     </tr>
 
 </table>
+
