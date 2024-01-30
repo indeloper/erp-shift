@@ -495,6 +495,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['event_date', '>=',  $dateFrom],
             ['event_date', '<=',  $dateTo],
         ])
+        ->orderByDesc('event_date')
         ->orderBy('parent_fuel_level_id', 'desc')
         ->first();
 
