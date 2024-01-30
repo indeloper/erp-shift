@@ -15,6 +15,10 @@ use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
+use App\Services\Fuel\FuelLevelSyncOnFlowCreatedService;
+use App\Services\Fuel\FuelLevelSyncOnFlowDeletedService;
+use App\Services\Fuel\FuelLevelSyncOnFlowUpdatedService;
+use App\Services\Fuel\FuelLevelUpdateService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -111,42 +115,11 @@ class FuelTankFlowController extends StandardEntityResourceController
     public function beforeStore($data)
     {
         $tank = FuelTank::findOrFail($data['fuel_tank_id']);
-        $tankCurrentFuelLevel = $tank->fuel_level;
 
-        if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'outcome') {
-            $tank->fuel_level = round($tankCurrentFuelLevel - $data['volume']);
-        }
+        $data['author_id'] = Auth::id();
 
-        if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'income') {
-            $tank->fuel_level = round($tankCurrentFuelLevel + $data['volume']);
-        }
+        [$data['responsible_id'], $data['object_id']] = $this->getFuelFlowResponsibleAndObject($tank);
 
-        if(FuelTankFlowType::find($data['fuel_tank_flow_type_id'])->slug === 'adjustment') {
-            $tank->fuel_level = round($tankCurrentFuelLevel + $data['volume']);
-            $adjustmentOperation = true;
-        }
-
-        $tank->save();
-
-        // unset($data['fuelConsumerType']);
-
-        $data['author_id'] = Auth::user()->id;
-        if(!empty($adjustmentOperation) && $tank->awaiting_confirmation) {
-            $transferHistory = FuelTankTransferHistory::query()
-                ->where('fuel_tank_id', $tank->id)
-                ->whereNull('fuel_tank_flow_id')
-                ->orderByDesc('id')
-                ->first();
-            if($transferHistory && $transferHistory->previous_responsible_id) {
-                $data['responsible_id'] = $transferHistory->previous_responsible_id;
-            } else {
-                $data['responsible_id'] = $tank->responsible_id;
-            }
-        } else {
-            $data['responsible_id'] = $tank->responsible_id;
-        }
-
-        $data['object_id'] = $tank->object_id;
         $data['company_id'] = $tank->company_id;
 
         return [
@@ -167,19 +140,34 @@ class FuelTankFlowController extends StandardEntityResourceController
             $lastFuelTankTransferHistory = new FuelTankTransferHistory;
         }
 
-        $tankCurrentFuelLevel = FuelTank::find($entity->fuel_tank_id)->fuel_level;
+        $tank = FuelTank::find($entity->fuel_tank_id);
 
-        $this->createFuelTankTransferHistory($entity->fuel_tank_id, $tankCurrentFuelLevel, $lastFuelTankTransferHistory, $entity->id, $entity->event_date);
+        $newFuelTankTransferHistory = FuelTankTransferHistory::create([
+            'author_id' => Auth::id(),
+            'fuel_tank_id' => $tank->id,
+            'previous_object_id' => $lastFuelTankTransferHistory->previous_object_id ?? null,
+            'object_id' => $entity->object_id,
+            'previous_responsible_id' => $lastFuelTankTransferHistory->previous_responsible_id ?? null,
+            'responsible_id' => $entity->responsible_id,
+            'fuel_tank_flow_id' => $entity->id,
+            'fuel_level' => $tank->fuel_level,
+            'event_date' => $entity->event_date
+        ]);
 
+        new FuelLevelSyncOnFlowCreatedService($newFuelTankTransferHistory);
     }
 
     public function beforeUpdate($entity, $data)
     {
-        if ($entity->volume != $data['volume'] || $entity->fuel_tank_id != $data['fuel_tank_id']) {
-            $fuelLevel = $this->syncFuelLevelData($entity, $data);
-        }
+        // if ($entity->volume != $data['volume'] || $entity->fuel_tank_id != $data['fuel_tank_id']) {
+        //     $fuelLevel = $this->syncFuelLevelData($entity, $data);
+        // }
 
         $historyLog = FuelTankTransferHistory::where(['fuel_tank_flow_id' => $entity->id])->orderByDesc('id')->first();
+
+        if ($entity->volume != $data['volume'] || $entity->fuel_tank_id != $data['fuel_tank_id']) {
+            new FuelLevelSyncOnFlowUpdatedService($historyLog, $data);
+        }
 
         $historyLog->fuel_tank_id = $data['fuel_tank_id'];
         $historyLog->event_date = $data['event_date'];
@@ -190,7 +178,6 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $historyLog->save();
 
-        // unset($data['fuelConsumerType']);
         $data['our_technic_id'] = $data['our_technic_id'] ?? null;
         $data['third_party_consumer'] = $data['third_party_consumer'] ?? null;
 
@@ -201,93 +188,30 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function beforeDelete($entity)
     {
-        $tank = FuelTank::findOrFail($entity->fuel_tank_id);
-        $tankCurrentFuelLevel = $tank->fuel_level;
-
         $fuelflowHistory = FuelTankTransferHistory::where('fuel_tank_flow_id', $entity->id)->orderByDesc('id')->first();
         if($fuelflowHistory) {
+            new FuelLevelSyncOnFlowDeletedService($fuelflowHistory);
             $fuelflowHistory->delete();
         }
-
-        if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
-            $tank->fuel_level = round($tankCurrentFuelLevel + $entity->volume);
-        }
-
-        if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
-            $tank->fuel_level = round($tankCurrentFuelLevel - $entity->volume);
-        }
-
-        if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
-            $tank->fuel_level = round($tankCurrentFuelLevel - $entity->volume);
-        }
-
-        $tank->save();
     }
 
-    public function createFuelTankTransferHistory($fuelTankId, $fuel_level, $lastFuelTankTransferHistory, $fuel_tank_flow_id = null, $event_date = null)
+    public function getFuelFlowResponsibleAndObject($tank)
     {
-        $fuelTankFlow = FuelTankFlow::find($fuel_tank_flow_id);
-
-        if(!$fuelTankFlow) {
-            // Проверить, подумать. Кейс для удаления записи о движении топлива
-            $fuelTankFlow = $lastFuelTankTransferHistory;
+        if(!$tank->awaiting_confirmation) {
+            return [$tank->responsible_id, $tank->object_id];
         }
-        FuelTankTransferHistory::create([
-            'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $fuelTankId,
-            'previous_object_id' => $lastFuelTankTransferHistory->previous_object_id,
-            'object_id' => $fuelTankFlow->object_id,
-            'previous_responsible_id' => $lastFuelTankTransferHistory->previous_responsible_id,
-            'responsible_id' => $fuelTankFlow->responsible_id,
-            'fuel_tank_flow_id' => $fuel_tank_flow_id,
-            'fuel_level' => $fuel_level,
-            'event_date' => $event_date ? $event_date : now()
-        ]);
-    }
 
-    public function getFuelFlowTypes()
-    {
-        if(User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'))
-        return FuelTankFlowType::all();
+        $transferHistory = FuelTankTransferHistory::query()
+            ->where('fuel_tank_id', $tank->id)
+            ->whereNull('fuel_tank_flow_id')
+            ->orderByDesc('id')
+            ->first();
 
-        return FuelTankFlowType::where('slug', '<>', 'adjustment')->get();
-    }
-
-    public function uploadFile(Request $request)
-    {
-        $uploadedFile = $request->files->all()['files'][0];
-        $storage_name = 'fuel_flow';
-        $storage_path = 'storage/docs/fuel_flow/';
-        $documentable_id = $request->input('id');
-        $documentable_type = 'App\Models\TechAcc\FuelTank\FuelTankFlow';
-
-        [$fileEntry, $fileName]
-            = (new FilesUploadService)
-            ->uploadFile($uploadedFile, $documentable_id, $documentable_type, $storage_name, $storage_path);
-
-        return response()->json([
-            'result' => 'ok',
-            'fileEntryId' => $fileEntry->id,
-            'filename' =>  $fileName,
-            'fileEntry' => $fileEntry
-        ], 200);
-    }
-
-    public function getThirdPartyFuelConsumers(Request $request)
-    {
-        $options = json_decode($request['data']);
-
-        $thirdPartyFuelConsumers =
-            (new FuelTankFlow)
-                ->dxLoadOptions($options)
-                ->whereNotNull('third_party_consumer')
-                ->pluck('third_party_consumer')
-                ->unique();
-
-        return json_encode(array(
-            "data" => $thirdPartyFuelConsumers
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        if($transferHistory && $transferHistory->previous_responsible_id) {
+            return [$transferHistory->previous_responsible_id, $transferHistory->previous_object_id];
+        } else {
+            return [$tank->responsible_id, $tank->object_id];
+        }
     }
 
     public function syncFuelLevelData($entity, $data)

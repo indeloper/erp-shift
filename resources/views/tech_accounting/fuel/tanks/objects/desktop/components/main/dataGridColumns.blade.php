@@ -78,8 +78,8 @@
                             cursor: 'pointer'
                         })
 
-                    const previousResponsible = additionalResources.fuelTanksResponsibles.find(el=>el.id === options.data.previous_responsible_id).full_name
-                    const previousObject = additionalResources.projectObjects.find(el=>el.id === options.data.previous_object_id).short_name
+                    const previousResponsible = additionalResources.fuelTanksResponsibles.find(el=>el.id === options.data.previous_responsible_id)?.full_name
+                    const previousObject = additionalResources.projectObjects.find(el=>el.id === options.data.previous_object_id)?.short_name
 
                     const popoverDiv = $('<div>')
                         .attr('id', 'tank_id-' + options.data.id + '-object_id' + '_popover')
@@ -197,6 +197,12 @@
                 'edit',
                 {
                     name: 'delete',
+                    onClick(e) {
+                        customConfirmDialog("Вы уверены, что хотите удалить топливную емкость и связанные записи?")
+                        .show().then(dialogResult => {
+                            entitiesDataSource.store().remove(e.row.key)
+                        })
+                    },
                     visible: userPermissions.delete_fuel_tanks
                 }
 

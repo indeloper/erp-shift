@@ -113,7 +113,6 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
         Route::get('validateTankNumberUnique', 'FuelTankController@validateTankNumberUnique')->name('validateTankNumberUnique');
         Route::post('moveFuelTank', 'FuelTankController@moveFuelTank')->name('moveFuelTank');
         Route::post('confirmMovingFuelTank', 'FuelTankController@confirmMovingFuelTank')->name('confirmMovingFuelTank');
-        // вроде лишний маршрут, проверить
         Route::get('getFuelTankConfirmationFormData', 'FuelTankController@getFuelTankConfirmationFormData')->name('getFuelTankConfirmationFormData');
 
         Route::registerBaseRoutes('FuelTankController', $attachmentsRoutes = false);
@@ -127,34 +126,12 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => "Fuel"], fun
     });
 
     Route::group(['prefix' => 'reports', 'as' => 'reports::'], function () {
-        Route::group(['prefix' => 'fuelFlowMacroReport', 'as' => 'fuelFlowMacroReport::'], function () {
-            Route::get('getPageCore', 'FuelReportController@fuelFlowMacroReportPageCore')->name('getPageCore');
-            Route::get('data', 'FuelReportController@fuelFlowMacroReportData')->name('resource.index');
-            Route::get('getPermissions', 'FuelReportController@fuelFlowMacroReportPermissions')->name('getPermissions');
+        Route::group(['prefix' => 'fuelTankPeriodReport', 'as' => 'fuelTankPeriodReport::', 'namespace' => "Reports"], function () {
+            Route::registerBaseRoutes('FuelTankPeriodReportController', $attachmentsRoutes = false);
+            Route::get('getPdf', 'FuelTankPeriodReportController@getPdf')->name('getPdf');
         });
-
-        Route::group(['prefix' => 'fuelTankPeriodReport', 'as' => 'fuelTankPeriodReport::'], function () {
-            Route::get('getPageCore', 'FuelReportController@fuelTankPeriodReportPageCore')->name('getPageCore');
-            Route::get('data', 'FuelReportController@fuelTankPeriodReportData')->name('resource.index');
+        Route::group(['prefix' => 'tanksMovementReport', 'as' => 'tanksMovementReport::', 'namespace' => "Reports", 'middleware' => 'can:fuel_tanks_movements_report_access'], function () {
+            Route::registerBaseRoutes('FuelTanksMovementsReportController', $attachmentsRoutes = false);
         });
-
-        // Route::group(['prefix' => 'fuelFlowPersonalPeriodReport', 'as' => 'fuelFlowPersonalPeriodReport::'], function () {
-        //     Route::get('data', 'FuelReportController@fuelFlowPersonalPeriodReport')->name('resource.index');
-        // });
-
-        Route::group(['prefix' => 'fuelFlowPeriodReport', 'as' => 'fuelFlowPeriodReport::'], function () {
-            Route::get('data', 'FuelReportController@fuelFlowPeriodReport')->name('resource.index');
-        });
-
-
-
-        Route::group(['prefix' => 'tanksMovementReport', 'as' => 'tanksMovementReport::', 'middleware' => 'can:fuel_tanks_movements_report_access'], function () {
-            Route::get('getPageCore', 'FuelReportController@tanksMovementReportPageCore')->name('getPageCore');
-            Route::get('data', 'FuelReportController@tanksMovementReportData')->name('resource.index');
-            Route::get('getPermissions', 'FuelReportController@tanksMovementReportPermissions')->name('getPermissions');
-        });
-        Route::get('getProjectObjects', 'FuelReportController@getProjectObjects')->name('getProjectObjects');
-        Route::get('getCompanies', 'FuelReportController@getCompanies')->name('getCompanies');
     });
-
 });

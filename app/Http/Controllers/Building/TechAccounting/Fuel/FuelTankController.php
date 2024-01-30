@@ -36,6 +36,7 @@ class FuelTankController extends StandardEntityResourceController
         $this->components = $this->getModuleComponents();
         $this->modulePermissionsGroups = [17];
         $this->ignoreDataKeys[] = 'externalOperations';
+        $this->ignoreDataKeys[] = 'externalDeletedOperations';
     }
 
     public function index(Request $request)
@@ -107,7 +108,7 @@ class FuelTankController extends StandardEntityResourceController
         ]);
 
         if(!empty($data['externalOperations'])) {
-            $this->handleFuelOperations($data['externalOperations'], $tank->id);
+            $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations'], $tank->id);
         }
     }
 
@@ -133,7 +134,7 @@ class FuelTankController extends StandardEntityResourceController
         }
 
         if(!empty($data['externalOperations'])) {
-            $this->handleFuelOperations($data['externalOperations']);
+            $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations']);
         }
 
         return [
@@ -142,35 +143,10 @@ class FuelTankController extends StandardEntityResourceController
         ];
     }
 
-    public function getFuelTanksResponsibles()
+    public function afterDelete($entity)
     {
-        return User::query()->active()
-            ->whereIn('group_id', Group::FOREMEN)
-            ->orWhere('group_id', 43)
-            ->select(['id', 'user_full_name'])
-            ->get();
-    }
-
-    public function getCompanies() {
-        $companies = Company::all();
-        return response()->json($companies, 200, [], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
-    }
-
-    public function getProjectObjects(Request $request)
-    {
-        $options = json_decode($request['data']);
-
-        $objects = (new ProjectObject)
-            ->where('is_participates_in_material_accounting', 1)
-            ->whereNotNull('short_name')
-            ->orderBy('short_name')
-            ->get()
-            ->toArray();
-
-        return json_encode(
-            $objects
-            ,
-            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        FuelTankFlow::whereFuelTankId($entity->id)->delete();
+        FuelTankTransferHistory::whereFuelTankId($entity->id)->delete();
     }
 
     public function validateTankNumberUnique(Request $request)
@@ -212,7 +188,7 @@ class FuelTankController extends StandardEntityResourceController
             'responsible_id' => $data->responsible_id,
             'fuel_level' => $tank->fuel_level,
             'event_date' => $data->event_date,
-            'tank_moving_confirmation' => null
+            'tank_moving_confirmation' => (int)$tank->responsible_id === (int)$data->responsible_id ? true : null
             // 'tank_moving_confirmation' => (int)$tank->responsible_id === (int)$data->responsible_id
         ]);
 
@@ -287,7 +263,7 @@ class FuelTankController extends StandardEntityResourceController
         (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
     }
 
-    public function handleFuelOperations($operations, $newFuelTankId = null)
+    public function handleFuelOperations($operations, $deletedOperations, $newFuelTankId = null)
     {
         $fuelTankFlowController = new FuelTankFlowController;
 
@@ -320,11 +296,21 @@ class FuelTankController extends StandardEntityResourceController
                 DB::commit();
             }
         }
+
+        foreach ($deletedOperations as $deletedOperation) {
+            DB::beginTransaction();
+                $entity = FuelTankFlow::findOrFail($deletedOperation);
+                $fuelTankFlowController->beforeDelete($entity);
+                $entity->delete();
+                $fuelTankFlowController->afterDelete($entity);
+            DB::commit();
+        }
     }
 
     protected function getFuelFlowDataToStore($data)
     {
         unset($data['third_party_mark']);
+        unset($data['fuelConsumerType']);
         unset($data['newAttachments']);
         unset($data['deletedAttachments']);
         unset($data['newComments']);

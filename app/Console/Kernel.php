@@ -51,7 +51,10 @@ class Kernel extends ConsoleKernel
         // q3w custom commands
         Commands\CheckOverdueMaterialAccountingOperation::class,
         Commands\SetTelegramWebhook::class,
-        Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class
+        Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class,
+        Commands\Support\FuelTransferHistoriesUploadData::class,
+        Commands\Support\ShowFuelTanksWithDifferenceBetweenExpectedAndRealFuelLevel::class
+       
     ];
 
     /**

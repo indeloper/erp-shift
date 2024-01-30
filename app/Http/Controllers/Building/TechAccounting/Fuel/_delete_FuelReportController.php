@@ -19,7 +19,7 @@ use App\Services\Common\FileSystemService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PDF;
+use niklasravnsborg\LaravelPdf\Facades\Pdf as PDF;
 
 class FuelReportController extends Controller
 {

@@ -46,7 +46,7 @@
                                     },
                                     editorOptions: {
                                         searchEnabled: true,
-                                        dataSource: fuelTanksStore,
+                                        dataSource: additionalResources.fuelTanks,
                                         valueExpr: 'id',
                                         displayExpr: 'tank_number',
                                         onFocusIn() {
@@ -63,7 +63,7 @@
                                     },
                                     editorOptions: {
                                         searchEnabled: true,
-                                        dataSource: projectObjectsStore,
+                                        dataSource: additionalResources.projectObjects,
                                         valueExpr: 'id',
                                         displayExpr: 'short_name',
                                         onFocusIn() {
@@ -80,7 +80,7 @@
                                     },
                                     editorOptions: {
                                         searchEnabled: true,
-                                        dataSource: fuelTanksResponsiblesStore,
+                                        dataSource: additionalResources.fuelTanksResponsibles,
                                         valueExpr: 'id',
                                         displayExpr: 'user_full_name',
                                         onFocusIn() {
@@ -105,7 +105,7 @@
                                             const formData = $("#dataGridAnchor").dxForm('instance').option('formData')
                                             const dateFrom = new Date(formData.date_from).toLocaleString()
                                             const dateTo = new Date(formData.date_to).toLocaleString()
-                                            
+
                                             if(formData.fuel_tank_id) {
                                                 addFilterParamToCurrentLoadOptions('fuel_tank_id', formData.fuel_tank_id)
                                             }
@@ -115,8 +115,8 @@
                                             if(formData.responsible_id) {
                                                 addFilterParamToCurrentLoadOptions('responsible_id', formData.responsible_id)
                                             }
-                                            console.log('onSubmit', currentLoadOptions);
-                                            let url = "{{route('building::tech_acc::fuel::reports::fuelFlowPeriodReport::'.'resource.index')}}?" + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&loadOptions=' + JSON.stringify(currentLoadOptions)
+
+                                            let url = "{{route('building::tech_acc::fuel::reports::fuelTankPeriodReport::'.'getPdf')}}?" + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&loadOptions=' + JSON.stringify(currentLoadOptionsParams)
 
                                             window.open(url, '_blank');
                                         },
