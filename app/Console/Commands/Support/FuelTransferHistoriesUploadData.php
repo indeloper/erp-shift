@@ -43,7 +43,12 @@ class FuelTransferHistoriesUploadData extends Command
      */
     public function handle()
     {
-        $fuelTanksIds = FuelTank::pluck('id');
+        $choosedId = (int)$this->ask('Укажите id топливной емкости или оставьте пустым для обновления по всем емкостям');
+        if($choosedId) {
+            $fuelTanksIds[] = $choosedId;
+        } else {
+            $fuelTanksIds = FuelTank::pluck('id');
+        }
         
         foreach($fuelTanksIds as $fuelTanksId) {
             $newFuelTankTransferHistory = FuelTankTransferHistory::create([
