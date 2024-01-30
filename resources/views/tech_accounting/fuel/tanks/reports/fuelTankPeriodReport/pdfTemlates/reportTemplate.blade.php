@@ -54,15 +54,28 @@
 
 
 <body>
+    @php
+        class totlalOperationsValues {
+            public $incomesTotalAmount;
+            public $outcomesTotalAmount;
+            public function __construct()
+            {
+                $this->incomesTotalAmount = 0;
+                $this->outcomesTotalAmount = 0;
+            }
+        }
+    @endphp
     @foreach ($baseReportArray as $responsibleId=>$responsibleUserData)
         @foreach ($responsibleUserData as $fuelTankId=>$fuelTankIdData)
             @foreach ($fuelTankIdData as $objectId=>$objectData)
                 @foreach($objectData as $objectTransferGroups)
                     
                     @php
+
                         $summaryData = $reportControllerInstance->getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
-                        $incomesTotalAmount = 0;
-                        $outcomesTotalAmount = 0;
+
+                        $totlalOperationsValuesInstance = new totlalOperationsValues();
+                        
                     @endphp
                     @continue(!$summaryData)
                     @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportTemplateLayout')

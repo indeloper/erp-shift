@@ -68,7 +68,7 @@
 
         onSaving(e) {
             let changes = e.changes
-            if (changes.length === 0 && !externalOperations.length)
+            if (changes.length === 0 && !externalOperations.length && !externalDeletedFuelFlows.length)
             return;
 
             if (changes.length === 0 || !changes[0].data) {
@@ -83,6 +83,7 @@
             }
 
             changes[0].data.externalOperations = externalOperations
+            changes[0].data.externalDeletedOperations = externalDeletedOperations
         },
 
         onEditCanceling(e) {
