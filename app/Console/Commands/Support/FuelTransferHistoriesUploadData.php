@@ -59,6 +59,7 @@ class FuelTransferHistoriesUploadData extends Command
             ]);
 
             new FuelLevelSyncOnFlowCreatedService($newFuelTankTransferHistory);
+            $newFuelTankTransferHistory->delete();
         }
     }
 }
