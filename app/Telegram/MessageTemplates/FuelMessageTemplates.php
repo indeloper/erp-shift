@@ -131,11 +131,11 @@ class FuelMessageTemplates
         $newResponsible = User::find($params['tank']->responsible_id);
         $previousResponsible = User::find($lastTankTransferHistory->previous_responsible_id);
         $newResponsibleFIO = $newResponsible->format('L f. p.', 'именительный') ?? null;
-        $previousResponsibleFIO = $previousResponsible->format('L f. p.', 'именительный') ?? null;
+        $previousResponsibleFIO = $previousResponsible ? $previousResponsible->format('L f. p.', 'именительный') : null;
 
         $newResponsibleUrl = $newResponsible->getExternalUserUrl();
 
-        $previousResponsibleUrl = $previousResponsible->getExternalUserUrl();
+        $previousResponsibleUrl = $previousResponsible ? $previousResponsible->getExternalUserUrl() : null;
         
         $text = 
             '<b>Перемещение топливной емкости</b>'

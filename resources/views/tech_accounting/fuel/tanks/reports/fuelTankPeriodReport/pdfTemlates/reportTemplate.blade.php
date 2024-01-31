@@ -1,6 +1,6 @@
 <head>
     <title>
-        Отчет по дизельному топливу 
+        Отчет по дизельному топливу
     </title>
 
     <style>
@@ -10,8 +10,8 @@
         }
 
         footer {
-            position: fixed; 
-            bottom: -40; 
+            position: fixed;
+            bottom: -40;
             width: 100%;
             font-size: 12;
             color: grey;
@@ -69,14 +69,12 @@
         @foreach ($responsibleUserData as $fuelTankId=>$fuelTankIdData)
             @foreach ($fuelTankIdData as $objectId=>$objectData)
                 @foreach($objectData as $objectTransferGroups)
-                    
+
                     @php
-
                         $summaryData = $reportControllerInstance->getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
-
                         $totlalOperationsValuesInstance = new totlalOperationsValues();
-                        
                     @endphp
+
                     @continue(!$summaryData)
                     @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportTemplateLayout')
 
