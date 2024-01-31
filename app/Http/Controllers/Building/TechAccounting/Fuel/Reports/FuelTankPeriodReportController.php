@@ -418,8 +418,21 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             // ->first();
 
             // $dateTo = $firstTankTransferHistory->event_date ?? $globalDateTo;
-
             $lastTankTransferHistory = FuelTankTransferHistory::where([
+                ['fuel_tank_id', $fuelTankId],
+                ['object_id', $objectId],
+                ['responsible_id', $responsibleId],
+                ['event_date', '<', Carbon::create($globalDateTo)->addday()],
+                ['event_date', '>=', Carbon::create($globalDateFrom)],
+            ])
+            ->orderByDesc('event_date')
+            ->orderByDesc('parent_fuel_level_id')
+            ->first();
+
+            if($lastTankTransferHistory) {
+                $dateTo = $lastTankTransferHistory->event_date;
+            } else {
+                $lastTankTransferHistory = FuelTankTransferHistory::where([
                     ['fuel_tank_id', $fuelTankId],
                     ['previous_object_id', $objectId],
                     ['previous_responsible_id', $responsibleId],
@@ -430,7 +443,9 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 ->orderByDesc('parent_fuel_level_id')
                 ->first();
 
-            $dateTo = $lastTankTransferHistory->event_date ?? $globalDateTo;
+                $dateTo = $lastTankTransferHistory->event_date ?? $globalDateTo;
+            }
+            
         }
 
         $from = FuelTankTransferHistory::where([
