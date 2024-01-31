@@ -490,14 +490,24 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             } else {
                 $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
                     ['fuel_tank_id', $fuelTankId],
-                    ['previous_responsible_id', $responsibleId],
-                    ['previous_object_id', $objectId],
-                    ['event_date', '>=' , $dateFrom],
-                    ['event_date', '<=' , $dateTo]
-                ])->orderByDesc('parent_fuel_level_id')->first();
+                    ['event_date', '<=' , $dateFrom],
+                ])
+                ->orderByDesc('event_date')
+                ->orderByDesc('parent_fuel_level_id')->first();
 
-                $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
-                // $fuelLevelPeriodStart = 0;
+                if($lastPreviousPeriodFuelRemainPrev) {
+                    $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level;
+                } else {
+                    $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
+                        ['fuel_tank_id', $fuelTankId],
+                        ['previous_responsible_id', $responsibleId],
+                        ['previous_object_id', $objectId],
+                        ['event_date', '>=' , $dateFrom],
+                        ['event_date', '<=' , $dateTo]
+                    ])->orderByDesc('parent_fuel_level_id')->first();
+    
+                    $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
+                }
             }
         }
 
