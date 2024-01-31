@@ -214,7 +214,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             if(!empty($filteredByObjectArr) && !in_array($tank['object_id'], $filteredByObjectArr)) {
                 continue;
             }
-            
+
             if(!isset($baseReportArray[$tank['responsible_id']][$tank['fuel_tank_id']][$tank['object_id']])) {
                 $baseReportArray[$tank['responsible_id']][$tank['fuel_tank_id']][$tank['object_id']] = [
                     0 => ["transitionPeriod" => []]
@@ -282,7 +282,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 ])
                 ->get()
                 ->groupBy(['responsible_id', 'fuel_tank_id', 'object_id']);
-            
+
             foreach($tansferHistories as $responsible_id=>$collectionByResponsibles) {
                 if(!$responsible_id) continue;
                 foreach($collectionByResponsibles as $fuel_tank_id=>$collectionByTanks) {
@@ -458,7 +458,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 $dateFrom = $from->event_date ?? $globalDateFrom;
             } else {
                 $dateFrom = $globalDateFrom;
-            }  
+            }
         }
 
         return [Carbon::create($dateFrom), Carbon::create($dateTo)];
@@ -505,7 +505,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                         ['event_date', '>=' , $dateFrom],
                         ['event_date', '<=' , $dateTo]
                     ])->orderByDesc('parent_fuel_level_id')->first();
-    
+
                     $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
                 }
             }
