@@ -85,15 +85,15 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
         $baseReportArraySource = FuelTankTransferHistory::query()
             ->where(function($query) use(
-                $filteredByTankArr, 
-                $filteredByResponsiblesArr, 
-                $filteredByObjectArr, 
-                $globalDateFrom, 
+                $filteredByTankArr,
+                $filteredByResponsiblesArr,
+                $filteredByObjectArr,
+                $globalDateFrom,
                 $globalDateToNextDay,
-                $hasPermissionWatchAnyFuelTankFlow, 
+                $hasPermissionWatchAnyFuelTankFlow,
                 $userId
             ) {
-                $sql = 
+                $sql =
                     'fuel_tank_transfer_histories.event_date >= "'.$globalDateFrom.'"'
                     .' AND '.
                     'fuel_tank_transfer_histories.event_date < "'.$globalDateToNextDay.'"'
@@ -311,12 +311,12 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 ||
                 (
                     $lastPeriodTransferHistory->responsible_id ?? null === $fistCurrentPeriodTransferHistory->responsible_id
-                    && 
+                    &&
                     $lastPeriodTransferHistory->object_id ?? null === $fistCurrentPeriodTransferHistory->object_id
                 )
             ) {
                 continue;
-            } 
+            }
 
             $tanksList[] = [
                 'responsible_id' => $fistCurrentPeriodTransferHistory->previous_responsible_id,
