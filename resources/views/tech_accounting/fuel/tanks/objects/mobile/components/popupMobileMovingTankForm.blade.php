@@ -41,7 +41,10 @@
                     editorOptions: {
                         dataSource: additionalResources.projectObjects,
                         valueExpr: "id",
-                        displayExpr: "short_name"
+                        displayExpr: "short_name",
+                        itemTemplate(e) {
+                            return `<div class="dx-list-item-line-break">${e.short_name}</div>`
+                        }
                     },
                     label: {
                         text: 'Перемещение на объект'

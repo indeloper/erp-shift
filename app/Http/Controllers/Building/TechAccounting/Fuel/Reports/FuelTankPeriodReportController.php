@@ -442,7 +442,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
             //     $dateTo = $lastTankTransferHistory->event_date ?? $globalDateTo;
             // }
-            
+
         }
 
         $from = FuelTankTransferHistory::where([

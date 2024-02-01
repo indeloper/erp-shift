@@ -144,6 +144,9 @@
                                 dataSource: additionalResources.fuelConsumers,
                                 valueExpr: 'id',
                                 displayExpr: 'name',
+                                itemTemplate(e) {
+                                    return `<div class="dx-list-item-line-break">${e.name}</div>`
+                                },
                             },
                             label: {
                                 text: 'Потребитель'

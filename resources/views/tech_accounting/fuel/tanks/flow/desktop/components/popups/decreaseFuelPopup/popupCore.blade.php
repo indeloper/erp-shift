@@ -148,6 +148,9 @@
                                 dataSource: additionalResources.fuelConsumers,
                                 valueExpr: 'id',
                                 displayExpr: 'name',
+                                itemTemplate(e) {
+                                    return `<div class="dx-list-item-line-break">${e.name}</div>`
+                                },
                                 readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('our_technic_id')),
                             },
                             label: {
