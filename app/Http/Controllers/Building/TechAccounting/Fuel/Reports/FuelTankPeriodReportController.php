@@ -404,48 +404,45 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['previous_object_id', $objectId],
             ['previous_responsible_id', $responsibleId],
             ['tank_moving_confirmation', true]
-        ])->orderByDesc('parent_fuel_level_id')->first();
+        ])
+        ->orderByDesc('event_date')
+        ->orderByDesc('parent_fuel_level_id')
+        ->first();
 
         if($to && !isset($objectTransferGroups['transitionPeriod'])) {
             $dateTo = $to->event_date;
         } else {
-            // $firstTankTransferHistory = FuelTankTransferHistory::where([
+
+            $dateTo = $globalDateTo;
+
+            // $lastTankTransferHistory = FuelTankTransferHistory::where([
             //     ['fuel_tank_id', $fuelTankId],
+            //     ['object_id', $objectId],
+            //     ['responsible_id', $responsibleId],
             //     ['event_date', '<', Carbon::create($globalDateTo)->addday()],
             //     ['event_date', '>=', Carbon::create($globalDateFrom)],
             // ])
-            // ->orderBy('event_date')
+            // ->orderByDesc('event_date')
+            // ->orderByDesc('parent_fuel_level_id')
             // ->first();
 
-            // $dateTo = $firstTankTransferHistory->event_date ?? $globalDateTo;
-            $lastTankTransferHistory = FuelTankTransferHistory::where([
-                ['fuel_tank_id', $fuelTankId],
-                ['object_id', $objectId],
-                ['responsible_id', $responsibleId],
-                ['event_date', '<', Carbon::create($globalDateTo)->addday()],
-                ['event_date', '>=', Carbon::create($globalDateFrom)],
-            ])
-            ->orderByDesc('event_date')
-            ->orderByDesc('parent_fuel_level_id')
-            ->first();
+            // if($lastTankTransferHistory) {
+            //     $dateTo = $lastTankTransferHistory->event_date;
+            // } else {
+            //     $lastTankTransferHistory = FuelTankTransferHistory::where([
+            //         ['fuel_tank_id', $fuelTankId],
+            //         ['previous_object_id', $objectId],
+            //         ['previous_responsible_id', $responsibleId],
+            //         ['event_date', '<', Carbon::create($globalDateTo)->addday()],
+            //         ['event_date', '>=', Carbon::create($globalDateFrom)],
+            //     ])
+            //     ->orderByDesc('event_date')
+            //     ->orderByDesc('parent_fuel_level_id')
+            //     ->first();
 
-            if($lastTankTransferHistory) {
-                $dateTo = $lastTankTransferHistory->event_date;
-            } else {
-                $lastTankTransferHistory = FuelTankTransferHistory::where([
-                    ['fuel_tank_id', $fuelTankId],
-                    ['previous_object_id', $objectId],
-                    ['previous_responsible_id', $responsibleId],
-                    ['event_date', '<', Carbon::create($globalDateTo)->addday()],
-                    ['event_date', '>=', Carbon::create($globalDateFrom)],
-                ])
-                ->orderByDesc('event_date')
-                ->orderByDesc('parent_fuel_level_id')
-                ->first();
+            //     $dateTo = $lastTankTransferHistory->event_date ?? $globalDateTo;
+            // }
 
-                $dateTo = $lastTankTransferHistory->event_date ?? $globalDateTo;
-            }
-            
         }
 
         $from = FuelTankTransferHistory::where([
@@ -534,7 +531,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['event_date', '<=',  $dateTo],
         ])
         ->orderByDesc('event_date')
-        ->orderBy('parent_fuel_level_id', 'desc')
+        ->orderBy('id', 'desc')
         ->first();
 
         if($fuelPeriodLastTransaction) {
