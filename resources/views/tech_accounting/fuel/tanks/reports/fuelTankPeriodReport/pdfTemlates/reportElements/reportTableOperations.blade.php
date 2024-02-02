@@ -16,7 +16,7 @@
 @endif
 
 @foreach($objectTransferGroup as $fuelFlowOperation)
-    @continue($flowTypeSlug=='adjustment')
+    @continue($flowTypeSlug=='adjustment' || !$flowTypeSlug)
     <tr>
         <td class="td-normal" style="width:60%">
             @if($flowTypeSlug==='income')
