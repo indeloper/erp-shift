@@ -199,26 +199,26 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         }
 
         // добавляем бочки, у которых сменился объект, но операций на новом объекте не было
-        $includedTanksInReport = FuelTank::whereIn('id', $fuelTanksIncludedinReportIds)
-            ->when(!empty($filteredByResponsiblesArr), function($query) use($filteredByResponsiblesArr) {
-                $query->whereIn('responsible_id', $filteredByResponsiblesArr);
-            })
-            ->when(!empty($filteredByTankArr), function($query) use($filteredByTankArr) {
-                $query->whereIn('id', $filteredByTankArr);
-            })
-            ->when(!empty($filteredByCompanyArr), function($query) use($filteredByCompanyArr) {
-                $query->whereIn('id', $filteredByCompanyArr);
-            })
-            ->get();
+        // $includedTanksInReport = FuelTank::whereIn('id', $fuelTanksIncludedinReportIds)
+        //     ->when(!empty($filteredByResponsiblesArr), function($query) use($filteredByResponsiblesArr) {
+        //         $query->whereIn('responsible_id', $filteredByResponsiblesArr);
+        //     })
+        //     ->when(!empty($filteredByTankArr), function($query) use($filteredByTankArr) {
+        //         $query->whereIn('id', $filteredByTankArr);
+        //     })
+        //     ->when(!empty($filteredByCompanyArr), function($query) use($filteredByCompanyArr) {
+        //         $query->whereIn('id', $filteredByCompanyArr);
+        //     })
+        //     ->get();
 
-        foreach($includedTanksInReport as $includedTank)
-        {
-            if(!isset($baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id])) {
-                $baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id] = [
-                    0 => ["notIncludedTankNewObj" => []]
-                ];
-            }
-        }
+        // foreach($includedTanksInReport as $includedTank)
+        // {
+        //     if(!isset($baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id])) {
+        //         $baseReportArray[$includedTank->responsible_id][$includedTank->id][$includedTank->object_id] = [
+        //             0 => ["notIncludedTankNewObj" => []]
+        //         ];
+        //     }
+        // }
 
         $transtionPeriodTanksList = $this->getTransitionPeriodTanksList($globalDateFrom);
 
