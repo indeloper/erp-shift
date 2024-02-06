@@ -35,4 +35,9 @@
     function submitMovingConfirmationTankForm(formData) {
         confirmMovingFuelTank(editingRowId, popupMobile)
     }
+
+    function onInsertSuccess() {
+        popupMobile.hide()
+        $('#entitiesListMobile').dxList('instance').reload()
+    }
 </script>

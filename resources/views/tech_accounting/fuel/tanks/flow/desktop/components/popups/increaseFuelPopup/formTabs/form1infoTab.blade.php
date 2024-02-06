@@ -22,6 +22,10 @@
                     dataSource: getAvailableFuelTanksToCreateFlow(),
                     valueExpr: 'id',
                     displayExpr: 'tank_number',
+                    readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('fuel_tank_id')),
+                    onSelectionChanged(e) {
+                        setEventDateSelectBoxOptions(e.selectedItem.id, 'eventDateSelectBox')
+                    }
                 },
                 label: {
                     text: 'Емкость'
@@ -54,9 +58,10 @@
                 editorType: "dxDateBox",
                 editorOptions: {
                     readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
-                    value: getEventDate(),
                     max: Date(),
-                    min: getDaysEarlierDate(35)
+                    elementAttr: {
+                        id: "eventDateSelectBox",
+                    },
                 },
                 label: {
                     text: 'Дата операции'

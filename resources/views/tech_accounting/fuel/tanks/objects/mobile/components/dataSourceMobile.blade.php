@@ -14,7 +14,8 @@
                         options: null
                     },
                     success: function () {
-                        popupMobile.hide()
+                        // popupMobile.hide()
+                        onInsertSuccess()
                     },
                 })
             },

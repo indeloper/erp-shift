@@ -62,9 +62,10 @@
                     editorType: "dxDateBox",
                     editorOptions: {
                         readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
-                        value: getEventDate(),
                         max: Date(),
-                        min: getDaysEarlierDate(35)
+                        onContentReady(e) {
+                            setEventDateSelectBoxOptions(editingRowId, e.component)
+                        },
                     },
                     label: {
                         text: 'Дата операции'
