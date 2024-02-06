@@ -53,7 +53,10 @@
                     editorType: "dxDateBox",
                     editorOptions: {
                         readOnly: externalEditingRowId,
-                        value: getEventDate(),
+                        max: Date(),
+                        onContentReady(e) {
+                            setEventDateSelectBoxOptions(editingRowId, e.component)
+                        },
                     },
                     label: {
                         text: 'Дата операции'

@@ -12,6 +12,16 @@
         return new Date(fuelFlowFormData['event_date'])
     }
 
+    function setEventDateSelectBoxOptions(tankId, dateBox) {
+        const fuelTank = additionalResources.fuelTanks.find(el=>el.id === tankId)
+        const lastMovementConfirmationDate = fuelTank.lastMovementConfirmationDate
+        const eventDateSelectBox = typeof dateBox === 'string' ? 
+             $(`#${dateBox}`).dxDateBox('instance') : dateBox
+             
+        eventDateSelectBox?.option('min', new Date(lastMovementConfirmationDate));
+        eventDateSelectBox?.option('value', getEventDate())
+    }
+
     function getDaysEarlierDate(qty) {
         let date = new Date();
         date.setDate( date.getDate() - qty )

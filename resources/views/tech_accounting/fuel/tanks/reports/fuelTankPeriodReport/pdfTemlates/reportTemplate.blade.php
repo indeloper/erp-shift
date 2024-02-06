@@ -69,7 +69,7 @@
         @foreach ($responsibleUserData as $fuelTankId=>$fuelTankIdData)
             @foreach ($fuelTankIdData as $objectId=>$objectData)
                 @foreach($objectData as $objectTransferGroups)
-
+                    
                     @php
                         $summaryData = $reportControllerInstance->getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
                         $totlalOperationsValuesInstance = new totlalOperationsValues();

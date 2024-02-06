@@ -275,7 +275,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->additionalResources->
         projectObjects =
             ProjectObject::query()
-                ->where('is_participates_in_material_accounting', 1)
+                // ->where('is_participates_in_material_accounting', 1)
                 ->whereNotNull('short_name')
                 ->get();
 
@@ -289,7 +289,13 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $this->additionalResources->
         fuelTanks =
-            FuelTank::all();
+            FuelTank::leftJoin('fuel_tank_transfer_histories', 'fuel_tank_transfer_histories.fuel_tank_id', '=', 'fuel_tanks.id')
+            ->selectRaw('
+                fuel_tanks.*, 
+                MAX(event_date) as lastMovementConfirmationDate
+            ')
+            ->groupBy('fuel_tanks.id')
+            ->get();
 
         $this->additionalResources->
         fuelResponsibles =
@@ -309,5 +315,4 @@ class FuelTankFlowController extends StandardEntityResourceController
         users =
             User::query()->active()->get();
     }
-
 }
