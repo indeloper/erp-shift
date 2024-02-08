@@ -59,6 +59,7 @@
                 editorOptions: {
                     readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
                     max: Date(),
+                    value: getEventDate(),
                     onContentReady(e) {
                         setEventDateSelectBoxOptions(editingRowId, e.component)
                     },

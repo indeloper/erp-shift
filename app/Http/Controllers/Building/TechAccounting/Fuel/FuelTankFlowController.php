@@ -334,7 +334,10 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         $this->additionalResources->
         fuelTanks =
-            FuelTank::leftJoin('fuel_tank_transfer_histories', 'fuel_tank_transfer_histories.fuel_tank_id', '=', 'fuel_tanks.id')
+            FuelTank::leftJoin('fuel_tank_transfer_histories', function($join) {
+                $join->on('fuel_tank_transfer_histories.fuel_tank_id', '=', 'fuel_tanks.id')
+                ->where('tank_moving_confirmation', true);
+            })
             ->selectRaw('
                 fuel_tanks.*, 
                 MAX(event_date) as lastMovementConfirmationDate

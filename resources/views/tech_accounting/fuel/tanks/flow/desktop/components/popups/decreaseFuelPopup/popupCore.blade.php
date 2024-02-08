@@ -63,6 +63,7 @@
                     editorOptions: {
                         readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
                         max: Date(),
+                        value: getEventDate(),
                         elementAttr: {
                             id: "eventDateSelectBox",
                         },
