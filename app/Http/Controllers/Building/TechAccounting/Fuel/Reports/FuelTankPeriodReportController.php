@@ -280,7 +280,12 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ->orderByDesc('parent_fuel_level_id')
             ->first();
 
+            // if(!$lastPreviousPeriodTransferHistory || !$fistCurrentPeriodTransferHistory) {
+            //     continue;
+            // }
+
             if(
+                $lastPreviousPeriodTransferHistory &&
                 !$fistCurrentPeriodTransferHistory->tank_moving_confirmation &&
                 $lastPreviousPeriodTransferHistory->responsible_id === $fistCurrentPeriodTransferHistory->responsible_id &&
                 $lastPreviousPeriodTransferHistory->object_id === $fistCurrentPeriodTransferHistory->object_id
@@ -500,6 +505,17 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
                 $dateFrom = $from->event_date ?? $globalDateFrom;
             }
+            elseif(isset($objectTransferGroups['transitionPeriod'])) {
+                $from = FuelTankTransferHistory::where([
+                    ['fuel_tank_id', $fuelTankId],
+                    ['event_date', '<', Carbon::create($globalDateFrom)],
+                    ['tank_moving_confirmation', true]
+                ])
+                ->orderByDesc('event_date')
+                ->orderByDesc('parent_fuel_level_id')->first();
+
+                $dateFrom = $globalDateFrom;
+            }
             else {
                 $dateFrom = $globalDateFrom;
             }
@@ -507,10 +523,13 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
         $dateToStep2 = FuelTankTransferHistory::where([
             ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFromTmp],
+            ['event_date', '>=',  Carbon::create($globalDateFrom)],
+            // ['event_date', '>=',  $dateFromTmp],
             ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
             ['tank_moving_confirmation', true],
-            ['id', '>', $from->id ?? 0],
+            ['parent_fuel_level_id', '>=', $from->id ?? 0],
+            ['id', '<>', $from->id ?? 0],
+            ['event_date', '>=', $from->event_date ?? Carbon::create($globalDateFrom)]
         ])
         ->orderBy('event_date')
         ->first()
