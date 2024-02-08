@@ -7,9 +7,13 @@ use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Company\Company;
 use App\Models\Contractors\Contractor;
 use App\Models\Employees\Employee;
+use App\Models\ProjectObject;
 use App\Models\TechAcc\TechnicBrand;
 use App\Models\TechAcc\TechnicBrandModel;
 use App\Models\TechAcc\TechnicCategory;
+use App\Models\TechAcc\TechnicMovementStatus;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OurTechnicController extends StandardEntityResourceController
 {
@@ -24,6 +28,37 @@ class OurTechnicController extends StandardEntityResourceController
         $this->isMobile = $this->isMobile($this->baseBladePath);
         $this->components = $this->getModuleComponents(); 
         $this->modulePermissionsGroups = [13];
+    }
+
+    public function index(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        $entities = $this->baseModel
+            ->dxLoadOptions($options)
+            ->leftJoin('technic_movements', function($join) {
+                $join->on('technic_movements.technic_id', '=', 'our_technics.id')
+                ->whereRaw("
+                    technic_movements.id 
+                        IN (SELECT MAX(technic_movements.id) 
+                            FROM technic_movements 
+                            JOIN technic_movement_statuses ON technic_movement_statuses.id = technic_movements.technic_movement_status_id AND slug IN ('completed', 'inProgress')
+                            GROUP BY technic_id)
+                    ");
+            })
+            ->leftJoin('technic_movement_statuses', 'technic_movements.technic_movement_status_id', '=', 'technic_movement_statuses.id')
+            ->select(
+                'our_technics.*', 
+                'technic_movements.object_id',
+                'technic_movements.previous_object_id',
+                'technic_movement_statuses.slug as status_slug'
+            )
+            ->get();
+
+        return json_encode(array(
+            "data" => $entities
+        ),
+        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
     
     public function setAdditionalResources()
@@ -52,5 +87,8 @@ class OurTechnicController extends StandardEntityResourceController
 
         $this->additionalResources->
         contractors = Contractor::byTypeSlug('technic_lessor');
+
+        $this->additionalResources->
+        objects = ProjectObject::whereNotNull('short_name')->get();
     }
 }
