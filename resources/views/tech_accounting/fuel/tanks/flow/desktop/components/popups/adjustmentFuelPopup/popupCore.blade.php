@@ -36,9 +36,9 @@
                         valueExpr: 'id',
                         displayExpr: 'tank_number',
                         readOnly: editingRowId,
-                        onSelectionChanged(e) {
-                            setEventDateSelectBoxOptions(e.selectedItem.id, 'eventDateSelectBox')
-                        }
+                        // onSelectionChanged(e) {
+                        //     setEventDateSelectBoxOptions(e.selectedItem.id, 'eventDateSelectBox')
+                        // }
                     },
                     label: {
                         text: 'Емкость'
@@ -56,9 +56,10 @@
                     editorOptions: {
                         readOnly: editingRowId,
                         max: Date(),
-                        elementAttr: {
-                            id: "eventDateSelectBox",
-                        },
+                        value: Date()
+                        // elementAttr: {
+                        //     id: "eventDateSelectBox",
+                        // },
                     },
                     label: {
                         text: 'Дата операции'

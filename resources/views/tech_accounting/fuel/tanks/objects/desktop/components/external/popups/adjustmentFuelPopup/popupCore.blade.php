@@ -54,9 +54,10 @@
                     editorOptions: {
                         readOnly: externalEditingRowId,
                         max: Date(),
-                        onContentReady(e) {
-                            setEventDateSelectBoxOptions(editingRowId, e.component)
-                        },
+                        value: Date()
+                        // onContentReady(e) {
+                        //     setEventDateSelectBoxOptions(editingRowId, e.component)
+                        // },
                     },
                     label: {
                         text: 'Дата операции'

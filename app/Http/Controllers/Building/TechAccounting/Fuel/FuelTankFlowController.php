@@ -19,6 +19,7 @@ use App\Services\Fuel\FuelLevelSyncOnFlowCreatedService;
 use App\Services\Fuel\FuelLevelSyncOnFlowDeletedService;
 use App\Services\Fuel\FuelLevelSyncOnFlowUpdatedService;
 use App\Services\Fuel\FuelLevelUpdateService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -135,20 +136,47 @@ class FuelTankFlowController extends StandardEntityResourceController
         if(!empty($data['deletedAttachments']))
             $this->deleteFiles($data['deletedAttachments']);
 
-        $lastFuelTankTransferHistory = FuelTankTransferHistory::where('fuel_tank_id', $data['fuel_tank_id'])->orderBy('id', 'desc')->first();
+        $lastFuelTankTransferHistory = 
+            FuelTankTransferHistory::where('fuel_tank_id', $data['fuel_tank_id'])
+                ->orderBy('event_date', 'desc')
+                ->orderBy('parent_fuel_level_id', 'desc')
+                ->first();
         if(!$lastFuelTankTransferHistory) {
             $lastFuelTankTransferHistory = new FuelTankTransferHistory;
         }
 
         $tank = FuelTank::find($entity->fuel_tank_id);
+        
+        if($data["fuel_tank_flow_type_id"] === FuelTankFlowType::where('slug', 'adjustment')->first()->id) {
+            [
+                $responsible_id, 
+                $previous_responsible_id, 
+                $object_id, 
+                $previous_object_id
+            ] 
+                = $this->getTankResponsibleForEventDate($tank, $entity->event_date);
+        } else {
+            [
+                $responsible_id, 
+                $previous_responsible_id, 
+                $object_id, 
+                $previous_object_id
+            ] 
+                = [
+                    $entity->responsible_id,
+                    $lastFuelTankTransferHistory->previous_responsible_id ?? null,
+                    $entity->object_id,
+                    $lastFuelTankTransferHistory->previous_object_id ?? null,
+                ];
+        }
 
         $newFuelTankTransferHistory = FuelTankTransferHistory::create([
             'author_id' => Auth::id(),
             'fuel_tank_id' => $tank->id,
-            'previous_object_id' => $lastFuelTankTransferHistory->previous_object_id ?? null,
-            'object_id' => $entity->object_id,
-            'previous_responsible_id' => $lastFuelTankTransferHistory->previous_responsible_id ?? null,
-            'responsible_id' => $entity->responsible_id,
+            'previous_object_id' => $previous_object_id,
+            'object_id' => $object_id,
+            'previous_responsible_id' => $previous_responsible_id,
+            'responsible_id' => $responsible_id,
             'fuel_tank_flow_id' => $entity->id,
             'fuel_level' => $tank->fuel_level,
             'event_date' => $entity->event_date
@@ -193,6 +221,23 @@ class FuelTankFlowController extends StandardEntityResourceController
             new FuelLevelSyncOnFlowDeletedService($fuelflowHistory);
             $fuelflowHistory->delete();
         }
+    }
+
+    public function getTankResponsibleForEventDate($tank, $eventDate)
+    {
+        $transferHistory = FuelTankTransferHistory::where([
+            ['fuel_tank_id', $tank->id],
+            ['event_date', '<=', Carbon::create($eventDate)]
+        ])
+        ->orderByDesc('event_date')
+        ->first();
+
+        return [
+            $transferHistory->responsible_id ?? $tank->responsible_id, 
+            $transferHistory->previous_responsible_id ?? null, 
+            $transferHistory->object_id ?? $tank->object_id, 
+            $transferHistory->previous_object_id ?? null
+        ];
     }
 
     public function getFuelFlowResponsibleAndObject($tank)
