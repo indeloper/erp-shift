@@ -10,11 +10,18 @@
         }
 
         footer {
-            position: fixed;
-            bottom: -40;
             width: 100%;
             font-size: 12;
             color: grey;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+        }
+
+        @page {
+            header: page-header;
+            footer: page-footer;
         }
 
         .report-caption {
