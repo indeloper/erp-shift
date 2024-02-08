@@ -72,7 +72,9 @@ class FuelLevelSyncOnFlowCreatedService
             ['event_date', '<=', $this->fuelTankTransferHistory->event_date],
             ['id', '<>', $this->fuelTankTransferHistory->id]
         ])
-        ->orderByDesc('id')
+        // ->orderByDesc('id')
+        ->orderByDesc('event_date')
+        ->orderByDesc('parent_fuel_level_id')
         ->first();
     }
 
