@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Contractors\Contractor;
 use App\Models\FileEntry;
 use App\Models\Permission;
-use App\Models\TechAcc\TechnicMovementStatus;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
@@ -14,8 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use ZipArchive;
 
 class StandardEntityResourceController extends Controller
 {

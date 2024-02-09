@@ -9,7 +9,6 @@ use App\Models\MatAcc\MaterialAccountingBase;
 use App\Models\Notification;
 use App\Models\Task;
 use App\Traits\NotificationGenerator;
-use App\Traits\TimeCalculator;
 use Illuminate\Database\Eloquent\Builder;
 
 use Carbon\CarbonPeriod;
@@ -35,7 +34,7 @@ use \Carbon\Carbon;
 
 class MaterialAccountingOperation extends Model
 {
-    use SoftDeletes, NotificationGenerator, TimeCalculator, Taskable;
+    use SoftDeletes, NotificationGenerator, Taskable;
 
     protected $fillable = [
         'type',

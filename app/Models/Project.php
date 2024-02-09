@@ -5,8 +5,6 @@ namespace App\Models;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
-use App\Models\HumanResources\Appointment;
-use App\Models\HumanResources\Brigade;
 use App\Traits\Logable;
 use App\Traits\Taskable;
 use App\Models\WorkVolume\WorkVolume;
@@ -80,17 +78,6 @@ class Project extends Model
     public function scopeContractsStarted(Builder $query)
     {
         return $query->has('ready_contracts');
-    }
-
-    /**
-     * Return projects that have brigades or users
-     *
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeHasWorkers(Builder $query)
-    {
-        return $query->has('users')->orHas('brigades');
     }
 
     public function getTongueStatusesAttribute()
@@ -394,50 +381,6 @@ class Project extends Model
     public function timeResponsible()
     {
         return $this->belongsTo(User::class, 'time_responsible_user_id', 'id');
-    }
-
-    /**
-     * Relation for users on project
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
-     */
-    public function users()
-    {
-        return $this->morphedByMany(User::class, 'appointmentable', 'appointments')->whereNull('appointments.deleted_at')->withTimestamps();
-    }
-
-    /**
-     * Relation for appointments on project
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function appointments()
-    {
-        return $this->hasMany(Appointment::class);
-    }
-
-    /**
-     * Relation for brigades on object
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
-     */
-    public function brigades()
-    {
-        return $this->morphedByMany(Brigade::class, 'appointmentable', 'appointments')->whereNull('appointments.deleted_at')->withTimestamps();
-    }
-
-    public function allUsers()
-    {
-        if (! $this->all_users_cache) {
-            $users = collect([]);
-            $appointedUsers = $this->users;
-            $appointedBrigades = $this->brigades;
-            $appointedBrigadeUsers = collect([]);
-            foreach ($appointedBrigades as $brigade) {
-                $appointedBrigadeUsers = $appointedBrigadeUsers->merge($brigade->users);
-            }
-            $users = $users->merge($appointedUsers)->merge($appointedBrigadeUsers);
-            $this->all_users_cache = $users;
-        }
-
-        return $this->all_users_cache ?? collect([]);
     }
 
     public function work_volumes()

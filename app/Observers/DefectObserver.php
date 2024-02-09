@@ -6,11 +6,10 @@ use App\Models\Group;
 use App\Models\Task;
 use App\Models\TechAcc\Defects\Defects;
 use App\Traits\NotificationGenerator;
-use App\Traits\TimeCalculator;
 
 class DefectObserver
 {
-    use TimeCalculator, NotificationGenerator;
+    use NotificationGenerator;
 
     /**
      * Handle the defects "created" event.

@@ -5,7 +5,6 @@ namespace Tests\Feature\Tech_accounting\OurTechnicTicket;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\TechAcc\OurTechnicTicketReport;
 use App\Services\TechAccounting\TechnicTicketReportService;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 {
-    use TimeCalculator;
     protected $ourTechnicTicket;
     protected $valide_fields;
     protected $response_user;

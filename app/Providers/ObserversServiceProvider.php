@@ -23,34 +23,17 @@ use App\Models\Vacation\VacationsHistory;
 use App\Models\Manual\{ManualNodeMaterials, ManualMaterialCategory, ManualReference};
 use App\Models\WorkVolume\{WorkVolumeMaterial, WorkVolumeWork};
 use App\Models\CommercialOffer\{CommercialOffer, CommercialOfferMaterialSplit, CommercialOfferWork};
-use App\Models\HumanResources\{Appointment,
-    Brigade,
-    JobCategory,
-    JobCategoryTariff,
-    ReportGroup,
-    Timecard,
-    TimecardAddition,
-    TimecardDay,
-    TimecardRecord};
 
 use App\Observers\MaterialAccounting\MaterialAccountingBaseObserver;
-use App\Observers\{AppointmentObserver,
-    BrigadeObserver,
+use App\Observers\{
     CommentObserver,
     DefectObserver,
-    JobCategoryObserver,
-    JobCategoryTariffObserver,
     Manual\ManualMaterialObserver,
     MaterialAccountingMaterialFileObserver,
     NotificationObserver,
     OurVehicleObserver,
     ProjectObserver,
-    ReportGroupObserver,
     TaskObserver,
-    TimecardAdditionObserver,
-    TimecardDayObserver,
-    TimecardObserver,
-    TimecardRecordObserver,
     UserObserver,
     VacationsHistoryObserver,
     VehicleCategoryCharacteristicObserver,
@@ -116,16 +99,7 @@ class ObserversServiceProvider extends ServiceProvider
         Comment::observe(CommentObserver::class);
         OurTechnicTicketReport::observe(OurTechnicTicketReportObserver::class);
 
-        JobCategory::observe(JobCategoryObserver::class);
-        JobCategoryTariff::observe(JobCategoryTariffObserver::class);
-        ReportGroup::observe(ReportGroupObserver::class);
         Project::observe(ProjectObserver::class);
-        Appointment::observe(AppointmentObserver::class);
-        Brigade::observe(BrigadeObserver::class);
-        Timecard::observe(TimecardObserver::class);
-        TimecardAddition::observe(TimecardAdditionObserver::class);
-        TimecardDay::observe(TimecardDayObserver::class);
-        TimecardRecord::observe(TimecardRecordObserver::class);
         MaterialAccountingMaterialFile::observe(MaterialAccountingMaterialFileObserver::class);
         ManualMaterial::observe(ManualMaterialObserver::class);
     }

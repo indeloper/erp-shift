@@ -21,7 +21,6 @@ use App\Models\Task;
 use App\Models\User;
 
 use App\Services\MaterialAccounting\MaterialAccountingService;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,8 +28,6 @@ use Illuminate\Support\Facades\DB;
 
 class MatAccWriteOffController extends Controller
 {
-    use TimeCalculator;
-
     public function create(Request $request)
     {
         $from_resp = User::find($request->resp);

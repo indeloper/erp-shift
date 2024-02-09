@@ -5,12 +5,9 @@ namespace App\Console\Commands;
 use App\Models\{Task, User};
 use App\Models\Contractors\{ContractorContact, Contractor};
 
-use App\Traits\TimeCalculator;
 use Illuminate\Console\Command;
 class MakeTestCall extends Command
 {
-    use TimeCalculator;
-
     protected $signature = 'test:call';
 
     /**

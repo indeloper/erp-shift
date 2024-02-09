@@ -7,8 +7,7 @@ use App\Traits\AdditionalFunctions;
 
 use App\Http\Requests\UserRequests\{UserCreateRequest,
     UserUpdateRequest,
-    UserUpdatePasswordRequest,
-    UserJobCategoryUpdate};
+    UserUpdatePasswordRequest};
 
 use App\Models\{User,
     Group,
@@ -23,7 +22,6 @@ use App\Models\{User,
 use App\Models\Notifications\UserDisabledNotifications;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\Vacation\VacationsHistory;
-use App\Models\HumanResources\Brigade;
 
 use Carbon\Carbon;
 
@@ -80,7 +78,7 @@ class UserController extends Controller
         }
 
         return view('users.index', [
-            'users' => $users->whereNotNull('is_deleted')->with('jobCategory')->paginate(20),
+            'users' => $users->whereNotNull('is_deleted')->paginate(20),
             'companies' => User::$companies,
         ]);
     }
@@ -591,18 +589,6 @@ class UserController extends Controller
         return response()->json($users_json);
     }
 
-    public function updateJobCategory(UserJobCategoryUpdate $request)
-    {
-        DB::beginTransaction();
-
-        $user = User::withoutGlobalScope('email')->findOrFail($request->user_id);
-        $user->update(['job_category_id' => $request->job_category_id]);
-
-        DB::commit();
-
-        return response()->json(true);
-    }
-
     public function getUsersPaginated(Request $request)
     {
         $output = [];
@@ -619,21 +605,6 @@ class UserController extends Controller
         ]);
     }
 
-    public function getBrigadeForemans(Request $request)
-    {
-        $foremanIds = Brigade::whereNotNull('foreman_id')->pluck('foreman_id')->unique()->toArray();
-        $users = User::forDefects($request->q, $foremanIds)->get();
-        $users_json = [];
-
-        foreach ($users as $user) {
-            if ($user->id != 1) {
-                $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
-            }
-        }
-
-        return response()->json($users_json);
-    }
-
     public function getSetting(Request $request){
         $codename = json_decode($request['data'])->codename;
         return (new UsersSetting)->getSetting($codename)->toJSON();
@@ -646,7 +617,7 @@ class UserController extends Controller
         (new UsersSetting)->setSetting($codename, $value);
     }
 
-    public function getActiveUsersForVacationCardFrontend() 
+    public function getActiveUsersForVacationCardFrontend()
     {
         $users = User::query()->active()->get();
 
@@ -664,7 +635,7 @@ class UserController extends Controller
     public function getAvailableUsersForReplaceEmployeeDuringVacation(Request $request)
     {
         $users = User::where('group_id', User::find($request->userId)->group_id)->active()->get();
-        
+
         $results = [];
         foreach ($users as $user) {
             $results[] = [

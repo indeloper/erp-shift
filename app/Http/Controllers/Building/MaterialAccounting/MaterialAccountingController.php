@@ -31,7 +31,6 @@ use App\Models\MatAcc\{
     MaterialAccountingMaterialFile,
     MaterialAccountingOperationMaterials,
     MaterialAccountingMaterialAddition};
-use App\Traits\TimeCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\OperationReportRequest;
@@ -44,8 +43,6 @@ use App\Services\MaterialAccounting\Reports\ObjectActionReportExport;
 
 class MaterialAccountingController extends Controller
 {
-    use TimeCalculator;
-
     public function operations()
     {
         $operations = MaterialAccountingOperation::index()->get();

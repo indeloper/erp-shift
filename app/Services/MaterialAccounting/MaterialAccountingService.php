@@ -14,7 +14,6 @@ use App\Models\Group;
 
 use App\Models\ProjectObject;
 use App\Models\User;
-use App\Traits\TimeCalculator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -23,8 +22,6 @@ use App\Http\Requests\Building\MaterialAccounting\SendMovingRequest;
 use Illuminate\Support\Facades\DB;
 
 class MaterialAccountingService {
-
-    use TimeCalculator;
 
     protected $operation;
 

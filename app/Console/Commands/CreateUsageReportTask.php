@@ -4,13 +4,11 @@ namespace App\Console\Commands;
 
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Services\TechAccounting\TechnicTicketReportService;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CreateUsageReportTask extends Command
 {
-    use TimeCalculator;
     /**
      * The name and signature of the console command.
      *

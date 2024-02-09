@@ -3,12 +3,7 @@
 namespace App\Http\Controllers\Commerce;
 
 use App\Models\Building\ObjectResponsibleUser;
-use App\Models\HumanResources\Brigade;
-use App\Services\HumanResources\AppointmentService;
-use App\Services\HumanResources\TimecardService;
 use App\Http\Requests\ProjectRequest\{
-    BrigadeProjectAppointRequest,
-    BrigadeProjectDetachRequest,
     ProjectTimeResponsibleUserRequest,
     SelectResponsibleUserRequest,
     UserProjectAppointRequest,
@@ -24,7 +19,6 @@ use App\Models\ProjectContractors;
 use App\Models\ProjectContractorsChangeHistory;
 use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\WorkVolume\WorkVolumeRequest;
-use App\Traits\TimeCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -59,7 +53,6 @@ use \Carbon\Carbon;
 
 class ProjectController extends Controller
 {
-    use TimeCalculator;
     use UserSearchByGroup;
 
     public function index(Request $request)
@@ -180,8 +173,6 @@ class ProjectController extends Controller
                 'can_add_user' => $isTimeResponsible,
                 'project' => $project,
                 'project_users' => array_reverse($project->allUsers()->toArray()),
-                'project_brigades' => array_reverse($project->brigades->toArray()),
-                'directions' => Brigade::DIRECTIONS,
                 'source' => 'project',
             ]
         ]);
@@ -1456,76 +1447,6 @@ class ProjectController extends Controller
         }
         return response()->json(true);
     }
-
-    public function appointUser(UserProjectAppointRequest $request, Project $project)
-    {
-        DB::beginTransaction();
-
-        $user = User::findOrFail($request->user_id);
-
-        $project->users()->attach($user->id);
-        (new TimecardService())->fixUserTimecard($user);
-        $project->appointments()->get()->last()->generatePastAction();
-
-        DB::commit();
-
-        return [
-            'users' => array_reverse($project->allUsers()->toArray()),
-        ];
-    }
-
-
-    public function appointBrigade(BrigadeProjectAppointRequest $request, Project $project)
-    {
-        DB::beginTransaction();
-
-        $project->brigades()->attach($request->brigade_id);
-        $project->appointments()->get()->last()->generatePastAction();
-
-        DB::commit();
-
-        return [
-            'brigade' => Brigade::find($request->brigade_id)->load('users'),
-        ];
-    }
-
-
-    public function detachUser(UserProjectDetachRequest $request, Project $project)
-    {
-        DB::beginTransaction();
-
-        $appointment = $project->appointments()->where('appointmentable_id', $request->user_id)->where('appointmentable_type', User::class)->get()->last();
-        if ($appointment) {
-            $appointment->delete();
-        }
-
-        DB::commit();
-
-        return response()->json(true);
-    }
-
-    public function detachBrigade(BrigadeProjectDetachRequest $request, Project $project)
-    {
-        DB::beginTransaction();
-
-        $appointment = $project->appointments()->where('appointmentable_id', $request->brigade_id)->where('appointmentable_type', Brigade::class)->get()->last();
-        if ($appointment) {
-            $appointment->delete();
-        }
-
-        DB::commit();
-
-        return response()->json(true);
-    }
-
-
-    public function getProjectUsers(Request $request)
-    {
-        $project = Project::findOrFail($request->project_id)->load('users.jobCategory');
-
-        return ['project' => $project, 'users' => array_reverse($project->allUsers()->take(10)->toArray())];
-    }
-
 
     /**
      * Function return projects for given filter with special

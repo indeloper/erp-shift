@@ -26,7 +26,7 @@ use function morphos\Russian\inflectName;
 
 class User extends Authenticatable
 {
-    use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, Appointmentable, DevExtremeDataSourceLoadable, DefaultSortable;
+    use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, DevExtremeDataSourceLoadable, DefaultSortable;
 
     public $defaultSortOrder = [
         'user_full_name' => 'asc',
@@ -46,8 +46,6 @@ class User extends Authenticatable
         'company',
         'is_deleted',
         'status',
-        'job_category_id',
-        'brigade_id',
         'first_name',
         'last_name',
         'patronymic',
@@ -105,10 +103,7 @@ class User extends Authenticatable
         'long_full_name',
         'card_route',
         'group_name',
-        'company_name',
-        'job_category_name',
-        'report_group_name',
-        'brigade_name',
+        'company_name'
     ];
 
     public static $companies = [
@@ -145,7 +140,6 @@ class User extends Authenticatable
         'department_id' => 'department_id', // Департамент
         'group_id' => 'group_id', // Должность
         'company' => 'company', // Компания
-        'job_category_id' => 'job_category_id', // Должностная категория
         'project_object_id' => 'project_object_id', // Объект
     ];
 
@@ -194,10 +188,6 @@ class User extends Authenticatable
                     foreach ($phones as $phone) {
                         $query->orWhere($filter, 'like', '%' . $phone . '%');
                     }
-                } else if ($filter === self::FILTERS['project_object_id']) {
-                    $objectAppointmentUsers = Appointment::where('appointmentable_type', User::class)
-                        ->whereIn($filter, (array) $values[$key])->pluck('appointmentable_id')->toArray();
-                    $query->whereIn('id', $objectAppointmentUsers);
                 } else {
                     $query->whereIn($filter,(array) $values[$key]);
                 }
@@ -395,37 +385,10 @@ class User extends Authenticatable
     }
 
 
-    public function getReportGroupNameAttribute()
-    {
-        return $this->jobCategory->reportGroup->name ?? 'Не указана';
-    }
-
-
     public function getCompanyNameAttribute()
     {
         return self::$companies[$this->company] ?? 'Не указана';
     }
-
-
-    /**
-     * Getter for job category name
-     * @return string
-     */
-    public function getJobCategoryNameAttribute()
-    {
-        return $this->jobCategory->name ?? 'Не указана';
-    }
-
-
-    /**
-     * Getter for brigade name
-     * @return string
-     */
-    public function getBrigadeNameAttribute()
-    {
-        return $this->brigade->name ?? 'Не указана';
-    }
-
 
     public function isProjectManager()
     {
@@ -508,35 +471,9 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class, 'user_id', 'id');
     }
 
-
-    /**
-     * Relation to user brigade
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function brigade()
-    {
-        return $this->belongsTo(Brigade::class, 'brigade_id', 'id');
-    }
-
-
-    /**
-     * Relation to user brigades where user is foreman
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function brigades()
-    {
-        return $this->hasMany(Brigade::class, 'foreman_id', 'id');
-    }
-
-
     public function timeResponsibleProjects()
     {
         return $this->hasMany(Project::class, 'time_responsible_user_id', 'id');
-    }
-
-    public function timecards()
-    {
-        return $this->hasMany(Timecard::class);
     }
 
     public function last_vacation()
@@ -548,24 +485,6 @@ class User extends Authenticatable
 
         return $this->hasOne(VacationsHistory::class, 'vacation_user_id', 'id')->where('id', 0);
 
-    }
-
-    /**
-     * Relation to user job category
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function jobCategory()
-    {
-        return $this->hasOne(JobCategory::class, 'id', 'job_category_id');
-    }
-
-    /**
-     * Relation to user job category report group
-     * @return HasOneThrough
-     */
-    public function reportGroup(): HasOneThrough
-    {
-        return $this->hasOneThrough(ReportGroup::class, JobCategory::class, 'id', 'id', 'job_category_id', 'report_group_id');
     }
 
     /**
@@ -898,8 +817,8 @@ class User extends Authenticatable
 
     public function getExternalUserUrl()
     {
-        return $this->chat_id 
-            ? 'tg://user?id='.$this->chat_id 
+        return $this->chat_id
+            ? 'tg://user?id='.$this->chat_id
             : asset('/users/card').'/'.$this->id ?? null;
     }
 }

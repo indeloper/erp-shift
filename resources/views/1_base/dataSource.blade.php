@@ -4,7 +4,7 @@
         store: new DevExpress.data.CustomStore({
             key: "id",
             loadMode: "processed",
-            
+            reshapeOnPush: true,
             load: function (loadOptions) {
 
                 currentLoadOptions = loadOptions
@@ -30,12 +30,12 @@
                     success: function (data, textStatus, jqXHR) {
                         DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
                         entitiesDataSource.reload()
-                        $('#entitiesListMobile').dxList('instance')?.reload() 
+                        $('#entitiesListMobile').dxList('instance')?.reload()
                     },
                 })
             },
 
-            update: function (key, values, isMobile=false) {   
+            update: function (key, values, isMobile=false) {
 
                 return $.ajax({
                     url: getUrlWithId("{{route($routeNameFixedPart.'resource.update', ['id'=>'setId'])}}", key),
@@ -50,12 +50,11 @@
                     success: function (data, textStatus, jqXHR) {
                         DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
                         entitiesDataSource.reload()
-                        $('#entitiesListMobile').dxList('instance')?.reload()                        
+                        $('#entitiesListMobile').dxList('instance')?.reload()
                     },
                 })
 
             },
-
             remove: function (key) {
 
                 return $.ajax({
@@ -72,7 +71,14 @@
                 })
 
             },
-            
+            byKey: function (key) {
+                let d = new $.Deferred();
+                $.get(getUrlWithId("{{route($routeNameFixedPart.'resource.show', ['id'=>'setId'])}}", key))
+                    .done(function (dataItem) {
+                        d.resolve(dataItem);
+                    });
+                return d.promise();
+            }
         })
     });
 
@@ -84,5 +90,5 @@
             }
         })
     })
-    
+
 </script>

@@ -15,11 +15,6 @@ Route::group(['middleware' => 'can:projects'], function () {
     Route::post('{project_id}/add_contractors', 'ProjectController@add_contractors')->name('add_contractors');
     Route::post('/importance-toggler', 'ProjectController@importance_toggler')->name('importance_toggler');
     Route::post('/update_time_responsible', 'ProjectController@updateTimeResponsibleUser')->name('update_time_responsible');
-    Route::post('/{project}/appoint_user', 'ProjectController@appointUser')->name('appoint_user');
-    Route::post('/{project}/appoint_brigade', 'ProjectController@appointBrigade')->name('appoint_brigade');
-    Route::post('/{project}/detach_user', 'ProjectController@detachUser')->name('detach_user');
-    Route::post('/{project}/detach_brigade', 'ProjectController@detachBrigade')->name('detach_brigade');
-    Route::post('/get_project_users', 'ProjectController@getProjectUsers')->name('get_project_users');
 });
 
 

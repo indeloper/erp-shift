@@ -15,4 +15,5 @@
     .icon-marker-location-left {
         margin-right: 6px;
     }
+
 </style>
