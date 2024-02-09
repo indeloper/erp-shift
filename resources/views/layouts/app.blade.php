@@ -992,6 +992,9 @@
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.all.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
 
+<!-- SKG DevExtreme-inherited -->
+<script type="text/javascript" src="{{ asset('js/devextreme/skgDataGrid.js')}}"></script>
+
 <!-- DevExtreme default-settings -->
 <script type="text/javascript" src="{{ asset('js/devextreme/default-settings.js')}}"></script>
 
