@@ -30,3 +30,4 @@ package-lock.json
 /bootstrap/cache/
 /public/Nginx_1.21_vhost.conf
 /public/Nginx_1.21_vhost.conf.bak
+hs_err_pid*.log

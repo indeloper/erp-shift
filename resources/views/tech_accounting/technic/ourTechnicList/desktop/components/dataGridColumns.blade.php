@@ -72,6 +72,7 @@
             width: 75,
         },
         {
+            visible: false,
             caption: "Идентификатор",
             dataField: "id",
             width: 75,
@@ -82,6 +83,7 @@
             width: 75,
         },
         {
+            visible: false,
             caption: "Категория",
             dataField: "technic_category_id",
             lookup: {
@@ -91,6 +93,7 @@
             },
         },
         {
+            visible: false,
             caption: "Ответственный",
             dataField: "responsible_id",
             lookup: {
@@ -100,6 +103,7 @@
             },
         },
         {
+            visible: false,
             caption: "Марка",
             dataField: "technic_brand_id",
             lookup: {
@@ -110,6 +114,7 @@
         },
 
         {
+            visible: false,
             caption: "Модель",
             dataField: "technic_brand_model_id",
             lookup: {
@@ -118,14 +123,36 @@
                 displayExpr: "name"
             },
         },
-        
-        
-        
+                
         {
             caption: "Наименование",
             dataField: "name",
         },
         
+        {
+            caption: "Объект",
+            dataField: "object_id",
+            lookup: {
+                dataSource: additionalResources.objects,
+                valueExpr: "id",
+                displayExpr: "short_name",
+            },
+            cellTemplate(container, options) {
+                console.log(options);
+                let cellContent
+                if(options.row.data.status_slug === 'inProgress') {
+                    const objectFrom = additionalResources.objects.find(el=>el.id === options.row.data.previous_object_id)?.short_name
+                    const objectTo = additionalResources.objects.find(el=>el.id === options.row.data.object_id)?.short_name
+                    const arrowDiv = '<div style="width:100%; display:flex; justify-content:center; font-size:200%">⇩</div>'
+                    cellContent = `<div>${objectFrom}</div> ${arrowDiv} <div>${objectTo}</div>`
+                }
+                if(options.row.data.status_slug === 'completed') {
+                    cellContent = additionalResources.objects.find(el=>el.id === options.row.data.object_id)?.short_name
+                }
+                $('<div>').html(cellContent).appendTo(container)
+            },
+            width: 400
+        },
         
         {
             visible: userPermissions.technics_create_update_delete,

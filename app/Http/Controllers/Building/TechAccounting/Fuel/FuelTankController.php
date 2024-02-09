@@ -346,7 +346,13 @@ class FuelTankController extends StandardEntityResourceController
 
         $this->additionalResources->
         fuelTanks =
-            FuelTank::all();
+            FuelTank::leftJoin('fuel_tank_transfer_histories', 'fuel_tank_transfer_histories.fuel_tank_id', '=', 'fuel_tanks.id')
+            ->selectRaw('
+                fuel_tanks.*, 
+                MAX(event_date) as lastMovementConfirmationDate
+            ')
+            ->groupBy('fuel_tanks.id')
+            ->get();
 
         $this->additionalResources->
             fuelResponsibles =

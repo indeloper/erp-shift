@@ -62,9 +62,10 @@
                     editorType: "dxDateBox",
                     editorOptions: {
                         readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
-                        value: getEventDate(),
                         max: Date(),
-                        min: getDaysEarlierDate(35)
+                        onContentReady(e) {
+                            setEventDateSelectBoxOptions(editingRowId, e.component)
+                        },
                     },
                     label: {
                         text: 'Дата операции'
@@ -156,6 +157,9 @@
                                 dataSource: additionalResources.fuelConsumers,
                                 valueExpr: 'id',
                                 displayExpr: 'name',
+                                itemTemplate(e) {
+                                    return `<div class="dx-list-item-line-break">${e.name}</div>`
+                                },
                                 readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('our_technic_id')),
                             },
                             label: {

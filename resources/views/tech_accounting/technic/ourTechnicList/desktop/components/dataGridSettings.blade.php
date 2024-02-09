@@ -12,6 +12,7 @@
         columnHidingEnabled: false,
         showRowLines: true,
         remoteOperations: true,
+        wordWrapEnabled: true,
         scrolling: {
             mode: 'infinite',
             rowRenderingMode: 'virtual',
