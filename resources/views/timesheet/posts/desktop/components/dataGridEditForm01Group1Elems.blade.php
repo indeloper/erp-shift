@@ -45,12 +45,26 @@
                         keyExpr: "id",
                         height: 300,
                         focusedRowEnabled: true,
+                        editing: {
+                            popup: {
+                                showTitle: true,
+                                title: "Тариф",
+                                hideOnOutsideClick: true,
+                                showCloseButton: true,
+                                maxWidth: '40vw',
+                                height: 'auto'
+                            },
+                            form: postTariffEditForm
+                        },
+                        onRowDblClick: (e) => {
+                            console.log('skg user row dbl click')
+                        }
                     },
                     template: setDataGridColumnTemplate
                 }
             ]
         },
-        getFormControlButtons()
+        //getFormControlButtons()
     ];
 
     function getFormControlButtons() {
@@ -60,53 +74,52 @@
             colCount: 2,
             cssClass: 'form-control-buttons-group',
             items: [
-            {
-                itemType: "button",
-                buttonOptions: {
-                    text: "Сохранить",
-                    type: "normal",
-                    width: 106,
-                    onClick: (e) => {
-                        const formInstance = e.element.closest('.dx-form').dxForm('instance');
+                {
+                    itemType: "button",
+                    buttonOptions: {
+                        text: "Сохранить",
+                        type: "normal",
+                        width: 106,
+                        onClick: (e) => {
+                            const formInstance = e.element.closest('.dx-form').dxForm('instance');
 
-                        formInstance.option('dataGridInstance').beginCustomLoading('Сохранение данных');
+                            formInstance.option('dataGridInstance').beginCustomLoading('Сохранение данных');
 
-                        switch (formInstance.option('editingState')) {
-                            case formEditStates.INSERT:
-                                break;
-                            case formEditStates.UPDATE:
-                                const store = formInstance.option('dataGridInstance').getDataSource().store();
-                                store.update(
-                                    formInstance.option('formData').id,
-                                    formInstance.option('formData')
-                                ).done(function (data, key) {
-                                    store.push([{ type: "update", data: data.data, key: key }]);
-                                    formInstance.option('dataGridInstance').endCustomLoading('Сохранение данных');
-                                });
+                            switch (formInstance.option('editingState')) {
+                                case formEditStates.INSERT:
+                                    break;
+                                case formEditStates.UPDATE:
+                                    const store = formInstance.option('dataGridInstance').getDataSource().store();
+                                    store.update(
+                                        formInstance.option('formData').id,
+                                        formInstance.option('formData')
+                                    ).done(function (data, key) {
+                                        store.push([{type: "update", data: data.data, key: key}]);
+                                        formInstance.option('dataGridInstance').endCustomLoading('Сохранение данных');
+                                    });
+                                    break;
+                                default:
+                                    console.error('Form in unknown edit state');
+                            }
 
-                                break;
-                            default:
-                                console.error('Form in unknown edit state');
+                            formInstance.option('editingState', formEditStates.UNKNOWN);
+                            formInstance.option('popupInstance').hide();
                         }
-
-                        formInstance.option('editingState', formEditStates.UNKNOWN);
-                        formInstance.option('popupInstance').hide();
                     }
-                }
-            },
-            {
-                itemType: "button",
-                buttonOptions: {
-                    text: "Отмена",
-                    type: "normal",
-                    width: 106,
-                    onClick: function (e) {
-                        const formInstance = e.element.closest('.dx-form').dxForm('instance');
-                        formInstance.option('popupInstance').hide();
+                },
+                {
+                    itemType: "button",
+                    buttonOptions: {
+                        text: "Отмена",
+                        type: "normal",
+                        width: 106,
+                        onClick: function (e) {
+                            const formInstance = e.element.closest('.dx-form').dxForm('instance');
+                            formInstance.option('popupInstance').hide();
+                        }
                     }
-                }
-            },
-        ]
+                },
+            ]
         }
     }
 
@@ -118,6 +131,10 @@
                 itemOptions.component.updateData(itemOptions.dataField, e.component.getDataSource().items());
             }
         };
+
+        console.log('itemOptions', itemOptions);
+
+        console.log('dataGridTemplateOptions', dataGridOptions);
 
         ($('<div>').skDataGrid(dataGridOptions)).appendTo(itemElement);
     }
