@@ -1,6 +1,6 @@
 <script>
     const dataGridColumns = [
-        
+
         {
             visible: false,
             dataField: "exploitation_start",
@@ -8,22 +8,6 @@
             dataType: "date",
         },
 
-        {
-            visible: false,
-            caption: "Марка (old)",
-            dataField: "brand",
-            editorOptions: {
-                readOnly:true
-            }
-        },
-        {
-            visible: false,
-            caption: "Модель(old)",
-            dataField: "model",
-            editorOptions: {
-                readOnly:true
-            }
-        },
 
         {
             visible: false,
@@ -123,12 +107,12 @@
                 displayExpr: "name"
             },
         },
-                
+
         {
             caption: "Наименование",
             dataField: "name",
         },
-        
+
         {
             caption: "Объект",
             dataField: "object_id",
@@ -153,7 +137,7 @@
             },
             width: 400
         },
-        
+
         {
             visible: userPermissions.technics_create_update_delete,
             type: "buttons",

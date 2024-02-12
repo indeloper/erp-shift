@@ -989,7 +989,7 @@
 
 <!-- DevExtreme library -->
 <script src="https://unpkg.com/devextreme-quill@1.5.16/dist/dx-quill.min.js"></script>
-<script type="text/javascript" src="{{ asset('js/devextreme/dx.all-23.1.js')}}"></script>
+<script type="text/javascript" src="{{ asset('js/devextreme/dx.all.js')}}"></script>
 <script type="text/javascript" src="{{ asset('js/devextreme/dx.messages.ru.js')}}"></script>
 
 <!-- SKG DevExtreme-inherited -->
