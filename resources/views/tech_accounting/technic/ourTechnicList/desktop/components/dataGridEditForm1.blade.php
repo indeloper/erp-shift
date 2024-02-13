@@ -1,25 +1,6 @@
 <script>
 
     const dataGridEditForm = {
-        onInitialized() {
-            // const dataGrid = $('#mainDataGrid').dxDataGrid('instance');
-            //
-            // setReadonlyFormElemsProperties(!userPermissions.technics_create_update_delete, dataGrid);
-            //
-            // const interval = setInterval( () => {
-            //     if($('#mainForm').dxForm('instance')) {
-            //         clearInterval(interval)
-            //         if(!dataGrid.cellValue(dataGrid.getRowIndexByKey(editingRowId), 'third_party_mark')) {
-            //             switchTechnicAffiliation('our_technik_radio_elem')
-            //         }
-            //         else {
-            //             switchTechnicAffiliation('third_party_technik_radio_elem')
-            //         }
-            //     }
-            // }, 10)
-
-        },
-
         elementAttr: {
             id: "mainForm"
         },
@@ -32,6 +13,22 @@
                 items: dataGridEditForm01Group1Elems
             },
         ],
+        onContentReady(e) {
+            buildTechnicFormGUI(e.component)
+        }
     }
 
+    function buildTechnicFormGUI(formInstance) {
+        const formData = formInstance.option('formData')
+        const thirdPartyMarkEditor = formInstance.getEditor('third_party_mark_2')
+
+        if (formData.third_party_mark) {
+            thirdPartyMarkEditor.option('value','third_party_technik_radio_elem');
+            switchTechnicAffiliation('third_party_technik_radio_elem', formInstance);
+        }
+        else {
+            thirdPartyMarkEditor.option('value','our_technik_radio_elem');
+            switchTechnicAffiliation('our_technik_radio_elem', formInstance);
+        }
+    }
 </script>

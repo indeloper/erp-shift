@@ -28,6 +28,7 @@ class OurTechnicController extends StandardEntityResourceController
         $this->isMobile = $this->isMobile($this->baseBladePath);
         $this->components = $this->getModuleComponents(); 
         $this->modulePermissionsGroups = [13];
+        $this->ignoreDataKeys[] = 'third_party_mark_2';
     }
 
     public function index(Request $request)

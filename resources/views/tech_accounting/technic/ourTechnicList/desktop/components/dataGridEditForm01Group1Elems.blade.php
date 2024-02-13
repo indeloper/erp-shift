@@ -1,61 +1,66 @@
 <script>
 
-    function switchTechnicAffiliation(value) {
-        // const dataGrid = $('#mainDataGrid').dxDataGrid('instance');
-        //
-        // if (value === 'third_party_technik_radio_elem') {
-        //     dataGrid.cellValue(dataGrid.getRowIndexByKey(editingRowId), 'third_party_mark', true)
-        //     choosedThirdPartyTechnic()
-        // }
-        //
-        // if (value === 'our_technik_radio_elem') {
-        //     dataGrid.cellValue(dataGrid.getRowIndexByKey(editingRowId), 'third_party_mark', false)
-        //     choosedOurTechnic()
-        // }
+    function switchTechnicAffiliation(value, formInstance) {
+        if (value === 'third_party_technik_radio_elem') {
+            choosedThirdPartyTechnic(formInstance)
+        }
+        if (value === 'our_technik_radio_elem') {
+            choosedOurTechnic(formInstance)
+        }
     }
 
-    function choosedThirdPartyTechnic() {
-        // const mainForm = $('#mainForm').dxForm('instance')
-        //
-        // datafieldsTechnicOwnerGroupGroup1.forEach(el => mainForm.itemOption('technicOwnerGroup.' + el, 'visible', false))
-        // datafieldsTechnicOwnerGroupGroup2.forEach(el => mainForm.itemOption('technicOwnerGroup.' + el, 'visible', true))
-        // mainForm.itemOption('technicOwnerGroup.third_party_mark', 'value', true)
+    function choosedThirdPartyTechnic(formInstance) {
+        datafieldsTechnicOwnerGroupGroup1.forEach(el => formInstance.itemOption('technicOwnerGroup.' + el, 'visible', false))
+        datafieldsTechnicOwnerGroupGroup2.forEach(el => formInstance.itemOption('technicOwnerGroup.' + el, 'visible', true))
+        formInstance.option('formData').third_party_mark = true
     }
 
-    function choosedOurTechnic() {
-        // const mainForm = $('#mainForm').dxForm('instance')
-        //
-        // datafieldsTechnicOwnerGroupGroup1.forEach(el => mainForm.itemOption('technicOwnerGroup.' + el, 'visible', true))
-        // datafieldsTechnicOwnerGroupGroup2.forEach(el => mainForm.itemOption('technicOwnerGroup.' + el, 'visible', false))
-        // mainForm.itemOption('technicOwnerGroup.third_party_mark', 'value', false)
+    function choosedOurTechnic(formInstance) {
+        datafieldsTechnicOwnerGroupGroup1.forEach(el => formInstance.itemOption('technicOwnerGroup.' + el, 'visible', true))
+        datafieldsTechnicOwnerGroupGroup2.forEach(el => formInstance.itemOption('technicOwnerGroup.' + el, 'visible', false))
+        formInstance.option('formData').third_party_mark = false
+        formInstance.option('formData').contractor_id = null
+    }
+
+    function getThirdPartyMarkRadioGroupItems() {
+        return [
+                    {id: 'our_technik_radio_elem', text: 'Своя техника'},
+                    {id: 'third_party_technik_radio_elem', text: 'Сторонняя техника'},
+                ]
     }
 
     const dataGridEditForm01Group1Elems = [
         {
             dataField: "name",
+            label: {text: 'Наименование'},
             colSpan: 2,
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',
             }],
         },
-
         {
             dataField: "technic_brand_id",
-            colSpan: 1,
+            editorType: "dxSelectBox",
+            label: {text: 'Марка'},
             editorOptions: {
+                dataSource: additionalResources.technicBrands,
+                valueExpr: "id",
+                displayExpr: "name",
                 onSelectionChanged(e){
+                    const formInstance = getParentFormInstanceByElement(e.element)
+                    const modelsSelectBox = formInstance.getEditor('technic_brand_model_id')
+                    console.log(formInstance.option('formData'));
+                    
+                    if(typeof modelsSelectBox === 'undefined') {
+                        return
+                    }
 
                     if(e.selectedItem.id) {
-                        let interval = setInterval(() => {
-                            if($('#technic_brand_model_id').dxSelectBox('instance')) {
-                                clearInterval(interval)
-                                if(userPermissions.technics_create_update_delete) {
-                                    $('#technic_brand_model_id').dxSelectBox('instance')?.option('readOnly', false);
-                                }
-                                $('#technic_brand_model_id').dxSelectBox('instance')?.option('dataSource', additionalResources.technicModels.filter(el=>el.technic_brand_id ===e.selectedItem.id));
-                            }
-                        }, 100)
+                        if(userPermissions.technics_create_update_delete) {
+                            modelsSelectBox.option('readOnly', false);
+                        }
+                        modelsSelectBox.option('dataSource', additionalResources.technicModels.filter(el=>el.technic_brand_id ===e.selectedItem.id));
                     }
                 },
 
@@ -68,9 +73,12 @@
 
         {
             dataField: "technic_brand_model_id",
-            colSpan: 1,
+            label: {text: 'Модель'},
             editorType: 'dxSelectBox',
             editorOptions: {
+                dataSource: additionalResources.technicModels,
+                valueExpr: "id",
+                displayExpr: "name",
                 readOnly: true,
               elementAttr: {
                 id: 'technic_brand_model_id'
@@ -84,7 +92,13 @@
 
         {
             dataField: "technic_category_id",
-            colSpan: 1,
+            label: {text: 'Категория'},
+            editorType: 'dxSelectBox',
+            editorOptions: {
+                dataSource: additionalResources.technicCategories,
+                valueExpr: "id",
+                displayExpr: "name",
+            },
             validationRules: [{
                 type: 'required',
                 message: 'Укажите значение',
@@ -107,26 +121,14 @@
                             visible: false
                     },
                     editorOptions: {
-                        items: [
-                            {id: 'our_technik_radio_elem', text: 'Своя техника'},
-                            {id: 'third_party_technik_radio_elem', text: 'Сторонняя техника'},
-                        ],
+                        items: getThirdPartyMarkRadioGroupItems(),
                         valueExpr: 'id',
                         displayExpr: 'text',
                         layout: 'horizontal',
-                        onInitialized(e) {
-                            // const dataGrid = $('#mainDataGrid').dxDataGrid('instance');
-                            //
-                            // if (!dataGrid.cellValue(dataGrid.getRowIndexByKey(editingRowId), 'third_party_mark')) {
-                            //     e.component.option('value','our_technik_radio_elem');
-                            // }
-                            // else {
-                            //     e.component.option('value','third_party_technik_radio_elem');
-                            // }
-                        },
                         // disabled: Boolean(isFuelFlowDataFieldUpdateAvailable('fuelConsumerType')),
                         onValueChanged(e) {
-                            switchTechnicAffiliation(e.value)
+                            formInstance = getParentFormInstanceByElement(e.element)
+                            switchTechnicAffiliation(e.value, formInstance)
                         }
                     },
                 },
@@ -135,16 +137,12 @@
                 },
                 {
                     dataField: 'company_id',
+                    label: {text: 'Компания'},
                     editorType: "dxSelectBox",
                     editorOptions: {
-                        elementAttr: {id: "our_technic_id_dxSelectBox"},
                         dataSource: additionalResources.companies,
                         valueExpr: 'id',
                         displayExpr: 'name',
-                        // readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('our_technic_id')),
-                    },
-                    label: {
-                        text: 'Компания'
                     },
                     validationRules: [{
                         type: 'required',
@@ -153,7 +151,13 @@
                 },
                 {
                     dataField: "responsible_id",
-                    colSpan: 1,
+                    label: {text: 'Ответственный'},
+                    editorType: "dxSelectBox",
+                    editorOptions: {
+                        dataSource: additionalResources.technicResponsibles,
+                        valueExpr: "id",
+                        displayExpr: "user_full_name"
+                    },
                     validationRules: [{
                         type: 'required',
                         message: 'Укажите значение',
@@ -161,26 +165,26 @@
                 },
                 {
                     dataField: 'manufacture_year',
+                    label: {text: 'Год производства'},
                     editorType: "dxNumberBox",
                 },
 
                 {
                     dataField: "exploitation_start",
-                    caption: "Начало эксплуатации",
+                    label: {text: 'Начало эксплуатации'},
                     dataType: "date",
-                    colSpan: 1,
                 },
 
                 {
                     dataField: 'contractor_id',
                     editorType: "dxSelectBox",
+                    label: {text: 'Контрагент'},
                     // visible: Boolean(!formItem.our_technic_id && editingRowId),
                     editorOptions: {
                         dataSource: additionalResources.contractors,
+                        valueExpr: "id",
+                        displayExpr: "short_name"
                         // readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('third_party_consumer')),
-                    },
-                    label: {
-                        text: 'Контрагент'
                     },
                     validationRules: [{
                         type: 'required',
@@ -190,14 +194,15 @@
 
                 {
                     dataField: 'serial_number',
+                    label: {text: 'Заводской номер'},
                 },
                 {
                     dataField: 'registration_number',
+                    label: {text: 'Гос. номер'},
                 },
                 {
                     dataField: "inventory_number",
-                    caption: "Инвентарный номер",
-                    colSpan: 1,
+                    label: {text: 'Инвентарный номер'},
                 },
             ]
         }

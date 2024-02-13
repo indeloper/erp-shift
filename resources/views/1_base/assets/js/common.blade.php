@@ -133,6 +133,10 @@
         changes[0].data.deletedAttachments = deletedAttachments
         changes[0].data.newComments = newComments
     }
+
+    function getParentFormInstanceByElement(element) {
+        return element.closest('.dx-form').dxForm('instance')
+    }
     // Конец Общие
 
 </script>

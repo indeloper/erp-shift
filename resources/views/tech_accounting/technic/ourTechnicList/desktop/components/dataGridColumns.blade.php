@@ -122,7 +122,6 @@
                 displayExpr: "short_name",
             },
             cellTemplate(container, options) {
-                console.log(options);
                 let cellContent
                 if(options.row.data.status_slug === 'inProgress') {
                     const objectFrom = additionalResources.objects.find(el=>el.id === options.row.data.previous_object_id)?.short_name
@@ -154,8 +153,8 @@
                         icon: "fas fa-plus",
                         onClick: (e) => {
                             options.component.addRow();
-                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
-                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
+                            // $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
+                            // $('#mainDataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
                         }
                     })
             }

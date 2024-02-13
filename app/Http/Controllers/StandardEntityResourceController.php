@@ -162,7 +162,8 @@ class StandardEntityResourceController extends Controller
     public function update(Request $request, $id)
     {
         // $data = (array)json_decode($request->input('data'));
-        $data = json_decode($request->input('data'), false);
+        // $data = json_decode($request->input('data'), false);
+        $data = (array)json_decode($request->input('data'));
         $entity = $this->baseModel::findOrFail($id);
 
         DB::beginTransaction();

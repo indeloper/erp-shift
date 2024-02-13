@@ -32,7 +32,7 @@ class OurTechnic extends Model
     // // 'name', 
     // 'human_status', 'release_date', 'short_tickets', 'work_link'];
 
-    protected $with = ['defectsLight', 'start_location'];
+    // protected $with = ['defectsLight', 'start_location'];
 
     public static $owners = [
         1 => 'ООО «СК ГОРОД»',
