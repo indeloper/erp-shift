@@ -116,6 +116,7 @@
         {
             caption: "Объект",
             dataField: "object_id",
+            useTagBoxRowFilter: true,
             lookup: {
                 dataSource: additionalResources.objects,
                 valueExpr: "id",
