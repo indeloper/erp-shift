@@ -43,7 +43,7 @@ class PostTariffsController extends StandardEntityResourceController
         return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         DB::beginTransaction();
 

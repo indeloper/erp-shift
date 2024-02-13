@@ -9,6 +9,7 @@ use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use App\Services\SystemService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -104,7 +105,7 @@ class StandardEntityResourceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -155,11 +156,11 @@ class StandardEntityResourceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         // $data = (array)json_decode($request->input('data'));
         // $data = json_decode($request->input('data'), false);
@@ -174,10 +175,7 @@ class StandardEntityResourceController extends Controller
             $this->afterUpdate($entity, $data, $dataToUpdate);
         DB::commit();
 
-        return json_encode(array(
-            "updated" => $entity
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return response()->json(['result' => 'ok', 'data' => $entity]);
     }
 
     /**
