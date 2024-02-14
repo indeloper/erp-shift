@@ -21,3 +21,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/1c-sync', 'System\UpdateEmployeesInfoFrom1cController@uploadData');
 Route::post('/telegram/'.config('telegram.internal_bot_token'), 'System\TelegramController@requestDispatching');
+Route::post('/bitrix/', 'System\BitrixWebhookController@handleIncomingRequest')->middleware('log.requests');
