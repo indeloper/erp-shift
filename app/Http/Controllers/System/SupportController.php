@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\{Auth, DB, File, Storage, URL};
 
 class SupportController extends Controller
 {
+    use TimeCalculator;
+
     public function index(Request $request)
     {
         $support_tickets = SupportMail::basic($request);

@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\WorkVolume\WorkVolumeRequest;
 use App\Models\WorkVolume\WorkVolumeRequestFile;
 use App\Models\WorkVolume\WorkVolumeWorkMaterial;
+use App\Traits\TimeCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -52,6 +53,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectWorkVolumeController extends Controller
 {
+    use TimeCalculator;
+
     public function change_depth(Request $request, $work_volume_id)
     {
         $work_volume = WorkVolume::findOrFail($work_volume_id);

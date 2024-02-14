@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Session;
 
 class ContractorController extends Controller
 {
+    use TimeCalculator;
 
     public function index(Request $request)
     {
