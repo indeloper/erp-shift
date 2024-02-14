@@ -46,6 +46,8 @@ use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 
 class TaskCommerceController extends Controller
 {
+    use TimeCalculator;
+
     public function common_task(Request $request, $id)
     {
         $task = Task::where('tasks.id', $id)
