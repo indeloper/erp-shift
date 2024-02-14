@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 
 class OurTechnicTicketController extends Controller
 {
-    use TimeCalculator;
     /**
      * @var TechnicTicketService
      */

@@ -28,7 +28,6 @@ use App\Http\Requests\TaskRequests\TaskCallRequest;
 
 class TaskCallController extends Controller
 {
-    use TimeCalculator;
 
     public function new_call(Request $request, $id) {
         $call = Task::findOrFail($id);
