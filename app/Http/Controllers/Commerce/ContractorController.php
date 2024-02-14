@@ -34,7 +34,6 @@ use Illuminate\Support\Facades\Session;
 
 class ContractorController extends Controller
 {
-    use TimeCalculator;
 
     public function index(Request $request)
     {
@@ -65,12 +64,12 @@ class ContractorController extends Controller
     {
         // $contractorTypes = Contractor::CONTRACTOR_TYPES;
         // $contractorTypes = ContractorType::pluck('name')->toArray();
-        
+
         $contractorTypes = [];
         foreach(ContractorType::all() as $contractorType) {
             $contractorTypes[$contractorType->id] = $contractorType->name;
         }
-            
+
         return view('contractors.create', compact('contractorTypes'));
     }
 
@@ -278,7 +277,7 @@ class ContractorController extends Controller
         foreach(ContractorType::all() as $contractorType) {
             $contractorTypes[$contractorType->id] = $contractorType->name;
         }
-    
+
         if($contractor->in_archive) {
             abort(403);
         }
