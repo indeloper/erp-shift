@@ -39,56 +39,55 @@
         })
     }
 
-    function createFilterRowTagBoxFilterControlForLookupColumns(e) {
-        e.editorName = `dxTagBox`;
-        e.editorOptions.showSelectionControls = true;
-        e.editorOptions.dataSource = e.lookup.dataSource;
-        e.editorOptions.displayExpr = e.lookup.displayExpr;
-        e.editorOptions.valueExpr = e.lookup.valueExpr;
-        e.editorOptions.applyValueMode = `useButtons`;
-        e.editorOptions.value = e.value || [];
-        e.editorOptions.dataFieldName = e.dataField;
-        e.editorOptions.onValueChanged = () => {
-            function calculateFilterExpression() {
-                let filterExpression = [];
-                e.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
-                    let tagBoxFilterExpression = [];
-                    let tagBox = $(item).dxTagBox(`instance`);
-                    tagBox.option(`value`).forEach(function(value) {
-                        let dataFieldName = tagBox.option().dataFieldName
-                        if(e.tableName) {
-                            dataFieldName = e.tableName + '.' + tagBox.option().dataFieldName                            
-                        }
-                        tagBoxFilterExpression.push([dataFieldName, `=`, Number(value)]);
-                        tagBoxFilterExpression.push(`or`);
-                    }, e);
-                    tagBoxFilterExpression.pop();
-                    if (tagBoxFilterExpression.length) {
-                        filterExpression.push(tagBoxFilterExpression);
-                        filterExpression.push(`and`);
+function createFilterRowTagBoxFilterControlForLookupColumns(e) {
+    e.editorName = `dxTagBox`;
+    e.editorOptions.showSelectionControls = true;
+    e.editorOptions.dataSource = e.lookup.dataSource;
+    e.editorOptions.displayExpr = e.lookup.displayExpr;
+    e.editorOptions.valueExpr = e.lookup.valueExpr;
+    e.editorOptions.applyValueMode = `useButtons`;
+    e.editorOptions.value = e.value || [];
+    e.editorOptions.dataFieldName = e.dataField;
+    e.editorOptions.onValueChanged = () => {
+        function calculateFilterExpression() {
+            let filterExpression = [];
+            e.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
+                let tagBoxFilterExpression = [];
+                let tagBox = $(item).dxTagBox(`instance`);
+                tagBox.option(`value`).forEach(function(value) {
+                    let dataFieldName = tagBox.option().dataFieldName
+                    if(e.tableName) {
+                        dataFieldName = e.tableName + '.' + tagBox.option().dataFieldName
                     }
-                })
-                filterExpression.pop();
-                return filterExpression;
-            }
+                    tagBoxFilterExpression.push([dataFieldName, `=`, Number(value)]);
+                    tagBoxFilterExpression.push(`or`);
+                }, e);
+                tagBoxFilterExpression.pop();
+                if (tagBoxFilterExpression.length) {
+                    filterExpression.push(tagBoxFilterExpression);
+                    filterExpression.push(`and`);
+                }
+            })
+            filterExpression.pop();
+            return filterExpression;
+        }
 
-            let calculatedFilterExpression = calculateFilterExpression();
+        let calculatedFilterExpression = calculateFilterExpression();
 
 
-            if (calculatedFilterExpression.length) {
-                if (calculatedFilterExpression.length === 1)
-                    e.component.filter(calculatedFilterExpression[0]);
+        if (calculatedFilterExpression.length) {
+            if (calculatedFilterExpression.length === 1)
+                e.component.filter(calculatedFilterExpression[0]);
 
-                if (calculatedFilterExpression.length > 1)
-                    e.component.filter(calculatedFilterExpression);
-            } else {
-                e.component.clearFilter(`dataSource`)
-            }
+            if (calculatedFilterExpression.length > 1)
+                e.component.filter(calculatedFilterExpression);
+        } else {
+            e.component.clearFilter(`dataSource`)
         }
     }
+}
 
-
-    function setLoadedEntityInfo() {
+function setLoadedEntityInfo() {
         entityInfoByID.reload().done((data)=>{
             entityInfo = entityInfoByID.store().__rawData;
             //

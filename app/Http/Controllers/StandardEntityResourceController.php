@@ -133,14 +133,15 @@ class StandardEntityResourceController extends Controller
      */
     public function show($id)
     {
+
         $entity = $this->baseModel::find($id);
         if(!$entity)
 
-        return json_encode([
-            'data' => [],
-            'comments' => [],
-            'attachments' => []
-        ], JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+            return json_encode([
+                'data' => [],
+                'comments' => [],
+                'attachments' => []
+            ], JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 
         $resultArr = ['data' => $entity];
 

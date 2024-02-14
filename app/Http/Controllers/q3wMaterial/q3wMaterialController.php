@@ -95,7 +95,7 @@ class q3wMaterialController extends Controller
         $detailing_level = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access') ?: 1;
         return view('materials.material-objects-remains', compact('detailing_level'));
     }
-    
+
 
     /**
      * @param Request $request
@@ -458,6 +458,7 @@ class q3wMaterialController extends Controller
 
     public function getMaterialTableQuery($projectObjectId, $filterOptions)
     {
+
         return (new q3wMaterialOperation)
             ->dxLoadOptions($filterOptions, true)
             ->leftJoin('q3w_operation_materials', 'q3w_operation_materials.material_operation_id', '=', 'q3w_material_operations.id')
@@ -618,7 +619,7 @@ class q3wMaterialController extends Controller
             ->orderBy('q3w_material_standards.name');
     }
 
-    function getObjectsRemainsQuery($filterOptions, $detailing_level) 
+    function getObjectsRemainsQuery($filterOptions, $detailing_level)
     {
 
         return (new q3wMaterial)
@@ -628,7 +629,7 @@ class q3wMaterialController extends Controller
         ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
         ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
         ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
-        
+
         ->when($detailing_level==1 || !$detailing_level, function($query){
             return $query
             ->select([
@@ -639,7 +640,7 @@ class q3wMaterialController extends Controller
                 'q3w_measure_units.value as unit_measure_value',
                 'q3w_material_comments.comment as comment',
                 DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
-            ]);            
+            ]);
         })
 
         ->when($detailing_level==2, function($query){
@@ -660,7 +661,7 @@ class q3wMaterialController extends Controller
                 DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity )')
             ]);
         })
-        
+
         ->when($detailing_level==3, function($query){
             return $query
             ->select([
@@ -680,7 +681,7 @@ class q3wMaterialController extends Controller
             ]);
         })
 
-        ->where([['amount', '>', 0], ['quantity', '>', 0]]);         
+        ->where([['amount', '>', 0], ['quantity', '>', 0]]);
     }
 
     public function materialRemainsList(Request $request): string
@@ -703,7 +704,7 @@ class q3wMaterialController extends Controller
     public function objectsRemainsList(Request $request): string
     {
         $options = json_decode($request['data']);
-        $detailing_level = $this->getDetailingLevel($request['detailing_level']); 
+        $detailing_level = $this->getDetailingLevel($request['detailing_level']);
 
         (new UsersSetting)->setSetting('material_accounting_objects_remains_report_access', $detailing_level);
 
@@ -712,7 +713,7 @@ class q3wMaterialController extends Controller
 
         unset($options->take);
         $fullList = $this->getObjectsRemainsQuery($options, $detailing_level)->get();
-        
+
         return json_encode(array(
             "data" => $materialsList,
             "amountSum" => $fullList->sum('amount'),
@@ -753,7 +754,7 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        $detailing_level = $this->getDetailingLevel(json_decode($request['detailing_level'])); 
+        $detailing_level = $this->getDetailingLevel(json_decode($request['detailing_level']));
 
         $materialsList = $this->getObjectsRemainsQuery($options, $detailing_level)
             ->get()
