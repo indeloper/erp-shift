@@ -133,7 +133,7 @@ class FuelTankController extends StandardEntityResourceController
             $this->notifyNewTankResponsible($tank);
         }
 
-        if(!empty($data['externalOperations'])) {
+        if(!empty($data['externalOperations']) || !empty($data['externalDeletedOperations'])) {
             $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations']);
         }
 
@@ -346,7 +346,10 @@ class FuelTankController extends StandardEntityResourceController
 
         $this->additionalResources->
         fuelTanks =
-            FuelTank::leftJoin('fuel_tank_transfer_histories', 'fuel_tank_transfer_histories.fuel_tank_id', '=', 'fuel_tanks.id')
+            FuelTank::leftJoin('fuel_tank_transfer_histories', function($join) {
+                $join->on('fuel_tank_transfer_histories.fuel_tank_id', '=', 'fuel_tanks.id')
+                ->where('tank_moving_confirmation', true);
+            })
             ->selectRaw('
                 fuel_tanks.*, 
                 MAX(event_date) as lastMovementConfirmationDate

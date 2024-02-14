@@ -68,7 +68,8 @@
 
         onSaving(e) {
             let changes = e.changes
-            if (changes.length === 0 && !externalOperations.length && !externalDeletedFuelFlows.length)
+
+            if (changes.length === 0 && !externalOperations.length && !externalDeletedOperations.length)
             return;
 
             if (changes.length === 0 || !changes[0].data) {
@@ -76,7 +77,7 @@
                     'data': {}
                 };
 
-                if (externalOperations.length) {
+                if (externalOperations.length || externalDeletedOperations.length) {
                     changes[0].key = editingRowId;
                     changes[0].type = 'update'
                 }
