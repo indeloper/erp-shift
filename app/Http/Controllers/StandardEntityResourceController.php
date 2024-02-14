@@ -133,23 +133,14 @@ class StandardEntityResourceController extends Controller
      */
     public function show($id)
     {
-        $entity = $this->baseModel::find($id);
-        if(!$entity)
+//        $resultArr = ['data' => $entity];
+//
+//        if(method_exists($this->baseModel, 'comments'))
+//            $resultArr['comments'] = $entity->comments;
+//        if(method_exists($this->baseModel, 'attachments'))
+//            $resultArr['attachments'] = $this->getGroupedAttachments($entity->attachments);
 
-        return json_encode([
-            'data' => [],
-            'comments' => [],
-            'attachments' => []
-        ], JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
-
-        $resultArr = ['data' => $entity];
-
-        if(method_exists($this->baseModel, 'comments'))
-            $resultArr['comments'] = $entity->comments;
-        if(method_exists($this->baseModel, 'attachments'))
-            $resultArr['attachments'] = $this->getGroupedAttachments($entity->attachments);
-
-        return json_encode($resultArr, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return  $this->baseModel::findOrFail($id);
     }
 
     /**

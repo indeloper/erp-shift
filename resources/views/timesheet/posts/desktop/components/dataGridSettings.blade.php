@@ -1,104 +1,90 @@
 <script>
+    const postDataGridEditForm = {
+        colCount: 1,
+        items: [
+            {
+                itemType: 'group',
+                colCount: 2,
+                items: [{
+                    dataField: "department_id",
+                    colSpan: 2,
+                    label: {
+                        text: "Подразделение"
+                    },
+                    validationRules: [{
+                        type: 'required',
+                        message: 'Укажите значение',
+                    }],
+                },
+                    {
+                        dataField: "name",
+                        colSpan: 2,
+                        label: {
+                            text: "Наименование"
+                        },
+                        validationRules: [{
+                            type: 'required',
+                            message: 'Укажите значение',
+                        }],
+                    },
+                    {
+                        itemType: "group",
+                        colSpan: 2,
+                        caption: "Тарифы",
+                        items: [
+                            {
+                                colSpan: 2,
+                                itemType: "simple",
+                                dataField: "postTariffs",
+                                label: {
+                                    visible: false
+                                },
+                                editorType: "skDataGrid",
+                                /*
+                                TODO: Добавить стиль, убирающий лишний padding. Но он влияет и на основной datagrid
+                                    div.dx-datagrid-header-panel {
+                                        padding: 0
+                                    }
+                                */
+                                editorOptions: {
+                                    keyExpr: "id",
+                                    height: 300,
+                                    editing: {
+                                        popup: {
+                                            title: "Тариф"
+                                        },
+                                        form: postTariffEditForm
+                                    }
+                                },
+                                template: setDataGridColumnTemplate
+                            }
+                        ]
+                    }]
+            },
+        ],
+    };
+
     const dataGridSettings = {
         height: "calc(100vh - 200px)",
-        focusedRowEnabled: true,
-        hoverStateEnabled: true,
-        columnAutoWidth: false,
-        showBorders: true,
-        showColumnLines: true,
-        columnMinWidth: 50,
-        columnResizingMode: 'nextColumn',
-        syncLookupFilterValues: false,
-        columnHidingEnabled: false,
-        showRowLines: true,
-        remoteOperations: true,
-        scrolling: {
-            mode: 'infinite',
-            rowRenderingMode: 'virtual',
-        },
-        filterRow: {
-            visible: true,
-            applyFilter: "auto"
-        },
-        headerFilter: {
-            visible: false,
-        },
-        filterPanel: {
-            visible: false,
-            customizeText: (e) => {
-                filterText = e.text;
-            }
-        },
-        paging: {
-            enabled: true,
-            pageSize: 100,
-        },
         editing: {
-            mode: "popup",
-            popup: dataGridPopup,
-            form: dataGridEditForm,
-            allowUpdating: true,
-            allowAdding: true,
-            allowDeleting: true,
-            selectTextOnEditStart: false,
-            useIcons: true,
-        },
-        onRowDblClick: function(e) {
-            if (e.rowType === "data" && DevExpress.devices.current().deviceType === 'desktop') {
-                e.component.editRow(e.rowIndex);
+            mode: "skPopup",
+            popup: {
+                title: "Должность",
+                width: '40vw',
+            },
+            form: postDataGridEditForm
+        }
+    }
+
+    function setDataGridColumnTemplate(itemOptions, itemElement) {
+        const dataGridOptions = {
+            ...itemOptions.editorOptions,
+            dataSource: itemOptions.component.option('formData')[itemOptions.dataField],
+            onSaved: (e) => {
+                itemOptions.component.updateData(itemOptions.dataField, e.component.getDataSource().items());
             }
-        },
-        onEditingStart: openFormForEditing,
-        onRowInserting: openFormForInserting,
-        onEditorPreparing: (e) => {
-            if (e.parentType === `filterRow` && e.lookup)
-                createFilterRowTagBoxFilterControlForLookupColumns(e)
-        },
-        onSaved() {
+        };
 
-        },
-        onEditCanceling(e) {
-
-        },
-        toolbar: {
-            visible: true,
-            items: [{}]
-        },
-    }
-
-    function openFormForInserting(rowInsertingEventArguments) {
-
-    }
-
-    function openFormForEditing(editingStartEventArguments) {
-        editingStartEventArguments.cancel = true;
-
-        editingStartEventArguments.component.beginCustomLoading('Загрузка карточки документа...');
-
-        editingStartEventArguments.component.getDataSource().store().byKey(editingStartEventArguments.key).done((data) => {
-            let formOptions = {
-                formData: data,
-                editingState: formEditStates.UPDATE,
-                dataGridInstance: editingStartEventArguments.component,
-                ...editingStartEventArguments.component.option('editing.form')
-            };
-
-            const form = $('<div>').dxForm(formOptions);
-
-            let popupOptions = {
-                contentTemplate: () => {
-                    return form
-                },
-                ...editingStartEventArguments.component.option('editing.popup')
-            };
-
-            let popupInstance = ($('<div>').appendTo('body')).dxPopup(popupOptions).dxPopup("instance");
-
-            form.dxForm('instance').option('popupInstance', popupInstance);
-
-            popupInstance.show();
-
-            editingStartEventArguments.component.endCustomLoading();
-        });
+        ($('<div>').skDataGrid(dataGridOptions)).appendTo(itemElement);
     }
 </script>
