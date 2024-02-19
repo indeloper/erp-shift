@@ -98,15 +98,17 @@ class FuelTankController extends StandardEntityResourceController
 
     public function afterStore($tank, $data, $dataToStore)
     {
-        FuelTankTransferHistory::create([
-            'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $tank->id,
-            'object_id' => $tank->object_id,
-            'responsible_id' => $tank->responsible_id,
-            'fuel_level' => 0,
-            'event_date' => $data['event_date'] ?? now()
-        ]);
-
+        if(empty($data['externalOperations'])) {
+            FuelTankTransferHistory::create([
+                'author_id' => Auth::user()->id,
+                'fuel_tank_id' => $tank->id,
+                'object_id' => $tank->object_id,
+                'responsible_id' => $tank->responsible_id,
+                'fuel_level' => 0,
+                'event_date' => $data['event_date'] ?? now()
+            ]);
+        }
+        
         if(!empty($data['externalOperations'])) {
             $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations'], $tank->id);
         }
@@ -114,18 +116,20 @@ class FuelTankController extends StandardEntityResourceController
 
     public function beforeUpdate($tank, $data)
     {
-        FuelTankTransferHistory::create([
-            'author_id' => Auth::user()->id,
-            'fuel_tank_id' => $tank->id,
-            'previous_object_id' => $tank->object_id,
-            'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
-            'previous_responsible_id' => $tank->responsible_id,
-            'responsible_id' => $data['responsible_id'] ?? $tank->responsible_id ?? null,
-            'fuel_level' => $tank->fuel_level,
-            'event_date' => $data['event_date'] ?? now(),
-            'tank_moving_confirmation' => null
-        ]);
-
+        if(empty($data['externalOperations']) && empty($data['externalDeletedOperations'])) {
+            FuelTankTransferHistory::create([
+                'author_id' => Auth::user()->id,
+                'fuel_tank_id' => $tank->id,
+                'previous_object_id' => $tank->object_id,
+                'object_id' => $data['object_id'] ?? $tank->object_id ?? null,
+                'previous_responsible_id' => $tank->responsible_id,
+                'responsible_id' => $data['responsible_id'] ?? $tank->responsible_id ?? null,
+                'fuel_level' => $tank->fuel_level,
+                'event_date' => $data['event_date'] ?? now(),
+                'tank_moving_confirmation' => null
+            ]);
+        }
+        
         if (empty($data['responsible_id'])) {
             $data['awaiting_confirmation'] = false;
         } else {
@@ -294,6 +298,7 @@ class FuelTankController extends StandardEntityResourceController
                     $entity = FuelTankFlow::create($dataToStore);
                     $fuelTankFlowController->afterStore($entity, $data, $dataToStore);
                 DB::commit();
+                return;
             }
         }
 

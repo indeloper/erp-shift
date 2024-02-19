@@ -44,6 +44,8 @@ class FuelTransferHistoriesUploadData extends Command
     public function handle()
     {
         $choosedId = (int)$this->ask('Укажите id топливной емкости или оставьте пустым для обновления по всем емкостям');
+        $choosedEventDate = $this->ask('Укажите дату с которой будет выполнен пересчет остатков или оставьте пустым для обновления по всем операциям');
+        
         if($choosedId) {
             $fuelTanksIds[] = $choosedId;
         } else {
@@ -51,15 +53,39 @@ class FuelTransferHistoriesUploadData extends Command
         }
         
         foreach($fuelTanksIds as $fuelTanksId) {
-            $newFuelTankTransferHistory = FuelTankTransferHistory::create([
+
+            $newFuelTankTransferHistory = $this->getNewFuelTransferHistory($fuelTanksId, $choosedEventDate);
+        
+            new FuelLevelSyncOnFlowCreatedService($newFuelTankTransferHistory);
+            $newFuelTankTransferHistory->delete();
+        }
+    }
+
+    public function getNewFuelTransferHistory($fuelTanksId, $choosedEventDate)
+    {
+        if($choosedEventDate) {
+            $parentTransferHistory = FuelTankTransferHistory::whereNotNull('fuel_tank_flow_id')
+                ->where([
+                    ['fuel_tank_id', $fuelTanksId],
+                    ['event_date', '<', Carbon::create($choosedEventDate)],
+                ])
+            ->orderByDesc('event_date')
+            ->orderByDesc('parent_fuel_level_id')
+            ->first();
+
+            return FuelTankTransferHistory::create([
+                'author_id' => User::where('user_full_name', 'Тихонов С. А.')->first()->id,
+                'fuel_tank_id' => $fuelTanksId,
+                'fuel_level' => $parentTransferHistory->fuel_level ?? 0,
+                'event_date' =>  Carbon::create($choosedEventDate)->subDay()
+            ]);
+        } else {
+            return FuelTankTransferHistory::create([
                 'author_id' => User::where('user_full_name', 'Тихонов С. А.')->first()->id,
                 'fuel_tank_id' => $fuelTanksId,
                 'fuel_level' => 0,
                 'event_date' => Carbon::create(FuelTankTransferHistory::min('event_date'))->subDay()
             ]);
-
-            new FuelLevelSyncOnFlowCreatedService($newFuelTankTransferHistory);
-            $newFuelTankTransferHistory->delete();
         }
     }
 }
