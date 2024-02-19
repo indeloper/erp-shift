@@ -67,7 +67,8 @@ class FuelLevelSyncOnFlowCreatedService
 
     public function getParentFuelTankTransferHistory()
     { 
-        return  FuelTankTransferHistory::where([
+        return  FuelTankTransferHistory::whereNotNull('fuel_tank_flow_id')
+            ->where([
             ['fuel_tank_id', $this->fuelTankTransferHistory->fuel_tank_id],
             ['event_date', '<=', $this->fuelTankTransferHistory->event_date],
             ['id', '<>', $this->fuelTankTransferHistory->id]
