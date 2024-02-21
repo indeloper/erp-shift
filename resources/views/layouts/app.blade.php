@@ -980,6 +980,7 @@
         || Request::is('building/tech_acc/fuel*')
         || Request::is('timesheet/*')
     )
+    <link rel="stylesheet" href="{{ asset('css/devextreme/dx.sk.generic.light.css')}}">
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.generic.light.css')}}">
 @else
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.material.blue.light.compact.css')}}">

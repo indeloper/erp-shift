@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Common\BaseControllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
 use App\Models\Permission;
 use App\Models\User;
@@ -9,11 +10,12 @@ use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use App\Services\SystemService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class StandardEntityResourceController extends Controller
+class GridResourceController extends Controller
 {
     protected $baseModel;
     protected $routeNameFixedPart;
@@ -104,8 +106,8 @@ class StandardEntityResourceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return JsonResponse
      */
     public function store(Request $request)
     {
@@ -119,10 +121,12 @@ class StandardEntityResourceController extends Controller
             $this->afterStore($entity, $data, $dataToStore);
         DB::commit();
 
-        return json_encode(array(
-            "stored" => $entity
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return response()->json(
+            [
+                'result' => 'ok',
+                'data' => $entity
+            ]
+        );
     }
 
     /**
@@ -133,34 +137,17 @@ class StandardEntityResourceController extends Controller
      */
     public function show($id)
     {
-
-        $entity = $this->baseModel::find($id);
-        if(!$entity)
-
-            return json_encode([
-                'data' => [],
-                'comments' => [],
-                'attachments' => []
-            ], JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
-
-        $resultArr = ['data' => $entity];
-
-        if(method_exists($this->baseModel, 'comments'))
-            $resultArr['comments'] = $entity->comments;
-        if(method_exists($this->baseModel, 'attachments'))
-            $resultArr['attachments'] = $this->getGroupedAttachments($entity->attachments);
-
-        return json_encode($resultArr, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return $this->baseModel::findOrFail($id);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $data = (array)json_decode($request->input('data'));
         $entity = $this->baseModel::findOrFail($id);
@@ -173,17 +160,19 @@ class StandardEntityResourceController extends Controller
             $this->afterUpdate($entity, $data, $dataToUpdate);
         DB::commit();
 
-        return json_encode(array(
-            "updated" => $entity
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return response()->json(
+            [
+                'result' => 'ok',
+                'data' => $entity
+            ]
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function destroy($id)
     {
@@ -194,10 +183,11 @@ class StandardEntityResourceController extends Controller
             $this->afterDelete($entity);
         DB::commit();
 
-        return json_encode(array(
-            "deleted" => 'ok'
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return response()->json(
+            [
+                'result' => 'ok'
+            ]
+        );
     }
 
     public function beforeStore($data)
