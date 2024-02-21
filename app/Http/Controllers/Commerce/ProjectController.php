@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Commerce;
 
 use App\Models\Building\ObjectResponsibleUser;
+use App\Traits\TimeCalculator;
 use App\Http\Requests\ProjectRequest\{
     ProjectTimeResponsibleUserRequest,
     SelectResponsibleUserRequest,
@@ -54,6 +55,7 @@ use \Carbon\Carbon;
 class ProjectController extends Controller
 {
     use UserSearchByGroup;
+    use TimeCalculator;
 
     public function index(Request $request)
     {

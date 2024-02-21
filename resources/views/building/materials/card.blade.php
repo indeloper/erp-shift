@@ -190,7 +190,7 @@
                                <div class="col-md-12">
                                    <div class="form-group">
                                        <label>Название<star class="star">*</star></label>
-                                       <input value="" name="name" placeholder="Укажите название" required class="form-control" maxlength="50">
+                                       <input value="" name="name" placeholder="Укажите название" required class="form-control" maxlength="255">
 {{--                                       <p>{{$category->name}}</p>--}}
                                     </div>
                                </div>
@@ -403,7 +403,7 @@
                                <div class="col-md-12">
                                    <div class="form-group">
                                        <label>Название<star class="star">*</star></label>
-                                       <input id="clone_material_name" name="name" type="text" placeholder="Укажите название" class="form-control clone-field" maxlength="50" required>
+                                       <input id="clone_material_name" name="name" type="text" placeholder="Укажите название" class="form-control clone-field" maxlength="255" required>
                                     </div>
                                </div>
                            </div>

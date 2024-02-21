@@ -8,7 +8,6 @@
         items: [
             {
                 itemType: 'group',
-                // caption: '',
                 colCount: 2,
                 items: dataGridEditForm01Group1Elems
             },
