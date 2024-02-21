@@ -1,6 +1,6 @@
 <script>
     const dataGridColumns = [
-        
+
         {
             visible: false,
             dataField: "exploitation_start",
@@ -8,22 +8,6 @@
             dataType: "date",
         },
 
-        {
-            visible: false,
-            caption: "Марка (old)",
-            dataField: "brand",
-            editorOptions: {
-                readOnly:true
-            }
-        },
-        {
-            visible: false,
-            caption: "Модель(old)",
-            dataField: "model",
-            editorOptions: {
-                readOnly:true
-            }
-        },
 
         {
             visible: false,
@@ -123,22 +107,22 @@
                 displayExpr: "name"
             },
         },
-                
+
         {
             caption: "Наименование",
             dataField: "name",
         },
-        
+
         {
             caption: "Объект",
             dataField: "object_id",
+            useTagBoxRowFilter: true,
             lookup: {
                 dataSource: additionalResources.objects,
                 valueExpr: "id",
                 displayExpr: "short_name",
             },
             cellTemplate(container, options) {
-                console.log(options);
                 let cellContent
                 if(options.row.data.status_slug === 'inProgress') {
                     const objectFrom = additionalResources.objects.find(el=>el.id === options.row.data.previous_object_id)?.short_name
@@ -153,28 +137,14 @@
             },
             width: 400
         },
-        
+
         {
             visible: userPermissions.technics_create_update_delete,
             type: "buttons",
             buttons: [
                 'edit',
                 'delete'
-            ],
-
-            headerCellTemplate: (container, options) => {
-                $('<div>')
-                    .appendTo(container)
-                    .dxButton({
-                        text: "Добавить",
-                        icon: "fas fa-plus",
-                        onClick: (e) => {
-                            options.component.addRow();
-                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowKey", undefined);
-                            $('#mainDataGrid').dxDataGrid('instance').option("focusedRowIndex", undefined);
-                        }
-                    })
-            }
+            ]
         }
 
 

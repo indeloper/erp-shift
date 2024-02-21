@@ -83,7 +83,7 @@ class TimesheetCardsController extends StandardEntityResourceController
         return Carbon::parse("{$year}-{$month}-01")->endOfMonth()->day;
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         DB::beginTransaction();
 

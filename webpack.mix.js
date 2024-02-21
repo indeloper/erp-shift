@@ -170,12 +170,12 @@ mix.copy('resources/assets/img/logosvg.png', 'public/img');
 // mix.copy('node_modules/devextreme/dist/css/dx.generic.light.css', 'public/css/devextreme/dx.generic.light.css');
 //  mix.copy('node_modules/devextreme/dist/css/dx.generic.light.compact.css', 'public/css/devextreme/dx.generic.light.compact.css');
 // *** Не собирается
-//  mix.copy('node_modules/devextreme/dist/dx.all.js', 'public/js/devextreme/dx.all.js');
+//  mix.copy('node_modules/devextreme/dist/dx.all-23.1.js', 'public/js/devextreme/dx.all-23.1.js');
   mix.scripts([
   'resources/assets/js/common/devextreme/settings/dxSelectBox.js'
   ], 'public/js/devextreme/default-settings.js');
 
- //Q3W 
+ //Q3W
  mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
 
 // lightgalleryjs.com

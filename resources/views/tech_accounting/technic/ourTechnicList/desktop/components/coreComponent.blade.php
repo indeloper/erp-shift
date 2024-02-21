@@ -13,9 +13,9 @@
                             dataSource: entitiesDataSource,
                             ...dataGridSettings,
                             columns: dataGridColumns,
-                            elementAttr: {
-                                id: "mainDataGrid"
-                            }
+                            // elementAttr: {
+                            //     id: "mainDataGrid"
+                            // }
                         }
                     }]
                 }
