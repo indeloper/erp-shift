@@ -497,13 +497,13 @@
                     {
                         itemType: "tabbed",
                         tabPanelOptions: {
-                            deferRendering: false
+                            deferRendering: true
                         },
                         cssClass: "actual-materials-grid",
                         colSpan: 2,
                         tabs:[
                             {
-                                title: "Материалы на объекте",
+                                tabTemplate: '<div>Материалы на объекте</div>',
                                 items: [{
                                     name: "materialDataGrid",
                                     editorType: "dxDataGrid",
@@ -847,7 +847,7 @@
                                 }]
                             },
                             {
-                                title: "Материалы в резерве",
+                                tabTemplate: '<div>Материалы в резерве</div>',
                                 items: [{
                                     name: "reservedMaterialsGrid",
                                     editorType: "dxDataGrid",
@@ -1006,7 +1006,7 @@
             function createOperationButtons(){
                 let groupTabs = $('.actual-materials-grid').find('.dx-tabpanel-tabs');
                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupTabs);
-                let tabList = groupTabs.find('.dx-tabs[role=tablist]')
+                let tabList = groupTabs.find('.dx-tabs-wrapper[role=tablist]')
                 console.log(tabList);
 
                 $('<div class="tab-wrapper-button">')
@@ -1014,6 +1014,7 @@
                         {
                             text: "Комментировать",
                             stylingMode: 'outlined',
+                            disabled: true,
                             onClick: (e) => {
                                 let popupWindow = $("#commentPopup")
                                     .dxPopup(
