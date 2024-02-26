@@ -545,7 +545,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 ['fuel_tank_id', $fuelTankId],
                 ['object_id', $objectId],
                 ['tank_moving_confirmation', 1],
-                ['event_date', $dateFrom]
+                ['event_date', $dateFrom],
         ])->first();
 
         if($tankRecievedEvent) {
@@ -555,7 +555,8 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                     ['fuel_tank_id', $fuelTankId],
                     ['responsible_id', $responsibleId],
                     ['object_id', $objectId],
-                    ['event_date', $dateFrom]
+                    ['event_date', $dateFrom],
+                    ['fuel_tank_flow_id', '<>', NULL],
                     // ['event_date', '<=' , $dateFrom],
                     // ['event_date', '>=' , $dateTo]
                 ])
@@ -570,6 +571,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
                     ['fuel_tank_id', $fuelTankId],
                     ['event_date', '<=' , $dateFrom],
+                    ['fuel_tank_flow_id', '<>', NULL],
                 ])
                 ->orderByDesc('event_date')
                 ->orderByDesc('parent_fuel_level_id')->first();
@@ -582,7 +584,8 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                         ['previous_responsible_id', $responsibleId],
                         ['previous_object_id', $objectId],
                         ['event_date', '>=' , $dateFrom],
-                        ['event_date', '<=' , $dateTo]
+                        ['event_date', '<=' , $dateTo],
+                        ['fuel_tank_flow_id', '<>', NULL],
                     ])->orderByDesc('parent_fuel_level_id')->first();
 
                     $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
@@ -596,6 +599,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             ['object_id', $objectId],
             ['event_date', '>=',  $dateFrom],
             ['event_date', '<=',  $dateTo],
+            ['fuel_tank_flow_id', '<>', NULL],
         ])
         ->orderByDesc('event_date')
         ->orderBy('id', 'desc')

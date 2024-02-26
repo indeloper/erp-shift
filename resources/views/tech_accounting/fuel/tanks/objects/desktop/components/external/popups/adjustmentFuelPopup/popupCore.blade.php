@@ -54,10 +54,15 @@
                     editorOptions: {
                         readOnly: externalEditingRowId,
                         max: Date(),
-                        value: Date()
+                        // value: new Date()
                         // onContentReady(e) {
                         //     setEventDateSelectBoxOptions(editingRowId, e.component)
                         // },
+                        onInitialized(e) {
+                            if(!externalEditingRowId) {
+                                e.component.option('value', new Date())
+                            }
+                        }
                     },
                     label: {
                         text: 'Дата операции'
@@ -102,25 +107,25 @@
                     }],
                 },
 
-                {
-                    itemType: "group",
-                    caption: 'Файлы',
-                    items: [
-                        {
-                            item: 'simple',
-                            template: (data, itemElement) => {
-                                renderFileUploader(itemElement)
-                            }
-                        },
+                // {
+                //     itemType: "group",
+                //     caption: 'Файлы',
+                //     items: [
+                //         {
+                //             item: 'simple',
+                //             template: (data, itemElement) => {
+                //                 renderFileUploader(itemElement)
+                //             }
+                //         },
 
-                        {
-                            item: 'simple',
-                            template: (data, itemElement) => {
-                                renderFileDisplayer(itemElement)
-                            }
-                        },
-                    ]
-                }
+                //         {
+                //             item: 'simple',
+                //             template: (data, itemElement) => {
+                //                 renderFileDisplayer(itemElement)
+                //             }
+                //         },
+                //     ]
+                // }
 
             ]
         })

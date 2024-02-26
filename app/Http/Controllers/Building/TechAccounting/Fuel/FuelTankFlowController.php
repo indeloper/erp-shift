@@ -136,6 +136,11 @@ class FuelTankFlowController extends StandardEntityResourceController
         if(!empty($data['deletedAttachments']))
             $this->deleteFiles($data['deletedAttachments']);
 
+
+        if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug==='simultaneous_income_outcome') {
+            return;
+        }
+
         $lastFuelTankTransferHistory = 
             FuelTankTransferHistory::where('fuel_tank_id', $data['fuel_tank_id'])
                 ->orderBy('event_date', 'desc')
@@ -187,24 +192,19 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function beforeUpdate($entity, $data)
     {
-        // if ($entity->volume != $data['volume'] || $entity->fuel_tank_id != $data['fuel_tank_id']) {
-        //     $fuelLevel = $this->syncFuelLevelData($entity, $data);
-        // }
+        if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug != 'simultaneous_income_outcome') {
 
-        $historyLog = FuelTankTransferHistory::where(['fuel_tank_flow_id' => $entity->id])->orderByDesc('id')->first();
+            $historyLog = FuelTankTransferHistory::where(['fuel_tank_flow_id' => $entity->id])->orderByDesc('id')->first();
 
-        if ($entity->volume != $data['volume'] || $entity->fuel_tank_id != $data['fuel_tank_id']) {
-            new FuelLevelSyncOnFlowUpdatedService($historyLog, $data);
+            if ($entity->volume != $data['volume'] || $entity->event_date != $data['event_date']) {
+                new FuelLevelSyncOnFlowUpdatedService($historyLog, $data);
+            }
+
+            // $historyLog->fuel_tank_id = $data['fuel_tank_id'];
+            // $historyLog->event_date = $data['event_date'];
+
+            // $historyLog->save();
         }
-
-        $historyLog->fuel_tank_id = $data['fuel_tank_id'];
-        $historyLog->event_date = $data['event_date'];
-
-        if(isset($fuelLevel)) {
-            $historyLog->fuel_level = $fuelLevel;
-        }
-
-        $historyLog->save();
 
         $data['our_technic_id'] = $data['our_technic_id'] ?? null;
         $data['third_party_consumer'] = $data['third_party_consumer'] ?? null;

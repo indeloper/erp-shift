@@ -81,4 +81,38 @@ class FuelNotifications
             'type' => 0,
         ]);
     }
+
+    public function notifyAdminsAboutFuelBalanceMissmatches($data)
+    {
+        $notificationText = 
+            '<b>Ошибка в топливных остатках</b>'
+            ."\n"."\n"
+            ."<b>Номер емкости:</b> {$data['tank']->tank_number}"
+            ."\n"
+            ."<b>Id емкости:</b> {$data['tank']->id}"
+            ."\n"
+            ."<b>Начальная дата:</b> {$data['dateFrom']}"
+            ."\n"."\n"
+            ."<b>Остатки:</b>"
+            ."\n"
+            ."Таблица fuel_tanks: {$data['tank']->fuel_level}"
+            ."\n"
+            ."Последняя запись в TransferHistories: {$data['periodReportTankFuelLevel']}"
+            ."\n"
+            ."Расчет по сумме топливных операций: {$data['calculatedTankFuelLevel']}"
+            ;
+
+            $admins = User::where([
+                ['is_su', true],
+                ['chat_id', '<>', NULL]
+            ])->get();
+
+            foreach($admins as $admin){
+                Notification::create([
+                    'name' => $notificationText,
+                    'user_id' => $admin->id,
+                    'type' => 0,
+                ]);
+            }
+    }
 }

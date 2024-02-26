@@ -23,9 +23,9 @@
                     valueExpr: 'id',
                     displayExpr: 'tank_number',
                     readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('fuel_tank_id')),
-                    onSelectionChanged(e) {
-                        setEventDateSelectBoxOptions(e.selectedItem.id, 'eventDateSelectBox')
-                    }
+                    // onSelectionChanged(e) {
+                    //     setEventDateSelectBoxOptions(e.selectedItem.id, 'eventDateSelectBox')
+                    // }
                 },
                 label: {
                     text: 'Емкость'
@@ -59,10 +59,14 @@
                 editorOptions: {
                     readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
                     max: Date(),
-                    value: getEventDate(),
                     elementAttr: {
                         id: "eventDateSelectBox",
                     },
+                    onInitialized(e) {
+                        if(!editingRowId) {
+                            e.component.option('value', new Date())
+                        }
+                    }
                 },
                 label: {
                     text: 'Дата операции'

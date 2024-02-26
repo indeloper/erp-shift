@@ -147,20 +147,20 @@
                 // 'edit',
                 {
                     name: 'delete',
-                    visible: false,
-                    // visible(e) {
-                    //     const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
-                    //     if (dateDiff > 1) {
-                    //         return false
-                    //     }
-                    //     if (Boolean("{{App::environment('local')}}")) {
-                    //         return true;
-                    //     }
-                    //     if (!Boolean(+e.row.data.author_id === +authUserId)) {
-                    //         return false;
-                    //     }
-                    //     return true;
-                    // }, 
+                    // visible: false,
+                    visible(e) {
+                        const dateDiff = getDatesDaysDiff(e.row.data.created_at, Date())
+                        if (dateDiff > 1) {
+                            return false
+                        }
+                        if (Boolean("{{App::environment('local')}}")) {
+                            return true;
+                        }
+                        if (!Boolean(+e.row.data.author_id === +authUserId)) {
+                            return false;
+                        }
+                        return true;
+                    }, 
                     onClick(e) {
                         customConfirmDialog("Вы уверены, что хотите удалить запись?")
                             .show().then((dialogResult) => {

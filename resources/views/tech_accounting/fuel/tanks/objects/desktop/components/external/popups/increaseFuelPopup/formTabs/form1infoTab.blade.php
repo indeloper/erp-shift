@@ -59,10 +59,15 @@
                 editorOptions: {
                     readOnly: Boolean(isFuelFlowDataFieldUpdateAvailable('event_date')),
                     max: Date(),
-                    value: getEventDate(),
+                    // value: getEventDate(),
                     onContentReady(e) {
                         setEventDateSelectBoxOptions(editingRowId, e.component)
                     },
+                    onInitialized(e) {
+                        if(!externalEditingRowId) {
+                            e.component.option('value', new Date())
+                        }
+                    }
                 },
                 label: {
                     text: 'Дата операции'
