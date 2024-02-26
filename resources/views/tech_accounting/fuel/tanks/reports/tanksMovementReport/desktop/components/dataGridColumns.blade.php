@@ -10,7 +10,7 @@
         {
             caption: "Топливная емкость",
             dataField: "fuel_tank_id",
-            alignment: "left",
+            // alignment: "left",
             lookup: {
                 dataSource: additionalResources.fuelTanks,
                 valueExpr: "id",

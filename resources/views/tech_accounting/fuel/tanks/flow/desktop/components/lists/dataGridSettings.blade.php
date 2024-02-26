@@ -53,16 +53,20 @@
                 let choosedItem = getChoosedItem(e.key)
                 let fuelFlowType = additionalResources.fuelFlowTypes.find(el => el.id === choosedItem.fuel_tank_flow_type_id).slug
 
-                if (fuelFlowType === 'outcome') {
+                if (fuelFlowType === 'outcome' || fuelFlowType === 'simultaneous_income_outcome') {
                     if (!choosedItem.third_party_mark) {
                         choosedItem.fuelConsumerType = 'our_technik_radio_elem'
                     } else {
                         choosedItem.fuelConsumerType = 'third_party_technik_radio_elem'
                     }
 
-                    showDecreaseFuelPopup(choosedItem)
+                    if (fuelFlowType === 'outcome') {
+                        showDecreaseFuelPopup(choosedItem)
+                    }
+                    if (fuelFlowType === 'simultaneous_income_outcome') {
+                        showSimultaneousIncomeOutcomeFuelPopup(choosedItem)
+                    }
                 }
-
 
                 if (fuelFlowType === 'income')
                     showIncreaseFuelPopup(choosedItem)

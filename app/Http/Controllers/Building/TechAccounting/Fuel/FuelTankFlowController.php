@@ -115,14 +115,17 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function beforeStore($data)
     {
-        $tank = FuelTank::findOrFail($data['fuel_tank_id']);
-
         $data['author_id'] = Auth::id();
 
-        [$data['responsible_id'], $data['object_id']] = $this->getFuelFlowResponsibleAndObject($tank);
-
-        $data['company_id'] = $tank->company_id;
-
+        if($data["fuel_tank_flow_type_id"] === FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
+            $data['responsible_id'] = Auth::id();
+        } 
+        else {
+            $tank = FuelTank::findOrFail($data['fuel_tank_id']);      
+            [$data['responsible_id'], $data['object_id']] = $this->getFuelFlowResponsibleAndObject($tank);
+            $data['company_id'] = $tank->company_id;
+        }
+        
         return [
             'data' => $data,
         ];
@@ -136,8 +139,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         if(!empty($data['deletedAttachments']))
             $this->deleteFiles($data['deletedAttachments']);
 
-
-        if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug==='simultaneous_income_outcome') {
+        if($data["fuel_tank_flow_type_id"] === FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
             return;
         }
 
@@ -192,18 +194,21 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function beforeUpdate($entity, $data)
     {
-        if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug != 'simultaneous_income_outcome') {
-
+        if($data["fuel_tank_flow_type_id"] != FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
             $historyLog = FuelTankTransferHistory::where(['fuel_tank_flow_id' => $entity->id])->orderByDesc('id')->first();
 
-            if ($entity->volume != $data['volume'] || $entity->event_date != $data['event_date']) {
+            if ($entity->volume != $data['volume'] || $entity->fuel_tank_id != $data['fuel_tank_id']) {
                 new FuelLevelSyncOnFlowUpdatedService($historyLog, $data);
             }
 
-            // $historyLog->fuel_tank_id = $data['fuel_tank_id'];
-            // $historyLog->event_date = $data['event_date'];
+            $historyLog->fuel_tank_id = $data['fuel_tank_id'];
+            $historyLog->event_date = $data['event_date'];
 
-            // $historyLog->save();
+            if(isset($fuelLevel)) {
+                $historyLog->fuel_level = $fuelLevel;
+            }
+
+            $historyLog->save();
         }
 
         $data['our_technic_id'] = $data['our_technic_id'] ?? null;
@@ -216,6 +221,9 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function beforeDelete($entity)
     {
+        if($entity["fuel_tank_flow_type_id"] === FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
+            return;
+        }
         $fuelflowHistory = FuelTankTransferHistory::where('fuel_tank_flow_id', $entity->id)->orderByDesc('id')->first();
         if($fuelflowHistory) {
             new FuelLevelSyncOnFlowDeletedService($fuelflowHistory);
@@ -259,61 +267,61 @@ class FuelTankFlowController extends StandardEntityResourceController
         }
     }
 
-    public function syncFuelLevelData($entity, $data)
-    {
-        $tank = FuelTank::find($data['fuel_tank_id']);
+    // public function syncFuelLevelData($entity, $data)
+    // {
+    //     $tank = FuelTank::find($data['fuel_tank_id']);
 
-        if ($entity->fuel_tank_id != $data['fuel_tank_id']) {
-            $oldTank = FuelTank::find($entity->fuel_tank_id);
+    //     if ($entity->fuel_tank_id != $data['fuel_tank_id']) {
+    //         $oldTank = FuelTank::find($entity->fuel_tank_id);
 
-            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
-                $oldTank->fuel_level = round($oldTank->fuel_level + $entity->volume);
-                $tank->fuel_level = round($tank->fuel_level - $entity->volume);
-            }
+    //         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
+    //             $oldTank->fuel_level = round($oldTank->fuel_level + $entity->volume);
+    //             $tank->fuel_level = round($tank->fuel_level - $entity->volume);
+    //         }
 
-            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
-                $oldTank->fuel_level = round($oldTank->fuel_level - $entity->volume);
-                $tank->fuel_level = round($tank->fuel_level + $entity->volume);
-            }
+    //         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
+    //             $oldTank->fuel_level = round($oldTank->fuel_level - $entity->volume);
+    //             $tank->fuel_level = round($tank->fuel_level + $entity->volume);
+    //         }
 
-            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
-                $oldTank->fuel_level = round($oldTank->fuel_level - $entity->volume);
-                $tank->fuel_level = round($tank->fuel_level + $entity->volume);
-            }
+    //         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
+    //             $oldTank->fuel_level = round($oldTank->fuel_level - $entity->volume);
+    //             $tank->fuel_level = round($tank->fuel_level + $entity->volume);
+    //         }
 
-            $oldTank->save();
-            $tank->save();
-        }
+    //         $oldTank->save();
+    //         $tank->save();
+    //     }
 
-        if ($entity->volume != $data['volume']) {
+    //     if ($entity->volume != $data['volume']) {
 
-            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
-                if ($data['volume'] > $entity->volume) {
-                    $tank->fuel_level = $tank->fuel_level - ($data['volume'] - $entity->volume);
-                }
-                else {
-                    $tank->fuel_level = $tank->fuel_level + ($data['volume'] - $entity->volume);
-                }
-            }
+    //         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'outcome') {
+    //             if ($data['volume'] > $entity->volume) {
+    //                 $tank->fuel_level = $tank->fuel_level - ($data['volume'] - $entity->volume);
+    //             }
+    //             else {
+    //                 $tank->fuel_level = $tank->fuel_level + ($data['volume'] - $entity->volume);
+    //             }
+    //         }
 
-            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
-                if ($data['volume'] > $entity->volume) {
-                    $tank->fuel_level = $tank->fuel_level + ($data['volume'] - $entity->volume);
-                }
-                else {
-                    $tank->fuel_level = $tank->fuel_level - ($data['volume'] - $entity->volume);
-                }
-            }
+    //         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'income') {
+    //             if ($data['volume'] > $entity->volume) {
+    //                 $tank->fuel_level = $tank->fuel_level + ($data['volume'] - $entity->volume);
+    //             }
+    //             else {
+    //                 $tank->fuel_level = $tank->fuel_level - ($data['volume'] - $entity->volume);
+    //             }
+    //         }
 
-            if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
-                $tank->fuel_level - $entity->volume + $data['volume'];
-            }
+    //         if(FuelTankFlowType::find($entity->fuel_tank_flow_type_id)->slug === 'adjustment') {
+    //             $tank->fuel_level - $entity->volume + $data['volume'];
+    //         }
 
-            $tank->save();
-        }
+    //         $tank->save();
+    //     }
 
-        return $tank->fuel_level;
-    }
+    //     return $tank->fuel_level;
+    // }
 
     public function setAdditionalResources()
     {
