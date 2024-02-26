@@ -211,6 +211,40 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             // }
         }
 
+        if(empty($filteredByTankArr)) {
+            $directFuelFlows = $this->getDirectFuelFlows($globalDateFrom, $globalDateToNextDay);
+
+            foreach($directFuelFlows as $responsibleId=>$objects) {
+                if(!empty($filteredByResponsiblesArr) && !in_array($responsibleId, $filteredByResponsiblesArr)) {
+                    continue;
+                }
+                foreach($objects as $objectId=>$companies) {
+                    if(!empty($filteredByObjectArr) && !in_array($objectId, $filteredByObjectArr)) {
+                        continue;
+                    }
+                    foreach($companies as $companyId=>$fuelFlows) {
+                        $baseReportArray[$responsibleId]['no_tank_direct_fuel_flow'][$objectId][$companyId]['outcomes'] = $fuelFlows;
+                        $baseReportArray[$responsibleId]['no_tank_direct_fuel_flow'][$objectId][$companyId]['groupedIncomes'] = 
+                            FuelTankFlow::where([
+                                ['event_date', '>=', $globalDateFrom],
+                                ['event_date', '<', $globalDateToNextDay],
+                                ['fuel_tank_flows.responsible_id', $responsibleId],
+                                ['fuel_tank_flows.object_id', $objectId],
+                                ['fuel_tank_flows.company_id', $companyId]
+                            ])
+                            ->leftJoin('contractors', 'fuel_tank_flows.contractor_id', '=', 'contractors.id')
+                            ->groupBy(['fuel_tank_flows.event_date', 'fuel_tank_flows.document'])
+                            ->get([
+                                DB::raw("SUM(volume) as volume"),
+                                'contractors.short_name as contractor', 
+                                'event_date', 
+                                'document' 
+                            ])->toArray();
+                    }                
+                }
+            }
+        }
+
         if(!count($baseReportArray)) {
 
             return view('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.emptyReportTemplate',
@@ -245,6 +279,32 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
             .$globalDateFrom->format('d.m.Y'). '-'
             .$globalDateTo->format('d.m.Y')
             .'.pdf');
+    }
+
+    public function getDirectFuelFlows($globalDateFrom, $globalDateToNextDay)
+    {
+        return FuelTankFlow::whereNull('fuel_tank_id')
+            ->where([
+                ['event_date', '>=', $globalDateFrom],
+                ['event_date', '<', $globalDateToNextDay]
+            ])
+            ->leftJoin('fuel_tank_flow_types', 'fuel_tank_flows.fuel_tank_flow_type_id', '=', 'fuel_tank_flow_types.id')
+            ->leftJoin('our_technics', 'fuel_tank_flows.our_technic_id', '=', 'our_technics.id')
+            ->leftJoin('contractors', 'fuel_tank_flows.contractor_id', '=', 'contractors.id')
+            ->get(['fuel_tank_flows.responsible_id',
+                'object_id',
+                'event_date',
+                'volume',
+                'fuel_tank_flow_types.slug as fuel_tank_flow_type_slug',
+                'fuel_tank_flows.our_technic_id',
+                'fuel_tank_flows.document',
+                'fuel_tank_flows.author_id',
+                'fuel_tank_flows.company_id',
+                'contractors.short_name as contractor',
+                DB::raw('CASE WHEN fuel_tank_flows.our_technic_id THEN our_technics.name ELSE fuel_tank_flows.third_party_consumer END as fuel_consumer'),
+            ])
+            ->groupBy(['responsible_id', 'object_id', 'company_id'])
+            ->toArray();
     }
 
     public function getTransitionPeriodTanksList($globalDateFrom)

@@ -1,18 +1,5 @@
 <script>
     const dataGridColumns = [
-
-        {
-            visible: false,
-            caption: "Объект",
-            dataField: "object_id",
-            lookup: {
-                dataSource: additionalResources.projectObjects,
-                valueExpr: "id",
-                displayExpr: "name"
-            },
-            // groupIndex: 1,
-        },
-
         {
             visible: false,
             caption: "Поставщик",
@@ -70,7 +57,7 @@
         {
             caption: "Тип операции",
             dataField: "fuel_tank_flow_type_id",
-            width: '140px',
+            width: '160px',
             lookup: {
                 dataSource: additionalResources.fuelFlowTypes,
                 valueExpr: "id",
@@ -86,10 +73,14 @@
                 if (options.value === additionalResources.fuelFlowTypes.find(el => el.slug === 'outcome').id) {
                     cssTextColor = 'text-color-red'
                     marker.addClass('fa fa-arrow-down')
-                } else if (options.value === additionalResources.fuelFlowTypes.find(el => el.slug === 'income').id) {
+                } else if (options.value === additionalResources.fuelFlowTypes.find(el => el.slug === 'income').id ) {
                     cssTextColor = 'text-color-green'
                     marker.addClass('fa fa-arrow-up')
-                } else {
+                } else if (options.value === additionalResources.fuelFlowTypes.find(el => el.slug === 'simultaneous_income_outcome').id) {
+                    cssTextColor = 'text-color-red'
+                    marker.addClass('fa fa-arrows-v')
+                } 
+                else {
                     cssTextColor = 'text-color-blue'
                     marker.addClass('fas fa-exchange-alt')
                 }
@@ -121,21 +112,31 @@
         },
 
         {
-            caption: "Топливная емкость",
+            caption: "Номер емкости",
             dataField: "fuel_tank_id",
+            width: 100,
             lookup: {
                 dataSource: additionalResources.fuelTanks,
                 valueExpr: "id",
                 displayExpr: "tank_number"
             },
-            alignment: "left",
-            cellTemplate(container, options) {
-                const objectName = additionalResources.projectObjects.find(el => el.id === options.row.data.object_id)?.short_name
-                $('<span>')
-                    .attr('title', options.text + ' (' + objectName + ')')
-                    .html(`<div class="flex"><span style="font-weight:bold">${options.text}</span><div class="ml_5 text-overflow-ellipsis">(${objectName})</div></div>`)
-                    .appendTo(container)
-            }
+            // alignment: "right",
+            // cellTemplate(container, options) {
+            //     const objectName = additionalResources.projectObjects.find(el => el.id === options.row.data.object_id)?.short_name
+            //     $('<span>')
+            //         .attr('title', options.text + ' (' + objectName + ')')
+            //         .html(`<div class="flex"><span style="font-weight:bold">${options.text}</span><div class="ml_5 text-overflow-ellipsis">(${objectName})</div></div>`)
+            //         .appendTo(container)
+            // }
+        },
+        {
+            caption: "Объект",
+            dataField: "object_id",
+            lookup: {
+                dataSource: additionalResources.projectObjects,
+                valueExpr: "id",
+                displayExpr: "name"
+            },
         },
         {
             caption: "Компания",
@@ -180,7 +181,10 @@
                 let displayValue = ''
                 let cssTextColor = ''
 
-                if (options.row.data.fuel_tank_flow_type_id === additionalResources.fuelFlowTypes.find(el => el.slug === 'outcome').id) {
+                if (
+                        options.row.data.fuel_tank_flow_type_id === additionalResources.fuelFlowTypes.find(el => el.slug === 'outcome').id 
+                        || options.row.data.fuel_tank_flow_type_id === additionalResources.fuelFlowTypes.find(el => el.slug === 'simultaneous_income_outcome').id
+                    ) {
                     displayValue = options.value * -1
                 } else {
                     displayValue = options.value
@@ -287,6 +291,9 @@
                                 case 'Расход':
                                     iconTemplate = 'fa fa-arrow-down text-color-red mr5'
                                     break
+                                case 'Прямая заправка':
+                                    iconTemplate = 'fa fa-arrows-v text-color-red mr5'
+                                    break
                                 case 'Корректировка':
                                     iconTemplate = 'fas fa-exchange-alt text-color-blue mr5'
                                     break
@@ -309,6 +316,9 @@
 
                             if (e.itemData.slug === 'adjustment')
                                 showAdjustmentFuelPopup();
+
+                            if (e.itemData.slug === 'simultaneous_income_outcome')
+                                showSimultaneousIncomeOutcomeFuelPopup();
                         }
                     })
             }

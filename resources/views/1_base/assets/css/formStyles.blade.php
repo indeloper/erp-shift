@@ -13,4 +13,8 @@
     gap: 10px;
 }
 
+.dx-tabpanel-container {
+    height: calc(100% - 25px) !important; 
+}
+
 </style>
