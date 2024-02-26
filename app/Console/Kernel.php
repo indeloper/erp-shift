@@ -53,8 +53,8 @@ class Kernel extends ConsoleKernel
         Commands\SetTelegramWebhook::class,
         Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class,
         Commands\Support\FuelTransferHistoriesUploadData::class,
-        Commands\Support\ShowFuelTanksWithDifferenceBetweenExpectedAndRealFuelLevel::class
-       
+        Commands\Support\ShowFuelTanksWithDifferenceBetweenExpectedAndRealFuelLevel::class,
+        Commands\Support\FuelTanksFuelLevelCheck::class
     ];
 
     /**
@@ -87,6 +87,8 @@ class Kernel extends ConsoleKernel
         (new ProjectObjectDocumentsNotifications)->handle();
 
         $schedule->command('fuelTank:notifyAboutMovingConfirmationDelay')->dailyAt('09:09');
+
+        $schedule->command("check:fuelTanksFuelLevel --dateFrom='01-01-2024'")->dailyAt('08:00');
     }
 
     /**

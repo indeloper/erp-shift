@@ -45,18 +45,24 @@ class FuelTransferHistoriesUploadData extends Command
     {
         $choosedId = (int)$this->ask('Укажите id топливной емкости или оставьте пустым для обновления по всем емкостям');
         $choosedEventDate = $this->ask('Укажите дату с которой будет выполнен пересчет остатков или оставьте пустым для обновления по всем операциям');
-        
+
         if($choosedId) {
             $fuelTanksIds[] = $choosedId;
         } else {
             $fuelTanksIds = FuelTank::pluck('id');
         }
-        
+
         foreach($fuelTanksIds as $fuelTanksId) {
 
             $newFuelTankTransferHistory = $this->getNewFuelTransferHistory($fuelTanksId, $choosedEventDate);
-        
+
             new FuelLevelSyncOnFlowCreatedService($newFuelTankTransferHistory);
+
+            $newFuelTankTransferHistoryChild = FuelTankTransferHistory::where('parent_fuel_level_id', $newFuelTankTransferHistory->id)->first();
+            if($newFuelTankTransferHistoryChild) {
+                $newFuelTankTransferHistoryChild->parent_fuel_level_id = $newFuelTankTransferHistory->parent_fuel_level_id;
+                $newFuelTankTransferHistoryChild->save();
+            }
             $newFuelTankTransferHistory->delete();
         }
     }

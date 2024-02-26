@@ -26,31 +26,36 @@ class FuelLevelSyncOnFlowDeletedService
 
     public function updateChainOfFuelTankTransferHistories()
     {
-        [$parentFuelLevelId, $fuelLevel] = $this->getParentHistoryData();
-        $fuelTankTransferHistoriesToUpdate = $this->getFuelTankTransferHistoriesToUpdate($parentFuelLevelId);
+        $currentFuelTankTransferHistory = $this->fuelTankTransferHistory;
+        $parent = FuelTankTransferHistory::find($currentFuelTankTransferHistory->parent_fuel_level_id);
+        $parentFuelLevel = $parent->fuel_level ?? 0;
+        $parentId = $parent->id ?? null;
 
-        foreach($fuelTankTransferHistoriesToUpdate as $currentFuelTankTransferHistory) {
-            $currentFuelTankTransferHistory->parent_fuel_level_id = $parentFuelLevelId;
-            $currentFuelTankTransferHistory->fuel_level = $this->getFuelLevel($currentFuelTankTransferHistory, $fuelLevel);
-            $currentFuelTankTransferHistory->save();
+        $i=0;
+        while($currentFuelTankTransferHistory) { 
+            if($i===0) {
+                if(FuelTankTransferHistory::where('parent_fuel_level_id', $this->fuelTankTransferHistory->id)->first()) {
+                    $currentFuelTankTransferHistory = FuelTankTransferHistory::where('parent_fuel_level_id', $this->fuelTankTransferHistory->id)->first();
+                    $currentFuelTankTransferHistory->parent_fuel_level_id = $parentId;
+                } else {
+                    $this->finalFuelLevelAmount = $parent->fuel_level;
+                    break;
+                }
+            } else {
+                $currentFuelTankTransferHistory = FuelTankTransferHistory::where('parent_fuel_level_id', $parentId)->first();
+            }
+            
+            if($currentFuelTankTransferHistory) {
+                $currentFuelTankTransferHistory->fuel_level = $this->getFuelLevel($currentFuelTankTransferHistory, $parentFuelLevel);
+                $currentFuelTankTransferHistory->save();
 
-            $parentFuelLevelId = $currentFuelTankTransferHistory->id;
-            $fuelLevel = $currentFuelTankTransferHistory->fuel_level;
+                $parentFuelLevel = $currentFuelTankTransferHistory->fuel_level;
+                $parentId = $currentFuelTankTransferHistory->id;
+                $this->finalFuelLevelAmount = $currentFuelTankTransferHistory->fuel_level;
+            }
+
+            $i++;
         }
-
-        $this->finalFuelLevelAmount = $fuelLevel;
-    }
-
-    public function getParentHistoryData()
-    {
-        if($this->fuelTankTransferHistory->parent_fuel_level_id) {
-            return [
-                $this->fuelTankTransferHistory->parent_fuel_level_id,
-                FuelTankTransferHistory::find($this->fuelTankTransferHistory->parent_fuel_level_id)->fuel_level
-            ];
-        } 
-
-        return [0, 0];
     }
 
     public function updateFuelTankFuelLevel()
@@ -58,17 +63,6 @@ class FuelLevelSyncOnFlowDeletedService
         $fuelTank = FuelTank::find($this->fuelTankTransferHistory->fuel_tank_id);
         $fuelTank->fuel_level = $this->finalFuelLevelAmount;
         $fuelTank->save();
-    }
-
-
-    public function getFuelTankTransferHistoriesToUpdate()
-    {
-        return  FuelTankTransferHistory::where([
-            ['fuel_tank_id', $this->fuelTankTransferHistory->fuel_tank_id],
-            ['parent_fuel_level_id', '>', $this->fuelTankTransferHistory->parent_fuel_level_id]
-        ])
-        ->orderBy('parent_fuel_level_id')
-        ->get();
     }
 
     public function getFuelLevel($fuelTankTransferHistory, $currentFuelLevel)

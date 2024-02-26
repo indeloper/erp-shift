@@ -56,7 +56,13 @@
                     editorOptions: {
                         readOnly: editingRowId,
                         max: Date(),
-                        value: Date()
+                        onInitialized(e) {
+                            if(!editingRowId) {
+                                e.component.option('value', new Date())
+                            }
+                        }
+
+                        // value: new Date()
                         // elementAttr: {
                         //     id: "eventDateSelectBox",
                         // },
