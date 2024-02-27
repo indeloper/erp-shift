@@ -135,7 +135,7 @@
             lookup: {
                 dataSource: additionalResources.projectObjects,
                 valueExpr: "id",
-                displayExpr: "name"
+                displayExpr: "short_name"
             },
         },
         {
