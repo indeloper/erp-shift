@@ -1,6 +1,16 @@
 <script>
-    let editingRowId = 0;
-    let skipStoppingEditingRow = 0;
+    if(typeof editingRowId === undefined) {
+        let editingRowId = 0;
+    }
+    if(typeof skipStoppingEditingRow === undefined) {
+        let skipStoppingEditingRow = 0;
+    }
+    if(typeof newAttachments === undefined) {
+        let newAttachments = [];
+    }
+    if(typeof deletedAttachments === undefined) {
+        let deletedAttachments = [];
+    }
     let editingRowTypeId = 0;
     let editingRowStatusId = 0;
     let editingRowStartOptions = [];
@@ -8,8 +18,7 @@
     let editingRowTypeStatusOptions = [];
     let editingRowTypeStatusOptions_tmp = [];
     let editingRowChanges = [];
-    let newAttachments = [];
-    let deletedAttachments = [];
+    
     let projectObjectsFilter = [];
     let customFilter = [];
     customFilter['projectObjectsFilter'] = [];

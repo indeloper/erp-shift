@@ -387,7 +387,7 @@
         $('#documentsListMobile').dxList('instance').reload()
     }
 
-    function setPopupItemVariablesMobile(itemData) {
+    function setPopupItemVariablesMobileCustom(itemData) {
         editingRowId = itemData.id
         editingRowTypeId = itemData.document_type_id
         editingRowStatusId = itemData.document_status_id
