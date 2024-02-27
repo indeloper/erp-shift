@@ -7,7 +7,7 @@
         visible: true,
     }
 
-    const uploadingFiles = [];
+    let uploadingFiles = [];
 
     const renderFilesUploader = (containerScrollableWrapper) => {
         const fileUploadButton =

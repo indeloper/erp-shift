@@ -135,7 +135,7 @@
             },
             searchExpr: ['document_name', 'project_object_short_name'],
             onItemClick(e) {
-                setPopupItemVariablesMobile(e.itemData)
+                setPopupItemVariablesMobileCustom(e.itemData)
                 projectObjectDocumentInfoByID.load()
                 const popup = $('#popupFormMobile').dxPopup('instance')
                 popup.option('contentTemplate', popupContentTemplate)
