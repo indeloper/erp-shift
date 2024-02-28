@@ -97,7 +97,8 @@ class FuelTanksFuelLevelCheck extends Command
             ['fuel_tank_flow_id', '<>', NULL],
         ])
         ->orderByDesc('event_date')
-        ->orderByDesc('parent_fuel_level_id')
+        // ->orderByDesc('parent_fuel_level_id')
+        ->orderByDesc('id')
         ->first()
         ->fuel_level ?? 0
         ;
