@@ -594,8 +594,10 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         ->orderBy('event_date')
         ->first()
         ->event_date ?? $globalDateTo;
+                
+        $dateTo = $to->tank_moving_confirmation ?? null == true ? $to->event_date : $dateToStep2;
 
-        return [Carbon::create($dateFrom), Carbon::create($dateToStep2)];
+        return [Carbon::create($dateFrom), Carbon::create($dateTo)];
     }
 
     public function getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo)

@@ -74,15 +74,18 @@ class FuelTanksFuelLevelCheck extends Command
 
                 (new FuelNotifications)->notifyAdminsAboutFuelBalanceMissmatches($data);
 
+            
+                // echo PHP_EOL."
+                //         id: $tank->id
+                //         num: $tank->tank_number
+                //         calculatedTankFuelLevel: $calculatedTankFuelLevel 
+                //         periodReportTankFuelLevel: $periodReportTankFuelLevel 
+                //         tankFuelLevel: $tankFuelLevel
+                //         isOk: $isOk
+                //         transferHistoryFuelLevelDateFrom: $transferHistoryFuelLevelDateFrom
+                //         fuelOperationsVolumesSum: $fuelOperationsVolumesSum
+                //     ";
             }
-            // echo PHP_EOL."
-            //         id: $tank->id
-            //         num: $tank->tank_number
-            //         calculatedTankFuelLevel: $calculatedTankFuelLevel 
-            //         periodReportTankFuelLevel: $periodReportTankFuelLevel 
-            //         tankFuelLevel: $tankFuelLevel
-            //         isOk: $isOk
-            //     ";
         }
     }
 
