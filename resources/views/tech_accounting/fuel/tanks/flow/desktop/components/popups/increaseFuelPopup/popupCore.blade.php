@@ -32,7 +32,15 @@
                         form2filesTab
                     ]
                 }
-            ]
+            ], 
+
+            onContentReady(e) {
+                if(!editingRowId) {
+                    const componentFormData = e.component.option('formData')
+                    componentFormData.event_date = new Date()
+                    e.component.option('formData', componentFormData)
+                }
+            }
                 
         })
     }

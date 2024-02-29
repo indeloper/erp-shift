@@ -16,6 +16,15 @@
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
+
+            onContentReady(e) {
+                if(!externalEditingRowId) {
+                    const componentFormData = e.component.option('formData')
+                    componentFormData.event_date = new Date()
+                    e.component.option('formData', componentFormData)
+                }
+            },
+
             items: [
                 {
                     visible: false,
@@ -58,11 +67,7 @@
                         // onContentReady(e) {
                         //     setEventDateSelectBoxOptions(editingRowId, e.component)
                         // },
-                        onInitialized(e) {
-                            if(!externalEditingRowId) {
-                                e.component.option('value', new Date())
-                            }
-                        }
+                       
                     },
                     label: {
                         text: 'Дата операции'
