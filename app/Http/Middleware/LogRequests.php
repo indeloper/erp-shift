@@ -16,11 +16,11 @@ class LogRequests
      */
     public function handle($request, Closure $next)
     {
-        Log::info('Incoming Request:', [
+        /*Log::info('Incoming Request:', [
             'method' => $request->method(),
             'url' => $request->fullUrl(),
             'parameters' => $request->all(),
-        ]);
+        ]);*/
 
         return $next($request);
     }
