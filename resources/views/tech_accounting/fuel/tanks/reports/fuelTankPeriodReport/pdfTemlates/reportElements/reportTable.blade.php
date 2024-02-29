@@ -34,27 +34,27 @@
     @endif
     
     @if($fuelTankId != 'no_tank_direct_fuel_flow')
-        @foreach ($objectTransferGroups as $flowTypeSlug=>$objectTransferGroup)
-            @if(!empty($objectTransferGroups['adjustment']) && empty($isAdjustmentsRendered))
-                @php $isAdjustmentsRendered = true; @endphp
-                @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableAdjustmentOperations')
-            @endif
 
-            @if(empty($objectTransferGroups['income']) && empty($isEmptyIncomeRegionRendered) && $fuelTankId != 'no_tank_direct_fuel_flow')
-            @php $isEmptyIncomeRegionRendered = true; @endphp
-                @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableEmptyIncomesOperations')
-            @endif
-            
+        @if(!empty($objectTransferGroups['adjustment']) && empty($isAdjustmentsRendered))
+            @php $isAdjustmentsRendered = true; @endphp
+            @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableAdjustmentOperations')
+        @endif
+
+        @if(empty($objectTransferGroups['income']) && empty($isEmptyIncomeRegionRendered) && $fuelTankId != 'no_tank_direct_fuel_flow')
+        @php $isEmptyIncomeRegionRendered = true; @endphp
+            @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableEmptyIncomesOperations')
+        @endif
+
+        @foreach ($objectTransferGroups as $flowTypeSlug=>$objectTransferGroup)
             @if($fuelTankId != 'no_tank_direct_fuel_flow')
                 @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableOperations')
             @endif
-
-            @if(empty($objectTransferGroups['outcome']) && empty($isEmptyOutcomeRegionRendered)  && $fuelTankId != 'no_tank_direct_fuel_flow')
-            @php $isEmptyOutcomeRegionRendered = true; @endphp
-                @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableEmptyOutcomesOperations')
-            @endif
-
         @endforeach
+
+        @if(empty($objectTransferGroups['outcome']) && empty($isEmptyOutcomeRegionRendered)  && $fuelTankId != 'no_tank_direct_fuel_flow')
+        @php $isEmptyOutcomeRegionRendered = true; @endphp
+            @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableEmptyOutcomesOperations')
+        @endif
 
     @else
         @include('tech_accounting.fuel.tanks.reports.fuelTankPeriodReport.pdfTemlates.reportElements.reportTableDirectFuelFlowOperations')
