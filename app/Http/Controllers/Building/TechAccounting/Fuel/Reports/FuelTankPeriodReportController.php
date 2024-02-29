@@ -594,8 +594,10 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         ->orderBy('event_date')
         ->first()
         ->event_date ?? $globalDateTo;
+                
+        $dateTo = $to->tank_moving_confirmation ?? null == true ? $to->event_date : $dateToStep2;
 
-        return [Carbon::create($dateFrom), Carbon::create($dateToStep2)];
+        return [Carbon::create($dateFrom), Carbon::create($dateTo)];
     }
 
     public function getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo)
@@ -634,7 +636,9 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                     ['fuel_tank_flow_id', '<>', NULL],
                 ])
                 ->orderByDesc('event_date')
-                ->orderByDesc('parent_fuel_level_id')->first();
+                // ->orderByDesc('parent_fuel_level_id')
+                ->orderByDesc('id')
+                ->first();
 
                 if($lastPreviousPeriodFuelRemainPrev) {
                     $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level;
@@ -646,7 +650,10 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                         ['event_date', '>=' , $dateFrom],
                         ['event_date', '<=' , $dateTo],
                         ['fuel_tank_flow_id', '<>', NULL],
-                    ])->orderByDesc('parent_fuel_level_id')->first();
+                    ])
+                    // ->orderByDesc('parent_fuel_level_id')
+                    ->orderByDesc('id')
+                    ->first();
 
                     $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
                 }
