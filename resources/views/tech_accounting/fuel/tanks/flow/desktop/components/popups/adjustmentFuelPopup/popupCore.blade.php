@@ -16,6 +16,15 @@
             labelMode: 'outside',
             labelLocation: 'left',
             formData: formItem,
+
+            onContentReady(e) {
+                if(!editingRowId) {
+                    const componentFormData = e.component.option('formData')
+                    componentFormData.event_date = new Date()
+                    e.component.option('formData', componentFormData)
+                }
+            },
+            
             items: [
                 {
                     visible: false,
@@ -56,11 +65,11 @@
                     editorOptions: {
                         readOnly: editingRowId,
                         max: Date(),
-                        onInitialized(e) {
-                            if(!editingRowId) {
-                                e.component.option('value', new Date())
-                            }
-                        }
+                        // onInitialized(e) {
+                        //     if(!editingRowId) {
+                        //         e.component.option('value', new Date())
+                        //     }
+                        // }
 
                         // value: new Date()
                         // elementAttr: {

@@ -62,11 +62,6 @@
                     elementAttr: {
                         id: "eventDateSelectBox",
                     },
-                    onInitialized(e) {
-                        if(!editingRowId) {
-                            e.component.option('value', new Date())
-                        }
-                    }
                 },
                 label: {
                     text: 'Дата операции'

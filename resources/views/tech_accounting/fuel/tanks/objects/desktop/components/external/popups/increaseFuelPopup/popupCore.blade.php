@@ -20,6 +20,14 @@
             labelLocation: 'left',
             formData: formItem,
 
+            onContentReady(e) {
+                if(!externalEditingRowId) {
+                    const componentFormData = e.component.option('formData')
+                    componentFormData.event_date = new Date()
+                    e.component.option('formData', componentFormData)
+                }
+            },
+
             items: [
                 {
                     itemType: 'tabbed',
