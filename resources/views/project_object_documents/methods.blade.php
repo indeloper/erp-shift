@@ -165,6 +165,7 @@
     }
 
     function downloadXls(reportType) {
+
         delete filterOptions.skip;
         delete filterOptions.take;
 

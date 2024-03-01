@@ -122,6 +122,7 @@ class ProjectObjectDocumentsNotifications {
                         ObjectResponsibleUser::query()
                             ->where('object_id', $object->project_object_id)
                             ->whereIn('object_responsible_user_role_id', $rolesIds)
+                            ->distinct()
                             ->pluck('user_id'),
 
                     'notificationText' => $this->getNotificationText($object, $notificationType)

@@ -4,6 +4,9 @@
             key: "id",
             loadMode: "processed",
             load: function (loadOptions) {
+
+                filterOptions = loadOptions
+                
                 return $.getJSON("{{route('project-object-document.index')}}",
                     {
                         data: JSON.stringify(loadOptions),
