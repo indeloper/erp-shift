@@ -63,7 +63,7 @@
         },
         {
             dataField: "inventory_number",
-            caption: "Инвентарный номер",
+            caption: "Бортовой номер",
             width: 75,
         },
         {

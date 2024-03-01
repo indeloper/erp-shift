@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Building\TechAccounting\Technic;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\StandardEntityResourceController;
+use App\Jobs\WorkFlowSupport\Technic\TechnicMovementsSetStatus;
 use App\Models\Contractors\Contractor;
 use App\Models\Permission;
 use App\Models\ProjectObject;
@@ -13,6 +14,9 @@ use App\Models\TechAcc\TechnicMovement;
 use App\Models\TechAcc\TechnicMovementStatus;
 use App\Models\User;
 use App\Notifications\Technic\TechnicMovementNotifications;
+use App\Services\Common\FilesUploadService;
+use App\Services\WorkFlowSupport\TechnicMovementsDispatcher;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class TechnicMovementController extends StandardEntityResourceController
@@ -41,8 +45,14 @@ class TechnicMovementController extends StandardEntityResourceController
         
         $entities = $this->baseModel
             ->dxLoadOptions($options)
-            ->when(!$user->hasPermission('technics_movement_crud') && !$user->hasPermission('technics_movement_read'), function($query) use($user) {
-                return $query->where('responsible_id', $user->id);
+            // ->when(!$user->hasPermission('technics_movement_create_update') && !$user->hasPermission('technics_movement_read'), function($query) use($user) {
+            //     return $query->where('responsible_id', $user->id);
+            // })
+            ->when($user->hasPermission('technics_processing_movement_standart_sized_equipment') && !$user->is_su, function($query) {
+                return $query->where('technic_category_id', '<>', TechnicCategory::where('name', 'Гусеничные краны')->first()->id);
+            })
+            ->when($user->hasPermission('technics_processing_movement_oversized_equipment') && !$user->is_su, function($query) {
+                return $query->where('technic_category_id', TechnicCategory::where('name', 'Гусеничные краны')->first()->id);
             })
             ->when($this->isMobile, function ($query) {
                 return $query
@@ -62,7 +72,7 @@ class TechnicMovementController extends StandardEntityResourceController
 
     public function beforeStore($data)
     {
-        $this->notifyNewResponsible($data, new \stdClass);
+        // $this->notifyNewResponsible($data, new \stdClass);
         $data['technic_movement_status_id'] = $this->getMovementStatusId($data, new \stdClass);
 
         return [
@@ -70,16 +80,33 @@ class TechnicMovementController extends StandardEntityResourceController
         ];
     }
 
+    public function afterStore($entity, $data, $dataToStore)
+    {        
+        if(!empty($data['newAttachments']))
+            (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
+
+        if(!empty($data['deletedAttachments']))
+            $this->deleteFiles($data['deletedAttachments']);
+
+        new TechnicMovementsDispatcher($data, $entity);
+    }
+
     public function beforeUpdate($entity, $data)
     {
         if(!empty($data['responsible_id'])) {
             if($entity->responsible_id != $data['responsible_id']) {
                 $data['previous_responsible_id'] = $entity->responsible_id;
-                $this->notifyNewResponsible($data, $entity);
+                // $this->notifyNewResponsible($data, $entity);
             }
         }
 
+        if(!empty($data['movement_start_datetime'])) {
+            $data['movement_start_datetime'] = Carbon::parse($data['movement_start_datetime'])->setTimezone('Europe/Moscow'); 
+        }
+
         $data['technic_movement_status_id'] = $this->getMovementStatusId($data, $entity);
+        
+        new TechnicMovementsDispatcher($data, $entity);
         
         return [
             'data' => $data,
@@ -99,22 +126,18 @@ class TechnicMovementController extends StandardEntityResourceController
             }
         }
 
-        if(!empty($dataObj->movement_start_datetime)) {
-            return TechnicMovementStatus::where('slug', 'inProgress')->firstOrFail()->id;
-        }
-
-        if(!empty($dataObj->contractor_id)) {
-            return TechnicMovementStatus::where('slug', 'carrierFound')->firstOrFail()->id;
+        if(!empty($dataObj->movement_start_datetime) && !empty($dataObj->responsible_id)) {
+            return TechnicMovementStatus::where('slug', 'transportationPlanned')->firstOrFail()->id;
         }
 
         return TechnicMovementStatus::where('slug', 'created')->firstOrFail()->id;;
     }
 
-    public function notifyNewResponsible($newData, $dbData)
-    {
-        $dataObj = $this->getDataObj($newData, $dbData);
-        (new TechnicMovementNotifications)->notifyNewTechnicMovementResponsibleUser($dataObj);
-    }
+    // public function notifyNewResponsible($newData, $dbData)
+    // {
+    //     $dataObj = $this->getDataObj($newData, $dbData);
+    //     (new TechnicMovementNotifications)->notifyNewTechnicMovementResponsibleUser($dataObj);
+    // }
 
     public function getDataObj($newData, $dbData)
     {
