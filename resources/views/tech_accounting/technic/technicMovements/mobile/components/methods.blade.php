@@ -5,6 +5,8 @@
         additionalResources.technicCategoryNameAttrs.forEach(el=>{
             if(rawCategoryName.startsWith(el.starts) && rawCategoryName.includes(el.contains))
             categoryName = el.result
+            else
+            categoryName = rawCategoryName
         })    
         return categoryName
     }
@@ -29,4 +31,29 @@
         popupMobile.hide()
         
     }
+
+    const getPopupTitle = () => {
+        return editingRowId ? `Заявка #${editingRowId}` : 'Новая заявка'
+    }
+
+    const setPopupToolbarItems = () => {
+
+        let toolbarItemsTmp = Array.from(toolbarItems)
+
+        const statusId = choosedItemData.technic_movement_status_id
+        const statusSlug = additionalResources.technicMovementStatuses.find(el=>el.id===statusId)?.slug
+        
+        if(statusSlug === 'completed' || statusSlug === 'cancelled' || !statusSlug) {
+            toolbarItemsTmp = toolbarItemsTmp.filter(el=>el.name != 'completeTranspotation' && el.name != 'cancelTranspotation')
+        }
+
+        if(statusSlug != 'inProgress') {
+            toolbarItemsTmp = toolbarItemsTmp.filter(el=>el.name != 'completeTranspotation')
+        }
+
+        $('#popupMobile').dxPopup({
+            toolbarItems: toolbarItemsTmp
+        })        
+    }
+
 </script>

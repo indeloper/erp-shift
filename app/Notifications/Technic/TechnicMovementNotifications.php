@@ -6,13 +6,207 @@ use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Notification;
 use App\Models\ProjectObject;
+use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use morphos\Russian\RussianLanguage;
 use function morphos\Russian\pluralize;
+use morphos\Russian\Cases;
 
 class TechnicMovementNotifications 
 {
+    public function notifyAboutTechnicMovementCreated($data, $entity, $notificationRecipientsIds)
+    {
+        $responsible = User::find(Auth::id());
+        $responsibleFIO = $responsible->format('L f. p.', 'именительный') ?? null;
+        $responsibleUrl = $responsible->getExternalUserUrl();
+
+        $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
+
+        $notificationText = 
+            '<b>Перемещение техники</b>'
+            ."\n"
+            .'<i>'
+            ."<a href='{$responsibleUrl}'>{$responsibleFIO}</a> "
+            .RussianLanguage::verb('создал', mb_strtolower($responsible->gender))
+            .'<u>'
+            .' заявку #'.$entity->id
+            .'</u> '
+            .' на перемещение'
+            ."\n"
+            .'<u>'
+            .$inflectedCategoryName
+            .'</u> '
+            .OurTechnic::find($entity->technic_id)->name
+            .'</i>'
+            ."\n"."\n"
+            .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
+            ."\n"
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
+
+        $this->notifyUsers($notificationRecipientsIds, $notificationText);
+    }
+
+    public function notifyAboutTechnicMovementPlanned($data, $entity, $notificationRecipientsIds)
+    {
+        $responsible = User::find(Auth::id());
+        $responsibleFIO = $responsible->format('L f. p.', 'именительный') ?? null;
+        $responsibleUrl = $responsible->getExternalUserUrl();
+
+        $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
+    
+        $notificationText = 
+            '<b>Перемещение техники</b>'
+            ."\n"
+            .'<i>'
+            .'По заявке #'.$entity->id
+            .' <u>'
+            ."<a href='{$responsibleUrl}'>{$responsibleFIO}</a> "
+            .'</u> '
+            .RussianLanguage::verb('назначил', mb_strtolower($responsible->gender))
+            .' транспортировку'
+            ."\n"
+            .'<u>'
+            .$inflectedCategoryName
+            .'</u> '
+            .OurTechnic::find($entity->technic_id)->name
+            .' на '
+            .'<u>'
+            .Carbon::create($data['movement_start_datetime'])->format('d.m.Y в H:i')
+            .'</u> '
+            .'</i>'
+            ."\n"."\n"
+            .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
+            ."\n"
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
+
+        $this->notifyUsers($notificationRecipientsIds, $notificationText);
+    }
+
+    public function notifyAboutTechnicMovementCompleted($data, $entity, $notificationRecipientsIds)
+    {
+        $responsible = User::find($entity->responsible_id);
+        $responsibleFIO = $responsible->format('L f. p.', 'творительный') ?? null;
+        $responsibleUrl = $responsible->getExternalUserUrl();
+
+        $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
+
+        $notificationText = 
+            '<b>Перемещение техники</b>'
+            ."\n"
+            .'<i>'
+            .'Заявка #'.$entity->id.' по перевозке'
+            ."\n"
+            .'<u>'
+            .$inflectedCategoryName
+            .'</u> '
+            .OurTechnic::find($entity->technic_id)->name
+            ."\n"
+            .'<u>'
+            .' исполнена '."<a href='{$responsibleUrl}'>{$responsibleFIO}</a>"
+            .'</u> '
+            .'</i>'
+            ."\n"."\n"
+            .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
+            ."\n"
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
+
+        $this->notifyUsers($notificationRecipientsIds, $notificationText);
+    }
+
+    public function notifyAboutTechnicMovementCancelled($data, $entity, $notificationRecipientsIds)
+    {
+        $responsible = User::find(Auth::id());
+        $responsibleFIO = $responsible->format('L f. p.', 'творительный') ?? null;
+        $responsibleUrl = $responsible->getExternalUserUrl();
+
+        $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
+
+        $notificationText = 
+            '<b>Перемещение техники</b>'
+            ."\n"
+            .'<i>'
+            .'Заявка #'.$entity->id
+            .' на транспортировку '
+            .'<u>'
+            .$inflectedCategoryName
+            .'</u> '
+            .OurTechnic::find($entity->technic_id)->name
+            ."\n"
+            .'<u>'
+            .' отменена '."<a href='{$responsibleUrl}'>{$responsibleFIO}</a>"
+            .'</u> '
+            .'</i>'
+            ."\n"."\n"
+            .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
+            ."\n"
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
+
+        $this->notifyUsers($notificationRecipientsIds, $notificationText);
+    }
+
+    public function notifyAboutTechnicMovementPlannedForTommorow($data, $entity, $notificationRecipientsIds)
+    {
+        $responsible = User::find(Auth::id());
+        $responsibleFIO = $responsible->format('L f. p.', 'дательный') ?? null;
+        $responsibleUrl = $responsible->getExternalUserUrl();
+
+        $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
+
+        $notificationText = 
+            '<b>Перемещение техники</b>'
+            ."\n"
+            .'<i>'
+            .'По заявке #'.$entity->id
+            .'<u>'
+            .' транспортировка'
+            ."\n"
+            .$inflectedCategoryName
+            .'</u> '
+            .OurTechnic::find($entity->technic_id)->name
+            ."\n"
+            .' запланирована '
+            .'<u>'
+            ."<a href='{$responsibleUrl}'>{$responsibleFIO}</a>"
+            .' на завтра '
+            .'</u> '
+            . ' ('. Carbon::create($entity->movement_start_datetime)->format('d.m.Y в H:i') .')'
+            .'</i>'
+            ."\n"."\n"
+            .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
+            ."\n"
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
+
+        $this->notifyUsers($notificationRecipientsIds, $notificationText);
+    }
+
+
+    public function notifyUsers($notificationRecipientsIds, $notificationText)
+    {
+        foreach($notificationRecipientsIds as $id) {
+            Notification::create([
+                'name' => $notificationText,
+                'user_id' =>$id,
+                'type' => 0,
+            ]);
+        }
+    }
+
+    public function getInflectedCategoryName($categoryId, $case)
+    {
+        $nameTmp = pluralize(1, $this->getCategoryName($categoryId), false, $case);
+        $arr = explode(' ', $nameTmp);
+        unset($arr[0]);
+        return mb_strtolower(implode(' ', $arr));
+    }
+    
     public function notifyNewTechnicMovementResponsibleUser($dataObj)
     {
         // $dataObj = $this->getDataObj($newData, $dbData);
@@ -156,6 +350,11 @@ class TechnicMovementNotifications
             'starts' => 'буров',
             'contains' => ' устан',
             'result' => 'буровая установка'
+        ],
+        [
+            'starts' => 'автомобил',
+            'contains' => ' кран',
+            'result' => 'автомобильный кран'
         ],
     ];
 }

@@ -202,7 +202,7 @@
                 },
                 {
                     dataField: "inventory_number",
-                    label: {text: 'Инвентарный номер'},
+                    label: {text: 'Бортовой номер'},
                 },
             ]
         }
