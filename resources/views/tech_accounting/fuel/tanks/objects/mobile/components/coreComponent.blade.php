@@ -12,8 +12,10 @@
                 const listElementRowWrapper =
                     $('<div>').addClass('list-element-wrapper').appendTo(listElement);
 
+                    const tankNumberClass = String(data.tank_number).length <= 3 ? 'list-element-item-tank-number' : 'list-element-item-tank-number-text'
+
                     $('<div>')
-                        .addClass('list-element-item-tank-number')
+                        .addClass(tankNumberClass)
                         .text(` ${data.tank_number}`)
                         .appendTo(listElementRowWrapper);
 

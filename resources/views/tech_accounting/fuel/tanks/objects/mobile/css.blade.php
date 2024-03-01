@@ -14,9 +14,17 @@
     }
 
     .list-element-item-tank-number {
-
         width: 15%;
         font-size: 36px;
+        font-weight: bold;
+    }
+
+    .list-element-item-tank-number-text {
+        text-wrap: wrap;
+        overflow: hidden;
+        max-height: 100px;
+        font-size: 10px;
+        width: 15%;
         font-weight: bold;
     }
 
