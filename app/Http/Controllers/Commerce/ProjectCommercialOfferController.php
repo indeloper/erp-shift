@@ -1411,7 +1411,7 @@ class ProjectCommercialOfferController extends Controller
                 }
             }
         } else if ($offer->is_tongue == 0) {
-            foreach ([73] as $group_id) {
+            foreach ([5, 73] as $group_id) {
                 $prev_task = Task::where('target_id', $offer->id)->where('status', 5)->where('is_solved', 0)->first();
                 $task = new Task([
                     'project_id' => $offer->project_id,
