@@ -48,13 +48,14 @@ class Kernel extends ConsoleKernel
         Commands\GenerateEmails::class,
         Commands\CreateNewPlanMat::class,
 //        Commands\SendNotificationsNeedContract::class
-        // q3w custom commands
         Commands\CheckOverdueMaterialAccountingOperation::class,
         Commands\SetTelegramWebhook::class,
         Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class,
         Commands\Support\FuelTransferHistoriesUploadData::class,
         Commands\Support\ShowFuelTanksWithDifferenceBetweenExpectedAndRealFuelLevel::class,
-        Commands\Support\FuelTanksFuelLevelCheck::class
+        Commands\Support\FuelTanksFuelLevelCheck::class,
+        Commands\Support\MaterialAccounting\CancelCompletedSupplyOperation::class
+
     ];
 
     /**
