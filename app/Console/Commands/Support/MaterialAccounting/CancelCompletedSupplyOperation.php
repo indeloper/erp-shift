@@ -100,7 +100,7 @@ class CancelCompletedSupplyOperation extends Command
 
             switch ($operationMaterial->accounting_type) {
                 case 2:
-                    $operationMaterial->where('quantity', $operationMaterial->quantity);
+                    $objectMaterialQuery->where('quantity', $operationMaterial->quantity);
                     break;
                 default:
                     break;
@@ -156,9 +156,14 @@ class CancelCompletedSupplyOperation extends Command
             $operation->operation_route_stage_id = 83;
             $operation->save();
 
-            DB::commit();
+            if ($this->confirm('Commit changes?')) {
+                DB::commit();
+                $this->line("Operation successfully cancelled");
+            } else {
+                DB::rollback();
+                $this->line("Rolled back");
+            }
 
-            $this->line("Operation successfully cancelled");
         }
     }
 }
