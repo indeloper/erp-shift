@@ -676,31 +676,33 @@ class TaskCommerceController extends Controller
                 $com_offer->status = 4;
 
                 if ($project->respUsers()->where('role', ($com_offer->is_tongue ? 6 : 5))->count() == 0) {
-                    $main_engineer = Group::find(8)->getUsers()->first();
+                    if ($com_offer->is_tongue) {
+                        $main_engineer = Group::find(8)->getUsers()->first();
 
-                    $add_RP_task = Task::create([
-                        'project_id' => $project->id,
-                        'name' => 'Назначение ответственного руководителя проектов' . ($com_offer->is_tongue ? ' (шпунт)' : ' (сваи)'),
-                        'responsible_user_id' => $main_engineer ? $main_engineer->id : 6,
-                        'contractor_id' => $project->contractor_id,
-                        'target_id' => $com_offer->id,
-                        'prev_task_id' => $prev_task->id,
-                        'status' => $com_offer->is_tongue ? 25 : 24,
-                        'expired_at' => $this->addHours(11)
-                    ]);
+                        $add_RP_task = Task::create([
+                            'project_id' => $project->id,
+                            'name' => 'Назначение ответственного руководителя проектов' . ($com_offer->is_tongue ? ' (шпунт)' : ' (сваи)'),
+                            'responsible_user_id' => $main_engineer ? $main_engineer->id : 6,
+                            'contractor_id' => $project->contractor_id,
+                            'target_id' => $com_offer->id,
+                            'prev_task_id' => $prev_task->id,
+                            'status' => $com_offer->is_tongue ? 25 : 24,
+                            'expired_at' => $this->addHours(11)
+                        ]);
 
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $add_RP_task->task_route();
-                    $notification->update([
-                        'name' => 'Новая задача «' . $add_RP_task->name . '»',
-                        'task_id' => $add_RP_task->id,
-                        'user_id' => $add_RP_task->responsible_user_id,
-                        'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
-                        'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,
-                        'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
-                        'type' => 63
-                    ]);
+                        $notification = new Notification();
+                        $notification->save();
+                        $notification->additional_info = ' Ссылка на задачу: ' . $add_RP_task->task_route();
+                        $notification->update([
+                            'name' => 'Новая задача «' . $add_RP_task->name . '»',
+                            'task_id' => $add_RP_task->id,
+                            'user_id' => $add_RP_task->responsible_user_id,
+                            'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
+                            'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,
+                            'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
+                            'type' => 63
+                        ]);
+                    }
                 }
 
                 $project = Project::findOrFail($com_offer->project_id);
