@@ -152,18 +152,18 @@ class CancelCompletedSupplyOperation extends Command
                     }
                     break;
             }
-
-            $operation->operation_route_stage_id = 83;
-            $operation->save();
-
-            if ($this->confirm('Commit changes?')) {
-                DB::commit();
-                $this->line("Operation successfully cancelled");
-            } else {
-                DB::rollback();
-                $this->line("Rolled back");
-            }
-
         }
+
+        $operation->operation_route_stage_id = 83;
+        $operation->save();
+
+        if ($this->confirm('Commit changes?')) {
+            DB::commit();
+            $this->line("Operation successfully cancelled");
+        } else {
+            DB::rollback();
+            $this->line("Rolled back");
+        }
+
     }
 }
