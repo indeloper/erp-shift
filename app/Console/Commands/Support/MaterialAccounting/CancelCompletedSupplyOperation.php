@@ -130,7 +130,7 @@ class CancelCompletedSupplyOperation extends Command
                     $objectMaterial->amount -= $operationMaterial->amount;
 
                     if ($objectMaterial->amount < 0) {
-                        $this->error("Amount of material on object less than 0. Rolling back.");
+                        $this->error("Amount of material on object less than 0 ($objectMaterial->amount). Rolling back.");
                         DB::rollBack();
                         return;
                     } else {
@@ -142,7 +142,7 @@ class CancelCompletedSupplyOperation extends Command
                     $objectMaterial->quantity -= round($operationMaterial->amount * $operationMaterial->quantity, 2);
 
                     if ($objectMaterial->quantity < 0) {
-                        $this->error("Quantity of material on object less than 0. Rolling back.");
+                        $this->error("Quantity of material on object less than 0 ($objectMaterial->quantity). Rolling back.");
                         DB::rollBack();
                         return;
                     } else {
