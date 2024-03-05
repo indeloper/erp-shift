@@ -152,17 +152,6 @@ class CancelCompletedSupplyOperation extends Command
                     break;
             }
 
-            switch ($objectMaterial->accounting_type) {
-                case 2:
-
-                    break;
-                default:
-                    if ($objectMaterial->quantity < 0) {
-                        $objectMaterial->quantity = round($operationMaterial->amount * $operationMaterial->quantity, 2);
-                    }
-                    break;
-            }
-
             $operation->operation_route_stage_id = 83;
             $operation->save();
 
