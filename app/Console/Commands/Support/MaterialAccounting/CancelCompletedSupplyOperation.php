@@ -115,6 +115,7 @@ class CancelCompletedSupplyOperation extends Command
             $objectMaterial = $objectMaterialQuery->first(
                 [
                     'q3w_materials.id',
+                    'q3w_materials.standard_id',
                     'q3w_materials.quantity',
                     'q3w_materials.amount',
                     'q3w_materials.comment_id',
