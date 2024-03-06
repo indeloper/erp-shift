@@ -77,7 +77,7 @@
             @foreach ($fuelTankIdData as $objectId=>$objectData)
                 @foreach($objectData as $key=>$objectTransferGroups)
                     @php
-                        $summaryData = $reportControllerInstance->getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
+                        $summaryData = $reportServiceClass->getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
                         $totlalOperationsValuesInstance = new totlalOperationsValues();
                         $companyId = $fuelTankId != 'no_tank_direct_fuel_flow' ?
                             $fuelTankModelInstance::find($fuelTankId)->company_id
