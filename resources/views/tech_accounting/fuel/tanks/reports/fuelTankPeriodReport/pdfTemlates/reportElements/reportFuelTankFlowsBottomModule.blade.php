@@ -76,7 +76,7 @@
             <td style="width: 12%; border-bottom: 1px solid"></td>
             <td style="width:2%"></td>
             <td style="width: 22%; border-bottom: 1px solid;  text-align: center;">
-                {{$userModelInstance::find($responsibleId)->user_full_name }}
+                {{$userModelInstance::find($responsibleId)->user_full_name ?? $responsibleId}}
             </td>
         </tr>
         <tr>

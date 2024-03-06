@@ -23,5 +23,5 @@
         <b>№ емкости:</b> {{$fuelTankModelInstance::find($fuelTankId)->tank_number}}
     @endif
     <br>
-    <b>Наименование объекта:</b> {{$objectModelInstance::find($objectId)->short_name}}
+    <b>Наименование объекта:</b> {{$objectModelInstance::find($objectId)->short_name ?? $objectId}}
 </div>

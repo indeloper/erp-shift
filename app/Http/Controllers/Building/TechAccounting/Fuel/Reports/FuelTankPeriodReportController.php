@@ -14,6 +14,7 @@ use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
+use App\Services\Fuel\FuelPeriodReportService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -270,7 +271,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
                 'employeeModelInstance' => new Employee,
                 'employees1cPostModelInstance' => new Employees1cPost,
                 'carbonInstance' => new Carbon,
-                'reportControllerInstance' => $this,
+                'reportServiceClass' => new FuelPeriodReportService
             ]
         );
 
@@ -393,294 +394,6 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
         return [$globalDateFrom, $globalDateTo, $globalDateToNextDay];
     }
 
-    public function getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
-    {
-        [$dateFrom, $dateTo] = $this->getPeriodDatesFromTo($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo);
-
-        [$fuelLevelPeriodStart, $fuelLevelPeriodFinish] = $this->getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
-
-        $confirmedTankMovements = FuelTankTransferHistory::query()
-        ->where([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFrom],
-            ['event_date', '<=',  $dateTo],
-            ['responsible_id', $responsibleId],
-            ['tank_moving_confirmation', '<>', null]
-        ])
-        ->orWhere([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFrom],
-            ['event_date', '<=',  $dateTo],
-            ['previous_responsible_id', $responsibleId],
-            ['tank_moving_confirmation', '<>', null]
-        ])
-        ->where([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFrom],
-            ['event_date', '<=',  $dateTo],
-            ['object_id', $objectId],
-            ['tank_moving_confirmation', '<>', null]
-        ])
-        ->orWhere([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFrom],
-            ['event_date', '<=',  $dateTo],
-            ['previous_object_id', $objectId],
-            ['tank_moving_confirmation', '<>', null]
-        ])
-        ->whereNotNull('object_id')
-        ->whereNotNull('previous_object_id')
-        ->orderBy('event_date')
-        ->get()
-        ->toArray();
-
-        if($this->checkSkipObjectTransferGroup($objectTransferGroups)){
-            return null;
-        }
-
-        return [
-            'fuelLevelPeriodStart' => $fuelLevelPeriodStart,
-            'fuelLevelPeriodFinish' => $fuelLevelPeriodFinish,
-            'confirmedTankMovements' => $confirmedTankMovements,
-            'dateFrom' => $dateFrom->format('d.m.Y'),
-            'dateTo' => $dateTo->format('d.m.Y'),
-        ];
-
-    }
-
-    public function checkSkipObjectTransferGroup($objectTransferGroups)
-    {
-        if(count($objectTransferGroups) === 1 && count($objectTransferGroups[0] ?? []) === 1 && !$objectTransferGroups[0][0]['tank_moving_confirmation'])
-        return $skip = true;
-        return false;
-    }
-
-    public function getPeriodDatesFromTo($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
-    {
-        $eventDates = [];
-        array_walk_recursive($objectTransferGroups, function($value, $key) use(&$eventDates) {
-            if($key === 'event_date')
-            $eventDates[] = $value;
-        });
-
-        if(empty($eventDates)) {
-            //Проверка если последняя запись в журнале - смена ответственного
-            $lastTankObjectOrResponsibleChanged = FuelTankTransferHistory::where([
-                ['fuel_tank_id', $fuelTankId],
-                ['event_date', '<', Carbon::create($globalDateTo)->addday()],
-                ['event_date', '>=', Carbon::create($globalDateFrom)],
-                ['object_id', $objectId],
-                ['responsible_id', $responsibleId],
-                ['tank_moving_confirmation', true]
-            ])
-            ->orderByDesc('parent_fuel_level_id')->first();
-
-            if($lastTankObjectOrResponsibleChanged) {
-                $dateFromTmp = $lastTankObjectOrResponsibleChanged->event_date;
-            } else {
-                $dateFromTmp = Carbon::create($globalDateFrom);
-            }
-
-            $dateToTmp = Carbon::create($globalDateTo);
-        } else {
-            $dateFromTmp = Carbon::create(min($eventDates));
-            $dateToTmp = Carbon::create(max($eventDates));
-        }
-
-        $to = FuelTankTransferHistory::where([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFromTmp],
-            ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
-            ['previous_object_id', $objectId],
-            ['tank_moving_confirmation', true]
-        ])
-        ->orWhere([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  $dateFromTmp],
-            ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
-            ['previous_responsible_id', $responsibleId],
-            ['tank_moving_confirmation', true]
-        ])
-        ->orderBy('event_date')
-        ->first()
-        ;
-
-        // $to = FuelTankTransferHistory::where([
-        //     ['fuel_tank_id', $fuelTankId],
-        //     // ['event_date', '>=',  $dateToTmp],
-        //     // ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
-        //     ['previous_object_id', $objectId],
-        //     ['tank_moving_confirmation', true]
-        // ])
-        // ->orWhere([
-        //     ['fuel_tank_id', $fuelTankId],
-        //     // ['event_date', '>=',  $dateToTmp],
-        //     // ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
-        //     ['previous_responsible_id', $responsibleId],
-        //     ['tank_moving_confirmation', true]
-        // ])
-        // ->orderByDesc('event_date')
-        // ->orderByDesc('parent_fuel_level_id')
-        // ->first();
-
-        if($to && !isset($objectTransferGroups['transitionPeriod'])) {
-            $dateTo = $to->event_date;
-        } elseif(isset($objectTransferGroups['transitionPeriod'])) {
-            $dateTo = FuelTankTransferHistory::where([
-                ['fuel_tank_id', $fuelTankId],
-                ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
-                ['event_date', '>=', Carbon::create($globalDateFrom)],
-                ['previous_object_id', $objectId],
-                ['previous_responsible_id', $responsibleId],
-                ['tank_moving_confirmation', true]
-            ])
-            ->orderBy('event_date')
-            ->orderBy('parent_fuel_level_id')
-            ->first()->event_date ?? $globalDateTo;
-        } else {
-            $dateTo = $globalDateTo;
-        }
-
-        $from = FuelTankTransferHistory::where([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '<=',  $dateFromTmp],
-            ['event_date', '>=', Carbon::create($globalDateFrom)],
-            ['object_id', $objectId],
-            ['responsible_id', $responsibleId],
-            ['tank_moving_confirmation', true]
-        ])->orderByDesc('parent_fuel_level_id')->first();
-
-        if($from && !isset($objectTransferGroups['notIncludedTank']) && !isset($objectTransferGroups['transitionPeriod'])) {
-            $dateFrom = $from->event_date;
-        } else {
-            if(isset($objectTransferGroups['notIncludedTank']))
-            {
-                $from = FuelTankTransferHistory::where([
-                    ['fuel_tank_id', $fuelTankId],
-                    ['event_date', '<=',  Carbon::create($dateTo)],
-                    ['event_date', '>=', Carbon::create($globalDateFrom)],
-                    ['object_id', $objectId],
-                    ['responsible_id', $responsibleId],
-                ])->orderByDesc('parent_fuel_level_id')->first();
-
-                $dateFrom = $from->event_date ?? $globalDateFrom;
-            }
-            elseif(isset($objectTransferGroups['transitionPeriod'])) {
-                $from = FuelTankTransferHistory::where([
-                    ['fuel_tank_id', $fuelTankId],
-                    ['event_date', '<', Carbon::create($globalDateFrom)],
-                    ['tank_moving_confirmation', true]
-                ])
-                ->orderByDesc('event_date')
-                ->orderByDesc('parent_fuel_level_id')->first();
-
-                $dateFrom = $globalDateFrom;
-            }
-            else {
-                $dateFrom = $globalDateFrom;
-            }
-        }
-
-        $dateToStep2 = FuelTankTransferHistory::where([
-            ['fuel_tank_id', $fuelTankId],
-            ['event_date', '>=',  Carbon::create($globalDateFrom)],
-            // ['event_date', '>=',  $dateFromTmp],
-            ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
-            ['tank_moving_confirmation', true],
-            ['parent_fuel_level_id', '>=', $from->id ?? 0],
-            ['id', '<>', $from->id ?? 0],
-            ['event_date', '>=', $from->event_date ?? Carbon::create($globalDateFrom)]
-        ])
-        ->orderBy('event_date')
-        ->first()
-        ->event_date ?? $globalDateTo;
-                
-        $dateTo = $to->tank_moving_confirmation ?? null == true ? $to->event_date : $dateToStep2;
-
-        return [Carbon::create($dateFrom), Carbon::create($dateTo)];
-    }
-
-    public function getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo)
-    {
-        $tankRecievedEvent = FuelTankTransferHistory::where([
-                ['responsible_id', $responsibleId],
-                ['fuel_tank_id', $fuelTankId],
-                ['object_id', $objectId],
-                ['tank_moving_confirmation', 1],
-                ['event_date', $dateFrom],
-        ])->first();
-
-        if($tankRecievedEvent) {
-            $fuelLevelPeriodStart =  $tankRecievedEvent->fuel_level;
-        } else {
-            $firstPeriodFuelEventParentId  = FuelTankTransferHistory::where([
-                    ['fuel_tank_id', $fuelTankId],
-                    ['responsible_id', $responsibleId],
-                    ['object_id', $objectId],
-                    ['event_date', $dateFrom],
-                    ['fuel_tank_flow_id', '<>', NULL],
-                    // ['event_date', '<=' , $dateFrom],
-                    // ['event_date', '>=' , $dateTo]
-                ])
-                ->orderBy('parent_fuel_level_id')
-                ->first()->parent_fuel_level_id ?? 0;
-
-            $lastPreviousPeriodFuelRemain = FuelTankTransferHistory::find($firstPeriodFuelEventParentId);
-
-            if($lastPreviousPeriodFuelRemain) {
-                $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemain->fuel_level;
-            } else {
-                $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
-                    ['fuel_tank_id', $fuelTankId],
-                    ['event_date', '<=' , $dateFrom],
-                    ['fuel_tank_flow_id', '<>', NULL],
-                ])
-                ->orderByDesc('event_date')
-                // ->orderByDesc('parent_fuel_level_id')
-                ->orderByDesc('id')
-                ->first();
-
-                if($lastPreviousPeriodFuelRemainPrev) {
-                    $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level;
-                } else {
-                    $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
-                        ['fuel_tank_id', $fuelTankId],
-                        ['previous_responsible_id', $responsibleId],
-                        ['previous_object_id', $objectId],
-                        ['event_date', '>=' , $dateFrom],
-                        ['event_date', '<=' , $dateTo],
-                        ['fuel_tank_flow_id', '<>', NULL],
-                    ])
-                    // ->orderByDesc('parent_fuel_level_id')
-                    ->orderByDesc('id')
-                    ->first();
-
-                    $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
-                }
-            }
-        }
-
-        $fuelPeriodLastTransaction = $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
-            ['responsible_id', $responsibleId],
-            ['fuel_tank_id', $fuelTankId],
-            ['object_id', $objectId],
-            ['event_date', '>=',  $dateFrom],
-            ['event_date', '<=',  $dateTo],
-            ['fuel_tank_flow_id', '<>', NULL],
-        ])
-        ->orderByDesc('event_date')
-        ->orderBy('id', 'desc')
-        ->first();
-
-        if($fuelPeriodLastTransaction) {
-            $fuelLevelPeriodFinish = $fuelPeriodLastTransaction->fuel_level;
-        } else {
-            $fuelLevelPeriodFinish = $fuelLevelPeriodStart;
-        }
-
-        return [$fuelLevelPeriodStart, $fuelLevelPeriodFinish];
-    }
-
     public function getFilteredArray($filterData, $filterKey)
     {
         if(!str_contains(json_encode($filterData), $filterKey))
@@ -704,4 +417,293 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
         return $resultArr;
     }
+
+
+    // public function getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
+    // {
+    //     [$dateFrom, $dateTo] = $this->getPeriodDatesFromTo($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo);
+
+    //     [$fuelLevelPeriodStart, $fuelLevelPeriodFinish] = $this->getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo);
+
+    //     $confirmedTankMovements = FuelTankTransferHistory::query()
+    //     ->where([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '>=',  $dateFrom],
+    //         ['event_date', '<=',  $dateTo],
+    //         ['responsible_id', $responsibleId],
+    //         ['tank_moving_confirmation', '<>', null]
+    //     ])
+    //     ->orWhere([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '>=',  $dateFrom],
+    //         ['event_date', '<=',  $dateTo],
+    //         ['previous_responsible_id', $responsibleId],
+    //         ['tank_moving_confirmation', '<>', null]
+    //     ])
+    //     ->where([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '>=',  $dateFrom],
+    //         ['event_date', '<=',  $dateTo],
+    //         ['object_id', $objectId],
+    //         ['tank_moving_confirmation', '<>', null]
+    //     ])
+    //     ->orWhere([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '>=',  $dateFrom],
+    //         ['event_date', '<=',  $dateTo],
+    //         ['previous_object_id', $objectId],
+    //         ['tank_moving_confirmation', '<>', null]
+    //     ])
+    //     ->whereNotNull('object_id')
+    //     ->whereNotNull('previous_object_id')
+    //     ->orderBy('event_date')
+    //     ->get()
+    //     ->toArray();
+
+    //     if($this->checkSkipObjectTransferGroup($objectTransferGroups)){
+    //         return null;
+    //     }
+
+    //     return [
+    //         'fuelLevelPeriodStart' => $fuelLevelPeriodStart,
+    //         'fuelLevelPeriodFinish' => $fuelLevelPeriodFinish,
+    //         'confirmedTankMovements' => $confirmedTankMovements,
+    //         'dateFrom' => $dateFrom->format('d.m.Y'),
+    //         'dateTo' => $dateTo->format('d.m.Y'),
+    //     ];
+
+    // }
+
+    // public function checkSkipObjectTransferGroup($objectTransferGroups)
+    // {
+    //     if(count($objectTransferGroups) === 1 && count($objectTransferGroups[0] ?? []) === 1 && !$objectTransferGroups[0][0]['tank_moving_confirmation'])
+    //     return $skip = true;
+    //     return false;
+    // }
+
+    // public function getPeriodDatesFromTo($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
+    // {
+    //     $eventDates = [];
+    //     array_walk_recursive($objectTransferGroups, function($value, $key) use(&$eventDates) {
+    //         if($key === 'event_date')
+    //         $eventDates[] = $value;
+    //     });
+
+    //     if(empty($eventDates)) {
+    //         //Проверка если последняя запись в журнале - смена ответственного
+    //         $lastTankObjectOrResponsibleChanged = FuelTankTransferHistory::where([
+    //             ['fuel_tank_id', $fuelTankId],
+    //             ['event_date', '<', Carbon::create($globalDateTo)->addday()],
+    //             ['event_date', '>=', Carbon::create($globalDateFrom)],
+    //             ['object_id', $objectId],
+    //             ['responsible_id', $responsibleId],
+    //             ['tank_moving_confirmation', true]
+    //         ])
+    //         ->orderByDesc('parent_fuel_level_id')->first();
+
+    //         if($lastTankObjectOrResponsibleChanged) {
+    //             $dateFromTmp = $lastTankObjectOrResponsibleChanged->event_date;
+    //         } else {
+    //             $dateFromTmp = Carbon::create($globalDateFrom);
+    //         }
+
+    //         $dateToTmp = Carbon::create($globalDateTo);
+    //     } else {
+    //         $dateFromTmp = Carbon::create(min($eventDates));
+    //         $dateToTmp = Carbon::create(max($eventDates));
+    //     }
+
+    //     $to = FuelTankTransferHistory::where([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '>=',  $dateFromTmp],
+    //         ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
+    //         ['previous_object_id', $objectId],
+    //         ['tank_moving_confirmation', true]
+    //     ])
+    //     ->orWhere([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '>=',  $dateFromTmp],
+    //         ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
+    //         ['previous_responsible_id', $responsibleId],
+    //         ['tank_moving_confirmation', true]
+    //     ])
+    //     ->orderBy('event_date')
+    //     ->first()
+    //     ;
+
+    //     // $to = FuelTankTransferHistory::where([
+    //     //     ['fuel_tank_id', $fuelTankId],
+    //     //     // ['event_date', '>=',  $dateToTmp],
+    //     //     // ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
+    //     //     ['previous_object_id', $objectId],
+    //     //     ['tank_moving_confirmation', true]
+    //     // ])
+    //     // ->orWhere([
+    //     //     ['fuel_tank_id', $fuelTankId],
+    //     //     // ['event_date', '>=',  $dateToTmp],
+    //     //     // ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
+    //     //     ['previous_responsible_id', $responsibleId],
+    //     //     ['tank_moving_confirmation', true]
+    //     // ])
+    //     // ->orderByDesc('event_date')
+    //     // ->orderByDesc('parent_fuel_level_id')
+    //     // ->first();
+
+    //     if($to && !isset($objectTransferGroups['transitionPeriod'])) {
+    //         $dateTo = $to->event_date;
+    //     } elseif(isset($objectTransferGroups['transitionPeriod'])) {
+    //         $dateTo = FuelTankTransferHistory::where([
+    //             ['fuel_tank_id', $fuelTankId],
+    //             ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
+    //             ['event_date', '>=', Carbon::create($globalDateFrom)],
+    //             ['previous_object_id', $objectId],
+    //             ['previous_responsible_id', $responsibleId],
+    //             ['tank_moving_confirmation', true]
+    //         ])
+    //         ->orderBy('event_date')
+    //         ->orderBy('parent_fuel_level_id')
+    //         ->first()->event_date ?? $globalDateTo;
+    //     } else {
+    //         $dateTo = $globalDateTo;
+    //     }
+
+    //     $from = FuelTankTransferHistory::where([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '<=',  $dateFromTmp],
+    //         ['event_date', '>=', Carbon::create($globalDateFrom)],
+    //         ['object_id', $objectId],
+    //         ['responsible_id', $responsibleId],
+    //         ['tank_moving_confirmation', true]
+    //     ])->orderByDesc('parent_fuel_level_id')->first();
+
+    //     if($from && !isset($objectTransferGroups['notIncludedTank']) && !isset($objectTransferGroups['transitionPeriod'])) {
+    //         $dateFrom = $from->event_date;
+    //     } else {
+    //         if(isset($objectTransferGroups['notIncludedTank']))
+    //         {
+    //             $from = FuelTankTransferHistory::where([
+    //                 ['fuel_tank_id', $fuelTankId],
+    //                 ['event_date', '<=',  Carbon::create($dateTo)],
+    //                 ['event_date', '>=', Carbon::create($globalDateFrom)],
+    //                 ['object_id', $objectId],
+    //                 ['responsible_id', $responsibleId],
+    //             ])->orderByDesc('parent_fuel_level_id')->first();
+
+    //             $dateFrom = $from->event_date ?? $globalDateFrom;
+    //         }
+    //         elseif(isset($objectTransferGroups['transitionPeriod'])) {
+    //             $from = FuelTankTransferHistory::where([
+    //                 ['fuel_tank_id', $fuelTankId],
+    //                 ['event_date', '<', Carbon::create($globalDateFrom)],
+    //                 ['tank_moving_confirmation', true]
+    //             ])
+    //             ->orderByDesc('event_date')
+    //             ->orderByDesc('parent_fuel_level_id')->first();
+
+    //             $dateFrom = $globalDateFrom;
+    //         }
+    //         else {
+    //             $dateFrom = $globalDateFrom;
+    //         }
+    //     }
+
+    //     $dateToStep2 = FuelTankTransferHistory::where([
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['event_date', '>=',  Carbon::create($globalDateFrom)],
+    //         // ['event_date', '>=',  $dateFromTmp],
+    //         ['event_date', '<',  Carbon::create($globalDateTo)->addday()],
+    //         ['tank_moving_confirmation', true],
+    //         ['parent_fuel_level_id', '>=', $from->id ?? 0],
+    //         ['id', '<>', $from->id ?? 0],
+    //         ['event_date', '>=', $from->event_date ?? Carbon::create($globalDateFrom)]
+    //     ])
+    //     ->orderBy('event_date')
+    //     ->first()
+    //     ->event_date ?? $globalDateTo;
+                
+    //     $dateTo = $to->tank_moving_confirmation ?? null == true ? $to->event_date : $dateToStep2;
+
+    //     return [Carbon::create($dateFrom), Carbon::create($dateTo)];
+    // }
+
+    // public function getPeriodFuelRemains($responsibleId, $fuelTankId, $objectId, $dateFrom, $dateTo)
+    // {
+    //     $tankRecievedEvent = FuelTankTransferHistory::where([
+    //             ['responsible_id', $responsibleId],
+    //             ['fuel_tank_id', $fuelTankId],
+    //             ['object_id', $objectId],
+    //             ['tank_moving_confirmation', 1],
+    //             ['event_date', $dateFrom],
+    //     ])->first();
+
+    //     if($tankRecievedEvent) {
+    //         $fuelLevelPeriodStart =  $tankRecievedEvent->fuel_level;
+    //     } else {
+    //         $firstPeriodFuelEventParentId  = FuelTankTransferHistory::where([
+    //                 ['fuel_tank_id', $fuelTankId],
+    //                 ['responsible_id', $responsibleId],
+    //                 ['object_id', $objectId],
+    //                 ['event_date', $dateFrom],
+    //                 ['fuel_tank_flow_id', '<>', NULL],
+    //                 // ['event_date', '<=' , $dateFrom],
+    //                 // ['event_date', '>=' , $dateTo]
+    //             ])
+    //             ->orderBy('parent_fuel_level_id')
+    //             ->first()->parent_fuel_level_id ?? 0;
+
+    //         $lastPreviousPeriodFuelRemain = FuelTankTransferHistory::find($firstPeriodFuelEventParentId);
+
+    //         if($lastPreviousPeriodFuelRemain) {
+    //             $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemain->fuel_level;
+    //         } else {
+    //             $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
+    //                 ['fuel_tank_id', $fuelTankId],
+    //                 ['event_date', '<=' , $dateFrom],
+    //                 ['fuel_tank_flow_id', '<>', NULL],
+    //             ])
+    //             ->orderByDesc('event_date')
+    //             // ->orderByDesc('parent_fuel_level_id')
+    //             ->orderByDesc('id')
+    //             ->first();
+
+    //             if($lastPreviousPeriodFuelRemainPrev) {
+    //                 $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level;
+    //             } else {
+    //                 $lastPreviousPeriodFuelRemainPrev = FuelTankTransferHistory::where([
+    //                     ['fuel_tank_id', $fuelTankId],
+    //                     ['previous_responsible_id', $responsibleId],
+    //                     ['previous_object_id', $objectId],
+    //                     ['event_date', '>=' , $dateFrom],
+    //                     ['event_date', '<=' , $dateTo],
+    //                     ['fuel_tank_flow_id', '<>', NULL],
+    //                 ])
+    //                 // ->orderByDesc('parent_fuel_level_id')
+    //                 ->orderByDesc('id')
+    //                 ->first();
+
+    //                 $fuelLevelPeriodStart =  $lastPreviousPeriodFuelRemainPrev->fuel_level ?? 0;
+    //             }
+    //         }
+    //     }
+
+    //     $fuelPeriodLastTransaction = $fuelPeriodPreviousTransaction = FuelTankTransferHistory::where([
+    //         ['responsible_id', $responsibleId],
+    //         ['fuel_tank_id', $fuelTankId],
+    //         ['object_id', $objectId],
+    //         ['event_date', '>=',  $dateFrom],
+    //         ['event_date', '<=',  $dateTo],
+    //         ['fuel_tank_flow_id', '<>', NULL],
+    //     ])
+    //     ->orderByDesc('event_date')
+    //     ->orderBy('id', 'desc')
+    //     ->first();
+
+    //     if($fuelPeriodLastTransaction) {
+    //         $fuelLevelPeriodFinish = $fuelPeriodLastTransaction->fuel_level;
+    //     } else {
+    //         $fuelLevelPeriodFinish = $fuelLevelPeriodStart;
+    //     }
+
+    //     return [$fuelLevelPeriodStart, $fuelLevelPeriodFinish];
+    // }
 }

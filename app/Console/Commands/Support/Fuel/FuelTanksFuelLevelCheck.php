@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Support;
+namespace App\Console\Commands\Support\Fuel;
 
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
@@ -97,7 +97,6 @@ class FuelTanksFuelLevelCheck extends Command
             ['fuel_tank_flow_id', '<>', NULL],
         ])
         ->orderByDesc('event_date')
-        // ->orderByDesc('parent_fuel_level_id')
         ->orderByDesc('id')
         ->first()
         ->fuel_level ?? 0
@@ -130,7 +129,7 @@ class FuelTanksFuelLevelCheck extends Command
                 ['fuel_tank_flow_id', '<>', NULL],
             ])
             ->orderByDesc('event_date')
-            ->orderByDesc('parent_fuel_level_id')
+            ->orderByDesc('id')
             ->first()
             ->fuel_level ?? 0
             ;
