@@ -182,7 +182,7 @@ div.dx-datagrid-header-panel{
 }
 
 .snapshot-tile-icon > i {
-    line-height: 40px;
+    line-height: 60px;
 
     font-size: x-large;
     font-weight: bold;
@@ -262,6 +262,6 @@ i.fas.fa-random.minus, i.fas.fa-minus {
 }
 
 .container-fluid {
-    padding-right:10px; 
+    padding-right:10px;
     padding-left: 10px;
 }
