@@ -435,18 +435,14 @@
                         items: [{
                             editorType: "dxTileView",
                             editorOptions: {
-                                height: 50,
-                                baseItemHeight: 40,
-                                baseItemWidth: 140,
+                                height: 70,
+                                baseItemHeight: 60,
+                                baseItemWidth: 160,
                                 itemMargin: 10,
                                 direction: "horizontal",
                                 showScrollbar: true,
                                 dataSource: materialSnapshotsDataSource,
                                 onItemClick: function (e) {
-                                    //Раньше загружался снапшот операции. Теперь - идем в карточку завершенной операции
-                                    /*snapshotId = e.itemData.id;
-                                    actualMaterialsDataSource.reload();
-                                    projectObjectInfoForm.getEditor("materialDataGrid").refresh();*/
                                     window.open(e.itemData.url, '_blank');
                                 },
                                 itemTemplate: function (itemData, _, itemElement) {
@@ -486,6 +482,8 @@
                                     createdDate = createdDate.replaceAll(',', ' ');
 
                                     itemElement.append('<div class="snapshot-tile-content">' +
+                                        "Операция #" + itemData.id +
+                                        '<br>' +
                                         createdDate +
                                         '<br>' +
                                         operationCaption +

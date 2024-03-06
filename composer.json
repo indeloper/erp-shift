@@ -25,8 +25,8 @@
         "pusher/pusher-php-server": "^3.4",
         "ext-json": "*",
         "phpoffice/phpword": "v0.18.*",
-        "wapmorgan/morphos": "^3.2"
-
+        "wapmorgan/morphos": "^3.2",
+        "ext-curl": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",

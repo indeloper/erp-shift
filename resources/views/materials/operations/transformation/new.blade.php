@@ -862,7 +862,7 @@
                 const transformationHeaderStageText = 'Добавьте материалы для преобразования';
                 const transformationHeaderText = 'Добавленные материалы:';
 		const fillingMaterialsToTransformButtonText = materialsToTransform.length > 0 ? "Добавить еще" : "Добавить";
-                
+
 		let layer = $('#materials-to-transform');
 
                 layer.empty();
@@ -1312,7 +1312,7 @@
                     element.append($('<div class="transformation-number-box transformation-quantity" uid="' + material.id + '" material-id = "' + material.material_id + '"></div>')
                         .dxNumberBox({
                             min: 0,
-                            value: material.quantity,
+                            value: material.quantity ?? 0,
                             format: "#0.## " + material.measure_unit_value,
                             placeholder: material.measure_unit_value,
                             onValueChanged: (e) => {
@@ -1335,7 +1335,7 @@
                             .dxNumberBox({
                                 min: 0,
                                 format: "#0 шт",
-                                value: material.amount,
+                                value: material.amount ?? 0,
                                 onValueChanged: (e) => {
                                     material.amount = e.value;
                                     let remains = calculateRemains(material.standard_id);

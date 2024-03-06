@@ -88,9 +88,6 @@ class q3wMaterialOperation extends Model
     }
 
     public function getUrlAttribute(){
-        $routeName = "";
-        $routeStageName = "";
-
         switch ($this->operation_route_id) {
             case 1:
                 $routeName = "supply";
@@ -112,7 +109,6 @@ class q3wMaterialOperation extends Model
             case 2:
             case 7:
                 $routeStageName = "completed";
-                //$routeStageName = "view";
                 break;
             case 3:
             case 5:
