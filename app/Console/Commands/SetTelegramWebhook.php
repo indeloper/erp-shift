@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
-class SetTelegramWebhook extends Command
+class   SetTelegramWebhook extends Command
 {
     /**
      * The name and signature of the console command.
@@ -38,32 +38,27 @@ class SetTelegramWebhook extends Command
      */
     public function handle()
     {
-        $operationType = $this->choice(
-            'Что требуется сделать?',
-            [
-                1 => 'Установить webhook',
-                2=> 'Удалить webhook'
-            ]
-        );
+        $operationType = $this->choice('Что требуется сделать?', [1 => 'Установить webhook', 2 => 'Удалить webhook']);
 
-        $webhookUrl = config('app.url').'/api/telegram/'.config('telegram.internal_bot_token');
-        
-        $telegramUrl = 'https://api.telegram.org/bot'.config('telegram.bot_token').'/setWebhook?url=';
+        $webhookUrl = config('app.url') . '/api/telegram/' . config('telegram.internal_bot_token');
+
+        $telegramUrl = 'https://api.telegram.org/bot' . config('telegram.bot_token') . '/setWebhook?url=';
 
         if ($operationType === 'Установить webhook') {
-            $telegramUrl = $telegramUrl.$webhookUrl;
+            $telegramUrl = $telegramUrl . $webhookUrl;
         }
 
         $ch = curl_init($telegramUrl);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_HEADER, false);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
         $response = json_decode(curl_exec($ch));
-            curl_close($ch);
+        curl_close($ch);
 
-        foreach ($response as $key=>$value) 
-            echo PHP_EOL.$key . ': ' . $value;
+        foreach ($response as $key => $value) echo PHP_EOL . $key . ': ' . $value;
 
-        echo PHP_EOL.PHP_EOL.PHP_EOL;
+        echo PHP_EOL . PHP_EOL . PHP_EOL;
     }
 }

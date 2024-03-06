@@ -903,7 +903,7 @@
                             },
                             validationRules: [{
                                 type: transferOperationInitiator !== "destination" ? "required" : "",
-                                message: 'Поле "Дата получения" обязательно для заполнения'
+                                message: 'Поле "Дата отправления" обязательно для заполнения'
                             }]
                         },
                         {
@@ -965,6 +965,8 @@
                             editorType: "dxDateBox",
                             editorOptions: {
                                 value: transferOperationInitiator === "destination" ? Date.now() : null,
+                                max: Date.now(),
+                                min: getMinDate(),
                             },
                             validationRules: [{
                                 type: transferOperationInitiator === "destination" ? "required" : "",

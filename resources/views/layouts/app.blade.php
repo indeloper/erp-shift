@@ -972,13 +972,13 @@
 
 
 <!-- DevExtreme themes -->
-<link rel="stylesheet" href="{{ asset('css/devextreme/dx.common.css')}}">
 @if (
         Request::is('project-object-documents')
         || Request::is('objects')
         || Request::is('building/tech_acc/technic*')
         || Request::is('building/tech_acc/fuel*')
         || Request::is('timesheet/*')
+        || Request::is('materials/operations/all')
     )
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.sk.generic.light.css')}}">
     <link rel="stylesheet" href="{{ asset('css/devextreme/dx.generic.light.css')}}">
