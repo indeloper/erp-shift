@@ -453,8 +453,8 @@ class q3wMaterialTransformationOperationController extends Controller
         foreach ($requestData['materialsRemains'] as $material) {
             $materialStandard = q3wMaterialStandard::findOrFail($material['standard_id']);
 
-            $materialAmount = $material['amount'];
-            $materialQuantity = $material['quantity'];
+            $materialAmount = $material['amount'] ?? 0;
+            $materialQuantity = $material['quantity'] ?? 0;
 
             if (empty($material['comment'])) {
                 $inputMaterialComment = null;
