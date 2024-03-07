@@ -8,8 +8,12 @@ use Carbon\Carbon;
 class FuelPeriodReportService {
     public function getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
     {
+        if($this->checkNeedToSkip($objectTransferGroups)) {
+            return null;
+        }
+
         $reportData = $this->getReportData($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo);
-        
+
         return [
             'fuelLevelPeriodStart' => $reportData['fuelLevelPeriodStart'],
             'fuelLevelPeriodFinish' => $reportData['fuelLevelPeriodFinish'],
@@ -26,7 +30,7 @@ class FuelPeriodReportService {
         $reportData['fuelLevelPeriodStart'] = $this->getFuelLevelPeriodStart($objectTransferGroups, $reportData['dateFrom'], $reportData['dateTo'], $responsibleId, $fuelTankId, $objectId);
         $reportData['fuelLevelPeriodFinish'] = $this->getFuelLevelPeriodFinish($objectTransferGroups, $reportData['dateFrom'], $reportData['dateTo'], $responsibleId, $fuelTankId, $objectId);
         $reportData['confirmedTankMovements'] = $this->getConfirmedTankMovements($objectTransferGroups, $reportData['dateFrom'], $reportData['dateTo'], $responsibleId, $fuelTankId, $objectId);
-        
+
         return $reportData;
     }
 
@@ -40,13 +44,13 @@ class FuelPeriodReportService {
         $minEventDate = min($periodEventDates);
 
         $isMinDateMovementEvent = $this->checkIsDateMovementEventFrom($minEventDate, $responsibleId, $fuelTankId, $objectId);
-        
+
         if($isMinDateMovementEvent) {
             return max(
-                Carbon::create($minEventDate), 
+                Carbon::create($minEventDate),
                 Carbon::create($globalDateFrom));
         }
-        
+
         return Carbon::create($globalDateFrom);
     }
 
@@ -69,20 +73,20 @@ class FuelPeriodReportService {
         if(!$nextReportMovementConfirmationDate) {
             return Carbon::create($globalDateTo);
         }
-        
+
         return min(
-            Carbon::create($nextReportMovementConfirmationDate), 
+            Carbon::create($nextReportMovementConfirmationDate),
             Carbon::create($globalDateTo));
     }
 
     public function getFuelLevelPeriodStart($objectTransferGroups, $dateFrom, $dateTo, $responsibleId, $fuelTankId, $objectId)
     {
         $isMinDateMovementEvent = $this->checkIsDateMovementEventFrom($dateFrom, $responsibleId, $fuelTankId, $objectId);
-        
+
         if(
-            isset($objectTransferGroups['transitionPeriod']) 
+            isset($objectTransferGroups['transitionPeriod'])
             || isset($objectTransferGroups['notIncludedTank'])
-            || !$isMinDateMovementEvent 
+            || !$isMinDateMovementEvent
         ) {
             return FuelTankTransferHistory::query()
                 ->where([
@@ -117,11 +121,11 @@ class FuelPeriodReportService {
     public function getFuelLevelPeriodFinish($objectTransferGroups, $dateFrom, $dateTo, $responsibleId, $fuelTankId, $objectId)
     {
         $periodEventDates = $this->getPeriodEventDates($objectTransferGroups);
-        
+
         if(isset($objectTransferGroups['notIncludedTank']) || empty($periodEventDates)) {
             return $this->getFuelLevelPeriodStart($objectTransferGroups, $dateFrom, $dateTo, $responsibleId, $fuelTankId, $objectId);
         }
-        
+
         return FuelTankTransferHistory::query()
             ->where([
                 ['event_date', '>=', $dateFrom],
@@ -232,5 +236,17 @@ class FuelPeriodReportService {
         ->first()
         ->event_date ?? $globalDateTo;
     }
-    
+
+    public function checkNeedToSkip($objectTransferGroups)
+    {
+        if(
+            count($objectTransferGroups) === 1
+            && isset($objectTransferGroups[0][0])
+        ) {
+            $a = (int)$objectTransferGroups[0][0]["fuel_tank_flow_type_slug"] ?? NULL;
+            $b = (int)$objectTransferGroups[0][0]["tank_moving_confirmation"] ?? NULL;
+
+            return $a + $b < 1;
+        }
+    }
 }
