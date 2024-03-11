@@ -292,7 +292,7 @@ class q3wMaterialTransformationOperationController extends Controller
 
             }
 
-            if ($totalQuantity > $totalSourceQuantity) {
+            if (round($totalQuantity, 2) > round($totalSourceQuantity, 2)) {
                 $errors[$key][] = (object)['severity' => 1000, 'type' => 'totalQuantityIsLarge', 'itemName' => $materialName, 'message' => 'Длина материалов после преобразования больше, чем длина исходных материалов'];
             }
 
