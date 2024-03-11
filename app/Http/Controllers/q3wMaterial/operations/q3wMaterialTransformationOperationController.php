@@ -250,7 +250,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     $unitedMaterialToTransform[$key] = $material->quantity * $material->amount;
                 }
 
-                $totalSourceQuantity += $material->quantity * $material->amount;
+                $totalSourceQuantity += round($material->quantity * $material->amount, 2);
             }
 
 
@@ -288,7 +288,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     continue;
                 }
 
-                $totalQuantity += $material->quantity * $material->amount;
+                $totalQuantity += round($material->quantity * $material->amount, 2);
 
             }
 
