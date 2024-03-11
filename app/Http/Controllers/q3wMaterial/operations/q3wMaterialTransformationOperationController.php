@@ -245,9 +245,9 @@ class q3wMaterialTransformationOperationController extends Controller
                 }
 
                 if (isset($unitedMaterialToTransform[$key])){
-                    $unitedMaterialToTransform[$key] = $unitedMaterialToTransform[$key] + $material->quantity * $material->amount;
+                    $unitedMaterialToTransform[$key] = round($unitedMaterialToTransform[$key] + $material->quantity * $material->amount, 2);
                 } else {
-                    $unitedMaterialToTransform[$key] = $material->quantity * $material->amount;
+                    $unitedMaterialToTransform[$key] = round($material->quantity * $material->amount, 2);
                 }
 
                 $totalSourceQuantity += round($material->quantity * $material->amount, 2);
