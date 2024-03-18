@@ -325,7 +325,10 @@
                                         reservedMaterialsDataSource.reload();
                                         projectObjectActiveOperationsDataSource.reload();
                                         projectObjectInfoForm.getEditor("materialDataGrid").refresh();
+                                        console.log("projectObjectInfoForm.getEditor(reservedMaterialsGrid)", projectObjectInfoForm.getEditor("reservedMaterialsGrid"));
                                         projectObjectInfoForm.getEditor("reservedMaterialsGrid").refresh();
+
+
 
                                         window.history.pushState("", "", "?project_object=" + projectObject)
                                     }
@@ -495,7 +498,7 @@
                     {
                         itemType: "tabbed",
                         tabPanelOptions: {
-                            deferRendering: true
+                            deferRendering: false
                         },
                         cssClass: "actual-materials-grid",
                         colSpan: 2,
@@ -1003,8 +1006,7 @@
 
             function createOperationButtons(){
                 let groupTabs = $('.actual-materials-grid').find('.dx-tabpanel-tabs');
-                $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupTabs);
-                let tabList = groupTabs.find('.dx-tabs-wrapper[role=tablist]')
+                let tabList = groupTabs.find('.dx-tabs')
                 console.log(tabList);
 
                 $('<div class="tab-wrapper-button">')
