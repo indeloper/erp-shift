@@ -21,6 +21,7 @@ use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\User;
 use App\Models\UserPermission;
+use App\Telegram\TelegramServices;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -1290,37 +1291,42 @@ class LaborSafetyRequestController extends Controller
     private function sendRequestNotification($requestRow)
     {
         $notificationText = '';
-        $users = [];
+        $userIds = [];
 
         switch ($requestRow->request_status_id) {
             case 1:
                 $permissionId = Permission::where('codename', 'labor_safety_generate_documents_access')->first()->id;
-                $users = UserPermission::where('permission_id', $permissionId)->get();
-                $notificationText = "Поступила новая заявка на формирование приказов (#$requestRow->id).";
+                $userIds = UserPermission::where('permission_id', $permissionId)
+                    ->where('user_id', '<>', Auth::id())
+                    ->get()->pluck('id')->toArray();
+
+                $notificationText = (new TelegramServices)->getMessageParams(
+                    [
+                        'template' => 'laborSafetyNewOrderRequestNotificationTemplate',
+                        'orderRequest' => $requestRow
+                    ]);
                 break;
             case 3:
-                $users = [$requestRow->author_id];
+                $userIds = [$requestRow->author_id];
                 $notificationText = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
                 break;
             case 4:
-                $users = [$requestRow->author_id];
+                $userIds = [$requestRow->author_id];
                 $notificationText = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
                 break;
         }
 
-        if (!empty($users)) {
-            foreach ($users as $userId) {
-                $notification = new Notification();
-                $notification->save();
-                $notification->update([
-                    'name' => $notificationText,
-                    'target_id' => $requestRow->id,
-                    'user_id' => $userId,
-                    'created_at' => now(),
-                    'type' => 7,
-                    'status' => 7
-                ]);
-            }
+        foreach ($userIds as $userId) {
+            $notification = new Notification();
+            $notification->save();
+            $notification->update([
+                'name' => $notificationText,
+                'target_id' => $requestRow->id,
+                'user_id' => $userId,
+                'created_at' => now(),
+                'type' => 7,
+                'status' => 7
+            ]);
         }
     }
 

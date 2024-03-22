@@ -20,16 +20,12 @@ class TelegramServices {
         'fuelTankMovingConfirmationTextForOfficeResponsibles' => [
             'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
             'method' => 'getFuelTankMovingConfirmationForOfficeResponsiblesMessageParams'
+        ],
+        'laborSafetyNewOrderRequestNotificationTemplate' => [
+            'class' => 'App\Telegram\MessageTemplates\LaborSafety\LaborSafetyMessageTemplates',
+            'method' => 'getLaborSafetyNewOrderRequestNotificationTemplate'
         ]
     ];
-
-    // public function defineNotificationTemplate($text)
-    // {
-    //     if(str_contains($text, 'confirmFuelTankRecieve')){
-    //         return 'confirmFuelTankRecieve';
-    //     }
-    //     return null;        
-    // }
 
     public function defineNotificationTemplateClassMethod($template)
     {
@@ -68,11 +64,11 @@ class TelegramServices {
     {
         if(str_contains($text, 'notificationHook')) {
             return $this->getHookTypeAndId($text)['type'];
-        } 
+        }
         else {
             return 'underfined';
         }
-        
+
     }
 
     public function getMessageParams($params)
@@ -97,11 +93,11 @@ class TelegramServices {
             return ['text' => $params['text']];
         }
 
-        $notificationTemlateClass = new $templateClassMethod['class']();
-        $notificationTemlateMethod = $templateClassMethod['method'];
+        $notificationTemplateClass = new $templateClassMethod['class']();
+        $notificationTemplateMethod = $templateClassMethod['method'];
 
-        $tmp = (new $notificationTemlateClass)->$notificationTemlateMethod($params); 
+        $tmp = (new $notificationTemplateClass)->$notificationTemplateMethod($params);
 
-        return (new $notificationTemlateClass)->$notificationTemlateMethod($params);        
+        return (new $notificationTemplateClass)->$notificationTemplateMethod($params);
     }
 }
