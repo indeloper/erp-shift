@@ -1290,7 +1290,7 @@ class LaborSafetyRequestController extends Controller
 
     private function sendRequestNotification($requestRow)
     {
-        $notificationText = '';
+        $notification = '';
         $userIds = [];
 
         switch ($requestRow->request_status_id) {
@@ -1298,7 +1298,7 @@ class LaborSafetyRequestController extends Controller
                 $userIds = (new Permission)->getUsersIdsByCodename('labor_safety_generate_documents_access');
                 $userIds = array_diff($userIds, array($requestRow->author_user_id));
 
-                $notificationText = (new TelegramServices)->getMessageParams(
+                $notification = (new TelegramServices)->getMessageParams(
                     [
                         'template' => 'laborSafetyNewOrderRequestNotificationTemplate',
                         'orderRequest' => $requestRow
@@ -1306,11 +1306,11 @@ class LaborSafetyRequestController extends Controller
                 break;
             case 3:
                 $userIds = [$requestRow->author_id];
-                $notificationText = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
+                $notification = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
                 break;
             case 4:
                 $userIds = [$requestRow->author_id];
-                $notificationText = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
+                $notification = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
                 break;
         }
 
@@ -1318,7 +1318,7 @@ class LaborSafetyRequestController extends Controller
             $notification = new Notification();
             $notification->save();
             $notification->update([
-                'name' => $notificationText,
+                'name' => $notification['message']['text'],
                 'target_id' => $requestRow->id,
                 'user_id' => $userId,
                 'created_at' => now(),
