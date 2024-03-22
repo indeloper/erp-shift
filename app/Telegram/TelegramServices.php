@@ -23,7 +23,7 @@ class TelegramServices {
         ],
         'laborSafetyNewOrderRequestNotificationTemplate' => [
             'class' => 'App\Telegram\MessageTemplates\LaborSafety\LaborSafetyMessageTemplates',
-            'method' => 'getLaborSafetyNewOrderRequestNotificationTemplate'
+            'method' => 'getLaborSafetyNewOrderRequestNotificationTemplateParams'
         ]
     ];
 

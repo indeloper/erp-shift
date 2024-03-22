@@ -1,20 +1,15 @@
 <?php
 
-namespace app\Telegram\MessageTemplates;
+namespace App\Telegram\MessageTemplates\LaborSafety;
 
 use App\Models\Company\Company;
 use App\Models\ProjectObject;
-use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
-use App\Telegram\TelegramServices;
-use Carbon\Carbon;
-use morphos\Russian\FirstNamesInflection;
 use morphos\Russian\RussianLanguage;
 
 class LaborSafetyMessageTemplates
 {
-    public function getLaborSafetyNewOrderRequestNotificationTemplate($params) {
+    public function getLaborSafetyNewOrderRequestNotificationTemplateParams($params) {
         $orderRequestId = $params['orderRequest']->id;
 
 
