@@ -1295,10 +1295,8 @@ class LaborSafetyRequestController extends Controller
 
         switch ($requestRow->request_status_id) {
             case 1:
-                $permissionId = Permission::where('codename', 'labor_safety_generate_documents_access')->first()->id;
-                $userIds = UserPermission::where('permission_id', $permissionId)
-                    ->where('user_id', '<>', $requestRow->author_user_id)
-                    ->get()->pluck('id')->toArray();
+                $userIds = Permission::getUsersIdsByCodename('labor_safety_generate_documents_access');
+                $userIds = array_diff($userIds, array($requestRow->author_user_id));
 
                 $notificationText = (new TelegramServices)->getMessageParams(
                     [
