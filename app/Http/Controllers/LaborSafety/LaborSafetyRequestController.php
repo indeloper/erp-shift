@@ -1297,7 +1297,7 @@ class LaborSafetyRequestController extends Controller
             case 1:
                 $permissionId = Permission::where('codename', 'labor_safety_generate_documents_access')->first()->id;
                 $userIds = UserPermission::where('permission_id', $permissionId)
-                    ->where('user_id', '<>', Auth::id())
+                    ->where('user_id', '<>', $requestRow->author_user_id)
                     ->get()->pluck('id')->toArray();
 
                 $notificationText = (new TelegramServices)->getMessageParams(
