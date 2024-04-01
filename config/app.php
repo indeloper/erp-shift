@@ -184,7 +184,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Fomvasss\Dadata\DadataServiceProvider::class,
+//        Fomvasss\Dadata\DadataServiceProvider::class,
         niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
 
@@ -211,7 +211,9 @@ return [
          */
         \App\Providers\ObserversServiceProvider::class,
         \App\Providers\BladeDirectivesProvider::class,
-        \App\Providers\BlueprintMacroServiceProvider::class
+        \App\Providers\BlueprintMacroServiceProvider::class,
+        \App\Providers\ServiceServiceProvider::class,
+        \App\Providers\RepositoryServiceProvider::class
     ],
 
     /*

@@ -47,6 +47,9 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapWebRoutes();
 
+        // Подключаем маршруты для шаблона
+        $this->mapLayoutRoutes();
+
         //
     }
 
@@ -118,4 +121,14 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace($this->namespace)
             ->group(base_path('routes/api.php'));
     }
+
+    private function mapLayoutRoutes()
+    {
+        Route::middleware(['web', 'auth'])
+            ->namespace(($this->namespace))
+            ->prefix('layout')
+            ->name('layout::')
+            ->group(base_path('routes/layout/layout.php'));
+    }
+
 }

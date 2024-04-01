@@ -194,4 +194,7 @@ mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.min.js', 'public/js/lig
 mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.min.js', 'public/js/lightgallery/lg-rotate.min.js');
 mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
 
+
+mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js')
+
 mix.version();
