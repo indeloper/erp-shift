@@ -58,6 +58,9 @@ class MenuItemSeeder extends Seeder
                 'contractors/*',
                 'objects',
                 'objects/*',
+                'building/works',
+                'tasks/filter-tasks-report',
+                'building/materials'
             ],
             'status'     => true,
         ]);
@@ -78,7 +81,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         $objects = factory(MenuItem::class)->create([
-            'title'      => 'Контрагенты',
+            'title'      => 'Объекты',
             'parent_id'  => $commerce->id,
             'route_name' => 'objects::base-template',
             'icon_path'  => '<i class="pe-7s-culture pe-7s-mini"></i>',
@@ -110,7 +113,7 @@ class MenuItemSeeder extends Seeder
         $manualWorks = factory(MenuItem::class)->create([
             'title'      => 'Работы',
             'parent_id'  => $commerce->id,
-            'route_name' => 'building::materials::index',
+            'route_name' => 'building::works::index',
             'icon_path'  => '<i class="pe-7s-config pe-7s-mini"></i>',
             'gates'      => [
                 'manual_works',
@@ -369,7 +372,7 @@ class MenuItemSeeder extends Seeder
                 'technics_brands_models_categories_read_create_update_delete',
             ],
             'actives'     => [
-                'building/tech_acc/technic/technicBrand*',
+                'building/tech_acc/technic/technicBrand',
 
             ],
             'status'     => true,
@@ -386,7 +389,7 @@ class MenuItemSeeder extends Seeder
                 'technics_brands_models_categories_read_create_update_delete',
             ],
             'actives'     => [
-                'building/tech_acc/technic/technicBrandModel*',
+                'building/tech_acc/technic/mtechnicBrandModel*',
 
             ],
             'status'     => true,
@@ -481,6 +484,7 @@ class MenuItemSeeder extends Seeder
                 'contracts',
             ],
             'actives'     => [
+                'project-object-documents',
                 'project_documents',
                 'project_documents/*',
                 'commercial_offers',
@@ -676,17 +680,17 @@ class MenuItemSeeder extends Seeder
             'status'     => true,
         ]);
 
-        $support = factory(MenuItem::class)->create([
-            'title'      => 'Техническая поддержка',
-            'parent_id'  => null,
-            'route_name' => 'support::index',
-            'icon_path'  => '<i class="pe-7s-help1"></i>',
-            'actives'     => [
-                'support',
-                'support/*',
-            ],
-            'status'     => true,
-        ]);
+//        $support = factory(MenuItem::class)->create([
+//            'title'      => 'Техническая поддержка',
+//            'parent_id'  => null,
+//            'route_name' => 'support::index',
+//            'icon_path'  => '<i class="pe-7s-help1"></i>',
+//            'actives'     => [
+//                'support',
+//                'support/*',
+//            ],
+//            'status'     => true,
+//        ]);
     }
 
 }

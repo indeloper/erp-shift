@@ -4,7 +4,7 @@ namespace App\Http\Resources\Menu;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MenuResource extends JsonResource
+class FavoriteMenuResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -26,7 +26,6 @@ class MenuResource extends JsonResource
             'route' => $route,
             'icon_path' => $this->icon_path,
             'actives' => $this->actives,
-            'children' => self::collection($this->children),
             'toggle_favorite_route' => route('layout::menu::favorite::toggle', [
                 'menu_item' => $this->id
             ]),

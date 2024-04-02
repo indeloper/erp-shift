@@ -52,7 +52,9 @@ class CreateMenuItemsTable extends Migration
 
             $table->foreign('parent_id')
                 ->references('id')
-                ->on('menu_items');
+                ->on('menu_items')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

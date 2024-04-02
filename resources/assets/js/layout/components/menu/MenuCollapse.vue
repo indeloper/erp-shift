@@ -7,13 +7,18 @@ export default {
   props: [
       'menuItem'
   ],
-  data: {
-    isOpen: false
+  emits: [
+    'reload-menu'
+  ],
+  data() {
+    return {
+      isOpen: false
+    }
   },
   mounted() {
-
-
-
+    console.log(
+        this.isOpenCollapse()
+    );
   },
   methods: {
     showCollapse() {
@@ -24,6 +29,23 @@ export default {
         this.isOpen = true;
         $('#collapse' + this.menuItem.id).collapse('show')
       }
+    },
+    isOpenCollapse() {
+      const url = new URL(window.location.href)
+      const pathname = url.pathname;
+
+      this.menuItem.actives.forEach(active => {
+        try {
+          const regex = new RegExp(active);
+
+          if (regex.test(pathname)) {
+            $('#collapse' + this.menuItem.id).collapse('show')
+
+            this.isOpen = true;
+          }
+        } catch (e) {
+        }
+      })
     }
   }
 };
@@ -44,7 +66,12 @@ export default {
         class="collapse"
         :id="`collapse${menuItem.id}`">
       <ul class="nav">
-        <MenuItemCollapse v-for="childrenItem in menuItem.children" :menuItem="childrenItem" :key="childrenItem.id"/>
+        <MenuItemCollapse
+            v-for="childrenItem in menuItem.children"
+            :menuItem="childrenItem"
+            :key="childrenItem.id"
+            @reload-menu="$emit('reload-menu')"
+        />
         <hr>
       </ul>
     </div>

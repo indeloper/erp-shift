@@ -7,7 +7,7 @@ use App\Services\Menu\MenuServiceInterface;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class LayoutController extends Controller
+class MenuController extends Controller
 {
 
     /** @var MenuServiceInterface $menuServiceInterface */
@@ -23,7 +23,7 @@ class LayoutController extends Controller
         $this->service = $menuService;
     }
 
-    public function menu()
+    public function index()
     {
         return MenuResource::collection(
             $this->service->getMenuItems()

@@ -18,4 +18,10 @@ final class MenuRepository implements MenuRepositoryInterface
             ->get();
     }
 
+    public function getMenuItemById($menuItemId)
+    {
+        return MenuItem::query()
+            ->find($menuItemId);
+    }
+
 }

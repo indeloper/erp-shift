@@ -12,4 +12,11 @@ interface MenuRepositoryInterface
      */
     public function getMenuItems();
 
+    /**
+     * @param $menuItemId
+     *
+     * @return \App\Models\Menu\MenuItem|null
+     */
+    public function getMenuItemById($menuItemId);
+
 }

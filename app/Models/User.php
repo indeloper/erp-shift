@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Menu\MenuItem;
 use App\Models\HumanResources\{Appointment, Brigade, JobCategory, ReportGroup, Timecard};
 use App\Models\MatAcc\MaterialAccountingOperation;
 use Exception;
@@ -53,7 +54,7 @@ class User extends Authenticatable
         'person_phone',
         'image',
         'gender',
-        'INN'
+        'INN',
     ];
 
     protected $table = 'users';
@@ -103,7 +104,7 @@ class User extends Authenticatable
         'long_full_name',
         'card_route',
         'group_name',
-        'company_name'
+        'company_name',
     ];
 
     public static $companies = [
@@ -119,7 +120,7 @@ class User extends Authenticatable
     const TECH_TICKETS_GROUPS = [
         8, 13, 14, 15, 17, 19, 23, 27,
         31, 35, 37, 39, 40, 41, 42, 43,
-        44, 45, 46, 47, 48
+        44, 45, 46, 47, 48,
     ];
 
     const HARDCODED_PERSONS = [
@@ -128,7 +129,7 @@ class User extends Authenticatable
         'certificateWorker' => 29,
         'CEO' => 6,
         'subCEO' => 7,
-        'mainPTO' => 22
+        'mainPTO' => 22,
     ];
 
     const FILTERS = [
@@ -765,7 +766,8 @@ class User extends Authenticatable
      * @param $declension
      * @return array|string|string[]
      * @throws Exception
-     * @example User::find($userId)->format('L f. p.', 'родительный'); // returns Иванов -> Иванова А. С.
+     * @example User::find($userId)->format('L f. p.', 'родительный'); //
+     *     returns Иванов -> Иванова А. С.
      */
     public function format(string $format = 'LFP', $declension = null): string {
         $patronymicExcludes = ['Угли','угли', 'Оглы', 'оглы', 'Оглу', 'оглу'];
@@ -820,5 +822,10 @@ class User extends Authenticatable
         return $this->chat_id
             ? 'tg://user?id='.$this->chat_id
             : asset('/users/card').'/'.$this->id ?? null;
+    }
+
+    public function menuItems()
+    {
+        return $this->belongsToMany(MenuItem::class);
     }
 }

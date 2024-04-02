@@ -2,6 +2,7 @@
 
 namespace App\Models\Menu;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -40,5 +41,10 @@ class MenuItem extends Model
     public function children()
     {
         return $this->hasMany(MenuItem::class, 'parent_id', 'id');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
     }
 }
