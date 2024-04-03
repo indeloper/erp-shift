@@ -12,7 +12,7 @@ final class MenuRepository implements MenuRepositoryInterface
     public function getMenuItems()
     {
         return MenuItem::query()
-            ->with(['children'])
+            ->with(['children', 'children.children'])
             ->whereNull('parent_id')
             ->active()
             ->get();
