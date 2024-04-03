@@ -93,7 +93,7 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => "Techn
     Route::group(['prefix' => 'technicBrand', 'as' => 'technicBrand::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
         Route::registerBaseRoutes('TechnicBrandController', $attachmentsRoutes = false);
     });
-    Route::group(['prefix' => 'technicBrandModel', 'as' => 'technicBrandModel::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
+    Route::group(['prefix' => 'mtechnicBrandModel', 'as' => 'technicBrandModel::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
         Route::registerBaseRoutes('TechnicBrandModelController', $attachmentsRoutes = false);
     });
     Route::group(['prefix' => 'movements', 'as' => 'movements::'], function () {
