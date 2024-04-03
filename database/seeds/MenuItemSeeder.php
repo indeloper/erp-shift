@@ -628,6 +628,7 @@ class MenuItemSeeder extends Seeder
                 'admin',
                 'admin/*',
                 'admin/notifications',
+                '/admin/telegram-route-templates'
             ],
             'status'     => true,
         ]);
@@ -663,6 +664,28 @@ class MenuItemSeeder extends Seeder
                 '/admin/permissions',
             ],
             'status'     => true,
+        ]);
+
+        $permissions = factory(MenuItem::class)->create([
+            'title'      => 'Роли пользователей',
+            'parent_id'  => $is_su->id,
+            'route_name' => 'admin.permissions',
+            'icon_path'  => '<i class="fas fa-check"></i>',
+            'actives'     => [
+                '/admin/permissions',
+            ],
+            'status'     => true,
+        ]);
+
+        $permissions = factory(MenuItem::class)->create([
+            'title'      => 'Шаблоны телеграм',
+            'parent_id'  => $is_su->id,
+            'route_name' => 'admin.telegram-route-templates::getPageCore',
+            'icon_path'  => '<i class="fas fa-envelope"></i>',
+            'actives'     => [
+                '//admin/telegram-route-templates',
+            ],
+            'status'     => false,
         ]);
 
         $users = factory(MenuItem::class)->create([

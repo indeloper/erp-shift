@@ -40,7 +40,8 @@ class MenuItem extends Model
 
     public function children()
     {
-        return $this->hasMany(MenuItem::class, 'parent_id', 'id');
+        return $this->hasMany(MenuItem::class, 'parent_id', 'id')
+            ->where('status', true);
     }
 
     public function users()
