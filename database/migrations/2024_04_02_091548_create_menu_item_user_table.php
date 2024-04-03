@@ -13,7 +13,7 @@ class CreateMenuItemUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('menu_item_user', function (Blueprint $table) {
+        Schema::create('favorite_menu_item_user', function (Blueprint $table) {
             $table->unsignedBigInteger(
                 'menu_item_id'
             );
@@ -43,6 +43,6 @@ class CreateMenuItemUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('menu_item_user');
+        Schema::dropIfExists('favorite_menu_item_user');
     }
 }
