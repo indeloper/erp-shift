@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\Menu\MenuRepository;
 use App\Repositories\Menu\MenuRepositoryInterface;
+use App\Repositories\Notification\NotificationRepository;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use App\Repositories\User\UserRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +27,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class,
             UserRepository::class
+        );
+
+        $this->app->bind(
+            NotificationRepositoryInterface::class,
+            NotificationRepository::class
         );
     }
 }
