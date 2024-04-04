@@ -6,4 +6,5 @@
 <input type="hidden" id="notifications_index_url" value="{{ route('notifications::index') }}">
 <input type="hidden" id="messages_count" value="{{ $messages }}">
 <input type="hidden" id="notifications_count" value="{{ $notifications }}">
+
 <div id="header-component"></div>
