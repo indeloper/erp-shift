@@ -6,6 +6,8 @@ use App\Services\Menu\MenuItemFavorite;
 use App\Services\Menu\MenuItemFavoriteInterface;
 use App\Services\Menu\MenuService;
 use App\Services\Menu\MenuServiceInterface;
+use App\Services\User\UserService;
+use App\Services\User\UserServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class ServiceServiceProvider extends ServiceProvider
@@ -25,6 +27,11 @@ class ServiceServiceProvider extends ServiceProvider
         $this->app->bind(
             MenuItemFavoriteInterface::class,
             MenuItemFavorite::class
+        );
+
+        $this->app->bind(
+            UserServiceInterface::class,
+            UserService::class
         );
     }
 

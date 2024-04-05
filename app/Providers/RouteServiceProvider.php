@@ -49,6 +49,7 @@ class RouteServiceProvider extends ServiceProvider
 
         // Подключаем маршруты для шаблона
         $this->mapLayoutRoutes();
+        $this->mapProfileRoutes();
 
         //
     }
@@ -129,6 +130,15 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('layout')
             ->name('layout::')
             ->group(base_path('routes/layout/layout.php'));
+    }
+
+    private function mapProfileRoutes()
+    {
+        Route::middleware(['web', 'auth'])
+            ->namespace(($this->namespace))
+            ->prefix('profile')
+            ->name('profile::')
+            ->group(base_path('routes/user/profile.php'));
     }
 
 }
