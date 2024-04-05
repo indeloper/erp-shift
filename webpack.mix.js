@@ -195,6 +195,6 @@ mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.min.js', 'public/js
 mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
 
 
-mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js')
+mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js').vue()
 
 mix.version();
