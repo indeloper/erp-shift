@@ -20,7 +20,7 @@ export default {
     <a class="nav-link d-block d-flex justify-content-between align-items-center" style="text-wrap: wrap" :href="menuItem.route">
       <div class="d-flex flex-row justify-content-start align-items-center">
         <div class="p-0 mr-1" v-html="menuItem.icon_path"></div>
-        <div>{{ menuItem.title }}</div>
+        <p>{{ menuItem.title }}</p>
       </div>
       <div class="flex-shrink-0">
         <AddFavoriteMenuItem @reload-menu="$emit('reload-menu')" :menuItem="menuItem"/>
