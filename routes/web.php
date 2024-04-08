@@ -279,109 +279,109 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('/material/transformation-types/lookup-list', 'q3wMaterial\q3wCommonController@materialTransformationTypesLookupList')->name('material.transformation-types.lookup-list');
 
     //Materials
-    Route::get('/materials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
-    Route::get('/materials/table', 'q3wMaterial\q3wMaterialController@table')->name('materials.table');
-    Route::get('/materials/table/list', 'q3wMaterial\q3wMaterialController@materialsTableList')->name('materials.table.list');
-    Route::post('/materials/table/print', 'q3wMaterial\q3wMaterialController@printMaterialsTable')->name('materials.table.print');
-    Route::get('/materials/remains', 'q3wMaterial\q3wMaterialController@remains')->name('materials.remains')->middleware('can:material_accounting_material_remains_report_access');
-    Route::get('/materials/remains/list', 'q3wMaterial\q3wMaterialController@materialRemainsList')->name('materials.remains.list')->middleware('can:material_accounting_material_remains_report_access');
-    Route::post('/materials/remains/print', 'q3wMaterial\q3wMaterialController@exportMaterialRemains')->name('materials.remains.print')->middleware('can:material_accounting_material_remains_report_access') ;
-    Route::get('/materials/objects-remains', 'q3wMaterial\q3wMaterialController@objectsRemains')->name('materials.objects.remains')->middleware('can:material_accounting_objects_remains_report_access');
-    Route::get('/materials/objects-remains/list', 'q3wMaterial\q3wMaterialController@objectsRemainsList')->name('materials.objects.remains.list')->middleware('can:material_accounting_objects_remains_report_access');
-    Route::post('/materials/objects-remains/print', 'q3wMaterial\q3wMaterialController@exportObjectsRemains')->name('materials.objects.remains.print')->middleware('can:material_accounting_objects_remains_report_access') ;
-    Route::get('/materials/list', 'q3wMaterial\q3wMaterialController@show')->name('materials.list');
-    Route::get('/materials/actual/list', 'q3wMaterial\q3wMaterialController@actualProjectObjectMaterialsList')->name('materials.actual.list');
-    Route::get('/materials/reserved/list/', 'q3wMaterial\q3wMaterialController@reservedMaterialsList')->name('materials.reserved.list');
-    Route::get('/materials/all-with-actual-amount/list', 'q3wMaterial\q3wMaterialController@allProjectObjectMaterialsWithActualAmountList')->name('materials.all-with-actual-amount.list');
-    Route::get('/materials/snapshots-materials/list', 'q3wMaterial\q3wMaterialController@snapshot')->name('materials.snapshots-materials.list');
-    Route::get('/materials/snapshots/list/', 'q3wMaterial\q3wMaterialController@snapshotList')->name('materials.snapshots.list');
-    Route::get('/materials/standard-history/list/', 'q3wMaterial\q3wMaterialController@standardHistoryList')->name('materials.standard-history.list');
+    Route::get('/strmaterials/', 'q3wMaterial\q3wMaterialController@index')->name('materials.index');
+    Route::get('/strmaterials/table', 'q3wMaterial\q3wMaterialController@table')->name('materials.table');
+    Route::get('/strmaterials/table/list', 'q3wMaterial\q3wMaterialController@materialsTableList')->name('materials.table.list');
+    Route::post('/strmaterials/table/print', 'q3wMaterial\q3wMaterialController@printMaterialsTable')->name('materials.table.print');
+    Route::get('/strmaterials/remains', 'q3wMaterial\q3wMaterialController@remains')->name('materials.remains')->middleware('can:material_accounting_material_remains_report_access');
+    Route::get('/strmaterials/remains/list', 'q3wMaterial\q3wMaterialController@materialRemainsList')->name('materials.remains.list')->middleware('can:material_accounting_material_remains_report_access');
+    Route::post('/strmaterials/remains/print', 'q3wMaterial\q3wMaterialController@exportMaterialRemains')->name('materials.remains.print')->middleware('can:material_accounting_material_remains_report_access') ;
+    Route::get('/strmaterials/obj-remains', 'q3wMaterial\q3wMaterialController@objectsRemains')->name('materials.objects.remains')->middleware('can:material_accounting_objects_remains_report_access');
+    Route::get('/strmaterials/obj-remains/list', 'q3wMaterial\q3wMaterialController@objectsRemainsList')->name('materials.objects.remains.list')->middleware('can:material_accounting_objects_remains_report_access');
+    Route::post('/strmaterials/obj-remains/print', 'q3wMaterial\q3wMaterialController@exportObjectsRemains')->name('materials.objects.remains.print')->middleware('can:material_accounting_objects_remains_report_access') ;
+    Route::get('/strmaterials/list', 'q3wMaterial\q3wMaterialController@show')->name('materials.list');
+    Route::get('/strmaterials/actual/list', 'q3wMaterial\q3wMaterialController@actualProjectObjectMaterialsList')->name('materials.actual.list');
+    Route::get('/strmaterials/reserved/list/', 'q3wMaterial\q3wMaterialController@reservedMaterialsList')->name('materials.reserved.list');
+    Route::get('/strmaterials/all-with-actual-amount/list', 'q3wMaterial\q3wMaterialController@allProjectObjectMaterialsWithActualAmountList')->name('materials.all-with-actual-amount.list');
+    Route::get('/strmaterials/snapshots-materials/list', 'q3wMaterial\q3wMaterialController@snapshot')->name('materials.snapshots-materials.list');
+    Route::get('/strmaterials/snapshots/list/', 'q3wMaterial\q3wMaterialController@snapshotList')->name('materials.snapshots.list');
+    Route::get('/strmaterials/standard-history/list/', 'q3wMaterial\q3wMaterialController@standardHistoryList')->name('materials.standard-history.list');
 
     //Material Types
-    Route::get('/materials/material-type', 'q3wMaterial\q3wMaterialTypeController@index')->name('materials.types.index')->middleware('can:material_accounting_materials_types_editing');
-    Route::get('/materials/material-type/list', 'q3wMaterial\q3wMaterialTypeController@show')->name('materials.types.list'); //!!!
-    Route::get('/materials/material-type/by-key', 'q3wMaterial\q3wMaterialTypeController@byKey')->name('materials.types.by-key');//!!!
+    Route::get('/strmaterials/material-type', 'q3wMaterial\q3wMaterialTypeController@index')->name('materials.types.index')->middleware('can:material_accounting_materials_types_editing');
+    Route::get('/strmaterials/material-type/list', 'q3wMaterial\q3wMaterialTypeController@show')->name('materials.types.list'); //!!!
+    Route::get('/strmaterials/material-type/by-key', 'q3wMaterial\q3wMaterialTypeController@byKey')->name('materials.types.by-key');//!!!
 
-    Route::put('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@update')->name('materials.types.update')->middleware('can:material_accounting_materials_types_editing');
-    Route::post('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@store')->name('materials.types.store')->middleware('can:material_accounting_materials_types_editing');
-    Route::delete('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@delete')->name('materials.types.delete')->middleware('can:material_accounting_materials_types_editing');
+    Route::put('/strmaterials/material-type/', 'q3wMaterial\q3wMaterialTypeController@update')->name('materials.types.update')->middleware('can:material_accounting_materials_types_editing');
+    Route::post('/strmaterials/material-type/', 'q3wMaterial\q3wMaterialTypeController@store')->name('materials.types.store')->middleware('can:material_accounting_materials_types_editing');
+    Route::delete('/strmaterials/material-type/', 'q3wMaterial\q3wMaterialTypeController@delete')->name('materials.types.delete')->middleware('can:material_accounting_materials_types_editing');
 
     //Material Standards
-    Route::get('/materials/material-standard', 'q3wMaterial\q3wMaterialStandardController@index')->name('materials.standards.index')->middleware('can:material_accounting_materials_standards_editing');
-    Route::get('/materials/material-standard/list', 'q3wMaterial\q3wMaterialStandardController@show')->name('materials.standards.list');//!!!
-    Route::get('/materials/material-standard/listex', 'q3wMaterial\q3wMaterialStandardController@list')->name('materials.standards.listex');//!!!
-    Route::get('/materials/standard-properties/list', 'q3wMaterial\q3wMaterialStandardController@standardPropertiesList')->name('materials.standard-properties.list');
-    Route::get('/materials/standard-brand-types/list', 'q3wMaterial\q3wMaterialStandardController@brandTypesList')->name('materials.brand-types.list');
-    Route::get('/materials/standard-brands/list', 'q3wMaterial\q3wMaterialStandardController@brandsList')->name('materials.brands.list');
-    Route::put('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@update')->name('materials.standards.update')->middleware('can:material_accounting_materials_standards_editing');
-    Route::post('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@store')->name('materials.standards.store')->middleware('can:material_accounting_materials_standards_editing');
-    Route::delete('/materials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@delete')->name('materials.standards.delete')->middleware('can:material_accounting_materials_standards_editing');
-    Route::post('/materials/standard/incriminate-selection-counter', 'q3wMaterial\q3wMaterialStandardController@incriminateSelectionCounter')->name('materials.standard.incriminate-selection-counter');
+    Route::get('/strmaterials/material-standard', 'q3wMaterial\q3wMaterialStandardController@index')->name('materials.standards.index')->middleware('can:material_accounting_materials_standards_editing');
+    Route::get('/strmaterials/material-standard/list', 'q3wMaterial\q3wMaterialStandardController@show')->name('materials.standards.list');//!!!
+    Route::get('/strmaterials/material-standard/listex', 'q3wMaterial\q3wMaterialStandardController@list')->name('materials.standards.listex');//!!!
+    Route::get('/strmaterials/standard-properties/list', 'q3wMaterial\q3wMaterialStandardController@standardPropertiesList')->name('materials.standard-properties.list');
+    Route::get('/strmaterials/standard-brand-types/list', 'q3wMaterial\q3wMaterialStandardController@brandTypesList')->name('materials.brand-types.list');
+    Route::get('/strmaterials/standard-brands/list', 'q3wMaterial\q3wMaterialStandardController@brandsList')->name('materials.brands.list');
+    Route::put('/strmaterials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@update')->name('materials.standards.update')->middleware('can:material_accounting_materials_standards_editing');
+    Route::post('/strmaterials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@store')->name('materials.standards.store')->middleware('can:material_accounting_materials_standards_editing');
+    Route::delete('/strmaterials/material-standard/', 'q3wMaterial\q3wMaterialStandardController@delete')->name('materials.standards.delete')->middleware('can:material_accounting_materials_standards_editing');
+    Route::post('/strmaterials/standard/incriminate-selection-counter', 'q3wMaterial\q3wMaterialStandardController@incriminateSelectionCounter')->name('materials.standard.incriminate-selection-counter');
 
     //Material Operations
-    Route::get('/materials/operations/all', 'q3wMaterial\operations\q3wMaterialOperationController@index')->name('materials.operations.index')->middleware('can:material_accounting_operation_list_access');
-    Route::get('/materials/operations/all/list', 'q3wMaterial\operations\q3wMaterialOperationController@show')->name('materials.operations.list')->middleware('can:material_accounting_operation_list_access');
-    Route::get('/materials/operations/comment-history/list', 'q3wMaterial\operations\q3wMaterialOperationController@commentHistoryList')->name('materials.operations.comment-history.list')->middleware('can:material_accounting_material_list_access'); //!!!
-    Route::get('/materials/operations/file-history/list', 'q3wMaterial\operations\q3wMaterialOperationController@filesHistoryList')->name('materials.operations.file-history.list')->middleware('can:material_accounting_material_list_access'); //!!!
-    Route::post('/materials/operations/all/print', 'q3wMaterial\operations\q3wMaterialOperationController@print')->name('materials.operations.print')->middleware('can:material_accounting_operation_list_access'); //!!!
-    Route::get('/materials/operations/all/list/active-in-project-object', 'q3wMaterial\operations\q3wMaterialOperationController@projectObjectActiveOperations')->name('materials.operations.list.project-object.active')->middleware('can:material_accounting_material_list_access'); //!!!
-    Route::post('/materials/operations/upload-file', 'q3wMaterial\operations\q3wMaterialOperationController@uploadAttachedFile')->name('materials.operations.upload-file'); //!!!
+    Route::get('/strmaterials/operations/all', 'q3wMaterial\operations\q3wMaterialOperationController@index')->name('materials.operations.index')->middleware('can:material_accounting_operation_list_access');
+    Route::get('/strmaterials/operations/all/list', 'q3wMaterial\operations\q3wMaterialOperationController@show')->name('materials.operations.list')->middleware('can:material_accounting_operation_list_access');
+    Route::get('/strmaterials/operations/comment-history/list', 'q3wMaterial\operations\q3wMaterialOperationController@commentHistoryList')->name('materials.operations.comment-history.list')->middleware('can:material_accounting_material_list_access'); //!!!
+    Route::get('/strmaterials/operations/file-history/list', 'q3wMaterial\operations\q3wMaterialOperationController@filesHistoryList')->name('materials.operations.file-history.list')->middleware('can:material_accounting_material_list_access'); //!!!
+    Route::post('/strmaterials/operations/all/print', 'q3wMaterial\operations\q3wMaterialOperationController@print')->name('materials.operations.print')->middleware('can:material_accounting_operation_list_access'); //!!!
+    Route::get('/strmaterials/operations/all/list/active-in-project-object', 'q3wMaterial\operations\q3wMaterialOperationController@projectObjectActiveOperations')->name('materials.operations.list.project-object.active')->middleware('can:material_accounting_material_list_access'); //!!!
+    Route::post('/strmaterials/operations/upload-file', 'q3wMaterial\operations\q3wMaterialOperationController@uploadAttachedFile')->name('materials.operations.upload-file'); //!!!
 
     //Material supply
-    Route::get('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@create')->name('materials.operations.supply.new')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@store')->name('materials.operations.supply.new')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/supply/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@validateMaterialList')->name('materials.operations.supply.new.validate-material-list')->middleware('can:material_accounting_operations_creating');
-    Route::get('/materials/supply/completed', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@completed')->name('materials.operations.supply.completed')->middleware('can:material_accounting_material_list_access');
+    Route::get('/strmaterials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@create')->name('materials.operations.supply.new')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/supply/new', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@store')->name('materials.operations.supply.new')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/supply/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@validateMaterialList')->name('materials.operations.supply.new.validate-material-list')->middleware('can:material_accounting_operations_creating');
+    Route::get('/strmaterials/supply/completed', 'q3wMaterial\operations\q3wMaterialSupplyOperationController@completed')->name('materials.operations.supply.completed')->middleware('can:material_accounting_material_list_access');
 
     //Material transfer
-    Route::get('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@create')->name('materials.operations.transfer.new')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@store')->name('materials.operations.transfer.new')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transfer/update', 'q3wMaterial\operations\q3wMaterialTransferOperationController@update')->name('materials.operations.transfer.update')->middleware('can:material_accounting_operations_creating');
-    Route::get('/materials/transfer/view', 'q3wMaterial\operations\q3wMaterialTransferOperationController@show')->name('materials.operations.transfer.view')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transfer/move', 'q3wMaterial\operations\q3wMaterialTransferOperationController@move')->name('materials.operations.transfer.move')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transfer/cancel', 'q3wMaterial\operations\q3wMaterialTransferOperationController@cancelOperation')->name('materials.operations.transfer.cancel')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transfer/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateMaterialList')->name('materials.operations.transfer.validate-material-list')->middleware('can:material_accounting_operations_creating');
-    Route::get('/materials/transfer/completed', 'q3wMaterial\operations\q3wMaterialTransferOperationController@completed')->name('materials.operations.transfer.completed')->middleware('can:material_accounting_material_list_access');
+    Route::get('/strmaterials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@create')->name('materials.operations.transfer.new')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transfer/new', 'q3wMaterial\operations\q3wMaterialTransferOperationController@store')->name('materials.operations.transfer.new')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transfer/update', 'q3wMaterial\operations\q3wMaterialTransferOperationController@update')->name('materials.operations.transfer.update')->middleware('can:material_accounting_operations_creating');
+    Route::get('/strmaterials/transfer/view', 'q3wMaterial\operations\q3wMaterialTransferOperationController@show')->name('materials.operations.transfer.view')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transfer/move', 'q3wMaterial\operations\q3wMaterialTransferOperationController@move')->name('materials.operations.transfer.move')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transfer/cancel', 'q3wMaterial\operations\q3wMaterialTransferOperationController@cancelOperation')->name('materials.operations.transfer.cancel')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transfer/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransferOperationController@validateMaterialList')->name('materials.operations.transfer.validate-material-list')->middleware('can:material_accounting_operations_creating');
+    Route::get('/strmaterials/transfer/completed', 'q3wMaterial\operations\q3wMaterialTransferOperationController@completed')->name('materials.operations.transfer.completed')->middleware('can:material_accounting_material_list_access');
 
     //Material transformation
-    Route::get('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new');
-    Route::get('/materials/transformation/new2', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new2'); //Small fix to develop on remote dev
-    Route::get('/materials/transformation/view', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@view')->name('materials.operations.transformation.view')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transformation/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@validateMaterialList')->name('materials.operations.transformation.new.validate-material-list')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@store')->name('materials.operations.transformation.new')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transformation/cancel', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@cancelOperation')->name('materials.operations.transformation.cancel')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/transformation/move', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@confirmOperation')->name('materials.operations.transformation.move')->middleware('can:material_accounting_operations_creating');
-    Route::get('/materials/transformation/completed', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@completed')->name('materials.operations.transformation.completed')->middleware('can:material_accounting_material_list_access');
-    Route::post('/materials/transformation/is-user-responsible-for-material-accounting', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@isUserResponsibleForMaterialAccountingWebRequest')->name('materials.transformation.is-user-responsible-for-material-accounting')->middleware('can:material_accounting_operations_creating');
+    Route::get('/strmaterials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new');
+    Route::get('/strmaterials/transformation/new2', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@create')->name('materials.operations.transformation.new2'); //Small fix to develop on remote dev
+    Route::get('/strmaterials/transformation/view', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@view')->name('materials.operations.transformation.view')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transformation/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@validateMaterialList')->name('materials.operations.transformation.new.validate-material-list')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transformation/new', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@store')->name('materials.operations.transformation.new')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transformation/cancel', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@cancelOperation')->name('materials.operations.transformation.cancel')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/transformation/move', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@confirmOperation')->name('materials.operations.transformation.move')->middleware('can:material_accounting_operations_creating');
+    Route::get('/strmaterials/transformation/completed', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@completed')->name('materials.operations.transformation.completed')->middleware('can:material_accounting_material_list_access');
+    Route::post('/strmaterials/transformation/is-user-responsible-for-material-accounting', 'q3wMaterial\operations\q3wMaterialTransformationOperationController@isUserResponsibleForMaterialAccountingWebRequest')->name('materials.transformation.is-user-responsible-for-material-accounting')->middleware('can:material_accounting_operations_creating');
 
     //Material write-off
-    Route::get('/materials/write-off/new', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@create')->name('materials.operations.write-off.new')->middleware('can:material_accounting_operations_creating');
-    Route::get('/materials/write-off/view', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@view')->name('materials.operations.write-off.view')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/write-off/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@validateMaterialList')->name('materials.operations.write-off.new.validate-material-list')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/write-off/new', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@store')->name('materials.operations.write-off.new')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/write-off/cancel', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@cancelOperation')->name('materials.operations.write-off.cancel')->middleware('can:material_accounting_operations_creating');
-    Route::post('/materials/write-off/move', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@confirmOperation')->name('materials.operations.write-off.move')->middleware('can:material_accounting_operations_creating');
-    Route::get('/materials/write-off/completed', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@completed')->name('materials.operations.write-off.completed')->middleware('can:material_accounting_material_list_access');
+    Route::get('/strmaterials/write-off/new', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@create')->name('materials.operations.write-off.new')->middleware('can:material_accounting_operations_creating');
+    Route::get('/strmaterials/write-off/view', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@view')->name('materials.operations.write-off.view')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/write-off/new/validate-material-list', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@validateMaterialList')->name('materials.operations.write-off.new.validate-material-list')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/write-off/new', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@store')->name('materials.operations.write-off.new')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/write-off/cancel', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@cancelOperation')->name('materials.operations.write-off.cancel')->middleware('can:material_accounting_operations_creating');
+    Route::post('/strmaterials/write-off/move', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@confirmOperation')->name('materials.operations.write-off.move')->middleware('can:material_accounting_operations_creating');
+    Route::get('/strmaterials/write-off/completed', 'q3wMaterial\operations\q3wMaterialWriteOffOperationController@completed')->name('materials.operations.write-off.completed')->middleware('can:material_accounting_material_list_access');
 
     //Material Supply Planning
-    Route::get('/materials/supply-planning', 'q3wMaterial\q3wMaterialSupplyPlanningController@index')->name('materials.supply-planning.index')->middleware('can:material_supply_planning_access');
-    Route::get('/materials/supply-planning/object-list', 'q3wMaterial\q3wMaterialSupplyPlanningController@list')->name('materials.supply-planning.list')->middleware('can:material_supply_planning_access');
-    Route::get('/materials/supply-planning/get-materials-for-supply-planning/{planningObjectId}', 'q3wMaterial\q3wMaterialSupplyPlanningController@getMaterialsForSupplyPlanning')->name('materials.supply-planning.get-materials-for-supply-planning')->middleware('can:material_supply_planning_access');
-    Route::get('/materials/supply-planning/available-material-list', 'q3wMaterial\q3wMaterialSupplyPlanningController@getAvailableMaterialList')->name('materials.supply-planning.available-material-list')->middleware('can:material_supply_planning_access');
-    Route::get('/materials/supply-planning/get-summary', 'q3wMaterial\q3wMaterialSupplyPlanningController@getSummary')->name('materials.supply-planning.get-summary')->middleware('can:material_supply_planning_access');
-    Route::put('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@update')->name('materials.supply-planning.update')->middleware('can:material_supply_planning_editing');
-    Route::post('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@store')->name('materials.supply-planning.store')->middleware('can:material_supply_planning_editing');
-    Route::delete('/materials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@delete')->name('materials.supply-planning.delete')->middleware('can:material_supply_planning_editing');
+    Route::get('/strmaterials/supply-planning', 'q3wMaterial\q3wMaterialSupplyPlanningController@index')->name('materials.supply-planning.index')->middleware('can:material_supply_planning_access');
+    Route::get('/strmaterials/supply-planning/object-list', 'q3wMaterial\q3wMaterialSupplyPlanningController@list')->name('materials.supply-planning.list')->middleware('can:material_supply_planning_access');
+    Route::get('/strmaterials/supply-planning/get-materials-for-supply-planning/{planningObjectId}', 'q3wMaterial\q3wMaterialSupplyPlanningController@getMaterialsForSupplyPlanning')->name('materials.supply-planning.get-materials-for-supply-planning')->middleware('can:material_supply_planning_access');
+    Route::get('/strmaterials/supply-planning/available-material-list', 'q3wMaterial\q3wMaterialSupplyPlanningController@getAvailableMaterialList')->name('materials.supply-planning.available-material-list')->middleware('can:material_supply_planning_access');
+    Route::get('/strmaterials/supply-planning/get-summary', 'q3wMaterial\q3wMaterialSupplyPlanningController@getSummary')->name('materials.supply-planning.get-summary')->middleware('can:material_supply_planning_access');
+    Route::put('/strmaterials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@update')->name('materials.supply-planning.update')->middleware('can:material_supply_planning_editing');
+    Route::post('/strmaterials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@store')->name('materials.supply-planning.store')->middleware('can:material_supply_planning_editing');
+    Route::delete('/strmaterials/supply-planning/', 'q3wMaterial\q3wMaterialSupplyPlanningController@delete')->name('materials.supply-planning.delete')->middleware('can:material_supply_planning_editing');
 
-    Route::get('/materials/supply-planning/planning-objects/list', 'q3wMaterial\q3wMaterialSupplyObjectController@list')->name('materials.supply-planning.planning-objects.list')->middleware('can:material_supply_planning_access');
-    Route::put('/materials/supply-planning/planning-objects/{id}', 'q3wMaterial\q3wMaterialSupplyObjectController@update')->name('materials.supply-planning.planning-objects.update')->middleware('can:material_supply_planning_editing');
-    Route::post('/materials/supply-planning/planning-objects/', 'q3wMaterial\q3wMaterialSupplyObjectController@store')->name('materials.supply-planning.planning-objects.store')->middleware('can:material_supply_planning_editing');
-    Route::delete('/materials/supply-planning/planning-objects/{id}', 'q3wMaterial\q3wMaterialSupplyObjectController@delete')->name('materials.supply-planning.planning-objects.delete')->middleware('can:material_supply_planning_editing');
+    Route::get('/strmaterials/supply-planning/planning-objects/list', 'q3wMaterial\q3wMaterialSupplyObjectController@list')->name('materials.supply-planning.planning-objects.list')->middleware('can:material_supply_planning_access');
+    Route::put('/strmaterials/supply-planning/planning-objects/{id}', 'q3wMaterial\q3wMaterialSupplyObjectController@update')->name('materials.supply-planning.planning-objects.update')->middleware('can:material_supply_planning_editing');
+    Route::post('/strmaterials/supply-planning/planning-objects/', 'q3wMaterial\q3wMaterialSupplyObjectController@store')->name('materials.supply-planning.planning-objects.store')->middleware('can:material_supply_planning_editing');
+    Route::delete('/strmaterials/supply-planning/planning-objects/{id}', 'q3wMaterial\q3wMaterialSupplyObjectController@delete')->name('materials.supply-planning.planning-objects.delete')->middleware('can:material_supply_planning_editing');
 
-    Route::get('/materials/supply-planning/expected-delivery/list', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@list')->name('materials.supply-planning.expected-delivery.list')->middleware('can:material_supply_planning_access');
-    Route::put('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@update')->name('materials.supply-planning.expected-delivery.update')->middleware('can:material_supply_planning_editing');
-    Route::post('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@store')->name('materials.supply-planning.expected-delivery.store')->middleware('can:material_supply_planning_editing');
-    Route::delete('/materials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@delete')->name('materials.supply-planning.expected-delivery.delete')->middleware('can:material_supply_planning_editing');
+    Route::get('/strmaterials/supply-planning/expected-delivery/list', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@list')->name('materials.supply-planning.expected-delivery.list')->middleware('can:material_supply_planning_access');
+    Route::put('/strmaterials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@update')->name('materials.supply-planning.expected-delivery.update')->middleware('can:material_supply_planning_editing');
+    Route::post('/strmaterials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@store')->name('materials.supply-planning.expected-delivery.store')->middleware('can:material_supply_planning_editing');
+    Route::delete('/strmaterials/supply-planning/expected-delivery/', 'q3wMaterial\q3wMaterialSupplyExpectedDeliveryController@delete')->name('materials.supply-planning.expected-delivery.delete')->middleware('can:material_supply_planning_editing');
 
     require base_path('routes/modules/labor-safety/labor-safety.php');
     require base_path('routes/modules/common/company.php');
