@@ -34,7 +34,7 @@ class FuelFlowCrudService {
         }
     }
 
-    public function stored() 
+    public function stored()
     {
         $previousTransferHistory = $this->getPreviousTransferHistory();
         $fuelLevelDiff = $this->getFuelLevelDiff('stored');
@@ -45,7 +45,7 @@ class FuelFlowCrudService {
     }
 
     public function deleted()
-    {   
+    {
         $fuelLevelDiff = (-1 * $this->getFuelLevelDiff('deleted'));
         $subsequentTransferHistories = $this->getSubsequentTransferHistories('deleted');
         $this->updateSubsequentTransferHistories($subsequentTransferHistories, $fuelLevelDiff);
@@ -70,11 +70,11 @@ class FuelFlowCrudService {
             ->orderByDesc('id')
             ->first();
     }
-    
+
     public function getFuelLevelDiff($callingMethod)
     {
-        $volume = 
-            $callingMethod === 'stored' ? 
+        $volume =
+            $callingMethod === 'stored' ?
                 $this->serviceData['data']['volume']
                 : $this->serviceData['entity']->volume
         ;
@@ -91,7 +91,7 @@ class FuelFlowCrudService {
         return FuelTankTransferHistory::create([
             'author_id' => Auth::id(),
             'fuel_tank_id' => $this->serviceData['entity']->fuel_tank_id,
-            'previous_object_id' => $previousTransferHistory->previous_object_id,
+            'previous_object_id' => $previousTransferHistory->previous_object_id ?? $this->serviceData['entity']->object_id,
             'object_id' => $this->serviceData['entity']->object_id,
             'previous_responsible_id' => $previousTransferHistory->previous_responsible_id,
             'responsible_id' => $this->serviceData['entity']->responsible_id,
