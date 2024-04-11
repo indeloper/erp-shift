@@ -96,7 +96,7 @@ class FuelFlowCrudService {
             'previous_responsible_id' => $previousTransferHistory->previous_responsible_id ?? $this->serviceData['entity']->responsible_id,
             'responsible_id' => $this->serviceData['entity']->responsible_id,
             'fuel_tank_flow_id' => $this->serviceData['entity']->id,
-            'fuel_level' => ($previousTransferHistory->fuel_level + $fuelLevelDiff),
+            'fuel_level' => $previousTransferHistory ? ($previousTransferHistory->fuel_level + $fuelLevelDiff) : 0,
             'event_date' => $this->serviceData['data']['event_date']
         ]);
     }
