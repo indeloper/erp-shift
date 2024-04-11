@@ -120,7 +120,7 @@ class NotifySender extends Command
                     'Описание уведомления',
                     NotificationType::DEFAULT
                 )
-            )->onQueue('notify');
+            );
 
 //            NotificationJob::dispatchNow(
 //                new NotificationData(

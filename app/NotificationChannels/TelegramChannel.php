@@ -7,9 +7,11 @@ namespace App\NotificationChannels;
 use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\RenderTelegramNotificationData;
 use App\Domain\DTO\TelegramNotificationData;
+use App\Events\TelegramNotificationEvent;
 use App\Services\Telegram\TelegramServiceInterface;
 use Exception;
 use Telegram\Bot\Laravel\Facades\Telegram;
+use Telegram\Bot\Objects\Message;
 
 final class TelegramChannel
 {
@@ -34,25 +36,33 @@ final class TelegramChannel
         $data = $notification->toTelegram($notifiable);
 
         if ($data instanceof RenderTelegramNotificationData) {
-            return $this->telegramService->sendRenderMessageUser(
-                $data->getNotificationData()->getUserId(),
-                $data->getPathView(),
-                $data->getNotificationData()->getData()
+
+            $response = $this->telegramService->sendRenderMessageUser(
+                $data,
+                $data->getPathView()
             );
+
+            $this->dispatchEvent($response, $data);
+
+        } elseif ($data instanceof TelegramNotificationData) {
+
+            $response = $this->telegramService->sendMessageUser($data);
+
+            $this->dispatchEvent($response, $data);
+
+        } else {
+            throw new Exception('Нужно передать TelegramNotificationData или RenderTelegramNotificationData');
         }
 
-        if ($data instanceof TelegramNotificationData) {
-            return $this->telegramService->sendMessageUser(
-                $data->getNotificationData()->getUserId(),
-                $data->getNotificationData()->getName()
+    }
+
+    private function dispatchEvent(?Message $response, TelegramNotificationData $data)
+    {
+        if ($response) {
+            event(
+                new TelegramNotificationEvent($response, $data)
             );
         }
-
-
-
-        throw new Exception('Нужно передать TelegramNotificationData или RenderTelegramNotificationData');
-
-
 
     }
 }

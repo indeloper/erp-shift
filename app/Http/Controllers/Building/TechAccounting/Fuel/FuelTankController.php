@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use App\Actions\Fuel\FuelActions;
+use App\Domain\DTO\NotificationData;
+use App\Domain\Enum\NotificationType;
+use App\Jobs\Notification\NotificationJob;
+use App\Notifications\Fuel\NewFuelTankResponsibleNotification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
@@ -262,9 +266,24 @@ class FuelTankController extends StandardEntityResourceController
         return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
+    /**
+     * @param FuelTank $tank
+     *
+     * @return void
+     */
     public function notifyNewTankResponsible($tank)
     {
-        (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
+        NotificationJob::dispatchNow(
+            new NotificationData(
+                $tank->responsible_id,
+                (new FuelNotifications)->renderNewFuelTankResponsible($tank),
+                'Перемещение топливной емкости',
+                NotificationType::FUEL_NEW_TANK_RESPONSIBLE,
+                [
+                    'tank_id' => $tank->id
+                ]
+            )
+        );
     }
 
     public function handleFuelOperations($operations, $deletedOperations, $newFuelTankId = null)

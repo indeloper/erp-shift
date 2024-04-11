@@ -5,22 +5,6 @@ namespace App\Telegram;
 class TelegramServices {
 
     const customMessageTemplates = [
-        'confirmFuelTankRecieve' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
-            'method' => 'getFuelTankNewResponsibleMessage'
-        ],
-        'fuelTankMovingConfirmationTextForNewResponsible' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
-            'method' => 'getFuelTankMovingConfirmationForNewResponsibleMessageParams'
-        ],
-        'fuelTankMovingConfirmationTextForPreviousResponsible' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
-            'method' => 'getFuelTankMovingConfirmationForPreviousResponsibleMessageParams'
-        ],
-        'fuelTankMovingConfirmationTextForOfficeResponsibles' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
-            'method' => 'getFuelTankMovingConfirmationForOfficeResponsiblesMessageParams'
-        ],
         'laborSafetyNewOrderRequestNotificationTemplate' => [
             'class' => 'App\Telegram\MessageTemplates\LaborSafety\LaborSafetyMessageTemplates',
             'method' => 'getLaborSafetyNewOrderRequestNotificationTemplateParams'
@@ -30,14 +14,6 @@ class TelegramServices {
     public function defineNotificationTemplateClassMethod($template)
     {
         return self::customMessageTemplates[$template] ?? [];
-    }
-
-    public function setNotificationHookLink($text)
-    {
-        $hookTypeAndId = explode('notificationHook_', explode('_endNotificationHook', $text)[0])[1];
-        $notificationHookLink = asset('/notifications').'?notificationHook='.$hookTypeAndId;
-        $text = str_replace('notificationHook_'.$hookTypeAndId.'_endNotificationHook', '', $text);
-        return $text.' '.$notificationHookLink;
     }
 
     public function getHookTypeAndId($text)
@@ -50,15 +26,6 @@ class TelegramServices {
         ];
     }
 
-    public function closeDialog($chatId)
-    {
-        $data = array(
-            'chat_id' => $chatId,
-            'text' => '',
-        );
-
-        new TelegramApi('sendMessage', $data);
-    }
 
     public function defineTemplateByText($text)
     {

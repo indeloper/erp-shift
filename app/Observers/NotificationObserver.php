@@ -19,7 +19,7 @@ class NotificationObserver
         if ($this->dontHaveName($notification) or $this->isUpdate($notification))
             return;
 
-        event(new NotificationCreated(($notification->name . (is_array($notification->additional_info) ? '' : $notification->additional_info)), $notification->user_id, $notification->type, $notification->id));
+//        event(new NotificationCreated(($notification->name . (is_array($notification->additional_info) ? '' : $notification->additional_info)), $notification->user_id, $notification->type, $notification->id));
     }
 
     public function saving(Notification $notification)
