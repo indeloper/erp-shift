@@ -4,35 +4,26 @@ namespace App\Http\Controllers\LaborSafety;
 
 use App\Domain\DTO\NotificationData;
 use App\Domain\Enum\NotificationType;
-use App\Http\Requests\ProjectRequest\ProjectStatRequest;
+use App\Http\Controllers\Controller;
 use App\Jobs\Notification\NotificationJob;
-use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
+use App\Models\Employees\Employee;
+use App\Models\Employees\Employees1cPost;
 use App\Models\LaborSafety\LaborSafetyOrderType;
 use App\Models\LaborSafety\LaborSafetyOrderWorker;
 use App\Models\LaborSafety\LaborSafetyRequest;
-use App\Models\LaborSafety\LaborSafetyRequestOrder;
 use App\Models\LaborSafety\LaborSafetyRequestStatus;
 use App\Models\LaborSafety\LaborSafetyRequestWorker;
 use App\Models\LaborSafety\LaborSafetyWorkerType;
-use App\Models\Notification;
-use App\Models\Employees\Employee;
-use App\Models\Employees\Employees1cPost;
 use App\Models\Permission;
 use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\User;
-use App\Models\UserPermission;
-use App\Telegram\TelegramServices;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use morphos\English\NounPluralization;
-use morphos\Russian\NounDeclension;
 use PhpOffice\PhpWord\ComplexType\ProofState;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Row;
@@ -41,7 +32,6 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\NumberFormat;
 use PhpOffice\PhpWord\Style\Language;
-use function morphos\Russian\inflectName;
 
 class LaborSafetyHtml extends Html
 {
