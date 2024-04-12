@@ -10,6 +10,9 @@ use App\Notifications\Fuel\FuelOfficeResponsiblesAboutTankMovingConfirmationDela
 use App\Notifications\Fuel\FuelTankMovingConfirmationForOfficeResponsiblesNotification;
 use App\Notifications\Fuel\FuelTanksLevelCheckNotification;
 use App\Notifications\Fuel\NewFuelTankResponsibleNotification;
+use App\Notifications\Labor\LaborCancelNotification;
+use App\Notifications\Labor\LaborSafetyNotification;
+use App\Notifications\Labor\LaborSignedNotification;
 use App\Notifications\OnlyTelegramNotification;
 
 final class NotificationType
@@ -28,25 +31,44 @@ final class NotificationType
 
 
 
+    const LABOR_CANCEL = 8;
+    const LABOR_SAFETY = 9;
+    const LABOR_SIGNED = 10;
+
+
+
 
 
     public static function determinateNotificationClassByType(int $type): string
     {
         switch ($type) {
-            case NotificationType::ONLY_TELEGRAM:
+            case self::ONLY_TELEGRAM:
                 return OnlyTelegramNotification::class;
-            case NotificationType::FUEL_NEW_TANK_RESPONSIBLE:
+
+
+            case self::FUEL_NEW_TANK_RESPONSIBLE:
                 return NewFuelTankResponsibleNotification::class;
-            case NotificationType::FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE:
+            case self::FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE:
                 return ConfirmFuelTankMovingPreviousResponsibleNotification::class;
-            case NotificationType::FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES:
+            case self::FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES:
                 return FuelTankMovingConfirmationForOfficeResponsiblesNotification::class;
-            case NotificationType::FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED:
+            case self::FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED:
                 return FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification::class;
-            case NotificationType::FUEL_TANKS_LEVEL_CHECK:
+            case self::FUEL_TANKS_LEVEL_CHECK:
                 return FuelTanksLevelCheckNotification::class;
-            case NotificationType::FUEL_NOT_AWAITING_CONFIRMATION:
-            case NotificationType::DEFAULT:
+
+
+            case self::LABOR_CANCEL:
+                return LaborCancelNotification::class;
+            case self::LABOR_SAFETY:
+                return LaborSafetyNotification::class;
+            case self::LABOR_SIGNED:
+                return LaborSignedNotification::class;
+
+
+
+            case self::FUEL_NOT_AWAITING_CONFIRMATION:
+            case self::DEFAULT:
             default:
                 return DefaultNotification::class;
         }

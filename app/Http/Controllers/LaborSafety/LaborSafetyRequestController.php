@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
+use App\Domain\DTO\NotificationData;
+use App\Domain\Enum\NotificationType;
 use App\Http\Requests\ProjectRequest\ProjectStatRequest;
+use App\Jobs\Notification\NotificationJob;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
@@ -155,7 +158,7 @@ class LaborSafetyHtml extends Html
             // Arguments are passed by reference
             $arguments = array();
             $args = array();
-            list($method, $args[0], $args[1], $args[2], $args[3], $args[4], $args[5]) = $nodes[$node->nodeName];
+            [$method, $args[0], $args[1], $args[2], $args[3], $args[4], $args[5]] = $nodes[$node->nodeName];
             for ($i = 0; $i <= 5; $i++) {
                 if ($args[$i] !== null) {
                     $arguments[$keys[$i]] = &$args[$i];
@@ -1290,41 +1293,74 @@ class LaborSafetyRequestController extends Controller
 
     private function sendRequestNotification($requestRow)
     {
-        $notification = '';
-        $userIds = [];
-
         switch ($requestRow->request_status_id) {
             case 1:
                 $userIds = (new Permission)->getUsersIdsByCodename('labor_safety_generate_documents_access');
                 $userIds = array_diff($userIds, array($requestRow->author_user_id));
 
-                $message = (new TelegramServices)->getMessageParams(
-                    [
-                        'template' => 'laborSafetyNewOrderRequestNotificationTemplate',
-                        'orderRequest' => $requestRow
-                    ]);
+                $orderRequestAuthor = User::find($requestRow->author_user_id);
+
+                $company = Company::find($requestRow->company_id);
+                $projectObject = ProjectObject::find($requestRow->project_object_id);
+
+                foreach ($userIds as $userId) {
+                    NotificationJob::dispatchNow(
+                        new NotificationData(
+                            $userId,
+                            'Заявка на формирование приказов',
+                            'Заявка на формирование приказов',
+                            NotificationType::LABOR_SAFETY,
+                            [
+                                'target_id' => $requestRow->id,
+                                'status' => 7,
+                                'orderRequestId' => $requestRow->id,
+                                'orderRequestAuthor' => $orderRequestAuthor,
+                                'company' => $company,
+                                'projectObject' => $projectObject
+                            ]
+                        )
+                    );
+                }
+
                 break;
             case 3:
-                $userIds = [$requestRow->author_id];
+
                 $message = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
+
+                NotificationJob::dispatchNow(
+                    new NotificationData(
+                        $requestRow->author_id,
+                        $message,
+                        $message,
+                        NotificationType::LABOR_CANCEL,
+                        [
+                            'target_id' => $requestRow->id,
+                            'status' => 7
+                        ]
+                    )
+                );
+
+
+
                 break;
             case 4:
-                $userIds = [$requestRow->author_id];
-                $message = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
-                break;
-        }
 
-        foreach ($userIds as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->update([
-                'name' => $message['message']['text'],
-                'target_id' => $requestRow->id,
-                'user_id' => $userId,
-                'created_at' => now(),
-                'type' => 7,
-                'status' => 7
-            ]);
+                $message = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
+
+                NotificationJob::dispatchNow(
+                    new NotificationData(
+                        $requestRow->author_id,
+                        $message,
+                        $message,
+                        NotificationType::LABOR_SIGNED,
+                        [
+                            'target_id' => $requestRow->id,
+                            'status' => 7
+                        ]
+                    )
+                );
+
+                break;
         }
     }
 

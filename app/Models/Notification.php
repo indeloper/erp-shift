@@ -8,7 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'description',
+        'status',
+        'user_id',
+        'contractor_id',
+        'project_id',
+        'object_id',
+        'department_id',
+        'group_id',
+        'is_seen',
+        'is_showing',
+        'type',
+        'task_id',
+        'voice_url',
+        'created_at',
+        'updated_at',
+        'is_deleted',
+        'target_id',
+        'notificationable_type',
+        'notificationable_id',
+    ];
 
     public $additional_info = [];
 
