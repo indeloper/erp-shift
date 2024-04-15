@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
-use App\Jobs\Notification\NotificationJob;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
 use App\Models\Employees\Employee;
@@ -1294,21 +1292,19 @@ class LaborSafetyRequestController extends Controller
                 $projectObject = ProjectObject::find($requestRow->project_object_id);
 
                 foreach ($userIds as $userId) {
-                    NotificationJob::dispatchNow(
-                        new NotificationData(
-                            $userId,
-                            'Заявка на формирование приказов',
-                            'Заявка на формирование приказов',
-                            NotificationType::LABOR_SAFETY,
-                            [
-                                'target_id' => $requestRow->id,
-                                'status' => 7,
-                                'orderRequestId' => $requestRow->id,
-                                'orderRequestAuthor' => $orderRequestAuthor,
-                                'company' => $company,
-                                'projectObject' => $projectObject
-                            ]
-                        )
+                    dispatchNotify(
+                        $userId,
+                        'Заявка на формирование приказов',
+                        'Заявка на формирование приказов',
+                        NotificationType::LABOR_SAFETY,
+                        [
+                            'target_id' => $requestRow->id,
+                            'status' => 7,
+                            'orderRequestId' => $requestRow->id,
+                            'orderRequestAuthor' => $orderRequestAuthor,
+                            'company' => $company,
+                            'projectObject' => $projectObject
+                        ]
                     );
                 }
 
@@ -1317,17 +1313,15 @@ class LaborSafetyRequestController extends Controller
 
                 $message = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
 
-                NotificationJob::dispatchNow(
-                    new NotificationData(
-                        $requestRow->author_id,
-                        $message,
-                        $message,
-                        NotificationType::LABOR_CANCEL,
-                        [
-                            'target_id' => $requestRow->id,
-                            'status' => 7
-                        ]
-                    )
+                dispatchNotify(
+                    $requestRow->author_id,
+                    $message,
+                    $message,
+                    NotificationType::LABOR_CANCEL,
+                    [
+                        'target_id' => $requestRow->id,
+                        'status' => 7
+                    ]
                 );
 
 
@@ -1337,17 +1331,15 @@ class LaborSafetyRequestController extends Controller
 
                 $message = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
 
-                NotificationJob::dispatchNow(
-                    new NotificationData(
-                        $requestRow->author_id,
-                        $message,
-                        $message,
-                        NotificationType::LABOR_SIGNED,
-                        [
-                            'target_id' => $requestRow->id,
-                            'status' => 7
-                        ]
-                    )
+                dispatchNotify(
+                    $requestRow->author_id,
+                    $message,
+                    $message,
+                    NotificationType::LABOR_SIGNED,
+                    [
+                        'target_id' => $requestRow->id,
+                        'status' => 7
+                    ]
                 );
 
                 break;

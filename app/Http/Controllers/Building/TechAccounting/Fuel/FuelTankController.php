@@ -3,12 +3,7 @@
 namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use App\Actions\Fuel\FuelActions;
-use App\Domain\DTO\NotificationData;
 use App\Domain\Enum\NotificationType;
-use App\Jobs\Notification\NotificationJob;
-use App\Notifications\Fuel\NewFuelTankResponsibleNotification;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Comment;
 use App\Models\Company\Company;
@@ -22,6 +17,7 @@ use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -273,16 +269,14 @@ class FuelTankController extends StandardEntityResourceController
      */
     public function notifyNewTankResponsible($tank)
     {
-        NotificationJob::dispatchNow(
-            new NotificationData(
-                $tank->responsible_id,
-                (new FuelNotifications)->renderNewFuelTankResponsible($tank),
-                'Перемещение топливной емкости',
-                NotificationType::FUEL_NEW_TANK_RESPONSIBLE,
-                [
-                    'tank_id' => $tank->id
-                ]
-            )
+        dispatchNotify(
+            $tank->responsible_id,
+            (new FuelNotifications)->renderNewFuelTankResponsible($tank),
+            'Перемещение топливной емкости',
+            NotificationType::FUEL_NEW_TANK_RESPONSIBLE,
+            [
+                'tank_id' => $tank->id
+            ]
         );
     }
 

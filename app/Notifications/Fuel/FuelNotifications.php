@@ -2,9 +2,7 @@
 
 namespace App\Notifications\Fuel;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\Enum\NotificationType;
-use App\Jobs\Notification\NotificationJob;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
@@ -28,14 +26,12 @@ class FuelNotifications
             ])->get();
 
             foreach($admins as $admin){
-                NotificationJob::dispatchNow(
-                    new NotificationData(
-                        $admin->id,
-                        'Ошибка в топливных остатках',
-                        'Ошибка в топливных остатках',
-                        NotificationType::FUEL_TANKS_LEVEL_CHECK,
-                        $data
-                    )
+                dispatchNotify(
+                    $admin->id,
+                    'Ошибка в топливных остатках',
+                    'Ошибка в топливных остатках',
+                    NotificationType::FUEL_TANKS_LEVEL_CHECK,
+                    $data
                 );
             }
     }

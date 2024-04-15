@@ -3,9 +3,7 @@
 namespace App\Telegram\Dialogs;
 
 use App\Actions\Fuel\FuelActions;
-use App\Domain\DTO\NotificationData;
 use App\Domain\Enum\NotificationType;
-use App\Jobs\Notification\NotificationJob;
 use App\Models\Permission;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
@@ -20,16 +18,14 @@ class FuelDialogs
         $user = User::where('chat_id', $event['from']['id'])->first();
 
         if(!$tank->awaiting_confirmation) {
-            NotificationJob::dispatchNow(
-                new NotificationData(
-                    $user->id,
-                    'Подтверждение об изменении ответственного топливной емкости № ' . $tank->tank_number . ' не требуется',
-                    'Подтверждение об изменении',
-                    NotificationType::FUEL_NOT_AWAITING_CONFIRMATION,
-                    [
-                        'tank_id' => $tank->id
-                    ]
-                )
+            dispatchNotify(
+                $user->id,
+                'Подтверждение об изменении ответственного топливной емкости № ' . $tank->tank_number . ' не требуется',
+                'Подтверждение об изменении',
+                NotificationType::FUEL_NOT_AWAITING_CONFIRMATION,
+                [
+                    'tank_id' => $tank->id
+                ]
             );
         }
 
@@ -77,18 +73,16 @@ class FuelDialogs
 
         $newResponsible = User::find($tank->responsible_id);
 
-        NotificationJob::dispatchNow(
-            new NotificationData(
-                $previousResponsible->id,
-                'Перемещение топливной емкости',
-                'Перемещение топливной емкости',
-                NotificationType::FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE,
-                [
-                    'tank' => $tank,
-                    'lastTankTransferHistory' => $lastTankTransferHistory,
-                    'newResponsible' => $newResponsible
-                ]
-            )
+        dispatchNotify(
+            $previousResponsible->id,
+            'Перемещение топливной емкости',
+            'Перемещение топливной емкости',
+            NotificationType::FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE,
+            [
+                'tank' => $tank,
+                'lastTankTransferHistory' => $lastTankTransferHistory,
+                'newResponsible' => $newResponsible
+            ]
         );
 
     }
@@ -110,19 +104,17 @@ class FuelDialogs
             $previousResponsible = User::find($lastTankTransferHistory->previous_responsible_id);
 
 
-            NotificationJob::dispatchNow(
-                new NotificationData(
-                    $user->id,
-                    'Перемещение топливной емкости',
-                    'Перемещение топливной емкости',
-                    NotificationType::FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES,
-                    [
-                        'tank' => $tank,
-                        'lastTankTransferHistory' => $lastTankTransferHistory,
-                        'newResponsible' => $newResponsible,
-                        'previousResponsible' => $previousResponsible
-                    ]
-                )
+            dispatchNotify(
+                $user->id,
+                'Перемещение топливной емкости',
+                'Перемещение топливной емкости',
+                NotificationType::FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES,
+                [
+                    'tank' => $tank,
+                    'lastTankTransferHistory' => $lastTankTransferHistory,
+                    'newResponsible' => $newResponsible,
+                    'previousResponsible' => $previousResponsible
+                ]
             );
 
 

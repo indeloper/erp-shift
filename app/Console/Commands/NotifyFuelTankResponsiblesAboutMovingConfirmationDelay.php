@@ -2,17 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\Enum\NotificationType;
-use App\Jobs\Notification\NotificationJob;
 use App\Models\Permission;
-use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
 {
@@ -51,16 +47,14 @@ class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
         foreach($fuelTanksAwaitingMovingConfirmation as $tank) {
 
-            NotificationJob::dispatchNow(
-                new NotificationData(
-                    $tank->responsible_id,
-                    (new FuelNotifications)->renderNewFuelTankResponsible($tank),
-                    'Перемещение топливной емкости',
-                    NotificationType::FUEL_NEW_TANK_RESPONSIBLE,
-                    [
-                        'tank_id' => $tank->id
-                    ]
-                )
+            dispatchNotify(
+                $tank->responsible_id,
+                (new FuelNotifications)->renderNewFuelTankResponsible($tank),
+                'Перемещение топливной емкости',
+                NotificationType::FUEL_NEW_TANK_RESPONSIBLE,
+                [
+                    'tank_id' => $tank->id
+                ]
             );
 
             $lastTankTransferHistory = FuelTankTransferHistory::query()
@@ -75,19 +69,17 @@ class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
 
             foreach ($notificationRecipientsOffice as $userId) {
 
-                NotificationJob::dispatchNow(
-                    new NotificationData(
-                        $userId,
-                        'Перемещение топливной емкости',
-                        'Перемещение топливной емкости',
-                        NotificationType::FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED,
-                        [
-                            'tank' => $tank,
-                            'lastTankTransferHistory' => $lastTankTransferHistory,
-                            'newResponsible' => $newResponsible,
-                            'previousResponsible' => $previousResponsible
-                        ]
-                    )
+                dispatchNotify(
+                    $userId,
+                    'Перемещение топливной емкости',
+                    'Перемещение топливной емкости',
+                    NotificationType::FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED,
+                    [
+                        'tank' => $tank,
+                        'lastTankTransferHistory' => $lastTankTransferHistory,
+                        'newResponsible' => $newResponsible,
+                        'previousResponsible' => $previousResponsible
+                    ]
                 );
             }
         }

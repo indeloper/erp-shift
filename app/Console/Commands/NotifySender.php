@@ -119,17 +119,15 @@ class NotifySender extends Command
             );
 
 
-//            NotificationJob::dispatchNow(
-//                new NotificationData(
-//                    $user->id,
-//                    $text,
-//                    'Описание уведомления',
-//                    NotificationType::ONLY_TELEGRAM,
-//                    [
-//                        'name' => $user->first_name
-//                    ]
-//                )
-//            )->onQueue('notify');
+//            dispatchNotify(
+//                $user->id,
+//                $text,
+//                'Описание уведомления',
+//                NotificationType::ONLY_TELEGRAM,
+//                [
+//                    'name' => $user->first_name
+//                ]
+//            );
         });
 
 
