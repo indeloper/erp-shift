@@ -23,4 +23,11 @@ final class NotificationItemRepository implements NotificationItemRepositoryInte
         ]);
     }
 
+    public function getNotificationByType(int $type): ?NotificationItem
+    {
+        return NotificationItem::query()
+            ->where('type', $type)
+            ->first();
+    }
+
 }

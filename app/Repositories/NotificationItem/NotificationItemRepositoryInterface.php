@@ -14,4 +14,7 @@ interface NotificationItemRepositoryInterface
         string $description,
         bool $status = false
     ): NotificationItem;
+
+    public function getNotificationByType(int $type): ?NotificationItem;
+
 }

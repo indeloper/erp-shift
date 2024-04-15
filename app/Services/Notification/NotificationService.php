@@ -10,19 +10,24 @@ use App\Helpers\NotificationSupport;
 use App\Models\Notification;
 use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
+use App\Services\NotificationItem\NotificationItemServiceInterface;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 final class NotificationService implements NotificationServiceInterface
 {
     private $notificationRepository;
     private $userRepository;
+    private $notificationItemService;
     public function __construct(
         NotificationRepositoryInterface $notificationRepository,
-        UserRepositoryInterface $userRepository
+        UserRepositoryInterface $userRepository,
+        NotificationItemServiceInterface $notificationItemService
     )
     {
         $this->notificationRepository = $notificationRepository;
         $this->userRepository = $userRepository;
+        $this->notificationItemService = $notificationItemService;
     }
 
     /**
@@ -48,9 +53,24 @@ final class NotificationService implements NotificationServiceInterface
             $notificationData->getUserId()
         );
 
+        $notification = $this->notificationItemService->getNotificationByType(
+            $notificationData->getType()
+        );
+
+        if ($notification === null) {
+            Log::error('Нет такого уведомления');
+            return;
+        }
+
         if ($user === null) {
             Log::error('Нет пользователя для отправки уведомления');
+            return;
         }
+
+//        if (!Gate::forUser($user)->any($notification->permissions->pluck('codename'))) {
+//            Log::error('Нет прав');
+//            return;
+//        }
 
         $notificationClass = NotificationType::determinateNotificationClassByType(
             $notificationData->getType()

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class NotificationItem extends Model
 {
@@ -18,9 +18,9 @@ class NotificationItem extends Model
         'status' => 'bool',
     ];
 
-    public function permissions(): HasMany
+    public function permissions(): BelongsToMany
     {
-        return $this->hasMany(Permission::class);
+        return $this->belongsToMany(Permission::class);
     }
 
     public function scopeActive($query)
