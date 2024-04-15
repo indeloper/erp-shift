@@ -11,7 +11,6 @@ use App\Models\Notification;
 use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 final class NotificationService implements NotificationServiceInterface
