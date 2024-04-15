@@ -4,18 +4,19 @@ namespace App\Notifications\Fuel;
 
 use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\RenderTelegramNotificationData;
-use App\Domain\DTO\TelegramNotificationData;
 use App\Domain\Enum\TelegramEventType;
 use App\NotificationChannels\DatabaseChannel;
 use App\NotificationChannels\TelegramChannel;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 use Telegram\Bot\Keyboard\Keyboard;
 
 class NewFuelTankResponsibleNotification extends Notification
 {
     use Queueable;
+
+    const DESCRIPTION = 'TEST NOTIFY';
 
     private $notificationData;
 

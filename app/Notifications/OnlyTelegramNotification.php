@@ -4,16 +4,15 @@ namespace App\Notifications;
 
 use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\RenderTelegramNotificationData;
-use App\Domain\DTO\TelegramNotificationData;
 use App\NotificationChannels\TelegramChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 
 class OnlyTelegramNotification extends Notification
 {
     use Queueable;
+
+    const DESCRIPTION = 'TEST NOTIFY';
 
     private $notificationData;
 

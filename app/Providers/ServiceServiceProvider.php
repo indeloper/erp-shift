@@ -8,6 +8,8 @@ use App\Services\Menu\MenuService;
 use App\Services\Menu\MenuServiceInterface;
 use App\Services\Notification\NotificationService;
 use App\Services\Notification\NotificationServiceInterface;
+use App\Services\NotificationItem\NotificationItemService;
+use App\Services\NotificationItem\NotificationItemServiceInterface;
 use App\Services\Telegram\TelegramService;
 use App\Services\Telegram\TelegramServiceInterface;
 use Illuminate\Support\ServiceProvider;
@@ -21,6 +23,11 @@ class ServiceServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->bind(
+            NotificationItemServiceInterface::class,
+            NotificationItemService::class
+        );
+
         $this->app->bind(
             MenuServiceInterface::class,
             MenuService::class

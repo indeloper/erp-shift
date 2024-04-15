@@ -2,13 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\Enum\NotificationType;
-use App\Jobs\Notification\NotificationJob;
-use App\Notifications\DefaultNotification;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\{Notification, User};
+use App\Models\{User};
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 
 class NotifySender extends Command
 {
@@ -113,14 +110,14 @@ class NotifySender extends Command
             ->get();
 
         $recipients->each(function (User $user) use ($text) {
-            NotificationJob::dispatchNow(
-                new NotificationData(
-                    $user->id,
-                    $text,
-                    'Описание уведомления',
-                    NotificationType::DEFAULT
-                )
+
+            dispatchNotify(
+                $user->id,
+                $text,
+                'Описание уведомления',
+                NotificationType::DEFAULT
             );
+
 
 //            NotificationJob::dispatchNow(
 //                new NotificationData(
