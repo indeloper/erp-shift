@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Notifications\NotificationTypes;
 use App\Services\System\NotificationService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
-use App\Models\Notification;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -35,7 +33,7 @@ class NotificationController extends Controller
         $notifications->select('notifications.*', 'project_objects.address', 'contractors.short_name');
 
         return view('notifications.index', [
-            'notifications' => $notifications->paginate(20),
+//            'notifications' => $notifications->paginate(20),
             'notification_types' => NotificationTypes::whereIn('id', auth()->user()->allowedNotifications())->get(),
             'disabled_in_system' => auth()->user()->disabledInSystemNotifications()->pluck('notification_id')->toArray(),
             'disabled_in_telegram' => auth()->user()->disabledInTelegramNotifications()->pluck('notification_id')->toArray(),
