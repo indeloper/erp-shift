@@ -15,9 +15,10 @@ final class NotificationItemRepository implements NotificationItemRepositoryInte
         bool $status = false
     ): NotificationItem {
         return NotificationItem::query()->updateOrCreate([
-            'class' => $class
+            'type' => $type
+
         ], [
-            'type' => $type,
+            'class' => $class,
             'description' => $description,
             'status' => $status
         ]);
