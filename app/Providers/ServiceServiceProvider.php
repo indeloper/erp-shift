@@ -12,6 +12,8 @@ use App\Services\NotificationItem\NotificationItemService;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
 use App\Services\Telegram\TelegramService;
 use App\Services\Telegram\TelegramServiceInterface;
+use App\Services\User\UserService;
+use App\Services\User\UserServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class ServiceServiceProvider extends ServiceProvider
@@ -36,6 +38,11 @@ class ServiceServiceProvider extends ServiceProvider
         $this->app->bind(
             MenuItemFavoriteInterface::class,
             MenuItemFavorite::class
+        );
+
+        $this->app->bind(
+            UserServiceInterface::class,
+            UserService::class
         );
 
         $this->app->bind(

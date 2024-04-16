@@ -1,2 +1,5 @@
+require('./components/header/header')
+
 require('./components/menu/menu')
-  .init('#menu-component')
+
+require('./components/footer/footer')

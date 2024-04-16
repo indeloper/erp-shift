@@ -1,5 +1,5 @@
 
-window.Pusher = require('pusher-js');
+// window.Pusher = require('pusher-js');
 
 window.Vue = require('vue');
 
