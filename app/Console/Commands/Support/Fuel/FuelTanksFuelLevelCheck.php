@@ -59,12 +59,12 @@ class FuelTanksFuelLevelCheck extends Command
             $periodReportTankFuelLevel = $this->getPeriodReportTankFuelLevel($tank);
             $tankFuelLevel = $tank->fuel_level;
             $isOk = 
-                $calculatedTankFuelLevel === $periodReportTankFuelLevel 
+                $calculatedTankFuelLevel === $periodReportTankFuelLevel
                 && $calculatedTankFuelLevel === $tankFuelLevel
                 ? true : false;
 
+
             if(!$isOk) {
-                
                 $data = [
                     'tank' => $tank,
                     'dateFrom' => $dateFrom,

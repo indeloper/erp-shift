@@ -3,83 +3,121 @@
 namespace App\Telegram\Dialogs;
 
 use App\Actions\Fuel\FuelActions;
-use App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController;
-use App\Models\Notification;
+use App\Domain\Enum\NotificationType;
 use App\Models\Permission;
-use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
-use App\Telegram\TelegramApi;
-use App\Telegram\TelegramServices;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Telegram\Bot\Laravel\Facades\Telegram;
-use morphos\Russian\RussianLanguage;
+use App\Services\Telegram\TelegramServiceInterface;
 
 class FuelDialogs
 {
     public function fuelTankMovementConfirmation($event)
     {
         $tank = FuelTank::find(json_decode($event['data'])->eventId);
+        $user = User::where('chat_id', $event['from']['id'])->first();
 
         if(!$tank->awaiting_confirmation) {
-            $message = 
+            dispatchNotify(
+                $user->id,
+                'Подтверждение об изменении ответственного топливной емкости № ' . $tank->tank_number . ' не требуется',
+                'Подтверждение об изменении',
+                NotificationType::FUEL_NOT_AWAITING_CONFIRMATION,
                 [
-                    'chat_id' => $event['message']['chat']['id'],
-                    'parse_mode' => 'HTML',
-                    'text' => 'Подтверждение об изменении ответственного топливной емкости № ' . $tank->tank_number . ' не требуется'
-                ];
-
-            new TelegramApi('sendMessage', $message);
-            (new TelegramServices)->closeDialog($event['message']['chat']['id']);   
+                    'tank_id' => $tank->id
+                ]
+            );
         }
 
-        $user = User::where('chat_id', $event['from']['id'])->first();
         (new FuelActions)->handleMovingFuelTankConfirmation($tank, $user);
     }
 
-    public function handleFuelTankMovingDialogMessages(
-        $newResponsibleMessageParams, $previousResponsibleMessageParams, $officeResponsiblesMessageParams
-    )
+    public function handleFuelTankMovingDialogMessages($tank)
     {
-        $this->confirmFuelTankMovingNewResponsible($newResponsibleMessageParams);
-        $this->confirmFuelTankMovingPreviousResponsible($previousResponsibleMessageParams);
-        $this->informFuelTankMovingOfficeResponsibles($officeResponsiblesMessageParams);
+        $this->confirmFuelTankMovingNewResponsible($tank);
+        $this->confirmFuelTankMovingPreviousResponsible($tank);
+        $this->informFuelTankMovingOfficeResponsibles($tank);
     }
 
-    public function confirmFuelTankMovingNewResponsible($newResponsibleMessageParams)
+    public function confirmFuelTankMovingNewResponsible($tank)
     {
-        if(empty($newResponsibleMessageParams))
-        return;
+        $chatMessage = json_decode($tank->chat_message_tmp);
 
-        new TelegramApi('editMessageText', $newResponsibleMessageParams['message']);
-        (new TelegramServices)->closeDialog($newResponsibleMessageParams['message']['chat_id']);
+        if(!$chatMessage) {
+            return [];
+        }
+
+        $telegramService = \app(TelegramServiceInterface::class);
+
+        $chatId = $chatMessage->chatId;
+        $messageId = $chatMessage->messageId;
+        $text = $chatMessage->text;
+
+        $telegramService->editMessageText(
+            $chatId,
+            $messageId,
+            view('telegram.fuel.confirm-fuel-tank-moving-new-responsible', compact('text'))
+        );
+
     }
 
-    public function confirmFuelTankMovingPreviousResponsible($previousResponsibleMessageParams)
+    public function confirmFuelTankMovingPreviousResponsible($tank)
     {
-        if(empty($previousResponsibleMessageParams))
-        return;
+        $lastTankTransferHistory = FuelTankTransferHistory::query()
+            ->where('fuel_tank_id', $tank->id)
+            ->whereNull('fuel_tank_flow_id')
+            ->orderByDesc('id')
+            ->first();
 
-        new TelegramApi('sendMessage', $previousResponsibleMessageParams['message']);
-        (new TelegramServices)->closeDialog($previousResponsibleMessageParams['message']['chat_id']);
+        $previousResponsible = User::find($lastTankTransferHistory->previous_responsible_id);
+
+        $newResponsible = User::find($tank->responsible_id);
+
+        dispatchNotify(
+            $previousResponsible->id,
+            'Перемещение топливной емкости',
+            'Перемещение топливной емкости',
+            NotificationType::FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE,
+            [
+                'tank' => $tank,
+                'lastTankTransferHistory' => $lastTankTransferHistory,
+                'newResponsible' => $newResponsible
+            ]
+        );
+
     }
 
-    public function informFuelTankMovingOfficeResponsibles($officeResponsiblesMessageParams)
+    public function informFuelTankMovingOfficeResponsibles($tank)
     {
-        if(empty($officeResponsiblesMessageParams))
-        return;
-
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
         foreach ($notificationRecipientsOffice as $userId) { 
             $user =  User::find($userId);
-            $message = $officeResponsiblesMessageParams['message'];
-            $message['chat_id'] = $user->chat_id;
-            new TelegramApi('sendMessage', $message);
-            (new TelegramServices)->closeDialog($message['chat_id']);
+
+
+            $lastTankTransferHistory = FuelTankTransferHistory::query()
+                ->where('fuel_tank_id', $tank->id)
+                ->whereNull('fuel_tank_flow_id')
+                ->orderByDesc('id')
+                ->first();
+
+            $newResponsible = User::find($tank->responsible_id);
+            $previousResponsible = User::find($lastTankTransferHistory->previous_responsible_id);
+
+
+            dispatchNotify(
+                $user->id,
+                'Перемещение топливной емкости',
+                'Перемещение топливной емкости',
+                NotificationType::FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES,
+                [
+                    'tank' => $tank,
+                    'lastTankTransferHistory' => $lastTankTransferHistory,
+                    'newResponsible' => $newResponsible,
+                    'previousResponsible' => $previousResponsible
+                ]
+            );
+
+
         }
     }
 }

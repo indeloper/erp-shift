@@ -16,6 +16,8 @@ return [
     'bot_token' => env('TELEGRAM_BOT_TOKEN', ''),
     'internal_bot_token' => env('INTERNAL_TELEGRAM_BOT_TOKEN', ''),
 
+    'webhook' => env('TELEGRAM_WEBHOOK'),
+
     /*
     |--------------------------------------------------------------------------
     | Asynchronous Requests [Optional]

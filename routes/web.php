@@ -11,8 +11,28 @@
 |
 */
 
-use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
+use App\Domain\DTO\NotificationData;
+use App\Domain\Enum\NotificationType;
+use App\Jobs\Notification\NotificationJob;
+use App\Notifications\Fuel\FuelNotifications;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/example-fuel', function () {
+
+    $tank = \App\Models\TechAcc\FuelTank\FuelTank::query()->find(38);
+
+    NotificationJob::dispatchNow(
+        new NotificationData(
+            $tank->responsible_id,
+            (new FuelNotifications)->renderNewFuelTankResponsible($tank),
+            'Перемещение топливной емкости',
+            NotificationType::FUEL_NEW_TANK_RESPONSIBLE,
+            [
+                'tank_id' => $tank->id
+            ]
+        )
+    );
+});
 
 Route::group(['middleware' => ['activeuser', 'auth']], function () {
 

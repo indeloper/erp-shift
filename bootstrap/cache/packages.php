@@ -35,18 +35,6 @@
       0 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
     ),
   ),
-  'fomvasss/laravel-dadata' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Fomvasss\\Dadata\\DadataServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'DadataSuggest' => 'Fomvasss\\Dadata\\Facades\\DadataSuggest',
-      'DadataClean' => 'Fomvasss\\Dadata\\Facades\\DadataClean',
-    ),
-  ),
   'intervention/image' => 
   array (
     'providers' => 
@@ -56,6 +44,17 @@
     'aliases' => 
     array (
       'Image' => 'Intervention\\Image\\Facades\\Image',
+    ),
+  ),
+  'irazasyed/telegram-bot-sdk' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Telegram\\Bot\\Laravel\\TelegramServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Telegram' => 'Telegram\\Bot\\Laravel\\Facades\\Telegram',
     ),
   ),
   'laravel/dusk' => 
