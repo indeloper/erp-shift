@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ProjectObjectDocuments;
 
+use App\Domain\Enum\NotificationType;
 use App\Events\NotificationCreated;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -238,7 +239,7 @@ class ProjectObjectDocumentsController extends Controller
         $id = ProjectObjectDocument::insertGetId(
             [
                 'document_type_id' => $data->document_type_id,
-                'document_status_id' => $data->document_status_id 
+                'document_status_id' => $data->document_status_id
                     ?? ProjectObjectDocumentStatusTypeRelation::query()
                         ->where('document_type_id', $data->document_type_id)
                         ->where('default_selection', 1)
@@ -412,20 +413,11 @@ class ProjectObjectDocumentsController extends Controller
 
         foreach($notificationRecipients as $userId)
         {
-            $notification = Notification::withoutEvents(function() use($objectName, $userId, $document, $statusName) {
-
-                    $notification = Notification::create([
-                        'name' => 'Документооборот на объектах | ' . "\n" . $objectName. ' | ' . "\n" . $document->document_name . ' | '. "\n" . 'Новый статус: ' . $statusName,
-                        'user_id' => $userId,
-                        'type' => 0,
-                    ]);
-
-                    return $notification;
-                }
+            dispatchNotify(
+                $userId,
+                'Документооборот на объектах | ' . "\n" . $objectName . ' | ' . "\n" . $document->document_name . ' | ' . "\n" . 'Новый статус: ' . $statusName,
+                NotificationType::DOCUMENT_FLOW_ON_OBJECTS_NEW_STATUS
             );
-
-            //
-            // event(new NotificationCreated($notification->name, $notification->user_id, $notification->type, $notification->id));
         }
     }
 

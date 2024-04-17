@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Traits\TimeCalculator;
 use App\Http\Requests\ProjectRequest\{
@@ -735,24 +736,29 @@ class ProjectController extends Controller
             $respUser = User::find($request->user);
             $taskSolver = User::find($solved_task->responsible_user_id);
 
-            Notification::create(['name' => "По проекту {$project->name} ({$project->object->address}) по направлению " . ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв.".
-                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}", 'task_id' => $solved_task->id, 'user_id' => $request->user,
-                'contractor_id' => $project->contractor_id,
-                'project_id' => $project->id,
-                'object_id' => $project->object_id]);
+            /** Отправка уведомлений трём пользователям */
+            $users = [$request->user, 6, 7];
+            $name = "По проекту {$project->name} ({$project->object->address}) по направлению " .
+                ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв." .
+                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}";
+            $task_id = $solved_task->id;
+            $contractor_id = $project->contractor_id;
+            $project_id = $project->id;
+            $object_id = $project->object_id;
 
-            Notification::create(['name' => "По проекту {$project->name} ({$project->object->address}) по направлению " . ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв.".
-                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}", 'task_id' => $solved_task->id, 'user_id' => 7,
-                'contractor_id' => $project->contractor_id,
-                'project_id' => $project->id,
-                'object_id' => $project->object_id]);
-
-            Notification::create(['name' => "По проекту {$project->name} ({$project->object->address}) по направлению " . ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв.".
-                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}", 'task_id' => $solved_task->id, 'user_id' => 6,
-                'contractor_id' => $project->contractor_id,
-                'project_id' => $project->id,
-                'object_id' => $project->object_id]);
-//sorry
+            foreach ($users as $userId) {
+                dispatchNotify(
+                    $userId,
+                    $name,
+                    NotificationType::RESPONSIBLE_SELECTED_FOR_PROJECT_DIRECTION_PROJECT_LEADER,
+                    [
+                        'task_id' => $task_id,
+                        'contractor_id' => $contractor_id,
+                        'project_id' => $project_id,
+                        'object_id' => $object_id
+                    ]
+                );
+            }
         }
 
         if (!empty($resp_user->getChanges())) {
@@ -767,14 +773,17 @@ class ProjectController extends Controller
 
                 if ($updated_task->responsible_user_id != 6) {
                     // notify old user
-                    Notification::create([
-                        'name' => 'Задача «' . $updated_task->name . '» передана пользователю ' . $new_user->long_full_name,
-                        'task_id' => $updated_task->id,
-                        'user_id' => $updated_task->responsible_user_id,
-                        'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
-                        'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
-                        'object_id' => $updated_task->project_id ? $project->object_id : null,
-                        'type' => 6]);
+                    dispatchNotify(
+                        $updated_task->responsible_user_id,
+                        'Задача «' . $updated_task->name . '» передана пользователю ' . $new_user->long_full_name,
+                        NotificationType::TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE,
+                        [
+                            'task_id' => $updated_task->id,
+                            'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
+                            'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
+                            'object_id' => $updated_task->project_id ? $project->object_id : null,
+                        ]
+                    );
 
                     // notify new user
                     $notification = new Notification();

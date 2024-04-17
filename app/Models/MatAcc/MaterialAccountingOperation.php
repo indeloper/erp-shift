@@ -2,6 +2,7 @@
 
 namespace App\Models\MatAcc;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
@@ -762,13 +763,14 @@ class MaterialAccountingOperation extends Model
             $controlTask->save();
 
             if ($status_result == 'decline') {
-                //notify operation creator
-                $notify = Notification::create([
-                    'name' => 'Ваша операция списания была отклонена',
-                    'task_id' => $controlTask->id,
-                    'user_id' => $this->author->id,
-                    'type' => 13
-                ]);
+                dispatchNotify(
+                    $this->author->id,
+                    'Ваша операция списания была отклонена',
+                    NotificationType::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION,
+                    [
+                        'task_id' => $controlTask->id,
+                    ]
+                );
             }
 
             $controlTask->solve_n_notify();

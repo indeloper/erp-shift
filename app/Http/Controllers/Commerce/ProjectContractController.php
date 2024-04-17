@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Domain\Enum\NotificationType;
 use App\Events\ContractApproved;
 use App\Events\NotificationCreated;
 use App\Models\CommercialOffer\CommercialOffer;
@@ -273,12 +274,17 @@ class ProjectContractController extends Controller
         $old_task = $tasks->first();
         $tasks->update(['is_solved' => 1]);
         if($old_task){
-            Notification::create(['name' => 'Задача «' . $old_task->name . '» закрыта', 'task_id' => $old_task->id, 'user_id' => $old_task->responsible_user_id,
-                'contractor_id' => $old_task->project_id ? Project::find($old_task->project_id)->contractor_id : null,
-                'project_id' => $old_task->project_id ? $old_task->project_id : null,
-                'object_id' => $old_task->project_id ? Project::find($old_task->project_id)->object_id : null,
-                'type' => 3
-            ]);
+            dispatchNotify(
+                $old_task->responsible_user_id,
+                'Задача «' . $old_task->name . '» закрыта',
+                NotificationType::TASK_CLOSURE_NOTIFICATION,
+                [
+                    'task_id' => $old_task->id,
+                    'contractor_id' => $old_task->project_id ? Project::find($old_task->project_id)->contractor_id : null,
+                    'project_id' => $old_task->project_id ? $old_task->project_id : null,
+                    'object_id' => $old_task->project_id ? Project::find($old_task->project_id)->object_id : null,
+                ]
+            );
         }
 
         foreach ($contract->responsible_user_ids as $user_id) {
@@ -778,15 +784,17 @@ class ProjectContractController extends Controller
 
         if($solve_task->count()) {
             if ($solve_task[0]->responsible_user_id != 6) {
-                Notification::create([
-                    'name' => 'Задача «' . $solve_task[0]->name . '» закрыта',
-                    'task_id' => $solve_task[0]->id,
-                    'user_id' => $solve_task[0]->responsible_user_id,
-                    'contractor_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->contractor_id : null,
-                    'project_id' => $solve_task[0]->project_id ? $solve_task[0]->project_id : null,
-                    'object_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->object_id : null,
-                    'type' => 3
-                ]);
+                dispatchNotify(
+                    $solve_task[0]->responsible_user_id,
+                    'Задача «' . $solve_task[0]->name . '» закрыта',
+                    NotificationType::TASK_CLOSURE_NOTIFICATION,
+                    [
+                        'task_id' => $solve_task[0]->id,
+                        'contractor_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->contractor_id : null,
+                        'project_id' => $solve_task[0]->project_id ? $solve_task[0]->project_id : null,
+                        'object_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->object_id : null,
+                    ]
+                );
             }
         }
         Task::where('project_id', $contract->project_id)->where('status', 7)->where('is_solved', 0)->where('target_id', $contract->id)->update(['is_solved' => 1]);

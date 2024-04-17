@@ -2,6 +2,7 @@
 
 namespace App\Models\CommercialOffer;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Company\Company;
 use App\Services\Commerce\SplitService;
 use App\Traits\Commentable;
@@ -171,15 +172,17 @@ class CommercialOffer extends Model
         $project = Project::findOrFail($this->project_id);
 
         $this->unsolved_tasks->each(function ($task) use($project) {
-            Notification::create([
-                'name' => 'Задача «' . $task->name . '» закрыта',
-                'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
-                'contractor_id' => $project->contractor_id,
-                'project_id' => $project->id,
-                'object_id' => $project->object_id,
-                'type' => 3
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Задача «' . $task->name . '» закрыта',
+                NotificationType::TASK_CLOSURE_NOTIFICATION,
+                [
+                    'task_id' => $task->id,
+                    'contractor_id' => $project->contractor_id,
+                    'project_id' => $project->id,
+                    'object_id' => $project->object_id,
+                ]
+            );
 
             $task->solve();
         });

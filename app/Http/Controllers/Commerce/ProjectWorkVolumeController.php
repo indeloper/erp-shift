@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Domain\Enum\NotificationType;
 use App\Http\Requests\ProjectRequest\WorkVolumeReqRequest;
 use App\Models\CommercialOffer\CommercialOfferWork;
 use App\Models\FileEntry;
@@ -225,15 +226,17 @@ class ProjectWorkVolumeController extends Controller
         }
 
         if ($task) {
-            Notification::create([
-                'name' => 'Задача «' . $task->name . '» закрыта',
-                'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
-                'contractor_id' => $task->project_id ? $project->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? $project->object_id : null,
-                'type' => 3
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Задача «' . $task->name . '» закрыта',
+                NotificationType::TASK_CLOSURE_NOTIFICATION,
+                [
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? $project->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? $project->object_id : null,
+                ]
+            );
 
             $task->solve();
         }
@@ -266,15 +269,17 @@ class ProjectWorkVolumeController extends Controller
         $tasks = Task::where('project_id', $work_volume->project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->where('is_solved', 0)->get();
 
         foreach ($tasks as $item) {     //close all tasks from last com_offer
-            Notification::create([
-                'name' => 'Задача «' . $item->name . '» закрыта',
-                'task_id' => $item->id,
-                'user_id' => $item->responsible_user_id,
-                'contractor_id' => $item->project_id ? $project->contractor_id : null,
-                'project_id' => $item->project_id ? $project : null,
-                'object_id' => $item->project_id ? $project->object_id : null,
-                'type' => 3
-            ]);
+            dispatchNotify(
+                $item->responsible_user_id,
+                'Задача «' . $item->name . '» закрыта',
+                NotificationType::TASK_CLOSURE_NOTIFICATION,
+                [
+                    'task_id' => $item->id,
+                    'contractor_id' => $item->project_id ? $project->contractor_id : null,
+                    'project_id' => $item->project_id ? $project : null,
+                    'object_id' => $item->project_id ? $project->object_id : null,
+                ]
+            );
 
             $item->solve();
         }
@@ -1612,15 +1617,17 @@ class ProjectWorkVolumeController extends Controller
             $tasks = Task::where('project_id', $project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->where('is_solved', 0)->get();
 
             foreach ($tasks as $item) {
-                Notification::create([
-                    'name' => 'Задача «' . $item->name . '» закрыта',
-                    'task_id' => $item->id,
-                    'user_id' => $item->responsible_user_id,
-                    'contractor_id' => $item->project_id ? Project::find($item->project_id)->contractor_id : null,
-                    'project_id' => $item->project_id ? $item->project_id : null,
-                    'object_id' => $item->project_id ? Project::find($item->project_id)->object_id : null,
-                    'type' => 3
-                ]);
+                dispatchNotify(
+                    $item->responsible_user_id,
+                    'Задача «' . $item->name . '» закрыта',
+                    NotificationType::TASK_CLOSURE_NOTIFICATION,
+                    [
+                        'task_id' => $item->id,
+                        'contractor_id' => $item->project_id ? Project::find($item->project_id)->contractor_id : null,
+                        'project_id' => $item->project_id ? $item->project_id : null,
+                        'object_id' => $item->project_id ? Project::find($item->project_id)->object_id : null,
+                    ]
+                );
 
                 $item->solve();
             }
@@ -1671,20 +1678,22 @@ class ProjectWorkVolumeController extends Controller
 
            $user = auth()->user()->long_full_name;
 
-           Notification::create([
-               'name' => ('Пользователь ' . $user . ' ' .
-               ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ') .
+           dispatchNotify(
+               $wv_request->user_id,
+               ('Пользователь ' . $user . ' ' .
+                   ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ') .
                    'заявку на редактирование ОР ' . ($wv_request->tongue_pile ? 'свайного' : 'шпунтового')
-               . ' направления версии ' . $work_volume->version .
+                   . ' направления версии ' . $work_volume->version .
                    ' по проекту ' . Project::find($wv_request->project_id)->name),
-               'user_id' => $wv_request->user_id,
-               'contractor_id' => Project::find($wv_request->project_id)->contractor_id,
-               'project_id' => $wv_request->project_id,
-               'object_id' => Project::find($wv_request->project_id)->object_id,
-               'target_id' => $request->wv_request_id,
-               'status' => 3,
-               'type' => 27
-           ]);
+               NotificationType::WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION,
+               [
+                   'contractor_id' => Project::find($wv_request->project_id)->contractor_id,
+                   'project_id' => $wv_request->project_id,
+                   'object_id' => Project::find($wv_request->project_id)->object_id,
+                   'target_id' => $request->wv_request_id,
+                   'status' => 3,
+               ]
+           );
 
            if ($request->documents) {
                foreach($request->documents as $document) {
@@ -1825,18 +1834,20 @@ class ProjectWorkVolumeController extends Controller
 
        $user = auth()->user()->long_full_name;
 
-       Notification::create([
-           'name' => ('Пользователь ' . $user . ' ' . 'подтвердил(а) заявку на редактирование ОР ' .
+       dispatchNotify(
+           $wv_request->user_id,
+           ('Пользователь ' . $user . ' ' . 'подтвердил(а) заявку на редактирование ОР ' .
                ($wv_request->tongue_pile ? 'свайного' : 'шпунтового')
                . ' направления версии ' . $work_volume->version . ' по проекту ' . Project::find($wv_request->project_id)->name),
-           'user_id' => $wv_request->user_id,
-           'contractor_id' => Project::find($wv_request->project_id)->contractor_id,
-           'project_id' => $wv_request->project_id,
-           'object_id' => Project::find($wv_request->project_id)->object_id,
-           'target_id' => session()->get('edited_wv_request_id'),
-           'status' => 3,
-           'type' => 27
-       ]);
+           NotificationType::WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION,
+           [
+               'contractor_id' => Project::find($wv_request->project_id)->contractor_id,
+               'project_id' => $wv_request->project_id,
+               'object_id' => Project::find($wv_request->project_id)->object_id,
+               'target_id' => session()->get('edited_wv_request_id'),
+               'status' => 3,
+           ]
+       );
 
        session()->forget(['edited_wv_id', 'edited_wv_request_id', 'edit_start']);
 

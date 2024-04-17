@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Enum;
 
+use App\Notifications\Claim\WorkVolumeClaimProcessingNotice;
 use App\Notifications\Contract\ContractDeletionRequestResolutionNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Notifications\DefaultNotification;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNewStatusNotice;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFlowNotice;
 use App\Notifications\Employee\EmployeeTerminationNotice;
 use App\Notifications\Employee\NewEmployeeArrivalNotice;
@@ -23,6 +25,7 @@ use App\Notifications\Labor\LaborSignedNotification;
 use App\Notifications\Object\ObjectParticipatesInWorkProductionNotice;
 use App\Notifications\Object\ProjectLeaderAppointedToObjectNotice;
 use App\Notifications\Object\ResponsibleAddedToObjectNotice;
+use App\Notifications\Object\ResponsibleSelectedForProjectDirectionProjectLeaderNotice;
 use App\Notifications\OnlyTelegramNotification;
 use App\Notifications\Operation\OperationApprovalNotice;
 use App\Notifications\Operation\OperationRejectionNotice;
@@ -35,6 +38,7 @@ use App\Notifications\Task\OfferCreationSheetPilingTaskNotice;
 use App\Notifications\Task\SubstituteUserReturnFromLeaveTaskTransferNotice;
 use App\Notifications\Task\TaskClosureNotice;
 use App\Notifications\Task\TaskPostponedAndClosedNotice;
+use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceCompletionNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceNotice;
 use App\Notifications\TimestampTechniqueUsageNotice;
@@ -64,6 +68,7 @@ final class NotificationType
 
     const CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION = 20;
 
+    const WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION = 27;
     const OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION = 28;
     const OFFER_CREATION_PILING_DIRECTION_TASK = 29;
 
@@ -87,12 +92,14 @@ final class NotificationType
     const RESPONSIBLE_ADDED_TO_OBJECT = 113;
     const PROJECT_LEADER_APPOINTED_TO_OBJECT = 114;
     const DOCUMENT_FLOW_ON_OBJECTS_PARTICIPATES_IN_DOCUMENT_FLOW = 115;
+    const DOCUMENT_FLOW_ON_OBJECTS_NEW_STATUS = 116;
+    const RESPONSIBLE_SELECTED_FOR_PROJECT_DIRECTION_PROJECT_LEADER = 117;
 
     const NEW_EMPLOYEE_ARRIVAL = 200;
     const EMPLOYEE_TERMINATION = 201;
     const TASK_CLOSURE_NOTIFICATION = 203;
     const INCOMING_CALL_PROCESSING = 204;
-
+    const TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE = 206;
     const TASK_POSTPONED_AND_CLOSED_NOTIFICATION = 207;
 
 
@@ -137,6 +144,8 @@ final class NotificationType
             case self::INCOMING_CALL_PROCESSING:
                 return IncomingCallProcessingNotice::class;
 
+            case self::WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION:
+                return WorkVolumeClaimProcessingNotice::class;
             case self::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION:
                 return OfferCreationSheetPilingTaskNotice::class;
             case self::OFFER_CREATION_PILING_DIRECTION_TASK:
@@ -175,6 +184,10 @@ final class NotificationType
 
             case self::DOCUMENT_FLOW_ON_OBJECTS_PARTICIPATES_IN_DOCUMENT_FLOW:
                 return DocumentFlowOnObjectsParticipatesInDocumentFlowNotice::class;
+            case self::DOCUMENT_FLOW_ON_OBJECTS_NEW_STATUS:
+                return DocumentFlowOnObjectsNewStatusNotice::class;
+            case self::RESPONSIBLE_SELECTED_FOR_PROJECT_DIRECTION_PROJECT_LEADER:
+                return ResponsibleSelectedForProjectDirectionProjectLeaderNotice::class;
 
             case self::NEW_EMPLOYEE_ARRIVAL:
                 return NewEmployeeArrivalNotice::class;
@@ -184,6 +197,8 @@ final class NotificationType
             case self::TASK_CLOSURE_NOTIFICATION:
                 return TaskClosureNotice::class;
 
+            case self::TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE:
+                return TaskTransferNotificationToNewResponsibleNotice::class;
             case self::TASK_POSTPONED_AND_CLOSED_NOTIFICATION:
                 return TaskPostponedAndClosedNotice::class;
 
