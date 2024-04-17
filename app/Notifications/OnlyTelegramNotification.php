@@ -12,7 +12,7 @@ class OnlyTelegramNotification extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'ONLY TELEGRAM NOTIFY';
 
     private $notificationData;
 

@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Domain\Enum\NotificationType;
 use Illuminate\Console\Command;
-use App\Models\Notification;
 use App\Models\User;
-
-use App\Events\NotificationCreated;
-
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -48,12 +45,15 @@ class TechUpdatesNotify extends Command
         $message = 'Техническая поддержка. '. 'C ' . $this->argument('start_date') . ' ' . $this->argument('start_time') . ' по ' . $this->argument('finish_date') . ' ' . $this->argument('finish_time') . ' в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.';
         DB::beginTransaction();
         foreach (User::all() as $user) {
-            $notification = Notification::create([
-                'name' => $message,
-                'user_id' => $user->id,
-                'created_at' => Carbon::now(),
-                'type' => 14
-            ]);
+            dispatchNotify(
+                $user->id,
+                $message,
+                'Уведомление о проведении технических работ',
+                NotificationType::TECHNICAL_MAINTENANCE_NOTICE,
+                [
+                    'created_at' => Carbon::now()
+                ]
+            );
         }
 
         DB::commit();

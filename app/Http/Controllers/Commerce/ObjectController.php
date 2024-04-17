@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Domain\Enum\NotificationType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProjectObjectDocuments\ProjectObjectDocumentsController;
@@ -11,13 +12,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ProjectObject;
 use App\Models\Project;
 use App\Models\Building\ObjectResponsibleUser;
-use App\Services\SystemService;
-use App\Http\Requests\ObjectRequests\ObjectRequest;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
-use App\Models\Notification;
 use App\Models\Permission;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
@@ -255,11 +253,11 @@ class ObjectController extends Controller
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
         foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'Объект:' . "\n" . $objectName . "\n" . 'участвует в производстве работ.',
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
+            dispatchNotify(
+                $userId,
+                'Объект:' . "\n" . $objectName . "\n" . 'участвует в производстве работ.',
+                NotificationType::OBJECT_PARTICIPATES_IN_WORK_PRODUCTION
+            );
         }
     }
 
@@ -468,11 +466,12 @@ class ObjectController extends Controller
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
         foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'Документооборот на объектах' . "\n" . $objectName . "\n" . 'Участвует в документообороте',
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
+            dispatchNotify(
+                $userId,
+                'Документооборот на объектах' . "\n" . $objectName . "\n" . 'Участвует в документообороте',
+                'Документооборот на объектах Участвует в документообороте',
+                NotificationType::DOCUMENT_FLOW_ON_OBJECTS_PARTICIPATES_IN_DOCUMENT_FLOW
+            );
         }
     }
 
@@ -487,11 +486,11 @@ class ObjectController extends Controller
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
         foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'Вы добавлены ответственным на объект' . "\n" . $objectName,
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
+            dispatchNotify(
+                $userId,
+                'Вы добавлены ответственным на объект' . "\n" . $objectName,
+                NotificationType::RESPONSIBLE_ADDED_TO_OBJECT
+            );
         }
     }
 
@@ -502,11 +501,11 @@ class ObjectController extends Controller
         $projectManagerName = User::findOrFail($projectManagerId)->full_name;
 
         foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'На объект' . "\n" . $objectName . "\n" . 'назначен руководитель проекта ' . "\n" . $projectManagerName,
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
+            dispatchNotify(
+                $userId,
+                'На объект' . "\n" . $objectName . "\n" . 'назначен руководитель проекта ' . "\n" . $projectManagerName,
+                NotificationType::PROJECT_LEADER_APPOINTED_TO_OBJECT
+            );
         }
     }
 

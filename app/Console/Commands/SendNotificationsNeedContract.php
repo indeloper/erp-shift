@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Notification;
 use App\Models\Task;
@@ -51,13 +52,16 @@ class SendNotificationsNeedContract extends Command
             ->get();
 
         foreach ($operations as $operation) {
-
-            Notification::create([
-                'name' => 'На объекте ' . $operation->object_to->name_tag . ' существуют операции без договора!',
-                'object_id' => $operation->object_id_to,
-                'user_id' => 28,
-                'type' => 110,
-            ]);
+// TODO заменить раздкод 28
+            dispatchNotify(
+                28,
+                'На объекте ' . $operation->object_to->name_tag . ' существуют операции без договора!',
+                'Уведомление о задаче "Отметка времени использования техники"',
+                NotificationType::TECHNICAL_MAINTENANCE_COMPLETION_NOTICE,
+                [
+                    'object_id' => $operation->object_id_to
+                ]
+            );
 
         }
     }

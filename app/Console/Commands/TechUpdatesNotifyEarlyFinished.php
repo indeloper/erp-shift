@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Domain\Enum\NotificationType;
 use Illuminate\Console\Command;
-use App\Models\Notification;
 use App\Models\User;
-
-use App\Events\NotificationCreated;
-
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -48,12 +45,15 @@ class TechUpdatesNotifyEarlyFinished extends Command
         $message = 'Техническая поддержка. Работы были закончены досрочно. Сервис снова доступен.';
         DB::beginTransaction();
         foreach (User::all() as $user) {
-            $notification = Notification::create([
-                'name' => $message,
-                'user_id' => $user->id,
-                'created_at' => Carbon::now(),
-                'type' => 15
-            ]);
+            dispatchNotify(
+                $user->id,
+                $message,
+                '',
+                NotificationType::TECHNICAL_MAINTENANCE_COMPLETION_NOTICE,
+                [
+                    'created_at' => Carbon::now(),
+                ]
+            );
         }
 
         DB::commit();

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Object;
 
 use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\TelegramNotificationData;
@@ -10,31 +10,19 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DefaultNotification extends Notification
+class ResponsibleAddedToObjectNotice extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'DEFAULT NOTIFY';
-
+    const DESCRIPTION = 'Добавлен ответственный на объект';
 
     private $notificationData;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @return void
-     */
     public function __construct(NotificationData $notificationData)
     {
         $this->notificationData = $notificationData;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
     public function via($notifiable)
     {
         return [
@@ -44,19 +32,14 @@ class DefaultNotification extends Notification
         ];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     */
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->markdown('mail.default-notification', [
-                        'name' => $this->notificationData->getName(),
-                        'description' => $this->notificationData->getDescription(),
-                    ]);
+            ->subject($this->notificationData->getDescription())
+            ->markdown('mail.object.object-notification', [
+                'name' => $this->notificationData->getName(),
+                'description' => $this->notificationData->getDescription(),
+            ]);
     }
 
     public function toDatabase($notifiable)
@@ -69,18 +52,5 @@ class DefaultNotification extends Notification
         return new TelegramNotificationData(
             $this->notificationData
         );
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            //
-        ];
     }
 }

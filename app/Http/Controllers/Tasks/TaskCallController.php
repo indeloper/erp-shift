@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tasks;
 
+use App\Domain\Enum\NotificationType;
 use App\Traits\TimeCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -205,12 +206,14 @@ class TaskCallController extends Controller
 
         $call->save();
 
-        Notification::create([
-            'name' => $call->name,
-            'task_id' => $call->id,
-            'user_id' => $call->responsible_user_id,
-            'type' => 4
-        ]);
+        dispatchNotify(
+            $call->responsible_user_id,
+            $call->name,
+            NotificationType::INCOMING_CALL_PROCESSING,
+            [
+                'task_id' => $call->id
+            ]
+        );
 
         return response()->json(['data' => $call->toArray()], 201);
     }

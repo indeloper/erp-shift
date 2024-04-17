@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\System;
 
 
+use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Employees\Employee;
@@ -223,11 +224,11 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             }
 
             foreach ($notificationRecipients as $recipient) {
-                Notification::create([
-                    'name' => $newEmployeesNotificationMessageText,
-                    'user_id' => $recipient->id,
-                    'type' => 0,
-                ]);
+                dispatchNotify(
+                    $recipient->id,
+                    $newEmployeesNotificationMessageText,
+                    NotificationType::NEW_EMPLOYEE_ARRIVAL
+                );
             }
         }
 
@@ -238,11 +239,11 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 $dismissedEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$dismissedEmployee->fullName}</a> ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
             }
             foreach ($notificationRecipients as $recipient) {
-                Notification::create([
-                    'name' => $dismissedEmployeesNotificationMessageText,
-                    'user_id' => $recipient->id,
-                    'type' => 0,
-                ]);
+                dispatchNotify(
+                    $recipient->id,
+                    $dismissedEmployeesNotificationMessageText,
+                    NotificationType::EMPLOYEE_TERMINATION
+                );
             }
         }
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
+use App\Domain\Enum\NotificationType;
 use App\Events\NotificationCreated;
 
 use App\Http\Controllers\Controller;
@@ -400,24 +401,25 @@ class MatAccWriteOffController extends Controller
         ]);
 
         if ($request->status_result == 'decline' && $task->status == 21) {
-            //notify operation creator
-            Notification::create([
-                'name' => 'Ваша операция списания была отклонена' .
-                    ($request->description ? ' с комментарием: ' . $request->description : ''),
-                'task_id' => $task->id,
-                'user_id' => $operation->author->id,
-                'type' => 13,
-            ]);
+            dispatchNotify(
+                $operation->author->id,
+                'Ваша операция списания была отклонена' . ($request->description ? ' с комментарием: ' . $request->description : ''),
+                NotificationType::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION,
+                [
+                    'task_id' => $task->id,
+                ]
+            );
         }
 
         if ($task->status == 38) {
-             Notification::create([
-                'name' => 'Ваша операция была ' . $task->results[$task->status][$task->result] .
-                    ($request->description ? ' с комментарием: ' . $request->description : ''),
-                'task_id' => $task->id,
-                'user_id' => $operation->author->id,
-                'type' => $task->result == 1 ? 92 : 93,
-            ]);
+            dispatchNotify(
+                $operation->author->id,
+                'Ваша операция была ' . $task->results[$task->status][$task->result] . ($request->description ? ' с комментарием: ' . $request->description : ''),
+                $task->result == 1 ? NotificationType::OPERATION_APPROVAL_NOTIFICATION : NotificationType::OPERATION_REJECTION_NOTIFICATION,
+                [
+                    'task_id' => $task->id,
+                ]
+            );
         }
 
         DB::commit();
