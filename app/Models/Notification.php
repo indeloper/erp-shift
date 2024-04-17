@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\CommercialOffer\CommercialOfferRequest;
+use App\Models\Contractors\Contractor;
 use App\Models\WorkVolume\WorkVolumeRequest;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Notification extends Model
 {
@@ -48,6 +50,16 @@ class Notification extends Model
     public function task()
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function object(): BelongsTo
+    {
+        return $this->belongsTo(ProjectObject::class, 'object_id', 'id');
+    }
+
+    public function contractor(): BelongsTo
+    {
+        return $this->belongsTo(Contractor::class, 'contractor_id', 'id');
     }
 
     public function wv_request()

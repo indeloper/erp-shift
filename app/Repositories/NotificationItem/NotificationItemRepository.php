@@ -30,5 +30,4 @@ final class NotificationItemRepository implements NotificationItemRepositoryInte
             ->where('type', $type)
             ->first();
     }
-
 }

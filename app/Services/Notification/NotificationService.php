@@ -11,6 +11,7 @@ use App\Models\Notification;
 use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 final class NotificationService implements NotificationServiceInterface
@@ -79,6 +80,16 @@ final class NotificationService implements NotificationServiceInterface
             new $notificationClass(
                 $notificationData
             )
+        );
+    }
+
+    public function getNotifications(
+        int $userId,
+        int $perPage = 20
+    ): LengthAwarePaginator {
+        return $this->notificationRepository->getNotifications(
+            $userId,
+            $perPage
         );
     }
 

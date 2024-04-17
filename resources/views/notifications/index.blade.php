@@ -29,10 +29,14 @@
                     <div class="row">
                         <div class="col-md-12">
 {{--                            @include('notifications.shared.read-all')--}}
-                            @include('notifications.shared.settings')
+{{--                            @include('notifications.shared.settings')--}}
                         </div>
                     </div>
                 </div>
+
+
+                @include('notifications.shared.list')
+
 {{--                @if($notifications->count())--}}
 {{--                    --}}
 {{--                    <div class="table-responsive">--}}

@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -50,6 +50,7 @@ class RouteServiceProvider extends ServiceProvider
         // Подключаем маршруты для шаблона
         $this->mapLayoutRoutes();
         $this->mapProfileRoutes();
+        $this->mapNotificationsRoutes();
 
         //
     }
@@ -139,6 +140,13 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('profile')
             ->name('profile::')
             ->group(base_path('routes/user/profile.php'));
+    }
+
+    private function mapNotificationsRoutes()
+    {
+        Route::middleware(['web', 'auth', 'activeuser'])
+            ->namespace(($this->namespace))
+            ->group(base_path('routes/notifications/notifications.php'));
     }
 
 }

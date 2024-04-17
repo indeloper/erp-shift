@@ -6,6 +6,7 @@ namespace App\Repositories\Notification;
 
 use App\Domain\DTO\NotificationData;
 use App\Models\Notification;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 final class NotificationRepository implements NotificationRepositoryInterface
 {
@@ -27,6 +28,15 @@ final class NotificationRepository implements NotificationRepositoryInterface
                 $notificationData
             )
         );
+    }
+
+    public function getNotifications(
+        int $userId,
+        int $perPage = 20
+    ): LengthAwarePaginator {
+        return Notification::query()
+            ->where('user_id', $userId)
+            ->paginate($perPage);
     }
 
 }

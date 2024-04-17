@@ -231,13 +231,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('/setUserSetting', 'UserController@setSetting')->name('set-user-setting');
     });
 
-    Route::group(['prefix' => 'notifications', 'as' => 'notifications::', 'namespace' => "Common"], function () {
-        Route::get('/', 'NotificationController@index')->name('index');
-        Route::post('/view', 'NotificationController@view')->name('view');
-        Route::post('/view/all', 'NotificationController@view_all')->name('view_all');
-        Route::post('/delete', 'NotificationController@delete')->name('delete');
-        Route::get('/redirect/{encoded_url}', 'NotificationController@redirect')->name('redirect');
-    });
+
 
     Route::group(['prefix' => 'document_templates', 'as' => 'document_templates::', 'namespace' => "Documents"], function () {
         Route::get('/', 'DocumentTemplateController@index')->name('index');

@@ -16,5 +16,4 @@ interface NotificationItemServiceInterface
     ): NotificationItem;
 
     public function getNotificationByType(int $type): ?NotificationItem;
-
 }
