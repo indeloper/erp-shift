@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
@@ -1470,14 +1471,17 @@ class ProjectCommercialOfferController extends Controller
         })->first();
 
         if ($task) {
-            Notification::create([
-                'name' => 'Задача «' . $task->name . '» закрыта',
-                'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
-                'contractor_id' => $task->project_id ? $project->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? $project->object_id : null,
-                'type' => 3]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Задача «' . $task->name . '» закрыта',
+                NotificationType::TASK_CLOSURE_NOTIFICATION,
+                [
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? $project->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? $project->object_id : null,
+                ]
+            );
 
             $status_for_humans = [
                 'accept' => 'Принято',
@@ -1774,15 +1778,17 @@ class ProjectCommercialOfferController extends Controller
                 $tasks = Task::where('project_id', $project->id)->where('status', 6)->whereIn('target_id', $offers_id)->get();
 
                 foreach ($tasks as $item) {
-                    Notification::create([
-                        'name' => 'Задача «' . $item->name . '» закрыта',
-                        'task_id' => $item->id,
-                        'user_id' => $item->responsible_user_id,
-                        'contractor_id' => $project->contractor_id,
-                        'project_id' => $project->id,
-                        'object_id' => $project->object_id,
-                        'type' => 3
-                    ]);
+                    dispatchNotify(
+                        $item->responsible_user_id,
+                        'Задача «' . $item->name . '» закрыта',
+                        NotificationType::TASK_CLOSURE_NOTIFICATION,
+                        [
+                            'task_id' => $item->id,
+                            'contractor_id' => $project->contractor_id,
+                            'project_id' => $project->id,
+                            'object_id' => $project->object_id,
+                        ]
+                    );
 
                     $item->solve();
                 }

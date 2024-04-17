@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Enum;
 
+use App\Notifications\Contract\ContractDeletionRequestResolutionNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Notifications\DefaultNotification;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFlowNotice;
 use App\Notifications\Employee\EmployeeTerminationNotice;
 use App\Notifications\Employee\NewEmployeeArrivalNotice;
+use App\Notifications\Employee\UserLeaveSubstitutionNotice;
 use App\Notifications\Fuel\ConfirmFuelTankMovingPreviousResponsibleNotification;
 use App\Notifications\Fuel\FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification;
 use App\Notifications\Fuel\FuelTankMovingConfirmationForOfficeResponsiblesNotification;
@@ -25,6 +27,14 @@ use App\Notifications\OnlyTelegramNotification;
 use App\Notifications\Operation\OperationApprovalNotice;
 use App\Notifications\Operation\OperationRejectionNotice;
 use App\Notifications\Operation\WriteOffOperationRejectionNotice;
+use App\Notifications\Task\ContractCreationTaskNotice;
+use App\Notifications\Task\NewTasksFromUserOnLeaveNotice;
+use App\Notifications\Task\OfferChangeControlTaskNotice;
+use App\Notifications\Task\OfferCreationPilingDirectionTaskNotice;
+use App\Notifications\Task\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\Task\SubstituteUserReturnFromLeaveTaskTransferNotice;
+use App\Notifications\Task\TaskClosureNotice;
+use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceCompletionNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceNotice;
 use App\Notifications\TimestampTechniqueUsageNotice;
@@ -54,6 +64,18 @@ final class NotificationType
 
     const CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION = 20;
 
+    const OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION = 28;
+    const OFFER_CREATION_PILING_DIRECTION_TASK = 29;
+
+    const CONTRACT_CREATION_TASK_NOTIFICATION = 38;
+
+    const CONTRACT_DELETION_REQUEST_RESOLUTION_NOTIFICATION = 44;
+
+    const USER_LEAVE_SUBSTITUTION_NOTIFICATION = 46;
+    const NEW_TASKS_FROM_USER_ON_LEAVE_NOTIFICATION = 47;
+    const SUBSTITUTE_USER_RETURN_FROM_LEAVE_TASK_TRANSFER_NOTIFICATION = 48;
+
+    const OFFER_CHANGE_CONTROL_TASK_NOTIFICATION = 50;
 
     const OPERATION_APPROVAL_NOTIFICATION = 92;
     const OPERATION_REJECTION_NOTIFICATION = 93;
@@ -68,7 +90,10 @@ final class NotificationType
 
     const NEW_EMPLOYEE_ARRIVAL = 200;
     const EMPLOYEE_TERMINATION = 201;
+    const TASK_CLOSURE_NOTIFICATION = 203;
     const INCOMING_CALL_PROCESSING = 204;
+
+    const TASK_POSTPONED_AND_CLOSED_NOTIFICATION = 207;
 
 
     public static function determinateNotificationClassByType(int $type): string
@@ -112,6 +137,27 @@ final class NotificationType
             case self::INCOMING_CALL_PROCESSING:
                 return IncomingCallProcessingNotice::class;
 
+            case self::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION:
+                return OfferCreationSheetPilingTaskNotice::class;
+            case self::OFFER_CREATION_PILING_DIRECTION_TASK:
+                return OfferCreationPilingDirectionTaskNotice::class;
+
+            case self::CONTRACT_CREATION_TASK_NOTIFICATION:
+                return ContractCreationTaskNotice::class;
+
+            case self::CONTRACT_DELETION_REQUEST_RESOLUTION_NOTIFICATION:
+                return ContractDeletionRequestResolutionNotice::class;
+
+            case self::USER_LEAVE_SUBSTITUTION_NOTIFICATION:
+                return UserLeaveSubstitutionNotice::class;
+            case self::NEW_TASKS_FROM_USER_ON_LEAVE_NOTIFICATION:
+                return NewTasksFromUserOnLeaveNotice::class;
+            case self::SUBSTITUTE_USER_RETURN_FROM_LEAVE_TASK_TRANSFER_NOTIFICATION:
+                return SubstituteUserReturnFromLeaveTaskTransferNotice::class;
+
+            case self::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION:
+                return OfferChangeControlTaskNotice::class;
+
             case self::OPERATION_APPROVAL_NOTIFICATION:
                 return OperationApprovalNotice::class;
             case self::OPERATION_REJECTION_NOTIFICATION:
@@ -134,6 +180,12 @@ final class NotificationType
                 return NewEmployeeArrivalNotice::class;
             case self::EMPLOYEE_TERMINATION:
                 return EmployeeTerminationNotice::class;
+
+            case self::TASK_CLOSURE_NOTIFICATION:
+                return TaskClosureNotice::class;
+
+            case self::TASK_POSTPONED_AND_CLOSED_NOTIFICATION:
+                return TaskPostponedAndClosedNotice::class;
 
             case self::FUEL_NOT_AWAITING_CONFIRMATION:
             case self::DEFAULT:

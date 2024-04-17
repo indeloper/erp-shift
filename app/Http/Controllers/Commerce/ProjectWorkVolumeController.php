@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use App\Events\NotificationCreated;
-use App\Http\Requests\ProjectRequest\WorkVolumeMaterialRequest;
 use App\Http\Requests\ProjectRequest\WorkVolumeReqRequest;
 use App\Models\CommercialOffer\CommercialOfferWork;
 use App\Models\FileEntry;
@@ -13,7 +11,6 @@ use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectResponsibleUser;
 use App\Models\Task;
-use App\Models\User;
 use App\Models\WorkVolume\WorkVolumeRequest;
 use App\Models\WorkVolume\WorkVolumeRequestFile;
 use App\Models\WorkVolume\WorkVolumeWorkMaterial;
@@ -29,26 +26,20 @@ use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\CommercialOffer\CommercialOfferRequest;
 
-use App\Models\Contract\Contract;
-use App\Models\Contract\ContractRequest;
-
 use App\Models\ProjectDocument;
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCaterogyAttribute;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualWork;
 use App\Models\Manual\ManualWorkGroup;
-use App\Models\Manual\ManualRelationMaterialWork;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 use App\Models\Manual\ManualNodeMaterials;
 use App\Models\WorkVolume\WorkVolumeMaterialComplect;
-use App\Models\WorkVolume\WVWorkMaterialComplect;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class ProjectWorkVolumeController extends Controller
@@ -1260,7 +1251,7 @@ class ProjectWorkVolumeController extends Controller
                         $notify_name = 'Задача «' . $item->name . '» закрыта, так как появилась новая заявка на ОР';
                     }
 
-                    $item->create_notify($notify_name, 3);
+                    $item->taskClosureNotice($notify_name);
 
                     $item->solve();
                 }
@@ -1538,7 +1529,7 @@ class ProjectWorkVolumeController extends Controller
 
             foreach ($tasks as $item) {
                 if ($item->responsible_user_id != 6) {
-                    $item->create_notify('Задача «' . $item->name . '» закрыта', 3);
+                    $item->taskClosureNotice('Задача «' . $item->name . '» закрыта');
                 }
 
                 $item->solve();
