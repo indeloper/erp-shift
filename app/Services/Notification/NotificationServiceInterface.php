@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Notification;
 
 use App\Domain\DTO\NotificationData;
+use App\Domain\DTO\NotificationSortData;
 use App\Models\Notification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -20,6 +21,6 @@ interface NotificationServiceInterface
 
     public function sendNotify(NotificationData $notificationData);
 
-    public function getNotifications(int $userId, int $perPage = 20): LengthAwarePaginator;
+    public function getNotifications(int $userId, NotificationSortData $sort, int $perPage = 20): LengthAwarePaginator;
 
 }

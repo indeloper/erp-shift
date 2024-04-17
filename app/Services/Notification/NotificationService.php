@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Notification;
 
 use App\Domain\DTO\NotificationData;
+use App\Domain\DTO\NotificationSortData;
 use App\Domain\Enum\NotificationType;
 use App\Helpers\NotificationSupport;
 use App\Models\Notification;
@@ -85,10 +86,12 @@ final class NotificationService implements NotificationServiceInterface
 
     public function getNotifications(
         int $userId,
+        NotificationSortData $sort,
         int $perPage = 20
     ): LengthAwarePaginator {
         return $this->notificationRepository->getNotifications(
             $userId,
+            $sort,
             $perPage
         );
     }

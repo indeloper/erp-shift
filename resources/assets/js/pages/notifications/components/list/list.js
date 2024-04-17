@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import List from './List.vue';
 
-createApp(require('./List.vue').default)
+createApp(List)
   .mount('#notification-list-component')
