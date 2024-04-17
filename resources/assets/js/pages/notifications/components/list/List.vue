@@ -16,8 +16,7 @@ const defaultPerPage = 20;
 const store = new CustomStore({
   key: 'id',
   load: (loadOptions) => {
-
-    const loadPage = parseInt(loadOptions.skip / (meta.value.last_page || defaultPerPage));
+    const loadPage = parseInt(loadOptions.skip / loadOptions.take) + 1;
     const loadAction = action + '?page=' + loadPage;
 
     let sort = null;

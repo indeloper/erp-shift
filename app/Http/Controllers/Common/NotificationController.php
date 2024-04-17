@@ -34,7 +34,8 @@ class NotificationController extends Controller
         return NotificationResource::collection(
             $this->notificationService->getNotifications(
                 \auth()->id(),
-                new NotificationSortData($request->get('sort_selector'), $request->get('sort_direction', 'asc'))
+                new NotificationSortData($request->get('sort_selector'),
+                    $request->get('sort_direction', 'asc'))
             )
         );
     }
