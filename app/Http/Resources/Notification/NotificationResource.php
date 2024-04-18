@@ -22,7 +22,9 @@ class NotificationResource extends JsonResource
             'is_showing' => $this->is_showing,
             'object' => $this->object,
             'contractor' => $this->contractor,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'route_delete' => route('notifications::delete'),
+            'route_view' => route('notifications::view')
         ];
     }
 }

@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Common;
 
 use App\Domain\DTO\NotificationSortData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Notification\DeleteNotificationRequest;
 use App\Http\Requests\Notification\NotificationRequest;
+use App\Http\Requests\Notification\ViewNotificationRequest;
 use App\Http\Resources\Notification\NotificationResource;
 use App\Models\Notification;
 use App\Services\Notification\NotificationServiceInterface;
 use App\Services\System\NotificationService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -40,19 +41,23 @@ class NotificationController extends Controller
         );
     }
 
-    public function delete(Request $request)
+    public function delete(DeleteNotificationRequest $request)
     {
-        Notification::findOrFail($request->notify_id)
-            ->update(['is_deleted' => 1]);
+        $this->notificationService->delete(
+            $request->get('notify_id')
+        );
 
-        return \GuzzleHttp\json_encode(true);
+
+        return response()->json(true);
     }
 
-    public function view(Request $request)
+    public function view(ViewNotificationRequest $request)
     {
-        Notification::findOrFail($request->notify_id)->update(['is_seen' => 1]);
+        $this->notificationService->view(
+            $request->get('notify_id')
+        );
 
-        return \GuzzleHttp\json_encode(true);
+        return response()->json(true);
     }
 
     public function view_all()

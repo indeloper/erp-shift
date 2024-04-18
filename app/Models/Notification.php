@@ -33,6 +33,11 @@ class Notification extends Model
         'notificationable_id',
     ];
 
+    protected $casts = [
+        'is_deleted' => 'bool',
+        'is_seen' => 'bool'
+    ];
+
     public $additional_info = [];
 
     public static $status_names = [

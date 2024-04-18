@@ -42,7 +42,7 @@ final class NotificationRepository implements NotificationRepositoryInterface
         return Notification::query()
             ->with(['object', 'contractor'])
             ->where('notifications.user_id', $userId)
-            ->where('notifications.is_deleted', 0)
+            ->where('notifications.is_deleted', false)
             ->leftJoin('project_objects', 'notifications.object_id', '=', 'project_objects.id')
             ->leftJoin('contractors', 'notifications.contractor_id', '=', 'contractors.id')
             ->select(['notifications.*', 'project_objects.address', 'contractors.short_name'])
@@ -72,6 +72,24 @@ final class NotificationRepository implements NotificationRepositoryInterface
                 $query->latest();
             })
             ->paginate($parPage);
+    }
+
+    public function delete(int $idNotify): void
+    {
+        Notification::query()
+            ->where('id', $idNotify)
+            ->update([
+                'is_deleted' => true
+            ]);
+    }
+
+    public function view(int $idNotify): void
+    {
+        Notification::query()
+            ->where('id', $idNotify)
+            ->update([
+                'is_seen' => true
+            ]);
     }
 
 }

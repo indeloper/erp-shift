@@ -1,7 +1,7 @@
 <script setup>
 
 import CustomStore from 'devextreme/data/custom_store';
-import { DxColumn, DxDataGrid, DxPaging } from 'devextreme-vue/data-grid';
+import { DxButton, DxColumn, DxDataGrid, DxPaging } from 'devextreme-vue/data-grid';
 import { ref } from 'vue';
 import DataSource from 'devextreme/data/data_source';
 
@@ -12,6 +12,8 @@ const links = ref({});
 const meta = ref({});
 
 const defaultPerPage = 20;
+
+
 
 const store = new CustomStore({
   key: 'id',
@@ -44,10 +46,27 @@ const store = new CustomStore({
   },
 });
 
+
 const dataSource = ref(new DataSource({
   remoteOperations: true,
   store: store,
 }));
+
+const deleteNotifications = event => {
+  const data = event.row.data
+  axios.post(data.route_delete, {
+    'notify_id': data.id
+  })
+      .then(_ => dataSource.value.reload())
+}
+
+const viewNotifications = event => {
+  const data = event.row.data
+  axios.post(data.route_view, {
+    'notify_id': data.id
+  })
+      .then(_ => dataSource.value.reload())
+}
 
 const loadNotifications = (action, sort = null) => {
   return axios.get(
@@ -72,11 +91,32 @@ const loadNotifications = (action, sort = null) => {
       :word-wrap-enabled="true"
       key-expr="id"
       :show-borders="true"
+      :column-hiding-enabled="true"
   >
     <DxColumn caption="Уведомления" data-field="name"/>
     <DxColumn caption="Контрагент" data-field="contractor.short_name"/>
     <DxColumn style="max-width: 500px" caption="Адрес объекта" data-field="object.address"/>
     <DxColumn caption="Дата" data-field="created_at" data-type="data"/>
+
+    <DxColumn
+        type="buttons"
+        :width="100"
+        caption="Действия"
+    >
+      <DxButton
+          icon="eyeopen"
+          @click="viewNotifications"
+          hint="Прочитать"
+          text="Прочитать"
+      />
+      <DxButton
+          icon="trash"
+          @click="deleteNotifications"
+          hint="Удалить"
+          text="Удалить"
+      />
+
+    </DxColumn>
 
     <DxPaging
         :page-size="meta.per_page"

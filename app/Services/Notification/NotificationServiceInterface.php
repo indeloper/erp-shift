@@ -23,4 +23,8 @@ interface NotificationServiceInterface
 
     public function getNotifications(int $userId, NotificationSortData $sort, int $perPage = 20): LengthAwarePaginator;
 
+    public function delete(int $idNotify): void;
+
+    public function view(int $idNotify): void;
+
 }

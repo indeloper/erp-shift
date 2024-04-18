@@ -96,4 +96,16 @@ final class NotificationService implements NotificationServiceInterface
         );
     }
 
+    public function delete(int $idNotify): void
+    {
+        $this->notificationRepository->delete(
+            $idNotify
+        );
+    }
+
+    public function view(int $idNotify): void
+    {
+        $this->notificationRepository->view($idNotify);
+    }
+
 }
