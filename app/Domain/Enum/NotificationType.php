@@ -34,6 +34,9 @@ use App\Notifications\Operation\OperationApprovalNotice;
 use App\Notifications\Operation\OperationControlTaskNotice;
 use App\Notifications\Operation\OperationRejectionNotice;
 use App\Notifications\Operation\WriteOffOperationRejectionNotice;
+use App\Notifications\Support\SupportTicketApproximateDueDateChangeNotice;
+use App\Notifications\Support\SupportTicketStatusChangeNotice;
+use App\Notifications\Task\AdditionalWorksApprovalTaskNotice;
 use App\Notifications\Task\ContractCreationTaskNotice;
 use App\Notifications\Task\NewTasksFromDeletedUserNotice;
 use App\Notifications\Task\NewTasksFromUserOnLeaveNotice;
@@ -69,7 +72,7 @@ final class NotificationType
     const WRITE_OFF_OPERATION_REJECTION_NOTIFICATION = 13;
     const TECHNICAL_MAINTENANCE_NOTICE = 14;
     const TECHNICAL_MAINTENANCE_COMPLETION_NOTICE = 15;
-
+    const ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION = 16;
 
     const CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION = 20;
 
@@ -87,6 +90,8 @@ final class NotificationType
     const NEW_TASKS_FROM_DELETED_USER_NOTIFICATION = 49;
 
     const OFFER_CHANGE_CONTROL_TASK_NOTIFICATION = 50;
+    const SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION = 53;
+    const SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION = 54;
 
     const OPERATION_APPROVAL_NOTIFICATION = 92;
     const OPERATION_REJECTION_NOTIFICATION = 93;
@@ -141,9 +146,10 @@ final class NotificationType
 
             case self::CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION:
                 return ContractorDeletionControlTaskResolutionNotice::class;
-
             case self::TECHNICAL_MAINTENANCE_COMPLETION_NOTICE:
                 return TechnicalMaintenanceCompletionNotice::class;
+            case self::ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION:
+                return AdditionalWorksApprovalTaskNotice::class;
 
             case self::LABOR_CANCEL:
                 return LaborCancelNotification::class;
@@ -180,6 +186,11 @@ final class NotificationType
 
             case self::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION:
                 return OfferChangeControlTaskNotice::class;
+
+            case self::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION:
+                return SupportTicketApproximateDueDateChangeNotice::class;
+            case self::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION:
+                return SupportTicketStatusChangeNotice::class;
 
             case self::OPERATION_APPROVAL_NOTIFICATION:
                 return OperationApprovalNotice::class;

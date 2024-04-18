@@ -67,4 +67,8 @@ final class NotificationData
         return $this->data;
     }
 
+    public function getAdditionalInfo(): ?string
+    {
+        return $this->data['additional_info'] ?? null;
+    }
 }

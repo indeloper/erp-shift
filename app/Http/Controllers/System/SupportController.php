@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\System;
 
+use App\Domain\Enum\NotificationType;
 use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SupportRequests\SupportMailRequest;
@@ -94,15 +95,15 @@ class SupportController extends Controller
             mail($to, $subject, $message, $headers);
             mail('dev@sk-gorod.com', $subject, $message, $headers);
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' от ' . Auth::user()->full_name . '. Ссылка на тех поддержку: ' . route('support::index');
-            $notification->update([
-                'name' => 'Была создана заявка в тех. поддержке',
-                'status' => 2,
-                'user_id' => 1,
-                'type' => 54
-            ]);
+            dispatchNotify(
+                1,
+                'Была создана заявка в тех. поддержке',
+                NotificationType::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION,
+                [
+                    'status' => 2,
+                    'additional_info' => ' от ' . Auth::user()->full_name . '. Ссылка на тех поддержку: ' . route('support::index')
+                ]
+            );
         }
 
         return back();
@@ -132,15 +133,15 @@ class SupportController extends Controller
                 'expired_at' => $this->addHours(48)
             ]);
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
-                'name' => 'Новая задача «' . $task->name . '»',
-                'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
-                'type' => 16
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Новая задача «' . $task->name . '»',
+                NotificationType::ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION,
+                [
+                    'task_id' => $task->id,
+                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route()
+                ]
+            );
         }
 
         DB::commit();
@@ -196,30 +197,34 @@ class SupportController extends Controller
 
     public function createFirstNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => "Ваша заявка «{$ticket->title}», ID: {$ticket->id} получила срок приблизительного исполнения." .
-                " Предполагаемая дата реализации: {$ticket->solved_at}.",
-            'user_id' => $ticket->user_id,
-            'type' => 53
-        ]);
+        $notificationName = "Ваша заявка «{$ticket->title}», ID: {$ticket->id} получила срок приблизительного исполнения." .
+            " Предполагаемая дата реализации: {$ticket->solved_at}.";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        dispatchNotify(
+            $ticket->user_id,
+            $notificationName,
+            NotificationType::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION
+        );
+
+        $this->sendEmailToITDepartment($ticket->user_id, $notificationName);
     }
 
     public function createSecondNotifications($ticket, $previousDate)
     {
         $was = Carbon::parse($previousDate);
         $will = Carbon::parse($ticket->solved_at);
-        $notification = Notification::create([
-            'name' => ($will->gt($was) ? 'К сожалению, с' : 'С') .
+        $notificationName = ($will->gt($was) ? 'К сожалению, с' : 'С') .
                 "рок исполнения вашей заявки «‎{$ticket->title}», ID: {$ticket->id} изменился." .
                 " Предыдущая дата: {$previousDate}, новая дата: {$ticket->solved_at}."
-                . ($will->gt($was) ? ' Приносим извинения!' : ''),
-            'user_id' => $ticket->user_id,
-            'type' => 53
-        ]);
+            . ($will->gt($was) ? ' Приносим извинения!' : '');
 
-        $this->makeOtherNotifications($ticket, $notification);
+        dispatchNotify(
+            $ticket->user_id,
+            $notificationName,
+            NotificationType::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION
+        );
+
+        $this->sendEmailToITDepartment($ticket->user_id, $notificationName);
     }
 
     public function sendNotificationAfterUpdate($oldStatus, $ticket): void
@@ -251,98 +256,88 @@ class SupportController extends Controller
 
     public function createMoveToWorkFromNewNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => "Ваша заявка «{$ticket->title}», ID: {$ticket->id} принята в работу!",
-            'user_id' => $ticket->user_id,
-            'type' => 54
-        ]);
+        $notificationName = "Ваша заявка «{$ticket->title}», ID: {$ticket->id} принята в работу!";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        $this->sendSupportTicketStatusNotification($ticket->user_id, $notificationName);
     }
 
     public function createMatchingNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была отправлена на согласование!",
-            'user_id' => $ticket->user_id,
-            'type' => 54
-        ]);
+        $notificationName = "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была отправлена на согласование!";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        $this->sendSupportTicketStatusNotification($ticket->user_id, $notificationName);
     }
 
     public function createAcceptNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была согласована!" .
-                " В скором времени мы приступим к её исполнению!",
-            'user_id' => $ticket->user_id,
-            'type' => 54
-        ]);
+        $notificationName = "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была согласована!" .
+            " В скором времени мы приступим к её исполнению!";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        $this->sendSupportTicketStatusNotification($ticket->user_id, $notificationName);
     }
 
     public function createDeclineNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была отклонена в результате согласования!",
-            'user_id' => $ticket->user_id,
-            'type' => 54
-        ]);
+        $notificationName = "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была отклонена в результате согласования!";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        $this->sendSupportTicketStatusNotification($ticket->user_id, $notificationName);
     }
 
     public function createResolvedNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была закрыта!" .
-                " Наши специалисты в скором времени свяжутся, чтобы сообщить вам об изменениях!",
-            'user_id' => $ticket->user_id,
-            'type' => 54
-        ]);
+        $notificationName = "Ваша заявка «{$ticket->title}», ID: {$ticket->id} была закрыта!" .
+            " Наши специалисты в скором времени свяжутся, чтобы сообщить вам об изменениях!";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        $this->sendSupportTicketStatusNotification($ticket->user_id, $notificationName);
     }
 
     public function createDevelopmentNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => $ticket->sender->full_name .
-                ", наши специалисты приступили к реализации вашей задачи «{$ticket->title}», ID: {$ticket->id}." .
-                " По окончанию работ наши специалисты свяжутся с вами.",
-            'user_id' => $ticket->user_id,
-            'type' => 54
-        ]);
+        $notificationName = $ticket->sender->full_name .
+            ", наши специалисты приступили к реализации вашей задачи «{$ticket->title}», ID: {$ticket->id}." .
+            " По окончанию работ наши специалисты свяжутся с вами.";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        $this->sendSupportTicketStatusNotification($ticket->user_id, $notificationName);
     }
-
 
     public function createCheckNotification($ticket)
     {
-        $notification = Notification::create([
-            'name' => $ticket->sender->full_name . ", наши специалисты рассказали Вам про реализованный функционал задачи «{$ticket->title}», ID: {$ticket->id}" .
-                " и ждут пока вы проверите ее реализацию. По любым вопросам вы можете обращаться к нашим сотрудникам из технической поддержки.",
-            'user_id' => $ticket->user_id,
-            'type' => 54
-        ]);
+        $notificationName = $ticket->sender->full_name . ", наши специалисты рассказали Вам про реализованный функционал задачи «{$ticket->title}», ID: {$ticket->id}" .
+            " и ждут пока вы проверите ее реализацию. По любым вопросам вы можете обращаться к нашим сотрудникам из технической поддержки.";
 
-        $this->makeOtherNotifications($ticket, $notification);
+        $this->sendSupportTicketStatusNotification($ticket->user_id, $notificationName);
     }
 
-    public function makeOtherNotifications($ticket, $notification): void
+//    public function makeOtherNotifications($ticket, $notification): void
+//    {
+//        $this->sendEmailToITDepartmentOld($notification);
+//    }
+//
+//    public function sendEmailToITDepartmentOld($notification)
+//    {
+//        $headers  = 'MIME-Version: 1.0' . "\r\n";
+//        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+//        $headers .= 'From: ' . 'dev@sk-gorod.com';
+//        $message = "Пользователь {$notification->user->long_full_name} получил(а) уведомление о заявке: " . '<p>' . $notification->name . '</p>';
+//        $result = mail('dev@sk-gorod.com', 'СК изменение заявки', $message, $headers);
+//    }
+    public function sendSupportTicketStatusNotification($userId, $notificationName)
     {
-        $this->sendEmailToITDepartment($notification);
+        dispatchNotify(
+            $userId,
+            $notificationName,
+            NotificationType::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION
+        );
+
+        $this->sendEmailToITDepartment($userId, $notificationName);
     }
 
-    public function sendEmailToITDepartment($notification)
+    public function sendEmailToITDepartment($userId, $notificationName)
     {
         $headers  = 'MIME-Version: 1.0' . "\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
         $headers .= 'From: ' . 'dev@sk-gorod.com';
-        $message = "Пользователь {$notification->user->long_full_name} получил(а) уведомление о заявке: " . '<p>' . $notification->name . '</p>';
+        $message = "Пользователь с id {$userId} получил(а) уведомление о заявке: " . '<p>' . $notificationName . '</p>';
         $result = mail('dev@sk-gorod.com', 'СК изменение заявки', $message, $headers);
     }
 
