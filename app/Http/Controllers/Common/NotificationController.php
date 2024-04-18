@@ -8,11 +8,11 @@ use App\Http\Requests\Notification\DeleteNotificationRequest;
 use App\Http\Requests\Notification\NotificationRequest;
 use App\Http\Requests\Notification\ViewNotificationRequest;
 use App\Http\Resources\Notification\NotificationResource;
-use App\Models\Notification;
 use App\Services\Notification\NotificationServiceInterface;
 use App\Services\System\NotificationService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
+use function auth;
 
 class NotificationController extends Controller
 {
@@ -34,7 +34,7 @@ class NotificationController extends Controller
     {
         return NotificationResource::collection(
             $this->notificationService->getNotifications(
-                \auth()->id(),
+                auth()->id(),
                 new NotificationSortData($request->get('sort_selector'),
                     $request->get('sort_direction', 'asc'))
             )
@@ -60,12 +60,12 @@ class NotificationController extends Controller
         return response()->json(true);
     }
 
-    public function view_all()
+    public function viewAll()
     {
-        Notification::where('user_id', Auth::user()->id)
-            ->update(['is_seen' => 1]);
+        $this->notificationService
+            ->viewAll(auth()->id());
 
-        return back();
+        return response()->json(true);
     }
 
     public function redirect($encoded_url)

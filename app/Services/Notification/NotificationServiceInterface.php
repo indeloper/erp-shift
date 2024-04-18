@@ -27,4 +27,6 @@ interface NotificationServiceInterface
 
     public function view(int $idNotify): void;
 
+    public function viewAll(int $id): void;
+
 }

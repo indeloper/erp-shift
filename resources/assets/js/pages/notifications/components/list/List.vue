@@ -2,17 +2,16 @@
 
 import CustomStore from 'devextreme/data/custom_store';
 import { DxButton, DxColumn, DxDataGrid, DxPaging } from 'devextreme-vue/data-grid';
+import { DxButton as DxButtonAlias } from 'devextreme-vue';
 import { ref } from 'vue';
 import DataSource from 'devextreme/data/data_source';
 
 const action = document.querySelector('#load-notification-route').value;
+const routeViewAll = document.querySelector('#view-all-notifications').value;
 
 const notifications = ref([]);
 const links = ref({});
 const meta = ref({});
-
-const defaultPerPage = 20;
-
 
 
 const store = new CustomStore({
@@ -46,27 +45,26 @@ const store = new CustomStore({
   },
 });
 
-
 const dataSource = ref(new DataSource({
   remoteOperations: true,
   store: store,
 }));
 
 const deleteNotifications = event => {
-  const data = event.row.data
+  const data = event.row.data;
   axios.post(data.route_delete, {
-    'notify_id': data.id
+    'notify_id': data.id,
   })
-      .then(_ => dataSource.value.reload())
-}
+      .then(_ => dataSource.value.reload());
+};
 
 const viewNotifications = event => {
-  const data = event.row.data
+  const data = event.row.data;
   axios.post(data.route_view, {
-    'notify_id': data.id
+    'notify_id': data.id,
   })
-      .then(_ => dataSource.value.reload())
-}
+      .then(_ => dataSource.value.reload());
+};
 
 const loadNotifications = (action, sort = null) => {
   return axios.get(
@@ -80,10 +78,30 @@ const loadNotifications = (action, sort = null) => {
   );
 };
 
+const addRowClasses = ({ rowElement, data }) => {
+  if (!rowElement.classList.contains('dx-header-row') && !data.is_seen) {
+    rowElement.classList.add('bg-light');
+  }
+};
+
+const viewAllNotifications = _ => {
+  axios.post(routeViewAll)
+      .then(_ => dataSource.value.reload())
+};
 
 </script>
 
 <template>
+
+  <div class="p-2">
+    <DxButtonAlias
+        icon="eyeopen"
+        @click="viewAllNotifications"
+        hint="Прочитать все"
+        text="Прочитать все"
+    />
+  </div>
+
   <DxDataGrid
       v-if="notifications"
       :data-source="dataSource"
@@ -92,6 +110,7 @@ const loadNotifications = (action, sort = null) => {
       key-expr="id"
       :show-borders="true"
       :column-hiding-enabled="true"
+      @row-prepared="addRowClasses"
   >
     <DxColumn caption="Уведомления" data-field="name"/>
     <DxColumn caption="Контрагент" data-field="contractor.short_name"/>
@@ -122,6 +141,7 @@ const loadNotifications = (action, sort = null) => {
         :page-size="meta.per_page"
         :total="meta.total"
     />
+
   </DxDataGrid>
 </template>
 

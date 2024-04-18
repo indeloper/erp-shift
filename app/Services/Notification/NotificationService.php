@@ -7,7 +7,6 @@ namespace App\Services\Notification;
 use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\NotificationSortData;
 use App\Domain\Enum\NotificationType;
-use App\Helpers\NotificationSupport;
 use App\Models\Notification;
 use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
@@ -106,6 +105,11 @@ final class NotificationService implements NotificationServiceInterface
     public function view(int $idNotify): void
     {
         $this->notificationRepository->view($idNotify);
+    }
+
+    public function viewAll(int $id): void
+    {
+       $this->notificationRepository->viewAll($id);
     }
 
 }

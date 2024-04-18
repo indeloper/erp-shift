@@ -92,4 +92,13 @@ final class NotificationRepository implements NotificationRepositoryInterface
             ]);
     }
 
+    public function viewAll(int $id): void
+    {
+        Notification::query()
+            ->where('user_id', $id)
+            ->update([
+                'is_seen' => true
+            ]);
+    }
+
 }
