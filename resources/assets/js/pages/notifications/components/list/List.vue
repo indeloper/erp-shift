@@ -111,8 +111,17 @@ const viewAllNotifications = _ => {
       :show-borders="true"
       :column-hiding-enabled="true"
       @row-prepared="addRowClasses"
+
   >
-    <DxColumn caption="Уведомления" data-field="name"/>
+    <DxColumn
+        caption="Уведомления"
+        cell-template="notification-template"
+    />
+
+    <template #notification-template="{ data: templateOptions }">
+      <div v-html="templateOptions.data.name"></div>
+    </template>
+
     <DxColumn caption="Контрагент" data-field="contractor.short_name"/>
     <DxColumn style="max-width: 500px" caption="Адрес объекта" data-field="object.address"/>
     <DxColumn caption="Дата" data-field="created_at" data-type="data"/>
