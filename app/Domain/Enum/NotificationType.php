@@ -9,10 +9,13 @@ use App\Notifications\Contract\ContractDeletionRequestResolutionNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Notifications\DefaultNotification;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNewStatusNotice;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNotice;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFlowNotice;
 use App\Notifications\Employee\EmployeeTerminationNotice;
 use App\Notifications\Employee\NewEmployeeArrivalNotice;
 use App\Notifications\Employee\UserLeaveSubstitutionNotice;
+use App\Notifications\Equipment\ChiefMechanicMissingForEquipmentDefectTrackingNotice;
+use App\Notifications\Equipment\EquipmentMovementNotice;
 use App\Notifications\Fuel\ConfirmFuelTankMovingPreviousResponsibleNotification;
 use App\Notifications\Fuel\FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification;
 use App\Notifications\Fuel\FuelTankMovingConfirmationForOfficeResponsiblesNotification;
@@ -28,9 +31,11 @@ use App\Notifications\Object\ResponsibleAddedToObjectNotice;
 use App\Notifications\Object\ResponsibleSelectedForProjectDirectionProjectLeaderNotice;
 use App\Notifications\OnlyTelegramNotification;
 use App\Notifications\Operation\OperationApprovalNotice;
+use App\Notifications\Operation\OperationControlTaskNotice;
 use App\Notifications\Operation\OperationRejectionNotice;
 use App\Notifications\Operation\WriteOffOperationRejectionNotice;
 use App\Notifications\Task\ContractCreationTaskNotice;
+use App\Notifications\Task\NewTasksFromDeletedUserNotice;
 use App\Notifications\Task\NewTasksFromUserOnLeaveNotice;
 use App\Notifications\Task\OfferChangeControlTaskNotice;
 use App\Notifications\Task\OfferCreationPilingDirectionTaskNotice;
@@ -79,11 +84,13 @@ final class NotificationType
     const USER_LEAVE_SUBSTITUTION_NOTIFICATION = 46;
     const NEW_TASKS_FROM_USER_ON_LEAVE_NOTIFICATION = 47;
     const SUBSTITUTE_USER_RETURN_FROM_LEAVE_TASK_TRANSFER_NOTIFICATION = 48;
+    const NEW_TASKS_FROM_DELETED_USER_NOTIFICATION = 49;
 
     const OFFER_CHANGE_CONTROL_TASK_NOTIFICATION = 50;
 
     const OPERATION_APPROVAL_NOTIFICATION = 92;
     const OPERATION_REJECTION_NOTIFICATION = 93;
+    const OPERATION_CONTROL_TASK_NOTIFICATION = 95;
 
 
     const TIMESTAMP_TECHNIQUE_USAGE = 110;
@@ -94,6 +101,9 @@ final class NotificationType
     const DOCUMENT_FLOW_ON_OBJECTS_PARTICIPATES_IN_DOCUMENT_FLOW = 115;
     const DOCUMENT_FLOW_ON_OBJECTS_NEW_STATUS = 116;
     const RESPONSIBLE_SELECTED_FOR_PROJECT_DIRECTION_PROJECT_LEADER = 117;
+    const CHIEF_MECHANIC_MISSING_FOR_EQUIPMENT_DEFECT_TRACKING = 118;
+    const EQUIPMENT_MOVEMENT_NOTIFICATION = 119;
+    const DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION = 120;
 
     const NEW_EMPLOYEE_ARRIVAL = 200;
     const EMPLOYEE_TERMINATION = 201;
@@ -123,6 +133,8 @@ final class NotificationType
 
             case self::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION:
                 return WriteOffOperationRejectionNotice::class;
+            case self::OPERATION_CONTROL_TASK_NOTIFICATION:
+                return OperationControlTaskNotice::class;
 
             case self::TECHNICAL_MAINTENANCE_NOTICE:
                 return TechnicalMaintenanceNotice::class;
@@ -163,6 +175,8 @@ final class NotificationType
                 return NewTasksFromUserOnLeaveNotice::class;
             case self::SUBSTITUTE_USER_RETURN_FROM_LEAVE_TASK_TRANSFER_NOTIFICATION:
                 return SubstituteUserReturnFromLeaveTaskTransferNotice::class;
+            case self::NEW_TASKS_FROM_DELETED_USER_NOTIFICATION:
+                return NewTasksFromDeletedUserNotice::class;
 
             case self::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION:
                 return OfferChangeControlTaskNotice::class;
@@ -188,6 +202,12 @@ final class NotificationType
                 return DocumentFlowOnObjectsNewStatusNotice::class;
             case self::RESPONSIBLE_SELECTED_FOR_PROJECT_DIRECTION_PROJECT_LEADER:
                 return ResponsibleSelectedForProjectDirectionProjectLeaderNotice::class;
+            case self::CHIEF_MECHANIC_MISSING_FOR_EQUIPMENT_DEFECT_TRACKING:
+                return ChiefMechanicMissingForEquipmentDefectTrackingNotice::class;
+            case self::EQUIPMENT_MOVEMENT_NOTIFICATION:
+                return EquipmentMovementNotice::class;
+            case self::DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION:
+                return DocumentFlowOnObjectsNotice::class;
 
             case self::NEW_EMPLOYEE_ARRIVAL:
                 return NewEmployeeArrivalNotice::class;

@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\{Comment, Group, Notification, Task, User, Project};
 use Illuminate\Support\Collection;
 use App\Models\TechAcc\{OurTechnic, OurTechnicTicket};
@@ -85,10 +86,11 @@ trait NotificationGenerator
 
     public function generateNoPrincipleMechanicNotification()
     {
-        Notification::create([
-            'name' => 'В системе отсутсвует сотрудник на позиции Главного Механика, без него учёт дефектов техники не будет работать',
-            'user_id' => Group::find(5)->getUsers()->first()->id,
-        ]);
+        dispatchNotify(
+            Group::find(5)->getUsers()->first()->id,
+            'В системе отсутсвует сотрудник на позиции Главного Механика, без него учёт дефектов техники не будет работать',
+            NotificationType::CHIEF_MECHANIC_MISSING_FOR_EQUIPMENT_DEFECT_TRACKING
+        );
     }
 
     public function generateDefectResponsibleUserStoreNotification(Defects $defect)

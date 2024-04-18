@@ -2,6 +2,7 @@
 
 namespace App\Services\ProjectObjectDocuments\Notifications;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
@@ -75,11 +76,11 @@ class ProjectObjectDocumentsNotifications {
         {
             foreach($notification['notificationRecipients'] as $userId)
             {
-                Notification::create([
-                    'name' => $notification['notificationText'],
-                    'user_id' => $userId,
-                    'type' => 0,
-                ]);
+                dispatchNotify(
+                    $userId,
+                    $notification['notificationText'],
+                    NotificationType::DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION
+                );
             }
         }
     }
