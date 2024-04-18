@@ -10,11 +10,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TaskClosureNotice extends Notification
+class ProjectLeaderAppointmentTaskNotice extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'Уведомление о закрытии задачи';
+    const DESCRIPTION = 'Уведомление о создании задачи Назначение ответственного руководителя проектов';
 
     private $notificationData;
 

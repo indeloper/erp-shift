@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace App\Domain\Enum;
 
 use App\Notifications\Claim\WorkVolumeClaimProcessingNotice;
+use App\Notifications\CommercialOffer\AppointmentOfResponsibleForOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\CustomerApprovalOfJointOfferTaskNotice;
+use App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice;
+use App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\OfferProcessingNotice;
 use App\Notifications\Contract\ContractDeletionRequestResolutionNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Notifications\DefaultNotification;
@@ -30,23 +37,31 @@ use App\Notifications\Object\ProjectLeaderAppointedToObjectNotice;
 use App\Notifications\Object\ResponsibleAddedToObjectNotice;
 use App\Notifications\Object\ResponsibleSelectedForProjectDirectionProjectLeaderNotice;
 use App\Notifications\OnlyTelegramNotification;
+use App\Notifications\Operation\ContractControlInOperationsTaskNotice;
 use App\Notifications\Operation\OperationApprovalNotice;
 use App\Notifications\Operation\OperationControlTaskNotice;
+use App\Notifications\Operation\OperationCreationApprovalRequestNotice;
 use App\Notifications\Operation\OperationRejectionNotice;
+use App\Notifications\Operation\ResponsibleAppointmentInOperationNotice;
 use App\Notifications\Operation\WriteOffOperationRejectionNotice;
+use App\Notifications\Project\NewProjectCreationNotice;
 use App\Notifications\Support\SupportTicketApproximateDueDateChangeNotice;
 use App\Notifications\Support\SupportTicketStatusChangeNotice;
 use App\Notifications\Task\AdditionalWorksApprovalTaskNotice;
 use App\Notifications\Task\ContractCreationTaskNotice;
+use App\Notifications\Task\ContractorChangesVerificationTaskNotice;
+use App\Notifications\Task\DelayedTaskAddedAgainNotice;
 use App\Notifications\Task\NewTasksFromDeletedUserNotice;
 use App\Notifications\Task\NewTasksFromUserOnLeaveNotice;
 use App\Notifications\Task\OfferChangeControlTaskNotice;
-use App\Notifications\Task\OfferCreationPilingDirectionTaskNotice;
-use App\Notifications\Task\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\Task\ProjectLeaderAppointmentTaskNotice;
 use App\Notifications\Task\SubstituteUserReturnFromLeaveTaskTransferNotice;
 use App\Notifications\Task\TaskClosureNotice;
+use App\Notifications\Task\TaskCompletionDeadlineApproachingNotice;
+use App\Notifications\Task\TaskCompletionDeadlineNotice;
 use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
+use App\Notifications\Task\UserOverdueTaskNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceCompletionNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceNotice;
 use App\Notifications\TimestampTechniqueUsageNotice;
@@ -55,19 +70,18 @@ final class NotificationType
 {
     const DEFAULT = 0;
     const ONLY_TELEGRAM = 1;
-
     const FUEL_NEW_TANK_RESPONSIBLE = 2;
     const FUEL_NOT_AWAITING_CONFIRMATION = 3;
     const FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE = 4;
     const FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES = 5;
     const FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED = 6;
     const FUEL_TANKS_LEVEL_CHECK = 7;
-
-
-
     const LABOR_CANCEL = 8;
     const LABOR_SAFETY = 9;
     const LABOR_SIGNED = 10;
+
+
+    const RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION = 11;
 
     const WRITE_OFF_OPERATION_REJECTION_NOTIFICATION = 13;
     const TECHNICAL_MAINTENANCE_NOTICE = 14;
@@ -79,11 +93,16 @@ final class NotificationType
     const WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION = 27;
     const OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION = 28;
     const OFFER_CREATION_PILING_DIRECTION_TASK = 29;
+    const APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION = 30;
+    const CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION = 33;
+    const CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION = 34;
+    const CUSTOMER_APPROVAL_OF_JOINT_OFFER_TASK_NOTIFICATION = 35;
 
+    const OFFER_PROCESSING_NOTIFICATION = 37;
     const CONTRACT_CREATION_TASK_NOTIFICATION = 38;
 
     const CONTRACT_DELETION_REQUEST_RESOLUTION_NOTIFICATION = 44;
-
+    const NEW_PROJECT_CREATION_NOTIFICATION = 45;
     const USER_LEAVE_SUBSTITUTION_NOTIFICATION = 46;
     const NEW_TASKS_FROM_USER_ON_LEAVE_NOTIFICATION = 47;
     const SUBSTITUTE_USER_RETURN_FROM_LEAVE_TASK_TRANSFER_NOTIFICATION = 48;
@@ -92,12 +111,17 @@ final class NotificationType
     const OFFER_CHANGE_CONTROL_TASK_NOTIFICATION = 50;
     const SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION = 53;
     const SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION = 54;
+    const OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION = 56;
+
+    const PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION = 63;
 
     const OPERATION_APPROVAL_NOTIFICATION = 92;
     const OPERATION_REJECTION_NOTIFICATION = 93;
+    const CONTRACTOR_CHANGES_VERIFICATION_TASK_NOTIFICATION = 94;
     const OPERATION_CONTROL_TASK_NOTIFICATION = 95;
 
 
+    const CONTRACT_CONTROL_IN_OPERATIONS_TASK_NOTIFICATION = 109;
     const TIMESTAMP_TECHNIQUE_USAGE = 110;
 
     const OBJECT_PARTICIPATES_IN_WORK_PRODUCTION = 112;
@@ -109,6 +133,10 @@ final class NotificationType
     const CHIEF_MECHANIC_MISSING_FOR_EQUIPMENT_DEFECT_TRACKING = 118;
     const EQUIPMENT_MOVEMENT_NOTIFICATION = 119;
     const DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION = 120;
+    const DELAYED_TASK_ADDED_AGAIN_NOTIFICATION = 121;
+    const TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION = 122;
+    const TASK_COMPLETION_DEADLINE_NOTIFICATION = 123;
+    const USER_OVERDUE_TASK_NOTIFICATION = 124;
 
     const NEW_EMPLOYEE_ARRIVAL = 200;
     const EMPLOYEE_TERMINATION = 201;
@@ -135,9 +163,12 @@ final class NotificationType
                 return FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification::class;
             case self::FUEL_TANKS_LEVEL_CHECK:
                 return FuelTanksLevelCheckNotification::class;
-
+            case self::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION:
+                return ResponsibleAppointmentInOperationNotice::class;
             case self::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION:
                 return WriteOffOperationRejectionNotice::class;
+            case self::CONTRACTOR_CHANGES_VERIFICATION_TASK_NOTIFICATION:
+                return ContractorChangesVerificationTaskNotice::class;
             case self::OPERATION_CONTROL_TASK_NOTIFICATION:
                 return OperationControlTaskNotice::class;
 
@@ -168,13 +199,24 @@ final class NotificationType
                 return OfferCreationSheetPilingTaskNotice::class;
             case self::OFFER_CREATION_PILING_DIRECTION_TASK:
                 return OfferCreationPilingDirectionTaskNotice::class;
+            case self::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION:
+                return AppointmentOfResponsibleForOfferSheetPilingTaskNotice::class;
+            case self::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION:
+                return CustomerApprovalOfOfferSheetPilingTaskNotice::class;
+            case self::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION:
+                return CustomerApprovalOfOfferPileDrivingTaskNotice::class;
+            case self::CUSTOMER_APPROVAL_OF_JOINT_OFFER_TASK_NOTIFICATION:
+                return CustomerApprovalOfJointOfferTaskNotice::class;
 
+            case self::OFFER_PROCESSING_NOTIFICATION:
+                return OfferProcessingNotice::class;
             case self::CONTRACT_CREATION_TASK_NOTIFICATION:
                 return ContractCreationTaskNotice::class;
 
             case self::CONTRACT_DELETION_REQUEST_RESOLUTION_NOTIFICATION:
                 return ContractDeletionRequestResolutionNotice::class;
-
+            case self::NEW_PROJECT_CREATION_NOTIFICATION:
+                return NewProjectCreationNotice::class;
             case self::USER_LEAVE_SUBSTITUTION_NOTIFICATION:
                 return UserLeaveSubstitutionNotice::class;
             case self::NEW_TASKS_FROM_USER_ON_LEAVE_NOTIFICATION:
@@ -191,12 +233,19 @@ final class NotificationType
                 return SupportTicketApproximateDueDateChangeNotice::class;
             case self::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION:
                 return SupportTicketStatusChangeNotice::class;
+            case self::OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION:
+                return OperationCreationApprovalRequestNotice::class;
+
+            case self::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION:
+                return ProjectLeaderAppointmentTaskNotice::class;
 
             case self::OPERATION_APPROVAL_NOTIFICATION:
                 return OperationApprovalNotice::class;
             case self::OPERATION_REJECTION_NOTIFICATION:
                 return OperationRejectionNotice::class;
 
+            case self::CONTRACT_CONTROL_IN_OPERATIONS_TASK_NOTIFICATION:
+                return ContractControlInOperationsTaskNotice::class;
             case self::TIMESTAMP_TECHNIQUE_USAGE:
                 return TimestampTechniqueUsageNotice::class;
 
@@ -219,6 +268,14 @@ final class NotificationType
                 return EquipmentMovementNotice::class;
             case self::DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION:
                 return DocumentFlowOnObjectsNotice::class;
+            case self::DELAYED_TASK_ADDED_AGAIN_NOTIFICATION:
+                return DelayedTaskAddedAgainNotice::class;
+            case self::TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION:
+                return TaskCompletionDeadlineApproachingNotice::class;
+            case self::TASK_COMPLETION_DEADLINE_NOTIFICATION:
+                return TaskCompletionDeadlineNotice::class;
+            case self::USER_OVERDUE_TASK_NOTIFICATION:
+                return UserOverdueTaskNotice::class;
 
             case self::NEW_EMPLOYEE_ARRIVAL:
                 return NewEmployeeArrivalNotice::class;

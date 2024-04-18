@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Task;
+namespace App\Notifications\Operation;
 
 use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\TelegramNotificationData;
@@ -10,11 +10,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TaskClosureNotice extends Notification
+class ContractControlInOperationsTaskNotice extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'Уведомление о закрытии задачи';
+    const DESCRIPTION = 'Уведомление о задаче Контроль договоров в операциях';
 
     private $notificationData;
 
@@ -36,7 +36,7 @@ class TaskClosureNotice extends Notification
     {
         return (new MailMessage)
             ->subject($this->notificationData->getDescription())
-            ->markdown('mail.task.task-notification', [
+            ->markdown('mail.operation.operation-notification', [
                 'name' => $this->notificationData->getName(),
                 'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),

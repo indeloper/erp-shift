@@ -10,11 +10,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OfferCreationPilingDirectionTaskNotice extends Notification
+class DelayedTaskAddedAgainNotice extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'Уведомление о создании задачи Формирование КП (свайное направление)';
+    const DESCRIPTION = 'Уведомление о повторном создании просроченной задачи';
 
     private $notificationData;
 
@@ -38,6 +38,7 @@ class OfferCreationPilingDirectionTaskNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.task.task-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

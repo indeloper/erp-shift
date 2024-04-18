@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
 use App\Models\Notification;
@@ -140,19 +141,17 @@ class CheckContractorsInfo extends Command
             $task->changing_fields()->create($field);
         }
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-
-        $notification->update([
-            'name' => 'Новая задача «' . $task->name . '»',
-            'task_id' => $task->id,
-            'contractor_id' => $task->contractor_id,
-            'user_id' => $task->responsible_user_id,
-            'project_id' => 0,
-            'object_id' => 0,
-            'type' => 94,
-        ]);
-
+        dispatchNotify(
+            $task->responsible_user_id,
+            'Новая задача «' . $task->name . '»',
+            NotificationType::CONTRACTOR_CHANGES_VERIFICATION_TASK_NOTIFICATION,
+            [
+                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'task_id' => $task->id,
+                'contractor_id' => $task->contractor_id,
+                'project_id' => 0,
+                'object_id' => 0,
+            ]
+        );
     }
 }

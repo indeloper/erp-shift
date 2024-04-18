@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Notification;
 use App\Models\Task;
@@ -41,16 +42,16 @@ class OperationClosed
                 'status' => 45,
             ]);
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к задаче можно по ссылке: ' . PHP_EOL . $task->task_route();
-            $notification->update([
-                'name' => 'Создана задача: ' . $task->name,
-                'task_id' => $task->id,
-                'object_id' => $operation->object_id_to,
-                'user_id' => $task->responsible_user_id,
-                'type' => 109,
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Создана задача: ' . $task->name,
+                NotificationType::CONTRACT_CONTROL_IN_OPERATIONS_TASK_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к задаче можно по ссылке: ' . PHP_EOL . $task->task_route(),
+                    'task_id' => $task->id,
+                    'object_id' => $operation->object_id_to,
+                ]
+            );
         }
     }
 

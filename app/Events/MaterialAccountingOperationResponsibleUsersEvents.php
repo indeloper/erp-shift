@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
@@ -39,29 +40,30 @@ class MaterialAccountingOperationResponsibleUsersEvents
         $additional_user = is_array($user->additional_info) ? false : $user->additional_info;
         if ($additional_user == 'skip') return;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $operation->general_url;
-        $notification->update([
-            'name' => $this->generateNotificationText($operation),
-            'user_id' => $additional_user ? $additional_user : $user->user_id,
-            'target_id' => $operation->id,
-            'status' => 7,
-            'type' => $this->operationIsDraft($operation) ? 56 : 11
-        ]);
+        dispatchNotify(
+            $additional_user ? $additional_user : $user->user_id,
+            $this->generateNotificationText($operation),
+            $this->operationIsDraft($operation) ? NotificationType::OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION : NotificationType::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION,
+            [
+                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $operation->general_url,
+                'target_id' => $operation->id,
+                'status' => 7,
+            ]
+        );
+
 
         if ($operation->isWriteOffOperation() and ! $this->operationIsDraft($operation) and Auth::id() != 13) {
             // create notification for Alexander Ismagilov. Now it is Konstantin Samsonov
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $operation->general_url;
-            $notification->update([
-                'name' => $this->generateNotificationText($operation),
-                'user_id' => 13,
-                'target_id' => $operation->id,
-                'status' => 7,
-                'type' => 11
-            ]);
+            dispatchNotify(
+                13,
+                $this->generateNotificationText($operation),
+                NotificationType::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $operation->general_url,
+                    'target_id' => $operation->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 

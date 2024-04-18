@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Domain\Enum\NotificationType;
 use App\Events\NotificationCreated;
 use App\Models\Notification;
 use App\Models\Project;
@@ -54,17 +55,18 @@ class CheckDelayedTasks extends Command
             $task->expired_at = Carbon::now()->addHours(Carbon::create($task->expired_at)->diffInHours($task->created_at));
             $task->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
-                'name' => 'Новая задача «' . $task->name . '»',
-                'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
-                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Новая задача «' . $task->name . '»',
+                NotificationType::DELAYED_TASK_ADDED_AGAIN_NOTIFICATION,
+                [
+                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null
+                ]
+            );
 
             $this->info('task '. $task->name .' was revived');
         }

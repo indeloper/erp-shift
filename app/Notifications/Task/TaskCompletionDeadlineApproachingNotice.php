@@ -10,11 +10,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TaskClosureNotice extends Notification
+class TaskCompletionDeadlineApproachingNotice extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'Уведомление о закрытии задачи';
+    const DESCRIPTION = 'Уведомление о скором завершении времени на выполнение задачи';
 
     private $notificationData;
 

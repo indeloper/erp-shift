@@ -38,6 +38,7 @@ class OfferChangeControlTaskNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.task.task-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

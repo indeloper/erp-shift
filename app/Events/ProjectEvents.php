@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\User;
@@ -39,22 +40,22 @@ class ProjectEvents
             DB::beginTransaction();
             foreach ($ceos as $ceo) {
 //                Log::info('creating notification');
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = "\r\nЗаказчик: " . $project->contractor_name
-                    . "\r\nНазвание объекта: " . $project->object->name
-                    . "\r\nАдрес объекта: " . $project->object->address. "\r\n" .
-                    'Чтобы просмотреть проект, перейдите по ссылке: ' . route('projects::card', $project->id);
-                $notification->update([
-                    'name' => 'Был создан проект "' . $project->name . '". Автор: ' . $project_creator->long_full_name,
-                    'status' => 1,
-                    'user_id' => $ceo->id,
-                    'contractor_id' => $project->contractor_id,
-                    'project_id' => $project->id,
-                    'object_id' => $project->object_id,
-                    'type' => 45
-                ]);
-
+                dispatchNotify(
+                    $ceo->id,
+                    'Был создан проект "' . $project->name . '". Автор: ' . $project_creator->long_full_name,
+                    NotificationType::NEW_PROJECT_CREATION_NOTIFICATION,
+                    [
+                        'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
+                            "\r\nНазвание объекта: " . $project->object->name .
+                            "\r\nАдрес объекта: " . $project->object->address .
+                            "\r\nЧтобы просмотреть проект, перейдите по ссылке: " .
+                            route('projects::card', $project->id),
+                        'contractor_id' => $project->contractor_id,
+                        'project_id' => $project->id,
+                        'object_id' => $project->object_id,
+                        'status' => 1,
+                    ]
+                );
             }
             DB::commit();
         }
