@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Notification;
 use App\Models\ProjectObject;
@@ -1405,7 +1406,7 @@ class q3wMaterialTransferOperationController extends Controller
     }
 
     public function sendTransferNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId) {
-        
+
         $responsibilityUsers = (new ObjectResponsibleUser)->getResponsibilityUsers($projectObjectId, $role='TONGUE_PROJECT_MANAGER');
 
         foreach ($responsibilityUsers as $responsibilityUser) {
@@ -1419,18 +1420,19 @@ class q3wMaterialTransferOperationController extends Controller
 
         $notificationText = 'Операция #' . $operation->id . ' от ' . $operation->created_at->format('d.m.Y') . PHP_EOL . PHP_EOL . $sourceProjectObject->short_name . ' ➡️ ' . $destinationProjectObject->short_name . PHP_EOL . PHP_EOL . $notificationText;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-        $notification->update([
-            'name' => $notificationText,
-            'target_id' => $operation->id,
-            'user_id' => $notifiedUserId,
-            'object_id' => $projectObjectId,
-            'created_at' => now(),
-            'type' => 7,
-            'status' => 7
-        ]);
+        dispatchNotify(
+            $notifiedUserId,
+            $notificationText,
+            '',
+            NotificationType::TASK_POSTPONED_AND_CLOSED_NOTIFICATION,
+            [
+                'additional_info' => PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id,
+                'target_id' => $operation->id,
+                'object_id' => $projectObjectId,
+                'created_at' => now(),
+                'status' => 7
+            ]
+        );
     }
 
     public function completed(Request $request)

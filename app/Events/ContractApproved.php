@@ -53,6 +53,7 @@ class ContractApproved
             dispatchNotify(
                 $task->responsible_user_id,
                 'Создана задача: ' . $task->name,
+                '',
                 NotificationType::CONTRACT_CONTROL_IN_OPERATIONS_TASK_NOTIFICATION,
                 [
                     'additional_info' => '. Перейти к задаче можно по ссылке: ' . PHP_EOL . $task->task_route(),

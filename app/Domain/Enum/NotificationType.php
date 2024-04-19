@@ -4,18 +4,33 @@ declare(strict_types=1);
 
 namespace App\Domain\Enum;
 
+use App\Notifications\Claim\AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice;
+use App\Notifications\Claim\PileDrivingCalculationTaskCreationNotice;
+use App\Notifications\Claim\SheetPilingCalculationTaskCreationNotice;
+use App\Notifications\Claim\SheetPilingWorkExecutionControlTaskCreationNotice;
+use App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice;
 use App\Notifications\Claim\WorkVolumeClaimProcessingNotice;
 use App\Notifications\CommercialOffer\AppointmentOfResponsibleForOfferSheetPilingTaskNotice;
 use App\Notifications\CommercialOffer\ApprovalOfOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\CommercialOfferApprovedNotice;
 use App\Notifications\CommercialOffer\CustomerApprovalOfJointOfferTaskNotice;
 use App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice;
 use App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice;
 use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
 use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
 use App\Notifications\CommercialOffer\OfferProcessingNotice;
+use App\Notifications\CommercialOffer\PileDrivingOfferApprovalTaskCreationNotice;
+use App\Notifications\Contract\ContractApprovalControlTaskCreationNotice;
+use App\Notifications\Contract\ContractApprovalTaskCreationNotice;
+use App\Notifications\Contract\ContractDeletionControlTaskCreationNotice;
 use App\Notifications\Contract\ContractDeletionRequestResolutionNotice;
+use App\Notifications\Contract\ContractFormationTaskCreationNotice;
+use App\Notifications\Contract\ContractSignatureControlTaskCreationNotice;
+use App\Notifications\Contract\ContractSignatureControlTaskRecreationNotice;
+use App\Notifications\Contractor\ContractorContactInformationRequiredNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
+use App\Notifications\Contractor\UserCreatedContractorWithoutContactsNotice;
 use App\Notifications\DefaultNotification;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNewStatusNotice;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNotice;
@@ -41,9 +56,13 @@ use App\Notifications\Object\ResponsibleSelectedForProjectDirectionProjectLeader
 use App\Notifications\OnlyTelegramNotification;
 use App\Notifications\Operation\ContractControlInOperationsTaskNotice;
 use App\Notifications\Operation\OperationApprovalNotice;
+use App\Notifications\Operation\OperationCancelledNotice;
 use App\Notifications\Operation\OperationControlTaskNotice;
 use App\Notifications\Operation\OperationCreationApprovalRequestNotice;
+use App\Notifications\Operation\OperationDraftApprovalNotice;
+use App\Notifications\Operation\OperationDraftDeclinedNotice;
 use App\Notifications\Operation\OperationRejectionNotice;
+use App\Notifications\Operation\PartialOperationClosureNotice;
 use App\Notifications\Operation\ResponsibleAppointmentInOperationNotice;
 use App\Notifications\Operation\WriteOffOperationRejectionNotice;
 use App\Notifications\Project\NewProjectCreationNotice;
@@ -59,6 +78,7 @@ use App\Notifications\Task\OfferChangeControlTaskNotice;
 use App\Notifications\Task\PartialClosureOperationDeletionRequestNotice;
 use App\Notifications\Task\PartialClosureOperationEditRequestNotice;
 use App\Notifications\Task\ProjectLeaderAppointmentTaskNotice;
+use App\Notifications\Task\StandardTaskCreationNotice;
 use App\Notifications\Task\SubstituteUserReturnFromLeaveTaskTransferNotice;
 use App\Notifications\Task\TaskClosureNotice;
 use App\Notifications\Task\TaskCompletionDeadlineApproachingNotice;
@@ -97,33 +117,47 @@ final class NotificationType
     const TECHNICAL_MAINTENANCE_COMPLETION_NOTICE = 15;
     const ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION = 16;
     const CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION = 17;
-
+    const USER_CREATED_CONTRACTOR_WITHOUT_CONTACTS_NOTIFICATION = 18;
+    const CONTRACTOR_CONTACT_INFORMATION_REQUIRED_NOTIFICATION = 19;
     const CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION = 20;
-
+    const SHEET_PILING_CALCULATION_TASK_CREATION_NOTIFICATION = 21;
+    const PILE_DRIVING_CALCULATION_TASK_CREATION_NOTIFICATION = 22;
+    const WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION = 23;
+    const APPOINTMENT_OF_WORK_SUPERVISOR_SHEET_PILING_TASK_CREATION_NOTIFICATION = 24;
+    const SHEET_PILING_WORK_EXECUTION_CONTROL_TASK_CREATION_NOTIFICATION = 25;
     const WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION = 27;
     const OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION = 28;
-    const OFFER_CREATION_PILING_DIRECTION_TASK = 29;
+    const OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION = 29;
     const APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION = 30;
     const APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION = 31;
+    const PILE_DRIVING_OFFER_APPROVAL_TASK_CREATION_NOTIFICATION = 32;
     const CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION = 33;
     const CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION = 34;
     const CUSTOMER_APPROVAL_OF_JOINT_OFFER_TASK_NOTIFICATION = 35;
 
     const OFFER_PROCESSING_NOTIFICATION = 37;
     const CONTRACT_CREATION_TASK_NOTIFICATION = 38;
-
+    const CONTRACT_FORMATION_TASK_CREATION_NOTIFICATION = 39;
+    const CONTRACT_APPROVAL_TASK_CREATION_NOTIFICATION = 40;
+    const CONTRACT_SIGNATURE_CONTROL_TASK_CREATION_NOTIFICATION = 41;
+    const CONTRACT_SIGNATURE_CONTROL_TASK_RECREATION_NOTIFICATION = 42;
+    const CONTRACT_DELETION_CONTROL_TASK_CREATION_NOTIFICATION = 43;
     const CONTRACT_DELETION_REQUEST_RESOLUTION_NOTIFICATION = 44;
     const NEW_PROJECT_CREATION_NOTIFICATION = 45;
     const USER_LEAVE_SUBSTITUTION_NOTIFICATION = 46;
     const NEW_TASKS_FROM_USER_ON_LEAVE_NOTIFICATION = 47;
     const SUBSTITUTE_USER_RETURN_FROM_LEAVE_TASK_TRANSFER_NOTIFICATION = 48;
     const NEW_TASKS_FROM_DELETED_USER_NOTIFICATION = 49;
-
     const OFFER_CHANGE_CONTROL_TASK_NOTIFICATION = 50;
+    const CONTRACT_APPROVAL_CONTROL_TASK_CREATION_NOTIFICATION = 51;
+    const STANDARD_TASK_CREATION_NOTIFICATION = 52;
     const SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION = 53;
     const SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION = 54;
+    const OPERATION_CANCELLED_NOTIFICATION = 55;
     const OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION = 56;
-
+    const OPERATION_DRAFT_APPROVAL_NOTIFICATION = 57;
+    const OPERATION_DRAFT_DECLINED_NOTIFICATION = 58;
+    const PARTIAL_OPERATION_CLOSURE_NOTIFICATION = 59;
     const PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION = 63;
     const TECHNIC_USAGE_START_TASK_NOTIFICATION = 69;
     const TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION = 71;
@@ -151,7 +185,7 @@ final class NotificationType
     const DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION = 120;
     const DELAYED_TASK_ADDED_AGAIN_NOTIFICATION = 121;
     const EMPLOYEE_TERMINATION = 122;
-
+    const COMMERCIAL_OFFER_APPROVED_NOTIFICATION = 123;
 
     const NEW_EMPLOYEE_ARRIVAL = 200;
     const TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION = 201;
@@ -169,7 +203,6 @@ final class NotificationType
         switch ($type) {
             case self::ONLY_TELEGRAM:
                 return OnlyTelegramNotification::class;
-
 
             case self::FUEL_NEW_TANK_RESPONSIBLE:
                 return NewFuelTankResponsibleNotification::class;
@@ -192,9 +225,22 @@ final class NotificationType
 
             case self::TECHNICAL_MAINTENANCE_NOTICE:
                 return TechnicalMaintenanceNotice::class;
-
+            case self::USER_CREATED_CONTRACTOR_WITHOUT_CONTACTS_NOTIFICATION:
+                return UserCreatedContractorWithoutContactsNotice::class;
+            case self::CONTRACTOR_CONTACT_INFORMATION_REQUIRED_NOTIFICATION:
+                return ContractorContactInformationRequiredNotice::class;
             case self::CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION:
                 return ContractorDeletionControlTaskResolutionNotice::class;
+            case self::SHEET_PILING_CALCULATION_TASK_CREATION_NOTIFICATION:
+                return SheetPilingCalculationTaskCreationNotice::class;
+            case self::PILE_DRIVING_CALCULATION_TASK_CREATION_NOTIFICATION:
+                return PileDrivingCalculationTaskCreationNotice::class;
+            case self::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION:
+                return WorkRequestProcessingTaskCreationNotice::class;
+            case self::APPOINTMENT_OF_WORK_SUPERVISOR_SHEET_PILING_TASK_CREATION_NOTIFICATION:
+                return AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice::class;
+            case self::SHEET_PILING_WORK_EXECUTION_CONTROL_TASK_CREATION_NOTIFICATION:
+                return SheetPilingWorkExecutionControlTaskCreationNotice::class;
             case self::TECHNICAL_MAINTENANCE_COMPLETION_NOTICE:
                 return TechnicalMaintenanceCompletionNotice::class;
             case self::ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION:
@@ -210,19 +256,18 @@ final class NotificationType
                 return LaborSignedNotification::class;
 
 
-            case self::INCOMING_CALL_PROCESSING:
-                return IncomingCallProcessingNotice::class;
-
             case self::WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION:
                 return WorkVolumeClaimProcessingNotice::class;
             case self::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION:
                 return OfferCreationSheetPilingTaskNotice::class;
-            case self::OFFER_CREATION_PILING_DIRECTION_TASK:
+            case self::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION:
                 return OfferCreationPilingDirectionTaskNotice::class;
             case self::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION:
                 return AppointmentOfResponsibleForOfferSheetPilingTaskNotice::class;
             case self::APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION:
                 return ApprovalOfOfferSheetPilingTaskNotice::class;
+            case self::PILE_DRIVING_OFFER_APPROVAL_TASK_CREATION_NOTIFICATION:
+                return PileDrivingOfferApprovalTaskCreationNotice::class;
             case self::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION:
                 return CustomerApprovalOfOfferSheetPilingTaskNotice::class;
             case self::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION:
@@ -234,7 +279,16 @@ final class NotificationType
                 return OfferProcessingNotice::class;
             case self::CONTRACT_CREATION_TASK_NOTIFICATION:
                 return ContractCreationTaskNotice::class;
-
+            case self::CONTRACT_FORMATION_TASK_CREATION_NOTIFICATION:
+                return ContractFormationTaskCreationNotice::class;
+            case self::CONTRACT_APPROVAL_TASK_CREATION_NOTIFICATION:
+                return ContractApprovalTaskCreationNotice::class;
+            case self::CONTRACT_SIGNATURE_CONTROL_TASK_CREATION_NOTIFICATION:
+                return ContractSignatureControlTaskCreationNotice::class;
+            case self::CONTRACT_SIGNATURE_CONTROL_TASK_RECREATION_NOTIFICATION:
+                return ContractSignatureControlTaskRecreationNotice::class;
+            case self::CONTRACT_DELETION_CONTROL_TASK_CREATION_NOTIFICATION:
+                return ContractDeletionControlTaskCreationNotice::class;
             case self::CONTRACT_DELETION_REQUEST_RESOLUTION_NOTIFICATION:
                 return ContractDeletionRequestResolutionNotice::class;
             case self::NEW_PROJECT_CREATION_NOTIFICATION:
@@ -247,17 +301,26 @@ final class NotificationType
                 return SubstituteUserReturnFromLeaveTaskTransferNotice::class;
             case self::NEW_TASKS_FROM_DELETED_USER_NOTIFICATION:
                 return NewTasksFromDeletedUserNotice::class;
-
             case self::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION:
                 return OfferChangeControlTaskNotice::class;
-
+            case self::CONTRACT_APPROVAL_CONTROL_TASK_CREATION_NOTIFICATION:
+                return ContractApprovalControlTaskCreationNotice::class;
+            case self::STANDARD_TASK_CREATION_NOTIFICATION:
+                return StandardTaskCreationNotice::class;
             case self::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION:
                 return SupportTicketApproximateDueDateChangeNotice::class;
             case self::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION:
                 return SupportTicketStatusChangeNotice::class;
+            case self::OPERATION_CANCELLED_NOTIFICATION:
+                return OperationCancelledNotice::class;
             case self::OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION:
                 return OperationCreationApprovalRequestNotice::class;
-
+            case self::OPERATION_DRAFT_APPROVAL_NOTIFICATION:
+                return OperationDraftApprovalNotice::class;
+            case self::OPERATION_DRAFT_DECLINED_NOTIFICATION:
+                return OperationDraftDeclinedNotice::class;
+            case self::PARTIAL_OPERATION_CLOSURE_NOTIFICATION:
+                return PartialOperationClosureNotice::class;
             case self::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION:
                 return ProjectLeaderAppointmentTaskNotice::class;
 
@@ -289,7 +352,6 @@ final class NotificationType
                 return ResponsibleAddedToObjectNotice::class;
             case self::PROJECT_LEADER_APPOINTED_TO_OBJECT:
                 return ProjectLeaderAppointedToObjectNotice::class;
-
             case self::DOCUMENT_FLOW_ON_OBJECTS_PARTICIPATES_IN_DOCUMENT_FLOW:
                 return DocumentFlowOnObjectsParticipatesInDocumentFlowNotice::class;
             case self::DOCUMENT_FLOW_ON_OBJECTS_NEW_STATUS:
@@ -304,21 +366,23 @@ final class NotificationType
                 return DocumentFlowOnObjectsNotice::class;
             case self::DELAYED_TASK_ADDED_AGAIN_NOTIFICATION:
                 return DelayedTaskAddedAgainNotice::class;
+            case self::EMPLOYEE_TERMINATION:
+                return EmployeeTerminationNotice::class;
+            case self::COMMERCIAL_OFFER_APPROVED_NOTIFICATION:
+                return CommercialOfferApprovedNotice::class;
+
+            case self::NEW_EMPLOYEE_ARRIVAL:
+                return NewEmployeeArrivalNotice::class;
             case self::TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION:
                 return TaskCompletionDeadlineApproachingNotice::class;
             case self::TASK_COMPLETION_DEADLINE_NOTIFICATION:
                 return TaskCompletionDeadlineNotice::class;
-            case self::USER_OVERDUE_TASK_NOTIFICATION:
-                return UserOverdueTaskNotice::class;
-
-            case self::NEW_EMPLOYEE_ARRIVAL:
-                return NewEmployeeArrivalNotice::class;
-            case self::EMPLOYEE_TERMINATION:
-                return EmployeeTerminationNotice::class;
-
             case self::TASK_CLOSURE_NOTIFICATION:
                 return TaskClosureNotice::class;
-
+            case self::INCOMING_CALL_PROCESSING:
+                return IncomingCallProcessingNotice::class;
+            case self::USER_OVERDUE_TASK_NOTIFICATION:
+                return UserOverdueTaskNotice::class;
             case self::TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE:
                 return TaskTransferNotificationToNewResponsibleNotice::class;
             case self::TASK_POSTPONED_AND_CLOSED_NOTIFICATION:

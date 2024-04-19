@@ -185,18 +185,19 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
-                'name' => 'Новая задача «' . $task->name . '»',
-                'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
-                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                'type' => 39
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Новая задача «' . $task->name . '»',
+                '',
+                NotificationType::CONTRACT_FORMATION_TASK_CREATION_NOTIFICATION,
+                [
+                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                ]
+            );
         }
         $solve_tasks = Task::where('target_id', $contract->id)->where('is_solved', 0)->whereIn('status', [8, 9, 10, 13, 11])->get();
         Task::where('target_id', $contract->id)->where('is_solved', 1)->whereIn('status', [8, 9, 10, 13, 11])->where('revive_at', '<>', null)->update(['revive_at' => null]);
@@ -277,6 +278,7 @@ class ProjectContractController extends Controller
             dispatchNotify(
                 $old_task->responsible_user_id,
                 'Задача «' . $old_task->name . '» закрыта',
+                '',
                 NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
                     'task_id' => $old_task->id,
@@ -301,18 +303,19 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
-                'name' => 'Новая задача «' . $task->name . '»',
-                'user_id' => $task->responsible_user_id,
-                'task_id' => $task->id,
-                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                'type' => 39
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Новая задача «' . $task->name . '»',
+                '',
+                NotificationType::CONTRACT_FORMATION_TASK_CREATION_NOTIFICATION,
+                [
+                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                ]
+            );
         }
         DB::commit();
 
@@ -395,18 +398,19 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
-                    'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 40
-                ]);
+                dispatchNotify(
+                    $task->responsible_user_id,
+                    'Новая задача «' . $task->name . '»',
+                    '',
+                    NotificationType::CONTRACT_APPROVAL_TASK_CREATION_NOTIFICATION,
+                    [
+                        'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                        'task_id' => $task->id,
+                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                        'project_id' => $task->project_id ? $task->project_id : null,
+                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    ]
+                );
             }
         }
 
@@ -476,18 +480,19 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
-                    'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 42
-                ]);
+                dispatchNotify(
+                    $task->responsible_user_id,
+                    'Новая задача «' . $task->name . '»',
+                    '',
+                    NotificationType::CONTRACT_SIGNATURE_CONTROL_TASK_RECREATION_NOTIFICATION,
+                    [
+                        'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                        'task_id' => $task->id,
+                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                        'project_id' => $task->project_id ? $task->project_id : null,
+                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    ]
+                );
             }
         }
         $contract->ks_date = $request->ks_date;
@@ -562,18 +567,19 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
-                    'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 40
-                ]);
+                dispatchNotify(
+                    $task->responsible_user_id,
+                    'Новая задача «' . $task->name . '»',
+                    '',
+                    NotificationType::CONTRACT_APPROVAL_TASK_CREATION_NOTIFICATION,
+                    [
+                        'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                        'task_id' => $task->id,
+                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                        'project_id' => $task->project_id ? $task->project_id : null,
+                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    ]
+                );
             }
         }
 
@@ -711,18 +717,19 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
-                'name' => 'Новая задача «' . $task->name . '»',
-                'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
-                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                'type' => 41
-            ]);
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Новая задача «' . $task->name . '»',
+                '',
+                NotificationType::CONTRACT_SIGNATURE_CONTROL_TASK_CREATION_NOTIFICATION,
+                [
+                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                ]
+            );
         }
         $solve_task = Task::where('project_id', $contract->project_id)->where('status', 11)->where('is_solved', 0)->where('target_id', $contract->id)->get();
 
@@ -767,18 +774,19 @@ class ProjectContractController extends Controller
 
         $task->save();
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $task->name . '»',
-            'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
-            'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-            'project_id' => $task->project_id ? $task->project_id : null,
-            'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-            'type' => 51
-        ]);
+        dispatchNotify(
+            $task->responsible_user_id,
+            'Новая задача «' . $task->name . '»',
+            '',
+            NotificationType::CONTRACT_APPROVAL_CONTROL_TASK_CREATION_NOTIFICATION,
+            [
+                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'task_id' => $task->id,
+                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                'project_id' => $task->project_id ? $task->project_id : null,
+                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+            ]
+        );
 
         $solve_task = Task::where('project_id', $contract->project_id)->where('status', 7)->where('is_solved', 0)->where('target_id', $contract->id)->get();
 
@@ -787,6 +795,7 @@ class ProjectContractController extends Controller
                 dispatchNotify(
                     $solve_task[0]->responsible_user_id,
                     'Задача «' . $solve_task[0]->name . '» закрыта',
+                    '',
                     NotificationType::TASK_CLOSURE_NOTIFICATION,
                     [
                         'task_id' => $solve_task[0]->id,
@@ -985,18 +994,19 @@ class ProjectContractController extends Controller
             'status' => 20
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $task->name . '. ' . $task->description . '»',
-            'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
-            'contractor_id' => $task->contractor_id,
-            'project_id' => $contract->project->id,
-            'object_id' => $contract->project->object_id,
-            'type' => 43
-        ]);
+        dispatchNotify(
+            $task->responsible_user_id,
+            'Новая задача «' . $task->name . '. ' . $task->description . '»',
+            '',
+            NotificationType::CONTRACT_DELETION_CONTROL_TASK_CREATION_NOTIFICATION,
+            [
+                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'task_id' => $task->id,
+                'contractor_id' => $task->contractor_id,
+                'project_id' => $contract->project->id,
+                'object_id' => $contract->project->object_id,
+            ]
+        );
 
         DB::commit();
 

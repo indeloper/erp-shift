@@ -43,6 +43,7 @@ class MaterialAccountingOperationResponsibleUsersEvents
         dispatchNotify(
             $additional_user ? $additional_user : $user->user_id,
             $this->generateNotificationText($operation),
+            '',
             $this->operationIsDraft($operation) ? NotificationType::OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION : NotificationType::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION,
             [
                 'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $operation->general_url,
@@ -57,6 +58,7 @@ class MaterialAccountingOperationResponsibleUsersEvents
             dispatchNotify(
                 13,
                 $this->generateNotificationText($operation),
+                '',
                 NotificationType::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION,
                 [
                     'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $operation->general_url,

@@ -227,6 +227,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 dispatchNotify(
                     $recipient->id,
                     $newEmployeesNotificationMessageText,
+                    '',
                     NotificationType::NEW_EMPLOYEE_ARRIVAL
                 );
             }
@@ -242,6 +243,7 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 dispatchNotify(
                     $recipient->id,
                     $dismissedEmployeesNotificationMessageText,
+                    '',
                     NotificationType::EMPLOYEE_TERMINATION
                 );
             }

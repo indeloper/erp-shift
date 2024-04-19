@@ -229,6 +229,7 @@ class ProjectWorkVolumeController extends Controller
             dispatchNotify(
                 $task->responsible_user_id,
                 'Задача «' . $task->name . '» закрыта',
+                '',
                 NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
                     'task_id' => $task->id,
@@ -272,6 +273,7 @@ class ProjectWorkVolumeController extends Controller
             dispatchNotify(
                 $item->responsible_user_id,
                 'Задача «' . $item->name . '» закрыта',
+                '',
                 NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
                     'task_id' => $item->id,
@@ -301,18 +303,19 @@ class ProjectWorkVolumeController extends Controller
 
                 $tongueTask->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $tongueTask->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «'. $tongueTask->name . '»',
-                    'task_id' => $tongueTask->id,
-                    'user_id' => $tongueTask->responsible_user_id,
-                    'contractor_id' => $tongueTask->project_id ? $project->contractor_id : null,
-                    'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
-                    'object_id' => $tongueTask->project_id ? $project->object_id : null,
-                    'type' => 30,
-                ]);
+                dispatchNotify(
+                    $tongueTask->responsible_user_id,
+                    'Новая задача «' . $tongueTask->name . '»',
+                    '',
+                    NotificationType::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION,
+                    [
+                        'additional_info' => ' Ссылка на задачу: ' . $tongueTask->task_route(),
+                        'task_id' => $tongueTask->id,
+                        'contractor_id' => $tongueTask->project_id ? $project->contractor_id : null,
+                        'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
+                        'object_id' => $tongueTask->project_id ? $project->object_id : null,
+                    ]
+                );
             }
         } else {
             $prev_com_offer = CommercialOffer::where('project_id', $work_volume->project_id)->whereOption($work_volume->option)->where('is_tongue', $request->is_tongue)->orderBy('version', 'desc')->first();
@@ -426,19 +429,22 @@ class ProjectWorkVolumeController extends Controller
 
             $task_CO->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task_CO->task_route();
-            $notification->update([
-                'name' => 'Новая задача «' . $task_CO->name . '»',
-                'task_id' => $task_CO->id,
-                'user_id' => $task_CO->responsible_user_id,
-                'contractor_id' => $task_CO->project_id ? $project->contractor_id : null,
-                'project_id' => $task_CO->project_id ? $task_CO->project_id : null,
-                'object_id' => $task_CO->project_id ? $project->object_id : null,
-                'created_at' => Carbon::now()->addSeconds(1),
-                'type' => $request->is_tongue ? 28 : 29
-            ]);
+            dispatchNotify(
+                $task_CO->responsible_user_id,
+                'Новая задача «' . $task_CO->name . '»',
+                '',
+                $request->is_tongue ?
+                    NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION :
+                    NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
+                [
+                    'additional_info' => ' Ссылка на задачу: ' . $task_CO->task_route(),
+                    'task_id' => $task_CO->id,
+                    'contractor_id' => $task_CO->project_id ? $project->contractor_id : null,
+                    'project_id' => $task_CO->project_id ? $task_CO->project_id : null,
+                    'object_id' => $task_CO->project_id ? $project->object_id : null,
+                    'created_at' => Carbon::now()->addSeconds(1),
+                ]
+            );
 
             $com_offer_request = new CommercialOfferRequest();
             $com_offer_request->user_id = 0;
@@ -1276,18 +1282,19 @@ class ProjectWorkVolumeController extends Controller
                     $task17->status = 17;
                     $task17->save();
 
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $task17->task_route();
-                    $notification->update([
-                        'name' => 'Новая задача «' . $task17->name . '»',
-                        'task_id' => $task17->id,
-                        'user_id' => $task17->responsible_user_id,
-                        'contractor_id' => $task17->contractor_id ?? null,
-                        'project_id' => $task17->project_id ?? null,
-                        'object_id' => isset($task17->project->object->id) ? $task17->project->object->id : null,
-                        'type' => 23
-                    ]);
+                    dispatchNotify(
+                        $task17->responsible_user_id,
+                        'Новая задача «' . $task17->name . '»',
+                        '',
+                        NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
+                        [
+                            'additional_info' => ' Ссылка на задачу: ' . $task17->task_route(),
+                            'task_id' => $task17->id,
+                            'contractor_id' => $task17->contractor_id ?? null,
+                            'project_id' => $task17->project_id ?? null,
+                            'object_id' => isset($task17->project->object->id) ? $task17->project->object->id : null,
+                        ]
+                    );
                 }
             }
 
@@ -1317,34 +1324,39 @@ class ProjectWorkVolumeController extends Controller
 
                 $tongueTask->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $tongueTask->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «' . $tongueTask->name . '»',
-                    'task_id' => $tongueTask->id,
-                    'user_id' => $tongueTask->responsible_user_id,
-                    'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
-                    'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
-                    'object_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->object_id : null,
-                    'type' => $tongueTask->status == 3 ? 21 : 24
-                ]);
+                dispatchNotify(
+                    $tongueTask->responsible_user_id,
+                    'Новая задача «' . $tongueTask->name . '»',
+                    '',
+                    $tongueTask->status == 3 ?
+                        NotificationType::SHEET_PILING_CALCULATION_TASK_CREATION_NOTIFICATION :
+                        NotificationType::APPOINTMENT_OF_WORK_SUPERVISOR_SHEET_PILING_TASK_CREATION_NOTIFICATION,
+                    [
+                        'additional_info' => ' Ссылка на задачу: ' . $tongueTask->task_route(),
+                        'task_id' => $tongueTask->id,
+                        'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
+                        'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
+                        'object_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->object_id : null,
+                    ]
+                );
+
             } else {
                 $lastTask = $wv_tongue->tasks()->whereStatus(3)->whereResponsibleUserId(Auth::id())->orderByDesc('id')->first() ?? null;
 
                 if ($lastTask) {
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $lastTask->task_route();
-                    $notification->update([
-                        'name' => $lastTask->name,
-                        'task_id' => $lastTask->id,
-                        'user_id' => $lastTask->responsible_user_id,
-                        'contractor_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->contractor_id : null,
-                        'project_id' => $lastTask->project_id ? $lastTask->project_id : null,
-                        'object_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->object_id : null,
-                        'type' => 23
-                    ]);
+                    dispatchNotify(
+                        $lastTask->responsible_user_id,
+                        $lastTask->name,
+                        '',
+                        NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
+                        [
+                            'additional_info' => ' Ссылка на задачу: ' . $lastTask->task_route(),
+                            'task_id' => $lastTask->id,
+                            'contractor_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->contractor_id : null,
+                            'project_id' => $lastTask->project_id ? $lastTask->project_id : null,
+                            'object_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->object_id : null,
+                        ]
+                    );
                 }
             }
         }
@@ -1408,33 +1420,35 @@ class ProjectWorkVolumeController extends Controller
 
                 $pileTask->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $pileTask->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «' . $pileTask->name . '»',
-                    'task_id' => $pileTask->id,
-                    'user_id' => $pileTask->responsible_user_id,
-                    'contractor_id' => $pileTask->project_id ? Project::find($pileTask->project_id)->contractor_id : null,
-                    'project_id' => $pileTask->project_id ? $pileTask->project_id : null,
-                    'object_id' => $pileTask->project_id ? Project::find($pileTask->project_id)->object_id : null,
-                    'type' => 22
-                ]);
+                dispatchNotify(
+                    $pileTask->responsible_user_id,
+                    'Новая задача «' . $pileTask->name . '»',
+                    '',
+                    NotificationType::PILE_DRIVING_CALCULATION_TASK_CREATION_NOTIFICATION,
+                    [
+                        'additional_info' => ' Ссылка на задачу: ' . $pileTask->task_route(),
+                        'task_id' => $pileTask->id,
+                        'contractor_id' => $pileTask->project_id ? Project::find($pileTask->project_id)->contractor_id : null,
+                        'project_id' => $pileTask->project_id ? $pileTask->project_id : null,
+                        'object_id' => $pileTask->project_id ? Project::find($pileTask->project_id)->object_id : null,
+                    ]
+                );
             } else {
                 $lastTask = Task::where('project_id', $project_id)->where('target_id', $wv_pile->id)->where('is_solved', 0)->get()->last();
                 if ($lastTask) {
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $lastTask->task_route();
-                    $notification->update([
-                        'name' => 'Новая задача «' . $lastTask->name . '»',
-                        'task_id' => $lastTask->id,
-                        'user_id' => $lastTask->responsible_user_id,
-                        'contractor_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->contractor_id : null,
-                        'project_id' => $lastTask->project_id ? $lastTask->project_id : null,
-                        'object_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->object_id : null,
-                        'type' => 23
-                    ]);
+                    dispatchNotify(
+                        $lastTask->responsible_user_id,
+                        'Новая задача «' . $lastTask->name . '»',
+                        '',
+                        NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
+                        [
+                            'additional_info' => ' Ссылка на задачу: ' . $lastTask->task_route(),
+                            'task_id' => $lastTask->id,
+                            'contractor_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->contractor_id : null,
+                            'project_id' => $lastTask->project_id ? $lastTask->project_id : null,
+                            'object_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->object_id : null,
+                        ]
+                    );
                 }
             }
         }
@@ -1620,6 +1634,7 @@ class ProjectWorkVolumeController extends Controller
                 dispatchNotify(
                     $item->responsible_user_id,
                     'Задача «' . $item->name . '» закрыта',
+                    '',
                     NotificationType::TASK_CLOSURE_NOTIFICATION,
                     [
                         'task_id' => $item->id,
@@ -1685,6 +1700,7 @@ class ProjectWorkVolumeController extends Controller
                    'заявку на редактирование ОР ' . ($wv_request->tongue_pile ? 'свайного' : 'шпунтового')
                    . ' направления версии ' . $work_volume->version .
                    ' по проекту ' . Project::find($wv_request->project_id)->name),
+               '',
                NotificationType::WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION,
                [
                    'contractor_id' => Project::find($wv_request->project_id)->contractor_id,
@@ -1765,18 +1781,19 @@ class ProjectWorkVolumeController extends Controller
                            $task18->status = 18;
                            $task18->save();
 
-                           $notification = new Notification();
-                           $notification->save();
-                           $notification->additional_info = ' Ссылка на задачу: ' . $task18->task_route();
-                           $notification->update([
-                               'name' => 'Новая задача «' . $task18->name . '»',
-                               'task_id' => $task18->id,
-                               'user_id' => $task18->responsible_user_id,
-                               'contractor_id' => $task18->contractor_id,
-                               'project_id' => $task18->project_id,
-                               'object_id' => $project->object_id,
-                               'type' => 25
-                           ]);
+                           dispatchNotify(
+                               $task18->responsible_user_id,
+                               'Новая задача «' . $task18->name . '»',
+                               '',
+                               NotificationType::SHEET_PILING_WORK_EXECUTION_CONTROL_TASK_CREATION_NOTIFICATION,
+                               [
+                                   'additional_info' => ' Ссылка на задачу: ' . $task18->task_route(),
+                                   'task_id' => $task18->id,
+                                   'contractor_id' => $task18->contractor_id,
+                                   'project_id' => $task18->project_id,
+                                   'object_id' => $project->object_id,
+                               ]
+                           );
                        }
                    }
                } elseif ($work_volume->type == 0) {
@@ -1794,18 +1811,19 @@ class ProjectWorkVolumeController extends Controller
                    $task17->status = 17;
                    $task17->save();
 
-                   $notification = new Notification();
-                   $notification->save();
-                   $notification->additional_info = ' Ссылка на задачу: ' . $task17->task_route();
-                   $notification->update([
-                       'name' => 'Новая задача «' . $task17->name . '»',
-                       'task_id' => $task17->id,
-                       'user_id' => $task17->responsible_user_id,
-                       'contractor_id' => $task17->contractor_id,
-                       'project_id' => $task17->project_id,
-                       'object_id' => $task17->object_id,
-                       'type' => 23
-                   ]);
+                   dispatchNotify(
+                       $task17->responsible_user_id,
+                       'Новая задача «' . $task17->name . '»',
+                       '',
+                       NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
+                       [
+                           'additional_info' => ' Ссылка на задачу: ' . $task17->task_route(),
+                           'task_id' => $task17->id,
+                           'contractor_id' => $task17->contractor_id,
+                           'project_id' => $task17->project_id,
+                           'object_id' => $task17->object_id,
+                       ]
+                   );
                }
            }
        }
@@ -1839,6 +1857,7 @@ class ProjectWorkVolumeController extends Controller
            ('Пользователь ' . $user . ' ' . 'подтвердил(а) заявку на редактирование ОР ' .
                ($wv_request->tongue_pile ? 'свайного' : 'шпунтового')
                . ' направления версии ' . $work_volume->version . ' по проекту ' . Project::find($wv_request->project_id)->name),
+           '',
            NotificationType::WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION,
            [
                'contractor_id' => Project::find($wv_request->project_id)->contractor_id,
@@ -1879,18 +1898,19 @@ class ProjectWorkVolumeController extends Controller
                $task18->prev_task_id = $prev_task->id ?? null;
                $task18->save();
 
-               $notification = new Notification();
-               $notification->save();
-               $notification->additional_info = ' Ссылка на задачу: ' . $task18->task_route();
-               $notification->update([
-                   'name' => 'Новая задача «' . $task18->name . '»',
-                   'task_id' => $task18->id,
-                   'user_id' => $task18->responsible_user_id,
-                   'contractor_id' => $task18->contractor_id,
-                   'project_id' => $task18->project_id,
-                   'object_id' => $project->object_id,
-                   'type' => 25
-               ]);
+               dispatchNotify(
+                   $task18->responsible_user_id,
+                   'Новая задача «' . $task18->name . '»',
+                   '',
+                   NotificationType::SHEET_PILING_WORK_EXECUTION_CONTROL_TASK_CREATION_NOTIFICATION,
+                   [
+                       'additional_info' => ' Ссылка на задачу: ' . $task18->task_route(),
+                       'task_id' => $task18->id,
+                       'contractor_id' => $task18->contractor_id,
+                       'project_id' => $task18->project_id,
+                       'object_id' => $project->object_id,
+                   ]
+               );
            }
        }
 

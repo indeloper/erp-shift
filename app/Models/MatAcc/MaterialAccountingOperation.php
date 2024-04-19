@@ -766,6 +766,7 @@ class MaterialAccountingOperation extends Model
                 dispatchNotify(
                     $this->author->id,
                     'Ваша операция списания была отклонена',
+                    '',
                     NotificationType::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION,
                     [
                         'task_id' => $controlTask->id,
@@ -789,16 +790,18 @@ class MaterialAccountingOperation extends Model
 
     public function generateOperationDraftDeclineNotification()
     {
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftDeclinedNotificationText(),
-            'user_id' => $this->author->id,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 58
-        ]);
+        dispatchNotify(
+            $this->author->id,
+            $this->generateOperationDraftDeclinedNotificationText(),
+            '',
+            NotificationType::OPERATION_DRAFT_DECLINED_NOTIFICATION,
+            [
+                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                'name' => $this->generateOperationDraftDeclinedNotificationText(),
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftDeclinedNotificationText()
@@ -821,16 +824,17 @@ class MaterialAccountingOperation extends Model
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach (array_unique($user_ids) as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationDeclinedNotificationText(),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 55
-            ]);
+            dispatchNotify(
+                $user,
+                $this->generateOperationDeclinedNotificationText(),
+                '',
+                NotificationType::OPERATION_CANCELLED_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -863,16 +867,17 @@ class MaterialAccountingOperation extends Model
 
     public function generateDraftAcceptNotification($oldAuthor)
     {
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftAcceptNotificationText(),
-            'user_id' => $oldAuthor,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 57
-        ]);
+        dispatchNotify(
+            $oldAuthor,
+            $this->generateOperationDraftAcceptNotificationText(),
+            '',
+            NotificationType::OPERATION_DRAFT_APPROVAL_NOTIFICATION,
+            [
+                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftAcceptNotificationText()
@@ -894,28 +899,30 @@ class MaterialAccountingOperation extends Model
         if ($this->isMovingOperation())
             return $this->generateMovingPartSendNotifications($partSendType);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-            'user_id' => $this->author_id,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 59
-        ]);
-
-        if ($this->isWriteOffOperation()) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-                'user_id' => Group::find(6)->getUsers()->first()->id,
+        dispatchNotify(
+            $this->author_id,
+            $this->generateOperationPartSaveNotificationText($partSendType),
+            '',
+            NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
+            [
+                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
                 'target_id' => $this->id,
                 'status' => 7,
-                'type' => 59
-            ]);
+            ]
+        );
+
+        if ($this->isWriteOffOperation()) {
+            dispatchNotify(
+                Group::find(6)->getUsers()->first()->id,
+                $this->generateOperationPartSaveNotificationText($partSendType),
+                '',
+                NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 

@@ -138,6 +138,7 @@ class OurTechnicTicketController extends Controller
             dispatchNotify(
                 $request->user,
                 "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                '',
                 $request->task_status == 31 ?
                                         NotificationType::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION :
                                         NotificationType::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION,
@@ -167,6 +168,7 @@ class OurTechnicTicketController extends Controller
             dispatchNotify(
                 $request->user,
                 "Вас назначили ответсвенным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                '',
                 NotificationType::TECHNIC_USAGE_START_TASK_NOTIFICATION,
                 [
                     'additional_info' => "\nСсылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),

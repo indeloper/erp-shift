@@ -175,6 +175,7 @@ class CommercialOffer extends Model
             dispatchNotify(
                 $task->responsible_user_id,
                 'Задача «' . $task->name . '» закрыта',
+                '',
                 NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
                     'task_id' => $task->id,
@@ -278,21 +279,22 @@ class CommercialOffer extends Model
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = "\r\nЗаказчик: " . $project->contractor_name
-                    . "\r\nНазвание объекта: " . $project->object->name
-                    .  "\r\nАдрес объекта: " . $project->object->address .".\r\n"
-                    . 'Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
-                    'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 31
-                ]);
+                dispatchNotify(
+                    $task->responsible_user_id,
+                    'Новая задача «' . $task->name . '»',
+                    '',
+                    NotificationType::APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION,
+                    [
+                        'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
+                            "\r\nНазвание объекта: " . $project->object->name .
+                            "\r\nАдрес объекта: " . $project->object->address .
+                            ".\r\nСсылка на задачу: " . $task->task_route(),
+                        'task_id' => $task->id,
+                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                        'project_id' => $task->project_id ? $task->project_id : null,
+                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    ]
+                );
             }
         } else if ($this->is_tongue == 0) {
             foreach ([5, 6] as $group_id) {
@@ -315,21 +317,22 @@ class CommercialOffer extends Model
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = "\r\nЗаказчик: " . $project->contractor_name
-                    . "\r\nНазвание объекта: " . $project->object->name
-                    .  "\r\nАдрес объекта: " . $project->object->address .".\r\n"
-                    . 'Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
-                    'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 32
-                ]);
+                dispatchNotify(
+                    $task->responsible_user_id,
+                    'Новая задача «' . $task->name . '»',
+                    '',
+                    NotificationType::PILE_DRIVING_OFFER_APPROVAL_TASK_CREATION_NOTIFICATION,
+                    [
+                        'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
+                            "\r\nНазвание объекта: " . $project->object->name .
+                            "\r\nАдрес объекта: " . $project->object->address .
+                            ".\r\nСсылка на задачу: " . $task->task_route(),
+                        'task_id' => $task->id,
+                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                        'project_id' => $task->project_id ? $task->project_id : null,
+                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    ]
+                );
             }
         }
     }
@@ -810,18 +813,21 @@ class CommercialOffer extends Model
             'status' => 5,
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $work_task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $work_task->name . '»',
-            'task_id' => $work_task->id,
-            'user_id' => $work_task->responsible_user_id,
-            'contractor_id' => $target_project->contractor_id,
-            'project_id' => $target_project->id,
-            'object_id' => $target_project->object_id,
-            'type' => $com_offer_copy->is_tongue ? 28 : 29
-        ]);
+        dispatchNotify(
+            $work_task->responsible_user_id,
+            'Новая задача «' . $work_task->name . '»',
+            '',
+            $com_offer_copy->is_tongue ?
+                NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION :
+                NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
+            [
+                'additional_info' => ' Ссылка на задачу: ' . $work_task->task_route(),
+                'task_id' => $work_task->id,
+                'contractor_id' => $target_project->contractor_id,
+                'project_id' => $target_project->id,
+                'object_id' => $target_project->object_id,
+            ]
+        );
 
         $work_volume_copy->push();
         $com_offer_copy->push();

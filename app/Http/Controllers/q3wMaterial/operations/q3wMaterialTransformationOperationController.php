@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Notification;
 use App\Models\ProjectObject;
@@ -536,18 +537,19 @@ class q3wMaterialTransformationOperationController extends Controller
             PHP_EOL .
             $notificationText;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = PHP_EOL . $operation->url;
-        $notification->update([
-            'name' => $notificationText,
-            'target_id' => $operation->id,
-            'user_id' => $notifiedUserId,
-            'object_id' => $projectObjectId,
-            'created_at' => now(),
-            'type' => 7,
-            'status' => 7
-        ]);
+        dispatchNotify(
+            $notifiedUserId,
+            $notificationText,
+            '',
+            NotificationType::TASK_POSTPONED_AND_CLOSED_NOTIFICATION,
+            [
+                'additional_info' => PHP_EOL . $operation->url,
+                'target_id' => $operation->id,
+                'object_id' => $projectObjectId,
+                'created_at' => now(),
+                'status' => 7
+            ]
+        );
     }
 
     public function move(q3wMaterialOperation $operation)

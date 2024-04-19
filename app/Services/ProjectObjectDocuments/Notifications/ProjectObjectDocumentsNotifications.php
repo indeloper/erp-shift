@@ -79,6 +79,7 @@ class ProjectObjectDocumentsNotifications {
                 dispatchNotify(
                     $userId,
                     $notification['notificationText'],
+                    '',
                     NotificationType::DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION
                 );
             }

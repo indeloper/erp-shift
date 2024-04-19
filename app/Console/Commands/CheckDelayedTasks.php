@@ -58,6 +58,7 @@ class CheckDelayedTasks extends Command
             dispatchNotify(
                 $task->responsible_user_id,
                 'Новая задача «' . $task->name . '»',
+                '',
                 NotificationType::DELAYED_TASK_ADDED_AGAIN_NOTIFICATION,
                 [
                     'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),

@@ -93,6 +93,7 @@ class OurTechnicTicketActionsController extends Controller
                 $ourTechnicTicket->users()->ofType('usage_resp_user_id')->first()->id,
                 "Продление до ". $task->changing_fields->where('field_name', 'usage_to_date')->first()->value .
                        " по заявке № $ourTechnicTicket->id согласовано.",
+                '',
                 NotificationType::TECHNIC_USAGE_EXTENSION_REQUEST_APPROVAL_NOTIFICATION,
                 [
                     'additional_info' => "\nСсылка на заявку: " .
@@ -111,6 +112,7 @@ class OurTechnicTicketActionsController extends Controller
                 $ourTechnicTicket->users()->ofType('usage_resp_user_id')->first()->id,
                 "Продление до ". $task->changing_fields->where('field_name', 'usage_to_date')->first()->value .
                        " по заявке № $ourTechnicTicket->id отклонено с комментарием: $task->final_note",
+                '',
                 NotificationType::TECHNIC_USAGE_EXTENSION_REQUEST_REJECTION_NOTIFICATION,
                 [
                     'additional_info' => "\nСсылка на заявку: " .

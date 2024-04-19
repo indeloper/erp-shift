@@ -26,6 +26,7 @@ class UserObserver
             $user->role_codes,
             'Пользователь ' . $user->long_full_name . ' был удалён из системы. С новыми задачами можно ознакомиться здесь: ' .
             route('tasks::index') . ', со списком проектов: ' . route('users::card', $user->role_codes),
+            '',
             NotificationType::NEW_TASKS_FROM_DELETED_USER_NOTIFICATION
         );
     }

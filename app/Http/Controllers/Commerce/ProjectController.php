@@ -750,6 +750,7 @@ class ProjectController extends Controller
                 dispatchNotify(
                     $userId,
                     $name,
+                    '',
                     NotificationType::RESPONSIBLE_SELECTED_FOR_PROJECT_DIRECTION_PROJECT_LEADER,
                     [
                         'task_id' => $task_id,
@@ -776,6 +777,7 @@ class ProjectController extends Controller
                     dispatchNotify(
                         $updated_task->responsible_user_id,
                         'Задача «' . $updated_task->name . '» передана пользователю ' . $new_user->long_full_name,
+                        '',
                         NotificationType::TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE,
                         [
                             'task_id' => $updated_task->id,
@@ -786,17 +788,19 @@ class ProjectController extends Controller
                     );
 
                     // notify new user
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $updated_task->task_route();
-                    $notification->update([
-                        'name' => 'Новая задача «' . $updated_task->name . '»',
-                        'task_id' => $updated_task->id, 'user_id' => $resp_user->user_id,
-                        'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
-                        'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
-                        'object_id' => $updated_task->project_id ? $project->object_id : null,
-                        'type' => 52,
-                    ]);
+                    dispatchNotify(
+                        $resp_user->user_id,
+                        'Новая задача «' . $updated_task->name . '»',
+                        '',
+                        NotificationType::STANDARD_TASK_CREATION_NOTIFICATION,
+                        [
+                            'additional_info' => ' Ссылка на задачу: ' . $updated_task->task_route(),
+                            'task_id' => $updated_task->id,
+                            'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
+                            'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
+                            'object_id' => $updated_task->project_id ? $project->object_id : null,
+                        ]
+                    );
                 }
 
                 // move task to new user
@@ -901,18 +905,19 @@ class ProjectController extends Controller
 
                         $task->save();
 
-                        $notification = new Notification();
-                        $notification->save();
-                        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                        $notification->update([
-                            'name' => 'Новая задача «' . $task->name . '»',
-                            'task_id' => $task->id,
-                            'user_id' => $task->responsible_user_id,
-                            'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                            'project_id' => $task->project_id ? $task->project_id : null,
-                            'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                            'type' => 28
-                        ]);
+                        dispatchNotify(
+                            $task->responsible_user_id,
+                            'Новая задача «' . $task->name . '»',
+                            '',
+                            NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
+                            [
+                                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                                'task_id' => $task->id,
+                                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                                'project_id' => $task->project_id ? $task->project_id : null,
+                                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                            ]
+                        );
 
                         $com_offer_request = new CommercialOfferRequest();
                         $com_offer_request->user_id = 0;
@@ -945,18 +950,19 @@ class ProjectController extends Controller
                         $tongueTask->save();
                     }
 
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                    $notification->update([
-                        'name' => 'Новая задача «' . $tongueTask->name . '»',
-                        'task_id' => $tongueTask->id,
-                        'user_id' => $tongueTask->responsible_user_id,
-                        'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
-                        'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
-                        'object_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->object_id : null,
-                        'type' => 21
-                    ]);
+                    dispatchNotify(
+                        $tongueTask->responsible_user_id,
+                        'Новая задача «' . $tongueTask->name . '»',
+                        '',
+                        NotificationType::SHEET_PILING_CALCULATION_TASK_CREATION_NOTIFICATION,
+                        [
+                            'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                            'task_id' => $tongueTask->id,
+                            'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
+                            'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
+                            'object_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->object_id : null,
+                        ]
+                    );
                 }
             }
         }

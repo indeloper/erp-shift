@@ -404,6 +404,7 @@ class MatAccWriteOffController extends Controller
             dispatchNotify(
                 $operation->author->id,
                 'Ваша операция списания была отклонена' . ($request->description ? ' с комментарием: ' . $request->description : ''),
+                '',
                 NotificationType::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION,
                 [
                     'task_id' => $task->id,
@@ -415,7 +416,10 @@ class MatAccWriteOffController extends Controller
             dispatchNotify(
                 $operation->author->id,
                 'Ваша операция была ' . $task->results[$task->status][$task->result] . ($request->description ? ' с комментарием: ' . $request->description : ''),
-                $task->result == 1 ? NotificationType::OPERATION_APPROVAL_NOTIFICATION : NotificationType::OPERATION_REJECTION_NOTIFICATION,
+                '',
+                $task->result == 1 ?
+                    NotificationType::OPERATION_APPROVAL_NOTIFICATION :
+                    NotificationType::OPERATION_REJECTION_NOTIFICATION,
                 [
                     'task_id' => $task->id,
                 ]

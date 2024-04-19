@@ -326,6 +326,7 @@ class Task extends Model
             dispatchNotify(
                 $this->responsible_user_id,
                 'Задача «' . $this->name . '» закрыта',
+                '',
                 NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
                     'task_id' => $this->id,
@@ -429,6 +430,7 @@ class Task extends Model
         dispatchNotify(
             $this->responsible_user_id,
             $name,
+            '',
             NotificationType::TASK_CLOSURE_NOTIFICATION,
             [
                 'task_id' => $this->id,

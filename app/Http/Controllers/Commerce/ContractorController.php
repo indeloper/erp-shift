@@ -552,6 +552,7 @@ class ContractorController extends Controller
         dispatchNotify(
             $task->responsible_user_id,
             'Новая задача «' . $task->name . '»',
+            '',
             NotificationType::CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION,
             [
                 'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
@@ -604,6 +605,7 @@ class ContractorController extends Controller
             $task->user_id,
             'Запрашиваемый вами контрагент ' . $contractor->short_name . ' ' . $task->results[$task->status][$task->result] .
             ($request->description ? ', с комментарием: ' . $request->description : ''),
+            '',
             NotificationType::CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION,
             [
                 'task_id' => $task->id,

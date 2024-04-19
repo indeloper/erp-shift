@@ -64,6 +64,7 @@ class CheckExTasks extends Command
                     dispatchNotify(
                         $task->responsible_user_id,
                         'Задача «' . $task->name . '» скоро будет просрочена.',
+                        '',
                         NotificationType::TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION,
                         [
                             'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
@@ -83,6 +84,7 @@ class CheckExTasks extends Command
                     dispatchNotify(
                         $task->responsible_user_id,
                         'Задача «' . $task->name . '» просрочена.',
+                        '',
                         NotificationType::TASK_COMPLETION_DEADLINE_NOTIFICATION,
                         [
                             'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
@@ -106,6 +108,7 @@ class CheckExTasks extends Command
                         dispatchNotify(
                             $task->chief(),
                             'Задача исполнителя ' . User::find($task->responsible_user_id)->long_full_name . ' «' . $task->name . '» просрочена.',
+                            '',
                             NotificationType::USER_OVERDUE_TASK_NOTIFICATION,
                             [
                                 'additional_info' => ' Ссылка на события проекта: ' . $route,
@@ -125,6 +128,7 @@ class CheckExTasks extends Command
                         dispatchNotify(
                             $ceo->id,
                             'Задача исполнителя ' . User::find($task->responsible_user_id)->user_name() . ' «' . $task->name . '» просрочена.',
+                            '',
                             NotificationType::USER_OVERDUE_TASK_NOTIFICATION,
                             [
                                 'additional_info' => ' Ссылка на события проекта: ' . $route,

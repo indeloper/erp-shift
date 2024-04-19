@@ -746,6 +746,7 @@ class MaterialAccountingController extends Controller
         dispatchNotify(
             $updation_task->responsible_user_id,
             'Новая задача «' . $updation_task->name . '» ',
+            '',
             NotificationType::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION,
             [
                 'additional_info' => ' Ссылка на задачу: ' . $updation_task->task_route(),
@@ -807,6 +808,7 @@ class MaterialAccountingController extends Controller
         dispatchNotify(
             $deletion_task->responsible_user_id,
             'Новая задача «' . $deletion_task->name . '» ',
+            '',
             NotificationType::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION,
             [
                 'additional_info' => ' Ссылка на задачу: ' . $deletion_task->task_route(),

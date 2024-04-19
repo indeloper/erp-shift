@@ -43,6 +43,7 @@ class ProjectEvents
                 dispatchNotify(
                     $ceo->id,
                     'Был создан проект "' . $project->name . '". Автор: ' . $project_creator->long_full_name,
+                    '',
                     NotificationType::NEW_PROJECT_CREATION_NOTIFICATION,
                     [
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .

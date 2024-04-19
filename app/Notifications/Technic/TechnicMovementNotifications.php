@@ -195,6 +195,7 @@ class TechnicMovementNotifications
             dispatchNotify(
                 $id,
                 $notificationText,
+                '',
                 NotificationType::EQUIPMENT_MOVEMENT_NOTIFICATION
             );
         }
@@ -269,6 +270,7 @@ class TechnicMovementNotifications
         dispatchNotify(
             $dataObj->responsible_id,
             $notificationText,
+            '',
             NotificationType::EQUIPMENT_MOVEMENT_NOTIFICATION
         );
     }

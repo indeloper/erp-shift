@@ -144,6 +144,7 @@ class CheckContractorsInfo extends Command
         dispatchNotify(
             $task->responsible_user_id,
             'Новая задача «' . $task->name . '»',
+            '',
             NotificationType::CONTRACTOR_CHANGES_VERIFICATION_TASK_NOTIFICATION,
             [
                 'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),

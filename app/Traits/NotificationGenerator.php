@@ -89,6 +89,7 @@ trait NotificationGenerator
         dispatchNotify(
             Group::find(5)->getUsers()->first()->id,
             'В системе отсутсвует сотрудник на позиции Главного Механика, без него учёт дефектов техники не будет работать',
+            '',
             NotificationType::CHIEF_MECHANIC_MISSING_FOR_EQUIPMENT_DEFECT_TRACKING
         );
     }

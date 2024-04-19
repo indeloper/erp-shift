@@ -209,6 +209,7 @@ class TaskCallController extends Controller
         dispatchNotify(
             $call->responsible_user_id,
             $call->name,
+            '',
             NotificationType::INCOMING_CALL_PROCESSING,
             [
                 'task_id' => $call->id

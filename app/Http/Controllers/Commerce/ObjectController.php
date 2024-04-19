@@ -256,6 +256,7 @@ class ObjectController extends Controller
             dispatchNotify(
                 $userId,
                 'Объект:' . "\n" . $objectName . "\n" . 'участвует в производстве работ.',
+                '',
                 NotificationType::OBJECT_PARTICIPATES_IN_WORK_PRODUCTION
             );
         }
@@ -489,6 +490,7 @@ class ObjectController extends Controller
             dispatchNotify(
                 $userId,
                 'Вы добавлены ответственным на объект' . "\n" . $objectName,
+                '',
                 NotificationType::RESPONSIBLE_ADDED_TO_OBJECT
             );
         }
@@ -504,6 +506,7 @@ class ObjectController extends Controller
             dispatchNotify(
                 $userId,
                 'На объект' . "\n" . $objectName . "\n" . 'назначен руководитель проекта ' . "\n" . $projectManagerName,
+                '',
                 NotificationType::PROJECT_LEADER_APPOINTED_TO_OBJECT
             );
         }

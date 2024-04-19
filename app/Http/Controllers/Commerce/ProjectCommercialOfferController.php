@@ -683,6 +683,7 @@ class ProjectCommercialOfferController extends Controller
                     dispatchNotify(
                         $task->responsible_user_id,
                         'Новая задача «' . $task->name . '»',
+                        '',
                         NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
                         [
                             'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
@@ -718,6 +719,7 @@ class ProjectCommercialOfferController extends Controller
                     dispatchNotify(
                         $tongueTask->responsible_user_id,
                         'Новая задача «' . $tongueTask->name . '»',
+                        '',
                         NotificationType::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION,
                         [
                             'additional_info' => ' Ссылка на задачу: ' . $tongueTask->task_route(),
@@ -902,7 +904,8 @@ class ProjectCommercialOfferController extends Controller
                 dispatchNotify(
                     $task->responsible_user_id,
                     'Новая задача «' . $task->name . '»',
-                    NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK,
+                    '',
+                    NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
                     [
                         'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
                         'task_id' => $task->id,
@@ -984,6 +987,7 @@ class ProjectCommercialOfferController extends Controller
                 dispatchNotify(
                     $task->responsible_user_id,
                     'Новая задача «' . $task->name . '»',
+                    '',
                     $is_tongue ? NotificationType::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION : NotificationType::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION,
                     [
                         'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
@@ -1066,6 +1070,7 @@ class ProjectCommercialOfferController extends Controller
             ('Пользователь ' . $user . ' ' .
                 ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ') . 'заявку на редактирование КП ' . ($com_offer_request->is_tongue ? 'шпунтового' : 'свайного')
                 . ' направления версии ' . $KP->version . ' по проекту ' . Project::find($com_offer_request->project_id)->name),
+            '',
             NotificationType::OFFER_PROCESSING_NOTIFICATION,
             [
                 'additional_info' => "\r\nЗаказчик: " . $proj->contractor_name .
@@ -1394,6 +1399,7 @@ class ProjectCommercialOfferController extends Controller
                 dispatchNotify(
                     $task->responsible_user_id,
                     'Новая задача «' . $task->name . '»',
+                    '',
                     NotificationType::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION,
                     [
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
@@ -1432,6 +1438,7 @@ class ProjectCommercialOfferController extends Controller
                 dispatchNotify(
                     $task->responsible_user_id,
                     'Новая задача «' . $task->name . '»',
+                    '',
                     NotificationType::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION,
                     [
                         'additional_info' => "\r\n<b>Заказчик:</b> " . $project->contractor_name .
@@ -1477,6 +1484,7 @@ class ProjectCommercialOfferController extends Controller
             dispatchNotify(
                 $task->responsible_user_id,
                 'Задача «' . $task->name . '» закрыта',
+                '',
                 NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
                     'task_id' => $task->id,
@@ -1501,6 +1509,7 @@ class ProjectCommercialOfferController extends Controller
                 (is_null($task->revive_at) ? '' : '. Дата, на которую перенесли: ' .
                     strftime('%d.%m.%Y', strtotime($task->revive_at))) .
                 (is_null($task->final_note) ? '' : '. Комментарий: ' . $task->final_note),
+                '',
                 NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
                     'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
@@ -1548,6 +1557,7 @@ class ProjectCommercialOfferController extends Controller
             dispatchNotify(
                 $add_RP_task->responsible_user_id,
                 'Новая задача «' . $add_RP_task->name . '»',
+                '',
                 NotificationType::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION,
                 [
                     'additional_info' => ' Ссылка на задачу: ' . $add_RP_task->task_route(),
@@ -1584,6 +1594,7 @@ class ProjectCommercialOfferController extends Controller
                 dispatchNotify(
                     $task->responsible_user_id,
                     'Новая задача «' . $task->name . '»',
+                    '',
                     NotificationType::CONTRACT_CREATION_TASK_NOTIFICATION,
                     [
                         'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
@@ -1616,6 +1627,7 @@ class ProjectCommercialOfferController extends Controller
                 dispatchNotify(
                     $task->responsible_user_id,
                     'Новая задача «' . $task->name . '»',
+                    '',
                     NotificationType::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION,
                     [
                         'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
@@ -1785,6 +1797,7 @@ class ProjectCommercialOfferController extends Controller
                     dispatchNotify(
                         $item->responsible_user_id,
                         'Задача «' . $item->name . '» закрыта',
+                        '',
                         NotificationType::TASK_CLOSURE_NOTIFICATION,
                         [
                             'task_id' => $item->id,
@@ -1906,6 +1919,7 @@ class ProjectCommercialOfferController extends Controller
             dispatchNotify(
                 $task_1->responsible_user_id,
                 'Новая задача «' . $task_1->name . '»',
+                '',
                 NotificationType::CUSTOMER_APPROVAL_OF_JOINT_OFFER_TASK_NOTIFICATION,
                 [
                     'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
@@ -2050,6 +2064,7 @@ class ProjectCommercialOfferController extends Controller
                 dispatchNotify(
                     $add_RP_task->responsible_user_id,
                     'Новая задача «' . $add_RP_task->name . '»',
+                    '',
                     NotificationType::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION,
                     [
                         'additional_info' => ' Ссылка на задачу: ' . $add_RP_task->task_route(),

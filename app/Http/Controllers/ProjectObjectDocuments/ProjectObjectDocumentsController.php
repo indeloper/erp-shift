@@ -416,6 +416,7 @@ class ProjectObjectDocumentsController extends Controller
             dispatchNotify(
                 $userId,
                 'Документооборот на объектах | ' . "\n" . $objectName . ' | ' . "\n" . $document->document_name . ' | ' . "\n" . 'Новый статус: ' . $statusName,
+                '',
                 NotificationType::DOCUMENT_FLOW_ON_OBJECTS_NEW_STATUS
             );
         }

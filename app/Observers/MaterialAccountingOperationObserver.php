@@ -30,6 +30,7 @@ class MaterialAccountingOperationObserver
                     dispatchNotify(
                         $task->responsible_user_id,
                         'Создана задача: ' . $task->name,
+                        '',
                         NotificationType::OPERATION_CONTROL_TASK_NOTIFICATION,
                         [
                             'task_id' => $task->id,

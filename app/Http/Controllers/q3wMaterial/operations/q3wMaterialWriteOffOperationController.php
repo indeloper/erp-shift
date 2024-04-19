@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Notification;
 use App\Models\Permission;
@@ -741,20 +742,20 @@ class q3wMaterialWriteOffOperationController extends Controller
     public function sendWriteOffNotification(q3wMaterialOperation $operation, string $notificationText, int $notifiedUserId, int $projectObjectId){
         $projectObject = ProjectObject::where('id', $projectObjectId)->first();
 
-        $notificationText = 'Операция #' . $operation->id . ' от ' . $operation->created_at->format('d.m.Y') . PHP_EOL . PHP_EOL . $projectObject->short_name . PHP_EOL . PHP_EOL . $notificationText;
-
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = PHP_EOL . $operation->url;
-        $notification->update([
-            'name' => $notificationText,
-            'target_id' => $operation->id,
-            'user_id' => $notifiedUserId,
-            'object_id' => $projectObjectId,
-            'created_at' => now(),
-            'type' => 7,
-            'status' => 7
-        ]);
+        dispatchNotify(
+            $notifiedUserId,
+            'Операция #' . $operation->id . ' от ' . $operation->created_at->format('d.m.Y') . PHP_EOL . PHP_EOL .
+            $projectObject->short_name . PHP_EOL . PHP_EOL . $notificationText,
+            '',
+            NotificationType::TASK_POSTPONED_AND_CLOSED_NOTIFICATION,
+            [
+                'additional_info' => PHP_EOL . $operation->url,
+                'target_id' => $operation->id,
+                'object_id' => $projectObjectId,
+                'created_at' => now(),
+                'status' => 7
+            ]
+        );
     }
 
     public function isUserResponsibleForMaterialWriteOff(): bool

@@ -2,6 +2,7 @@
 
 namespace App\Models\Contractors;
 
+use App\Domain\Enum\NotificationType;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\SmartSearchable;
 use App\Models\{Notification, Project, ProjectContractors, Task, User};
@@ -64,9 +65,9 @@ class Contractor extends Model
         $contractorAddotionalTypes = ContractorAdditionalTypes::where(
             'additional_type', $mainTypeId)->pluck('contractor_id'
         )->toArray();
-        
-        return 
-            $query 
+
+        return
+            $query
             ->where('main_type', $mainTypeId)
             ->orWhereIn('id', $contractorAddotionalTypes)
             ->get();
@@ -179,16 +180,17 @@ class Contractor extends Model
     {
         if ($this->notify == 0 and $diff_in_days == 1) {
             // send first notification to creator
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. ' . route('contractors::card', $this->id);
-            $notification->update([
-                'name' => 'Заполните контакты контрагента ' . $this->short_name,
-                'user_id' => $this->user_id,
-                'contractor_id' => $this->id,
-                'status' => 5,
-                'type' => 19
-            ]);
+            dispatchNotify(
+                $this->user_id,
+                'Заполните контакты контрагента ' . $this->short_name,
+                '',
+                NotificationType::CONTRACTOR_CONTACT_INFORMATION_REQUIRED_NOTIFICATION,
+                [
+                    'additional_info' => '. ' . route('contractors::card', $this->id),
+                    'contractor_id' => $this->id,
+                    'status' => 5,
+                ]
+            );
 
             $this->notify = 1;
         } elseif ($this->notify >= 1 and $diff_in_days >= 2) {
@@ -204,16 +206,18 @@ class Contractor extends Model
                 $chief_id = User::where('group_id', 50/*7*/)->first()->id;
             }
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. ' . route('contractors::card', $this->id);
-            $notification->update([
-                'name' => 'Пользователь ' . $this->creator->full_name . ' не заполнил(а) контактов контрагента ' . $this->short_name,
-                'user_id' => $chief_id,
-                'contractor_id' => $this->id,
-                'status' => 5,
-                'type' => 18
-            ]);
+            dispatchNotify(
+                $chief_id,
+                'Пользователь ' . $this->creator->full_name . ' не заполнил(а) контактов контрагента ' . $this->short_name,
+                '',
+                NotificationType::USER_CREATED_CONTRACTOR_WITHOUT_CONTACTS_NOTIFICATION,
+                [
+                    'additional_info' => '. ' . route('contractors::card', $this->id),
+                    'user_id' => $chief_id,
+                    'contractor_id' => $this->id,
+                    'status' => 5,
+                ]
+            );
 
             $this->notify = 2;
         }

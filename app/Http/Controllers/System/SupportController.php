@@ -98,6 +98,7 @@ class SupportController extends Controller
             dispatchNotify(
                 1,
                 'Была создана заявка в тех. поддержке',
+                'Была создана заявка в тех. поддержке',
                 NotificationType::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION,
                 [
                     'status' => 2,
@@ -135,6 +136,7 @@ class SupportController extends Controller
 
             dispatchNotify(
                 $task->responsible_user_id,
+                'Новая задача «' . $task->name . '»',
                 'Новая задача «' . $task->name . '»',
                 NotificationType::ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION,
                 [
@@ -203,6 +205,7 @@ class SupportController extends Controller
         dispatchNotify(
             $ticket->user_id,
             $notificationName,
+            '',
             NotificationType::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION
         );
 
@@ -215,12 +218,13 @@ class SupportController extends Controller
         $will = Carbon::parse($ticket->solved_at);
         $notificationName = ($will->gt($was) ? 'К сожалению, с' : 'С') .
                 "рок исполнения вашей заявки «‎{$ticket->title}», ID: {$ticket->id} изменился." .
-                " Предыдущая дата: {$previousDate}, новая дата: {$ticket->solved_at}."
-            . ($will->gt($was) ? ' Приносим извинения!' : '');
+            " Предыдущая дата: {$previousDate}, новая дата: {$ticket->solved_at}." .
+            ($will->gt($was) ? ' Приносим извинения!' : '');
 
         dispatchNotify(
             $ticket->user_id,
             $notificationName,
+            '',
             NotificationType::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION
         );
 
@@ -326,6 +330,7 @@ class SupportController extends Controller
         dispatchNotify(
             $userId,
             $notificationName,
+            '',
             NotificationType::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION
         );
 
