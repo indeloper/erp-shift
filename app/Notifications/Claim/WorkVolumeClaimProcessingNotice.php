@@ -39,6 +39,7 @@ class WorkVolumeClaimProcessingNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.claim.claim-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

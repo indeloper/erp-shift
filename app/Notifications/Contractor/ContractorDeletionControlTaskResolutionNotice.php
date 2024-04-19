@@ -38,6 +38,7 @@ class ContractorDeletionControlTaskResolutionNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.contractor.contractor-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

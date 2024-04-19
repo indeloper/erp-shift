@@ -38,6 +38,7 @@ class TimestampTechniqueUsageNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.timestamp-of-technique-usage-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

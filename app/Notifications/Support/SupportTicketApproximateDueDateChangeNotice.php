@@ -38,6 +38,7 @@ class SupportTicketApproximateDueDateChangeNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.support.support-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

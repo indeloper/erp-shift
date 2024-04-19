@@ -6,6 +6,7 @@ namespace App\Domain\Enum;
 
 use App\Notifications\Claim\WorkVolumeClaimProcessingNotice;
 use App\Notifications\CommercialOffer\AppointmentOfResponsibleForOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\ApprovalOfOfferSheetPilingTaskNotice;
 use App\Notifications\CommercialOffer\CustomerApprovalOfJointOfferTaskNotice;
 use App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice;
 use App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice;
@@ -13,6 +14,7 @@ use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
 use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
 use App\Notifications\CommercialOffer\OfferProcessingNotice;
 use App\Notifications\Contract\ContractDeletionRequestResolutionNotice;
+use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Notifications\DefaultNotification;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNewStatusNotice;
@@ -54,6 +56,8 @@ use App\Notifications\Task\DelayedTaskAddedAgainNotice;
 use App\Notifications\Task\NewTasksFromDeletedUserNotice;
 use App\Notifications\Task\NewTasksFromUserOnLeaveNotice;
 use App\Notifications\Task\OfferChangeControlTaskNotice;
+use App\Notifications\Task\PartialClosureOperationDeletionRequestNotice;
+use App\Notifications\Task\PartialClosureOperationEditRequestNotice;
 use App\Notifications\Task\ProjectLeaderAppointmentTaskNotice;
 use App\Notifications\Task\SubstituteUserReturnFromLeaveTaskTransferNotice;
 use App\Notifications\Task\TaskClosureNotice;
@@ -62,6 +66,11 @@ use App\Notifications\Task\TaskCompletionDeadlineNotice;
 use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
 use App\Notifications\Task\UserOverdueTaskNotice;
+use App\Notifications\Technic\TechnicDispatchConfirmationNotice;
+use App\Notifications\Technic\TechnicReceiptConfirmationNotice;
+use App\Notifications\Technic\TechnicUsageExtensionRequestApprovalNotice;
+use App\Notifications\Technic\TechnicUsageExtensionRequestRejectionNotice;
+use App\Notifications\Technic\TechnicUsageStartTaskNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceCompletionNotice;
 use App\Notifications\TechnicalMaintence\TechnicalMaintenanceNotice;
 use App\Notifications\TimestampTechniqueUsageNotice;
@@ -87,6 +96,7 @@ final class NotificationType
     const TECHNICAL_MAINTENANCE_NOTICE = 14;
     const TECHNICAL_MAINTENANCE_COMPLETION_NOTICE = 15;
     const ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION = 16;
+    const CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION = 17;
 
     const CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION = 20;
 
@@ -94,6 +104,7 @@ final class NotificationType
     const OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION = 28;
     const OFFER_CREATION_PILING_DIRECTION_TASK = 29;
     const APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION = 30;
+    const APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION = 31;
     const CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION = 33;
     const CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION = 34;
     const CUSTOMER_APPROVAL_OF_JOINT_OFFER_TASK_NOTIFICATION = 35;
@@ -114,6 +125,11 @@ final class NotificationType
     const OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION = 56;
 
     const PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION = 63;
+    const TECHNIC_USAGE_START_TASK_NOTIFICATION = 69;
+    const TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION = 71;
+    const TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION = 72;
+    const TECHNIC_USAGE_EXTENSION_REQUEST_APPROVAL_NOTIFICATION = 82;
+    const TECHNIC_USAGE_EXTENSION_REQUEST_REJECTION_NOTIFICATION = 83;
 
     const OPERATION_APPROVAL_NOTIFICATION = 92;
     const OPERATION_REJECTION_NOTIFICATION = 93;
@@ -134,17 +150,19 @@ final class NotificationType
     const EQUIPMENT_MOVEMENT_NOTIFICATION = 119;
     const DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION = 120;
     const DELAYED_TASK_ADDED_AGAIN_NOTIFICATION = 121;
-    const TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION = 122;
-    const TASK_COMPLETION_DEADLINE_NOTIFICATION = 123;
-    const USER_OVERDUE_TASK_NOTIFICATION = 124;
+    const EMPLOYEE_TERMINATION = 122;
+
 
     const NEW_EMPLOYEE_ARRIVAL = 200;
-    const EMPLOYEE_TERMINATION = 201;
+    const TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION = 201;
+    const TASK_COMPLETION_DEADLINE_NOTIFICATION = 202;
     const TASK_CLOSURE_NOTIFICATION = 203;
     const INCOMING_CALL_PROCESSING = 204;
+    const USER_OVERDUE_TASK_NOTIFICATION = 205;
     const TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE = 206;
     const TASK_POSTPONED_AND_CLOSED_NOTIFICATION = 207;
-
+    const PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION = 209;
+    const PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION = 210;
 
     public static function determinateNotificationClassByType(int $type): string
     {
@@ -181,6 +199,8 @@ final class NotificationType
                 return TechnicalMaintenanceCompletionNotice::class;
             case self::ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION:
                 return AdditionalWorksApprovalTaskNotice::class;
+            case self::CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION:
+                return ContractorDeletionControlTaskNotice::class;
 
             case self::LABOR_CANCEL:
                 return LaborCancelNotification::class;
@@ -201,6 +221,8 @@ final class NotificationType
                 return OfferCreationPilingDirectionTaskNotice::class;
             case self::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION:
                 return AppointmentOfResponsibleForOfferSheetPilingTaskNotice::class;
+            case self::APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION:
+                return ApprovalOfOfferSheetPilingTaskNotice::class;
             case self::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION:
                 return CustomerApprovalOfOfferSheetPilingTaskNotice::class;
             case self::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION:
@@ -238,6 +260,18 @@ final class NotificationType
 
             case self::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION:
                 return ProjectLeaderAppointmentTaskNotice::class;
+
+            case self::TECHNIC_USAGE_START_TASK_NOTIFICATION:
+                return TechnicUsageStartTaskNotice::class;
+            case self::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION;
+                return TechnicDispatchConfirmationNotice::class;
+            case self::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION:
+                return TechnicReceiptConfirmationNotice::class;
+
+            case self::TECHNIC_USAGE_EXTENSION_REQUEST_APPROVAL_NOTIFICATION:
+                return TechnicUsageExtensionRequestApprovalNotice::class;
+            case self::TECHNIC_USAGE_EXTENSION_REQUEST_REJECTION_NOTIFICATION:
+                return TechnicUsageExtensionRequestRejectionNotice::class;
 
             case self::OPERATION_APPROVAL_NOTIFICATION:
                 return OperationApprovalNotice::class;
@@ -289,6 +323,10 @@ final class NotificationType
                 return TaskTransferNotificationToNewResponsibleNotice::class;
             case self::TASK_POSTPONED_AND_CLOSED_NOTIFICATION:
                 return TaskPostponedAndClosedNotice::class;
+            case self::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION:
+                return PartialClosureOperationEditRequestNotice::class;
+            case self::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION:
+                return PartialClosureOperationDeletionRequestNotice::class;
 
             case self::FUEL_NOT_AWAITING_CONFIRMATION:
             case self::DEFAULT:

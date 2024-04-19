@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use App\Domain\Enum\NotificationType;
 use App\Http\Requests\DynamicTicketUpdateRequest;
 use App\Http\Requests\TicketStoreRequest;
 use App\Models\Notification;
@@ -134,17 +135,18 @@ class OurTechnicTicketController extends Controller
             // here we have many responsible user (every one can send and receive tech)
             $ourTechnicTicket->users()->attach($request->user, ['type' => $request->task_status == 31 ? 2 : 3]);
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = "\n" .
-                "Ссылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-            $notification->update([
-                'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                'user_id' => $request->user,
-                'created_at' => now(),
-                'target_id' => $ourTechnicTicket->id,
-                'type' => $request->task_status == 31 ? 71 : 72,
-            ]);
+            dispatchNotify(
+                $request->user,
+                "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                $request->task_status == 31 ?
+                                        NotificationType::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION :
+                                        NotificationType::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION,
+                [
+                    'additional_info' => "\nСсылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'created_at' => now(),
+                    'target_id' => $ourTechnicTicket->id,
+                ]
+            );
         }
         elseif ($request->task_status == 36) {
             $user = User::findOrFail($request->user);
@@ -162,18 +164,16 @@ class OurTechnicTicketController extends Controller
                 $ourTechnicTicket->users()->attach($request->user, ['type' => 4]);
             }
 
-
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = "\n" .
-                "Ссылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-            $notification->update([
-                'name' => "Вас назначили ответсвенным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                'user_id' => $request->user,
-                'created_at' => now(),
-                'target_id' => $ourTechnicTicket->id,
-                'type' => 69,
-            ]);
+            dispatchNotify(
+                $request->user,
+                "Вас назначили ответсвенным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                NotificationType::TECHNIC_USAGE_START_TASK_NOTIFICATION,
+                [
+                    'additional_info' => "\nСсылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'created_at' => now(),
+                    'target_id' => $ourTechnicTicket->id,
+                ]
+            );
         }
         DB::commit();
 

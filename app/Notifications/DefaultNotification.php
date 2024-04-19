@@ -55,6 +55,7 @@ class DefaultNotification extends Notification
         return (new MailMessage)
                     ->markdown('mail.default-notification', [
                         'name' => $this->notificationData->getName(),
+                        'link' => $this->notificationData->getAdditionalInfo(),
                         'description' => $this->notificationData->getDescription(),
                     ]);
     }

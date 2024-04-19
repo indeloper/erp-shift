@@ -549,16 +549,16 @@ class ContractorController extends Controller
             'status' => 19
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $task->name . '»',
-            'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
-            'contractor_id' => $task->contractor_id,
-            'type' => 17
-        ]);
+        dispatchNotify(
+            $task->responsible_user_id,
+            'Новая задача «' . $task->name . '»',
+            NotificationType::CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION,
+            [
+                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'task_id' => $task->id,
+                'contractor_id' => $task->contractor_id,
+            ]
+        );
 
         DB::commit();
 

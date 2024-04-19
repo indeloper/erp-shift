@@ -38,6 +38,7 @@ class IncomingCallProcessingNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.incoming-call-processing-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

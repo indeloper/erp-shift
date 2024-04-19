@@ -38,6 +38,7 @@ class DocumentFlowOnObjectsNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.document_flow.document-flow-on-objects-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

@@ -38,6 +38,7 @@ class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification exten
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.fuel.new-fuel-tank-responsible-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

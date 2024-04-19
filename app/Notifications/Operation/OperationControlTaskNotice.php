@@ -38,6 +38,7 @@ class OperationControlTaskNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.operation.operation-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

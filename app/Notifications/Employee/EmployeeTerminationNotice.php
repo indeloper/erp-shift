@@ -38,6 +38,7 @@ class EmployeeTerminationNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.employee.employee-termination-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

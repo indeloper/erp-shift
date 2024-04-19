@@ -38,6 +38,7 @@ class TechnicalMaintenanceCompletionNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.technical_maintenance.technical-maintenance-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }

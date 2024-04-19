@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
 
+use App\Domain\Enum\NotificationType;
 use App\Http\Requests\Building\MaterialAccounting\AttachContractRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToNewRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToUsedRequest;
@@ -742,18 +743,18 @@ class MaterialAccountingController extends Controller
             'final_note' => $request->description,
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $updation_task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $updation_task->name . '» ',
-            'task_id' => $updation_task->id,
-            'user_id' => $updation_task->responsible_user_id,
-            'contractor_id' => null,
-            'project_id' => null,
-            'object_id' => null,
-            'type' => 9
-        ]);
+        dispatchNotify(
+            $updation_task->responsible_user_id,
+            'Новая задача «' . $updation_task->name . '» ',
+            NotificationType::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION,
+            [
+                'additional_info' => ' Ссылка на задачу: ' . $updation_task->task_route(),
+                'task_id' => $updation_task->id,
+                'contractor_id' => null,
+                'project_id' => null,
+                'object_id' => null,
+            ]
+        );
 
         return ['status' => 'success'];
     }
@@ -803,18 +804,18 @@ class MaterialAccountingController extends Controller
             'status' => 22
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $deletion_task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $deletion_task->name . '» ',
-            'task_id' => $deletion_task->id,
-            'user_id' => $deletion_task->responsible_user_id,
-            'contractor_id' => null,
-            'project_id' => null,
-            'object_id' => null,
-            'type' => 10
-        ]);
+        dispatchNotify(
+            $deletion_task->responsible_user_id,
+            'Новая задача «' . $deletion_task->name . '» ',
+            NotificationType::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION,
+            [
+                'additional_info' => ' Ссылка на задачу: ' . $deletion_task->task_route(),
+                'task_id' => $deletion_task->id,
+                'contractor_id' => null,
+                'project_id' => null,
+                'object_id' => null,
+            ]
+        );
 
         return \GuzzleHttp\json_encode($operation->url);
 

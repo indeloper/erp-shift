@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Object;
+namespace App\Notifications\Task;
 
 use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\TelegramNotificationData;
@@ -10,11 +10,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ResponsibleSelectedForProjectDirectionProjectLeaderNotice extends Notification
+class PartialClosureOperationEditRequestNotice extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'По проекту, по направлению сваи/шпунт был выбран отв РП';
+    const DESCRIPTION = 'Уведомление о задаче Запрос на редактирование операции частичного закрытия';
 
     private $notificationData;
 
@@ -36,7 +36,7 @@ class ResponsibleSelectedForProjectDirectionProjectLeaderNotice extends Notifica
     {
         return (new MailMessage)
             ->subject($this->notificationData->getDescription())
-            ->markdown('mail.object.object-notification', [
+            ->markdown('mail.task.task-notification', [
                 'name' => $this->notificationData->getName(),
                 'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),

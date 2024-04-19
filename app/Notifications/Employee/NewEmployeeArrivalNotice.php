@@ -38,6 +38,7 @@ class NewEmployeeArrivalNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.employee.new-employee-arrival-notification', [
                 'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }
