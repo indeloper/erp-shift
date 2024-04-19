@@ -2,13 +2,13 @@
 
 namespace App\Jobs\Notification;
 
-use App\Domain\DTO\NotificationData;
+use App\Domain\DTO\Notification\NotificationData;
 use App\Services\Notification\NotificationServiceInterface;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class NotificationJob implements ShouldQueue
 {

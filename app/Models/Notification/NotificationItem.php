@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Notification;
 
+use App\Models\Permission;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 

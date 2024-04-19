@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\System;
 
-use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SupportRequests\SupportMailRequest;
-use App\Models\{FileEntry, Group, SupportMail, SupportMailFile, Task, Notification};
+use App\Models\{FileEntry,
+    Group,
+    Notification\Notification,
+    SupportMail,
+    SupportMailFile,
+    Task};
 use App\Services\System\Reports\SupportTaskExport;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;

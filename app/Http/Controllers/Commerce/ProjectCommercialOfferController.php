@@ -3,25 +3,36 @@
 namespace App\Http\Controllers\Commerce;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
+use App\Models\{FileEntry,
+    Group,
+    Notification\Notification,
+    Project,
+    ProjectDocument,
+    ProjectObject,
+    ProjectResponsibleUser,
+    Review,
+    Task,
+    User};
+use App\Models\CommercialOffer\{CommercialOffer,
+    CommercialOfferAdvancement,
+    CommercialOfferManualNote,
+    CommercialOfferManualRequirement,
+    CommercialOfferMaterialSplit,
+    CommercialOfferNote,
+    CommercialOfferRequest,
+    CommercialOfferRequestFile,
+    CommercialOfferRequirement,
+    CommercialOfferWork};
+use App\Models\Contractors\{Contractor, ContractorContact, ContractorFile};
+use App\Models\Manual\ManualWork;
+use App\Models\WorkVolume\{WorkVolume,
+    WorkVolumeMaterial,
+    WorkVolumeWork,
+    WorkVolumeWorkMaterial};
 use App\Services\Commerce\SplitService;
 use App\Traits\TimeCalculator;
-
-use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
-
-use App\Models\{FileEntry, Group, Notification,
-    Project, ProjectResponsibleUser, Review, Task,
-    User, ProjectDocument, ProjectObject};
-use App\Models\Contractors\{ContractorFile, Contractor, ContractorContact};
-use App\Models\Manual\ManualWork;
-use App\Models\WorkVolume\{WorkVolume, WorkVolumeWork, WorkVolumeMaterial, WorkVolumeWorkMaterial};
-use App\Models\CommercialOffer\{CommercialOffer, CommercialOfferRequest,
-    CommercialOfferRequestFile, CommercialOfferAdvancement,
-    CommercialOfferNote, CommercialOfferRequirement,
-    CommercialOfferMaterialSplit, CommercialOfferWork,
-    CommercialOfferManualNote, CommercialOfferManualRequirement};
-
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Auth, DB, File, Session, Storage};

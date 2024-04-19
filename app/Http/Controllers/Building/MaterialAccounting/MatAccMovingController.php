@@ -3,39 +3,23 @@
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
 use App\Events\OperationClosed;
-use App\Http\ViewComposers\MatAccComposer;
-use App\Events\NotificationCreated;
-use App\Models\Group;
-use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
-use App\Models\ProjectObject;
-use App\Models\User;
-use App\Models\Notification;
-use App\Services\MaterialAccounting\MaterialAccountingService;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-
-use App\Http\Requests\Building\MaterialAccounting\{CreateMovingRequest, SendMovingRequest};
-
-use App\Models\Project;
-
+use App\Http\Requests\Building\MaterialAccounting\{CreateMovingRequest,
+    SendMovingRequest};
+use App\Models\Manual\ManualMaterial;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
-use App\Models\MatAcc\MaterialAccountingBase;
-use App\Models\Manual\ManualMaterial;
-
-use App\Models\MatAcc\MaterialAccountingTtnMaterial;
+use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
 use App\Models\MatAcc\MaterialAccountingTtn;
-use App\Models\MatAcc\MaterialAccountingMaterialFile;
-
+use App\Models\MatAcc\MaterialAccountingTtnMaterial;
+use App\Models\ProjectObject;
+use App\Models\User;
+use App\Services\MaterialAccounting\MaterialAccountingService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PDF;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use App\Models\FileEntry;
-
-
-use Carbon\Carbon;
 
 class MatAccMovingController extends Controller
 {

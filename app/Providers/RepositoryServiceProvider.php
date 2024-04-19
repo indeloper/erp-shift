@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\ExceptionNotificationUser\ExceptionNotificationUserRepository;
+use App\Repositories\ExceptionNotificationUser\ExceptionNotificationUserRepositoryInterface;
 use App\Repositories\Menu\MenuRepository;
 use App\Repositories\Menu\MenuRepositoryInterface;
 use App\Repositories\Notification\NotificationRepository;
@@ -24,6 +26,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             NotificationItemRepositoryInterface::class,
             NotificationItemRepository::class
+        );
+
+        $this->app->bind(
+            ExceptionNotificationUserRepositoryInterface::class,
+            ExceptionNotificationUserRepository::class
         );
 
         $this->app->bind(

@@ -2,10 +2,10 @@
 
 namespace App\Traits;
 
-use App\Models\{Comment, Group, Notification, Task, User, Project};
-use Illuminate\Support\Collection;
+use App\Models\{Comment, Group, Notification\Notification, Task, User};
 use App\Models\TechAcc\{OurTechnic, OurTechnicTicket};
 use App\Models\TechAcc\Defects\Defects;
+use Illuminate\Support\Collection;
 
 trait NotificationGenerator
 {

@@ -3,16 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\Contractors\Contractor;
-use App\Models\Group;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\Task;
-use App\Models\TaskChangingField;
 use App\Models\User;
 use Carbon\Carbon;
 use Fomvasss\Dadata\Facades\DadataSuggest;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Expr\BinaryOp\Greater;
 
 class CheckContractorsInfo extends Command
 {

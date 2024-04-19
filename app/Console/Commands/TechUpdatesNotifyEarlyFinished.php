@@ -2,13 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\User;
-
-use App\Events\NotificationCreated;
-
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class TechUpdatesNotifyEarlyFinished extends Command

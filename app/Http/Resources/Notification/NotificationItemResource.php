@@ -17,9 +17,9 @@ class NotificationItemResource extends JsonResource
         return [
             'id' => $this->id,
             'description' => $this->description,
-            'mail' => true,
-            'telegram' => true,
-            'system' => true
+            'mail' => $this->mail,
+            'telegram' => $this->telegram,
+            'system' => $this->system
         ];
     }
 }

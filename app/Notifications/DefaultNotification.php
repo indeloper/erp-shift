@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Domain\DTO\NotificationData;
+use App\Domain\DTO\Notification\NotificationData;
 use App\Domain\DTO\TelegramNotificationData;
 use App\NotificationChannels\DatabaseChannel;
 use App\NotificationChannels\TelegramChannel;

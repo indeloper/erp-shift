@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\DynamicTicketUpdateRequest;
 use App\Http\Requests\TicketStoreRequest;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-
 
 class OurTechnicTicketController extends Controller
 {

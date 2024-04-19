@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Common;
 
-use App\Domain\DTO\NotificationSortData;
+use App\Domain\DTO\Notification\NotificationSettingsData;
+use App\Domain\DTO\Notification\NotificationSortData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Notification\DeleteNotificationRequest;
 use App\Http\Requests\Notification\NotificationRequest;
+use App\Http\Requests\Notification\NotificationSettingsItemsRequest;
 use App\Http\Requests\Notification\ViewNotificationRequest;
 use App\Http\Resources\Notification\NotificationItemResource;
 use App\Http\Resources\Notification\NotificationResource;
@@ -20,13 +22,14 @@ class NotificationController extends Controller
 {
 
     private $notificationService;
+
     private $notificationItemService;
 
     public function __construct(
         NotificationServiceInterface $notificationService,
         NotificationItemServiceInterface $notificationItemService
     ) {
-        $this->notificationService = $notificationService;
+        $this->notificationService     = $notificationService;
         $this->notificationItemService = $notificationItemService;
     }
 
@@ -52,7 +55,6 @@ class NotificationController extends Controller
             $request->get('notify_id')
         );
 
-
         return response()->json(true);
     }
 
@@ -70,6 +72,16 @@ class NotificationController extends Controller
         return NotificationItemResource::collection(
             $this->notificationItemService->getNotificationItems(
                 auth()->id()
+            )
+        );
+    }
+
+    public function settings(NotificationSettingsItemsRequest $request)
+    {
+        $this->notificationItemService->settings(
+            auth()->id(),
+            new NotificationSettingsData(
+                $request->get('items', [])
             )
         );
     }

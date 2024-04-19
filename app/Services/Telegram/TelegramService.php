@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Telegram;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\TelegramNotificationData;
-use App\Domain\Enum\NotificationType;
 use App\Models\User;
 use App\Repositories\User\UserRepositoryInterface;
 use Exception;

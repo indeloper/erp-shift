@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Notification;
 
-use App\Domain\DTO\NotificationData;
-use App\Domain\DTO\NotificationSortData;
+use App\Domain\DTO\Notification\NotificationData;
+use App\Domain\DTO\Notification\NotificationSortData;
 use App\Domain\Enum\NotificationType;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
@@ -31,9 +31,9 @@ final class NotificationService implements NotificationServiceInterface
     }
 
     /**
-     * @param \App\Domain\DTO\NotificationData $data
+     * @param \App\Domain\DTO\Notification\NotificationData $data
      *
-     * @return \App\Models\Notification
+     * @return \App\Models\Notification\Notification
      */
     public function store(NotificationData $data): Notification
     {
@@ -43,7 +43,7 @@ final class NotificationService implements NotificationServiceInterface
     }
 
     /**
-     * @param  \App\Domain\DTO\NotificationData  $notificationData
+     * @param  \App\Domain\DTO\Notification\NotificationData  $notificationData
      *
      * @return void
      */

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\NotificationItem;
 
-use App\Models\NotificationItem;
+use App\Models\Notification\NotificationItem;
 use Illuminate\Database\Eloquent\Collection;
 
 interface NotificationItemRepositoryInterface

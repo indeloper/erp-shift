@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Models\Notification\Notification;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Notificationable;
 use App\Traits\NotificationGenerator;
@@ -12,7 +14,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 
 class Task extends Model
 {

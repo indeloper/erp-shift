@@ -3,13 +3,11 @@
 namespace App\Models\CommercialOffer;
 
 use App\Models\Company\Company;
-use App\Services\Commerce\SplitService;
-use App\Traits\Commentable;
-use App\Models\Contractors\{Contractor, ContractorContact};
 use App\Models\Contract\Contract;
+use App\Models\Contractors\{Contractor, ContractorContact};
 use App\Models\FileEntry;
 use App\Models\Manual\ManualWork;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\ProjectResponsibleUser;
@@ -17,8 +15,9 @@ use App\Models\Review;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
-use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\WorkVolume\WorkVolumeWorkMaterial;
+use App\Services\Commerce\SplitService;
+use App\Traits\Commentable;
 use App\Traits\Reviewable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;

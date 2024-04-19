@@ -5,31 +5,32 @@ namespace App\Providers;
 use App\Models\{Comment,
     Manual\ManualMaterial,
     MatAcc\MaterialAccountingMaterialFile,
+    Notification\Notification,
     Project,
-    Notification,
     Task,
     TechAcc\FuelTank\FuelTankOperation,
     User};
-use App\Models\TechAcc\Vehicles\{
-    OurVehicles,
-    VehicleCategories,
-    VehicleCategoryCharacteristics
-};
+use App\Models\CommercialOffer\{CommercialOffer,
+    CommercialOfferMaterialSplit,
+    CommercialOfferWork};
+use App\Models\Manual\{ManualMaterialCategory,
+    ManualNodeMaterials,
+    ManualReference};
+use App\Models\MatAcc\{MaterialAccountingBase, MaterialAccountingOperation};
+use App\Models\TechAcc\Defects\Defects;
 use App\Models\TechAcc\FuelTank\{FuelTank};
 use App\Models\TechAcc\OurTechnicTicketReport;
-use App\Models\TechAcc\Defects\Defects;
-use App\Models\MatAcc\{MaterialAccountingOperation, MaterialAccountingBase};
+use App\Models\TechAcc\Vehicles\{OurVehicles,
+    VehicleCategories,
+    VehicleCategoryCharacteristics};
 use App\Models\Vacation\VacationsHistory;
-use App\Models\Manual\{ManualNodeMaterials, ManualMaterialCategory, ManualReference};
 use App\Models\WorkVolume\{WorkVolumeMaterial, WorkVolumeWork};
-use App\Models\CommercialOffer\{CommercialOffer, CommercialOfferMaterialSplit, CommercialOfferWork};
-
-use App\Observers\MaterialAccounting\MaterialAccountingBaseObserver;
-use App\Observers\{
-    CommentObserver,
+use App\Observers\{CommentObserver,
+    CommercialOffersObserver,
     DefectObserver,
     Manual\ManualMaterialObserver,
     MaterialAccountingMaterialFileObserver,
+    MaterialAccountingOperationObserver,
     NotificationObserver,
     OurVehicleObserver,
     ProjectObserver,
@@ -37,16 +38,18 @@ use App\Observers\{
     UserObserver,
     VacationsHistoryObserver,
     VehicleCategoryCharacteristicObserver,
-    VehicleCategoryObserver,
-    CommercialOffersObserver,
-    MaterialAccountingOperationObserver};
-
-use App\Observers\TechAcc\FuelTank\{FuelTankOperationObserver, FuelTankObserver};
-use App\Observers\Manual\{ManualNodeMaterialsObserver, ManualMaterialCategoryObserver, ManualReferenceObserver};
-use App\Observers\WorkVolumes\{WorkVolumeMaterialObserver, WorkVolumeWorkObserver};
-use App\Observers\CommercialOffers\{CommercialOfferMaterialSplitObserver, CommercialOfferWorkObserver};
+    VehicleCategoryObserver};
+use App\Observers\CommercialOffers\{CommercialOfferMaterialSplitObserver,
+    CommercialOfferWorkObserver};
+use App\Observers\Manual\{ManualMaterialCategoryObserver,
+    ManualNodeMaterialsObserver,
+    ManualReferenceObserver};
+use App\Observers\MaterialAccounting\MaterialAccountingBaseObserver;
+use App\Observers\TechAcc\FuelTank\{FuelTankObserver,
+    FuelTankOperationObserver};
 use App\Observers\TechAcc\OurTechnicTicketReportObserver;
-
+use App\Observers\WorkVolumes\{WorkVolumeMaterialObserver,
+    WorkVolumeWorkObserver};
 use Illuminate\Support\ServiceProvider;
 
 class ObserversServiceProvider extends ServiceProvider

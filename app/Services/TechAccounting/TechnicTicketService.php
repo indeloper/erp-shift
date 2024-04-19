@@ -3,17 +3,15 @@ namespace App\Services\TechAccounting;
 
 use App\Models\FileEntry;
 use App\Models\Group;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
 use App\Services\SystemService;
 use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
-use Illuminate\Http\Request;
 
 class TechnicTicketService
 {

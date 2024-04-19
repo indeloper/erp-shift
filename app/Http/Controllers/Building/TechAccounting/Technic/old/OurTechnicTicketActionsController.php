@@ -3,18 +3,14 @@
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Http\Controllers\Controller;
-
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\NotificationGenerator;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OurTechnicTicketActionsController extends Controller
 {

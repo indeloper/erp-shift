@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Repositories\Notification;
 
-use App\Domain\DTO\NotificationData;
-use App\Domain\DTO\NotificationSortData;
+use App\Domain\DTO\Notification\NotificationData;
+use App\Domain\DTO\Notification\NotificationSortData;
 use App\Domain\Enum\NotificationSortType;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;

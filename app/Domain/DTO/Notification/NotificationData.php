@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\DTO;
-
-use App\Domain\Enum\NotificationType;
-use App\Notifications\DefaultNotification;
+namespace App\Domain\DTO\Notification;
 
 final class NotificationData
 {

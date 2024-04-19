@@ -4,7 +4,7 @@ namespace App\Observers;
 
 use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\Task;
 use Carbon\Carbon;
 

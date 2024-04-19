@@ -2,8 +2,7 @@
 
 namespace App\Observers;
 
-use App\Events\NotificationCreated;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\User;
 use App\Models\Vacation\VacationsHistory;
 

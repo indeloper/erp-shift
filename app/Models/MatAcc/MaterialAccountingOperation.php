@@ -5,32 +5,24 @@ namespace App\Models\MatAcc;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
-use App\Models\MatAcc\MaterialAccountingBase;
-use App\Models\Notification;
-use App\Models\Task;
-use App\Traits\NotificationGenerator;
-use Illuminate\Database\Eloquent\Builder;
-
-use Carbon\CarbonPeriod;
-use App\Traits\Taskable;
-use Illuminate\Database\Eloquent\Model;
-
-use App\Models\ProjectObject;
-use App\Models\User;
 use App\Models\Manual\ManualMaterial;
-use App\Models\Building\ObjectResponsibleUser;
-
+use App\Models\Notification\Notification;
+use App\Models\ProjectObject;
+use App\Models\Task;
+use App\Models\User;
+use App\Services\MaterialAccounting\MaterialAccountingService;
+use App\Traits\NotificationGenerator;
+use App\Traits\Taskable;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-
-use App\Services\MaterialAccounting\MaterialAccountingService;
-
-
-use \Carbon\Carbon;
 
 class MaterialAccountingOperation extends Model
 {

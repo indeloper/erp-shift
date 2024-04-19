@@ -31,11 +31,23 @@ const loadNotificationItems = _ => {
   return axios.get(action)
 }
 
+const save = _ => {
+  const action = document.querySelector('#notifications-settings-items').value
+
+  axios.post(action, {
+    items: dataSource.value.items()
+  })
+      .then(_ => {
+        $('#notificationSettingsModal').modal('hide')
+      })
+
+}
+
 </script>
 
 <template>
   <div class="modal" id="notificationSettingsModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Настройка уведомлений</h5>
@@ -55,29 +67,32 @@ const loadNotificationItems = _ => {
 
             <DxColumn
                 caption="Mail"
+                alignment="center"
                 cell-template="mail-template"
             />
 
             <template #mail-template="{ data: templateOptions }">
-              <DxCheckBox :value="templateOptions.data.mail" />
+              <DxCheckBox style="margin: 0 auto" v-model:value="templateOptions.data.mail" />
             </template>
 
             <DxColumn
                 caption="Telegram"
+                alignment="center"
                 cell-template="telegram-template"
             />
 
             <template #telegram-template="{ data: templateOptions }">
-              <DxCheckBox :value="templateOptions.data.telegram" />
+              <DxCheckBox v-model:value="templateOptions.data.telegram" />
             </template>
 
             <DxColumn
                 caption="System"
+                alignment="center"
                 cell-template="system-template"
             />
 
             <template #system-template="{ data: templateOptions }">
-              <DxCheckBox :value="templateOptions.data.system" />
+              <DxCheckBox v-model:value="templateOptions.data.system" />
             </template>
 
 
@@ -88,7 +103,7 @@ const loadNotificationItems = _ => {
           <button type="button" class="btn btn-secondary" data-dismiss="modal">
             Закрыть
           </button>
-          <button type="button" class="btn btn-primary">
+          <button @click.prevent="save" type="button" class="btn btn-primary">
             Сохранить
           </button>
         </div>

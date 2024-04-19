@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Notification;
 
 use App\Models\CommercialOffer\CommercialOfferRequest;
 use App\Models\Contractors\Contractor;
+use App\Models\ProjectObject;
+use App\Models\Task;
+use App\Models\User;
 use App\Models\WorkVolume\WorkVolumeRequest;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
