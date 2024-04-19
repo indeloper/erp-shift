@@ -7,8 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Notification\DeleteNotificationRequest;
 use App\Http\Requests\Notification\NotificationRequest;
 use App\Http\Requests\Notification\ViewNotificationRequest;
+use App\Http\Resources\Notification\NotificationItemResource;
 use App\Http\Resources\Notification\NotificationResource;
 use App\Services\Notification\NotificationServiceInterface;
+use App\Services\NotificationItem\NotificationItemServiceInterface;
 use App\Services\System\NotificationService;
 use Illuminate\Support\Facades\DB;
 
@@ -18,11 +20,14 @@ class NotificationController extends Controller
 {
 
     private $notificationService;
+    private $notificationItemService;
 
     public function __construct(
-        NotificationServiceInterface $notificationService
+        NotificationServiceInterface $notificationService,
+        NotificationItemServiceInterface $notificationItemService
     ) {
         $this->notificationService = $notificationService;
+        $this->notificationItemService = $notificationItemService;
     }
 
     public function index()
@@ -58,6 +63,15 @@ class NotificationController extends Controller
         );
 
         return response()->json(true);
+    }
+
+    public function items()
+    {
+        return NotificationItemResource::collection(
+            $this->notificationItemService->getNotificationItems(
+                auth()->id()
+            )
+        );
     }
 
     public function viewAll()

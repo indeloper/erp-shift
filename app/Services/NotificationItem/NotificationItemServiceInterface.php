@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\NotificationItem;
 
 use App\Models\NotificationItem;
+use Illuminate\Support\Collection;
 
 interface NotificationItemServiceInterface
 {
@@ -16,4 +17,7 @@ interface NotificationItemServiceInterface
     ): NotificationItem;
 
     public function getNotificationByType(int $type): ?NotificationItem;
+
+    public function getNotificationItems(int $userId): Collection;
+
 }

@@ -5,6 +5,7 @@ import { DxButton, DxColumn, DxDataGrid, DxPaging } from 'devextreme-vue/data-gr
 import { DxButton as DxButtonAlias } from 'devextreme-vue';
 import { ref } from 'vue';
 import DataSource from 'devextreme/data/data_source';
+import NotificationSettings from './NotificationSettings.vue';
 
 const action = document.querySelector('#load-notification-route').value;
 const routeViewAll = document.querySelector('#view-all-notifications').value;
@@ -96,10 +97,14 @@ const viewAllNotifications = _ => {
   <div class="p-2">
     <DxButtonAlias
         icon="eyeopen"
+        class="mr-2"
         @click="viewAllNotifications"
         hint="Прочитать все"
         text="Прочитать все"
     />
+
+    <NotificationSettings/>
+
   </div>
 
   <DxDataGrid
@@ -111,7 +116,6 @@ const viewAllNotifications = _ => {
       :show-borders="true"
       :column-hiding-enabled="true"
       @row-prepared="addRowClasses"
-
   >
     <DxColumn
         caption="Уведомления"
