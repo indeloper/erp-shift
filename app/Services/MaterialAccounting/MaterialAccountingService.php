@@ -2,6 +2,7 @@
 
 namespace App\Services\MaterialAccounting;
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualReference;
 use App\Models\MatAcc\MaterialAccountingOperation;
@@ -218,18 +219,19 @@ class MaterialAccountingService {
                 array_push($user_ids, ...$this->operation->responsible_users()->pluck('user_id')->toArray());
 
                 foreach ($user_ids as $user_id) {
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Перейти к операции можно по ссылке: ' . PHP_EOL . $this->operation->general_url;
-                    $notification->update([
-                        'name' => "По операции перемещения материалов c объекта {$this->operation->object_from->name_tag} на объект {$this->operation->object_to->name_tag};" .
-                            " в периоде выполнения: {$this->operation->planned_date_from} - {$this->operation->planned_date_to}" .
-                            ', выявлено расхождение в количестве фактически отправленного и фактически полученного материала.',
-                        'status' => 6,
-                        'user_id' => $user_id,
-                        'target_id' => $this->operation->id,
-                        'type' => 12
-                    ]);
+                    dispatchNotify(
+                        $user_id,
+                        "По операции перемещения материалов c объекта {$this->operation->object_from->name_tag} на объект {$this->operation->object_to->name_tag};" .
+                        " в периоде выполнения: {$this->operation->planned_date_from} - {$this->operation->planned_date_to}" .
+                        ', выявлено расхождение в количестве фактически отправленного и фактически полученного материала.',
+                        '',
+                        NotificationType::MATERIAL_DIFFERENCE_NOTIFICATION,
+                        [
+                            'additional_info' => ' Перейти к операции можно по ссылке: ' . PHP_EOL . $this->operation->general_url,
+                            'status' => 6,
+                            'target_id' => $this->operation->id,
+                        ]
+                    );
                 }
             }
         }

@@ -931,16 +931,17 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author_id, $this->responsible_users()->where('type', $partSendType == 8 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 59
-            ]);
+            dispatchNotify(
+                $user,
+                $this->generateOperationPartSaveNotificationText($partSendType),
+                '',
+                NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ', $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -966,16 +967,17 @@ class MaterialAccountingOperation extends Model
         $users = $this->type == 2 ? [$this->author->id, Group::find(6)->getUsers()->first()->id] : [$this->author->id];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationEndNotificationText($sendType),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 60
-            ]);
+            dispatchNotify(
+                $userId,
+                $this->generateOperationEndNotificationText($sendType),
+                '',
+                NotificationType::OPERATION_COMPLETION_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -984,16 +986,17 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author->id, $this->responsible_users()->where('type', $sendType == 1 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationEndNotificationText($sendType),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 60
-            ]);
+            dispatchNotify(
+                $userId,
+                $this->generateOperationEndNotificationText($sendType),
+                '',
+                NotificationType::OPERATION_COMPLETION_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1020,16 +1023,17 @@ class MaterialAccountingOperation extends Model
         $users = $this->type == 2 ? [$this->responsible_user->user_id, Group::find(6)->getUsers()->first()->id] : [$this->responsible_user->user_id];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationAcceptNotificationText(),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 61
-            ]);
+            dispatchNotify(
+                $userId,
+                $this->generateOperationAcceptNotificationText(),
+                '',
+                NotificationType::OPERATION_CONFIRMED_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1038,16 +1042,17 @@ class MaterialAccountingOperation extends Model
         $users = $this->responsible_users()->whereIn('type', [1, 2])->pluck('user_id')->toArray();
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationAcceptNotificationText(),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 61
-            ]);
+            dispatchNotify(
+                $userId,
+                $this->generateOperationAcceptNotificationText(),
+                '',
+                NotificationType::OPERATION_CONFIRMED_NOTIFICATION,
+                [
+                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1074,16 +1079,17 @@ class MaterialAccountingOperation extends Model
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach ($user_ids as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Для подробностей перейдите по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationConflictNotificationText(),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 62
-            ]);
+            dispatchNotify(
+                $user,
+                $this->generateOperationConflictNotificationText(),
+                '',
+                NotificationType::OPERATION_STATUS_CONFLICT_NOTIFICATION,
+                [
+                    'additional_info' => '. Для подробностей перейдите по ссылке: ' . PHP_EOL . $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1106,17 +1112,17 @@ class MaterialAccountingOperation extends Model
     {
         if ($this->status != 5) return;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftUpdateNotificationText(),
-            'user_id' => $this->responsible_RP,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 64
-        ]);
-
+        dispatchNotify(
+            $this->responsible_RP,
+            $this->generateOperationDraftUpdateNotificationText(),
+            '',
+            NotificationType::OPERATION_CREATION_REQUEST_UPDATED_NOTIFICATION,
+            [
+                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftUpdateNotificationText()

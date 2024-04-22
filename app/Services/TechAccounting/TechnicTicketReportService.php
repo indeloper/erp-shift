@@ -2,6 +2,7 @@
 namespace App\Services\TechAccounting;
 
 
+use App\Domain\Enum\NotificationType;
 use App\Models\Notification;
 use App\Models\Task;
 use App\Models\TechAcc\OurTechnicTicket;
@@ -42,15 +43,18 @@ class TechnicTicketReportService
                 'status' => 36,
             ]);
             $task->update(['created_at' => $date]);
-            $notification = new Notification([
-                'name' => 'Была создана задача ' . '"Ответка времени использования техники за ' . $date->clone()->isoFormat('DD.MM.YYYY') . '"',
-                'user_id' => $task->responsible_user_id,
-                'created_at' => now(),
-                'type' => 110,
-                'task_id' => $task->id,
-            ]);
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->save();
+
+            dispatchNotify(
+                $task->responsible_user_id,
+                'Была создана задача ' . '"Ответка времени использования техники за ' . $date->clone()->isoFormat('DD.MM.YYYY') . '"',
+                '',
+                NotificationType::TIMESTAMP_TECHNIQUE_USAGE,
+                [
+                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                    'created_at' => now(),
+                    'task_id' => $task->id,
+                ]
+            );
         }
     }
 

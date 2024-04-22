@@ -20,6 +20,8 @@ use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
 use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
 use App\Notifications\CommercialOffer\OfferProcessingNotice;
 use App\Notifications\CommercialOffer\PileDrivingOfferApprovalTaskCreationNotice;
+use App\Notifications\Contract\CertificateAvailabilityControlTaskCreatedNotice;
+use App\Notifications\Contract\CertificateAvailabilityControlTaskNotice;
 use App\Notifications\Contract\ContractApprovalControlTaskCreationNotice;
 use App\Notifications\Contract\ContractApprovalTaskCreationNotice;
 use App\Notifications\Contract\ContractDeletionControlTaskCreationNotice;
@@ -27,6 +29,7 @@ use App\Notifications\Contract\ContractDeletionRequestResolutionNotice;
 use App\Notifications\Contract\ContractFormationTaskCreationNotice;
 use App\Notifications\Contract\ContractSignatureControlTaskCreationNotice;
 use App\Notifications\Contract\ContractSignatureControlTaskRecreationNotice;
+use App\Notifications\Contract\OperationsWithoutCertificatesNotice;
 use App\Notifications\Contractor\ContractorContactInformationRequiredNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
@@ -35,6 +38,8 @@ use App\Notifications\DefaultNotification;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNewStatusNotice;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNotice;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFlowNotice;
+use App\Notifications\Employee\EmployeeBirthdayNextWeekNotice;
+use App\Notifications\Employee\EmployeeBirthdayTodayNotice;
 use App\Notifications\Employee\EmployeeTerminationNotice;
 use App\Notifications\Employee\NewEmployeeArrivalNotice;
 use App\Notifications\Employee\UserLeaveSubstitutionNotice;
@@ -49,6 +54,7 @@ use App\Notifications\IncomingCallProcessingNotice;
 use App\Notifications\Labor\LaborCancelNotification;
 use App\Notifications\Labor\LaborSafetyNotification;
 use App\Notifications\Labor\LaborSignedNotification;
+use App\Notifications\Material\MaterialDifferenceNotice;
 use App\Notifications\Object\ObjectParticipatesInWorkProductionNotice;
 use App\Notifications\Object\ProjectLeaderAppointedToObjectNotice;
 use App\Notifications\Object\ResponsibleAddedToObjectNotice;
@@ -57,11 +63,15 @@ use App\Notifications\OnlyTelegramNotification;
 use App\Notifications\Operation\ContractControlInOperationsTaskNotice;
 use App\Notifications\Operation\OperationApprovalNotice;
 use App\Notifications\Operation\OperationCancelledNotice;
+use App\Notifications\Operation\OperationCompletionNotice;
+use App\Notifications\Operation\OperationConfirmedNotice;
 use App\Notifications\Operation\OperationControlTaskNotice;
 use App\Notifications\Operation\OperationCreationApprovalRequestNotice;
+use App\Notifications\Operation\OperationCreationRequestUpdatedNotice;
 use App\Notifications\Operation\OperationDraftApprovalNotice;
 use App\Notifications\Operation\OperationDraftDeclinedNotice;
 use App\Notifications\Operation\OperationRejectionNotice;
+use App\Notifications\Operation\OperationStatusConflictNotice;
 use App\Notifications\Operation\PartialOperationClosureNotice;
 use App\Notifications\Operation\ResponsibleAppointmentInOperationNotice;
 use App\Notifications\Operation\WriteOffOperationRejectionNotice;
@@ -86,8 +96,27 @@ use App\Notifications\Task\TaskCompletionDeadlineNotice;
 use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
 use App\Notifications\Task\UserOverdueTaskNotice;
+use App\Notifications\Task\WriteOffControlTaskCreatedNotice;
+use App\Notifications\Technic\RequestProcessedByLogisticianNotice;
+use App\Notifications\Technic\RequestProcessingRequiredNotice;
+use App\Notifications\Technic\TechnicalDeviceFaultReportCreatedNotice;
+use App\Notifications\Technic\TechnicalFaultControlTaskNotice;
+use App\Notifications\Technic\TechnicalFaultReportAssigneeNotice;
+use App\Notifications\Technic\TechnicalFaultReportAssignmentTaskCreationNotice;
+use App\Notifications\Technic\TechnicalFaultReportCompletionControlTaskNotice;
+use App\Notifications\Technic\TechnicalFaultReportConfirmedNotice;
+use App\Notifications\Technic\TechnicalFaultReportDeletedNotice;
+use App\Notifications\Technic\TechnicalFaultReportDeletedOrRejectedNotice;
+use App\Notifications\Technic\TechnicalFaultReportNewCommentNotice;
+use App\Notifications\Technic\TechnicalFaultReportRejectionNotice;
+use App\Notifications\Technic\TechnicalFaultReportRepairPeriodChangeNotice;
+use App\Notifications\Technic\TechnicalFaultReportRepairPeriodEndingNotice;
+use App\Notifications\Technic\TechnicalFaultReportWorkCompletionNotice;
+use App\Notifications\Technic\TechnicAvailableNotice;
 use App\Notifications\Technic\TechnicDispatchConfirmationNotice;
+use App\Notifications\Technic\TechnicExtentionApprovedNotice;
 use App\Notifications\Technic\TechnicReceiptConfirmationNotice;
+use App\Notifications\Technic\TechnicRequestApprovalNotice;
 use App\Notifications\Technic\TechnicUsageExtensionRequestApprovalNotice;
 use App\Notifications\Technic\TechnicUsageExtensionRequestRejectionNotice;
 use App\Notifications\Technic\TechnicUsageStartTaskNotice;
@@ -108,10 +137,8 @@ final class NotificationType
     const LABOR_CANCEL = 8;
     const LABOR_SAFETY = 9;
     const LABOR_SIGNED = 10;
-
-
     const RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION = 11;
-
+    const MATERIAL_DIFFERENCE_NOTIFICATION = 12;
     const WRITE_OFF_OPERATION_REJECTION_NOTIFICATION = 13;
     const TECHNICAL_MAINTENANCE_NOTICE = 14;
     const TECHNICAL_MAINTENANCE_COMPLETION_NOTICE = 15;
@@ -134,7 +161,6 @@ final class NotificationType
     const CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION = 33;
     const CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION = 34;
     const CUSTOMER_APPROVAL_OF_JOINT_OFFER_TASK_NOTIFICATION = 35;
-
     const OFFER_PROCESSING_NOTIFICATION = 37;
     const CONTRACT_CREATION_TASK_NOTIFICATION = 38;
     const CONTRACT_FORMATION_TASK_CREATION_NOTIFICATION = 39;
@@ -158,22 +184,47 @@ final class NotificationType
     const OPERATION_DRAFT_APPROVAL_NOTIFICATION = 57;
     const OPERATION_DRAFT_DECLINED_NOTIFICATION = 58;
     const PARTIAL_OPERATION_CLOSURE_NOTIFICATION = 59;
+    const OPERATION_COMPLETION_NOTIFICATION = 60;
+    const OPERATION_CONFIRMED_NOTIFICATION = 61;
+    const OPERATION_STATUS_CONFLICT_NOTIFICATION = 62;
     const PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION = 63;
+    const OPERATION_CREATION_REQUEST_UPDATED_NOTIFICATION = 64;
+    const TECHNICAL_DEVICE_FAULT_REPORT_CREATED_NOTIFICATION = 65;
+    const TECHNICAL_FAULT_REPORT_ASSIGNMENT_TASK_CREATION_NOTIFICATION = 66;
+    const TECHNICAL_FAULT_REPORT_ASSIGNEE_NOTIFICATION = 67;
+    const TECHNIC_REQUEST_APPROVAL_NOTIFICATION = 68;
     const TECHNIC_USAGE_START_TASK_NOTIFICATION = 69;
+    const REQUEST_PROCESSING_REQUIRED_NOTIFICATION = 70;
     const TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION = 71;
     const TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION = 72;
+    const TECHNICAL_FAULT_REPORT_REJECTION_NOTIFICATION = 73;
+    const TECHNICAL_FAULT_REPORT_CONFIRMED_NOTIFICATION = 74;
+    const TECHNICAL_FAULT_CONTROL_TASK_NOTIFICATION = 75;
+    const TECHNICAL_FAULT_REPORT_NEW_COMMENT_NOTIFICATION = 76;
+    const TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_CHANGE_NOTIFICATION = 77;
+    const TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_ENDING_NOTIFICATION = 78;
+    const TECHNICAL_FAULT_REPORT_COMPLETION_CONTROL_TASK_NOTIFICATION = 79;
+    const TECHNICAL_FAULT_REPORT_WORK_COMPLETION_NOTIFICATION = 80;
+    const TECHNICAL_FAULT_REPORT_DELETED_NOTIFICATION = 81;
     const TECHNIC_USAGE_EXTENSION_REQUEST_APPROVAL_NOTIFICATION = 82;
     const TECHNIC_USAGE_EXTENSION_REQUEST_REJECTION_NOTIFICATION = 83;
-
+    const REQUEST_PROCESSED_BY_LOGISTICIAN_NOTIFICATION = 84;
+    const TECHNICAL_FAULT_REPORT_DELETED_OR_REJECTED_NOTIFICATION = 85;
+    const TECHNIC_AVAILABLE_NOTIFICATION = 86;
+    const TECHNIC_EXTENTION_APPROVED_NOTIFICATION = 87;
+    const EMPLOYEE_BIRTHDAY_NEXT_WEEK_NOTIFICATION = 88;
+    const EMPLOYEE_BIRTHDAY_TODAY_NOTIFICATION = 89;
     const OPERATION_APPROVAL_NOTIFICATION = 92;
     const OPERATION_REJECTION_NOTIFICATION = 93;
     const CONTRACTOR_CHANGES_VERIFICATION_TASK_NOTIFICATION = 94;
     const OPERATION_CONTROL_TASK_NOTIFICATION = 95;
 
 
+    const CERTIFICATE_AVAILABILITY_CONTROL_TASK_NOTIFICATION = 104;
+    const CERTIFICATE_AVAILABILITY_CONTROL_TASK_CREATED_NOTIFICATION = 105;
+    const OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION = 106;
     const CONTRACT_CONTROL_IN_OPERATIONS_TASK_NOTIFICATION = 109;
     const TIMESTAMP_TECHNIQUE_USAGE = 110;
-
     const OBJECT_PARTICIPATES_IN_WORK_PRODUCTION = 112;
     const RESPONSIBLE_ADDED_TO_OBJECT = 113;
     const PROJECT_LEADER_APPOINTED_TO_OBJECT = 114;
@@ -195,6 +246,7 @@ final class NotificationType
     const USER_OVERDUE_TASK_NOTIFICATION = 205;
     const TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE = 206;
     const TASK_POSTPONED_AND_CLOSED_NOTIFICATION = 207;
+    const WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION = 208;
     const PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION = 209;
     const PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION = 210;
 
@@ -216,6 +268,8 @@ final class NotificationType
                 return FuelTanksLevelCheckNotification::class;
             case self::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION:
                 return ResponsibleAppointmentInOperationNotice::class;
+            case self::MATERIAL_DIFFERENCE_NOTIFICATION:
+                return MaterialDifferenceNotice::class;
             case self::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION:
                 return WriteOffOperationRejectionNotice::class;
             case self::CONTRACTOR_CHANGES_VERIFICATION_TASK_NOTIFICATION:
@@ -223,6 +277,12 @@ final class NotificationType
             case self::OPERATION_CONTROL_TASK_NOTIFICATION:
                 return OperationControlTaskNotice::class;
 
+            case self::CERTIFICATE_AVAILABILITY_CONTROL_TASK_NOTIFICATION:
+                return CertificateAvailabilityControlTaskNotice::class;
+            case self::CERTIFICATE_AVAILABILITY_CONTROL_TASK_CREATED_NOTIFICATION:
+                return CertificateAvailabilityControlTaskCreatedNotice::class;
+            case self::OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION:
+                return OperationsWithoutCertificatesNotice::class;
             case self::TECHNICAL_MAINTENANCE_NOTICE:
                 return TechnicalMaintenanceNotice::class;
             case self::USER_CREATED_CONTRACTOR_WITHOUT_CONTACTS_NOTIFICATION:
@@ -321,21 +381,66 @@ final class NotificationType
                 return OperationDraftDeclinedNotice::class;
             case self::PARTIAL_OPERATION_CLOSURE_NOTIFICATION:
                 return PartialOperationClosureNotice::class;
+            case self::OPERATION_COMPLETION_NOTIFICATION:
+                return OperationCompletionNotice::class;
+            case self::OPERATION_CONFIRMED_NOTIFICATION:
+                return OperationConfirmedNotice::class;
+            case self::OPERATION_STATUS_CONFLICT_NOTIFICATION:
+                return OperationStatusConflictNotice::class;
             case self::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION:
                 return ProjectLeaderAppointmentTaskNotice::class;
-
+            case self::OPERATION_CREATION_REQUEST_UPDATED_NOTIFICATION:
+                return OperationCreationRequestUpdatedNotice::class;
+            case self::TECHNICAL_DEVICE_FAULT_REPORT_CREATED_NOTIFICATION:
+                return TechnicalDeviceFaultReportCreatedNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_ASSIGNMENT_TASK_CREATION_NOTIFICATION:
+                return TechnicalFaultReportAssignmentTaskCreationNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_ASSIGNEE_NOTIFICATION:
+                return TechnicalFaultReportAssigneeNotice::class;
+            case self::TECHNIC_REQUEST_APPROVAL_NOTIFICATION:
+                return TechnicRequestApprovalNotice::class;
             case self::TECHNIC_USAGE_START_TASK_NOTIFICATION:
                 return TechnicUsageStartTaskNotice::class;
+            case self::REQUEST_PROCESSING_REQUIRED_NOTIFICATION:
+                return RequestProcessingRequiredNotice::class;
             case self::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION;
                 return TechnicDispatchConfirmationNotice::class;
             case self::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION:
                 return TechnicReceiptConfirmationNotice::class;
-
+            case self::TECHNICAL_FAULT_REPORT_REJECTION_NOTIFICATION:
+                return TechnicalFaultReportRejectionNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_CONFIRMED_NOTIFICATION:
+                return TechnicalFaultReportConfirmedNotice::class;
+            case self::TECHNICAL_FAULT_CONTROL_TASK_NOTIFICATION:
+                return TechnicalFaultControlTaskNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_NEW_COMMENT_NOTIFICATION:
+                return TechnicalFaultReportNewCommentNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_CHANGE_NOTIFICATION:
+                return TechnicalFaultReportRepairPeriodChangeNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_ENDING_NOTIFICATION:
+                return TechnicalFaultReportRepairPeriodEndingNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_COMPLETION_CONTROL_TASK_NOTIFICATION:
+                return TechnicalFaultReportCompletionControlTaskNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_WORK_COMPLETION_NOTIFICATION:
+                return TechnicalFaultReportWorkCompletionNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_DELETED_NOTIFICATION:
+                return TechnicalFaultReportDeletedNotice::class;
             case self::TECHNIC_USAGE_EXTENSION_REQUEST_APPROVAL_NOTIFICATION:
                 return TechnicUsageExtensionRequestApprovalNotice::class;
             case self::TECHNIC_USAGE_EXTENSION_REQUEST_REJECTION_NOTIFICATION:
                 return TechnicUsageExtensionRequestRejectionNotice::class;
-
+            case self::REQUEST_PROCESSED_BY_LOGISTICIAN_NOTIFICATION:
+                return RequestProcessedByLogisticianNotice::class;
+            case self::TECHNICAL_FAULT_REPORT_DELETED_OR_REJECTED_NOTIFICATION:
+                return TechnicalFaultReportDeletedOrRejectedNotice::class;
+            case self::TECHNIC_AVAILABLE_NOTIFICATION:
+                return TechnicAvailableNotice::class;
+            case self::TECHNIC_EXTENTION_APPROVED_NOTIFICATION:
+                return TechnicExtentionApprovedNotice::class;
+            case self::EMPLOYEE_BIRTHDAY_NEXT_WEEK_NOTIFICATION:
+                return EmployeeBirthdayNextWeekNotice::class;
+            case self::EMPLOYEE_BIRTHDAY_TODAY_NOTIFICATION:
+                return EmployeeBirthdayTodayNotice::class;
             case self::OPERATION_APPROVAL_NOTIFICATION:
                 return OperationApprovalNotice::class;
             case self::OPERATION_REJECTION_NOTIFICATION:
@@ -387,6 +492,8 @@ final class NotificationType
                 return TaskTransferNotificationToNewResponsibleNotice::class;
             case self::TASK_POSTPONED_AND_CLOSED_NOTIFICATION:
                 return TaskPostponedAndClosedNotice::class;
+            case self::WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION:
+                return WriteOffControlTaskCreatedNotice::class;
             case self::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION:
                 return PartialClosureOperationEditRequestNotice::class;
             case self::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION:
