@@ -127,16 +127,16 @@ use App\Notifications\TimestampTechniqueUsageNotice;
 final class NotificationType
 {
     const DEFAULT = 0;
-    const ONLY_TELEGRAM = 1;
-    const FUEL_NEW_TANK_RESPONSIBLE = 2;
-    const FUEL_NOT_AWAITING_CONFIRMATION = 3;
-    const FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE = 4;
-    const FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES = 5;
-    const FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED = 6;
-    const FUEL_TANKS_LEVEL_CHECK = 7;
-    const LABOR_CANCEL = 8;
-    const LABOR_SAFETY = 9;
-    const LABOR_SIGNED = 10;
+    const TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION = 1;
+    const TASK_COMPLETION_DEADLINE_NOTIFICATION = 2;
+    const TASK_CLOSURE_NOTIFICATION = 3;
+    const INCOMING_CALL_PROCESSING = 4;
+    const USER_OVERDUE_TASK_NOTIFICATION = 5;
+    const TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE = 6;
+    const TASK_POSTPONED_AND_CLOSED_NOTIFICATION = 7;
+    const WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION = 8;
+    const PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION = 9;
+    const PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION = 10;
     const RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION = 11;
     const MATERIAL_DIFFERENCE_NOTIFICATION = 12;
     const WRITE_OFF_OPERATION_REJECTION_NOTIFICATION = 13;
@@ -237,18 +237,18 @@ final class NotificationType
     const DELAYED_TASK_ADDED_AGAIN_NOTIFICATION = 121;
     const EMPLOYEE_TERMINATION = 122;
     const COMMERCIAL_OFFER_APPROVED_NOTIFICATION = 123;
+    const LABOR_SAFETY = 124;
+    const LABOR_SIGNED = 125;
+    const NEW_EMPLOYEE_ARRIVAL = 126;
 
-    const NEW_EMPLOYEE_ARRIVAL = 200;
-    const TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION = 201;
-    const TASK_COMPLETION_DEADLINE_NOTIFICATION = 202;
-    const TASK_CLOSURE_NOTIFICATION = 203;
-    const INCOMING_CALL_PROCESSING = 204;
-    const USER_OVERDUE_TASK_NOTIFICATION = 205;
-    const TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE = 206;
-    const TASK_POSTPONED_AND_CLOSED_NOTIFICATION = 207;
-    const WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION = 208;
-    const PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION = 209;
-    const PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION = 210;
+    const ONLY_TELEGRAM = 201;
+    const FUEL_NEW_TANK_RESPONSIBLE = 202;
+    const FUEL_NOT_AWAITING_CONFIRMATION = 203;
+    const FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE = 204;
+    const FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES = 205;
+    const FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED = 206;
+    const FUEL_TANKS_LEVEL_CHECK = 207;
+    const LABOR_CANCEL = 208;
 
     public static function determinateNotificationClassByType(int $type): string
     {
@@ -256,16 +256,26 @@ final class NotificationType
             case self::ONLY_TELEGRAM:
                 return OnlyTelegramNotification::class;
 
-            case self::FUEL_NEW_TANK_RESPONSIBLE:
-                return NewFuelTankResponsibleNotification::class;
-            case self::FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE:
-                return ConfirmFuelTankMovingPreviousResponsibleNotification::class;
-            case self::FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES:
-                return FuelTankMovingConfirmationForOfficeResponsiblesNotification::class;
-            case self::FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED:
-                return FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification::class;
-            case self::FUEL_TANKS_LEVEL_CHECK:
-                return FuelTanksLevelCheckNotification::class;
+            case self::TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION:
+                return TaskCompletionDeadlineApproachingNotice::class;
+            case self::TASK_COMPLETION_DEADLINE_NOTIFICATION:
+                return TaskCompletionDeadlineNotice::class;
+            case self::TASK_CLOSURE_NOTIFICATION:
+                return TaskClosureNotice::class;
+            case self::INCOMING_CALL_PROCESSING:
+                return IncomingCallProcessingNotice::class;
+            case self::USER_OVERDUE_TASK_NOTIFICATION:
+                return UserOverdueTaskNotice::class;
+            case self::TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE:
+                return TaskTransferNotificationToNewResponsibleNotice::class;
+            case self::TASK_POSTPONED_AND_CLOSED_NOTIFICATION:
+                return TaskPostponedAndClosedNotice::class;
+            case self::WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION:
+                return WriteOffControlTaskCreatedNotice::class;
+            case self::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION:
+                return PartialClosureOperationEditRequestNotice::class;
+            case self::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION:
+                return PartialClosureOperationDeletionRequestNotice::class;
             case self::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION:
                 return ResponsibleAppointmentInOperationNotice::class;
             case self::MATERIAL_DIFFERENCE_NOTIFICATION:
@@ -307,15 +317,6 @@ final class NotificationType
                 return AdditionalWorksApprovalTaskNotice::class;
             case self::CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION:
                 return ContractorDeletionControlTaskNotice::class;
-
-            case self::LABOR_CANCEL:
-                return LaborCancelNotification::class;
-            case self::LABOR_SAFETY:
-                return LaborSafetyNotification::class;
-            case self::LABOR_SIGNED:
-                return LaborSignedNotification::class;
-
-
             case self::WORK_VOLUME_CLAIM_PROCESSING_NOTIFICATION:
                 return WorkVolumeClaimProcessingNotice::class;
             case self::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION:
@@ -475,29 +476,25 @@ final class NotificationType
                 return EmployeeTerminationNotice::class;
             case self::COMMERCIAL_OFFER_APPROVED_NOTIFICATION:
                 return CommercialOfferApprovedNotice::class;
-
+            case self::LABOR_SAFETY:
+                return LaborSafetyNotification::class;
+            case self::LABOR_SIGNED:
+                return LaborSignedNotification::class;
             case self::NEW_EMPLOYEE_ARRIVAL:
                 return NewEmployeeArrivalNotice::class;
-            case self::TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION:
-                return TaskCompletionDeadlineApproachingNotice::class;
-            case self::TASK_COMPLETION_DEADLINE_NOTIFICATION:
-                return TaskCompletionDeadlineNotice::class;
-            case self::TASK_CLOSURE_NOTIFICATION:
-                return TaskClosureNotice::class;
-            case self::INCOMING_CALL_PROCESSING:
-                return IncomingCallProcessingNotice::class;
-            case self::USER_OVERDUE_TASK_NOTIFICATION:
-                return UserOverdueTaskNotice::class;
-            case self::TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE:
-                return TaskTransferNotificationToNewResponsibleNotice::class;
-            case self::TASK_POSTPONED_AND_CLOSED_NOTIFICATION:
-                return TaskPostponedAndClosedNotice::class;
-            case self::WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION:
-                return WriteOffControlTaskCreatedNotice::class;
-            case self::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION:
-                return PartialClosureOperationEditRequestNotice::class;
-            case self::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION:
-                return PartialClosureOperationDeletionRequestNotice::class;
+
+            case self::FUEL_NEW_TANK_RESPONSIBLE:
+                return NewFuelTankResponsibleNotification::class;
+            case self::FUEL_CONFIRM_TANK_MOVING_PREVIOUS_RESPONSIBLE:
+                return ConfirmFuelTankMovingPreviousResponsibleNotification::class;
+            case self::FUEL_TANK_MOVING_CONFIRMATION_OFFICE_RESPONSIBLES:
+                return FuelTankMovingConfirmationForOfficeResponsiblesNotification::class;
+            case self::FUEL_NOTIFY_OFFICE_RESPONSIBLES_ABOUT_TANK_MOVING_CONFIRMATION_DELAYED:
+                return FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification::class;
+            case self::FUEL_TANKS_LEVEL_CHECK:
+                return FuelTanksLevelCheckNotification::class;
+            case self::LABOR_CANCEL:
+                return LaborCancelNotification::class;
 
             case self::FUEL_NOT_AWAITING_CONFIRMATION:
             case self::DEFAULT:
