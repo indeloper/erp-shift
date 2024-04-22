@@ -12,7 +12,7 @@ class ConfirmFuelTankMovingPreviousResponsibleNotification extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Уведомление о подтверждении перемещения топливного бака предыдущим ответственным';
 
     private $notificationData;
 

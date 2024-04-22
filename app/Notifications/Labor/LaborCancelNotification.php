@@ -14,7 +14,7 @@ class LaborCancelNotification extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Заявка на формирование приказов отменена';
 
     private $notificationData;
 

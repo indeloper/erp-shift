@@ -16,7 +16,7 @@ class NewFuelTankResponsibleNotification extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Уведомление о новом ответственном за топливную емкость';
 
     private $notificationData;
 

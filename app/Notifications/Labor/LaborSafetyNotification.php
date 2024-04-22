@@ -14,7 +14,7 @@ class LaborSafetyNotification extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Заявка на формирование приказов';
 
     private $notificationData;
 

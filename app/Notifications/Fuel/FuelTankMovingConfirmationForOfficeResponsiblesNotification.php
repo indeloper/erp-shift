@@ -12,7 +12,7 @@ class FuelTankMovingConfirmationForOfficeResponsiblesNotification extends Notifi
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Уведомление о подтверждении перемещения топливной емкости для ответственных в офисе';
 
     private $notificationData;
 

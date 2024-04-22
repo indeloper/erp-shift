@@ -14,7 +14,7 @@ class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification exten
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Уведомление для ответственных в офисе о задержке подтверждения перемещения топливного бака';
 
     private $notificationData;
 

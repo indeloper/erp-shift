@@ -14,7 +14,7 @@ class FuelTanksLevelCheckNotification extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Уведомление о проверке уровня топлива в емкостях.';
 
     private $notificationData;
 

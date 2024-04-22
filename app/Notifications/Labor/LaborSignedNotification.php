@@ -14,7 +14,7 @@ class LaborSignedNotification extends Notification
 {
     use Queueable;
 
-    const DESCRIPTION = 'TEST NOTIFY';
+    const DESCRIPTION = 'Документы по заявке на формирование приказов подписаны';
 
     private $notificationData;
 
