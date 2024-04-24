@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Domain\Enum\NotificationType;
 use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\User;
 
 class UserObserver

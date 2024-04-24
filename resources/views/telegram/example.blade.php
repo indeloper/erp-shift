@@ -1,1 +1,1 @@
-<strong>Привет {{ $name }}</strong>
+<strong>Привет TEST</strong>

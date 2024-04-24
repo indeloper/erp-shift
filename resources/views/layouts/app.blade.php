@@ -131,7 +131,7 @@
     </style>
 </head>
 
-<body @if(Session::has('sidebar_mini')) @if(Session::get('sidebar_mini')) class="sidebar-mini" @endif @endif>
+<body @if(Session::has('sidebar_mini') && Session::get('sidebar_mini')) class="sidebar-mini dx-viewport" @else class="dx-viewport" @endif>
 <div class="wrapper">
     <div class="sidebar"
          @if (config("app.env") == "local")
@@ -160,73 +160,8 @@
 
     </div>
     <div class="main-panel">
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg ">
-            <div class="container-fluid">
-                <div class="navbar-wrapper">
-                    <div class="navbar-minimize">
-                        <button id="minimizeSidebar"
-                                class="btn btn-warning btn-fill btn-round btn-icon d-none d-lg-block">
-                            <i class="fa fa-ellipsis-v visible-on-sidebar-regular"></i>
-                            <i class="fa fa-navicon visible-on-sidebar-mini"></i>
-                        </button>
-                    </div>
-                    <a class="navbar-brand" href=@yield('url')>@yield('title')</a>
-                </div>
-                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-                        aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-bar burger-lines"></span>
-                    <span class="navbar-toggler-bar burger-lines"></span>
-                    <span class="navbar-toggler-bar burger-lines"></span>
-                </button>
-                <div class="collapse navbar-collapse justify-content-end">
-                    <ul class="nav navbar-nav mr-auto">
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="dropdown nav-item">
-                            <a id="messages" target="_blank" href="{{ route('messages::index') }}" class="nav-link">
-                                <i class="nc-icon nc-chat-round"></i>
-                                <span class="d-lg-none">Диалоги</span>
-                                <span-message-count v-bind:messages="messages"></span-message-count>
-                            </a>
-                        </li>
-                        <li class="dropdown nav-item">
-                            <a id="main" href="{{ route('notifications::index') }}" class="nav-link">
-                                <i class="nc-icon nc-bell-55"></i>
-                                <span class="d-lg-none">Оповещения</span>
-                                <span-notify v-bind:notify="notify"></span-notify>
-                            </a>
-                        </li>
-                        <li class="dropdown nav-item support-letter">
-                            <a href="#" onclick="modalWork()" data-original-title="Написать в тех. поддержку"
-                               class="nav-link">
-                                <i class="nc-icon nc-send"></i>
-                                <span class="d-lg-none">Написать в тех. поддержку</span>
-                            </a>
-                        </li>
-                        <li class="dropdown nav-item">
-                            <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                                {{ Auth::user()->last_name }} {{ Auth::user()->first_name }} {{ Auth::user()->patronymic }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <a href="{{ route('users::card', Auth::user()->id) }}" class="dropdown-item">
-                                    <i class="nc-icon nc-single-02"></i> Профиль
-                                </a>
-                                <!-- <a id="messages" target="_blank" href="{{ route('messages::index') }}" class="dropdown-item" style="position:relative">
-                                        <i class="nc-icon nc-chat-round"></i>
-                                        <span>Диалоги</span>
-                                        <span-message-count v-bind:messages="messages" style="top:5px"></span-message-count>
-                                    </a> -->
-                                <a href="{{ route('logout') }}" class="dropdown-item text-exit">
-                                    <i class="nc-icon nc-button-power"></i> Выйти
-                                </a>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <!-- End Navbar -->
+
+        @include('layouts.shared.header')
 
         <div class="content">
             <div class="container-fluid pd-0-360">
@@ -236,20 +171,7 @@
             </div>
         </div>
 
-        <footer class="footer" style="float: bottom;">
-            <nav>
-                <p class="copyright text-center">
-                    <span>© {{ date('Y') }}</span>
-                    <a href="https://sk-gorod.com">ООО «СК ГОРОД»</a>
-                </p>
-            </nav>
-            <nav>
-                <p class="copyright text-center">
-                    <a id="modal_open" data-toggle="modal" data-target="#support_modal"
-                       data-original-title="Написать в тех. поддержку" class="support-modal">Техническая поддержка</a>
-                </p>
-            </nav>
-        </footer>
+        @include('layouts.shared.footer')
 
     </div>
 </div>
@@ -427,19 +349,6 @@
         });
     }, 60 * 60 * 1000);
 
-    Vue.component('span-notify', {
-        props: ['notify'],
-        template: '<span class="notification" v-if="notify">@{{ notify }}</span>'
-    });
-
-    let notify = new Vue({
-        el: '#main',
-
-        data: {
-            notify: {{ $notifications }}
-        }
-    });
-
     $(document).on('submit', 'form', function (event) {
         var form = $(event.currentTarget);
         if (form.hasClass('axios')) return;
@@ -470,59 +379,6 @@
 
     $('input').attr('autocomplete', 'off');
 
-    var pusher = new Pusher('13460ea482ed2f33ee58', {
-        cluster: 'eu',
-        forceTLS: true
-    });
-
-    var channel = pusher.subscribe('{{config('app.env')}}' + '.App.User.' + {{ Auth::user()->id }});
-    channel.bind('App\\Events\\NotificationCreated', function (response) {
-        notify.notify = response['notifications'];
-    });
-
-    Vue.component('span-message-count', {
-        props: ['messages'],
-        template: '<span class="notification" v-if="messages">@{{ messages }}</span>'
-    });
-
-    var message_notifications = new Vue({
-        el: '#messages',
-        data: {
-            messages: {{ $messages }}
-        }
-    });
-
-    channel.bind('message-stored', function (data) {
-        // thread not currently opened => create notification
-        $.ajax({
-            url: '{{ route('messages::message_info') }}',
-            type: 'POST',
-            data: {
-                _token: CSRF_TOKEN,
-                message_id: data.messageData.message_id
-            },
-            dataType: 'JSON',
-            success: function (response) {
-                var message = '<strong>' + response.sender_name + ': </strong><br>' + response.text + (response.text.length > 50 ? '...' : '') + '<br><a href="' + response.thread_url + '" class="text-right">Просмотреть</a>';
-                var thread_subject = response.thread_subject;
-
-                // notify user
-                message_notifications.$notify({
-                    dangerouslyUseHTMLString: true,
-                    message: 'Новое сообщение' + (thread_subject ? ' из чата ' + thread_subject : '') + '. ' + '<br>' + message,
-                    type: 'info',
-                    duration: 5000
-                });
-            }
-        });
-
-        message_notifications.messages = data.messagesCount;
-    });
-
-    channel.bind('message-deleted', function (data) {
-        // -1 because event overtake message deleting
-        message_notifications.messages = data.messagesCount - 1;
-    });
 
     $(document).ready(function () {
         $('a[href$="mat_acc/operations"]').each(function () {

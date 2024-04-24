@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\NotificationChannels;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\RenderTelegramNotificationData;
 use App\Domain\DTO\TelegramNotificationData;
 use App\Events\TelegramNotificationEvent;
 use App\Services\Telegram\TelegramServiceInterface;
 use Exception;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Objects\Message;
 
 final class TelegramChannel

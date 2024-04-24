@@ -63,16 +63,18 @@ export default {
 
     <div v-for="menuItem in menuItems" :key="menuItem.id">
 
-      <MenuItem
-          v-if="menuItem.route"
-          :menuItem="menuItem"
-      />
+      <ul class="nav">
+        <MenuItem
+            v-if="menuItem.route"
+            :menuItem="menuItem"
+        />
 
-      <MenuCollapse
-          v-else-if="!menuItem.route && menuItem.children"
-          @reload-menu="loadMenu"
-          :menuItem="menuItem"
-      />
+        <MenuCollapse
+            v-else-if="!menuItem.route && menuItem.children"
+            @reload-menu="loadMenu"
+            :menuItem="menuItem"
+        />
+      </ul>
 
     </div>
   </ul>

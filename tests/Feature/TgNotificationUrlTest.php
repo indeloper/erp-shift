@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\User;
 use App\Services\System\NotificationService;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TgNotificationUrlTest extends TestCase
 {

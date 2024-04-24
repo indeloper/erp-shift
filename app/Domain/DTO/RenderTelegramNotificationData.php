@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\DTO;
 
-use App\Domain\Enum\NotificationType;
-use App\Notifications\DefaultNotification;
+use App\Domain\DTO\Notification\NotificationData;
 
 final class RenderTelegramNotificationData extends TelegramNotificationData
 {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\q3wMaterial\operations;
 
 use App\Domain\Enum\NotificationType;
 use App\Models\Building\ObjectResponsibleUser;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;

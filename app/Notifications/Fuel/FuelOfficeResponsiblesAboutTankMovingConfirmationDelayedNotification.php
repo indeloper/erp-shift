@@ -2,35 +2,17 @@
 
 namespace App\Notifications\Fuel;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\RenderTelegramNotificationData;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
+use App\Notifications\BaseNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification extends Notification
+class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'Уведомление для ответственных в офисе о задержке подтверждения перемещения топливного бака';
 
-    private $notificationData;
-
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class,
-        ];
-    }
 
     public function toMail($notifiable)
     {

@@ -4,8 +4,7 @@ namespace App\Console\Commands;
 
 use App\Domain\Enum\NotificationType;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\Notification;
-use App\Models\Task;
+use App\Models\Notification\Notification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 

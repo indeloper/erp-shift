@@ -4,39 +4,33 @@ namespace App\Http\Controllers\Commerce;
 
 use App\Domain\Enum\NotificationType;
 use App\Events\ContractApproved;
-use App\Events\NotificationCreated;
+use App\Http\Controllers\Controller;
 use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\Contract\Contract;
+use App\Models\Contract\ContractCommercialOfferRelation;
 use App\Models\Contract\ContractFiles;
 use App\Models\Contract\ContractKeyDates;
 use App\Models\Contract\ContractKeyDatesPreselectedNames;
-use App\Models\Contractors\Contractor;
-use App\Models\Group;
-use App\Models\Notification;
-use App\Models\Project;
-use App\Models\User;
-use App\Models\FileEntry;
-use App\Models\ProjectResponsibleUser;
-use App\Models\Task;
-use App\Traits\TimeCalculator;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
-
-use App\Models\ProjectDocument;
-use App\Models\Contract\Contract;
 use App\Models\Contract\ContractRequest;
 use App\Models\Contract\ContractRequestFile;
 use App\Models\Contract\ContractThesis;
-use App\Models\Contract\ContractThesisFile;
 use App\Models\Contract\ContractThesisVerifier;
-use App\Models\Contract\ContractCommercialOfferRelation;
-
+use App\Models\Contractors\Contractor;
+use App\Models\FileEntry;
+use App\Models\Group;
+use App\Models\Notification\Notification;
+use App\Models\Project;
+use App\Models\ProjectDocument;
+use App\Models\ProjectResponsibleUser;
+use App\Models\Task;
+use App\Models\User;
+use App\Traits\TimeCalculator;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
 use PDF;
 
 class ProjectContractController extends Controller

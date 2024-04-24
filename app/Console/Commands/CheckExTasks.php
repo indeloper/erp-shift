@@ -8,9 +8,11 @@ use Illuminate\Console\Command;
 
 use Carbon\Carbon;
 
+use App\Models\Notification\Notification;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\Notification;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class CheckExTasks extends Command
@@ -120,7 +122,6 @@ class CheckExTasks extends Command
                             ]
                         );
                     }
-
 
                     $ceo = User::where('group_id', 5/*3*/)->first();
 

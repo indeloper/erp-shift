@@ -5,17 +5,17 @@ namespace Tests\Feature;
 use App\Models\{Comment,
     FileEntry,
     Group,
-    Notification,
+    Notification\Notification,
     ProjectObject,
     Task,
     TechAcc\Defects\Defects,
     TechAcc\FuelTank\FuelTank,
     TechAcc\OurTechnic,
     User};
-
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
+use Tests\TestCase;
+
 class DefectsTest extends TestCase
 {
     use DatabaseTransactions;

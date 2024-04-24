@@ -6,14 +6,11 @@ use App\Domain\Enum\NotificationType;
 use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
-use App\Models\Notification;
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
+use App\Models\Notification\Notification;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 
 class MaterialAccountingOperationResponsibleUsersEvents

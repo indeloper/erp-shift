@@ -2,35 +2,16 @@
 
 namespace App\Notifications\Labor;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\TelegramNotificationData;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
+use App\Notifications\BaseNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class LaborSignedNotification extends Notification
+class LaborSignedNotification extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'Документы по заявке на формирование приказов подписаны';
-
-    private $notificationData;
-
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class
-        ];
-    }
 
     public function toMail($notifiable)
     {

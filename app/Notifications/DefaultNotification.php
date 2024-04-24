@@ -2,47 +2,15 @@
 
 namespace App\Notifications;
 
-use App\Domain\DTO\NotificationData;
 use App\Domain\DTO\TelegramNotificationData;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class DefaultNotification extends Notification
+class DefaultNotification extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'DEFAULT NOTIFY';
-
-
-    private $notificationData;
-
-    /**
-     * Create a new notification instance.
-     *
-     * @return void
-     */
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class,
-        ];
-    }
 
     /**
      * Get the mail representation of the notification.

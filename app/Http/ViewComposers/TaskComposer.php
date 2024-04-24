@@ -2,10 +2,9 @@
 
 namespace App\Http\ViewComposers;
 
-use App\Models\Notification;
-
-use Illuminate\View\View;
+use App\Models\Notification\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class TaskComposer
 {

@@ -2,10 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Events\NotificationCreated;
 use App\Http\Controllers\q3wMaterial\operations\q3wMaterialTransferOperationController;
-use App\Models\Notification;
-use App\Models\Project;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use Carbon\Carbon;
 use Illuminate\Console\Command;

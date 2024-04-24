@@ -6,26 +6,17 @@ use App\Domain\Enum\NotificationType;
 use App\Traits\TimeCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Events\NotificationCreated;
-
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-
-use App\Models\Task;
-use App\Models\TaskFile;
-use App\Models\FileEntry;
-use App\Models\User;
-use App\Models\Group;
-use App\Models\Contractors\{Contractor, ContractorContact, BankDetail};
+use App\Http\Requests\TaskRequests\TaskCallRequest;
+use App\Models\Contractors\{BankDetail, Contractor, ContractorContact};
+use App\Models\Notification\Notification;
 use App\Models\Project;
 use App\Models\TaskRedirect;
 use App\Models\ProjectContact;
-use App\Models\Notification;
-
-use App\Http\Requests\TaskRequests\TaskCallRequest;
+use App\Models\Task;
+use App\Traits\TimeCalculator;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TaskCallController extends Controller
 {

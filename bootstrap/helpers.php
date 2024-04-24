@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\DTO\NotificationData;
+use App\Domain\DTO\Notification\NotificationData;
 use App\Jobs\Notification\NotificationJob;
 
 if (! function_exists('weekdayDate')) {

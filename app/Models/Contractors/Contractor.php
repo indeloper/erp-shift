@@ -3,13 +3,17 @@
 namespace App\Models\Contractors;
 
 use App\Domain\Enum\NotificationType;
+use App\Models\{Notification\Notification,
+    Project,
+    ProjectContractors,
+    Task,
+    User};
+use App\Traits\DefaultSortable;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\SmartSearchable;
-use App\Models\{Notification, Project, ProjectContractors, Task, User};
-use App\Traits\DefaultSortable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 
 class Contractor extends Model
 {

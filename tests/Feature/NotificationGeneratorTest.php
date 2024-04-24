@@ -3,17 +3,16 @@
 namespace Tests\Feature;
 
 use App\Models\Group;
-use App\Models\Notification;
-use App\Models\Project;
+use App\Models\Notification\Notification;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Defects\Defects;
-use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
 use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
 class NotificationGeneratorTest extends TestCase
 {
     use DatabaseTransactions;

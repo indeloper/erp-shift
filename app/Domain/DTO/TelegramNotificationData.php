@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\DTO;
 
-use App\Domain\Enum\NotificationType;
-use App\Notifications\DefaultNotification;
+use App\Domain\DTO\Notification\NotificationData;
 use Telegram\Bot\Keyboard\Keyboard;
 
 class TelegramNotificationData
@@ -22,7 +21,7 @@ class TelegramNotificationData
     }
 
     /**
-     * @return \App\Domain\DTO\NotificationData
+     * @return \App\Domain\DTO\Notification\NotificationData
      */
     public function getNotificationData(): NotificationData
     {

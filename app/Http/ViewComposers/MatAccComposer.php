@@ -2,10 +2,7 @@
 
 namespace App\Http\ViewComposers;
 
-use App\Models\Notification;
-
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 
 class MatAccComposer
 {

@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Manual;
 
+use App\Models\{Notification\Notification, Task, User};
 use App\Models\MatAcc\{MaterialAccountingMaterialFile,
     MaterialAccountingOperation,
     MaterialAccountingOperationMaterials};
-use App\Models\{Notification, Task, User};
 use Tests\TestCase;
 
 class MaterialAccountingCertificatesLogicTest extends TestCase

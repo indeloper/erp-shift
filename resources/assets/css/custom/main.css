@@ -265,3 +265,10 @@ i.fas.fa-random.minus, i.fas.fa-minus {
     padding-right:10px;
     padding-left: 10px;
 }
+
+@media (min-width: 576px)
+{
+    .modal-dialog {
+        max-width: 700px;
+    }
+}

@@ -23,8 +23,7 @@ class MenuItemSeeder extends Seeder
                 'dashbord',
             ],
             'actives'     => [
-                'tasks',
-                'tasks/*',
+                'tasks$'
             ],
             'status'     => true,
         ]);
@@ -56,7 +55,7 @@ class MenuItemSeeder extends Seeder
             'actives'     => [
                 'contractors',
                 'contractors/*',
-                'objects',
+                'objects$',
                 'objects/*',
                 'building/works',
                 'tasks/filter-tasks-report',
@@ -89,7 +88,7 @@ class MenuItemSeeder extends Seeder
                 'objects',
             ],
             'actives'     => [
-                'objects',
+                'objects$',
                 'objects/*',
             ],
             'status'     => true,
@@ -104,7 +103,7 @@ class MenuItemSeeder extends Seeder
                 'manual_materials',
             ],
             'actives'     => [
-                'building/materials',
+                'building/materials$',
                 'building/materials/*',
             ],
             'status'     => true,
@@ -137,10 +136,8 @@ class MenuItemSeeder extends Seeder
                 'commercial_block_task_report_xlsx_export_access',
             ],
             'actives'     => [
-                'building/works',
-                'building/works/*',
-                'building/work_groups/*',
-                'building/work_groups',
+                'tasks/filter-tasks-report',
+                'tasks/filter-tasks-report/*',
             ],
             'status'     => true,
         ]);
@@ -158,7 +155,7 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_material_list_access',
             ],
             'actives'     => [
-                'materials/*',
+                'strmaterials/*',
                 '*fuel_tank*',
                 '*our_technic_tickets*',
                 '*defects*',
@@ -178,8 +175,8 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_operation_list_access',
             ],
             'actives'     => [
-                '/materials/operations/all',
-                '/materials/operations/all/*',
+                '/strmaterials/operations/all',
+                '/strmaterials/operations/all/*',
             ],
             'status'     => true,
         ]);
@@ -194,8 +191,7 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_material_list_access',
             ],
             'actives'     => [
-                'materials/material',
-                'materials/material/*',
+                '/strmaterials$',
             ],
             'status'     => true,
         ]);
@@ -209,8 +205,8 @@ class MenuItemSeeder extends Seeder
                 'material_supply_planning_access',
             ],
             'actives'     => [
-                'materials/supply-planning',
-                'materials/supply-planning/*',
+                'strmaterials/supply-planning',
+                'strmaterials/supply-planning/*',
             ],
             'status'     => true,
         ]);
@@ -225,8 +221,8 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_material_table_access',
             ],
             'actives'     => [
-                '/materials/table',
-                '/materials/table/*',
+                '/strmaterials/table',
+                '/strmaterials/table/*',
             ],
             'status'     => true,
         ]);
@@ -241,8 +237,8 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_material_remains_report_access',
             ],
             'actives'     => [
-                '/materials/remains',
-                '/materials/remains/*',
+                '/strmaterials/remains',
+                '/strmaterials/remains/*',
             ],
             'status'     => true,
         ]);
@@ -257,8 +253,8 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_material_remains_report_access',
             ],
             'actives'     => [
-                '/materials/objects-remains',
-                '/materials/objects-remains/*',
+                '/strmaterials/obj-remains',
+                '/strmaterials/obj-remains/*',
             ],
             'status'     => true,
         ]);
@@ -273,8 +269,8 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_materials_standards_editing',
             ],
             'actives'     => [
-                'materials/material-standard',
-                'materials/material-standard/*',
+                'strmaterials/material-standard',
+                'strmaterials/material-standard/*',
             ],
             'status'     => true,
         ]);
@@ -289,8 +285,8 @@ class MenuItemSeeder extends Seeder
                 'material_accounting_materials_types_editing',
             ],
             'actives'     => [
-                'materials/material-type',
-                'materials/material-type/*',
+                'strmaterials/material-type',
+                'strmaterials/material-type/*',
             ],
             'status'     => true,
         ]);
@@ -656,17 +652,6 @@ class MenuItemSeeder extends Seeder
         ]);
 
         $permissions = factory(MenuItem::class)->create([
-            'title'      => 'Управление доступами',
-            'parent_id'  => $is_su->id,
-            'route_name' => 'admin.permissions',
-            'icon_path'  => '<i class="fas fa-check"></i>',
-            'actives'     => [
-                '/admin/permissions',
-            ],
-            'status'     => true,
-        ]);
-
-        $permissions = factory(MenuItem::class)->create([
             'title'      => 'Роли пользователей',
             'parent_id'  => $is_su->id,
             'route_name' => 'admin.permissions',
@@ -677,13 +662,14 @@ class MenuItemSeeder extends Seeder
             'status'     => true,
         ]);
 
+
         $permissions = factory(MenuItem::class)->create([
             'title'      => 'Шаблоны телеграм',
             'parent_id'  => $is_su->id,
             'route_name' => 'admin.telegram-route-templates::getPageCore',
             'icon_path'  => '<i class="fas fa-envelope"></i>',
             'actives'     => [
-                '//admin/telegram-route-templates',
+                '/admin/telegram-route-templates',
             ],
             'status'     => false,
         ]);
