@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\DTO\Notification;
 
-use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Enum\NotificationType;
 use App\Notifications\DefaultNotification;
+use Illuminate\Support\Collection;
 
 final class NotificationData
 {

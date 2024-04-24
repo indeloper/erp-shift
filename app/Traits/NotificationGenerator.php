@@ -3,13 +3,10 @@
 namespace App\Traits;
 
 use App\Domain\Enum\NotificationType;
-use App\Models\{Comment, Contract\Contract, Group, Notification, Task, User, Project};
 use Illuminate\Support\Collection;
-use Mockery\Matcher\Not;
-use App\Models\{Comment, Group, Notification\Notification, Task, User};
+use App\Models\{Comment, Contract\Contract, Group, Notification\Notification, Task, User, Project};
 use App\Models\TechAcc\{OurTechnic, OurTechnicTicket};
 use App\Models\TechAcc\Defects\Defects;
-use Illuminate\Support\Collection;
 
 trait NotificationGenerator
 {
@@ -423,7 +420,6 @@ trait NotificationGenerator
         array_push($user_ids, User::HARDCODED_PERSONS['router']);
 
         foreach ($user_ids as $user_id) {
-            $ourTechnicTicket->notifications()->save($notification);
             dispatchNotify(
                 $user_id,
                 "На объекте: {$ourTechnicTicket->our_technic->start_location->location}" .
