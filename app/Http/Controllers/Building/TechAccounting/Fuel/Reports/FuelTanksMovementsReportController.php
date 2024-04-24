@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Reports;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
+use Illuminate\Http\Request;
 
 class FuelTanksMovementsReportController extends StandardEntityResourceController
 {

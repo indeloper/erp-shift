@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Companies;
 
-use App\Models\Company\Company;
-use App\Models\LaborSafety\LaborSafetyOrderType;
-use App\Models\Employees\Employee;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
+use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {

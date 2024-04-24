@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
+use App\Http\Controllers\Controller;
 use App\Models\LaborSafety\LaborSafetyOrderType;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class LaborSafetyOrderTypeController extends Controller

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Building;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\CategoryRequest;
-use App\Models\FileEntry;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;

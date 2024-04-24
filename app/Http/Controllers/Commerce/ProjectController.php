@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
-use App\Http\Requests\ProjectRequest\{ProjectRequest,
-use App\Domain\Enum\NotificationType;
-use App\Models\Building\ObjectResponsibleUser;
-use App\Traits\TimeCalculator;
 use App\Http\Requests\ProjectRequest\{
+    ProjectRequest,
     ProjectTimeResponsibleUserRequest,
     SelectResponsibleUserRequest,
     UserProjectAppointRequest,
@@ -20,14 +18,10 @@ use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 use App\Models\CommercialOffer\CommercialOfferRequest;
 use App\Models\Contract\Contract;
 use App\Models\Contract\ContractRequest;
-use App\Models\Contractors\{Contractor,
-    ContractorContact,
-    ContractorContactPhone};
+use App\Models\Contractors\{Contractor, ContractorContact, ContractorContactPhone};
 use App\Models\ExtraDocument;
 use App\Models\Group;
-use App\Models\Notification\Notification;
 use App\Models\Project;
-use App\Models\ExtraDocument;
 use App\Models\ProjectContact;
 use App\Models\ProjectContractors;
 use App\Models\ProjectContractorsChangeHistory;

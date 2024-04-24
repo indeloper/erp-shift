@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Documents;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
-use PDF;
-use Carbon\Carbon;
-
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorContact;
 use App\Models\Project;
 use App\Models\ProjectObject;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use PDF;
 
 class DocumentTemplateController extends Controller
 {

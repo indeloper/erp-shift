@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
 use App\Domain\Enum\NotificationType;
-use App\Events\NotificationCreated;
-
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\CreateWriteOffRequest;
 use App\Http\Requests\Building\MaterialAccounting\SendWriteOffRequest;
@@ -12,7 +10,6 @@ use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationFile;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
-use App\Models\Notification\Notification;
 use App\Models\ProjectObject;
 use App\Models\Task;
 use App\Models\User;

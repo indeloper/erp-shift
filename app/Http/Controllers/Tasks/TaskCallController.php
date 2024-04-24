@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Tasks;
 
 use App\Domain\Enum\NotificationType;
-use App\Traits\TimeCalculator;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequests\TaskCallRequest;
 use App\Models\Contractors\{BankDetail, Contractor, ContractorContact};
 use App\Models\Notification\Notification;
 use App\Models\Project;
-use App\Models\TaskRedirect;
 use App\Models\ProjectContact;
 use App\Models\Task;
 use App\Traits\TimeCalculator;

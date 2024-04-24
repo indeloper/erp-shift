@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\OurTechnicStoreRequest;
 use App\Http\Requests\OurTechnicUpdateRequest;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Services\TechAccounting\TechnicCategoryService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class OurTechnicController extends Controller

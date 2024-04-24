@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Old;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\FuelTank\UpdateFuelTankOperation;
 use App\Http\Requests\Building\TechAccounting\FuelTank\StoreFuelTankOperation;
+use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\TechAcc\OurTechnic;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
 use App\Models\User;
-use App\Models\ProjectObject;
+use Illuminate\Http\Request;
 
 
 class FuelTankOperationController extends Controller

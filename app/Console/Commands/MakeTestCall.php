@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\{Task, User};
-use App\Models\Contractors\{ContractorContact, Contractor};
-
+use App\Models\Contractors\{Contractor, ContractorContact};
 use Illuminate\Console\Command;
+
 class MakeTestCall extends Command
 {
     protected $signature = 'test:call';

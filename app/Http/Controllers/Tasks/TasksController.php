@@ -5,15 +5,7 @@ namespace App\Http\Controllers\Tasks;
 use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequests\TaskCreateRequest;
-use App\Models\{FileEntry,
-    Group,
-    Notification\Notification,
-    Project,
-    SupportMail,
-    Task,
-    TaskFile,
-    TaskRedirect,
-    User};
+use App\Models\{FileEntry, Group, Notification\Notification, Project, SupportMail, Task, TaskFile, TaskRedirect, User};
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;

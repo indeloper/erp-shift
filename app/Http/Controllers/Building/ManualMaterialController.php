@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Building;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ManualRequests\CategoryRequest;
-
 use App\Http\Requests\ManualRequests\MaterialsRequest;
 use App\Models\FileEntry;
+use App\Models\Manual\ManualMaterial;
+use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialPassport;
 use App\Models\Manual\ManualReference;
 use Illuminate\Http\Request;
@@ -14,13 +14,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-
-use App\Models\Manual\ManualWork;
-use App\Models\Manual\ManualRelationMaterialWork;
-use App\Models\Manual\ManualMaterial;
-use App\Models\Manual\ManualMaterialCategory;
-use App\Models\Manual\ManualMaterialCategoryAttribute;
-use App\Models\Manual\ManualMaterialParameter;
 
 
 class ManualMaterialController extends Controller

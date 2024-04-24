@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\q3wMaterial\operations;
 
 use App\Domain\Enum\NotificationType;
+use App\Http\Controllers\Controller;
 use App\Models\Building\ObjectResponsibleUser;
-use App\Models\Notification\Notification;
 use App\Models\Permission;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
@@ -24,8 +24,6 @@ use App\Models\UserPermission;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Building\ObjectResponsibleUserRole;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

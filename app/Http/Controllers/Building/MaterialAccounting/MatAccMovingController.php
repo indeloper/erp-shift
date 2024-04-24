@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Building\MaterialAccounting;
 
 use App\Events\OperationClosed;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Building\MaterialAccounting\{CreateMovingRequest,
-    SendMovingRequest};
+use App\Http\Requests\Building\MaterialAccounting\{CreateMovingRequest, SendMovingRequest};
 use App\Models\Manual\ManualMaterial;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;

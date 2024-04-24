@@ -2,26 +2,23 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use App\Http\Controllers\Controller;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
-use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
+use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialComment;
-use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
-use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\UsersSetting;
-use App\Services\q3wMaterialAccounting\Reports\MaterialRemainsXLSXReport;
 use App\Services\q3wMaterialAccounting\Reports\MaterialObjectsRemainsXLSXReport;
+use App\Services\q3wMaterialAccounting\Reports\MaterialRemainsXLSXReport;
 use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class q3wMaterialController extends Controller
 {

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
-use App\Models\Notification\Notification;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\NotificationGenerator;

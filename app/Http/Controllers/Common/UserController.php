@@ -3,30 +3,25 @@
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
-use App\Traits\AdditionalFunctions;
-
-use App\Http\Requests\UserRequests\{UserCreateRequest,
-    UserUpdateRequest,
-    UserUpdatePasswordRequest};
-
-use App\Models\{User,
+use App\Http\Requests\UserRequests\{UserCreateRequest, UserUpdatePasswordRequest, UserUpdateRequest};
+use App\Models\{Department,
+    FileEntry,
     Group,
-    UserPermission,
     GroupPermission,
     Permission,
-    Department,
-    FileEntry,
     Project,
     ProjectResponsibleUser,
+    User,
+    UserPermission,
     UsersSetting};
 use App\Models\Notifications\UserDisabledNotifications;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\Vacation\VacationsHistory;
-
+use App\Traits\AdditionalFunctions;
 use Carbon\Carbon;
-
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{File, Storage, DB, Artisan, Auth, Hash};
+use Illuminate\Support\Facades\{Artisan, Auth, DB, File, Hash, Storage};
+
 class UserController extends Controller
 {
     use AdditionalFunctions;

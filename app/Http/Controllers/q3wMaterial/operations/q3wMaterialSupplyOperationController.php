@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Http\Controllers\Controller;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;
@@ -19,7 +20,6 @@ use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;

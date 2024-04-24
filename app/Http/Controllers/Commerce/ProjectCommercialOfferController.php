@@ -6,16 +6,7 @@ use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
-use App\Models\{FileEntry,
-    Group,
-    Notification\Notification,
-    Project,
-    ProjectDocument,
-    ProjectObject,
-    ProjectResponsibleUser,
-    Review,
-    Task,
-    User};
+use App\Models\{FileEntry, Group, Project, ProjectDocument, ProjectObject, ProjectResponsibleUser, Review, Task, User};
 use App\Models\CommercialOffer\{CommercialOffer,
     CommercialOfferAdvancement,
     CommercialOfferManualNote,
@@ -28,10 +19,7 @@ use App\Models\CommercialOffer\{CommercialOffer,
     CommercialOfferWork};
 use App\Models\Contractors\{Contractor, ContractorContact, ContractorFile};
 use App\Models\Manual\ManualWork;
-use App\Models\WorkVolume\{WorkVolume,
-    WorkVolumeMaterial,
-    WorkVolumeWork,
-    WorkVolumeWorkMaterial};
+use App\Models\WorkVolume\{WorkVolume, WorkVolumeMaterial, WorkVolumeWork, WorkVolumeWorkMaterial};
 use App\Services\Commerce\SplitService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;

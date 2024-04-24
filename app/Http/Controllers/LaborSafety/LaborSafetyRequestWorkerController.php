@@ -2,24 +2,9 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
-use App\Models\Company\Company;
-use App\Models\Company\CompanyReportTemplate;
-use App\Models\LaborSafety\LaborSafetyOrderType;
-use App\Models\LaborSafety\LaborSafetyOrderWorker;
-use App\Models\LaborSafety\LaborSafetyRequest;
-use App\Models\LaborSafety\LaborSafetyRequestOrder;
-use App\Models\LaborSafety\LaborSafetyRequestStatus;
-use App\Models\LaborSafety\LaborSafetyRequestWorker;
-use App\Models\Employees\Employee;
-use App\Models\Employees\Employees1cPost;
-use App\Models\ProjectObject;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Shared\Html;
+use App\Models\LaborSafety\LaborSafetyRequestWorker;
+use Illuminate\Http\Request;
 
 class LaborSafetyRequestWorkerController extends Controller
 {

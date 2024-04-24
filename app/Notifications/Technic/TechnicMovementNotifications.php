@@ -5,7 +5,6 @@ namespace App\Notifications\Technic;
 use App\Domain\Enum\NotificationType;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
-use App\Models\Notification\Notification;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;
@@ -14,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use morphos\Russian\Cases;
 use morphos\Russian\RussianLanguage;
-
 use function morphos\Russian\pluralize;
 
 class TechnicMovementNotifications

@@ -18,7 +18,6 @@ use App\Models\Contract\ContractThesisVerifier;
 use App\Models\Contractors\Contractor;
 use App\Models\FileEntry;
 use App\Models\Group;
-use App\Models\Notification\Notification;
 use App\Models\Project;
 use App\Models\ProjectDocument;
 use App\Models\ProjectResponsibleUser;

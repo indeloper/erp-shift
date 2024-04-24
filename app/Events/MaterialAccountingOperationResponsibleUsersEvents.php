@@ -3,10 +3,8 @@
 namespace App\Events;
 
 use App\Domain\Enum\NotificationType;
-use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
-use App\Models\Notification\Notification;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;

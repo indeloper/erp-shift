@@ -2,19 +2,9 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use App\Models\q3wMaterial\operations\q3wOperationMaterial;
-use App\Models\q3wMaterial\q3wMaterial;
-use App\Models\q3wMaterial\q3wMaterialBrand;
-use App\Models\q3wMaterial\q3wMaterialBrandsRelation;
-use App\Models\q3wMaterial\q3wMaterialStandard;
-use App\Models\q3wMaterial\q3wMaterialSupplyExpectedDeliveries;
-use App\Models\q3wMaterial\q3wMaterialSupplyPlanning;
-use App\Models\q3wMaterial\q3wMaterialType;
-use App\Models\q3wMaterial\q3wStandardPropertiesRelations;
-use http\Exception;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
+use App\Models\q3wMaterial\q3wMaterialSupplyExpectedDeliveries;
+use Illuminate\Http\Request;
 
 define('SUPPLY_PLANNING_QUANTITY_DELTA', 0.2);
 

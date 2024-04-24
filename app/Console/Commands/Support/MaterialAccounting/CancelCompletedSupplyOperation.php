@@ -5,13 +5,8 @@ namespace App\Console\Commands\Support\MaterialAccounting;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\q3wMaterial;
-use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
-use App\Models\User;
 use App\Services\Fuel\FuelLevelSyncOnFlowCreatedService;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CancelCompletedSupplyOperation extends Command

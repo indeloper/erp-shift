@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialType;
 use http\Exception;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class q3wMaterialTypeController extends Controller
 {

@@ -5,7 +5,6 @@ namespace App\Events;
 use App\Domain\Enum\NotificationType;
 use App\Models\Contract\Contract;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\Notification\Notification;
 use App\Models\Task;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;

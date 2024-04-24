@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Layout;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\Menu\MenuResource;
 use App\Services\Menu\MenuServiceInterface;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class MenuController extends Controller
 {

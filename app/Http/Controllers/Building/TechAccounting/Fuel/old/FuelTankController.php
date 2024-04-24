@@ -3,16 +3,10 @@
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Old;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\TechAcc\FuelTank\FuelTank;
-
-use App\Http\Requests\Building\TechAccounting\FuelTank\FuelTankRequest;
 use App\Http\Requests\Building\TechAccounting\FuelTank\FuelTankLevelRequest;
-
-
-
-use App\Services\TechAccounting\FuelTankService;
+use App\Http\Requests\Building\TechAccounting\FuelTank\FuelTankRequest;
+use App\Models\TechAcc\FuelTank\FuelTank;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 

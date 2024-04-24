@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Company\Company;
 use App\Models\Contractors\Contractor;
@@ -16,6 +15,7 @@ use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Services\Common\FilesUploadService;
 use App\Services\Fuel\FuelFlowCrudService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -117,13 +117,13 @@ class FuelTankFlowController extends StandardEntityResourceController
 
         if($data["fuel_tank_flow_type_id"] === FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
             $data['responsible_id'] = Auth::id();
-        } 
+        }
         else {
-            $tank = FuelTank::findOrFail($data['fuel_tank_id']);      
+            $tank = FuelTank::findOrFail($data['fuel_tank_id']);
             [$data['responsible_id'], $data['object_id']] = $this->getFuelFlowResponsibleAndObject($tank);
             $data['company_id'] = $tank->company_id;
         }
-        
+
         return [
             'data' => $data,
         ];
@@ -138,7 +138,7 @@ class FuelTankFlowController extends StandardEntityResourceController
             $this->deleteFiles($data['deletedAttachments']);
 
         if($data["fuel_tank_flow_type_id"] != FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
-        
+
             (new FuelFlowCrudService('stored', [
                 'entity' => $entity,
                 'data' => $data,
@@ -150,7 +150,7 @@ class FuelTankFlowController extends StandardEntityResourceController
     public function beforeUpdate($entity, $data)
     {
         if($data["fuel_tank_flow_type_id"] != FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
-            
+
             (new FuelFlowCrudService('updated', [
                 'entity' => $entity,
                 'data' => $data
@@ -168,7 +168,7 @@ class FuelTankFlowController extends StandardEntityResourceController
     public function beforeDelete($entity)
     {
         if($entity["fuel_tank_flow_type_id"] != FuelTankFlowType::where('slug', 'simultaneous_income_outcome')->first()->id) {
-                   
+
             (new FuelFlowCrudService('deleted', [
                 'entity' => $entity,
             ]));
@@ -218,7 +218,7 @@ class FuelTankFlowController extends StandardEntityResourceController
                 ->where('tank_moving_confirmation', true);
             })
             ->selectRaw('
-                fuel_tanks.*, 
+                fuel_tanks.*,
                 MAX(event_date) as lastMovementConfirmationDate
             ')
             ->groupBy('fuel_tanks.id')

@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Contract\Contract;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class ManualContractsRemove extends Command
 {

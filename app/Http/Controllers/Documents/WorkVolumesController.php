@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Documents;
 
+use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Group;
-use App\Models\Manual\ManualMaterial;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class WorkVolumesController extends Controller

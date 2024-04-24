@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\System;
 
 use App\Domain\Enum\TelegramEventType;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Telegram\Dialogs\FuelDialogs;
+use Illuminate\Http\Request;
 
 class TelegramController extends Controller
 {
@@ -23,5 +23,5 @@ class TelegramController extends Controller
         }
     }
 
-    
+
 }

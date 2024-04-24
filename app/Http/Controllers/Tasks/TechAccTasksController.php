@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Tasks;
 
+use App\Http\Controllers\Controller;
+use App\Models\Task;
 use App\Services\TechAccounting\TechnicTicketReportService;
 use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
-use App\Models\Task;
 
 class TechAccTasksController extends Controller
 {

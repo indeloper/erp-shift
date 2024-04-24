@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\System;
 
-use App\Models\Permission;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Permission;
+use Illuminate\Http\Request;
 
 class PermissionsController extends Controller
 {

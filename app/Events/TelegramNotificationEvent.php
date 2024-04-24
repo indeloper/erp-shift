@@ -3,10 +3,10 @@
 namespace App\Events;
 
 use App\Domain\DTO\TelegramNotificationData;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Queue\SerializesModels;
 use Telegram\Bot\Objects\Message;
 
 class TelegramNotificationEvent

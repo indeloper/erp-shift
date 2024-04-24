@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Documents;
 
 use App\Http\Controllers\Controller;
-use App\Models\Manual\ManualMaterial;
+use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\Project;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\DB;
-
-use App\Models\Project;
-use App\Models\CommercialOffer\CommercialOffer;
 
 
 class CommercialOffersController extends Controller

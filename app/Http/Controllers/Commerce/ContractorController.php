@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Commerce;
 
 use App\Domain\Enum\NotificationType;
-use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
 use App\Http\Requests\ContractorRequests\ContractorStoreRequest;
@@ -18,7 +17,6 @@ use App\Models\Contractors\{BankDetail,
     ContractorType};
 use App\Models\Contractors\CotractorType;
 use App\Models\Group;
-use App\Models\Notification\Notification;
 use App\Models\Project;
 use App\Models\ProjectContact;
 use App\Models\Task;

@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Documents;
 
+use App\Http\Controllers\Controller;
+use App\Models\Contract\Contract;
 use App\Models\Project;
 use App\Traits\AdditionalFunctions;
-use App\Models\Contract\Contract;
-
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class ContractsController extends Controller
