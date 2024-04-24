@@ -39,25 +39,37 @@ class BaseNotification extends Notification
     {
         $channels = [];
 
-        if ( ! $this->notificationData->getWithoutChannels()
-            ->contains(NotificationChannelType::MAIL)
+        $notificationClass = static::class;
+
+        if ($this->checkChannel($notificationClass,
+            NotificationChannelType::MAIL, 'toMail')
         ) {
             $channels[] = NotificationChannelType::MAIL;
         }
 
-        if ( ! $this->notificationData->getWithoutChannels()
-            ->contains(NotificationChannelType::SYSTEM)
+        if ($this->checkChannel($notificationClass,
+            NotificationChannelType::SYSTEM, 'toDatabase')
         ) {
             $channels[] = DatabaseChannel::class;
         }
 
-        if ( ! $this->notificationData->getWithoutChannels()
-            ->contains(NotificationChannelType::TELEGRAM)
+        if ($this->checkChannel($notificationClass,
+            NotificationChannelType::TELEGRAM, 'toTelegram')
         ) {
             $channels[] = TelegramChannel::class;
         }
 
         return $channels;
+    }
+
+    private function checkChannel(
+        string $class,
+        string $channel,
+        string $method
+    ): bool {
+        return ! $this->notificationData->getWithoutChannels()
+                ->contains($channel)
+            && method_exists($class, $method);
     }
 
 }

@@ -3,9 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Domain\Enum\NotificationType;
-use App\Events\NotificationCreated;
-use App\Models\Notification;
-use App\Models\Notification\Notification;
 use App\Models\Project;
 use App\Models\Task;
 use Carbon\Carbon;

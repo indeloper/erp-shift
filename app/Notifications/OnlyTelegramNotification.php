@@ -18,17 +18,4 @@ class OnlyTelegramNotification extends BaseNotification
             'telegram.example'
         );
     }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            //
-        ];
-    }
 }
