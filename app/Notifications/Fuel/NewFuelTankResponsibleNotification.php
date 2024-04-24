@@ -2,37 +2,18 @@
 
 namespace App\Notifications\Fuel;
 
-use App\Domain\DTO\Notification\NotificationData;
 use App\Domain\DTO\RenderTelegramNotificationData;
 use App\Domain\Enum\TelegramEventType;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
+use App\Notifications\BaseNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 use Telegram\Bot\Keyboard\Keyboard;
 
-class NewFuelTankResponsibleNotification extends Notification
+class NewFuelTankResponsibleNotification extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'TEST NOTIFY';
-
-    private $notificationData;
-
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class,
-        ];
-    }
 
     public function toMail($notifiable)
     {

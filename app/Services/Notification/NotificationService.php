@@ -76,6 +76,15 @@ final class NotificationService implements NotificationServiceInterface
             $notificationData->getType()
         );
 
+        $notificationData->setWithoutChannels(
+            $notification->exceptions
+                ->filter(function ($exception) use ($user) {
+                    return $exception->user_id !== $user->id;
+                })
+                ->pluck('pivot')
+                ->pluck('channel')
+        );
+
         $user->notify(
             new $notificationClass(
                 $notificationData

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\DTO\Notification;
 
+use Illuminate\Database\Eloquent\Collection;
+
 final class NotificationData
 {
     private $userId;
@@ -12,6 +14,18 @@ final class NotificationData
     private $type;
     private $data;
 
+    /**
+     * @var Collection
+     */
+    private $withoutChannels;
+
+    /**
+     * @param  int  $userId
+     * @param  string  $name
+     * @param  string|null  $description
+     * @param  int  $type
+     * @param  array  $data
+     */
     public function __construct(
         int $userId,
         string $name,
@@ -25,6 +39,8 @@ final class NotificationData
         $this->description = $description;
         $this->type = $type;
         $this->data = $data;
+
+        $this->withoutChannels = collect();
     }
 
     /**
@@ -62,6 +78,22 @@ final class NotificationData
     public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getWithoutChannels()
+    {
+        return $this->withoutChannels;
+    }
+
+    /**
+     * @param  Collection  $withoutChannels
+     */
+    public function setWithoutChannels(Collection $withoutChannels): void
+    {
+        $this->withoutChannels = $withoutChannels;
     }
 
 }
