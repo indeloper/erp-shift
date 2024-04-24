@@ -66,6 +66,7 @@ const save = _ => {
 
 
             <DxColumn
+                :width="90"
                 caption="Mail"
                 alignment="center"
                 cell-template="mail-template"
@@ -76,6 +77,7 @@ const save = _ => {
             </template>
 
             <DxColumn
+                :width="90"
                 caption="Telegram"
                 alignment="center"
                 cell-template="telegram-template"
@@ -86,6 +88,7 @@ const save = _ => {
             </template>
 
             <DxColumn
+                :width="90"
                 caption="System"
                 alignment="center"
                 cell-template="system-template"
