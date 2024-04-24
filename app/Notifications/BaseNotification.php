@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Domain\DTO\Notification\NotificationData;
+use App\Domain\Enum\NotificationChannelType;
 use App\NotificationChannels\DatabaseChannel;
 use App\NotificationChannels\TelegramChannel;
 use Illuminate\Bus\Queueable;
@@ -39,19 +40,19 @@ class BaseNotification extends Notification
         $channels = [];
 
         if ( ! $this->notificationData->getWithoutChannels()
-            ->contains('mail')
+            ->contains(NotificationChannelType::MAIL)
         ) {
-            $channels[] = 'mail';
+            $channels[] = NotificationChannelType::MAIL;
         }
 
         if ( ! $this->notificationData->getWithoutChannels()
-            ->contains('system')
+            ->contains(NotificationChannelType::SYSTEM)
         ) {
             $channels[] = DatabaseChannel::class;
         }
 
         if ( ! $this->notificationData->getWithoutChannels()
-            ->contains('telegram')
+            ->contains(NotificationChannelType::TELEGRAM)
         ) {
             $channels[] = TelegramChannel::class;
         }
