@@ -476,7 +476,8 @@ trait NotificationGenerator
             '',
             NotificationType::CERTIFICATE_AVAILABILITY_CONTROL_TASK_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'created_at' => now(),
             ]
@@ -500,7 +501,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::CERTIFICATE_AVAILABILITY_CONTROL_TASK_CREATED_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
                     'task_id' => $task->id,
                     'created_at' => now(),
                 ]
@@ -523,7 +525,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION,
                 [
-                    'additional_info' => ' Ознакомиться с ними можно по ссылке: ' . route('building::mat_acc::certificateless_operations', ['contract_id' => $contract->id]),
+                    'additional_info' => ' Ознакомиться с ними можно по ссылке: ',
+                    'url' => route('building::mat_acc::certificateless_operations', ['contract_id' => $contract->id]),
                     'created_at' => now(),
                     'notificationable_type' => Contract::class,
                     'notificationable_id' => $contract->id,

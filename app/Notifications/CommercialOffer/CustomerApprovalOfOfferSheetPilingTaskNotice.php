@@ -2,35 +2,16 @@
 
 namespace App\Notifications\CommercialOffer;
 
-use App\Domain\DTO\NotificationData;
-use App\Domain\DTO\TelegramNotificationData;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
+use App\Domain\DTO\RenderTelegramNotificationData;
+use App\Notifications\BaseNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class CustomerApprovalOfOfferSheetPilingTaskNotice extends Notification
+class CustomerApprovalOfOfferSheetPilingTaskNotice extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'Уведомление о создании задачи Согласование КП с заказчиком (шпунтовое направление)';
-
-    private $notificationData;
-
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class,
-        ];
-    }
 
     public function toMail($notifiable)
     {
@@ -38,7 +19,8 @@ class CustomerApprovalOfOfferSheetPilingTaskNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.commercial_offer.commercial-offer-notification', [
                 'name' => $this->notificationData->getName(),
-                'link' => $this->notificationData->getAdditionalInfo(),
+                'info' => $this->notificationData->getAdditionalInfo(),
+                'url'  => $this->notificationData->getUrl(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }
@@ -50,8 +32,9 @@ class CustomerApprovalOfOfferSheetPilingTaskNotice extends Notification
 
     public function toTelegram($notifiable)
     {
-        return new TelegramNotificationData(
-            $this->notificationData
+        return new RenderTelegramNotificationData(
+            $this->notificationData,
+            'telegram.commercial.customer-approval-of-offer-pile-driving-task'
         );
     }
 }

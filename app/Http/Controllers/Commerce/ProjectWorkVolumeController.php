@@ -304,7 +304,8 @@ class ProjectWorkVolumeController extends Controller
                     '',
                     NotificationType::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $tongueTask->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $tongueTask->task_route(),
                         'task_id' => $tongueTask->id,
                         'contractor_id' => $tongueTask->project_id ? $project->contractor_id : null,
                         'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
@@ -432,7 +433,8 @@ class ProjectWorkVolumeController extends Controller
                     NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION :
                     NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на задачу: ' . $task_CO->task_route(),
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task_CO->task_route(),
                     'task_id' => $task_CO->id,
                     'contractor_id' => $task_CO->project_id ? $project->contractor_id : null,
                     'project_id' => $task_CO->project_id ? $task_CO->project_id : null,
@@ -1283,7 +1285,8 @@ class ProjectWorkVolumeController extends Controller
                         '',
                         NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $task17->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task17->task_route(),
                             'task_id' => $task17->id,
                             'contractor_id' => $task17->contractor_id ?? null,
                             'project_id' => $task17->project_id ?? null,
@@ -1327,7 +1330,8 @@ class ProjectWorkVolumeController extends Controller
                         NotificationType::SHEET_PILING_CALCULATION_TASK_CREATION_NOTIFICATION :
                         NotificationType::APPOINTMENT_OF_WORK_SUPERVISOR_SHEET_PILING_TASK_CREATION_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $tongueTask->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $tongueTask->task_route(),
                         'task_id' => $tongueTask->id,
                         'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
                         'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
@@ -1345,7 +1349,8 @@ class ProjectWorkVolumeController extends Controller
                         '',
                         NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $lastTask->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $lastTask->task_route(),
                             'task_id' => $lastTask->id,
                             'contractor_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->contractor_id : null,
                             'project_id' => $lastTask->project_id ? $lastTask->project_id : null,
@@ -1421,7 +1426,8 @@ class ProjectWorkVolumeController extends Controller
                     '',
                     NotificationType::PILE_DRIVING_CALCULATION_TASK_CREATION_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $pileTask->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $pileTask->task_route(),
                         'task_id' => $pileTask->id,
                         'contractor_id' => $pileTask->project_id ? Project::find($pileTask->project_id)->contractor_id : null,
                         'project_id' => $pileTask->project_id ? $pileTask->project_id : null,
@@ -1437,7 +1443,8 @@ class ProjectWorkVolumeController extends Controller
                         '',
                         NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $lastTask->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $lastTask->task_route(),
                             'task_id' => $lastTask->id,
                             'contractor_id' => $lastTask->project_id ? Project::find($lastTask->project_id)->contractor_id : null,
                             'project_id' => $lastTask->project_id ? $lastTask->project_id : null,
@@ -1782,7 +1789,8 @@ class ProjectWorkVolumeController extends Controller
                                '',
                                NotificationType::SHEET_PILING_WORK_EXECUTION_CONTROL_TASK_CREATION_NOTIFICATION,
                                [
-                                   'additional_info' => ' Ссылка на задачу: ' . $task18->task_route(),
+                                   'additional_info' => ' Ссылка на задачу: ',
+                                   'url' => $task18->task_route(),
                                    'task_id' => $task18->id,
                                    'contractor_id' => $task18->contractor_id,
                                    'project_id' => $task18->project_id,
@@ -1812,7 +1820,8 @@ class ProjectWorkVolumeController extends Controller
                        '',
                        NotificationType::WORK_REQUEST_PROCESSING_TASK_CREATION_NOTIFICATION,
                        [
-                           'additional_info' => ' Ссылка на задачу: ' . $task17->task_route(),
+                           'additional_info' => ' Ссылка на задачу: ',
+                           'url' => $task17->task_route(),
                            'task_id' => $task17->id,
                            'contractor_id' => $task17->contractor_id,
                            'project_id' => $task17->project_id,
@@ -1899,7 +1908,8 @@ class ProjectWorkVolumeController extends Controller
                    '',
                    NotificationType::SHEET_PILING_WORK_EXECUTION_CONTROL_TASK_CREATION_NOTIFICATION,
                    [
-                       'additional_info' => ' Ссылка на задачу: ' . $task18->task_route(),
+                       'additional_info' => ' Ссылка на задачу: ',
+                       'url' => $task18->task_route(),
                        'task_id' => $task18->id,
                        'contractor_id' => $task18->contractor_id,
                        'project_id' => $task18->project_id,

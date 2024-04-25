@@ -2,9 +2,15 @@
 
     {!! $name !!}
 
-    {!! $link !!}
+    {!! $info !!}
 
-    Благодарим вас за использование нашего приложения!
+@isset($url)
+@component('mail::button', ['url' => $url])
+Посмотреть
+@endcomponent
+@endisset
 
-    Спасибо, {{ config('app.name') }}
+Благодарим вас за использование нашего приложения!
+
+Спасибо, {{ config('app.name') }}
 @endcomponent

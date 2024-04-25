@@ -190,7 +190,8 @@ class Contractor extends Model
                 '',
                 NotificationType::CONTRACTOR_CONTACT_INFORMATION_REQUIRED_NOTIFICATION,
                 [
-                    'additional_info' => '. ' . route('contractors::card', $this->id),
+                    'additional_info' => 'Ссылка на контрагента: ',
+                    'url' => route('contractors::card', $this->id),
                     'contractor_id' => $this->id,
                     'status' => 5,
                 ]
@@ -216,7 +217,8 @@ class Contractor extends Model
                 '',
                 NotificationType::USER_CREATED_CONTRACTOR_WITHOUT_CONTACTS_NOTIFICATION,
                 [
-                    'additional_info' => '. ' . route('contractors::card', $this->id),
+                    'additional_info' => 'Ссылка на контрагента: ',
+                    'url' => route('contractors::card', $this->id),
                     'user_id' => $chief_id,
                     'contractor_id' => $this->id,
                     'status' => 5,

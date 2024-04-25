@@ -2,36 +2,17 @@
 
 namespace App\Notifications\Claim;
 
-use App\Domain\DTO\NotificationData;
-use App\Domain\DTO\TelegramNotificationData;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
+use App\Domain\DTO\RenderTelegramNotificationData;
+use App\Notifications\BaseNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice extends Notification
+class AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'Уведомление о создании задачи Назначение ответственного за ОР (шпунтовое направление)';
     /** ОР - Объём работ */
-
-    private $notificationData;
-
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class,
-        ];
-    }
 
     public function toMail($notifiable)
     {
@@ -39,7 +20,8 @@ class AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice extends Notificat
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.claim.claim-notification', [
                 'name' => $this->notificationData->getName(),
-                'link' => $this->notificationData->getAdditionalInfo(),
+                'info' => $this->notificationData->getAdditionalInfo(),
+                'url' => $this->notificationData->getUrl(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }
@@ -51,8 +33,9 @@ class AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice extends Notificat
 
     public function toTelegram($notifiable)
     {
-        return new TelegramNotificationData(
-            $this->notificationData
+        return new RenderTelegramNotificationData(
+            $this->notificationData,
+            'telegram.default-with-url'
         );
     }
 }

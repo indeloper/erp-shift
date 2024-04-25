@@ -554,7 +554,8 @@ class ContractorController extends Controller
             '',
             NotificationType::CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'contractor_id' => $task->contractor_id,
             ]

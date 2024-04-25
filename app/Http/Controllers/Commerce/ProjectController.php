@@ -901,7 +901,8 @@ class ProjectController extends Controller
                             '',
                             NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
                             [
-                                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                                'additional_info' => ' Ссылка на задачу: ',
+                                'url' => $task->task_route(),
                                 'task_id' => $task->id,
                                 'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                                 'project_id' => $task->project_id ? $task->project_id : null,
@@ -946,7 +947,8 @@ class ProjectController extends Controller
                         '',
                         NotificationType::SHEET_PILING_CALCULATION_TASK_CREATION_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task->task_route(),
                             'task_id' => $tongueTask->id,
                             'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
                             'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,

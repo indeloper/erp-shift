@@ -100,4 +100,9 @@ final class NotificationData
     {
         return $this->data['additional_info'] ?? null;
     }
+
+    public function getUrl(): ?string
+    {
+        return $this->data['url'] ?? null;
+    }
 }

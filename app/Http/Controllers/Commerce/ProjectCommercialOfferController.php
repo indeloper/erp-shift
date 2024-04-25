@@ -685,7 +685,8 @@ class ProjectCommercialOfferController extends Controller
                         '',
                         NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task->task_route(),
                             'task_id' => $task->id,
                             'contractor_id' => $project->contractor_id,
                             'project_id' => $project->id,
@@ -721,7 +722,8 @@ class ProjectCommercialOfferController extends Controller
                         '',
                         NotificationType::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $tongueTask->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $tongueTask->task_route(),
                             'task_id' => $tongueTask->id,
                             'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
                             'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
@@ -906,7 +908,8 @@ class ProjectCommercialOfferController extends Controller
                     '',
                     NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $project->contractor_id,
                         'project_id' => $project->id,
@@ -987,9 +990,12 @@ class ProjectCommercialOfferController extends Controller
                     $task->responsible_user_id,
                     'Новая задача «' . $task->name . '»',
                     '',
-                    $is_tongue ? NotificationType::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION : NotificationType::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION,
+                    $is_tongue ?
+                            NotificationType::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION :
+                            NotificationType::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $task->contractor_id,
                         'project_id' => $task->project_id,
@@ -1075,7 +1081,8 @@ class ProjectCommercialOfferController extends Controller
                 'additional_info' => "\r\nЗаказчик: " . $proj->contractor_name .
                     "\r\nНазвание объекта: " . $proj->object->name .
                     "\r\nАдрес объекта: " . $proj->object->address .
-                    "\r\n" . 'Ссылка на проект: ' . route('projects::card', $com_offer_request->project_id),
+                    "\r\n" . 'Ссылка на проект: ',
+                'url' => route('projects::card', $com_offer_request->project_id),
                 'contractor_id' => $proj->contractor_id,
                 'project_id' => $com_offer_request->project_id,
                 'object_id' => $proj->object_id,
@@ -1403,8 +1410,8 @@ class ProjectCommercialOfferController extends Controller
                     [
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                             "\r\nНазвание объекта: " . $project->object->name .
-                            "\r\nАдрес объекта: " . $project->object->address .
-                            "\r\n" . 'Ссылка на задачу: ' . $task->task_route(),
+                            "\r\nАдрес объекта: " . $project->object->address,
+                        'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                         'project_id' => $task->project_id ? $task->project_id : null,
@@ -1442,8 +1449,8 @@ class ProjectCommercialOfferController extends Controller
                     [
                         'additional_info' => "\r\n<b>Заказчик:</b> " . $project->contractor_name .
                             "\r\n<b>Название объекта:</b> " . $project->object->name .
-                            "\r\n<b>Адрес объекта:</b> " . $project->object->address .
-                            "\r\n" . '<b>Ссылка на задачу:</b> ' . $task->task_route(),
+                            "\r\n<b>Адрес объекта:</b> " . $project->object->address,
+                        'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                         'project_id' => $task->project_id ? $task->project_id : null,
@@ -1923,8 +1930,8 @@ class ProjectCommercialOfferController extends Controller
                 [
                     'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                         "\r\nНазвание объекта: " . $project->object->name .
-                        "\r\nАдрес объекта: " . $project->object->address .
-                        "\r\n" . 'Ссылка на задачу: ' . $task_1->task_route(),
+                        "\r\nАдрес объекта: " . $project->object->address,
+                    'url' => $task_1->task_route(),
                     'task_id' => $task_1->id,
                     'contractor_id' => $project->contractor_id,
                     'project_id' => $project->id,

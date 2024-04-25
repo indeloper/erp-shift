@@ -286,8 +286,8 @@ class CommercialOffer extends Model
                     [
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                             "\r\nНазвание объекта: " . $project->object->name .
-                            "\r\nАдрес объекта: " . $project->object->address .
-                            ".\r\nСсылка на задачу: " . $task->task_route(),
+                            "\r\nАдрес объекта: " . $project->object->address,
+                        'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                         'project_id' => $task->project_id ? $task->project_id : null,
@@ -324,8 +324,8 @@ class CommercialOffer extends Model
                     [
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                             "\r\nНазвание объекта: " . $project->object->name .
-                            "\r\nАдрес объекта: " . $project->object->address .
-                            ".\r\nСсылка на задачу: " . $task->task_route(),
+                            "\r\nАдрес объекта: " . $project->object->address,
+                        'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                         'project_id' => $task->project_id ? $task->project_id : null,
@@ -820,7 +820,8 @@ class CommercialOffer extends Model
                 NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION :
                 NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $work_task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $work_task->task_route(),
                 'task_id' => $work_task->id,
                 'contractor_id' => $target_project->contractor_id,
                 'project_id' => $target_project->id,

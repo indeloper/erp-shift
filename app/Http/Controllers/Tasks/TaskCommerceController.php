@@ -284,7 +284,8 @@ class TaskCommerceController extends Controller
                         '',
                         NotificationType::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $task_1->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task_1->task_route(),
                             'task_id' => $task_1->id,
                             'contractor_id' => $task_1->project_id ? Project::find($task_1->project_id)->contractor_id : null,
                             'project_id' => $task_1->project_id ? $task_1->project_id : null,
@@ -352,9 +353,10 @@ class TaskCommerceController extends Controller
                                 '',
                                 NotificationType::COMMERCIAL_OFFER_APPROVED_NOTIFICATION,
                                 [
-                                    'additional_info' => 'Коммерческое предложение: ' . route('projects::commercial_offer' .
+                                    'additional_info' => 'Коммерческое предложение: ',
+                                    'url' => route('projects::commercial_offer' .
                                             (($com_offer->is_tongue) ? '::card_tongue' : '::card_pile'),
-                                            [$com_offer->project_id, $com_offer->id])
+                                            [$com_offer->project_id, $com_offer->id]),
                                 ]
                             );
                         }
@@ -506,7 +508,8 @@ class TaskCommerceController extends Controller
                         '',
                         NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $task_2->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task_2->task_route(),
                             'task_id' => $task_2->id,
                             'contractor_id' => $task_2->project_id ? Project::find($task_2->project_id)->contractor_id : null,
                             'project_id' => $task_2->project_id ? $task_2->project_id : null,
@@ -911,6 +914,8 @@ class TaskCommerceController extends Controller
                         '',
                         NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
                         [
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task_2->task_route(),
                             'task_id' => $task_2->id,
                             'contractor_id' => $task_2->project_id ? Project::find($task_2->project_id)->contractor_id : null,
                             'project_id' => $task_2->project_id ? $task_2->project_id : null,
