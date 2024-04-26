@@ -2,6 +2,13 @@
 
     {!! $name !!}
 
+    {!! $info !!}
+
+@isset($url)
+@component('mail::button', ['url' => $url])
+Посмотреть
+@endcomponent
+@endisset
 
     Благодарим вас за использование нашего приложения!
 

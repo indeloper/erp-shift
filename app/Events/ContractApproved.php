@@ -52,7 +52,8 @@ class ContractApproved
                 '',
                 NotificationType::CONTRACT_CONTROL_IN_OPERATIONS_TASK_NOTIFICATION,
                 [
-                    'additional_info' => '. Перейти к задаче можно по ссылке: ' . PHP_EOL . $task->task_route(),
+                    'additional_info' => 'Перейти к задаче можно по ссылке: ',
+                    'url' => $task->task_route(),
                     'task_id' => $task->id,
                     'object_id' => $object_id,
                 ]

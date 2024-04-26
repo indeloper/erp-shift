@@ -33,6 +33,8 @@ class MaterialAccountingOperationObserver
                         '',
                         NotificationType::OPERATION_CONTROL_TASK_NOTIFICATION,
                         [
+                            'additional_info' => 'Ссылке на задачу: ',
+                            'url' => $task->task_route(),
                             'task_id' => $task->id,
                         ]
                     );

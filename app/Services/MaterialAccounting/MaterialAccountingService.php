@@ -224,7 +224,8 @@ class MaterialAccountingService {
                         '',
                         NotificationType::MATERIAL_DIFFERENCE_NOTIFICATION,
                         [
-                            'additional_info' => ' Перейти к операции можно по ссылке: ' . PHP_EOL . $this->operation->general_url,
+                            'additional_info' => ' Перейти к операции можно по ссылке: ',
+                            'url' => $this->operation->general_url,
                             'status' => 6,
                             'target_id' => $this->operation->id,
                         ]
