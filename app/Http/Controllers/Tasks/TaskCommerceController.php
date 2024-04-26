@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tasks;
 
 use App\Domain\Enum\NotificationType;
+use App\Http\Controllers\Controller;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 use App\Models\CommercialOffer\CommercialOfferRequest;
