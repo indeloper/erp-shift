@@ -100,8 +100,9 @@ class SupportController extends Controller
                 'Была создана заявка в тех. поддержке',
                 NotificationType::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION,
                 [
-                    'status' => 2,
-                    'additional_info' => ' от ' . Auth::user()->full_name . '. Ссылка на тех поддержку: ' . route('support::index')
+                    'additional_info' => ' от ' . Auth::user()->full_name . '. Ссылка на тех поддержку: ',
+                    'url' => route('support::index'),
+                    'status' => 2
                 ]
             );
         }
@@ -139,8 +140,9 @@ class SupportController extends Controller
                 'Новая задача «' . $task->name . '»',
                 NotificationType::ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION,
                 [
-                    'task_id' => $task->id,
-                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route()
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
+                    'task_id' => $task->id
                 ]
             );
         }

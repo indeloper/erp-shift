@@ -738,7 +738,8 @@ class MaterialAccountingController extends Controller
             '',
             NotificationType::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $updation_task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $updation_task->task_route(),
                 'task_id' => $updation_task->id,
                 'contractor_id' => null,
                 'project_id' => null,
@@ -800,7 +801,8 @@ class MaterialAccountingController extends Controller
             '',
             NotificationType::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $deletion_task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $deletion_task->task_route(),
                 'task_id' => $deletion_task->id,
                 'contractor_id' => null,
                 'project_id' => null,

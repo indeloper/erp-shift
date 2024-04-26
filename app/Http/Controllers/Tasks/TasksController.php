@@ -138,7 +138,8 @@ class TasksController extends Controller
             '',
             NotificationType::STANDARD_TASK_CREATION_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                 'project_id' => $task->project_id ? $task->project_id : null,

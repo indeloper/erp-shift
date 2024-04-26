@@ -698,7 +698,8 @@ class TaskCommerceController extends Controller
                             '',
                             NotificationType::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION,
                             [
-                                'additional_info' => ' Ссылка на задачу: ' . $add_RP_task->task_route(),
+                                'additional_info' => ' Ссылка на задачу: ',
+                                'url' => $add_RP_task->task_route(),
                                 'task_id' => $add_RP_task->id,
                                 'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
                                 'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,
@@ -735,6 +736,8 @@ class TaskCommerceController extends Controller
                             '',
                             NotificationType::CONTRACT_CREATION_TASK_NOTIFICATION,
                             [
+                                'additional_info' => ' Ссылка на задачу: ',
+                                'url' => $task->task_route(),
                                 'task_id' => $task->id,
                                 'contractor_id' => $new_task->project_id ? Project::find($new_task->project_id)->contractor_id : null,
                                 'project_id' => $new_task->project_id ? $new_task->project_id : null,
@@ -768,6 +771,8 @@ class TaskCommerceController extends Controller
                             '',
                             NotificationType::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION,
                             [
+                                'additional_info' => ' Ссылка на задачу: ',
+                                'url' => $task->task_route(),
                                 'task_id' => $new_task->id,
                                 'contractor_id' => $new_task->project_id ? Project::find($new_task->project_id)->contractor_id : null,
                                 'project_id' => $new_task->project_id ? $new_task->project_id : null,
@@ -1072,8 +1077,8 @@ class TaskCommerceController extends Controller
                     'additional_info' => "\r\nЗаказчик: " . Project::find($task->project_id)->contractor_name .
                         "\r\nНазвание объекта: " . Project::find($task->project_id)->object->name .
                         "\r\nАдрес объекта: " . Project::find($task->project_id)->object->address .
-                        "\r\n Исполнитель: " . User::find($task->responsible_user_id)->long_full_name .
-                        "\r\n Ссылка на проект: " . route('projects::card', [$task->project_id, 'task' => $task->id]),
+                        "\r\n Исполнитель: " . User::find($task->responsible_user_id)->long_full_name,
+                    'url' => route('projects::card', [$task->project_id, 'task' => $task->id]),
                     'task_id' => $task->id,
                     'status' => 2,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,

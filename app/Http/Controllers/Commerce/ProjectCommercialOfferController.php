@@ -1521,8 +1521,8 @@ class ProjectCommercialOfferController extends Controller
                     'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                         "\r\nНазвание объекта: " . $project->object->name .
                         "\r\nАдрес объекта: " . $project->object->address .
-                        "\r\nИсполнитель: " . User::find($task->responsible_user_id)->long_full_name .
-                        'Ссылка на проект: ' . route('projects::card', [$task->project_id, 'task' => $task->id]),
+                        "\r\nИсполнитель: " . User::find($task->responsible_user_id)->long_full_name,
+                    'url' => route('projects::card', [$task->project_id, 'task' => $task->id]),
                     'task_id' => $task->id,
                     'status' => 2,
                     'contractor_id' => $task->project_id ? $project->contractor_id : null,
@@ -1566,7 +1566,8 @@ class ProjectCommercialOfferController extends Controller
                 '',
                 NotificationType::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на задачу: ' . $add_RP_task->task_route(),
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $add_RP_task->task_route(),
                     'task_id' => $add_RP_task->id,
                     'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
                     'project_id' => $add_RP_task->project_id ?: null,
@@ -1603,7 +1604,8 @@ class ProjectCommercialOfferController extends Controller
                     '',
                     NotificationType::CONTRACT_CREATION_TASK_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $task->task_route(),
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                         'project_id' => $task->project_id ? $task->project_id : null,
                         'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
@@ -1636,7 +1638,8 @@ class ProjectCommercialOfferController extends Controller
                     '',
                     NotificationType::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $task->task_route(),
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                         'project_id' => $task->project_id ? $task->project_id : null,
                         'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
@@ -2073,7 +2076,8 @@ class ProjectCommercialOfferController extends Controller
                     '',
                     NotificationType::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION,
                     [
-                        'additional_info' => ' Ссылка на задачу: ' . $add_RP_task->task_route(),
+                        'additional_info' => ' Ссылка на задачу: ',
+                        'url' => $add_RP_task->task_route(),
                         'task_id' => $add_RP_task->id,
                         'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
                         'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,

@@ -2,7 +2,11 @@
 
     {!! $name !!}
 
-    {!! $description !!}
+@isset($tasks_url)
+@component('mail::button', ['url' => $tasks_url])
+Посмотреть
+@endcomponent
+@endisset
 
     {!! $info !!}
 

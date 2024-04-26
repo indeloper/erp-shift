@@ -59,7 +59,8 @@ class MaterialAccountingOperationResponsibleUsersEvents
                 '',
                 NotificationType::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION,
                 [
-                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $operation->general_url,
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $operation->general_url,
                     'target_id' => $operation->id,
                     'status' => 7,
                 ]

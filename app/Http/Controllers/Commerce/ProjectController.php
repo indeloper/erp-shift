@@ -784,7 +784,8 @@ class ProjectController extends Controller
                         '',
                         NotificationType::STANDARD_TASK_CREATION_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $updated_task->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $updated_task->task_route(),
                             'task_id' => $updated_task->id,
                             'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
                             'project_id' => $updated_task->project_id ? $updated_task->project_id : null,

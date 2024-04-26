@@ -44,8 +44,8 @@ class ProjectEvents
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                             "\r\nНазвание объекта: " . $project->object->name .
                             "\r\nАдрес объекта: " . $project->object->address .
-                            "\r\nЧтобы просмотреть проект, перейдите по ссылке: " .
-                            route('projects::card', $project->id),
+                            "\r\nЧтобы просмотреть проект, перейдите по ссылке: ",
+                        'url' => route('projects::card', $project->id),
                         'contractor_id' => $project->contractor_id,
                         'project_id' => $project->id,
                         'object_id' => $project->object_id,

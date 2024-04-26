@@ -788,7 +788,8 @@ class MaterialAccountingOperation extends Model
             '',
             NotificationType::OPERATION_DRAFT_DECLINED_NOTIFICATION,
             [
-                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
                 'name' => $this->generateOperationDraftDeclinedNotificationText(),
                 'target_id' => $this->id,
                 'status' => 7,
@@ -866,7 +867,8 @@ class MaterialAccountingOperation extends Model
             '',
             NotificationType::OPERATION_DRAFT_APPROVAL_NOTIFICATION,
             [
-                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => PHP_EOL . $this->general_url,
                 'target_id' => $this->id,
                 'status' => 7,
             ]
@@ -898,7 +900,8 @@ class MaterialAccountingOperation extends Model
             '',
             NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
             [
-                'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
                 'target_id' => $this->id,
                 'status' => 7,
             ]
@@ -911,7 +914,8 @@ class MaterialAccountingOperation extends Model
                 '',
                 NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
                 [
-                    'additional_info' => '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url,
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
                     'target_id' => $this->id,
                     'status' => 7,
                 ]
@@ -930,7 +934,8 @@ class MaterialAccountingOperation extends Model
                 '',
                 NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
                 [
-                    'additional_info' => '. Перейти к операции можно по ссылке: ', $this->general_url,
+                    'additional_info' => '. Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
                     'target_id' => $this->id,
                     'status' => 7,
                 ]
@@ -1082,7 +1087,8 @@ class MaterialAccountingOperation extends Model
                 '',
                 NotificationType::OPERATION_STATUS_CONFLICT_NOTIFICATION,
                 [
-                    'additional_info' => '. Для подробностей перейдите по ссылке: ' . PHP_EOL . $this->general_url,
+                    'additional_info' => 'Для подробностей перейдите по ссылке: ',
+                    'url' => $this->general_url,
                     'target_id' => $this->id,
                     'status' => 7,
                 ]

@@ -2,43 +2,26 @@
 
 namespace App\Notifications\Task;
 
-use App\Domain\DTO\NotificationData;
-use App\Domain\DTO\TelegramNotificationData;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
+use App\Domain\DTO\RenderTelegramNotificationData;
+use App\Notifications\BaseNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class NewTasksFromDeletedUserNotice extends Notification
+class NewTasksFromDeletedUserNotice extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'Уведомление о новых задачах от удаленного пользователя';
 
-    private $notificationData;
-
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class,
-        ];
-    }
-
     public function toMail($notifiable)
     {
         return (new MailMessage)
             ->subject($this->notificationData->getDescription())
-            ->markdown('mail.task.task-notification', [
+            ->markdown('mail.task.new-task-from-deleted-used-notification', [
                 'name' => $this->notificationData->getName(),
-                'link' => $this->notificationData->getAdditionalInfo(),
+                'info' => $this->notificationData->getAdditionalInfo(),
+                'url'  => $this->notificationData->getUrl(),
+                'tasks_url'   => $this->notificationData->getData()['tasks_url'],
                 'description' => $this->notificationData->getDescription(),
             ]);
     }
@@ -50,8 +33,9 @@ class NewTasksFromDeletedUserNotice extends Notification
 
     public function toTelegram($notifiable)
     {
-        return new TelegramNotificationData(
-            $this->notificationData
+        return new RenderTelegramNotificationData(
+            $this->notificationData,
+            'telegram.task.new-task-from-deleted-user-notification'
         );
     }
 }
