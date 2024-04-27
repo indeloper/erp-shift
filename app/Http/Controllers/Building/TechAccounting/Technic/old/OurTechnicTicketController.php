@@ -141,7 +141,8 @@ class OurTechnicTicketController extends Controller
                                         NotificationType::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION :
                                         NotificationType::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION,
                 [
-                    'additional_info' => "\nСсылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "Ссылка: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
@@ -165,11 +166,12 @@ class OurTechnicTicketController extends Controller
 
             dispatchNotify(
                 $request->user,
-                "Вас назначили ответсвенным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                "Вас назначили ответственным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
                 '',
                 NotificationType::TECHNIC_USAGE_START_TASK_NOTIFICATION,
                 [
-                    'additional_info' => "\nСсылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "\nСсылка: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]

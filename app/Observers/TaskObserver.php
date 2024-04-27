@@ -33,7 +33,8 @@ class TaskObserver
             '',
             NotificationType::WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
             ]
         );

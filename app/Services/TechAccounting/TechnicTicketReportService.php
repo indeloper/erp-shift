@@ -50,7 +50,8 @@ class TechnicTicketReportService
                 '',
                 NotificationType::TIMESTAMP_TECHNIQUE_USAGE,
                 [
-                    'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
                     'created_at' => now(),
                     'task_id' => $task->id,
                 ]

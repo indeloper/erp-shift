@@ -91,8 +91,8 @@ class OurTechnicTicketActionsController extends Controller
                 '',
                 NotificationType::TECHNIC_USAGE_EXTENSION_REQUEST_APPROVAL_NOTIFICATION,
                 [
-                    'additional_info' => "\nСсылка на заявку: " .
-                                         route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "\nСсылка на заявку: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
@@ -110,8 +110,8 @@ class OurTechnicTicketActionsController extends Controller
                 '',
                 NotificationType::TECHNIC_USAGE_EXTENSION_REQUEST_REJECTION_NOTIFICATION,
                 [
-                    'additional_info' => "\nСсылка на заявку: " .
-                                         route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "\nСсылка на заявку: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]

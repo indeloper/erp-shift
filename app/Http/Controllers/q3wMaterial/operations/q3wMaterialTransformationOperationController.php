@@ -541,7 +541,8 @@ class q3wMaterialTransformationOperationController extends Controller
             '',
             NotificationType::TASK_POSTPONED_AND_CLOSED_NOTIFICATION,
             [
-                'additional_info' => PHP_EOL . $operation->url,
+                'additional_info' => 'Ссылка на операцию:',
+                'url' => $operation->url,
                 'target_id' => $operation->id,
                 'object_id' => $projectObjectId,
                 'created_at' => now(),

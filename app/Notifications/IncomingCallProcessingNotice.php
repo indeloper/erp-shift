@@ -2,35 +2,15 @@
 
 namespace App\Notifications;
 
-use App\Domain\DTO\NotificationData;
-use App\Domain\DTO\TelegramNotificationData;
-use App\NotificationChannels\DatabaseChannel;
-use App\NotificationChannels\TelegramChannel;
+use App\Domain\DTO\RenderTelegramNotificationData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class IncomingCallProcessingNotice extends Notification
+class IncomingCallProcessingNotice extends BaseNotification
 {
     use Queueable;
 
     const DESCRIPTION = 'Уведомление о задаче Обработка входящего звонка';
-
-    private $notificationData;
-
-    public function __construct(NotificationData $notificationData)
-    {
-        $this->notificationData = $notificationData;
-    }
-
-    public function via($notifiable)
-    {
-        return [
-            'mail',
-            DatabaseChannel::class,
-            TelegramChannel::class,
-        ];
-    }
 
     public function toMail($notifiable)
     {
@@ -38,7 +18,8 @@ class IncomingCallProcessingNotice extends Notification
             ->subject($this->notificationData->getDescription())
             ->markdown('mail.incoming-call-processing-notification', [
                 'name' => $this->notificationData->getName(),
-                'link' => $this->notificationData->getAdditionalInfo(),
+                'info' => $this->notificationData->getAdditionalInfo(),
+                'url'  => $this->notificationData->getUrl(),
                 'description' => $this->notificationData->getDescription(),
             ]);
     }
@@ -50,8 +31,9 @@ class IncomingCallProcessingNotice extends Notification
 
     public function toTelegram($notifiable)
     {
-        return new TelegramNotificationData(
-            $this->notificationData
+        return new RenderTelegramNotificationData(
+            $this->notificationData,
+            'telegram.default-with-url'
         );
     }
 }

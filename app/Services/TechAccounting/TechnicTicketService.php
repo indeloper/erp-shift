@@ -103,8 +103,8 @@ class TechnicTicketService
                 '',
                 NotificationType::TECHNIC_REQUEST_APPROVAL_NOTIFICATION,
                 [
-                    'additional_info' => "\nНеобходимо принять решение по заявке " .
-                        route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $new_ticket->id]),
+                    'additional_info' => "\nНеобходимо принять решение по заявке ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $new_ticket->id]),
                     'created_at' => now(),
                     'target_id' => $new_ticket->id,
                 ]
@@ -375,8 +375,8 @@ class TechnicTicketService
                 '',
                 NotificationType::TECHNIC_USAGE_START_TASK_NOTIFICATION,
                 [
-                    'additional_info' => "\nНеобходимо подтвердить начало использования: " .
-                        route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "\nНеобходимо подтвердить начало использования: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
@@ -404,7 +404,8 @@ class TechnicTicketService
             '',
             NotificationType::REQUEST_PROCESSING_REQUIRED_NOTIFICATION,
             [
-                'additional_info' => "\nСсылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'additional_info' => "Ссылка: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                 'created_at' => now(),
                 'target_id' => $ourTechnicTicket->id,
             ]
@@ -433,7 +434,8 @@ class TechnicTicketService
             '',
             NotificationType::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION,
             [
-                'additional_info' => "\nСсылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'additional_info' => "Ссылка: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                 'created_at' => now(),
                 'target_id' => $ourTechnicTicket->id,
             ]
@@ -454,7 +456,8 @@ class TechnicTicketService
             '',
             NotificationType::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION,
             [
-                'additional_info' => "\n Ссылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'additional_info' => "Ссылка: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                 'created_at' => now(),
                 'target_id' => $ourTechnicTicket->id,
             ]

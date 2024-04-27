@@ -63,7 +63,8 @@ class CheckExTasks extends Command
                         '',
                         NotificationType::TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task->task_route(),
                             'task_id' => $task->id,
                             'contractor_id' => $task->contractor_id,
                             'project_id' => $task->project_id,
@@ -83,7 +84,8 @@ class CheckExTasks extends Command
                         '',
                         NotificationType::TASK_COMPLETION_DEADLINE_NOTIFICATION,
                         [
-                            'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task->task_route(),
                             'task_id' => $task->id,
                             'contractor_id' => $task->contractor_id,
                             'project_id' => $task->project_id,
@@ -107,7 +109,8 @@ class CheckExTasks extends Command
                             '',
                             NotificationType::USER_OVERDUE_TASK_NOTIFICATION,
                             [
-                                'additional_info' => ' Ссылка на события проекта: ' . $route,
+                                'additional_info' => 'Ссылка на события проекта: ',
+                                'url' => $route,
                                 'task_id' => $task->id,
                                 'contractor_id' => $task->contractor_id,
                                 'project_id' => $task->project_id,
@@ -126,7 +129,8 @@ class CheckExTasks extends Command
                             '',
                             NotificationType::USER_OVERDUE_TASK_NOTIFICATION,
                             [
-                                'additional_info' => ' Ссылка на события проекта: ' . $route,
+                                'additional_info' => 'Ссылка на события проекта: ',
+                                'url' => $route,
                                 'task_id' => $task->id,
                                 'contractor_id' => $task->contractor_id,
                                 'project_id' => $task->project_id,

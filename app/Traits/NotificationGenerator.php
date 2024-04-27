@@ -29,7 +29,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_DEVICE_FAULT_REPORT_CREATED_NOTIFICATION,
                 [
-                    'additional_info' => '. Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку:',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -43,7 +44,8 @@ trait NotificationGenerator
             '',
             NotificationType::TECHNICAL_FAULT_REPORT_ASSIGNMENT_TASK_CREATION_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'additional_info' => 'Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'created_at' => now(),
             ]
@@ -62,7 +64,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_REJECTION_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку: ',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -79,7 +82,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_CONFIRMED_NOTIFICATION,
                 [
-                    'additional_info' => '. Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку: ',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -106,7 +110,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_ASSIGNEE_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку:',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -120,7 +125,8 @@ trait NotificationGenerator
             '',
             NotificationType::TECHNICAL_FAULT_CONTROL_TASK_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'created_at' => now(),
             ]
@@ -142,7 +148,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_NEW_COMMENT_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на заявку: ' . $defect->card_route(),
+                    'additional_info' => 'Ссылка на заявку: ',
+                    'url' => $defect->card_route(),
                 ]
             );
         }
@@ -161,7 +168,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_CHANGE_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку: ',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -180,7 +188,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_ENDING_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку: ',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -194,7 +203,8 @@ trait NotificationGenerator
             '',
             NotificationType::TECHNICAL_FAULT_REPORT_COMPLETION_CONTROL_TASK_NOTIFICATION,
             [
-                'additional_info' => ' Ссылка на задачу: ' . $task->task_route(),
+                'additional_info' => 'Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'created_at' => now(),
             ]
@@ -214,7 +224,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_WORK_COMPLETION_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку: ',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -232,7 +243,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_DELETED_OR_REJECTED_NOTIFICATION,
                 [
-                    'additional_info' => "\nСсылка на заявку: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "Ссылка на заявку: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
@@ -254,8 +266,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::REQUEST_PROCESSED_BY_LOGISTICIAN_NOTIFICATION,
                 [
-                    'additional_info' => "\nСсылка на заявку: " .
-                        route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "Ссылка на заявку: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
@@ -276,8 +288,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNIC_REQUEST_APPROVAL_NOTIFICATION,
                 [
-                    'additional_info' => "\nСсылка на заявку: " .
-                        route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'additional_info' => "\nСсылка на заявку: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
@@ -296,7 +308,8 @@ trait NotificationGenerator
                 '',
                 NotificationType::TECHNICAL_FAULT_REPORT_DELETED_NOTIFICATION,
                 [
-                    'additional_info' => ' Ссылка на заявку: ' . $defect->card_route()
+                    'additional_info' => 'Ссылка на заявку: ',
+                    'url' => $defect->card_route()
                 ]
             );
         }
@@ -317,7 +330,8 @@ trait NotificationGenerator
                         NotificationType::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION :
                         NotificationType::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION,
                     [
-                        'additional_info' => "\nСсылка на заявку: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                        'additional_info' => "Ссылка на заявку: ",
+                        'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                         'created_at' => now(),
                         'target_id' => $ourTechnicTicket->id,
                     ]

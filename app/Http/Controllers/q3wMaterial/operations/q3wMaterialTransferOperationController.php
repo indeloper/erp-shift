@@ -1424,7 +1424,8 @@ class q3wMaterialTransferOperationController extends Controller
             '',
             NotificationType::TASK_POSTPONED_AND_CLOSED_NOTIFICATION,
             [
-                'additional_info' => PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id,
+                'additional_info' => 'Ссылка на операцию:',
+                'url' => route('materials.operations.transfer.view') . '?operationId=' . $operation->id,
                 'target_id' => $operation->id,
                 'object_id' => $projectObjectId,
                 'created_at' => now(),
