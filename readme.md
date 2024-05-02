@@ -29,21 +29,40 @@ Start:
 
 --- 
 
-1. описание у уведомлений
-2. вывод уведомлений http://192.168.99.175/notifications + checkbox telegram/system
-3. Notification::create - убрать в dispatchNotify и протестить
-4. Написать в ридме инструкцию к уведомлениями (dispatchNotify, notificationData, 3 канала уведомлений mail, database,
-   telegram)
+Предусмотрены 3 канала уведомлений:
 
-Уведомления работают:
-Если есть пермишен
-Отправляются если проставлена галочка
+1. Почта
+2. ERP уведомления
+3. Телеграмм
 
-Создать уведомление:
+#### Управление уведомлениями:
+
+Если у пользователя есть пермишн, то он может получать и управлять этим уведомлением.
+Может выбрать в какой канал отправлять (поставить галочку) ему конкретный тип уведомлений.
+По умолчанию все галочки отмечены.
+
+#### Создать уведомление:
+
 Добавить класс в App/Notifications/
 Если blade для mail создать blade (resources/views/mail/) и наименованием как у класса, в кебаб кейсе
 Если blade для telegram, создать blade (resources/views/telegram/) и наименованием как у класса, в кебаб кейсе
-Добавить константу в NotificationType и возврат добавленного класса, при вызове добавленной константы
+Добавить константу в NotificationType и возврат добавленного класса, при вызове добавленной константы.
+Например добавим: <code>OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION</code>
+
+```
+...
+const OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION = 106;
+...
+public static function determinateNotificationClassByType(int $type): string
+    {
+        switch ($type) {
+        ...
+            case self::OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION:
+                return OperationsWithoutCertificatesNotice::class;
+        ...
+```
+
+Добавление уведомления в коде:
 
 ```
 dispatchNotify(
@@ -77,7 +96,7 @@ dispatchNotify(
     );
 ```
 
-additional_info добавляется после основной информации в тексте уведомления
-url при наличии создаёт ссылку (кнопка в письме, ссылка в телеграмме)
+<code>additional_info</code> добавляется после основной информации в тексте уведомления
 
+<code>url</code> при наличии создаёт ссылку (в виде кнопки в письме и ссылка в телеграмме)
 При тестировании уведомлений в telegram, нельзя в адресе ссылки использовать localhost - ссылка не создастся
