@@ -16,12 +16,11 @@ class ContractSignatureControlTaskRecreationNotice extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.contract.contract-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.contract.contract-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class ContractSignatureControlTaskRecreationNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.default-with-url'
+            'notifications.telegram.default-with-url'
         );
     }
 }

@@ -16,12 +16,11 @@ class RequestProcessedByLogisticianNotice extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.technic.technic-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.technic.technic-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class RequestProcessedByLogisticianNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.default-with-url'
+            'notifications.telegram.default-with-url'
         );
     }
 }

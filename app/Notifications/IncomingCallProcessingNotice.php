@@ -15,12 +15,11 @@ class IncomingCallProcessingNotice extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.incoming-call-processing-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.incoming-call-processing-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -33,7 +32,7 @@ class IncomingCallProcessingNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.default-with-url'
+            'notifications.telegram.default-with-url'
         );
     }
 }

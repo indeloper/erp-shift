@@ -16,10 +16,9 @@ class LaborCancelNotification extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->markdown('mail.default-notification', [
+            ->markdown('notifications.mail.default-notification', [
                 'name' => $this->notificationData->getName(),
                 'link' => $this->notificationData->getAdditionalInfo(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 

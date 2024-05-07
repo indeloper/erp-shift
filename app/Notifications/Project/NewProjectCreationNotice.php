@@ -16,12 +16,11 @@ class NewProjectCreationNotice extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.project.project-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.project.project-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class NewProjectCreationNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.project.project-event-notification'
+            'notifications.telegram.project.project-event-notification'
         );
     }
 }

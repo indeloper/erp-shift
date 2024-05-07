@@ -15,7 +15,7 @@ class OnlyTelegramNotification extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.example'
+            'notifications.telegram.example'
         );
     }
 }

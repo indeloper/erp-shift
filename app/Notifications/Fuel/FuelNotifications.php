@@ -57,7 +57,7 @@ class FuelNotifications
 
         $toObject = ProjectObject::find($tank->object_id)->short_name ?? null;
 
-        return view('telegram.fuel.new-fuel-tank-responsible', compact(
+        return view('notifications.telegram.fuel.new-fuel-tank-responsible', compact(
             'previousResponsibleFIO',
             'previousResponsibleUrl',
             'tank',
