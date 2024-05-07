@@ -16,7 +16,7 @@ interface NotificationItemRepositoryInterface
         bool $status = false
     ): NotificationItem;
 
-    public function getNotificationByType(int $type): ?NotificationItem;
+    public function getNotificationByClass(string $class): ?NotificationItem;
 
     public function getNotifications(): Collection;
 

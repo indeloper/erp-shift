@@ -53,8 +53,8 @@ final class NotificationService implements NotificationServiceInterface
             $notificationData->getUserId()
         );
 
-        $notification = $this->notificationItemService->getNotificationByType(
-            $notificationData->getType()
+        $notification = $this->notificationItemService->getNotificationByClass(
+            $notificationData->getClass()
         );
 
         if ($notification === null) {
@@ -72,9 +72,7 @@ final class NotificationService implements NotificationServiceInterface
 //            return;
 //        }
 
-        $notificationClass = NotificationType::determinateNotificationClassByType(
-            $notificationData->getType()
-        );
+        $notificationClass = $notificationData->getClass();
 
         $notificationData->setWithoutChannels(
             $notification->exceptions

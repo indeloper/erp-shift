@@ -28,6 +28,26 @@ class BaseNotification extends Notification
         $this->notificationData = $notificationData;
     }
 
+
+    /**
+     * @param int|int[] $users
+     * @return void
+     */
+    public static function send($users, array $notificationData)
+    {
+        if (!is_array($users)) {
+            $users = [$users];;
+        }
+
+        foreach ($users as $user) {
+            dispatchNotify(
+                $user,
+                static::class,
+                $notificationData
+            );
+        }
+    }
+
     /**
      * Get the notification's delivery channels.
      *

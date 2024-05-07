@@ -26,8 +26,7 @@ final class NotificationRepository implements NotificationRepositoryInterface
                 [
                     'user_id' => $data->getUserId(),
                     'name' => $data->getName(),
-                    'description' => $data->getDescription(),
-                    'type' => $data->getType(),
+                    'class' => $data->getClass(),
                 ],
                 $notificationData
             )

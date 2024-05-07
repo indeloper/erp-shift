@@ -10,8 +10,7 @@ final class NotificationData
 {
     private $userId;
     private $name;
-    private $description;
-    private $type;
+    private $class;
     private $data;
 
     /**
@@ -21,55 +20,34 @@ final class NotificationData
 
     /**
      * @param  int  $userId
-     * @param  string  $name
-     * @param  string|null  $description
-     * @param  int  $type
+     * @param  string  $class
      * @param  array  $data
      */
     public function __construct(
         int $userId,
-        string $name,
-        ?string $description,
-        int $type,
+        string $class,
         array $data = []
     )
     {
         $this->userId = $userId;
-        $this->name = $name;
-        $this->description = $description;
-        $this->type = $type;
+        $this->class = $class;
         $this->data = $data;
+
+        $this->name = $this->getName();
 
         $this->withoutChannels = collect();
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
-        return $this->name;
+        return $this->data['name'];
     }
 
-    /**
-     * @return string|null
-     */
-    public function getDescription(): ?string
+    public function getClass(): string
     {
-        return $this->description;
+        return $this->class;
     }
 
-    /**
-     * @return int
-     */
-    public function getType(): int
-    {
-        return $this->type;
-    }
-
-    /**
-     * @return int
-     */
     public function getUserId(): int
     {
         return $this->userId;
@@ -89,7 +67,7 @@ final class NotificationData
     }
 
     /**
-     * @param  Collection  $withoutChannels
+     * @param  Collection $withoutChannels
      */
     public function setWithoutChannels(Collection $withoutChannels): void
     {

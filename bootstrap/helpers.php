@@ -16,19 +16,15 @@ if (! function_exists('weekdayDate')) {
 if (!function_exists('dispatchNotify')) {
     function dispatchNotify(
         int $userId,
-        string $name,
-        ?string $description,
-        int $type,
-        array $data = []
+        string $class,
+        array $notificationData = []
     )
     {
         NotificationJob::dispatchNow(
             new NotificationData(
                 $userId,
-                $name,
-                $description,
-                $type,
-                $data
+                $class,
+                $notificationData
             )
         );
     }

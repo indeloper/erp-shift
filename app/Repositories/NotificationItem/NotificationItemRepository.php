@@ -27,10 +27,10 @@ final class NotificationItemRepository
         ]);
     }
 
-    public function getNotificationByType(int $type): ?NotificationItem
+    public function getNotificationByClass(string $class): ?NotificationItem
     {
         return NotificationItem::query()
-            ->where('type', $type)
+            ->where('class', $class)
             ->where('status', true)
             ->first();
     }

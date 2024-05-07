@@ -48,10 +48,10 @@ final class NotificationItemService implements NotificationItemServiceInterface
         );
     }
 
-    public function getNotificationByType(int $type): ?NotificationItem
+    public function getNotificationByClass(string $class): ?NotificationItem
     {
         return $this->notificationItemRepository
-            ->getNotificationByType($type);
+            ->getNotificationByClass($class);
     }
 
     public function getNotificationItems(int $userId): Collection
