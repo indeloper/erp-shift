@@ -16,12 +16,11 @@ class ChiefMechanicMissingForEquipmentDefectTrackingNotice extends BaseNotificat
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.equipment.equipment-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.equipment.equipment-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class ChiefMechanicMissingForEquipmentDefectTrackingNotice extends BaseNotificat
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.default-with-url'
+            'notifications.telegram.default-with-url'
         );
     }
 }

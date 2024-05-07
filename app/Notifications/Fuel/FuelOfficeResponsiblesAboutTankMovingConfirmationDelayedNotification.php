@@ -17,11 +17,10 @@ class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification exten
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.fuel.new-fuel-tank-responsible-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.fuel.new-fuel-tank-responsible-notification', [
                 'name' => $this->notificationData->getName(),
                 'link' => $this->notificationData->getAdditionalInfo(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification exten
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.fuel.fuel_notify_office_responsibles_about_tank_moving_confirmation_delayed'
+            'notifications.telegram.fuel.fuel_notify_office_responsibles_about_tank_moving_confirmation_delayed'
         );
     }
 

@@ -16,12 +16,11 @@ class OperationRejectionNotice extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.operation.operation-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.operation.operation-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class OperationRejectionNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.default-with-url'
+            'notifications.telegram.default-with-url'
         );
     }
 }

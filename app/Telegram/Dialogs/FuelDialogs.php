@@ -56,7 +56,7 @@ class FuelDialogs
         $telegramService->editMessageText(
             $chatId,
             $messageId,
-            view('telegram.fuel.confirm-fuel-tank-moving-new-responsible', compact('text'))
+            view('notifications.telegram.fuel.confirm-fuel-tank-moving-new-responsible', compact('text'))
         );
 
     }
@@ -90,7 +90,7 @@ class FuelDialogs
     public function informFuelTankMovingOfficeResponsibles($tank)
     {
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
-        foreach ($notificationRecipientsOffice as $userId) { 
+        foreach ($notificationRecipientsOffice as $userId) {
             $user =  User::find($userId);
 
 

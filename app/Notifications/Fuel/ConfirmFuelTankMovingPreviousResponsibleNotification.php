@@ -16,7 +16,7 @@ class ConfirmFuelTankMovingPreviousResponsibleNotification extends BaseNotificat
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.fuel.confirm_fuel_tank_moving_previous_responsible'
+            'notifications.telegram.fuel.confirm_fuel_tank_moving_previous_responsible'
         );
     }
 }

@@ -15,12 +15,11 @@ class ApprovalOfOfferSheetPilingTaskNotice extends BaseNotification
    public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.commercial_offer.commercial-offer-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.commercial_offer.commercial-offer-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -33,7 +32,7 @@ class ApprovalOfOfferSheetPilingTaskNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.commercial.offer-approve'
+            'notifications.telegram.commercial.offer-approve'
         );
     }
 }

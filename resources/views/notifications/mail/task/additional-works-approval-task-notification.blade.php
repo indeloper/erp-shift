@@ -2,8 +2,6 @@
 
     {!! $name !!}
 
-    {!! $description !!}
-
     {!! $info !!}
 
 @isset($url)

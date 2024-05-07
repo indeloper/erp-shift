@@ -16,13 +16,12 @@ class NewTasksFromDeletedUserNotice extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.task.new-task-from-deleted-used-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.task.new-task-from-deleted-used-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
                 'tasks_url'   => $this->notificationData->getData()['tasks_url'],
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -35,7 +34,7 @@ class NewTasksFromDeletedUserNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.task.new-task-from-deleted-user-notification'
+            'notifications.telegram.task.new-task-from-deleted-user-notification'
         );
     }
 }

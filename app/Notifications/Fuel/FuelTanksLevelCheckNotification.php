@@ -16,11 +16,10 @@ class FuelTanksLevelCheckNotification extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.fuel.new-fuel-tank-responsible-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.fuel.new-fuel-tank-responsible-notification', [
                 'name' => $this->notificationData->getName(),
                 'link' => $this->notificationData->getAdditionalInfo(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -33,7 +32,7 @@ class FuelTanksLevelCheckNotification extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.fuel.fuel_tanks_level_check'
+            'notifications.telegram.fuel.fuel_tanks_level_check'
         );
     }
 }

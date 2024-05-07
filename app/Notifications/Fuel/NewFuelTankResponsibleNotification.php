@@ -18,11 +18,10 @@ class NewFuelTankResponsibleNotification extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.fuel.new-fuel-tank-responsible-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.fuel.new-fuel-tank-responsible-notification', [
                 'name' => $this->notificationData->getName(),
                 'link' => $this->notificationData->getAdditionalInfo(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -35,7 +34,7 @@ class NewFuelTankResponsibleNotification extends BaseNotification
     {
         return (new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.fuel.fuel_tank_movement_confirmation'
+            'notifications.telegram.fuel.fuel_tank_movement_confirmation'
         ))
             ->setKeyboard(
                 Keyboard::make()

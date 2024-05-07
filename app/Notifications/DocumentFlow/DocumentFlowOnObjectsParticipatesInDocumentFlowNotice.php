@@ -16,12 +16,11 @@ class DocumentFlowOnObjectsParticipatesInDocumentFlowNotice extends BaseNotifica
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.document_flow.document-flow-on-objects-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.document_flow.document-flow-on-objects-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class DocumentFlowOnObjectsParticipatesInDocumentFlowNotice extends BaseNotifica
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.default-with-url'
+            'notifications.telegram.default-with-url'
         );
     }
 }

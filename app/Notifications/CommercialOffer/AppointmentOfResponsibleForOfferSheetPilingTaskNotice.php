@@ -16,12 +16,11 @@ class AppointmentOfResponsibleForOfferSheetPilingTaskNotice extends BaseNotifica
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.commercial_offer.commercial-offer-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.commercial_offer.commercial-offer-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class AppointmentOfResponsibleForOfferSheetPilingTaskNotice extends BaseNotifica
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.default-with-url'
+            'notifications.telegram.default-with-url'
         );
     }
 }

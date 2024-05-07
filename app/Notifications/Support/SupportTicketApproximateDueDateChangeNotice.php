@@ -16,12 +16,11 @@ class SupportTicketApproximateDueDateChangeNotice extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->notificationData->getDescription())
-            ->markdown('mail.support.support-notification', [
+            ->subject(self::DESCRIPTION)
+            ->markdown('notifications.mail.support.support-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
                 'url'  => $this->notificationData->getUrl(),
-                'description' => $this->notificationData->getDescription(),
             ]);
     }
 
@@ -34,7 +33,7 @@ class SupportTicketApproximateDueDateChangeNotice extends BaseNotification
     {
         return new RenderTelegramNotificationData(
             $this->notificationData,
-            'telegram.support.support-notification'
+            'notifications.telegram.support.support-notification'
         );
     }
 }
