@@ -2,9 +2,9 @@
 
 namespace App\Events;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Task;
+use App\Notifications\Operation\ContractControlInOperationsTaskNotice;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -38,12 +38,10 @@ class OperationClosed
                 'status' => 45,
             ]);
 
-            dispatchNotify(
+            ContractControlInOperationsTaskNotice::send(
                 $task->responsible_user_id,
-                'Создана задача: ' . $task->name,
-                '',
-                NotificationType::CONTRACT_CONTROL_IN_OPERATIONS_TASK_NOTIFICATION,
                 [
+                    'name' => 'Создана задача: ' . $task->name,
                     'additional_info' => 'Перейти к задаче можно по ссылке: ',
                     'url' => $task->task_route(),
                     'task_id' => $task->id,

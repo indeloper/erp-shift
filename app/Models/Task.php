@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
-use App\Models\Notification\Notification;
+use App\Notifications\Task\TaskClosureNotice;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Notificationable;
 use App\Traits\NotificationGenerator;
@@ -324,12 +323,10 @@ class Task extends Model
         $was_solved = $this->solve();
 
         if ($was_solved) {
-            dispatchNotify(
+            TaskClosureNotice::send(
                 $this->responsible_user_id,
-                'Задача «' . $this->name . '» закрыта',
-                '',
-                NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
+                    'name' => 'Задача «' . $this->name . '» закрыта',
                     'task_id' => $this->id,
                     'contractor_id' => $this->project_id ? Project::find($this->project_id)->contractor_id : null,
                     'project_id' => $this->project_id ? $this->project_id : null,
@@ -428,12 +425,10 @@ class Task extends Model
 
     public function taskClosureNotice($name)
     {
-        dispatchNotify(
+        TaskClosureNotice::send(
             $this->responsible_user_id,
-            $name,
-            '',
-            NotificationType::TASK_CLOSURE_NOTIFICATION,
             [
+                'name' => $name,
                 'task_id' => $this->id,
                 'contractor_id' => $this->contractor_id ?? null,
                 'project_id' => $this->project_id ?? null,

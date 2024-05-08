@@ -2,11 +2,9 @@
 
 namespace App\Observers;
 
-use App\Domain\Enum\NotificationType;
-use App\Models\Project;
-use App\Models\Notification\Notification;
+
 use App\Models\Task;
-use App\Models\User;
+use App\Notifications\Task\WriteOffControlTaskCreatedNotice;
 
 class TaskObserver
 {
@@ -27,12 +25,10 @@ class TaskObserver
 
     public function notificationForWriteOffControlTask(Task $task)
     {
-        dispatchNotify(
+        WriteOffControlTaskCreatedNotice::send(
             $task->responsible_user_id,
-            'Новая задача «' . $task->name . '»',
-            '',
-            NotificationType::WRITE_OFF_CONTROL_TASK_CREATED_NOTIFICATION,
             [
+                'name' => 'Новая задача «' . $task->name . '»',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,

@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Project;
 use App\Models\Task;
+use App\Notifications\Task\DelayedTaskAddedAgainNotice;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class CheckDelayedTasks extends Command
 {
@@ -42,8 +41,6 @@ class CheckDelayedTasks extends Command
      */
     public function handle()
     {
-        DB::beginTransaction();
-
         $tasks_to_revive = Task::where('revive_at', '<', Carbon::now())->get();
 
         foreach ($tasks_to_revive as $task) {
@@ -53,12 +50,10 @@ class CheckDelayedTasks extends Command
             $task->expired_at = Carbon::now()->addHours(Carbon::create($task->expired_at)->diffInHours($task->created_at));
             $task->save();
 
-            dispatchNotify(
+            DelayedTaskAddedAgainNotice::send(
                 $task->responsible_user_id,
-                'Новая задача «' . $task->name . '»',
-                '',
-                NotificationType::DELAYED_TASK_ADDED_AGAIN_NOTIFICATION,
                 [
+                    'name' => 'Новая задача «' . $task->name . '»',
                     'additional_info' => ' Ссылка на задачу: ',
                     'url' => $task->task_route(),
                     'task_id' => $task->id,
@@ -70,7 +65,5 @@ class CheckDelayedTasks extends Command
 
             $this->info('task '. $task->name .' was revived');
         }
-
-        DB::commit();
     }
 }

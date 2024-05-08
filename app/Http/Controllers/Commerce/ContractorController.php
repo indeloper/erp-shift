@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
 use App\Http\Requests\ContractorRequests\ContractorStoreRequest;
 use App\Http\Requests\ContractorRequests\ContractorUpdateRequest;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
+use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
+use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Models\Contractors\{BankDetail,
     Contractor,
     ContractorContact,
@@ -548,20 +549,18 @@ class ContractorController extends Controller
             'status' => 19
         ]);
 
-        dispatchNotify(
+        DB::commit();
+
+        ContractorDeletionControlTaskNotice::send(
             $task->responsible_user_id,
-            'Новая задача «' . $task->name . '»',
-            '',
-            NotificationType::CONTRACTOR_DELETION_CONTROL_TASK_NOTIFICATION,
             [
+                'name' => 'Новая задача «' . $task->name . '»',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'contractor_id' => $task->contractor_id,
             ]
         );
-
-        DB::commit();
 
         return back();
     }
@@ -601,18 +600,6 @@ class ContractorController extends Controller
             ($request->description ? ', с комментарием: ' . $request->description : '');
         $task->solve_n_notify();
 
-        dispatchNotify(
-            $task->user_id,
-            'Запрашиваемый вами контрагент ' . $contractor->short_name . ' ' . $task->results[$task->status][$task->result] .
-            ($request->description ? ', с комментарием: ' . $request->description : ''),
-            '',
-            NotificationType::CONTRACTOR_DELETION_CONTROL_TASK_RESOLUTION_NOTIFICATION,
-            [
-                'task_id' => $task->id,
-                'contractor_id' => $task->contractor_id,
-            ]
-        );
-
         if ($request->status_result == 'accept' ) {
             if (Schema::hasColumn($contractor->getTable(), 'deleted_at')) {
                 foreach($contractor->projects as $project){
@@ -630,6 +617,16 @@ class ContractorController extends Controller
         }
 
         DB::commit();
+
+        ContractorDeletionControlTaskResolutionNotice::send(
+            $task->user_id,
+            [
+                'name' => 'Запрашиваемый вами контрагент ' . $contractor->short_name . ' ' . $task->results[$task->status][$task->result] .
+                    ($request->description ? ', с комментарием: ' . $request->description : ''),
+                'task_id' => $task->id,
+                'contractor_id' => $task->contractor_id,
+            ]
+        );
 
         return redirect()->route('tasks::index');
     }

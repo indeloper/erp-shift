@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Contractors\Contractor;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\Task\ContractorChangesVerificationTaskNotice;
 use Carbon\Carbon;
 use Fomvasss\Dadata\Facades\DadataSuggest;
 use Illuminate\Console\Command;
@@ -136,12 +136,10 @@ class CheckContractorsInfo extends Command
             $task->changing_fields()->create($field);
         }
 
-        dispatchNotify(
+        ContractorChangesVerificationTaskNotice::send(
             $task->responsible_user_id,
-            'Новая задача «' . $task->name . '»',
-            '',
-            NotificationType::CONTRACTOR_CHANGES_VERIFICATION_TASK_NOTIFICATION,
             [
+                'name' => 'Новая задача «' . $task->name . '»',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,

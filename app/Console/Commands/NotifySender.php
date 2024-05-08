@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Enum\NotificationType;
+use App\Notifications\DefaultNotification;
 use App\Models\{User};
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
@@ -111,25 +111,13 @@ class NotifySender extends Command
 
         $recipients->each(function (User $user) use ($text) {
 
-            dispatchNotify(
+            DefaultNotification::send(
                 $user->id,
-                $text,
-                'Описание уведомления',
-                NotificationType::DEFAULT
+                [
+                    'name' => 'Описание уведомления',
+                    'additional_info' => $text
+                ]
             );
-
-
-//            dispatchNotify(
-//                $user->id,
-//                $text,
-//                'Описание уведомления',
-//                NotificationType::ONLY_TELEGRAM,
-//                [
-//                    'name' => $user->first_name
-//                ]
-//            );
         });
-
-
     }
 }

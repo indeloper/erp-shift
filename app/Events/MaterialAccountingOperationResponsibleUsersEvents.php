@@ -2,9 +2,10 @@
 
 namespace App\Events;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
+use App\Notifications\Operation\OperationCreationApprovalRequestNotice;
+use App\Notifications\Operation\ResponsibleAppointmentInOperationNotice;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -35,14 +36,15 @@ class MaterialAccountingOperationResponsibleUsersEvents
         $additional_user = is_array($user->additional_info) ? false : $user->additional_info;
         if ($additional_user == 'skip') return;
 
-        dispatchNotify(
+        /** Отправка уведомлений */
+        $notificationClass = $this->operationIsDraft($operation) ?
+            OperationCreationApprovalRequestNotice::class :
+            ResponsibleAppointmentInOperationNotice::class;
+
+        $notificationClass::send(
             $additional_user ? $additional_user : $user->user_id,
-            $this->generateNotificationText($operation),
-            '',
-            $this->operationIsDraft($operation) ?
-                    NotificationType::OPERATION_CREATION_APPROVAL_REQUEST_NOTIFICATION :
-                    NotificationType::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION,
             [
+                'name' => $this->generateNotificationText($operation),
                 'additional_info' => 'Перейти к операции можно по ссылке: ',
                 'url' => $operation->general_url,
                 'target_id' => $operation->id,
@@ -50,15 +52,12 @@ class MaterialAccountingOperationResponsibleUsersEvents
             ]
         );
 
-
         if ($operation->isWriteOffOperation() and ! $this->operationIsDraft($operation) and Auth::id() != 13) {
             // create notification for Alexander Ismagilov. Now it is Konstantin Samsonov
-            dispatchNotify(
+            ResponsibleAppointmentInOperationNotice::send(
                 13,
-                $this->generateNotificationText($operation),
-                '',
-                NotificationType::RESPONSIBLE_APPOINTMENT_IN_OPERATION_NOTIFICATION,
                 [
+                    'name' => $this->generateNotificationText($operation),
                     'additional_info' => 'Перейти к операции можно по ссылке: ',
                     'url' => $operation->general_url,
                     'target_id' => $operation->id,

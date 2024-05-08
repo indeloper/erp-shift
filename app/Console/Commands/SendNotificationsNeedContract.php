@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Notifications\TechnicalMaintence\TechnicalMaintenanceCompletionNotice;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -51,16 +51,13 @@ class SendNotificationsNeedContract extends Command
 
         foreach ($operations as $operation) {
 // TODO заменить хардкод 28
-            dispatchNotify(
+            TechnicalMaintenanceCompletionNotice::send(
                 28,
-                'На объекте ' . $operation->object_to->name_tag . ' существуют операции без договора!',
-                'Уведомление о задаче "Отметка времени использования техники"',
-                NotificationType::TECHNICAL_MAINTENANCE_COMPLETION_NOTICE,
                 [
+                    'name' => 'На объекте ' . $operation->object_to->name_tag . ' существуют операции без договора!',
                     'object_id' => $operation->object_id_to
                 ]
             );
-
         }
     }
 }

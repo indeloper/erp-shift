@@ -8,6 +8,9 @@ use App\Http\Requests\DynamicTicketUpdateRequest;
 use App\Http\Requests\TicketStoreRequest;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
+use App\Notifications\Technic\TechnicDispatchConfirmationNotice;
+use App\Notifications\Technic\TechnicReceiptConfirmationNotice;
+use App\Notifications\Technic\TechnicUsageStartTaskNotice;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
@@ -133,14 +136,12 @@ class OurTechnicTicketController extends Controller
             // here we have many responsible user (every one can send and receive tech)
             $ourTechnicTicket->users()->attach($request->user, ['type' => $request->task_status == 31 ? 2 : 3]);
 
-            dispatchNotify(
+            /** Отправка в уведомлений */
+            $noticeClass = $request->task_status == 31 ? TechnicDispatchConfirmationNotice::class : TechnicReceiptConfirmationNotice::class;
+            $noticeClass::send(
                 $request->user,
-                "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                '',
-                $request->task_status == 31 ?
-                                        NotificationType::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION :
-                                        NotificationType::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION,
                 [
+                    'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
                     'additional_info' => "Ссылка: ",
                     'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
@@ -164,12 +165,11 @@ class OurTechnicTicketController extends Controller
                 $ourTechnicTicket->users()->attach($request->user, ['type' => 4]);
             }
 
-            dispatchNotify(
+            /** Отправка в уведомлений */
+            TechnicUsageStartTaskNotice::send(
                 $request->user,
-                "Вас назначили ответственным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                '',
-                NotificationType::TECHNIC_USAGE_START_TASK_NOTIFICATION,
                 [
+                    'name' => "Вас назначили ответственным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
                     'additional_info' => "\nСсылка: ",
                     'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),

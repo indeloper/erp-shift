@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\AttachContractRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToNewRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToUsedRequest;
 use App\Http\Requests\Building\MaterialAccounting\OperationReportRequest;
 use App\Http\Requests\Building\MaterialAccounting\SplitBaseRequest;
+use App\Notifications\Task\PartialClosureOperationDeletionRequestNotice;
+use App\Notifications\Task\PartialClosureOperationEditRequestNotice;
 use App\Models\{Comment, FileEntry, Group, Manual\ManualMaterialParameter, ProjectObject, Task, User};
 use App\Models\Contractors\Contractor;
 use App\Models\Manual\ManualMaterial;
@@ -732,12 +733,10 @@ class MaterialAccountingController extends Controller
             'final_note' => $request->description,
         ]);
 
-        dispatchNotify(
+        PartialClosureOperationEditRequestNotice::send(
             $updation_task->responsible_user_id,
-            'Новая задача «' . $updation_task->name . '» ',
-            '',
-            NotificationType::PARTIAL_CLOSURE_OPERATION_EDIT_REQUEST_NOTIFICATION,
             [
+                'name' => 'Новая задача «' . $updation_task->name . '» ',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $updation_task->task_route(),
                 'task_id' => $updation_task->id,
@@ -795,12 +794,10 @@ class MaterialAccountingController extends Controller
             'status' => 22
         ]);
 
-        dispatchNotify(
+        PartialClosureOperationDeletionRequestNotice::send(
             $deletion_task->responsible_user_id,
-            'Новая задача «' . $deletion_task->name . '» ',
-            '',
-            NotificationType::PARTIAL_CLOSURE_OPERATION_DELETION_REQUEST_NOTIFICATION,
             [
+                'name' => 'Новая задача «' . $deletion_task->name . '» ',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $deletion_task->task_route(),
                 'task_id' => $deletion_task->id,
@@ -811,7 +808,6 @@ class MaterialAccountingController extends Controller
         );
 
         return \GuzzleHttp\json_encode($operation->url);
-
     }
 
     public function update_part_task($task_id)

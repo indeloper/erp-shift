@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\CreateWriteOffRequest;
 use App\Http\Requests\Building\MaterialAccounting\SendWriteOffRequest;
@@ -13,6 +12,9 @@ use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
 use App\Models\ProjectObject;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\Operation\OperationApprovalNotice;
+use App\Notifications\Operation\OperationRejectionNotice;
+use App\Notifications\Operation\WriteOffOperationRejectionNotice;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -392,33 +394,31 @@ class MatAccWriteOffController extends Controller
             'is_close' => $request->status_result === 'accept'? 0 : 1,
         ]);
 
+        DB::commit();
+
         if ($request->status_result == 'decline' && $task->status == 21) {
-            dispatchNotify(
+            WriteOffOperationRejectionNotice::send(
                 $operation->author->id,
-                'Ваша операция списания была отклонена' . ($request->description ? ' с комментарием: ' . $request->description : ''),
-                '',
-                NotificationType::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION,
                 [
+                    'name' => 'Ваша операция списания была отклонена' . ($request->description ? ' с комментарием: ' . $request->description : ''),
                     'task_id' => $task->id,
                 ]
             );
         }
 
         if ($task->status == 38) {
-            dispatchNotify(
+            $notificationClass = $task->result == 1 ?
+                OperationApprovalNotice::class :
+                OperationRejectionNotice::class;
+
+            $notificationClass::send(
                 $operation->author->id,
-                'Ваша операция была ' . $task->results[$task->status][$task->result] . ($request->description ? ' с комментарием: ' . $request->description : ''),
-                '',
-                $task->result == 1 ?
-                    NotificationType::OPERATION_APPROVAL_NOTIFICATION :
-                    NotificationType::OPERATION_REJECTION_NOTIFICATION,
                 [
+                    'name' => 'Ваша операция была ' . $task->results[$task->status][$task->result] . ($request->description ? ' с комментарием: ' . $request->description : ''),
                     'task_id' => $task->id,
                 ]
             );
         }
-
-        DB::commit();
 
         return redirect()->route('tasks::index');
     }

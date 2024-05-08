@@ -2,11 +2,11 @@
 
 namespace App\Observers;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Notification\Notification;
 use App\Models\Task;
+use App\Notifications\Operation\OperationControlTaskNotice;
 use Carbon\Carbon;
 
 class MaterialAccountingOperationObserver
@@ -27,12 +27,10 @@ class MaterialAccountingOperationObserver
                         'status' => 38,
                     ]);
 
-                    dispatchNotify(
+                    OperationControlTaskNotice::send(
                         $task->responsible_user_id,
-                        'Создана задача: ' . $task->name,
-                        '',
-                        NotificationType::OPERATION_CONTROL_TASK_NOTIFICATION,
                         [
+                            'name' => 'Создана задача: ' . $task->name,
                             'additional_info' => 'Ссылке на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $task->id,

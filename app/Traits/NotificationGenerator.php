@@ -2,7 +2,31 @@
 
 namespace App\Traits;
 
-use App\Domain\Enum\NotificationType;
+use App\Notifications\Contract\CertificateAvailabilityControlTaskCreatedNotice;
+use App\Notifications\Contract\CertificateAvailabilityControlTaskNotice;
+use App\Notifications\Contract\OperationsWithoutCertificatesNotice;
+use App\Notifications\Employee\EmployeeBirthdayNextWeekNotice;
+use App\Notifications\Employee\EmployeeBirthdayTodayNotice;
+use App\Notifications\Equipment\ChiefMechanicMissingForEquipmentDefectTrackingNotice;
+use App\Notifications\Technic\RequestProcessedByLogisticianNotice;
+use App\Notifications\Technic\TechnicalDeviceFaultReportCreatedNotice;
+use App\Notifications\Technic\TechnicalFaultControlTaskNotice;
+use App\Notifications\Technic\TechnicalFaultReportAssigneeNotice;
+use App\Notifications\Technic\TechnicalFaultReportAssignmentTaskCreationNotice;
+use App\Notifications\Technic\TechnicalFaultReportCompletionControlTaskNotice;
+use App\Notifications\Technic\TechnicalFaultReportConfirmedNotice;
+use App\Notifications\Technic\TechnicalFaultReportDeletedNotice;
+use App\Notifications\Technic\TechnicalFaultReportDeletedOrRejectedNotice;
+use App\Notifications\Technic\TechnicalFaultReportNewCommentNotice;
+use App\Notifications\Technic\TechnicalFaultReportRejectionNotice;
+use App\Notifications\Technic\TechnicalFaultReportRepairPeriodChangeNotice;
+use App\Notifications\Technic\TechnicalFaultReportRepairPeriodEndingNotice;
+use App\Notifications\Technic\TechnicalFaultReportWorkCompletionNotice;
+use App\Notifications\Technic\TechnicAvailableNotice;
+use App\Notifications\Technic\TechnicDispatchConfirmationNotice;
+use App\Notifications\Technic\TechnicExtentionApprovedNotice;
+use App\Notifications\Technic\TechnicReceiptConfirmationNotice;
+use App\Notifications\Technic\TechnicRequestApprovalNotice;
 use Illuminate\Support\Collection;
 use App\Models\{Comment, Contract\Contract, Group, Notification\Notification, Task, User, Project};
 use App\Models\TechAcc\{OurTechnic, OurTechnicTicket};
@@ -22,28 +46,22 @@ trait NotificationGenerator
         if (get_class($defect->defectable) == OurTechnic::class && $defect->defectable->isVacated())
             $user_ids = array_merge($user_ids, [$defect->defectable->getResponsibleUser()->id]);
 
-        foreach (array_filter($user_ids) as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "Новая заявка о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}",
-                '',
-                NotificationType::TECHNICAL_DEVICE_FAULT_REPORT_CREATED_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку:',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalDeviceFaultReportCreatedNotice::send(
+            $user_ids,
+            [
+                'name' => "Новая заявка о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}",
+                'additional_info' => 'Ссылка на заявку:',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateDefectResponsibleAssignmentNotification(Task $task)
     {
-        dispatchNotify(
+        TechnicalFaultReportAssignmentTaskCreationNotice::send(
             $task->responsible_user_id,
-            "Новая задача «{$task->name}».",
-            '',
-            NotificationType::TECHNICAL_FAULT_REPORT_ASSIGNMENT_TASK_CREATION_NOTIFICATION,
             [
+                'name' => "Новая задача «{$task->name}».",
                 'additional_info' => 'Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,
@@ -57,45 +75,36 @@ trait NotificationGenerator
         $user_ids = $this->getNotifiedUsersAndAuthor($defect);
 
         if ($defect->responsible_user_id) $responsible_line = ", Исполнитель: {$defect->responsible_user->full_name}";
-        foreach (array_unique($user_ids) as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "По заявке о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}{$responsible_line}, неисправность не выявлена, заявка отклонена",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_REJECTION_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку: ',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalFaultReportRejectionNotice::send(
+            $user_ids,
+            [
+                'name' => "По заявке о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}{$responsible_line}, неисправность не выявлена, заявка отклонена",
+                'additional_info' => 'Ссылка на заявку: ',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateDefectAcceptNotification(Defects $defect)
     {
         $user_ids = $this->getNotifiedUsersAndAuthor($defect);
-
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "По заявке о неисправности №{$defect->id} был установлен период ремонта с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_CONFIRMED_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку: ',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalFaultReportConfirmedNotice::send(
+            $user_ids,
+            [
+                'name' => "По заявке о неисправности №{$defect->id} был установлен период ремонта с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
+                'additional_info' => 'Ссылка на заявку: ',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateNoPrincipleMechanicNotification()
     {
-        dispatchNotify(
+        ChiefMechanicMissingForEquipmentDefectTrackingNotice::send(
             Group::find(5)->getUsers()->first()->id,
-            'В системе отсутсвует сотрудник на позиции Главного Механика, без него учёт дефектов техники не будет работать',
-            '',
-            NotificationType::CHIEF_MECHANIC_MISSING_FOR_EQUIPMENT_DEFECT_TRACKING
+            [
+                'name' => 'В системе отсутсвует сотрудник на позиции Главного Механика, без него учёт дефектов техники не будет работать',
+            ]
         );
     }
 
@@ -103,28 +112,22 @@ trait NotificationGenerator
     {
         $user_ids = $this->getAllNotifiedUsers($defect);
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "Назначен исполнитель на заявку о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_ASSIGNEE_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку:',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalFaultReportAssigneeNotice::send(
+            $user_ids,
+            [
+                'name' => "Назначен исполнитель на заявку о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
+                'additional_info' => 'Ссылка на заявку:',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateDefectControlTaskNotification(Task $task)
     {
-        dispatchNotify(
+        TechnicalFaultControlTaskNotice::send(
             $task->responsible_user_id,
-            "Новая задача «{$task->name}».",
-            '',
-            NotificationType::TECHNICAL_FAULT_CONTROL_TASK_NOTIFICATION,
             [
+                'name' => "Новая задача «{$task->name}».",
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,
@@ -141,38 +144,31 @@ trait NotificationGenerator
         $user_ids = array_diff($user_ids, [$comment->author_id]);
 
         if ($defect->responsible_user_id) $resp = ", Исполнитель: {$defect->responsible_user->full_name}";
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "Новый комментарий на заявку о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}{$resp}: $comment->comment",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_NEW_COMMENT_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку: ',
-                    'url' => $defect->card_route(),
-                ]
-            );
-        }
+
+        TechnicalFaultReportNewCommentNotice::send(
+            $user_ids,
+            [
+                'name' => "Новый комментарий на заявку о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}{$resp}: $comment->comment",
+                'additional_info' => 'Ссылка на заявку: ',
+                'url' => $defect->card_route(),
+            ]
+        );
     }
 
     public function generateDefectRepairDatesUpdateNotification(Defects $defect)
     {
         $user_ids = $this->getNotifiedUsersAndAuthor($defect);
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "По заявке о неисправности №{$defect->id} был изменен период ремонта, новый период:
-                       с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name},
-                       Исполнитель: {$defect->responsible_user->full_name}",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_CHANGE_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку: ',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalFaultReportRepairPeriodChangeNotice::send(
+            $user_ids,
+            [
+                'name' => "По заявке о неисправности №{$defect->id} был изменен период ремонта, новый период:
+                          с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name},
+                          Исполнитель: {$defect->responsible_user->full_name}",
+                'additional_info' => 'Ссылка на заявку: ',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateDefectExpireNotification(Defects $defect)
@@ -180,29 +176,23 @@ trait NotificationGenerator
         $user_ids = [$defect->responsible_user_id];
         if ($principal_mechanic = Group::find(47)->getUsers()->first()) $user_ids[] = $principal_mechanic->id;
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "По заявке о неисправности №{$defect->id} в течение 24ч заканчивается период ремонта,
-                       Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_REPAIR_PERIOD_ENDING_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку: ',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalFaultReportRepairPeriodEndingNotice::send(
+            $user_ids,
+            [
+                'name' => "По заявке о неисправности №{$defect->id} в течение 24ч заканчивается период ремонта,
+                          Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
+                'additional_info' => 'Ссылка на заявку: ',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateDefectRepairControlTaskNotification(Task $task)
     {
-        dispatchNotify(
+        TechnicalFaultReportCompletionControlTaskNotice::send(
             $task->responsible_user_id,
-            "Новая задача «{$task->name}».",
-            '',
-            NotificationType::TECHNICAL_FAULT_REPORT_COMPLETION_CONTROL_TASK_NOTIFICATION,
             [
+                'name' => "Новая задача «{$task->name}».",
                 'additional_info' => 'Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,
@@ -216,19 +206,15 @@ trait NotificationGenerator
         $user_ids = $this->getNotifiedUsersAndAuthor($defect);
         $location = (get_class($defect->defectable) == OurTechnic::class) ? $defect->defectable->start_location->location : $defect->defectable->object->location;
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "По заявке о неисправности №{$defect->id} работы окончены, местоположение техники: {$location},
-                       Исполнитель: {$defect->responsible_user->full_name}",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_WORK_COMPLETION_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку: ',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalFaultReportWorkCompletionNotice::send(
+            $user_ids,
+            [
+                'name' => "По заявке о неисправности №{$defect->id} работы окончены, местоположение техники: {$location},
+                          Исполнитель: {$defect->responsible_user->full_name}",
+                'additional_info' => 'Ссылка на заявку: ',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateTicketFailureNotification(OurTechnicTicket $ourTechnicTicket, $result)
@@ -236,21 +222,18 @@ trait NotificationGenerator
         $all_ticket_users = $ourTechnicTicket->users->unique();
         $notification_text = "Заявка №{$ourTechnicTicket->id} ". ($result == 'hold' ? 'удержана' : 'отклонена') . ", инициатор: " . auth()->user()->full_name;
 
-        foreach ($all_ticket_users as $ticket_user) {
-            dispatchNotify(
-                $ticket_user->id,
-                $notification_text,
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_DELETED_OR_REJECTED_NOTIFICATION,
-                [
-                    'additional_info' => "Ссылка на заявку: ",
-                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
-                    'created_at' => now(),
-                    'target_id' => $ourTechnicTicket->id,
-                ]
-            );
+        $user_ids = $all_ticket_users->pluck('id')->toArray();
 
-        }
+        TechnicalFaultReportDeletedOrRejectedNotice::send(
+            $user_ids,
+            [
+                'name' => $notification_text,
+                'additional_info' => "Ссылка на заявку: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'created_at' => now(),
+                'target_id' => $ourTechnicTicket->id,
+            ]
+        );
     }
 
     public function generateTicketProcessedNotification(OurTechnicTicket $ourTechnicTicket)
@@ -259,20 +242,17 @@ trait NotificationGenerator
         $notification_text = "На заявку №{$ourTechnicTicket->id} назначен " . ($ourTechnicTicket->vehicles()->count() ? $ourTechnicTicket->vehicles()->first()->full_name . ' ' : '') .
             "время подачи {$ourTechnicTicket->sending_timestamps_text} плановое время прибытия {$ourTechnicTicket->getting_timestamps_text}.";
 
-        foreach ($all_ticket_users as $ticket_user) {
-            dispatchNotify(
-                $ticket_user->id,
-                $notification_text,
-                '',
-                NotificationType::REQUEST_PROCESSED_BY_LOGISTICIAN_NOTIFICATION,
-                [
-                    'additional_info' => "Ссылка на заявку: ",
-                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
-                    'created_at' => now(),
-                    'target_id' => $ourTechnicTicket->id,
-                ]
-            );
-        }
+        $user_ids = $all_ticket_users->pluck('id')->toArray();
+        RequestProcessedByLogisticianNotice::send(
+            $user_ids,
+            [
+                'name' => $notification_text,
+                'additional_info' => "Ссылка на заявку: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'created_at' => now(),
+                'target_id' => $ourTechnicTicket->id,
+            ]
+        );
     }
 
     public function generateTicketAcceptedNotification(OurTechnicTicket $ourTechnicTicket)
@@ -281,38 +261,32 @@ trait NotificationGenerator
         $variable_text = $ourTechnicTicket->users()->ofType('author_user_id')->count() ? " Автор заявки: " . $ourTechnicTicket->users()->ofType('author_user_id')->first()->full_name : '';
         $notification_text = "Заявка на технику №{$ourTechnicTicket->id} согласована и ожидает назначения на рейс." . $variable_text;
 
-        foreach ($all_ticket_users as $ticket_user) {
-            dispatchNotify(
-                $ticket_user->id,
-                $notification_text,
-                '',
-                NotificationType::TECHNIC_REQUEST_APPROVAL_NOTIFICATION,
-                [
-                    'additional_info' => "\nСсылка на заявку: ",
-                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
-                    'created_at' => now(),
-                    'target_id' => $ourTechnicTicket->id,
-                ]
-            );
-        }
+        $user_ids = $all_ticket_users->pluck('id')->toArray();
+
+        TechnicRequestApprovalNotice::send(
+            $user_ids,
+            [
+                'name' => $notification_text,
+                'additional_info' => "\nСсылка на заявку: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'created_at' => now(),
+                'target_id' => $ourTechnicTicket->id,
+            ]
+        );
     }
 
     public function generateDefectDeleteNotification(Defects $defect)
     {
         $user_ids = $this->getNotifiedUsers($defect);
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "Автор заявки {$defect->author->full_name} удалил заявку о неисправности №{$defect->id}.",
-                '',
-                NotificationType::TECHNICAL_FAULT_REPORT_DELETED_NOTIFICATION,
-                [
-                    'additional_info' => 'Ссылка на заявку: ',
-                    'url' => $defect->card_route()
-                ]
-            );
-        }
+        TechnicalFaultReportDeletedNotice::send(
+            $user_ids,
+            [
+                'name' => "Автор заявки {$defect->author->full_name} удалил заявку о неисправности №{$defect->id}.",
+                'additional_info' => 'Ссылка на заявку: ',
+                'url' => $defect->card_route()
+            ]
+        );
     }
 
     public function generateMovingNotificationsIfNeeded($task, OurTechnicTicket $ourTechnicTicket): void
@@ -320,23 +294,22 @@ trait NotificationGenerator
         if (in_array($task->status, [31, 32])) {
             $all_ticket_users = $ourTechnicTicket->users->unique();
             $notification_text = trim("По заявке №{$ourTechnicTicket->id} " . $task->get_result);
+            $user_ids = $all_ticket_users->pluck('id')->toArray();
 
-            foreach ($all_ticket_users as $ticket_user) {
-                dispatchNotify(
-                    $ticket_user->id,
-                    $notification_text,
-                    '',
-                    $task->status == 31 ?
-                        NotificationType::TECHNIC_DISPATCH_CONFIRMATION_NOTIFICATION :
-                        NotificationType::TECHNIC_RECEIPT_CONFIRMATION_NOTIFICATION,
-                    [
-                        'additional_info' => "Ссылка на заявку: ",
-                        'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
-                        'created_at' => now(),
-                        'target_id' => $ourTechnicTicket->id,
-                    ]
-                );
-            }
+            $notificationClass = $task->status == 31 ?
+                TechnicDispatchConfirmationNotice::class :
+                TechnicReceiptConfirmationNotice::class;
+
+            $notificationClass::send(
+                $user_ids,
+                [
+                    'name' => $notification_text,
+                    'additional_info' => "Ссылка на заявку: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'created_at' => now(),
+                    'target_id' => $ourTechnicTicket->id,
+                ]
+            );
         }
     }
 
@@ -415,16 +388,14 @@ trait NotificationGenerator
         array_push($user_ids, User::HARDCODED_PERSONS['router']);
         $user_ids = array_unique($user_ids);
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "Работы с техникой {$ourTechnicTicket->our_technic->category_name} {$ourTechnicTicket->our_technic->name},
-                       инвентарный номер: {$ourTechnicTicket->our_technic->inventory_number}" .
-                " закончились на объекте: {$ourTechnicTicket->our_technic->start_location->location}.",
-                '',
-                NotificationType::TECHNIC_AVAILABLE_NOTIFICATION
-            );
-        }
+        TechnicAvailableNotice::send(
+            $user_ids,
+            [
+                'name' => "Работы с техникой {$ourTechnicTicket->our_technic->category_name} {$ourTechnicTicket->our_technic->name},
+                          инвентарный номер: {$ourTechnicTicket->our_technic->inventory_number} " .
+                          " закончились на объекте: {$ourTechnicTicket->our_technic->start_location->location}.",
+            ]
+        );
     }
 
     public function generateOurTechnicTicketUseExtensionNotifications(OurTechnicTicket $ourTechnicTicket)
@@ -432,17 +403,16 @@ trait NotificationGenerator
         $user_ids = Group::find(47)->getUsers()->pluck('id')->toArray();
         // TODO remove hardcode from here somehow
         array_push($user_ids, User::HARDCODED_PERSONS['router']);
+        $user_ids = array_unique($user_ids);
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "На объекте: {$ourTechnicTicket->our_technic->start_location->location}" .
-                " изменилась дата окончания использования техники {$ourTechnicTicket->our_technic->category_name}" .
-                " {$ourTechnicTicket->our_technic->name}, инвентарный номер: {$ourTechnicTicket->our_technic->inventory_number}.",
-                '',
-                NotificationType::TECHNIC_EXTENTION_APPROVED_NOTIFICATION
-            );
-        }
+        TechnicExtentionApprovedNotice::send(
+            $user_ids,
+            [
+                'name' => "На объекте: {$ourTechnicTicket->our_technic->start_location->location}" .
+                    " изменилась дата окончания использования техники {$ourTechnicTicket->our_technic->category_name}" .
+                    " {$ourTechnicTicket->our_technic->name}, инвентарный номер: {$ourTechnicTicket->our_technic->inventory_number}.",
+            ]
+        );
     }
 
     public function generateBirthdayTodayNotifications(Collection $users)
@@ -452,14 +422,12 @@ trait NotificationGenerator
         $recipients = User::whereNotIn('id', $users->pluck('id')->toArray())->pluck('id')->toArray();
 
         foreach ($users as $birthdayPerson) {
-            foreach ($recipients as $user_id) {
-                dispatchNotify(
-                    $user_id,
-                    "Сегодня празднует свой день рождения {$birthdayPerson->full_name}!",
-                    '',
-                    NotificationType::EMPLOYEE_BIRTHDAY_TODAY_NOTIFICATION
-                );
-            }
+            EmployeeBirthdayTodayNotice::send(
+                $recipients,
+                [
+                    'name' => "Сегодня празднует свой день рождения {$birthdayPerson->full_name}!",
+                ]
+            );
         }
     }
 
@@ -471,25 +439,21 @@ trait NotificationGenerator
         $birthdayDate = now()->addDays(7)->format('d.m.Y');
 
         foreach ($users as $birthdayPerson) {
-            foreach ($recipients as $user_id) {
-                dispatchNotify(
-                    $user_id,
-                    "{$birthdayDate} празднует свой день рождения {$birthdayPerson->full_name}!",
-                    '',
-                    NotificationType::EMPLOYEE_BIRTHDAY_NEXT_WEEK_NOTIFICATION
-                );
-            }
+            EmployeeBirthdayNextWeekNotice::send(
+                $recipients,
+                [
+                    'name' => "{$birthdayDate} празднует свой день рождения {$birthdayPerson->full_name}!",
+                ]
+            );
         }
     }
 
     public function generateCertificateControlTaskNotification(Task $task)
     {
-        dispatchNotify(
+        CertificateAvailabilityControlTaskNotice::send(
             $task->responsible_user_id,
-            "Новая задача «{$task->name}».",
-            '',
-            NotificationType::CERTIFICATE_AVAILABILITY_CONTROL_TASK_NOTIFICATION,
             [
+                'name' => "Новая задача «{$task->name}».",
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,
@@ -508,20 +472,16 @@ trait NotificationGenerator
             if ($user) $user_ids[] = $user->id;
         }
 
-        foreach ($user_ids as $user_id) {
-            dispatchNotify(
-                $user_id,
-                "Пользователь {$task->responsible_user->full_name} получил задачу «{$task->name}».",
-                '',
-                NotificationType::CERTIFICATE_AVAILABILITY_CONTROL_TASK_CREATED_NOTIFICATION,
-                [
-                    'additional_info' => ' Ссылка на задачу: ',
-                    'url' => $task->task_route(),
-                    'task_id' => $task->id,
-                    'created_at' => now(),
-                ]
-            );
-        }
+        CertificateAvailabilityControlTaskCreatedNotice::send(
+            $user_ids,
+            [
+                'name' => "Пользователь {$task->responsible_user->full_name} получил задачу «{$task->name}».",
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
+                'task_id' => $task->id,
+                'created_at' => now(),
+            ]
+        );
     }
 
     public function generateCertificatelessOperationsNotification(Contract $contract)
@@ -532,20 +492,17 @@ trait NotificationGenerator
             User::HARDCODED_PERSONS['subCEO'],
             User::HARDCODED_PERSONS['mainPTO']
         ])->flatten()->unique();
-        foreach ($allRecipients as $recipient) {
-            dispatchNotify(
-                $recipient,
-                "В системе существуют операции без сертификатов, связанные с договором {$contract->name_for_humans}.",
-                '',
-                NotificationType::OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION,
-                [
-                    'additional_info' => ' Ознакомиться с ними можно по ссылке: ',
-                    'url' => route('building::mat_acc::certificateless_operations', ['contract_id' => $contract->id]),
-                    'created_at' => now(),
-                    'notificationable_type' => Contract::class,
-                    'notificationable_id' => $contract->id,
-                ]
-            );
-        }
+
+        OperationsWithoutCertificatesNotice::send(
+            $allRecipients,
+            [
+                'name' => "В системе существуют операции без сертификатов, связанные с договором {$contract->name_for_humans}.",
+                'additional_info' => ' Ознакомиться с ними можно по ссылке: ',
+                'url' => route('building::mat_acc::certificateless_operations', ['contract_id' => $contract->id]),
+                'created_at' => now(),
+                'notificationable_type' => Contract::class,
+                'notificationable_id' => $contract->id,
+            ]
+        );
     }
 }

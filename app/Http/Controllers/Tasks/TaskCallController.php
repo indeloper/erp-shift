@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequests\TaskCallRequest;
+use App\Notifications\IncomingCallProcessingNotice;
 use App\Models\Contractors\{BankDetail, Contractor, ContractorContact};
 use App\Models\Notification\Notification;
 use App\Models\Project;
@@ -194,12 +194,10 @@ class TaskCallController extends Controller
 
         $call->save();
 
-        dispatchNotify(
+        IncomingCallProcessingNotice::send(
             $call->responsible_user_id,
-            $call->name,
-            '',
-            NotificationType::INCOMING_CALL_PROCESSING,
             [
+                'name' => $call->name,
                 'task_id' => $call->id
             ]
         );

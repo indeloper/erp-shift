@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\Task\TaskCompletionDeadlineApproachingNotice;
+use App\Notifications\Task\TaskCompletionDeadlineNotice;
+use App\Notifications\Task\UserOverdueTaskNotice;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class CheckExTasks extends Command
 {
@@ -44,8 +45,6 @@ class CheckExTasks extends Command
     {
         $tasks = Task::whereNotIn('status', [40, 41])->where('is_solved', 0)->with('project.object')->get();
 
-        DB::beginTransaction();
-
         foreach ($tasks as $task) {
             $created = Carbon::parse($task->created_at);
             $expired = Carbon::parse($task->expired_at);
@@ -57,12 +56,10 @@ class CheckExTasks extends Command
                 $percent = round($diffNow / $diffCreatedExpired, 2);
 
                 if ($percent <= 0.3 && $percent > 0) {
-                    dispatchNotify(
+                    TaskCompletionDeadlineApproachingNotice::send(
                         $task->responsible_user_id,
-                        'Задача «' . $task->name . '» скоро будет просрочена.',
-                        '',
-                        NotificationType::TASK_COMPLETION_DEADLINE_APPROACHING_NOTIFICATION,
                         [
+                            'name' => 'Задача «' . $task->name . '» скоро будет просрочена.',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $task->id,
@@ -78,12 +75,10 @@ class CheckExTasks extends Command
             }
             if ($task->notify_send != 2) {
                 if ($diff == 1) {
-                    dispatchNotify(
+                    TaskCompletionDeadlineNotice::send(
                         $task->responsible_user_id,
-                        'Задача «' . $task->name . '» просрочена.',
-                        '',
-                        NotificationType::TASK_COMPLETION_DEADLINE_NOTIFICATION,
                         [
+                            'name' => 'Задача «' . $task->name . '» просрочена.',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $task->id,
@@ -103,12 +98,10 @@ class CheckExTasks extends Command
                     }
 
                     if ($task->chief()) {
-                        dispatchNotify(
+                        UserOverdueTaskNotice::send(
                             $task->chief(),
-                            'Задача исполнителя ' . User::find($task->responsible_user_id)->long_full_name . ' «' . $task->name . '» просрочена.',
-                            '',
-                            NotificationType::USER_OVERDUE_TASK_NOTIFICATION,
                             [
+                                'name' => 'Задача исполнителя ' . User::find($task->responsible_user_id)->long_full_name . ' «' . $task->name . '» просрочена.',
                                 'additional_info' => 'Ссылка на события проекта: ',
                                 'url' => $route,
                                 'task_id' => $task->id,
@@ -123,12 +116,10 @@ class CheckExTasks extends Command
                     $ceo = User::where('group_id', 5/*3*/)->first();
 
                     if ($task->chief() != $ceo->id and $ceo->id != $task->responsible_user_id){
-                        dispatchNotify(
+                        UserOverdueTaskNotice::send(
                             $ceo->id,
-                            'Задача исполнителя ' . User::find($task->responsible_user_id)->user_name() . ' «' . $task->name . '» просрочена.',
-                            '',
-                            NotificationType::USER_OVERDUE_TASK_NOTIFICATION,
                             [
+                                'name' => 'Задача исполнителя ' . User::find($task->responsible_user_id)->user_name() . ' «' . $task->name . '» просрочена.',
                                 'additional_info' => 'Ссылка на события проекта: ',
                                 'url' => $route,
                                 'task_id' => $task->id,
@@ -144,7 +135,5 @@ class CheckExTasks extends Command
                 }
             }
         }
-
-        DB::commit();
     }
 }

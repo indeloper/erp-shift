@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\TechAcc\OurTechnicTicket;
+use App\Notifications\Technic\TechnicUsageExtensionRequestApprovalNotice;
+use App\Notifications\Technic\TechnicUsageExtensionRequestRejectionNotice;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
@@ -84,13 +85,11 @@ class OurTechnicTicketActionsController extends Controller
             $task->result = 1;
             $task->update_taskable_fields();
 
-            dispatchNotify(
+            TechnicUsageExtensionRequestApprovalNotice::send(
                 $ourTechnicTicket->users()->ofType('usage_resp_user_id')->first()->id,
-                "Продление до ". $task->changing_fields->where('field_name', 'usage_to_date')->first()->value .
-                       " по заявке № $ourTechnicTicket->id согласовано.",
-                '',
-                NotificationType::TECHNIC_USAGE_EXTENSION_REQUEST_APPROVAL_NOTIFICATION,
                 [
+                    'name' => "Продление до ". $task->changing_fields->where('field_name', 'usage_to_date')->first()->value .
+                              " по заявке № $ourTechnicTicket->id согласовано.",
                     'additional_info' => "\nСсылка на заявку: ",
                     'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
@@ -103,17 +102,16 @@ class OurTechnicTicketActionsController extends Controller
             $task->final_note = $request->final_note;
             $task->result = 2;
 
-            dispatchNotify(
+            TechnicUsageExtensionRequestRejectionNotice::send(
                 $ourTechnicTicket->users()->ofType('usage_resp_user_id')->first()->id,
-                "Продление до ". $task->changing_fields->where('field_name', 'usage_to_date')->first()->value .
-                       " по заявке № $ourTechnicTicket->id отклонено с комментарием: $task->final_note",
-                '',
-                NotificationType::TECHNIC_USAGE_EXTENSION_REQUEST_REJECTION_NOTIFICATION,
                 [
+                    'name' => "Продление до ". $task->changing_fields->where('field_name','usage_to_date')->first()->value .
+                              " по заявке № $ourTechnicTicket->id отклонено с комментарием: $task->final_note",
                     'additional_info' => "\nСсылка на заявку: ",
                     'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
+
                 ]
             );
         }
