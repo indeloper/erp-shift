@@ -6,6 +6,12 @@ use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
+use App\Notifications\CommercialOffer\AppointmentOfResponsibleForOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice;
+use App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\OfferProcessingNotice;
 use App\Models\{FileEntry, Group, Project, ProjectDocument, ProjectObject, ProjectResponsibleUser, Review, Task, User};
 use App\Models\CommercialOffer\{CommercialOffer,
     CommercialOfferAdvancement,
@@ -679,12 +685,10 @@ class ProjectCommercialOfferController extends Controller
 
                     $task->save();
 
-                    dispatchNotify(
+                    OfferCreationSheetPilingTaskNotice::send(
                         $task->responsible_user_id,
-                        'Новая задача «' . $task->name . '»',
-                        '',
-                        NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
                         [
+                            'name' => 'Новая задача «' . $task->name . '»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $task->id,
@@ -716,12 +720,10 @@ class ProjectCommercialOfferController extends Controller
 
                     $tongueTask->save();
 
-                    dispatchNotify(
+                    AppointmentOfResponsibleForOfferSheetPilingTaskNotice::send(
                         $tongueTask->responsible_user_id,
-                        'Новая задача «' . $tongueTask->name . '»',
-                        '',
-                        NotificationType::APPOINTMENT_OF_RESPONSIBLE_FOR_OFFER_SHEET_PILING_TASK_NOTIFICATION,
                         [
+                            'name' => 'Новая задача «' . $tongueTask->name . '»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $tongueTask->task_route(),
                             'task_id' => $tongueTask->id,
@@ -902,12 +904,10 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                dispatchNotify(
+                OfferCreationPilingDirectionTaskNotice::send(
                     $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
                     [
+                        'name' => 'Новая задача «' . $task->name . '»',
                         'additional_info' => ' Ссылка на задачу: ',
                         'url' => $task->task_route(),
                         'task_id' => $task->id,
@@ -986,14 +986,15 @@ class ProjectCommercialOfferController extends Controller
                 $task = Task::where('project_id', $project->id)->where('status', 6)->where('target_id', $com_offer_for_update->id)->first();
                 $task->update(['is_solved' => 0]);
 
-                dispatchNotify(
+                DB::commit();
+
+                $notificationClass = $is_tongue ?
+                    CustomerApprovalOfOfferSheetPilingTaskNotice::class :
+                    CustomerApprovalOfOfferPileDrivingTaskNotice::class;
+                $notificationClass::send(
                     $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    $is_tongue ?
-                            NotificationType::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION :
-                            NotificationType::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION,
                     [
+                        'name' => 'Новая задача «' . $task->name . '»',
                         'additional_info' => ' Ссылка на задачу: ',
                         'url' => $task->task_route(),
                         'task_id' => $task->id,
@@ -1002,10 +1003,12 @@ class ProjectCommercialOfferController extends Controller
                         'object_id' => $project->object_id,
                     ]
                 );
+            } else {
+                DB::commit();
             }
         }
 
-        DB::commit();
+//        DB::commit();
 
         return back()->with("com_offer", true);
     }
@@ -1070,14 +1073,14 @@ class ProjectCommercialOfferController extends Controller
         $KP = CommercialOffer::find($com_offer_request->commercial_offer_id);
         $proj = Project::find($com_offer_request->project_id);
 
-        dispatchNotify(
+        DB::commit();
+
+        OfferProcessingNotice::send(
             $com_offer_request->user_id,
-            ('Пользователь ' . $user . ' ' .
-                ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ') . 'заявку на редактирование КП ' . ($com_offer_request->is_tongue ? 'шпунтового' : 'свайного')
-                . ' направления версии ' . $KP->version . ' по проекту ' . Project::find($com_offer_request->project_id)->name),
-            '',
-            NotificationType::OFFER_PROCESSING_NOTIFICATION,
             [
+                'name' => ('Пользователь ' . $user . ' ' .
+                    ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ') . 'заявку на редактирование КП ' . ($com_offer_request->is_tongue ? 'шпунтового' : 'свайного')
+                    . ' направления версии ' . $KP->version . ' по проекту ' . Project::find($com_offer_request->project_id)->name),
                 'additional_info' => "\r\nЗаказчик: " . $proj->contractor_name .
                     "\r\nНазвание объекта: " . $proj->object->name .
                     "\r\nАдрес объекта: " . $proj->object->address .
@@ -1090,8 +1093,6 @@ class ProjectCommercialOfferController extends Controller
                 'status' => 4,
             ]
         );
-
-        DB::commit();
 
         return back();
     }

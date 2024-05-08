@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Commerce;
 use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
+use App\Notifications\Claim\SheetPilingCalculationTaskCreationNotice;
+use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\Object\ResponsibleSelectedForProjectDirectionProjectLeaderNotice;
+use App\Notifications\Task\StandardTaskCreationNotice;
+use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
 use App\Http\Requests\ProjectRequest\{
     ProjectRequest,
     ProjectTimeResponsibleUserRequest,
@@ -736,20 +741,16 @@ class ProjectController extends Controller
             $project_id = $project->id;
             $object_id = $project->object_id;
 
-            foreach ($users as $userId) {
-                dispatchNotify(
-                    $userId,
-                    $name,
-                    '',
-                    NotificationType::RESPONSIBLE_SELECTED_FOR_PROJECT_DIRECTION_PROJECT_LEADER,
-                    [
-                        'task_id' => $task_id,
-                        'contractor_id' => $contractor_id,
-                        'project_id' => $project_id,
-                        'object_id' => $object_id
-                    ]
-                );
-            }
+            ResponsibleSelectedForProjectDirectionProjectLeaderNotice::send(
+                $users,
+                [
+                    'name' => $name,
+                    'task_id' => $task_id,
+                    'contractor_id' => $contractor_id,
+                    'project_id' => $project_id,
+                    'object_id' => $object_id
+                ]
+            );
         }
 
         if (!empty($resp_user->getChanges())) {
@@ -764,12 +765,10 @@ class ProjectController extends Controller
 
                 if ($updated_task->responsible_user_id != 6) {
                     // notify old user
-                    dispatchNotify(
+                    TaskTransferNotificationToNewResponsibleNotice::send(
                         $updated_task->responsible_user_id,
-                        'Задача «' . $updated_task->name . '» передана пользователю ' . $new_user->long_full_name,
-                        '',
-                        NotificationType::TASK_TRANSFER_NOTIFICATION_TO_NEW_RESPONSIBLE,
                         [
+                            'name' => 'Задача «' . $updated_task->name . '» передана пользователю ' . $new_user->long_full_name,
                             'task_id' => $updated_task->id,
                             'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
                             'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
@@ -778,12 +777,10 @@ class ProjectController extends Controller
                     );
 
                     // notify new user
-                    dispatchNotify(
+                    StandardTaskCreationNotice::send(
                         $resp_user->user_id,
-                        'Новая задача «' . $updated_task->name . '»',
-                        '',
-                        NotificationType::STANDARD_TASK_CREATION_NOTIFICATION,
                         [
+                            'name' => 'Новая задача «' . $updated_task->name . '»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $updated_task->task_route(),
                             'task_id' => $updated_task->id,
@@ -896,12 +893,10 @@ class ProjectController extends Controller
 
                         $task->save();
 
-                        dispatchNotify(
+                        OfferCreationSheetPilingTaskNotice::send(
                             $task->responsible_user_id,
-                            'Новая задача «' . $task->name . '»',
-                            '',
-                            NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION,
                             [
+                                'name' => 'Новая задача «' . $task->name . '»',
                                 'additional_info' => ' Ссылка на задачу: ',
                                 'url' => $task->task_route(),
                                 'task_id' => $task->id,
@@ -942,12 +937,10 @@ class ProjectController extends Controller
                         $tongueTask->save();
                     }
 
-                    dispatchNotify(
+                    SheetPilingCalculationTaskCreationNotice::send(
                         $tongueTask->responsible_user_id,
-                        'Новая задача «' . $tongueTask->name . '»',
-                        '',
-                        NotificationType::SHEET_PILING_CALCULATION_TASK_CREATION_NOTIFICATION,
                         [
+                            'name' => 'Новая задача «' . $tongueTask->name . '»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $tongueTask->id,

@@ -2,13 +2,16 @@
 
 namespace App\Models\CommercialOffer;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Company\Company;
 use App\Models\Contract\Contract;
+use App\Notifications\CommercialOffer\ApprovalOfOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\PileDrivingOfferApprovalTaskCreationNotice;
+use App\Notifications\Task\TaskClosureNotice;
 use App\Models\Contractors\{Contractor, ContractorContact};
 use App\Models\FileEntry;
 use App\Models\Manual\ManualWork;
-use App\Models\Notification\Notification;
 use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\ProjectResponsibleUser;
@@ -171,12 +174,10 @@ class CommercialOffer extends Model
         $project = Project::findOrFail($this->project_id);
 
         $this->unsolved_tasks->each(function ($task) use($project) {
-            dispatchNotify(
+            TaskClosureNotice::send(
                 $task->responsible_user_id,
-                'Задача «' . $task->name . '» закрыта',
-                '',
-                NotificationType::TASK_CLOSURE_NOTIFICATION,
                 [
+                    'name' => 'Задача «' . $task->name . '» закрыта',
                     'task_id' => $task->id,
                     'contractor_id' => $project->contractor_id,
                     'project_id' => $project->id,
@@ -278,12 +279,10 @@ class CommercialOffer extends Model
 
                 $task->save();
 
-                dispatchNotify(
+                ApprovalOfOfferSheetPilingTaskNotice::send(
                     $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    NotificationType::APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION,
                     [
+                        'name' => 'Новая задача «' . $task->name . '»',
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                             "\r\nНазвание объекта: " . $project->object->name .
                             "\r\nАдрес объекта: " . $project->object->address,
@@ -316,12 +315,10 @@ class CommercialOffer extends Model
 
                 $task->save();
 
-                dispatchNotify(
+                PileDrivingOfferApprovalTaskCreationNotice::send(
                     $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    NotificationType::PILE_DRIVING_OFFER_APPROVAL_TASK_CREATION_NOTIFICATION,
                     [
+                        'name' => 'Новая задача «' . $task->name . '»',
                         'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
                             "\r\nНазвание объекта: " . $project->object->name .
                             "\r\nАдрес объекта: " . $project->object->address,
@@ -812,14 +809,18 @@ class CommercialOffer extends Model
             'status' => 5,
         ]);
 
-        dispatchNotify(
+        $work_volume_copy->push();
+        $com_offer_copy->push();
+
+        DB::commit();
+
+        $notificationClass = $com_offer_copy->is_tongue ?
+                OfferCreationSheetPilingTaskNotice::class :
+                OfferCreationPilingDirectionTaskNotice::class;
+        $notificationClass::send(
             $work_task->responsible_user_id,
-            'Новая задача «' . $work_task->name . '»',
-            '',
-            $com_offer_copy->is_tongue ?
-                NotificationType::OFFER_CREATION_SHEET_PILING_TASK_NOTIFICATION :
-                NotificationType::OFFER_CREATION_PILING_DIRECTION_TASK_NOTIFICATION,
             [
+                'name' => 'Новая задача «' . $work_task->name . '»',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $work_task->task_route(),
                 'task_id' => $work_task->id,
@@ -828,11 +829,6 @@ class CommercialOffer extends Model
                 'object_id' => $target_project->object_id,
             ]
         );
-
-        $work_volume_copy->push();
-        $com_offer_copy->push();
-
-        DB::commit();
 
         return $com_offer_copy;
     }

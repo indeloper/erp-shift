@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProjectObjectDocuments\ProjectObjectDocumentsController;
 use App\Models\ActionLog;
@@ -19,6 +18,10 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFlowNotice;
+use App\Notifications\Object\ObjectParticipatesInWorkProductionNotice;
+use App\Notifications\Object\ProjectLeaderAppointedToObjectNotice;
+use App\Notifications\Object\ResponsibleAddedToObjectNotice;
 use App\Services\Common\FileSystemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -251,14 +254,12 @@ class ObjectController extends Controller
 
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
-        foreach ($notificationRecipients as $userId) {
-            dispatchNotify(
-                $userId,
-                'Объект:' . "\n" . $objectName . "\n" . 'участвует в производстве работ.',
-                '',
-                NotificationType::OBJECT_PARTICIPATES_IN_WORK_PRODUCTION
-            );
-        }
+        ObjectParticipatesInWorkProductionNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'Объект:' . "\n" . $objectName . "\n" . 'участвует в производстве работ.',
+            ]
+        );
     }
 
     public function handleCheckedParticipatesInDocumentsFlow($objectId)
@@ -465,14 +466,12 @@ class ObjectController extends Controller
 
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
-        foreach ($notificationRecipients as $userId) {
-            dispatchNotify(
-                $userId,
-                'Документооборот на объектах' . "\n" . $objectName . "\n" . 'Участвует в документообороте',
-                'Документооборот на объектах Участвует в документообороте',
-                NotificationType::DOCUMENT_FLOW_ON_OBJECTS_PARTICIPATES_IN_DOCUMENT_FLOW
-            );
-        }
+        DocumentFlowOnObjectsParticipatesInDocumentFlowNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'Документооборот на объектах' . "\n" . $objectName . "\n" . 'Участвует в документообороте',
+            ]
+        );
     }
 
     public function notifyNewResponsibleUser($objectId, $lastObjectResponsibleId)
@@ -485,14 +484,12 @@ class ObjectController extends Controller
 
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
-        foreach ($notificationRecipients as $userId) {
-            dispatchNotify(
-                $userId,
-                'Вы добавлены ответственным на объект' . "\n" . $objectName,
-                '',
-                NotificationType::RESPONSIBLE_ADDED_TO_OBJECT
-            );
-        }
+        ResponsibleAddedToObjectNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'Вы добавлены ответственным на объект' . "\n" . $objectName,
+            ]
+        );
     }
 
     public function notifyAboutNewObjectProjectManager($objectId, $projectManagerId)
@@ -501,14 +498,12 @@ class ObjectController extends Controller
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
         $projectManagerName = User::findOrFail($projectManagerId)->full_name;
 
-        foreach ($notificationRecipients as $userId) {
-            dispatchNotify(
-                $userId,
-                'На объект' . "\n" . $objectName . "\n" . 'назначен руководитель проекта ' . "\n" . $projectManagerName,
-                '',
-                NotificationType::PROJECT_LEADER_APPOINTED_TO_OBJECT
-            );
-        }
+        ProjectLeaderAppointedToObjectNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'На объект' . "\n" . $objectName . "\n" . 'назначен руководитель проекта ' . "\n" . $projectManagerName,
+            ]
+        );
     }
 
     public function update(Request $request, $id)

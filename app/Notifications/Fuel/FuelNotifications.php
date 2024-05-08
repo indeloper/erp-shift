@@ -25,15 +25,13 @@ class FuelNotifications
                 ['chat_id', '<>', NULL],
             ])->get();
 
-            foreach($admins as $admin){
-                dispatchNotify(
-                    $admin->id,
-                    'Ошибка в топливных остатках',
-                    'Ошибка в топливных остатках',
-                    NotificationType::FUEL_TANKS_LEVEL_CHECK,
-                    $data
-                );
-            }
+            $userIds = $admins->pluck('id')->toArray();
+            $data['name'] = 'Ошибка в топливных остатках';
+
+            FuelTanksLevelCheckNotification::send(
+                $userIds,
+                $data
+            );
     }
 
     public function renderNewFuelTankResponsible(FuelTank $tank)
