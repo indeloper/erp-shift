@@ -533,22 +533,25 @@
 
                         <div style="font-size: 10px; margin-top: @if(in_array($offer->status, [4, 5]) || $offer->is_tongue == 2)-15mm; @else 1mm; @endif margin-bottom: 5mm; margin-left: 5mm; margin-right: 3mm; position: relative;">
                             Исп.: <br>
-                            @foreach ($resp_users as $user)
+                             Кириличева Люсьена Андреевна, <br>
+                            Тел.
+                            <!--@foreach ($resp_users as $user)
                                 @if (in_array($user->role, [2,4]))
                                     {!! ($user->role == 4) ? "По тех. вопросам: <br>" : 'По коммерческим вопросам: <br>' !!}
                                     {{ str_replace(' (шпунт)', '' , $user->profession) . ', ' . $user->last_name }}
                                     {{ (!is_null($user->first_name) ? mb_substr($user->first_name, 0 , 1) . '.' :  '') }}
                                     {{ (!is_null($user->patronymic) ? mb_substr($user->patronymic, 0 , 1) . '.' : '') }}
                                     {{ ($user->work_phone ? 'Тел. 326-94-06 доб. ' . $user->work_phone . '.' : '') }}
-                                    {!! ($user->person_phone ? $user->person_phone : '<br>') !!}
+                                    {!! ($user->person_phone ? ', '. $user->person_phone : '<br>') !!}
                                 @else
                                     {{ str_replace(' (сваи)', '' , $user->profession) . ', ' . $user->last_name  }}
-                                    {{ mb_substr($user->first_name, 0 , 1) . '.' . mb_substr($user->patronymic, 0 , 1) . '.'}}
-                                    {{ ($user->work_phone ? 'Тел. 326-94-06 доб. ' . $user->work_phone . '.' : '') }}
+                                    {{ $user->first_name . ' ' . $user->patronymic . ','}} <br>
+                                    {{ ( 'Тел.: 326-94-06 доб. ' . $user->work_phone ? $user->work_phone . ', ' : '') }}
                                     {{($user->person_phone ? $user->person_phone : '') }}
+                                    {{($user->email ? '<br>' . $user->email : '') }}
                                 @endif
                                 <br>
-                            @endforeach
+                            @endforeach-->
                         </div>
                     </htmlpagefooter>
 
