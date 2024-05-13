@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\System;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SupportRequests\SupportMailRequest;
+use App\Notifications\Support\SupportTicketApproximateDueDateChangeNotice;
+use App\Notifications\Support\SupportTicketStatusChangeNotice;
+use App\Notifications\Task\AdditionalWorksApprovalTaskNotice;
 use App\Models\{FileEntry, Group, SupportMail, SupportMailFile, Task};
 use App\Services\System\Reports\SupportTaskExport;
 use App\Traits\TimeCalculator;
@@ -94,12 +96,10 @@ class SupportController extends Controller
             mail($to, $subject, $message, $headers);
             mail('dev@sk-gorod.com', $subject, $message, $headers);
 
-            dispatchNotify(
+            SupportTicketStatusChangeNotice::send(
                 1,
-                'Была создана заявка в тех. поддержке',
-                'Была создана заявка в тех. поддержке',
-                NotificationType::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION,
                 [
+                    'name' => 'Была создана заявка в тех. поддержке',
                     'additional_info' => ' от ' . Auth::user()->full_name . '. Ссылка на тех поддержку: ',
                     'url' => route('support::index'),
                     'status' => 2
@@ -124,6 +124,8 @@ class SupportController extends Controller
 
         $this->sendNotificationAfterUpdate($oldStatus, $ticket);
 
+        DB::commit();
+
         if ($ticket->status == 'matching') {
             $task = Task::create([
                 'name' => 'Согласование дополнительных работ',
@@ -134,20 +136,16 @@ class SupportController extends Controller
                 'expired_at' => $this->addHours(48)
             ]);
 
-            dispatchNotify(
+            AdditionalWorksApprovalTaskNotice::send(
                 $task->responsible_user_id,
-                'Новая задача «' . $task->name . '»',
-                'Новая задача «' . $task->name . '»',
-                NotificationType::ADDITIONAL_WORKS_APPROVAL_TASK_NOTIFICATION,
                 [
+                    'name' => 'Новая задача «' . $task->name . '»',
                     'additional_info' => ' Ссылка на задачу: ',
                     'url' => $task->task_route(),
                     'task_id' => $task->id
                 ]
             );
         }
-
-        DB::commit();
 
         return $ticket;
     }
@@ -203,13 +201,12 @@ class SupportController extends Controller
         $notificationName = "Ваша заявка «{$ticket->title}», ID: {$ticket->id} получила срок приблизительного исполнения." .
             " Предполагаемая дата реализации: {$ticket->solved_at}.";
 
-        dispatchNotify(
+        SupportTicketApproximateDueDateChangeNotice::send(
             $ticket->user_id,
-            $notificationName,
-            '',
-            NotificationType::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION
+            [
+                'name' => $notificationName,
+            ]
         );
-
         $this->sendEmailToITDepartment($ticket->user_id, $notificationName);
     }
 
@@ -222,13 +219,12 @@ class SupportController extends Controller
             " Предыдущая дата: {$previousDate}, новая дата: {$ticket->solved_at}." .
             ($will->gt($was) ? ' Приносим извинения!' : '');
 
-        dispatchNotify(
+        SupportTicketApproximateDueDateChangeNotice::send(
             $ticket->user_id,
-            $notificationName,
-            '',
-            NotificationType::SUPPORT_TICKET_APPROXIMATE_DUE_DATE_CHANGE_NOTIFICATION
+            [
+                'name' => $notificationName,
+            ]
         );
-
         $this->sendEmailToITDepartment($ticket->user_id, $notificationName);
     }
 
@@ -328,11 +324,11 @@ class SupportController extends Controller
 //    }
     public function sendSupportTicketStatusNotification($userId, $notificationName)
     {
-        dispatchNotify(
+        SupportTicketStatusChangeNotice::send(
             $userId,
-            $notificationName,
-            '',
-            NotificationType::SUPPORT_TICKET_STATUS_CHANGE_NOTIFICATION
+            [
+                'name' => $notificationName,
+            ]
         );
 
         $this->sendEmailToITDepartment($userId, $notificationName);

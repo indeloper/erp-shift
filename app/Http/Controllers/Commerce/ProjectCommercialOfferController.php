@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
@@ -30,11 +29,12 @@ use App\Services\Commerce\SplitService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, DB, File, Session, Storage};
+use Illuminate\Support\Facades\{Auth, DB, File, Log, Session, Storage};
 
 class ProjectCommercialOfferController extends Controller
 {
     use TimeCalculator;
+    protected $prepareNotifications = [];
 
     public function card_tongue($project_id, $com_offer_id)
     {
@@ -1341,6 +1341,7 @@ class ProjectCommercialOfferController extends Controller
 
     public function attach_document(Request $request, $offer_id)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $offer = CommercialOffer::findOrFail($offer_id);
@@ -1403,22 +1404,18 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                dispatchNotify(
-                    $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    NotificationType::CUSTOMER_APPROVAL_OF_OFFER_SHEET_PILING_TASK_NOTIFICATION,
-                    [
-                        'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
-                            "\r\nНазвание объекта: " . $project->object->name .
-                            "\r\nАдрес объекта: " . $project->object->address,
-                        'url' => $task->task_route(),
-                        'task_id' => $task->id,
-                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                        'project_id' => $task->project_id ? $task->project_id : null,
-                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    ]
-                );
+                $this->prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice'] = [
+                    'user_ids' => $task->responsible_user_id,
+                    'name' => 'Новая задача «' . $task->name . '»',
+                    'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
+                        "\r\nНазвание объекта: " . $project->object->name .
+                        "\r\nАдрес объекта: " . $project->object->address,
+                    'url' => $task->task_route(),
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                ];
 
                 $task = $offer->unsolved_tasks->where('status', 5)->first();
 
@@ -1442,22 +1439,18 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                dispatchNotify(
-                    $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    NotificationType::CUSTOMER_APPROVAL_OF_OFFER_PILE_DRIVING_TASK_NOTIFICATION,
-                    [
-                        'additional_info' => "\r\n<b>Заказчик:</b> " . $project->contractor_name .
-                            "\r\n<b>Название объекта:</b> " . $project->object->name .
-                            "\r\n<b>Адрес объекта:</b> " . $project->object->address,
-                        'url' => $task->task_route(),
-                        'task_id' => $task->id,
-                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                        'project_id' => $task->project_id ? $task->project_id : null,
-                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    ]
-                );
+                $this->prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice'] = [
+                    'user_ids' => $task->responsible_user_id,
+                    'name' => 'Новая задача «' . $task->name . '»',
+                    'additional_info' => "\r\n<b>Заказчик:</b> " . $project->contractor_name .
+                        "\r\n<b>Название объекта:</b> " . $project->object->name .
+                        "\r\n<b>Адрес объекта:</b> " . $project->object->address,
+                    'url' => $task->task_route(),
+                    'task_id' => $task->id,
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                ];
 
                 $task = $offer->unsolved_tasks->where('status', 5)->first();
 
@@ -1468,12 +1461,15 @@ class ProjectCommercialOfferController extends Controller
         }
         DB::commit();
 
+        $this->sendNotifications();
+
         return redirect()->route('projects::card', $offer->project_id)->with("com_offer", true);
     }
 
 
     public function agree_commercial_offer($offer_id)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $offer = CommercialOffer::findOrFail($offer_id);
@@ -1488,18 +1484,14 @@ class ProjectCommercialOfferController extends Controller
         })->first();
 
         if ($task) {
-            dispatchNotify(
-                $task->responsible_user_id,
-                'Задача «' . $task->name . '» закрыта',
-                '',
-                NotificationType::TASK_CLOSURE_NOTIFICATION,
-                [
-                    'task_id' => $task->id,
-                    'contractor_id' => $task->project_id ? $project->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? $project->object_id : null,
-                ]
-            );
+            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+                'user_ids' => $task->responsible_user_id,
+                'name' => 'Задача «' . $task->name . '» закрыта',
+                'task_id' => $task->id,
+                'contractor_id' => $task->project_id ? $project->contractor_id : null,
+                'project_id' => $task->project_id ? $task->project_id : null,
+                'object_id' => $task->project_id ? $project->object_id : null,
+            ];
 
             $status_for_humans = [
                 'accept' => 'Принято',
@@ -1510,27 +1502,23 @@ class ProjectCommercialOfferController extends Controller
 
             $task->refresh();
 
-            dispatchNotify(
-                Group::find(5/*3*/)->getUsers()->first()->id,
-                'Задача «' . $task->name . '» закрыта с результатом: ' . $status_for_humans['accept'] .
-                (is_null($task->revive_at) ? '' : '. Дата, на которую перенесли: ' .
-                    strftime('%d.%m.%Y', strtotime($task->revive_at))) .
-                (is_null($task->final_note) ? '' : '. Комментарий: ' . $task->final_note),
-                '',
-                NotificationType::TASK_CLOSURE_NOTIFICATION,
-                [
-                    'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
-                        "\r\nНазвание объекта: " . $project->object->name .
-                        "\r\nАдрес объекта: " . $project->object->address .
-                        "\r\nИсполнитель: " . User::find($task->responsible_user_id)->long_full_name,
-                    'url' => route('projects::card', [$task->project_id, 'task' => $task->id]),
-                    'task_id' => $task->id,
-                    'status' => 2,
-                    'contractor_id' => $task->project_id ? $project->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? $project->object_id : null,
-                ]
-            );
+            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+                'user_ids' => Group::find(5/*3*/)->getUsers()->first()->id,
+                'name' => 'Задача «' . $task->name . '» закрыта с результатом: ' . $status_for_humans['accept'] .
+                    (is_null($task->revive_at) ? '' : '. Дата, на которую перенесли: ' .
+                        strftime('%d.%m.%Y', strtotime($task->revive_at))) .
+                    (is_null($task->final_note) ? '' : '. Комментарий: ' . $task->final_note),
+                'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
+                    "\r\nНазвание объекта: " . $project->object->name .
+                    "\r\nАдрес объекта: " . $project->object->address .
+                    "\r\nИсполнитель: " . User::find($task->responsible_user_id)->long_full_name,
+                'url' => route('projects::card', [$task->project_id, 'task' => $task->id]),
+                'task_id' => $task->id,
+                'status' => 2,
+                'contractor_id' => $task->project_id ? $project->contractor_id : null,
+                'project_id' => $task->project_id ? $task->project_id : null,
+                'object_id' => $task->project_id ? $project->object_id : null,
+            ];
 
             $task->solve();
         }
@@ -1561,20 +1549,16 @@ class ProjectCommercialOfferController extends Controller
                 'expired_at' => $this->addHours(11)
             ]);
 
-            dispatchNotify(
-                $add_RP_task->responsible_user_id,
-                'Новая задача «' . $add_RP_task->name . '»',
-                '',
-                NotificationType::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION,
-                [
-                    'additional_info' => ' Ссылка на задачу: ',
-                    'url' => $add_RP_task->task_route(),
-                    'task_id' => $add_RP_task->id,
-                    'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
-                    'project_id' => $add_RP_task->project_id ?: null,
-                    'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
-                ]
-            );
+            $this->prepareNotifications['App\Notifications\Task\ProjectLeaderAppointmentTaskNotice'] = [
+                'user_ids' => $add_RP_task->responsible_user_id,
+                'name' => 'Новая задача «' . $add_RP_task->name . '»',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $add_RP_task->task_route(),
+                'task_id' => $add_RP_task->id,
+                'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
+                'project_id' => $add_RP_task->project_id ?: null,
+                'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
+            ];
         }
 
         $project = Project::findOrFail($offer->project_id);
@@ -1599,19 +1583,15 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                dispatchNotify(
-                    $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    NotificationType::CONTRACT_CREATION_TASK_NOTIFICATION,
-                    [
-                        'additional_info' => ' Ссылка на задачу: ',
-                        'url' => $task->task_route(),
-                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                        'project_id' => $task->project_id ? $task->project_id : null,
-                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    ]
-                );
+                $this->prepareNotifications['App\Notifications\Task\ContractCreationTaskNotice'] = [
+                    'user_ids' => $task->responsible_user_id,
+                    'name' => 'Новая задача «' . $task->name . '»',
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                ];
 
                 $task_created = true;
             }
@@ -1633,23 +1613,21 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                dispatchNotify(
-                    $task->responsible_user_id,
-                    'Новая задача «' . $task->name . '»',
-                    '',
-                    NotificationType::OFFER_CHANGE_CONTROL_TASK_NOTIFICATION,
-                    [
-                        'additional_info' => ' Ссылка на задачу: ',
-                        'url' => $task->task_route(),
-                        'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                        'project_id' => $task->project_id ? $task->project_id : null,
-                        'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    ]
-                );
+                $this->prepareNotifications['App\Notifications\Task\OfferChangeControlTaskNotice'] = [
+                    'user_ids' => $task->responsible_user_id,
+                    'name' => 'Новая задача «' . $task->name . '»',
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
+                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                    'project_id' => $task->project_id ? $task->project_id : null,
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                ];
             }
         }
 
         DB::commit();
+
+        $this->sendNotifications();
 
         return redirect()->route('projects::card', $offer->project_id)->with("com_offer", true);
     }
@@ -1697,6 +1675,7 @@ class ProjectCommercialOfferController extends Controller
 
     public function create_double_kp(Request $request)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $offerPile = CommercialOffer::find($request->secondKP);
@@ -1804,18 +1783,14 @@ class ProjectCommercialOfferController extends Controller
                 $tasks = Task::where('project_id', $project->id)->where('status', 6)->whereIn('target_id', $offers_id)->get();
 
                 foreach ($tasks as $item) {
-                    dispatchNotify(
-                        $item->responsible_user_id,
-                        'Задача «' . $item->name . '» закрыта',
-                        '',
-                        NotificationType::TASK_CLOSURE_NOTIFICATION,
-                        [
-                            'task_id' => $item->id,
-                            'contractor_id' => $project->contractor_id,
-                            'project_id' => $project->id,
-                            'object_id' => $project->object_id,
-                        ]
-                    );
+                    $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+                        'user_ids' => $item->responsible_user_id,
+                        'name' => 'Задача «' . $item->name . '» закрыта',
+                        'task_id' => $item->id,
+                        'contractor_id' => $project->contractor_id,
+                        'project_id' => $project->id,
+                        'object_id' => $project->object_id,
+                    ];
 
                     $item->solve();
                 }
@@ -1926,28 +1901,26 @@ class ProjectCommercialOfferController extends Controller
                 'expired_at' => $this->addHours(48)
             ]);
 
-            dispatchNotify(
-                $task_1->responsible_user_id,
-                'Новая задача «' . $task_1->name . '»',
-                '',
-                NotificationType::CUSTOMER_APPROVAL_OF_JOINT_OFFER_TASK_NOTIFICATION,
-                [
-                    'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
-                        "\r\nНазвание объекта: " . $project->object->name .
-                        "\r\nАдрес объекта: " . $project->object->address,
-                    'url' => $task_1->task_route(),
-                    'task_id' => $task_1->id,
-                    'contractor_id' => $project->contractor_id,
-                    'project_id' => $project->id,
-                    'object_id' => $project->object_id,
-                ]
-            );
+            $this->prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfJointOfferTaskNotice'] = [
+                'user_ids' => $task_1->responsible_user_id,
+                'name' => 'Новая задача «' . $task_1->name . '»',
+                'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
+                    "\r\nНазвание объекта: " . $project->object->name .
+                    "\r\nАдрес объекта: " . $project->object->address,
+                'url' => $task_1->task_route(),
+                'task_id' => $task_1->id,
+                'contractor_id' => $project->contractor_id,
+                'project_id' => $project->id,
+                'object_id' => $project->object_id,
+            ];
 
             // manually create pdf for new offer
             $commercial_offer->create_offer_pdf($commercial_offer->id);
 
             DB::commit();
         }
+
+        $this->sendNotifications();
 
         return back();
     }
@@ -1960,6 +1933,8 @@ class ProjectCommercialOfferController extends Controller
         }
         $project = Project::find($project_id);
         if(! $request->has('negotiation_type')) return back();
+
+        $this->prepareNotifications = [];
 
         DB::beginTransaction();
 
@@ -2071,26 +2046,24 @@ class ProjectCommercialOfferController extends Controller
                     'expired_at' => $this->addHours(11)
                 ]);
 
-                dispatchNotify(
-                    $add_RP_task->responsible_user_id,
-                    'Новая задача «' . $add_RP_task->name . '»',
-                    '',
-                    NotificationType::PROJECT_LEADER_APPOINTMENT_TASK_NOTIFICATION,
-                    [
-                        'additional_info' => ' Ссылка на задачу: ',
-                        'url' => $add_RP_task->task_route(),
-                        'task_id' => $add_RP_task->id,
-                        'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
-                        'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,
-                        'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
-                    ]
-                );
+                $this->prepareNotifications['App\Notifications\Task\ProjectLeaderAppointmentTaskNotice'] = [
+                    'user_ids' => $add_RP_task->responsible_user_id,
+                    'name' => 'Новая задача «' . $add_RP_task->name . '»',
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $add_RP_task->task_route(),
+                    'task_id' => $add_RP_task->id,
+                    'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
+                    'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,
+                    'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
+                ];
             }
         }
 
         $offer->save();
 
         DB::commit();
+
+        $this->sendNotifications();
 
         return redirect(route('projects::card', $project_id));
     }
@@ -2194,5 +2167,22 @@ class ProjectCommercialOfferController extends Controller
         $offer->createCopy($request->project_id, $request->option);
 
         return redirect(route('projects::card', $request->project_id));
+    }
+
+    protected function sendNotifications(): void
+    {
+        foreach ($this->prepareNotifications as $class => $arguments) {
+            try {
+                $user_id = $arguments['user_ids'];
+                $class::send(
+                    $user_id,
+                    $arguments
+                );
+            } catch (\Throwable $throwable) {
+                $controllerName = get_class($this);
+                $message = "В контроллере $controllerName, не удалось отправить уведомление $class, возникла ошибка: ";
+                Log::error($message . $throwable->getMessage());
+            }
+        }
     }
 }

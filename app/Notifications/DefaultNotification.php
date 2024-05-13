@@ -24,7 +24,7 @@ class DefaultNotification extends BaseNotification
                     ->markdown('notifications.mail.default-notification', [
                         'name' => $this->notificationData->getName(),
                         'link' => $this->notificationData->getAdditionalInfo(),
-                        'description' => $this->notificationData->getDescription(),
+                        'url'  => $this->notificationData->getUrl(),
                     ]);
     }
 
