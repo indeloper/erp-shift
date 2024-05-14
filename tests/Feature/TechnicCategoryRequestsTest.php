@@ -19,7 +19,7 @@ class TechnicCategoryRequestsTest extends TestCase
 
     protected $boss;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

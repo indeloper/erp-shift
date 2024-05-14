@@ -16,7 +16,7 @@ class NotifySenderCommandTest extends TestCase
 
     protected $user3;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

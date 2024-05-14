@@ -17,7 +17,7 @@ class NewPermissionsForTechCategoriesMigrationTest extends TestCase
 
     public $group_permissions_table;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

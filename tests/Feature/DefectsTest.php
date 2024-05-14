@@ -31,7 +31,7 @@ class DefectsTest extends TestCase
         31, 46, 47, 48,
     ];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

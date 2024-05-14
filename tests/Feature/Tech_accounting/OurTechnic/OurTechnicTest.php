@@ -22,7 +22,7 @@ class OurTechnicTest extends TestCase
 
     protected $defects_migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

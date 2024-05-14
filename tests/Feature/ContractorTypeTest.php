@@ -19,7 +19,7 @@ class ContractorTypeTest extends TestCase
 
     protected $supplier;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

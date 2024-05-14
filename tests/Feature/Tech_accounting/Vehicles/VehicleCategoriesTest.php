@@ -27,7 +27,7 @@ class VehicleCategoriesTest extends TestCase
 
     const GROUPS_WITH_PERMISSIONS = [15, 17, 47];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

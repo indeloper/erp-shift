@@ -13,7 +13,7 @@ class CategoryCharacteristicTest extends TestCase
 
     protected $characteristic;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
