@@ -199,7 +199,7 @@ class FuelTankController extends StandardEntityResourceController
         if (! empty($data->comment_movement_tmp)) {
             Comment::create([
                 'commentable_id' => $tank->id,
-                'commentable_type' => 'App\Models\TechAcc\FuelTank\FuelTank',
+                'commentable_type' => \App\Models\TechAcc\FuelTank\FuelTank::class,
                 'comment' => $data->comment_movement_tmp,
                 'author_id' => Auth::user()->id,
 

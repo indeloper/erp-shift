@@ -457,7 +457,7 @@ class Project extends Model
     {
         foreach ($material_names as $name) {
             $q->orWhereHas('work_volumes.materials', function ($query) use ($name) {
-                $query->whereHasMorph('manual', ['App\Models\Manual\ManualMaterial'], function ($mat) use ($name) {
+                $query->whereHasMorph('manual', [\App\Models\Manual\ManualMaterial::class], function ($mat) use ($name) {
                     $mat->where('name', 'like', '%'.$name.'%');
                     $mat->where('material_type', 'regular');
                 });

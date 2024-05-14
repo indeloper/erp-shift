@@ -33,8 +33,8 @@ class AppServiceProvider extends ServiceProvider
         Carbon::setLocale('ru');
 
         Relation::morphMap([
-            'regular' => 'App\Models\Manual\ManualMaterial',
-            'complect' => 'App\Models\WorkVolume\WorkVolumeMaterialComplect',
+            'regular' => \App\Models\Manual\ManualMaterial::class,
+            'complect' => \App\Models\WorkVolume\WorkVolumeMaterialComplect::class,
         ]);
 
         /**

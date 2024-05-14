@@ -112,7 +112,7 @@ class WorkVolumesController extends Controller
                 $work_volumes->where(function ($query) use ($mat_names) {
                     foreach ($mat_names as $name) {
                         $query->orWhereHas('materials', function ($q) use ($name) {
-                            $q->whereHasMorph('manual', ['App\Models\Manual\ManualMaterial'], function ($mat) use ($name) {
+                            $q->whereHasMorph('manual', [\App\Models\Manual\ManualMaterial::class], function ($mat) use ($name) {
                                 $mat->where('name', 'like', '%'.$name.'%')
                                     ->where('material_type', 'regular');
                             });

@@ -20,7 +20,7 @@ class ProjectObjectDocument extends Model
 
     public function projectObject()
     {
-        return $this->belongsTo('App\Models\ProjectObject', 'project_object_id');
+        return $this->belongsTo(\App\Models\ProjectObject::class, 'project_object_id');
     }
 
     public function type()

@@ -51,7 +51,7 @@ class CreateProjectObjectDocumentsTable extends Migration
     {
         Schema::dropIfExists('project_object_documents');
 
-        Comment::where('commentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument')->delete();
-        FileEntry::where('documentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument')->delete();
+        Comment::where('commentable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class)->delete();
+        FileEntry::where('documentable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class)->delete();
     }
 }

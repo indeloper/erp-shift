@@ -15,6 +15,6 @@ class UserPermission extends Model
 
     public function permissions()
     {
-        return $this->hasMany('\App\Models\Permission');
+        return $this->hasMany(\App\Models\Permission::class);
     }
 }

@@ -6,23 +6,23 @@ class TelegramServices
 {
     const customMessageTemplates = [
         'confirmFuelTankRecieve' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
+            'class' => \App\Telegram\MessageTemplates\FuelMessageTemplates::class,
             'method' => 'getFuelTankNewResponsibleMessage',
         ],
         'fuelTankMovingConfirmationTextForNewResponsible' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
+            'class' => \App\Telegram\MessageTemplates\FuelMessageTemplates::class,
             'method' => 'getFuelTankMovingConfirmationForNewResponsibleMessageParams',
         ],
         'fuelTankMovingConfirmationTextForPreviousResponsible' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
+            'class' => \App\Telegram\MessageTemplates\FuelMessageTemplates::class,
             'method' => 'getFuelTankMovingConfirmationForPreviousResponsibleMessageParams',
         ],
         'fuelTankMovingConfirmationTextForOfficeResponsibles' => [
-            'class' => 'App\Telegram\MessageTemplates\FuelMessageTemplates',
+            'class' => \App\Telegram\MessageTemplates\FuelMessageTemplates::class,
             'method' => 'getFuelTankMovingConfirmationForOfficeResponsiblesMessageParams',
         ],
         'laborSafetyNewOrderRequestNotificationTemplate' => [
-            'class' => 'App\Telegram\MessageTemplates\LaborSafety\LaborSafetyMessageTemplates',
+            'class' => \App\Telegram\MessageTemplates\LaborSafety\LaborSafetyMessageTemplates::class,
             'method' => 'getLaborSafetyNewOrderRequestNotificationTemplateParams',
         ],
     ];

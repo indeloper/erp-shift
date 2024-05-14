@@ -2101,7 +2101,7 @@ class ProjectCommercialOfferController extends Controller
         $review = Review::where('reviewable_id', $request->reviewable_id)
             ->where('reviewable_type', $review_type);
 
-        if (in_array($review_type, ['MaterialWorkRelation', 'App\Models\Manual\ManualWork'])) {
+        if (in_array($review_type, ['MaterialWorkRelation', \App\Models\Manual\ManualWork::class])) {
             $review->where('commercial_offer_id', $request->commercial_offer_id);
         }
         $review = $review->first();

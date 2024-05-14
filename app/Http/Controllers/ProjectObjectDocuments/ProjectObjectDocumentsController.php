@@ -344,7 +344,7 @@ class ProjectObjectDocumentsController extends Controller
     {
         $actionLog = ActionLog::where([
             ['logable_id', $id],
-            ['logable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'],
+            ['logable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class],
             ['actions', 'LIKE', '%document_status_id%'],
             ['actions', 'NOT LIKE', '%"event":"delete"%'],
             ['actions', 'NOT LIKE', '%"event":"archive"%'],
@@ -547,7 +547,7 @@ class ProjectObjectDocumentsController extends Controller
 
         Comment::create([
             'commentable_id' => $id,
-            'commentable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument',
+            'commentable_type' => \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class,
             'comment' => $comment,
             'author_id' => Auth::user()->id,
 
@@ -583,7 +583,7 @@ class ProjectObjectDocumentsController extends Controller
 
         ActionLog::create([
             'logable_id' => $id,
-            'logable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument',
+            'logable_type' => \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class,
             'actions' => $actions,
             'user_id' => Auth::user()->id,
         ]);
@@ -752,7 +752,7 @@ class ProjectObjectDocumentsController extends Controller
         }
 
         $comments = Comment::where([
-            ['commentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'],
+            ['commentable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class],
             ['commentable_id', $request->input('id')],
         ])
             ->orderByDesc('id')
@@ -768,7 +768,7 @@ class ProjectObjectDocumentsController extends Controller
         }
 
         $attachments = FileEntry::where([
-            ['documentable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument'],
+            ['documentable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class],
             ['documentable_id', $request->input('id')],
         ])->with('author')
             ->orderByDesc('id')
@@ -791,7 +791,7 @@ class ProjectObjectDocumentsController extends Controller
         $storage_name = 'project_object_documents';
         $storage_path = 'storage/docs/project_object_documents/';
         $documentable_id = $request->input('id');
-        $documentable_type = 'App\Models\ProjectObjectDocuments\ProjectObjectDocument';
+        $documentable_type = \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class;
 
         [$fileEntry, $fileName]
             = (new FilesUploadService)
@@ -820,7 +820,7 @@ class ProjectObjectDocumentsController extends Controller
             'original_filename' => $uploadedFile->getClientOriginalName(),
             'user_id' => Auth::user()->id,
             'documentable_id' => $request->input('id'),
-            'documentable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument',
+            'documentable_type' => \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class,
         ]);
 
         return response()->json([
@@ -896,7 +896,7 @@ class ProjectObjectDocumentsController extends Controller
             ->leftJoin('object_responsible_users', 'project_objects.id', '=', 'object_responsible_users.object_id')
             ->leftJoin('users', 'users.id', '=', 'object_responsible_users.user_id')
             ->leftJoin('object_responsible_user_roles', 'object_responsible_user_roles.id', '=', 'object_responsible_users.object_responsible_user_role_id')
-            ->where('logable_type', 'App\Models\ProjectObjectDocuments\ProjectObjectDocument')
+            ->where('logable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class)
             ->where('actions', 'LIKE', '%document_status_id%')
             ->addSelect(DB::raw('DISTINCT project_object_documents.*'))
             ->addSelect('project_object_document_types.sortOrder AS sortOrder')

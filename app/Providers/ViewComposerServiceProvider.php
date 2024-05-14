@@ -19,11 +19,11 @@ class ViewComposerServiceProvider extends ServiceProvider
                 'layouts.app',
                 'layouts.messages',
             ],
-            'App\Http\ViewComposers\TaskComposer'
+            \App\Http\ViewComposers\TaskComposer::class
         );
 
         View::composer(
-            'building.material_accounting.modules.*', 'App\Http\ViewComposers\MatAccComposer'
+            'building.material_accounting.modules.*', \App\Http\ViewComposers\MatAccComposer::class
         );
 
         View::composer(
@@ -33,7 +33,7 @@ class ViewComposerServiceProvider extends ServiceProvider
                 'building.material_accounting.transformation.*',
                 'building.material_accounting.write_off.*',
             ],
-            'App\Http\ViewComposers\ManualMaterialCategoryComposer'
+            \App\Http\ViewComposers\ManualMaterialCategoryComposer::class
         );
     }
 
