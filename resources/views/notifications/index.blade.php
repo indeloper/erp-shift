@@ -58,7 +58,7 @@
                                 <tr class="notify {{ $notify->is_seen ? 'bg-color-snow' : 'notSeen' }}">
 
                                     @php
-                                        if(str_contains($notify->name, 'notificationHook_')) {
+                                        if(Str::contains($notify->name, 'notificationHook_')) {
                                             $hookTypeAndId = explode('notificationHook_', explode('_endNotificationHook', $notify->name)[0])[1];
                                             $text = str_replace('notificationHook_'.$hookTypeAndId.'_endNotificationHook', '', $notify->name);
                                         } else {
@@ -134,7 +134,7 @@
                                                 <i class="fa fa-arrow-right" aria-hidden="true"></i>
                                             </a>
                                         @endif
-                                        @if(str_contains($notify->name, 'notificationHook_'))
+                                        @if(Str::contains($notify->name, 'notificationHook_'))
                                             <a href="#" 
                                                class="btn-info btn-link" 
                                                data-original-title="Перейти к задаче"

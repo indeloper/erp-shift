@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Technic;
 
+use Illuminate\Support\Str;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Notification;
@@ -291,7 +292,7 @@ class TechnicMovementNotifications
         foreach (self::nameAttrs as $elem) {
             if (
                 str_starts_with(mb_strtolower($categoryName), mb_strtolower($elem['starts']))
-                && str_contains(mb_strtolower($categoryName), mb_strtolower($elem['contains']))) {
+                && Str::contains(mb_strtolower($categoryName), mb_strtolower($elem['contains']))) {
                 return $elem['result'];
             }
         }

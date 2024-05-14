@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Reports;
 
+use Illuminate\Support\Str;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Company\Company;
 use App\Models\Employees\Employee;
@@ -373,7 +374,7 @@ class FuelTankPeriodReportController extends StandardEntityResourceController
 
     public function getFilteredArray($filterData, $filterKey)
     {
-        if (! str_contains(json_encode($filterData), $filterKey)) {
+        if (! Str::contains(json_encode($filterData), $filterKey)) {
             return [];
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ProjectObjectDocuments;
 
+use Illuminate\Support\Str;
 use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
@@ -106,10 +107,10 @@ class ProjectObjectDocumentsController extends Controller
 
         $projectObjectDocuments =
             $this->getProjectObjectDocumentsList($options)
-                ->when(str_contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
+                ->when(Str::contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
                     return $query->whereIn('document_status_id', $documentArchivedOrDeletedStatusesIds)->withTrashed();
                 })
-                ->when(! str_contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
+                ->when(! Str::contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
                     return $query->whereNotIn('document_status_id', $documentArchivedOrDeletedStatusesIds);
                 })
                 ->orderByDesc('id')
@@ -615,10 +616,10 @@ class ProjectObjectDocumentsController extends Controller
 
                     return $query->whereIn('id', $typeStatuses);
                 })
-                ->when(str_contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
+                ->when(Str::contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
                     return $query->whereIn('id', $documentArchivedOrDeletedStatusesIds);
                 })
-                ->when(! str_contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
+                ->when(! Str::contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
                     return $query->whereNotIn('id', $documentArchivedOrDeletedStatusesIds);
                 })
                 ->orderBy('sortOrder')->get();
@@ -884,10 +885,10 @@ class ProjectObjectDocumentsController extends Controller
 
         $projectObjectDocuments = (new ProjectObjectDocument)
             ->dxLoadOptions($filterOptions)
-            ->when(str_contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
+            ->when(Str::contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
                 return $query->whereIn('document_status_id', $documentArchivedOrDeletedStatusesIds)->withTrashed();
             })
-            ->when(! str_contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
+            ->when(! Str::contains($request->customSearchParams, 'showArchive=1'), function ($query) use ($documentArchivedOrDeletedStatusesIds) {
                 return $query->whereNotIn('document_status_id', $documentArchivedOrDeletedStatusesIds);
             })
             ->leftJoin('project_object_document_types', 'project_object_document_types.id', '=', 'project_object_documents.document_type_id')

@@ -2,6 +2,8 @@
 
 namespace App\Telegram;
 
+use Illuminate\Support\Str;
+
 class TelegramServices
 {
     const customMessageTemplates = [
@@ -64,7 +66,7 @@ class TelegramServices
 
     public function defineTemplateByText($text)
     {
-        if (str_contains($text, 'notificationHook')) {
+        if (Str::contains($text, 'notificationHook')) {
             return $this->getHookTypeAndId($text)['type'];
         } else {
             return 'underfined';
