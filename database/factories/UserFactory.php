@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Str;
 use App\Models\Department;
 use App\Models\Group;
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------

@@ -2,7 +2,6 @@
 
 namespace App\Notifications\Technic;
 
-use Illuminate\Support\Str;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Notification;
@@ -12,6 +11,7 @@ use App\Models\TechAcc\TechnicCategory;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use morphos\Russian\Cases;
 use morphos\Russian\RussianLanguage;
 

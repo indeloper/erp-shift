@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Reports;
 
-use Illuminate\Support\Str;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Company\Company;
 use App\Models\Employees\Employee;
@@ -18,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use niklasravnsborg\LaravelPdf\Facades\Pdf as PDF;
 
 class FuelTankPeriodReportController extends StandardEntityResourceController
