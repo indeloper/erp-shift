@@ -23,13 +23,12 @@ class ContractorContactRequest extends FormRequest
      *
      * @return array
      */
-
-     protected function prepareForValidation()
-     {
-         if ($this->has('phone_number')) {
-             $this->merge(['phone_number' => preg_replace('~[\D]~', '', $this->phone_number)]);
-         }
-     }
+    protected function prepareForValidation()
+    {
+        if ($this->has('phone_number')) {
+            $this->merge(['phone_number' => preg_replace('~[\D]~', '', $this->phone_number)]);
+        }
+    }
 
     public function rules()
     {

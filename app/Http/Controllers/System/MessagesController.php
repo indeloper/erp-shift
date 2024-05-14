@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\System;
 
-use App\Http\Controllers\Controller;
 use App\Events\MessageDeleted;
 use App\Events\MessageStored;
 use App\Events\MessageUpdated;
-use App\Models\Messenger\MessageFile;
+use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
-use App\Models\Messenger\MessageForwards;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use App\Models\Messenger\Message;
+use App\Models\Messenger\MessageFile;
+use App\Models\Messenger\MessageForwards;
 use App\Models\Messenger\Participant;
 use App\Models\Messenger\Thread;
-
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -36,11 +35,11 @@ class MessagesController extends Controller
         $archived_threads = Thread::forUserOnlyTrashed(Auth::id());
 
         if ($request->has('search')) {
-            $threads->where('subject', 'like', '%' . $request->search . '%')
+            $threads->where('subject', 'like', '%'.$request->search.'%')
                 ->orWhereHas('users', function ($query) use ($request) {
-                    $query->where('last_name', 'like', '%' . $request->search . '%')
-                        ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                        ->orWhere('patronymic', 'like', '%' . $request->search . '%');
+                    $query->where('last_name', 'like', '%'.$request->search.'%')
+                        ->orWhere('first_name', 'like', '%'.$request->search.'%')
+                        ->orWhere('patronymic', 'like', '%'.$request->search.'%');
                 });
         }
 
@@ -53,7 +52,6 @@ class MessagesController extends Controller
     /**
      * Shows a message thread.
      *
-     * @param $id
      * @return mixed
      */
     public function thread($id)
@@ -61,8 +59,9 @@ class MessagesController extends Controller
         $thread = Thread::findOrFail($id);
 
         // Abort if user not in participant list
-        if (! $thread->hasParticipant(Auth::id()))
+        if (! $thread->hasParticipant(Auth::id())) {
             abort(403);
+        }
 
         $userId = Auth::id();
         $users = User::whereNotIn('id', $thread->participantsUserIds($userId))->get();
@@ -115,11 +114,9 @@ class MessagesController extends Controller
         return redirect()->route('messages::index');
     }
 
-
     /**
      * Update thread name and participants.
      *
-     * @param $thread_id
      * @return mixed
      */
     public function thread_update(Request $request, $thread_id)
@@ -151,7 +148,6 @@ class MessagesController extends Controller
     /**
      * Adds a new message to a current thread.
      *
-     * @param $id
      * @return mixed
      */
     public function message_store(Request $request, $id)
@@ -165,23 +161,25 @@ class MessagesController extends Controller
             'thread_id' => $thread->id,
             'user_id' => Auth::id(),
             'body' => $request->get('message') ?? ' ',
-            'has_relation' => $request->has('forward_messages_id') ?? 0
+            'has_relation' => $request->has('forward_messages_id') ?? 0,
         ]);
 
         // check for uploaded files and upload it
-        if ($request->has('message_files'))
+        if ($request->has('message_files')) {
             $this->upload($request->file('message_files'), $message);
+        }
 
-        if ($request->has('forward_messages_id'))
+        if ($request->has('forward_messages_id')) {
             $this->createForwardRelation($request->forward_messages_id, $message);
+        }
 
-//        // Add replier as a participant
-//        $participant = Participant::firstOrCreate([
-//            'thread_id' => $thread->id,
-//            'user_id' => Auth::id(),
-//        ]);
-//        $participant->last_read = new Carbon;
-//        $participant->save();
+        //        // Add replier as a participant
+        //        $participant = Participant::firstOrCreate([
+        //            'thread_id' => $thread->id,
+        //            'user_id' => Auth::id(),
+        //        ]);
+        //        $participant->last_read = new Carbon;
+        //        $participant->save();
         $message->refresh();
 
         DB::commit();
@@ -206,8 +204,7 @@ class MessagesController extends Controller
     /**
      * Send the new message to Pusher in order to notify users.
      *
-     * @param Message $message
-     * @param Event $event
+     * @param  Event  $event
      * @return void
      */
     protected function oooPushIt(Message $message, $event = MessageStored::class)
@@ -215,7 +212,7 @@ class MessagesController extends Controller
         $thread = $message->thread;
         $sender = $message->user;
         $data = [
-            'div_class' => 'thread_' . $thread->id,
+            'div_class' => 'thread_'.$thread->id,
             'message_id' => $message->id,
         ];
         $recipients = $thread->participantsUserIds();
@@ -233,13 +230,11 @@ class MessagesController extends Controller
 
     /**
      * Mark a specific thread as read, for ajax use.
-     *
-     * @param $id
      */
     public function read($id)
     {
         $thread = Thread::find($id);
-        if (!$thread) {
+        if (! $thread) {
             abort(404);
         }
         $thread->markAsRead(Auth::id());
@@ -253,13 +248,14 @@ class MessagesController extends Controller
     public function unread()
     {
         $count = Auth::user()->unreadMessagesCount();
+
         return ['msg_count' => $count];
     }
 
     /**
      * Remove user from thread, for ajax use.
      *
-     * @param $id
+     * @param  $id
      * @return true
      */
     public function leave_thread(Request $request)
@@ -269,8 +265,9 @@ class MessagesController extends Controller
         $thread = Thread::findOrFail($request->thread_id);
 
         // only participants can leave thread
-        if (! $thread->hasParticipant(Auth::id()))
+        if (! $thread->hasParticipant(Auth::id())) {
             abort(403);
+        }
 
         // remove Auth user from thread
         $thread->removeParticipant(Auth::id());
@@ -284,7 +281,7 @@ class MessagesController extends Controller
      * Remove creator from thread
      * add new one.
      *
-     * @param $id
+     * @param  $id
      * @return true
      */
     public function creator_leave(Request $request, $thread_id)
@@ -297,8 +294,9 @@ class MessagesController extends Controller
         $thread->update(['creator_id' => $request->substitute_user_id]);
 
         // only participants can leave thread
-        if (! $thread->hasParticipant(Auth::id()))
+        if (! $thread->hasParticipant(Auth::id())) {
             abort(403);
+        }
 
         // remove Auth user from thread
         $thread->removeParticipant(Auth::id());
@@ -320,8 +318,9 @@ class MessagesController extends Controller
         $thread = Thread::findOrFail($request->thread_id);
 
         // only trashed participants can join thread
-        if (! $thread->hasTrashedParticipant(Auth::id()))
+        if (! $thread->hasTrashedParticipant(Auth::id())) {
             abort(403);
+        }
 
         // add Auth user in thread
         $thread->addParticipant(Auth::id());
@@ -329,7 +328,7 @@ class MessagesController extends Controller
         DB::commit();
 
         return response()->json([
-            'route' => route('messages::index', ['thread' => $thread->id])
+            'route' => route('messages::index', ['thread' => $thread->id]),
         ]);
     }
 
@@ -345,8 +344,9 @@ class MessagesController extends Controller
         $message = Message::findOrFail($request->edited_message_id);
 
         // check for uploaded files and upload it
-        if ($request->has('message_files'))
+        if ($request->has('message_files')) {
             $this->upload($request->file('message_files'), $message, 'edit');
+        }
 
         // update message
         $message->update(['body' => $request->message]);
@@ -357,7 +357,7 @@ class MessagesController extends Controller
         DB::commit();
 
         // push updated message
-        $this->oooPushIt($message,MessageUpdated::class);
+        $this->oooPushIt($message, MessageUpdated::class);
 
         return response()->json([
             'message' => $message->id,
@@ -378,7 +378,7 @@ class MessagesController extends Controller
             $message = Message::findOrFail($message);
 
             // push deleted message
-            $this->oooPushIt($message,MessageDeleted::class);
+            $this->oooPushIt($message, MessageDeleted::class);
 
             $message->files->each(function ($message_file) {
                 Storage::disk('message_files')->delete($message_file->file_name);
@@ -405,19 +405,20 @@ class MessagesController extends Controller
         foreach ($requestFiles as $requestFile) {
             $name = $requestFile->getClientOriginalName();
             // if we edit message, let's check existed files
-            if ($type == 'edit' and in_array($name, $existed_files))
+            if ($type == 'edit' and in_array($name, $existed_files)) {
                 continue;
+            }
 
             $file = new MessageFile();
 
             $mime = $requestFile->getClientOriginalExtension();
 
-            $file_name =  'message_' . $message->id . '-'. uniqid() .'-file-' . uniqid() . '.' . $mime;
+            $file_name = 'message_'.$message->id.'-'.uniqid().'-file-'.uniqid().'.'.$mime;
 
             Storage::disk('message_files')->put($file_name, File::get($requestFile));
 
             FileEntry::create([
-                'filename' => $file::FILE_PATH . $file_name,
+                'filename' => $file::FILE_PATH.$file_name,
                 'size' => $requestFile->getSize(),
                 'mime' => $mime,
                 'original_filename' => $name,
@@ -446,7 +447,7 @@ class MessagesController extends Controller
         foreach ($forward_message_ids as $forward_message_id) {
             MessageForwards::create([
                 'message_id' => $message->id,
-                'forwarded_message_id' => $forward_message_id
+                'forwarded_message_id' => $forward_message_id,
             ]);
         }
     }
@@ -465,14 +466,14 @@ class MessagesController extends Controller
         return response()->json([
             'status' => 'OK',
             'html' => $rendered_file_template,
-            'message' => $message->id
+            'message' => $message->id,
         ]);
     }
 
     /**
      * Delete file from message, for ajax use.
      *
-     * @return boolean
+     * @return bool
      */
     public function message_files_delete(Request $request)
     {
@@ -491,7 +492,7 @@ class MessagesController extends Controller
         $html_for_sender = view('messages.partials.message', ['message' => $message])->render();
 
         // push updated message
-        $this->oooPushIt($message,MessageUpdated::class);
+        $this->oooPushIt($message, MessageUpdated::class);
 
         return response()->json([
             'html' => $html_for_sender,
@@ -502,18 +503,18 @@ class MessagesController extends Controller
     /**
      * Render related message modal content, for ajax use.
      *
-     * @return boolean
+     * @return bool
      */
     public function related_messages(Request $request)
     {
         $message = Message::findOrFail($request->message_id);
 
-//        dd($message->related_messages[0]->forwarded_message->related_messages[0]->forwarded_message->related_messages[0]->forwarded_message);
+        //        dd($message->related_messages[0]->forwarded_message->related_messages[0]->forwarded_message->related_messages[0]->forwarded_message);
 
         $html = view('messages.partials.related_messages', ['related_messages' => $message->related_messages])->render();
 
         return response()->json([
-            'html' => $html
+            'html' => $html,
         ]);
     }
 
@@ -568,23 +569,25 @@ class MessagesController extends Controller
             'thread_id' => $thread->id,
             'user_id' => Auth::id(),
             'body' => $request->get('message') ?? ' ',
-            'has_relation' => $request->has('forward_messages_id') ?? 0
+            'has_relation' => $request->has('forward_messages_id') ?? 0,
         ]);
 
         // check for uploaded files and upload it
-        if ($request->has('message_files'))
+        if ($request->has('message_files')) {
             $this->upload($request->file('message_files'), $message);
+        }
 
-        if ($request->has('forward_messages_id'))
+        if ($request->has('forward_messages_id')) {
             $this->createForwardRelation($request->forward_messages_id, $message);
+        }
 
-//        // Add replier as a participant
-//        $participant = Participant::firstOrCreate([
-//            'thread_id' => $thread->id,
-//            'user_id' => Auth::id(),
-//        ]);
-//        $participant->last_read = new Carbon;
-//        $participant->save();
+        //        // Add replier as a participant
+        //        $participant = Participant::firstOrCreate([
+        //            'thread_id' => $thread->id,
+        //            'user_id' => Auth::id(),
+        //        ]);
+        //        $participant->last_read = new Carbon;
+        //        $participant->save();
 
         DB::commit();
 
@@ -605,7 +608,7 @@ class MessagesController extends Controller
         $users = User::getAllUsers()->where('status', 1);
 
         if ($request->q) {
-            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $request->q . '%');
+            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$request->q.'%');
         }
 
         $users = $users->where('users.id', '!=', 1)->take(6)->get();
@@ -614,7 +617,7 @@ class MessagesController extends Controller
         foreach ($users as $user) {
             $results[] = [
                 'id' => $user->id,
-                'text' => trim($user->last_name . ' ' . $user->first_name . ' ' . $user->patronymic),
+                'text' => trim($user->last_name.' '.$user->first_name.' '.$user->patronymic),
             ];
         }
 
@@ -637,7 +640,7 @@ class MessagesController extends Controller
         $message = Message::findOrFail($request->message_id);
 
         return response()->json([
-            'messages_count' => $message->thread->userUnreadMessagesCount(Auth::id())
+            'messages_count' => $message->thread->userUnreadMessagesCount(Auth::id()),
         ]);
     }
 }

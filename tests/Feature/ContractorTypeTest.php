@@ -4,16 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\Contractors\Contractor;
 use App\Models\User;
-
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Tests\TestCase;
+
 class ContractorTypeTest extends TestCase
 {
     use WithoutMiddleware;
 
     protected $migration;
+
     protected $customer;
+
     protected $contractor;
+
     protected $supplier;
 
     public function setUp(): void
@@ -127,12 +130,12 @@ class ContractorTypeTest extends TestCase
         $contractor->additional_types()->createMany([
             [
                 'additional_type' => $this->contractor,
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'additional_type' => $this->customer,
-                'user_id' => 1
-            ]
+                'user_id' => 1,
+            ],
         ]);
 
         // Then contractor should have additional types
@@ -152,7 +155,7 @@ class ContractorTypeTest extends TestCase
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$this->supplier, $this->contractor]
+            'types' => [$this->supplier, $this->contractor],
         ]);
 
         // Then we must have new contractor in DB
@@ -172,12 +175,12 @@ class ContractorTypeTest extends TestCase
         $contractor->additional_types()->createMany([
             [
                 'additional_type' => $this->contractor,
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'additional_type' => $this->customer,
-                'user_id' => 1
-            ]
+                'user_id' => 1,
+            ],
         ]);
 
         // When we make post request with data
@@ -185,7 +188,7 @@ class ContractorTypeTest extends TestCase
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$contractor->main_type]
+            'types' => [$contractor->main_type],
         ]);
 
         // Then we must have fresh contractor in DB
@@ -207,7 +210,7 @@ class ContractorTypeTest extends TestCase
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$contractor->main_type, $this->contractor, $this->customer]
+            'types' => [$contractor->main_type, $this->contractor, $this->customer],
         ]);
 
         // Then we must have fresh contractor in DB
@@ -225,7 +228,7 @@ class ContractorTypeTest extends TestCase
         $contractor = factory(Contractor::class)->create(['main_type' => $this->supplier]);
         $contractor->additional_types()->create([
             'additional_type' => $this->contractor,
-            'user_id' => 1
+            'user_id' => 1,
         ]);
 
         // When we make post request with data
@@ -233,7 +236,7 @@ class ContractorTypeTest extends TestCase
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$contractor->main_type, $this->customer]
+            'types' => [$contractor->main_type, $this->customer],
         ]);
 
         // Then we must have fresh contractor in DB
@@ -243,7 +246,6 @@ class ContractorTypeTest extends TestCase
         $this->assertEquals('Поставщик, Заказчик', $contractor->types);
     }
 
-
     /** @test */
     public function scope_by_type_work_with_additional_types(): void
     {
@@ -252,12 +254,12 @@ class ContractorTypeTest extends TestCase
         $contractor->additional_types()->createMany([
             [
                 'additional_type' => $this->contractor,
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'additional_type' => $this->customer,
-                'user_id' => 1
-            ]
+                'user_id' => 1,
+            ],
         ]);
         $standard = factory(Contractor::class)->create();
 

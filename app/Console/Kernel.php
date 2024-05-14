@@ -47,26 +47,25 @@ class Kernel extends ConsoleKernel
         Commands\RefactorSplitsDB::class,
         Commands\GenerateEmails::class,
         Commands\CreateNewPlanMat::class,
-//        Commands\SendNotificationsNeedContract::class
+        //        Commands\SendNotificationsNeedContract::class
         // q3w custom commands
         Commands\CheckOverdueMaterialAccountingOperation::class,
         Commands\SetTelegramWebhook::class,
         Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class,
         Commands\Support\Fuel\FuelTransferHistoriesSetFuelLevels::class,
         Commands\Support\Fuel\FuelTanksFuelLevelCheck::class,
-        Commands\Support\MaterialAccounting\CancelCompletedSupplyOperation::class
+        Commands\Support\MaterialAccounting\CancelCompletedSupplyOperation::class,
     ];
 
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
 
-//        $schedule->command('check:ex-task')->everyTenMinutes();
+        //        $schedule->command('check:ex-task')->everyTenMinutes();
         $schedule->command('tasks:checkDelayed')->everyThirtyMinutes();
         $schedule->command('users:check-vacations')->dailyAt('01:00');
         $schedule->command('contractors:check-contacts')->dailyAt('04:00');

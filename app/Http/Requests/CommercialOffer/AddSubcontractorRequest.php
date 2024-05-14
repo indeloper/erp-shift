@@ -27,7 +27,7 @@ class AddSubcontractorRequest extends FormRequest
     {
         return [
             'subcontractor_works' => 'required|array',
-            'subcontractor_id' => 'required'
+            'subcontractor_id' => 'required',
         ];
     }
 }

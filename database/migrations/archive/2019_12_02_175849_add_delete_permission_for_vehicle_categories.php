@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddDeletePermissionForVehicleCategories extends Migration
 {
@@ -18,9 +16,9 @@ class AddDeletePermissionForVehicleCategories extends Migration
             // vehicle_categories
             [
                 'category' => 14,
-                "name" => 'Удаление категории транспортных средств',
-                "codename" => 'tech_acc_vehicle_category_destroy',
-                'created_at' => now()
+                'name' => 'Удаление категории транспортных средств',
+                'codename' => 'tech_acc_vehicle_category_destroy',
+                'created_at' => now(),
             ],
         ]);
 
@@ -30,17 +28,17 @@ class AddDeletePermissionForVehicleCategories extends Migration
             [
                 'group_id' => 15,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 17,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }

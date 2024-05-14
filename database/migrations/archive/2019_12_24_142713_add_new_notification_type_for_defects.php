@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewNotificationTypeForDefects extends Migration
 {
@@ -23,34 +21,34 @@ class AddNewNotificationTypeForDefects extends Migration
                 'id' => 77,
                 'group' => 10,
                 'name' => self::NOTIFICATION_NAME,
-                'for_everyone' => 0 // for groups
+                'for_everyone' => 0, // for groups
             ],
         ]);
 
         DB::table('notifications_for_groups')->insert([
             [
                 'notification_id' => 77,
-                'group_id' => 5
+                'group_id' => 5,
             ],
             [
                 'notification_id' => 77,
-                'group_id' => 6
+                'group_id' => 6,
             ],
             [
                 'notification_id' => 77,
-                'group_id' => 13
+                'group_id' => 13,
             ],
             [
                 'notification_id' => 77,
-                'group_id' => 19
+                'group_id' => 19,
             ],
             [
                 'notification_id' => 77,
-                'group_id' => 27
+                'group_id' => 27,
             ],
             [
                 'notification_id' => 77,
-                'group_id' => 47
+                'group_id' => 47,
             ],
         ]);
 

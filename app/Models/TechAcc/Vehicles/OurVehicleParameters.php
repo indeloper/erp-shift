@@ -20,6 +20,7 @@ class OurVehicleParameters extends Model
 
     /**
      * Relation to category characteristic
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function characteristic()
@@ -29,6 +30,7 @@ class OurVehicleParameters extends Model
 
     /**
      * Relation to vehicle
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function vehicle()

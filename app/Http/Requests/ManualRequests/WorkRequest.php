@@ -57,7 +57,7 @@ class WorkRequest extends FormRequest
             'unit_per_days' => 'required|max:5',
             'unit' => 'required|max:15',
             'nds' => 'required|max:5',
-            'work_group' => 'required|numeric|between:1,5'
+            'work_group' => 'required|numeric|between:1,5',
         ];
     }
 }

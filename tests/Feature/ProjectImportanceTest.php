@@ -3,11 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\CommercialOffer\CommercialOffer;
-use App\Models\Contractors\Contractor;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 
 class ProjectImportanceTest extends TestCase
 {

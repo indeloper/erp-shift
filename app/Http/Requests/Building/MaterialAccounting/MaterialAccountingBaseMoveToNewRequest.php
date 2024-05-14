@@ -18,13 +18,14 @@ class MaterialAccountingBaseMoveToNewRequest extends FormRequest
         return boolval(auth()->user()->hasPermission('mat_acc_base_move_to_new'));
     }
 
-    public function withValidator($validator) {
+    public function withValidator($validator)
+    {
         $base = MaterialAccountingBase::where('used', 1)->find($this->get('base_id'));
         if (! $base) {
-            $validator->errors()->add("base_id", 'Запись не существует');
+            $validator->errors()->add('base_id', 'Запись не существует');
             throw new ValidationException($validator);
-        } else if (round($base->count, 3) < $this->get('count')) {
-            $validator->errors()->add("too_much", 'На базе нет такого количества материала');
+        } elseif (round($base->count, 3) < $this->get('count')) {
+            $validator->errors()->add('too_much', 'На базе нет такого количества материала');
             throw new ValidationException($validator);
         }
     }

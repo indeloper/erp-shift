@@ -4,7 +4,6 @@
 
 use App\Models\Task;
 use Faker\Generator as Faker;
-use Carbon\Carbon;
 
 $factory->define(Task::class, function (Faker $faker) {
     return [

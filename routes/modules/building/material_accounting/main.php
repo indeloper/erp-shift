@@ -27,7 +27,6 @@ Route::post('/check_problem/{operation_id}', 'MaterialAccountingController@check
 Route::post('/close_operation/{operation_id}', 'MaterialAccountingController@close_operation')->name('close_operation');
 Route::post('/report/operations_actions', 'MaterialAccountingController@export_object_actions')->name('export_object_actions');
 
-
 Route::post('/operation/upload/{id}', 'MaterialAccountingController@upload')->name('upload');
 Route::post('/operation/delete_file/{id}', 'MaterialAccountingController@delete_file')->name('delete_file');
 
@@ -36,7 +35,6 @@ Route::post('/operation/delete_part_file/{id}', 'MaterialAccountingController@de
 Route::post('/operation/delete_part_operation/{task_id?}', 'MaterialAccountingController@delete_part_operation')->name('delete_part_operation');
 Route::post('/operation/store_deletion_task', 'MaterialAccountingController@store_deletion_task')->name('store_deletion_task');
 Route::get('/operation/delete_part_task/{task_id}', 'MaterialAccountingController@delete_part_task')->name('delete_part_task');
-
 
 Route::get('/operation/update_part_task/{task_id}', 'MaterialAccountingController@update_part_task')->name('update_part_task');
 Route::get('/certificateless_task/{task_id}', 'MaterialAccountingController@certificatelessTask')->name('certificateless_task');
@@ -50,8 +48,6 @@ Route::post('/get_types', 'MaterialAccountingController@get_types')->name('get_t
 Route::post('/get_materials_from_base', 'MaterialAccountingController@getMaterialsFromBase')->name('get_materials_from_base');
 Route::post('/get_material_category_description', 'MaterialAccountingController@getMaterialCategoryDescription')->name('get_material_category_description');
 
-
-
 Route::post('/materials_count', 'MaterialAccountingController@materials_count')->name('materials_count');
 Route::post('/attach_material', 'MaterialAccountingController@attach_material')->name('attach_material');
 
@@ -61,4 +57,3 @@ Route::post('/used', 'MaterialAccountingController@moveToUsed')->name('move_to_u
 Route::post('/new', 'MaterialAccountingController@moveToNew')->name('move_to_new');
 
 Route::post('/attach_contract', 'MaterialAccountingController@attach_contract')->name('attach_contract');
-

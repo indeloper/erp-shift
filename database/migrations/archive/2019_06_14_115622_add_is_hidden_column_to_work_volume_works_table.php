@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsHiddenColumnToWorkVolumeWorksTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsHiddenColumnToWorkVolumeWorksTable extends Migration
     public function up()
     {
         Schema::table('work_volume_works', function (Blueprint $table) {
-           $table->boolean('is_hidden')->default(false);
+            $table->boolean('is_hidden')->default(false);
         });
     }
 

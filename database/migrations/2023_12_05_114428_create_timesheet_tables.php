@@ -6,10 +6,10 @@ use App\Models\Timesheet\TimesheetDayCategory;
 use App\Models\Timesheet\TimesheetState;
 use App\Models\Timesheet\TimesheetTariff;
 use App\Models\Timesheet\TimesheetTariffsType;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class CreateTimesheetTables extends Migration
 {
@@ -18,7 +18,6 @@ class CreateTimesheetTables extends Migration
      *
      * @return void
      */
-
     public function up()
     {
         if (env('APP_ENV') == 'production') {
@@ -26,7 +25,7 @@ class CreateTimesheetTables extends Migration
         }
 
         // Справочники
-        if (!Schema::hasTable('timesheet_states')) {
+        if (! Schema::hasTable('timesheet_states')) {
             Schema::create('timesheet_states', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор записи');
                 $table->string('name')->comment('Наименование состояния');
@@ -38,10 +37,10 @@ class CreateTimesheetTables extends Migration
 
         TimesheetState::insert([
             ['name' => 'Открыт', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Закрыт', 'created_at' => now(), 'updated_at' => now()]
+            ['name' => 'Закрыт', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        if (!Schema::hasTable('production_calendar_day_types')) {
+        if (! Schema::hasTable('production_calendar_day_types')) {
             Schema::create('production_calendar_day_types', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор типа дня в производственном календаре');
                 $table->string('name')->comment('Наименование типа дня');
@@ -54,10 +53,10 @@ class CreateTimesheetTables extends Migration
         ProductionCalendarDayType::insert([
             ['name' => 'Выходной', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Перенесенный выходной', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Предпраздничный день', 'created_at' => now(), 'updated_at' => now()]
+            ['name' => 'Предпраздничный день', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        if (!Schema::hasTable('timesheet_tariffs_types')) {
+        if (! Schema::hasTable('timesheet_tariffs_types')) {
             Schema::create('timesheet_tariffs_types', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор типа тарифа в табеле учета рабочего времени');
                 $table->string('name')->comment('Наименование типа тарифа');
@@ -72,10 +71,10 @@ class CreateTimesheetTables extends Migration
             ['name' => 'Часы', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Сделки', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Часы (штрафы)', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Часы (оклад)', 'created_at' => now(), 'updated_at' => now()]
+            ['name' => 'Часы (оклад)', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        if (!Schema::hasTable('timesheet_day_categories')) {
+        if (! Schema::hasTable('timesheet_day_categories')) {
             Schema::create('timesheet_day_categories', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор категории дня в табеле учета рабочего времени');
                 $table->string('name')->unique()->comment('Наименование категории дня');
@@ -95,10 +94,10 @@ class CreateTimesheetTables extends Migration
             ['name' => 'Отсутствие по невыясненной причине', 'shortname' => 'Н', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Отпуск по беременности и родам', 'shortname' => 'БиР', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Отпуск по уходу за ребенком', 'shortname' => 'Д', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Мобилизация', 'shortname' => 'М', 'created_at' => now(), 'updated_at' => now()]
+            ['name' => 'Мобилизация', 'shortname' => 'М', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        if (!Schema::hasTable('employees_1c_payments_deductions')) {
+        if (! Schema::hasTable('employees_1c_payments_deductions')) {
             Schema::create('employees_1c_payments_deductions', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор записи о платежах/вычетах сотрудника из 1С');
                 $table->string('payments_deductions_1c_name')->comment('Наименование платежа/вычета из 1С');
@@ -110,7 +109,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('employees_1c_salaries_groups')) {
+        if (! Schema::hasTable('employees_1c_salaries_groups')) {
             Schema::create('employees_1c_salaries_groups', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор группы зарплаты сотрудников из 1С');
                 $table->string('name')->comment('Наименование группы зарплаты');
@@ -123,11 +122,11 @@ class CreateTimesheetTables extends Migration
         Employees1cSalariesGroup::insert([
             ['name' => 'Начислено', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Удержано', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Выплачено', 'created_at' => now(), 'updated_at' => now()]
+            ['name' => 'Выплачено', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // Данные
-        if (!Schema::hasTable('production_calendars')) {
+        if (! Schema::hasTable('production_calendars')) {
             Schema::create('production_calendars', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор записи в производственном календаре');
                 $table->date('date')->comment('Дата в производственном календаре');
@@ -140,7 +139,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('project_objects')) {
+        if (! Schema::hasTable('project_objects')) {
             Schema::table('project_objects', function (Blueprint $table) {
                 $table->string('timesheet_shortname')->nullable()->after('short_name')
                     ->comment('Краткое наименование для использования в табеле учета рабочего времени');
@@ -150,7 +149,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_cards')) {
+        if (! Schema::hasTable('timesheet_cards')) {
             Schema::create('timesheet_cards', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор табеля учета рабочего времени');
                 $table->unsignedBigInteger('employee_id')->comment('Идентификатор сотрудника, для которого ведется табель');
@@ -166,7 +165,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_project_objects_bonuses')) {
+        if (! Schema::hasTable('timesheet_project_objects_bonuses')) {
             Schema::create('timesheet_project_objects_bonuses', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор бонуса для объекта проекта в табеле учета рабочего времени');
                 $table->unsignedBigInteger('timesheet_card_id')->comment('Идентификатор табеля учета рабочего времени');
@@ -181,7 +180,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('employees_1c_salaries')) {
+        if (! Schema::hasTable('employees_1c_salaries')) {
             Schema::create('employees_1c_salaries', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор записи о зарплате сотрудника из 1С');
                 $table->unsignedBigInteger('employee_id')->comment('Идентификатор сотрудника, для которого указана зарплата');
@@ -199,7 +198,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_post_tariffs')) {
+        if (! Schema::hasTable('timesheet_post_tariffs')) {
             Schema::create('timesheet_post_tariffs', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор тарифа по часам');
                 $table->unsignedInteger('post_id')->comment('Идентификатор должности');
@@ -209,12 +208,11 @@ class CreateTimesheetTables extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-
                 $table->foreign('post_id')->references('id')->on('groups');
             });
         }
 
-        if (!Schema::hasTable('timesheet_tariffs')) {
+        if (! Schema::hasTable('timesheet_tariffs')) {
             Schema::create('timesheet_tariffs', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор тарифа по часам');
                 $table->string('name')->comment('Наименование тарифа');
@@ -250,10 +248,10 @@ class CreateTimesheetTables extends Migration
             ['name' => 'Погружение статика', 'timesheet_tariffs_type_id' => 2, 'is_overwork' => false, 'tariff_color' => '#0070C0', 'sort_order' => 170, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Извлечение статика', 'timesheet_tariffs_type_id' => 2, 'is_overwork' => false, 'tariff_color' => '#8DB4E3', 'sort_order' => 180, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Обычный час', 'timesheet_tariffs_type_id' => 4, 'is_overwork' => false, 'tariff_color' => '', 'sort_order' => 190, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Переработки', 'timesheet_tariffs_type_id' => 4, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 200, 'created_at' => now(), 'updated_at' => now()]
+            ['name' => 'Переработки', 'timesheet_tariffs_type_id' => 4, 'is_overwork' => true, 'tariff_color' => '', 'sort_order' => 200, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        if (!Schema::hasTable('timesheet_tariff_rates')) {
+        if (! Schema::hasTable('timesheet_tariff_rates')) {
             Schema::create('timesheet_tariff_rates', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор тарифа по часам');
                 $table->unsignedBigInteger('timesheet_tariff_id')->comment('Тариф');
@@ -269,7 +267,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_aggregated_salary_summary')) {
+        if (! Schema::hasTable('timesheet_aggregated_salary_summary')) {
             Schema::create('timesheet_aggregated_salary_summary', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор сводной информации по зарплате в табеле учета рабочего времени');
                 $table->unsignedBigInteger('timesheet_card_id')->comment('Идентификатор табеля учета рабочего времени');
@@ -295,7 +293,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_employees_objects')) {
+        if (! Schema::hasTable('timesheet_employees_objects')) {
             Schema::create('timesheet_employees_objects', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор связи между сотрудником и объектом проекта в табеле учета рабочего времени');
                 $table->unsignedInteger('project_object_id')->comment('Идентификатор объекта проекта');
@@ -309,7 +307,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_employees_compensations')) {
+        if (! Schema::hasTable('timesheet_employees_compensations')) {
             Schema::create('timesheet_employees_compensations', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор компенсации сотрудника');
                 $table->unsignedBigInteger('timesheet_card_id')->comment('Идентификатор табеля учета рабочего времени');
@@ -327,7 +325,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_employees_penalties')) {
+        if (! Schema::hasTable('timesheet_employees_penalties')) {
             Schema::create('timesheet_employees_penalties', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор штрафа сотрудника');
                 $table->unsignedBigInteger('timesheet_card_id')->comment('Идентификатор табеля учета рабочего времени');
@@ -340,7 +338,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet_employees_summary_hours')) {
+        if (! Schema::hasTable('timesheet_employees_summary_hours')) {
             Schema::create('timesheet_employees_summary_hours', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор сводных часов сотрудника');
                 $table->unsignedBigInteger('timesheet_card_id')->comment('Идентификатор табеля учета рабочего времени');
@@ -355,7 +353,7 @@ class CreateTimesheetTables extends Migration
             });
         }
 
-        if (!Schema::hasTable('timesheet')) {
+        if (! Schema::hasTable('timesheet')) {
             Schema::create('timesheet', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор записи в табеле');
                 $table->unsignedBigInteger('timesheet_card_id')->comment('Идентификатор табеля учета рабочего времени');
@@ -432,7 +430,7 @@ class CreateTimesheetTables extends Migration
                 $table->dropColumn('timesheet_shortname');
             }
 
-            if (Schema::hasColumn('is_business_trip', 'project_objects')){
+            if (Schema::hasColumn('is_business_trip', 'project_objects')) {
                 $table->dropColumn('is_business_trip');
             }
         });

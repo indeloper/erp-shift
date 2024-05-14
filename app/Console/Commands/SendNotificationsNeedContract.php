@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Notification;
-use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -53,7 +52,7 @@ class SendNotificationsNeedContract extends Command
         foreach ($operations as $operation) {
 
             Notification::create([
-                'name' => 'На объекте ' . $operation->object_to->name_tag . ' существуют операции без договора!',
+                'name' => 'На объекте '.$operation->object_to->name_tag.' существуют операции без договора!',
                 'object_id' => $operation->object_id_to,
                 'user_id' => 28,
                 'type' => 110,

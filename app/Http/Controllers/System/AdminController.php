@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\System;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Artisan;
 
 class AdminController extends Controller
@@ -30,6 +30,7 @@ class AdminController extends Controller
         if (auth()->user()->is_su) {
             auth()->login(User::findOrFail($request->user_id), false);
         }
+
         return redirect('/');
     }
 }

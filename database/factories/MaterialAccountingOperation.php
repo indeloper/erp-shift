@@ -3,10 +3,10 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Models\Group;
+use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\ProjectObject;
 use Carbon\Carbon;
 use Faker\Generator as Faker;
-use App\Models\MatAcc\MaterialAccountingOperation;
 
 $factory->define(MaterialAccountingOperation::class, function (Faker $faker) {
     $rps = Group::with('users')->find([27, 13, 19])->pluck('users')->flatten();
@@ -29,7 +29,7 @@ $factory->define(MaterialAccountingOperation::class, function (Faker $faker) {
         'author_id' => $responsible_user,
         'sender_id' => $responsible_user,
         'recipient_id' => $responsible_user,
-//        'supplier_id',
+        //        'supplier_id',
         'responsible_RP' => $responsible_user,
 
         'status' => 2,

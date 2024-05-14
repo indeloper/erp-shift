@@ -8,14 +8,10 @@ use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\User;
 use Carbon\Carbon;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class FuelTankOperationTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,7 +31,7 @@ class FuelTankOperationTest extends TestCase
     public function it_returns_related_tank()
     {
         $tanks = factory(FuelTank::class, 20)->create();
-        $fuel_operation = factory(FuelTankOperation::class)->create(['fuel_tank_id' => $tanks[4]->id ]);
+        $fuel_operation = factory(FuelTankOperation::class)->create(['fuel_tank_id' => $tanks[4]->id]);
 
         $this->assertEquals($fuel_operation->fuel_tank->id, $tanks[4]->id);
     }
@@ -211,7 +207,8 @@ class FuelTankOperationTest extends TestCase
                 'fuel_tank_id' => $tank->id,
                 'value' => 1000,
             ]);
-        } catch (\Throwable $e){}
+        } catch (\Throwable $e) {
+        }
 
         $tank->refresh();
         $this->assertEquals(80, $tank->fuel_level);
@@ -228,7 +225,7 @@ class FuelTankOperationTest extends TestCase
         $tank->refresh();
         $this->assertEquals(150, $tank->fuel_level);
 
-        $this->assertFunctionThrowsException(function() use ($updated_operation) {
+        $this->assertFunctionThrowsException(function () use ($updated_operation) {
             $updated_operation->operation_date = Carbon::now();
             $updated_operation->save();
         });
@@ -248,7 +245,7 @@ class FuelTankOperationTest extends TestCase
         $tank->refresh();
         $this->assertEquals(250, $tank->fuel_level);
 
-        $this->assertFunctionDoesNotThrowException(function() use ($updated_operation) {
+        $this->assertFunctionDoesNotThrowException(function () use ($updated_operation) {
             $updated_operation->operation_date = Carbon::now();
             $updated_operation->save();
         });
@@ -330,8 +327,6 @@ class FuelTankOperationTest extends TestCase
 
     /**
      * Asserts if any error occur during function execution
-     *
-     * @param $functionToTest
      */
     public function assertFunctionThrowsException($functionToTest): void
     {
@@ -347,8 +342,6 @@ class FuelTankOperationTest extends TestCase
 
     /**
      * Asserts if no errors occur during function execution
-     *
-     * @param $functionToTest
      */
     public function assertFunctionDoesNotThrowException($functionToTest): void
     {

@@ -3,7 +3,6 @@
 namespace App\Http\Requests\ProjectRequest;
 
 use App\Models\CommercialOffer\CommercialOffer;
-use App\Models\WorkVolume\WorkVolume;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CommercialOfferReqRequest extends FormRequest
@@ -45,7 +44,7 @@ class CommercialOfferReqRequest extends FormRequest
     public function rules()
     {
         return [
-            'duplicate' => ['nullable', 'boolean', 'not_in:' . true],
+            'duplicate' => ['nullable', 'boolean', 'not_in:'.true],
         ];
     }
 }

@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddJobCategoryDestroyPermission extends Migration
 {
@@ -17,9 +15,9 @@ class AddJobCategoryDestroyPermission extends Migration
 
         $insert[] = [
             'category' => 18,
-            "name" => self::PERMISSION_NAME,
-            "codename" => self::PERMISSION_CODENAME,
-            'created_at' => now()
+            'name' => self::PERMISSION_NAME,
+            'codename' => self::PERMISSION_CODENAME,
+            'created_at' => now(),
         ];
 
         DB::beginTransaction();
@@ -32,17 +30,17 @@ class AddJobCategoryDestroyPermission extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 8,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

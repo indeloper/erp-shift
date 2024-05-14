@@ -1,15 +1,12 @@
 <?php
 
 use App\Models\MatAcc\MaterialAccountingMaterialAddition;
-use App\Models\MatAcc\MaterialAccountingMaterialFile;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Migrations\Migration;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 
 class AddExistPartMaterialsToBase extends Migration
 {
@@ -37,7 +34,6 @@ class AddExistPartMaterialsToBase extends Migration
             ->orderBy('id', 'desc')
             ->get();
 
-
         foreach ($operations as $operation) {
             if ($operation->materialsPart->count()) {
                 foreach ($operation->materialsPart as $material) {
@@ -51,7 +47,7 @@ class AddExistPartMaterialsToBase extends Migration
                     $resultDelete = $material->deletePart('withoutBase');
                     dump($operation->id, $material->id);
                     if ($resultDelete['status'] == 'error') {
-                        echo 'Все пропало!(Удаление) ' . $operation->type_name . ', ' . $operation->status_name . ' id:' . $operation->id. PHP_EOL;
+                        echo 'Все пропало!(Удаление) '.$operation->type_name.', '.$operation->status_name.' id:'.$operation->id.PHP_EOL;
                     }
 
                     $fakeRequest = new Request([
@@ -70,13 +66,13 @@ class AddExistPartMaterialsToBase extends Migration
                     $resultCreate = $operation->partSend($fakeRequest);
 
                     if ($resultCreate['status'] == 'error') {
-                        echo 'Все пропало!(Создание) ' . $operation->type_name . ', ' . $operation->status_name . PHP_EOL;
+                        echo 'Все пропало!(Создание) '.$operation->type_name.', '.$operation->status_name.PHP_EOL;
                     }
 
                     MaterialAccountingMaterialAddition::where('operation_id', $operation->id)
                         ->where('operation_material_id', $material->id)
                         ->update([
-                            'operation_material_id' => $resultCreate['operation_material_id']
+                            'operation_material_id' => $resultCreate['operation_material_id'],
                         ]);
 
                 }

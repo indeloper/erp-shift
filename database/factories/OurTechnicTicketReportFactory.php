@@ -3,9 +3,8 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 use App\Models\Department;
 use App\Models\Group;
-use App\Models\TechAcc\OurTechnicTicketReport;
 use App\Models\TechAcc\OurTechnicTicket;
-
+use App\Models\TechAcc\OurTechnicTicketReport;
 use Faker\Generator as Faker;
 
 $factory->define(OurTechnicTicketReport::class, function (Faker $faker) {

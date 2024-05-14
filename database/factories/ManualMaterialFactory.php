@@ -1,8 +1,8 @@
 <?php
 
-use Faker\Generator as Faker;
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
+use Faker\Generator as Faker;
 
 $factory->define(ManualMaterial::class, function (Faker $faker) {
     $names = ['Камень', 'Кирпич', 'Арматура', 'Шпунт', 'Свая', 'Крепёж', 'Электрод', 'Гайка', 'Болт', 'Гайка', 'Проволока'];
@@ -12,6 +12,6 @@ $factory->define(ManualMaterial::class, function (Faker $faker) {
         'description' => $faker->sentence(2, true),
         'category_id' => ManualMaterialCategory::inRandomOrder()->first()->id,
         'buy_cost' => random_int(50, 500),
-        'use_cost' => random_int(50, 500)
+        'use_cost' => random_int(50, 500),
     ];
 });

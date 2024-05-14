@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewPermissionsToRP extends Migration
 {
@@ -23,32 +21,32 @@ class AddNewPermissionsToRP extends Migration
             [
                 'group_id' => 13,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 13,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

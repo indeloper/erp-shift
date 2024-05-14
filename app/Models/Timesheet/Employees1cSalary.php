@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employees1cSalary extends Model
 {
-    use AuthorAndEditorUserFields, SoftDeletes, DevExtremeDataSourceLoadable;
+    use AuthorAndEditorUserFields, DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 
     protected $table = 'employees_1c_salaries';
 }

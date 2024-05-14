@@ -26,7 +26,7 @@ class ProjectResponsibleUser extends Model
                     'new_user_id' => $new_user_id,
                     'role' => $role->role,
                     'reason' => $reason,
-                    'created_at' => Carbon::now()
+                    'created_at' => Carbon::now(),
                 ];
                 $role->update(['user_id' => $new_user_id]);
             }
@@ -39,7 +39,7 @@ class ProjectResponsibleUser extends Model
                     'new_user_id' => $new_user_id,
                     'role' => $role->role,
                     'reason' => $reason,
-                    'created_at' => Carbon::now()
+                    'created_at' => Carbon::now(),
                 ];
                 $role->update(['user_id' => $new_user_id]);
             }
@@ -66,7 +66,7 @@ class ProjectResponsibleUser extends Model
                 'new_user_id' => $new_user_id,
                 'role' => $role->role,
                 'reason' => 'Выход из отпуска',
-                'created_at' => Carbon::now()
+                'created_at' => Carbon::now(),
             ];
             $role->update(['user_id' => $new_user_id]);
         }

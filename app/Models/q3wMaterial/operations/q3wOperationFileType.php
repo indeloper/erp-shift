@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\q3wMaterial\operations;
 
 use App\Traits\DevExtremeDataSourceLoadable;
@@ -8,8 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wOperationFileType extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 }
-

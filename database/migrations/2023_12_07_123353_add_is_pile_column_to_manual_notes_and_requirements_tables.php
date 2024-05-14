@@ -2,9 +2,9 @@
 
 use App\Models\CommercialOffer\CommercialOfferManualNote;
 use App\Models\CommercialOffer\CommercialOfferManualRequirement;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsPileColumnToManualNotesAndRequirementsTables extends Migration
 {
@@ -16,15 +16,15 @@ class AddIsPileColumnToManualNotesAndRequirementsTables extends Migration
     public function up()
     {
         Schema::table('commercial_offer_manual_notes', function (Blueprint $table) {
-            if (!Schema::hasColumn('commercial_offer_manual_notes', 'commercial_offer_type')) {
+            if (! Schema::hasColumn('commercial_offer_manual_notes', 'commercial_offer_type')) {
                 $table->unsignedInteger('commercial_offer_type')->after('need_value')->default(1)->comment('Тип коммерческого предложения. Поле для фильтрации в КП. 1 - шпунтовое КП, 2 - свайное КП');
             }
 
-            if (!Schema::hasColumn('commercial_offer_manual_notes', 'created_at')){
+            if (! Schema::hasColumn('commercial_offer_manual_notes', 'created_at')) {
                 $table->timestamps();
             }
 
-            if (!Schema::hasColumn('commercial_offer_manual_notes', 'deleted_at')) {
+            if (! Schema::hasColumn('commercial_offer_manual_notes', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
@@ -65,28 +65,28 @@ class AddIsPileColumnToManualNotesAndRequirementsTables extends Migration
             'В стоимость коммерческого предложения не входит утилизация грунта после лидерного бурения. В случае необходимости данный вид работ оплачивается дополнительно из расчета:
         — 1 500 руб. за м³ погрузки в автосамосвалы выбуренного грунта и вывоз на объект утилизации с предоставлением актов об утилизации грунта.‡0‡2',
             'В связи со стесненной ситуацией на площадке, работы части свай необходимо проводить консолью. При данном методе максимальное усилие вдавливание 150 тонн.‡0‡2',
-            'В стоимость работ не входит допогружение свай ниже отметки дневной поверхности. В случае необходимости, додавливание свай оплачивается дополнительно по цене _____ рублей за метр погонный.‡0‡2'
+            'В стоимость работ не входит допогружение свай ниже отметки дневной поверхности. В случае необходимости, додавливание свай оплачивается дополнительно по цене _____ рублей за метр погонный.‡0‡2',
         ];
 
         foreach ($manualNodesArray as $manualNodesElement) {
             $commercialOfferManualNote = new CommercialOfferManualNote([
                 'name' => explode('‡', $manualNodesElement)[0],
                 'need_value' => explode('‡', $manualNodesElement)[1],
-                'commercial_offer_type' => explode('‡', $manualNodesElement)[2]
+                'commercial_offer_type' => explode('‡', $manualNodesElement)[2],
             ]);
             $commercialOfferManualNote->save();
         }
 
         Schema::table('commercial_offer_manual_requirements', function (Blueprint $table) {
-            if (!Schema::hasColumn('commercial_offer_manual_requirements', 'commercial_offer_type')) {
+            if (! Schema::hasColumn('commercial_offer_manual_requirements', 'commercial_offer_type')) {
                 $table->unsignedInteger('commercial_offer_type')->default(1)->after('need_value')->comment('Тип коммерческого предложения. Поле для фильтрации в КП. 1 - шпунтовое КП, 2 - свайное КП');
             }
 
-            if (!Schema::hasColumn('commercial_offer_manual_requirements', 'created_at')){
+            if (! Schema::hasColumn('commercial_offer_manual_requirements', 'created_at')) {
                 $table->timestamps();
             }
 
-            if (!Schema::hasColumn('commercial_offer_manual_requirements', 'deleted_at')) {
+            if (! Schema::hasColumn('commercial_offer_manual_requirements', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
@@ -117,17 +117,17 @@ class AddIsPileColumnToManualNotesAndRequirementsTables extends Migration
             'Заказчик для извлечения шпунта/демонтажа системы крепления выполняет устройство основания под гусеничную технику (при необходимости);‡0‡1',
             'Заказчик для извлечения шпунта/демонтажа системы крепления производит обратную засыпку пазух между монолитными конструкциями и шпунтом на 1,0 м ниже отметки оси смонтированной балки (при наличии системы крепления)‡0‡1',
             'Заказчик для извлечения шпунта/демонтажа системы крепления освобождает оголовки шпунта от земли, строительного мусора, бетона и других предметов с наружной и внутренней стороны котлована на минимальную глубину 0,8 м для статического извлечения и 0,5 м для виброизвлечения шпунта, шириной 1,5 м от оси шпунта наружу и внутрь, с естественным углом откоса от земли;‡0‡1',
-            'В случае невозможности предоставить Подрядчику фронт работ для извлечения шпунта и/или демонтажа системы крепления Заказчик, на безвозмездной основе,  предоставляет башенный кран (БК), при его наличии на площадке и доступности. В случае отсутствия возможности у Заказчика предоставить Подрядчику башенный кран (БК) на безвозмездной основе, производится предварительное согласование с Заказчиком стоимости и порядка компенсации Подряком использования башенного крана (БК);‡0‡1'
+            'В случае невозможности предоставить Подрядчику фронт работ для извлечения шпунта и/или демонтажа системы крепления Заказчик, на безвозмездной основе,  предоставляет башенный кран (БК), при его наличии на площадке и доступности. В случае отсутствия возможности у Заказчика предоставить Подрядчику башенный кран (БК) на безвозмездной основе, производится предварительное согласование с Заказчиком стоимости и порядка компенсации Подряком использования башенного крана (БК);‡0‡1',
         ];
 
         foreach ($manualRequirementsArray as $manualRequirementsElement) {
-        $commercialOfferManualRequirement = new CommercialOfferManualRequirement([
-            'name' => explode('‡', $manualRequirementsElement)[0],
-            'need_value' => explode('‡', $manualRequirementsElement)[1],
-            'commercial_offer_type' => explode('‡', $manualRequirementsElement)[2]
-        ]);
-        $commercialOfferManualRequirement->save();
-    }
+            $commercialOfferManualRequirement = new CommercialOfferManualRequirement([
+                'name' => explode('‡', $manualRequirementsElement)[0],
+                'need_value' => explode('‡', $manualRequirementsElement)[1],
+                'commercial_offer_type' => explode('‡', $manualRequirementsElement)[2],
+            ]);
+            $commercialOfferManualRequirement->save();
+        }
     }
 
     /**

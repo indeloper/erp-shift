@@ -6,8 +6,8 @@ use App\Models\Project;
 use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class WorkWolumes extends TestCase
 {

@@ -5,10 +5,11 @@ namespace App\Services\Fuel;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use Carbon\Carbon;
 
-class FuelPeriodReportService {
+class FuelPeriodReportService
+{
     public function getSummaryDataFuelFlowPeriodReport($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
     {
-        if($this->checkNeedToSkip($objectTransferGroups)) {
+        if ($this->checkNeedToSkip($objectTransferGroups)) {
             return null;
         }
 
@@ -37,7 +38,7 @@ class FuelPeriodReportService {
     public function getDateFrom($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
     {
         $periodEventDates = $this->getPeriodEventDates($objectTransferGroups);
-        if(empty($periodEventDates)) {
+        if (empty($periodEventDates)) {
             return Carbon::create($globalDateFrom);
         }
 
@@ -45,7 +46,7 @@ class FuelPeriodReportService {
 
         $isMinDateMovementEvent = $this->checkIsDateMovementEventFrom($minEventDate, $responsibleId, $fuelTankId, $objectId);
 
-        if($isMinDateMovementEvent) {
+        if ($isMinDateMovementEvent) {
             return max(
                 Carbon::create($minEventDate),
                 Carbon::create($globalDateFrom));
@@ -56,13 +57,14 @@ class FuelPeriodReportService {
 
     public function getDateTo($objectTransferGroups, $responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
     {
-        if(isset($objectTransferGroups['transitionPeriod'])) {
+        if (isset($objectTransferGroups['transitionPeriod'])) {
             $dateTo = $this->getTransitionPeriodDateTo($responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo);
+
             return Carbon::create($dateTo);
         }
 
         $periodEventDates = $this->getPeriodEventDates($objectTransferGroups);
-        if(empty($periodEventDates)) {
+        if (empty($periodEventDates)) {
             return Carbon::create($globalDateTo);
         }
 
@@ -70,7 +72,7 @@ class FuelPeriodReportService {
 
         $nextReportMovementConfirmationDate = $this->getNextReportMovementConfirmationDate($maxEventDate, $responsibleId, $fuelTankId, $objectId);
 
-        if(!$nextReportMovementConfirmationDate) {
+        if (! $nextReportMovementConfirmationDate) {
             return Carbon::create($globalDateTo);
         }
 
@@ -83,10 +85,10 @@ class FuelPeriodReportService {
     {
         $isMinDateMovementEvent = $this->checkIsDateMovementEventFrom($dateFrom, $responsibleId, $fuelTankId, $objectId);
 
-        if(
+        if (
             isset($objectTransferGroups['transitionPeriod'])
             || isset($objectTransferGroups['notIncludedTank'])
-            || !$isMinDateMovementEvent
+            || ! $isMinDateMovementEvent
         ) {
             return FuelTankTransferHistory::query()
                 ->where([
@@ -110,7 +112,7 @@ class FuelPeriodReportService {
                 ['event_date', '<=', $dateFrom],
                 // ['responsible_id', $responsibleId],
                 ['fuel_tank_id', $fuelTankId],
-                ['object_id', '<>', $objectId]
+                ['object_id', '<>', $objectId],
             ])
             ->orderByDesc('event_date')
             ->orderByDesc('id')
@@ -122,7 +124,7 @@ class FuelPeriodReportService {
     {
         $periodEventDates = $this->getPeriodEventDates($objectTransferGroups);
 
-        if(isset($objectTransferGroups['notIncludedTank']) || empty($periodEventDates)) {
+        if (isset($objectTransferGroups['notIncludedTank']) || empty($periodEventDates)) {
             return $this->getFuelLevelPeriodStart($objectTransferGroups, $dateFrom, $dateTo, $responsibleId, $fuelTankId, $objectId);
         }
 
@@ -132,7 +134,7 @@ class FuelPeriodReportService {
                 ['event_date', '<=', $dateTo],
                 ['responsible_id', $responsibleId],
                 ['fuel_tank_id', $fuelTankId],
-                ['object_id', $objectId]
+                ['object_id', $objectId],
             ])
             ->orderByDesc('event_date')
             ->orderByDesc('id')
@@ -149,7 +151,7 @@ class FuelPeriodReportService {
                 ['event_date', '<=',  $dateTo],
                 ['responsible_id', $responsibleId],
                 ['object_id', $objectId],
-                ['tank_moving_confirmation', true]
+                ['tank_moving_confirmation', true],
             ])
             ->orWhere([
                 ['fuel_tank_id', $fuelTankId],
@@ -157,7 +159,7 @@ class FuelPeriodReportService {
                 ['event_date', '<=',  $dateTo],
                 ['previous_responsible_id', $responsibleId],
                 ['previous_object_id', $objectId],
-                ['tank_moving_confirmation', true]
+                ['tank_moving_confirmation', true],
             ])
             ->orWhere([
                 ['fuel_tank_id', $fuelTankId],
@@ -165,7 +167,7 @@ class FuelPeriodReportService {
                 ['event_date', '<=',  $dateTo],
                 ['previous_responsible_id', $responsibleId],
                 ['object_id', $objectId],
-                ['tank_moving_confirmation', true]
+                ['tank_moving_confirmation', true],
             ])
             ->orWhere([
                 ['fuel_tank_id', $fuelTankId],
@@ -173,7 +175,7 @@ class FuelPeriodReportService {
                 ['event_date', '<=',  $dateTo],
                 ['responsible_id', $responsibleId],
                 ['previous_object_id', $objectId],
-                ['tank_moving_confirmation', true]
+                ['tank_moving_confirmation', true],
             ])
             ->whereNotNull('object_id')
             ->whereNotNull('previous_object_id')
@@ -186,9 +188,10 @@ class FuelPeriodReportService {
     public function getPeriodEventDates($objectTransferGroups)
     {
         $eventDates = [];
-        array_walk_recursive($objectTransferGroups, function($value, $key) use(&$eventDates) {
-            if($key === 'event_date')
-            $eventDates[] = $value;
+        array_walk_recursive($objectTransferGroups, function ($value, $key) use (&$eventDates) {
+            if ($key === 'event_date') {
+                $eventDates[] = $value;
+            }
         });
 
         return $eventDates;
@@ -202,7 +205,7 @@ class FuelPeriodReportService {
                 ['event_date', $minEventDate],
                 ['responsible_id', $responsibleId],
                 ['fuel_tank_id', $fuelTankId],
-                ['object_id', $objectId]
+                ['object_id', $objectId],
             ])
             ->exists();
     }
@@ -215,7 +218,7 @@ class FuelPeriodReportService {
                 ['event_date', '>=', $maxEventDate],
                 ['previous_responsible_id', $responsibleId],
                 ['fuel_tank_id', $fuelTankId],
-                ['previous_object_id', $objectId]
+                ['previous_object_id', $objectId],
             ])
             ->orderBy('event_date')
             ->first()
@@ -225,26 +228,26 @@ class FuelPeriodReportService {
     public function getTransitionPeriodDateTo($responsibleId, $fuelTankId, $objectId, $globalDateFrom, $globalDateTo)
     {
         return FuelTankTransferHistory::query()
-        ->where([
-            ['tank_moving_confirmation', true],
-            ['event_date', '>=', Carbon::create($globalDateFrom)],
-            ['previous_responsible_id', $responsibleId],
-            ['fuel_tank_id', $fuelTankId],
-            ['previous_object_id', $objectId]
-        ])
-        ->orderBy('event_date')
-        ->first()
+            ->where([
+                ['tank_moving_confirmation', true],
+                ['event_date', '>=', Carbon::create($globalDateFrom)],
+                ['previous_responsible_id', $responsibleId],
+                ['fuel_tank_id', $fuelTankId],
+                ['previous_object_id', $objectId],
+            ])
+            ->orderBy('event_date')
+            ->first()
         ->event_date ?? $globalDateTo;
     }
 
     public function checkNeedToSkip($objectTransferGroups)
     {
-        if(
+        if (
             count($objectTransferGroups) === 1
             && isset($objectTransferGroups[0][0])
         ) {
-            $a = (int)$objectTransferGroups[0][0]["fuel_tank_flow_type_slug"] ?? NULL;
-            $b = (int)$objectTransferGroups[0][0]["tank_moving_confirmation"] ?? NULL;
+            $a = (int) $objectTransferGroups[0][0]['fuel_tank_flow_type_slug'] ?? null;
+            $b = (int) $objectTransferGroups[0][0]['tank_moving_confirmation'] ?? null;
 
             return $a + $b < 1;
         }

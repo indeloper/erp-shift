@@ -11,10 +11,10 @@ use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\TechAcc\TechnicCategory;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 
 class OurTechnicTest extends TestCase
 {
@@ -38,8 +38,8 @@ class OurTechnicTest extends TestCase
 
         $isRun = boolval($is_defects_migration_runned);
 
-        if (!$isRun) {
-            Artisan::call("migrate");
+        if (! $isRun) {
+            Artisan::call('migrate');
         }
     }
 
@@ -66,7 +66,7 @@ class OurTechnicTest extends TestCase
         $characteristics_data = [
             [
                 'id' => $category_characteristics->first()->id,
-                'value' => 60
+                'value' => 60,
             ],
         ];
         $technic->setCharacteristicsValue($characteristics_data);
@@ -85,14 +85,14 @@ class OurTechnicTest extends TestCase
         $technic = factory(OurTechnic::class)->create(['technic_category_id' => $category->id]);
 
         $characteristics_data = [
-                [
-                    'id' => $category_characteristics->first()->id,
-                    'value' => '80'
-                ],
-                [
-                    'id' => $category_characteristics->last()->id,
-                    'value' => 'fast'
-                ],
+            [
+                'id' => $category_characteristics->first()->id,
+                'value' => '80',
+            ],
+            [
+                'id' => $category_characteristics->last()->id,
+                'value' => 'fast',
+            ],
         ];
 
         $technic->setCharacteristicsValue($characteristics_data);
@@ -151,7 +151,6 @@ class OurTechnicTest extends TestCase
         $this->assertNotEmpty($technic->tickets);
     }
 
-
     /** @test */
     public function it_is_vacated_when_it_has_tickets()
     {
@@ -162,7 +161,7 @@ class OurTechnicTest extends TestCase
         factory(OurTechnicTicket::class)->create([
             'our_technic_id' => $technic,
             'status' => 3,
-            ]);
+        ]);
 
         $this->assertTrue($technic->isVacated());
         $this->assertFalse($another_technic->isVacated());
@@ -175,7 +174,7 @@ class OurTechnicTest extends TestCase
         OurTechnic::query()->delete();
         $technics = factory(OurTechnic::class, 5)->create();
         factory(OurTechnicTicket::class)->create([
-            'our_technic_id' => $technics->first()->id
+            'our_technic_id' => $technics->first()->id,
         ]);
 
         $technics->first()->refresh();

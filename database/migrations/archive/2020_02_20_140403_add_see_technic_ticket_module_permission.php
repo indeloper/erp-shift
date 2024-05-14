@@ -1,20 +1,18 @@
 <?php
 
 use App\Models\Group;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddSeeTechnicTicketModulePermission extends Migration
 {
     const PERMISSION_CODENAMES = [
         'tech_acc_see_technic_ticket_module',
     ];
+
     const PERMISSION_NAMES = [
         'Просмотр раздела Учет Топлива',
     ];
-
 
     public function up()
     {
@@ -24,7 +22,7 @@ class AddSeeTechnicTicketModulePermission extends Migration
                 'category' => 17,
                 'name' => self::PERMISSION_NAMES[$key],
                 'codename' => $codename,
-                'created_at' => now()
+                'created_at' => now(),
             ];
         }
 
@@ -44,7 +42,7 @@ class AddSeeTechnicTicketModulePermission extends Migration
                 [
                     'group_id' => $group,
                     'permission_id' => $permissionOne,
-                    'created_at' => now()
+                    'created_at' => now(),
                 ],
             ]);
         }
@@ -71,7 +69,7 @@ class AddSeeTechnicTicketModulePermission extends Migration
                 [
                     'group_id' => $group,
                     'permission_id' => $permissionTwo,
-                    'created_at' => now()
+                    'created_at' => now(),
                 ],
             ]);
         }

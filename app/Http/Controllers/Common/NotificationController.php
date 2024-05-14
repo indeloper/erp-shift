@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Notifications\NotificationTypes;
 use App\Services\System\NotificationService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
-use App\Models\Notification;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -26,7 +24,7 @@ class NotificationController extends Controller
 
         if (auth()->user()->disabledInSystemNotifications()->isNotEmpty()) {
             $notifications->whereRaw('CASE WHEN is_showing = 1 AND type IN ('.
-                implode(',', auth()->user()->disabledInSystemNotifications()->pluck('notification_id')->toArray()) .')
+                implode(',', auth()->user()->disabledInSystemNotifications()->pluck('notification_id')->toArray()).')
                 THEN 0 ELSE is_showing = 1 END');
         } else {
             $notifications->where('is_showing', 1);
@@ -41,7 +39,6 @@ class NotificationController extends Controller
             'disabled_in_telegram' => auth()->user()->disabledInTelegramNotifications()->pluck('notification_id')->toArray(),
         ]);
     }
-
 
     public function delete(Request $request)
     {
@@ -69,6 +66,7 @@ class NotificationController extends Controller
         DB::beginTransaction();
         $url = (new NotificationService())->decodeNotificationUrl($encoded_url);
         DB::commit();
+
         return redirect($url);
     }
 }

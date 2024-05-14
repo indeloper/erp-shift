@@ -80,7 +80,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     public function it_can_have_vehicles()
     {
         $ticket = factory(OurTechnicTicket::class)->create();
-        $vehicle_collection = factory(OurVehicles::class,2 )->create();
+        $vehicle_collection = factory(OurVehicles::class, 2)->create();
         $vehicle_model = factory(OurVehicles::class)->create();
 
         $ticket->vehicles()->attach($vehicle_collection);
@@ -265,7 +265,6 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
 
         $this->assertEquals(4, $ticket->status);
 
-
         //6 => 'Удержание'
         $request = new DynamicTicketUpdateRequest([
             'result' => 'reject',
@@ -321,7 +320,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
         $expected_count = $ticket->users->unique()->count() + 2;
         Event::assertDispatched(NotificationCreated::class, $expected_count);
 
-//        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
+        //        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
         $this->assertEquals(6, $ticket->status);
     }
 
@@ -347,7 +346,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
         $expected_count = $ticket->users->unique()->count();
         Event::assertDispatched(NotificationCreated::class, $expected_count);
 
-//        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
+        //        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
     }
 
     /** @test */
@@ -433,7 +432,6 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
         // Add user to tickets
         $ticket1->users()->attach($nonPrimary->id, ['type' => rand(1, 5)]);
         $ticket3->users()->attach($nonPrimary->id, ['type' => rand(1, 5)]);
-
 
         // When we use OurTechnicTicket::filter()
         // as non - principle

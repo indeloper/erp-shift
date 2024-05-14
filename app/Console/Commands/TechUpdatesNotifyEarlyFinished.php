@@ -2,13 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Notification;
 use App\Models\User;
-
-use App\Events\NotificationCreated;
-
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class TechUpdatesNotifyEarlyFinished extends Command
@@ -52,7 +49,7 @@ class TechUpdatesNotifyEarlyFinished extends Command
                 'name' => $message,
                 'user_id' => $user->id,
                 'created_at' => Carbon::now(),
-                'type' => 15
+                'type' => 15,
             ]);
         }
 

@@ -10,7 +10,6 @@ use Tests\TestCase;
 
 class AutoConfirmTicketTest extends TestCase
 {
-
     /** @test */
     public function it_changes_ticket_status_after_delay()
     {

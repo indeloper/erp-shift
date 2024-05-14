@@ -1,9 +1,8 @@
 <?php
 
-use Faker\Generator as Faker;
-
-use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialCategory;
+use App\Models\Manual\ManualMaterialCategoryAttribute;
+use Faker\Generator as Faker;
 
 $factory->define(ManualMaterialCategoryAttribute::class, function (Faker $faker) {
     $units = ['шт', 'т', 'м.п', 'м2', 'м3'];
@@ -15,6 +14,6 @@ $factory->define(ManualMaterialCategoryAttribute::class, function (Faker $faker)
         'unit' => $units[random_int(0, count($units) - 1)],
         'is_required' => random_int(0, 1),
         'category_id' => ManualMaterialCategory::inRandomOrder()->first()->id,
-        'is_preset' => 0
+        'is_preset' => 0,
     ];
 });

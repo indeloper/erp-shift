@@ -2,10 +2,10 @@
 
 use App\Models\Permission;
 use App\Models\UserPermission;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
 {
@@ -35,13 +35,13 @@ class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
 
         $permission = new Permission();
         $permission->name = 'Материальный учет: Доступ к режиму "Планирование поставок"';
-        $permission->codename = "material_supply_planning_access";
+        $permission->codename = 'material_supply_planning_access';
         $permission->category = 7; // Категории описаны в модели "Permission"
         $permission->save();
 
         $permission = new Permission();
         $permission->name = 'Материальный учет: Редактирование данных в режиме "Планирование поставок"';
-        $permission->codename = "material_supply_planning_editing";
+        $permission->codename = 'material_supply_planning_editing';
         $permission->category = 7; // Категории описаны в модели "Permission"
         $permission->save();
 

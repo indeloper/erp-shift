@@ -11,7 +11,6 @@ class UserPermission extends Model
      *
      * @var array
      */
-     
     protected $fillable = ['user_id', 'permission_id'];
 
     public function permissions()

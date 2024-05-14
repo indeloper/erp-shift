@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
 use App\Models\Company\CompanyReportTemplateType;
 use App\Models\LaborSafety\LaborSafetyOrderType;
@@ -7,7 +8,6 @@ use App\Models\LaborSafety\LaborSafetyOrderTypeCategory;
 use App\Models\LaborSafety\LaborSafetyRequestStatus;
 use App\Models\LaborSafety\LaborSafetyWorkerType;
 use App\Models\Permission;
-use App\Models\Company\Company;
 use App\Models\Timesheet\EmployeesReportGroup;
 use App\Models\UserPermission;
 use Illuminate\Database\Migrations\Migration;
@@ -24,19 +24,19 @@ class AddTablesForLaborSafetyMode extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn('users', 'inn')){
+        if (! Schema::hasColumn('users', 'inn')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->string('INN')->nullable()->unique()->comment('ИНН пользователя');
             });
         }
 
-        if (!Schema::hasColumn('users', 'gender')){
+        if (! Schema::hasColumn('users', 'gender')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->char('gender')->nullable()->comment('Пол пользователя (M - мужской, F - женский)');
             });
         }
 
-        if (!Schema::hasTable('employees_report_groups')) {
+        if (! Schema::hasTable('employees_report_groups')) {
             Schema::create('employees_report_groups', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('name')->comment('Наименование отчетной группы');
@@ -49,13 +49,13 @@ class AddTablesForLaborSafetyMode extends Migration
             $reportGroupArray = ['Прорабы', 'Руководители', 'База', 'Механики', 'Сотрудники шпунт', 'Крановщики', 'Офис', 'Геодезическая служба', 'Производственный участок - сваи', 'УМиТ'];
             foreach ($reportGroupArray as $reportGroupElement) {
                 $reportGroup = new EmployeesReportGroup([
-                    'name' => $reportGroupElement
+                    'name' => $reportGroupElement,
                 ]);
                 $reportGroup->save();
             }
         }
 
-        if (!Schema::hasTable('companies')) {
+        if (! Schema::hasTable('companies')) {
             Schema::create('companies', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('company_1c_uid')->comment('Уникальный идентификатор в 1С');
@@ -98,7 +98,7 @@ class AddTablesForLaborSafetyMode extends Migration
                 'ogrn' => '1167847146917',
                 'inn' => '7807115228',
                 'web_site' => 'www.sk-gorod.com',
-                'email' => 'info@sk-gorod.com'
+                'email' => 'info@sk-gorod.com',
             ]);
             $company->save();
 
@@ -112,7 +112,7 @@ class AddTablesForLaborSafetyMode extends Migration
                 'ogrn' => '1147847349165',
                 'inn' => '7842528806',
                 'web_site' => '',
-                'email' => 'stroymaster9@yandex.ru'
+                'email' => 'stroymaster9@yandex.ru',
             ]);
             $company->save();
 
@@ -126,12 +126,12 @@ class AddTablesForLaborSafetyMode extends Migration
                 'ogrn' => '1197847099229',
                 'inn' => '7807227475',
                 'web_site' => '',
-                'email' => 'rentmaster10@yandex.ru'
+                'email' => 'rentmaster10@yandex.ru',
             ]);
             $company->save();
         }
 
-        if (!Schema::hasTable('company_report_template_types')) {
+        if (! Schema::hasTable('company_report_template_types')) {
             Schema::create('company_report_template_types', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('name')->unsigned()->comment('Значение');
@@ -144,13 +144,13 @@ class AddTablesForLaborSafetyMode extends Migration
             $reportTemplateTypeArray = ['header', 'footer'];
             foreach ($reportTemplateTypeArray as $reportTemplateTypeElement) {
                 $reportTemplateType = new CompanyReportTemplateType([
-                    'name' => $reportTemplateTypeElement
+                    'name' => $reportTemplateTypeElement,
                 ]);
                 $reportTemplateType->save();
             }
         }
 
-        if (!Schema::hasTable('company_report_templates')) {
+        if (! Schema::hasTable('company_report_templates')) {
             Schema::create('company_report_templates', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('company_id')->unsigned()->comment('ID организации');
@@ -165,9 +165,9 @@ class AddTablesForLaborSafetyMode extends Migration
             });
             DB::statement("ALTER TABLE company_report_templates COMMENT 'Шаблоны для отчетов по компаниям'");
 
-            $companiesReportTemplateArray = array(
+            $companiesReportTemplateArray = [
                 '1|1|<table style="width: 100%; height: 120px; border-collapse: collapse;"><tbody><tr><td style="width: 50%;"><img src="https://erp.sk-gorod.com/img/sk-gorod-logo.png" width="286" alt="ООО «СК ГОРОД»"/></td><td style="width: 50%;"><p style="text-align: right;">{company_name}</p><p style="text-align: right;">{company_legal_address}</p><p style="text-align: right;">Тел.: {company_phone}</p><p style="text-align: right;">{company_web_site}</p><p style="text-align: right;">{company_email}</p></td></tr></tbody></table>',
-            );
+            ];
 
             foreach ($companiesReportTemplateArray as $companiesReportTemplateElement) {
                 $companiesReportTemplate = new CompanyReportTemplate([
@@ -179,7 +179,7 @@ class AddTablesForLaborSafetyMode extends Migration
             }
         }
 
-        if (!Schema::hasTable('employees_1c_subdivisions')) {
+        if (! Schema::hasTable('employees_1c_subdivisions')) {
             Schema::create('employees_1c_subdivisions', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('subdivision_parent_id')->nullable()->unsigned()->comment('Уникальный идентификатор');
@@ -195,7 +195,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE employees_1c_subdivisions COMMENT 'Список подразделений, синхронизированных с 1С'");
         }
 
-        if (!Schema::hasTable('employees_1c_posts')) {
+        if (! Schema::hasTable('employees_1c_posts')) {
             Schema::create('employees_1c_posts', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('name')->comment('Наименование должности');
@@ -211,7 +211,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE employees_1c_posts COMMENT 'Должности сотрудников, синхронизированных c 1С'");
         }
 
-        if (!Schema::hasTable('employees_1c_post_inflections')) {
+        if (! Schema::hasTable('employees_1c_post_inflections')) {
             Schema::create('employees_1c_post_inflections', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('post_id')->unsigned()->comment('Id должности');
@@ -230,7 +230,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE employees_1c_post_inflections COMMENT 'Склонения должностей'");
         }
 
-        if (!Schema::hasTable('employees')) {
+        if (! Schema::hasTable('employees')) {
             Schema::create('employees', function (Blueprint $table) {
                 $table->bigIncrements('id')->comment('Уникальный идентификатор');
                 $table->integer('user_id')->unsigned()->comment('Пользователь');
@@ -253,7 +253,6 @@ class AddTablesForLaborSafetyMode extends Migration
 
                 $table->date('temp_birthday')->comment('Дата рождения сотрудника (для первичной синхронизации сотрудников)');
 
-
                 $table->timestamps();
                 $table->softDeletes();
 
@@ -265,7 +264,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE employees COMMENT 'Список сотрудников организаций, синхронизированных с 1С.'");
         }
 
-        if (!Schema::hasTable('employee_name_inflections')) {
+        if (! Schema::hasTable('employee_name_inflections')) {
             Schema::create('employee_name_inflections', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->bigInteger('employee_id')->unsigned()->comment('Id сотрудника');
@@ -284,28 +283,25 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE employee_name_inflections COMMENT 'Склонения имен сотрудников'");
         }
 
-
-
         $permission = new Permission();
         $permission->name = 'Охрана труда: Создание заявки на формирование приказов';
-        $permission->codename = "labor_safety_order_creation";
+        $permission->codename = 'labor_safety_order_creation';
         $permission->category = 19; // Категории описаны в модели "Permission"
         $permission->save();
 
         $permission = new Permission();
         $permission->name = 'Охрана труда: Просмотр полного списка заявок на формирование приказов';
-        $permission->codename = "labor_safety_order_list_access";
+        $permission->codename = 'labor_safety_order_list_access';
         $permission->category = 19; // Категории описаны в модели "Permission"
         $permission->save();
 
         $permission = new Permission();
         $permission->name = 'Охрана труда: Редактирование шаблонов приказов';
-        $permission->codename = "labor_safety_order_types_editing";
+        $permission->codename = 'labor_safety_order_types_editing';
         $permission->category = 19; // Категории описаны в модели "Permission"
         $permission->save();
 
-
-        if (!Schema::hasTable('labor_safety_order_type_categories')) {
+        if (! Schema::hasTable('labor_safety_order_type_categories')) {
             Schema::create('labor_safety_order_type_categories', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('name')->unique()->comment('Значение');
@@ -326,17 +322,17 @@ class AddTablesForLaborSafetyMode extends Migration
                 'Приказ о направлении работников на строительный объект в выходные и праздничные дни',
                 'Приказ о назначении ответственного за приемку и контроль качества электрогазосварочных работ',
                 'Доверенность',
-                'Сопроводительное письмо'
+                'Сопроводительное письмо',
             ];
             foreach ($laborSafetyOrderTypeCategoryArray as $laborSafetyOrderTypeCategoryElement) {
                 $laborSafetyOrderTypeCategory = new LaborSafetyOrderTypeCategory([
-                    'name' => $laborSafetyOrderTypeCategoryElement
+                    'name' => $laborSafetyOrderTypeCategoryElement,
                 ]);
                 $laborSafetyOrderTypeCategory->save();
             }
         }
 
-        if (!Schema::hasTable('labor_safety_order_types')) {
+        if (! Schema::hasTable('labor_safety_order_types')) {
             Schema::create('labor_safety_order_types', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('order_type_category_id')->unsigned()->comment('Вид типа приказа');
@@ -391,7 +387,7 @@ class AddTablesForLaborSafetyMode extends Migration
             }
         }
 
-        if (!Schema::hasTable('labor_safety_request_statuses')) {
+        if (! Schema::hasTable('labor_safety_request_statuses')) {
             Schema::create('labor_safety_request_statuses', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('name')->comment('Значение');
@@ -404,18 +400,18 @@ class AddTablesForLaborSafetyMode extends Migration
             $laborSafetyRequestStatusArray = ['Новая',
                 'Подписание документов',
                 'Отменена',
-                'Завершена'
+                'Завершена',
             ];
 
             foreach ($laborSafetyRequestStatusArray as $laborSafetyRequestStatusElement) {
                 $laborSafetyRequestStatus = new LaborSafetyRequestStatus([
-                    'name' => $laborSafetyRequestStatusElement
+                    'name' => $laborSafetyRequestStatusElement,
                 ]);
                 $laborSafetyRequestStatus->save();
             }
 
         }
-        if (!Schema::hasTable('labor_safety_requests')) {
+        if (! Schema::hasTable('labor_safety_requests')) {
             Schema::create('labor_safety_requests', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('order_number')->default('б/н')->comment('Номер приказа');
@@ -443,7 +439,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE labor_safety_requests COMMENT 'Заявки на формирование приказов в модуле «Охрана труда»'");
         }
 
-        if (!Schema::hasTable('labor_safety_request_orders')) {
+        if (! Schema::hasTable('labor_safety_request_orders')) {
             Schema::create('labor_safety_request_orders', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('order_type_id')->unsigned()->comment('ID типа приказа');
@@ -458,7 +454,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE labor_safety_request_orders COMMENT 'Приказы для заявок на формирование приказов в модуле «Охрана труда»'");
         }
 
-        if (!Schema::hasTable('labor_safety_worker_types')) {
+        if (! Schema::hasTable('labor_safety_worker_types')) {
             Schema::create('labor_safety_worker_types', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->string('name')->comment('Значение');
@@ -476,17 +472,17 @@ class AddTablesForLaborSafetyMode extends Migration
             'Ответственный по охране труда [ОТК]',
             'Ответственный за исполнительную документацию [ИС]',
             'Ответственный за проведение экологического контроля [ЭК]',
-            'Ответственный за электрогазосварочные работы [СК]'
+            'Ответственный за электрогазосварочные работы [СК]',
         ];
 
         foreach ($laborSafetyWorkerTypesArray as $laborSafetyWorkerTypesElement) {
             $laborSafetyWorkerTypes = new LaborSafetyWorkerType([
-                'name' => $laborSafetyWorkerTypesElement
+                'name' => $laborSafetyWorkerTypesElement,
             ]);
             $laborSafetyWorkerTypes->save();
         }
 
-        if (!Schema::hasTable('labor_safety_request_workers')) {
+        if (! Schema::hasTable('labor_safety_request_workers')) {
             Schema::create('labor_safety_request_workers', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('request_id')->unsigned()->comment('ID Заявки');
@@ -503,7 +499,7 @@ class AddTablesForLaborSafetyMode extends Migration
             DB::statement("ALTER TABLE labor_safety_request_workers COMMENT 'Список сотрудников (рабочих), для которых необходимо сформировать приказы в модуле «Охрана труда»'");
         }
 
-        if (!Schema::hasTable('labor_safety_order_workers')) {
+        if (! Schema::hasTable('labor_safety_order_workers')) {
             Schema::create('labor_safety_order_workers', function (Blueprint $table) {
                 $table->increments('id')->comment('Уникальный идентификатор');
                 $table->integer('request_id')->unsigned()->comment('ID заявки');

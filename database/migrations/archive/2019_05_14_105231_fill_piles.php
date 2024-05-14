@@ -1,11 +1,9 @@
 <?php
 
 use App\Models\Manual\ManualMaterial;
+use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
-use App\Models\Manual\ManualMaterialCategory;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class FillPiles extends Migration
@@ -45,7 +43,7 @@ class FillPiles extends Migration
                                     DB::beginTransaction();
 
                                     $material = new ManualMaterial();
-                                    $material->name =  'С' . $molding * 10 . '.' . $sec . '-' . $reinf . $stupid . '(' . $concr . $imperm . $frost . ')';
+                                    $material->name = 'С'.$molding * 10 .'.'.$sec.'-'.$reinf.$stupid.'('.$concr.$imperm.$frost.')';
                                     $material->buy_cost = 0;
                                     $material->use_cost = 0;
                                     $material->category_id = $category_id;

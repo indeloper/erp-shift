@@ -184,10 +184,9 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-//        Fomvasss\Dadata\DadataServiceProvider::class,
+        //        Fomvasss\Dadata\DadataServiceProvider::class,
         niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-
 
         /*
          * Package Service Providers...
@@ -213,7 +212,7 @@ return [
         \App\Providers\BladeDirectivesProvider::class,
         \App\Providers\BlueprintMacroServiceProvider::class,
         \App\Providers\ServiceServiceProvider::class,
-        \App\Providers\RepositoryServiceProvider::class
+        \App\Providers\RepositoryServiceProvider::class,
     ],
 
     /*
@@ -264,7 +263,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'PDF' => niklasravnsborg\LaravelPdf\Facades\Pdf::class,
         'Image' => Intervention\Image\Facades\Image::class,
-        'Telegram'  => Telegram\Bot\Laravel\Facades\Telegram::class,
+        'Telegram' => Telegram\Bot\Laravel\Facades\Telegram::class,
         'ManualMaterialParameter' => \App\Models\Manual\ManualMaterialParameter::class,
         'ManualMaterial' => \App\Models\Manual\ManualMaterial::class,
         'ManualReference' => \App\Models\Manual\ManualReference::class,

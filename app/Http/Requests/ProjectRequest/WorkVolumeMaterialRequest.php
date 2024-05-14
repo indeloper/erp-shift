@@ -18,7 +18,6 @@ class WorkVolumeMaterialRequest extends FormRequest
 
     protected $redirectRoute = 'request_error';
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -28,7 +27,7 @@ class WorkVolumeMaterialRequest extends FormRequest
     {
         return [
             'count' => 'required',
-            'manual_material_id' => 'required'
+            'manual_material_id' => 'required',
         ];
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Permission;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewPermissionsForTrashedRowsView extends Migration
 {
@@ -36,9 +36,9 @@ class AddNewPermissionsForTrashedRowsView extends Migration
         foreach (self::PERMISSION_CODENAMES as $key => $codename) {
             $insert[] = [
                 'category' => self::PERMISSION_GROUPS[$key],
-                "name" => self::PERMISSION_NAMES[$key],
-                "codename" => $codename,
-                'created_at' => now()
+                'name' => self::PERMISSION_NAMES[$key],
+                'codename' => $codename,
+                'created_at' => now(),
             ];
         }
 

@@ -24,38 +24,38 @@ class UserCreateRequest extends FormRequest
             'first_name.required' => 'Поле имя обязательно для заполнения',
             'first_name.max' => 'Максимальное число символов : 50',
 
-            'last_name.required'  => 'Поле фамилия обязательно для заполнения',
+            'last_name.required' => 'Поле фамилия обязательно для заполнения',
             'last_name.max' => 'Максимальное число символов : 50',
 
             'patronymic.max' => 'Максимальное число символов : 50',
 
-            'group_id.required'  => 'Поле ДОЛЖНОСТЬ обязательно для заполнения',
+            'group_id.required' => 'Поле ДОЛЖНОСТЬ обязательно для заполнения',
 
-            'company.required'  => 'Поле КОМПАНИЯ обязательно для заполнения',
+            'company.required' => 'Поле КОМПАНИЯ обязательно для заполнения',
 
-            'birthday.required'  => 'Поле День Рождения обязательно для заполнения',
-            'birthday.date'  => 'Поле День Рождения должно быть датой',
+            'birthday.required' => 'Поле День Рождения обязательно для заполнения',
+            'birthday.date' => 'Поле День Рождения должно быть датой',
 
-            'work_phone.required'  => 'Поле рабочий телефон обязательно для заполнения',
-            'person_phone.required'  => 'Поле телефон обязательно для заполнения',
+            'work_phone.required' => 'Поле рабочий телефон обязательно для заполнения',
+            'person_phone.required' => 'Поле телефон обязательно для заполнения',
 
-            'person_phone.max'  => 'Максимальное количество символов: 11',
-            'person_phone.min'  => 'Минимальное количество символов: 11',
+            'person_phone.max' => 'Максимальное количество символов: 11',
+            'person_phone.min' => 'Минимальное количество символов: 11',
 
-            'work_phone.unique'  => 'Поле рабочий телефон должно быть уникальным',
-            'person_phone.unique'  => 'Поле телефон должно быть уникальным',
+            'work_phone.unique' => 'Поле рабочий телефон должно быть уникальным',
+            'person_phone.unique' => 'Поле телефон должно быть уникальным',
 
-            'email.required'  => 'Поле email обязательно для заполнения',
+            'email.required' => 'Поле email обязательно для заполнения',
             'email.unique' => 'Пользователь с такой почтой уже существует',
             'email.max' => 'Максимальное число символов : 50',
 
-            'password.required'  => 'Поле пароль обязательно для заполнения',
-            'password.min'  => 'Минимальная длина пароля 7 символов',
-            'password.regex'  => 'Ваш пароль должен содержать символы верхнего и нижнего регистров, а так же цифры',
-            'password_confirmation.required'  => 'Поле повторите пароль обязательно для заполнения',
-            'password_confirmation.same'  => 'Пароли должны совпадать',
+            'password.required' => 'Поле пароль обязательно для заполнения',
+            'password.min' => 'Минимальная длина пароля 7 символов',
+            'password.regex' => 'Ваш пароль должен содержать символы верхнего и нижнего регистров, а так же цифры',
+            'password_confirmation.required' => 'Поле повторите пароль обязательно для заполнения',
+            'password_confirmation.same' => 'Пароли должны совпадать',
 
-            'status.required'  => 'Поле фамилия обязательно для заполнения'
+            'status.required' => 'Поле фамилия обязательно для заполнения',
         ];
     }
 
@@ -64,7 +64,6 @@ class UserCreateRequest extends FormRequest
      *
      * @return array
      */
-
     protected function prepareForValidation()
     {
         if ($this->has('person_phone')) {
@@ -83,11 +82,11 @@ class UserCreateRequest extends FormRequest
             'birthday' => 'nullable|max:10',
             'person_phone' => 'nullable|string|min:11|max:17|unique:users,person_phone',
             'work_phone' => 'nullable|string|max:5|unique:users,work_phone',
-            'email' => 'required_with:password|' . ($this->email != null ? 'max:50|email|unique:users,email' : ''),
-            'password' => 'required_with:email|' . ($this->password != null ? 'min:7|regex:/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/' : ''),
+            'email' => 'required_with:password|'.($this->email != null ? 'max:50|email|unique:users,email' : ''),
+            'password' => 'required_with:email|'.($this->password != null ? 'min:7|regex:/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/' : ''),
             'password_confirmation' => 'required_with:password|same:password',
             'status' => 'required|boolean',
-            'user_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5120'
+            'user_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ];
     }
 }

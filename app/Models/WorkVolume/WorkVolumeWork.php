@@ -28,7 +28,7 @@ class WorkVolumeWork extends Model
         foreach ($raw_materials as $raw) {
             $material = $raw;
             if ($raw->complect_id) {
-                if (!$raw->complect) {
+                if (! $raw->complect) {
                     $raw->complect_id = null;
                     $raw->save();
                 } else {
@@ -36,7 +36,7 @@ class WorkVolumeWork extends Model
                 }
             }
 
-            if (!in_array($material->id, $materials->pluck('id')->toArray())) {
+            if (! in_array($material->id, $materials->pluck('id')->toArray())) {
                 $materials->push($material);
             }
         }
@@ -61,6 +61,7 @@ class WorkVolumeWork extends Model
 
     /**
      * Relation from work to subcontractor file
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function subcontractor_file()
@@ -70,6 +71,7 @@ class WorkVolumeWork extends Model
 
     /**
      * Fast getter for work subcontractor
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne | null
      */
     public function subcontractor()

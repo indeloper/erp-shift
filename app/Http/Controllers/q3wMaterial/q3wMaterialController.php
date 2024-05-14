@@ -2,45 +2,42 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use App\Http\Controllers\Controller;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
-use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
+use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialComment;
-use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
-use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\UsersSetting;
-use App\Services\q3wMaterialAccounting\Reports\MaterialRemainsXLSXReport;
 use App\Services\q3wMaterialAccounting\Reports\MaterialObjectsRemainsXLSXReport;
+use App\Services\q3wMaterialAccounting\Reports\MaterialRemainsXLSXReport;
 use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class q3wMaterialController extends Controller
 {
     /**
      * Display a view of the resource.
      *
-     * @param Request $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
     public function index(Request $request)
     {
         $projectObjectId = (new UsersSetting)->getSetting('material_accounting_last_project_object_id');
-        if (!isset($projectObjectId)) {
+        if (! isset($projectObjectId)) {
             $projectObjectId = $request->project_object ?? ProjectObject::whereNotNull('short_name')
-                    ->where('is_participates_in_material_accounting', '=', 1)
-                    ->orderBy("short_name")
-                    ->get(['id'])
-                    ->first()->id;
+                ->where('is_participates_in_material_accounting', '=', 1)
+                ->orderBy('short_name')
+                ->get(['id'])
+                ->first()->id;
         }
+
         return view('materials.materials')->with([
             'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
             'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
@@ -51,16 +48,16 @@ class q3wMaterialController extends Controller
                 ->orderBy('short_name')
                 ->get('id', 'name', 'short_name', 'address')
                 ->toJson(JSON_UNESCAPED_UNICODE),
-            'projectObjectId' => $projectObjectId
+            'projectObjectId' => $projectObjectId,
         ]);
     }
 
     public function table(Request $request)
     {
         $projectObjectId = $request->project_object ?? ProjectObject::whereNotNull('short_name')
-                ->orderBy("short_name")
-                ->get(['id'])
-                ->first()->id;
+            ->orderBy('short_name')
+            ->get(['id'])
+            ->first()->id;
 
         return view('materials.material-table')->with([
             'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
@@ -68,43 +65,44 @@ class q3wMaterialController extends Controller
             'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
             'materialStandards' => q3wMaterialStandard::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
             'projectObjects' => ProjectObject::all('id', 'name', 'short_name', 'address')->toJson(JSON_UNESCAPED_UNICODE),
-            'projectObjectId' => $projectObjectId
+            'projectObjectId' => $projectObjectId,
         ]);
     }
 
     public function remains(Request $request)
     {
         $projectObjectId = $request->projectObjectId ?? ProjectObject::whereNotNull('short_name')
-                ->orderBy("short_name")
-                ->get(['id'])
-                ->first()->id;
+            ->orderBy('short_name')
+            ->get(['id'])
+            ->first()->id;
 
         if (isset($request->requestedDate)) {
             $requestedDate = $request->requestedDate;
         } else {
             $requestedDate = Carbon::today()->format('Y-m-d');
         }
+
         return view('materials.material-remains')->with([
             'projectObjectId' => $projectObjectId,
-            'requestedDate' => $requestedDate
+            'requestedDate' => $requestedDate,
         ]);
     }
 
     public function objectsRemains(Request $request)
     {
         $detailing_level = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access') ?: 1;
+
         return view('materials.material-objects-remains', compact('detailing_level'));
     }
 
-
     /**
-     * @param Request $request
-     * @param int $projectObjectId
+     * @param  int  $projectObjectId
      * @return mixed
      */
     public function snapshotList(Request $request)
     {
-        $projectObjectId = $request["projectObjectId"];
+        $projectObjectId = $request['projectObjectId'];
+
         return q3wMaterialOperation::join('q3w_material_snapshots', 'q3w_material_snapshots.operation_id', 'q3w_material_operations.id')
             ->where('q3w_material_snapshots.project_object_id', '=', $projectObjectId)
             ->orderBy('q3w_material_snapshots.created_at', 'desc')
@@ -120,7 +118,6 @@ class q3wMaterialController extends Controller
     /**
      * Display the specified resource snapshot.
      *
-     * @param Request $request
      * @return string
      */
     public function snapshot(Request $request)
@@ -273,7 +270,7 @@ class q3wMaterialController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\q3wMaterial\q3wMaterial $q3wMaterial
+     * @param  \App\Models\q3wMaterial\q3wMaterial  $q3wMaterial
      * @return string
      */
     public function show(Request $request)
@@ -303,7 +300,7 @@ class q3wMaterialController extends Controller
                 'a.quantity',
                 'a.amount',
                 'a.initial_comment_id',
-                DB::RAW('IF (f.source_project_object_id = ' . $projectObjectId . ', -1, 1) as amount_modifier'),
+                DB::RAW('IF (f.source_project_object_id = '.$projectObjectId.', -1, 1) as amount_modifier'),
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight',
@@ -368,7 +365,6 @@ class q3wMaterialController extends Controller
         $projectObject = ProjectObject::findOrFail($request->projectObjectId);
         $commentId = $request->commentId;
 
-
         return q3wMaterialOperation::rightJoin('q3w_operation_materials as a', 'a.material_operation_id', '=', 'q3w_material_operations.id')
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
@@ -420,7 +416,7 @@ class q3wMaterialController extends Controller
                 'h.short_name as destination_project_object_name',
                 'i.short_name as contractor_short_name',
                 'j.name as route_name',
-                'k.value as transformation_type_value'
+                'k.value as transformation_type_value',
             ])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
@@ -506,19 +502,19 @@ class q3wMaterialController extends Controller
                 DB::Raw('ROUND(`q3w_operation_materials`.`quantity` * `q3w_operation_materials`.`amount`, 2) AS `total_quantity`'),
                 DB::Raw('ROUND(`q3w_operation_materials`.`quantity` * `q3w_operation_materials`.`amount` * q3w_material_standards.weight, 3) AS `weight`'),
                 DB::Raw('CASE WHEN `q3w_material_operations`.`operation_route_id` = 1 THEN `contractors`.`short_name`
-                          WHEN `q3w_material_operations`.`operation_route_id` = 2 THEN IF(`destination_project_object_id` = ' . $projectObjectId . ', `source_project_objects`.`short_name`, NULL)
+                          WHEN `q3w_material_operations`.`operation_route_id` = 2 THEN IF(`destination_project_object_id` = '.$projectObjectId.', `source_project_objects`.`short_name`, NULL)
                         END AS `coming_from_project_object`'),
-                DB::Raw('IF(`source_project_object_id` = ' . $projectObjectId . ', `destination_project_objects`.`short_name`, NULL) AS `outgoing_to_project_object`'),
+                DB::Raw('IF(`source_project_object_id` = '.$projectObjectId.', `destination_project_objects`.`short_name`, NULL) AS `outgoing_to_project_object`'),
                 'q3w_operation_material_comments.comment',
                 DB::Raw('IF(`q3w_material_operations`.`operation_route_id` = 1, `q3w_material_operations`.`consignment_note_number`, NULL) AS `item_transport_consignment_note_number`'),
-                DB::Raw('IF(`q3w_material_operations`.`operation_route_id` = 2, `q3w_material_operations`.`consignment_note_number`, NULL) AS `consignment_note_number`')
+                DB::Raw('IF(`q3w_material_operations`.`operation_route_id` = 2, `q3w_material_operations`.`consignment_note_number`, NULL) AS `consignment_note_number`'),
             ]);
     }
 
     public function materialsTableList(Request $request): string
     {
         $options = json_decode($request['data']);
-        $projectObjectId = json_decode($request["projectObjectId"]);
+        $projectObjectId = json_decode($request['projectObjectId']);
 
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get();
@@ -529,10 +525,10 @@ class q3wMaterialController extends Controller
             ->get()
             ->count();
 
-        return json_encode(array(
-            "data" => $materialsList,
-            "totalCount" => $totalCount
-        ),
+        return json_encode([
+            'data' => $materialsList,
+            'totalCount' => $totalCount,
+        ],
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
@@ -540,7 +536,7 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        $projectObjectId = json_decode($request["projectObjectId"]);
+        $projectObjectId = json_decode($request['projectObjectId']);
 
         $materialsList = $this->getMaterialTableQuery($projectObjectId, $options)
             ->get()
@@ -613,93 +609,88 @@ class q3wMaterialController extends Controller
                 DB::raw('IFNULL(round((`coming_to_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `coming_to_material_weight`'),
                 DB::raw('IFNULL(CASE WHEN `q3w_material_types`.`accounting_type` = 1 AND `outgoing_material_amount` > 1 THEN 1 ELSE `outgoing_material_amount` END, 0) as `outgoing_material_amount`'),
                 DB::raw('IFNULL(`outgoing_material_quantity`, 0) as `outgoing_material_quantity`'),
-                DB::raw('IFNULL(round((`outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`')
+                DB::raw('IFNULL(round((`outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
             ])
             ->orderBy('q3w_material_standards.material_type')
             ->orderBy('q3w_material_standards.name');
     }
 
-    function getObjectsRemainsQuery($filterOptions, $detailing_level)
+    public function getObjectsRemainsQuery($filterOptions, $detailing_level)
     {
 
         return (new q3wMaterial)
-        ->dxLoadOptions($filterOptions, true)
-        ->leftJoin('q3w_material_standards', 'q3w_materials.standard_id', '=', 'q3w_material_standards.id')
-        ->leftJoin('project_objects', 'q3w_materials.project_object', '=', 'project_objects.id')
-        ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
-        ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
-        ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
-
-        ->when($detailing_level==1 || !$detailing_level, function($query){
-            return $query
-            ->select([
-                'q3w_materials.*',
-                'q3w_material_standards.name as standard_name',
-                'q3w_material_types.accounting_type as accounting_type',
-                'project_objects.short_name as object_name',
-                'q3w_measure_units.value as unit_measure_value',
-                'q3w_material_comments.comment as comment',
-                DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`')
-            ]);
-        })
-
-        ->when($detailing_level==2, function($query){
-            return $query
-            ->select([
-                'q3w_materials.id',
-                DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
-                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), quantity) as quantity'),
-                'q3w_material_types.accounting_type as accounting_type',
-                'q3w_material_standards.name as standard_name',
-                'project_objects.short_name as object_name',
-                'q3w_measure_units.value as unit_measure_value',
-                DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`')
-            ])
-            ->groupBy([
-                'project_object',
-                'standard_id',
-                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity )')
-            ]);
-        })
-
-        ->when($detailing_level==3, function($query){
-            return $query
-            ->select([
-                'q3w_materials.id',
-                DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
-                DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), IF( quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) )) as quantity'),
-                'q3w_material_types.accounting_type as accounting_type',
-                'q3w_material_standards.name as standard_name',
-                'project_objects.short_name as object_name',
-                'q3w_measure_units.value as unit_measure_value',
-                DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`')
-            ])
-            ->groupBy([
-                'project_object',
-                'standard_id',
-                DB::raw('IF(q3w_material_types.accounting_type = 1, 0, IF(quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) ))')
-            ]);
-        })
-
-        ->where([['amount', '>', 0], ['quantity', '>', 0]]);
+            ->dxLoadOptions($filterOptions, true)
+            ->leftJoin('q3w_material_standards', 'q3w_materials.standard_id', '=', 'q3w_material_standards.id')
+            ->leftJoin('project_objects', 'q3w_materials.project_object', '=', 'project_objects.id')
+            ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
+            ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
+            ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
+            ->when($detailing_level == 1 || ! $detailing_level, function ($query) {
+                return $query
+                    ->select([
+                        'q3w_materials.*',
+                        'q3w_material_standards.name as standard_name',
+                        'q3w_material_types.accounting_type as accounting_type',
+                        'project_objects.short_name as object_name',
+                        'q3w_measure_units.value as unit_measure_value',
+                        'q3w_material_comments.comment as comment',
+                        DB::Raw('ROUND(`q3w_material_standards`.`weight` * `amount` * `quantity`, 3) as `summary_weight`'),
+                    ]);
+            })
+            ->when($detailing_level == 2, function ($query) {
+                return $query
+                    ->select([
+                        'q3w_materials.id',
+                        DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
+                        DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), quantity) as quantity'),
+                        'q3w_material_types.accounting_type as accounting_type',
+                        'q3w_material_standards.name as standard_name',
+                        'project_objects.short_name as object_name',
+                        'q3w_measure_units.value as unit_measure_value',
+                        DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`'),
+                    ])
+                    ->groupBy([
+                        'project_object',
+                        'standard_id',
+                        DB::raw('IF(q3w_material_types.accounting_type = 1, 0, quantity )'),
+                    ]);
+            })
+            ->when($detailing_level == 3, function ($query) {
+                return $query
+                    ->select([
+                        'q3w_materials.id',
+                        DB::raw('IF(q3w_material_types.accounting_type = 1, amount, SUM(amount)) as amount'),
+                        DB::raw('IF(q3w_material_types.accounting_type = 1, SUM(quantity), IF( quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) )) as quantity'),
+                        'q3w_material_types.accounting_type as accounting_type',
+                        'q3w_material_standards.name as standard_name',
+                        'project_objects.short_name as object_name',
+                        'q3w_measure_units.value as unit_measure_value',
+                        DB::Raw('ROUND(SUM(`q3w_material_standards`.`weight` * `amount` * `quantity`), 3) as `summary_weight`'),
+                    ])
+                    ->groupBy([
+                        'project_object',
+                        'standard_id',
+                        DB::raw('IF(q3w_material_types.accounting_type = 1, 0, IF(quantity MOD 1 >= 0.51, CEILING(quantity), FLOOR(quantity) ))'),
+                    ]);
+            })
+            ->where([['amount', '>', 0], ['quantity', '>', 0]]);
     }
 
     public function materialRemainsList(Request $request): string
     {
         $options = json_decode($request['data']);
-        $projectObjectId = $request["projectObjectId"];
-        $requestedDate = $request["requestedDate"];
+        $projectObjectId = $request['projectObjectId'];
+        $requestedDate = $request['requestedDate'];
 
         $materialsList = $this->getMaterialRemainsQuery($projectObjectId, $requestedDate, $options)
             ->get();
 
-        return json_encode(array(
-            "data" => $materialsList,
-            "totalCount" => $materialsList->count()
-            ),
+        return json_encode([
+            'data' => $materialsList,
+            'totalCount' => $materialsList->count(),
+        ],
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
-
 
     public function objectsRemainsList(Request $request): string
     {
@@ -714,24 +705,26 @@ class q3wMaterialController extends Controller
         unset($options->take);
         $fullList = $this->getObjectsRemainsQuery($options, $detailing_level)->get();
 
-        return json_encode(array(
-            "data" => $materialsList,
-            "amountSum" => $fullList->sum('amount'),
-            "amountSummaryWeight" => $fullList->sum('summary_weight'),
-            "totalCount" => $materialsList->count()
-            ),
+        return json_encode([
+            'data' => $materialsList,
+            'amountSum' => $fullList->sum('amount'),
+            'amountSummaryWeight' => $fullList->sum('summary_weight'),
+            'totalCount' => $materialsList->count(),
+        ],
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    function getDetailingLevel($request_detailing_level)
+    public function getDetailingLevel($request_detailing_level)
     {
-        if($request_detailing_level)
-        return $request_detailing_level;
+        if ($request_detailing_level) {
+            return $request_detailing_level;
+        }
 
         $detailingLevelFromUserSettings = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access');
 
-        if($detailingLevelFromUserSettings)
-        return $detailingLevelFromUserSettings;
+        if ($detailingLevelFromUserSettings) {
+            return $detailingLevelFromUserSettings;
+        }
 
         return 1;
     }
@@ -740,8 +733,8 @@ class q3wMaterialController extends Controller
     {
         $filterText = json_decode($request->input('filterList'));
         $options = json_decode($request['filterOptions']);
-        $projectObjectId = json_decode($request["projectObjectId"]);
-        $requestedDate = json_decode($request["requestedDate"]);
+        $projectObjectId = json_decode($request['projectObjectId']);
+        $requestedDate = json_decode($request['requestedDate']);
 
         $materialsList = $this->getMaterialRemainsQuery($projectObjectId, $requestedDate, $options)
             ->get()

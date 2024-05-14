@@ -1,4 +1,5 @@
 <?php
+
 Route::group(['middleware' => 'can:mat_acc_operation_log'], function () {
     Route::get('/complete/{id}', 'MatAccArrivalController@complete')->name('complete');
     Route::get('/confirm/{id}', 'MatAccArrivalController@confirm')->name('confirm');

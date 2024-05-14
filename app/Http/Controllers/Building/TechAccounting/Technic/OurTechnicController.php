@@ -22,7 +22,7 @@ class OurTechnicController extends GridResourceController
         $this->sectionTitle = 'Учет техники';
         $this->baseModel = new OurTechnic;
         $this->routeNameFixedPart = 'building::tech_acc::technic::ourTechnicList::';
-        $this->baseBladePath = resource_path() . '/views/tech_accounting/technic/ourTechnicList';
+        $this->baseBladePath = resource_path().'/views/tech_accounting/technic/ourTechnicList';
         $this->isMobile = $this->isMobile($this->baseBladePath);
         $this->components = $this->getModuleComponents();
         $this->modulePermissionsGroups = [13];
@@ -48,7 +48,7 @@ class OurTechnicController extends GridResourceController
             ->select('our_technics.*', 'technic_movements.object_id', 'technic_movements.previous_object_id', 'technic_movement_statuses.slug as status_slug')
             ->get();
 
-        return json_encode(array("data" => $entities), JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return json_encode(['data' => $entities], JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function setAdditionalResources()

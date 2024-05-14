@@ -1,6 +1,6 @@
 <?php
-namespace App\Services\TechAccounting;
 
+namespace App\Services\TechAccounting;
 
 use App\Models\Notification;
 use App\Models\Task;
@@ -15,16 +15,18 @@ class TechnicTicketReportService
     {
         $date = $date ?? Carbon::now();
         $user = User::find($user_id);
-        $tickets = $tickets ?? $user->technic_tickets()->wherePivot('type', 4)->where('status', 7)->where(function($q) use ($date) {
-                $q->where('deactivated_at', '>=', $date)->orWhere('deactivated_at', null);
-            })->get();
+        $tickets = $tickets ?? $user->technic_tickets()->wherePivot('type', 4)->where('status', 7)->where(function ($q) use ($date) {
+            $q->where('deactivated_at', '>=', $date)->orWhere('deactivated_at', null);
+        })->get();
 
         if ($this->taskIsNotNeededForUserForDate($user, $tickets, $date)) {
-            $user->tasks()->where('is_solved', 0)->where('status', 36)->whereDate('created_at', $date)->each(function($task) {
+            $user->tasks()->where('is_solved', 0)->where('status', 36)->whereDate('created_at', $date)->each(function ($task) {
                 $task->solve_n_notify();
             });
+
             return true;
         }
+
         return false;
     }
 
@@ -37,19 +39,19 @@ class TechnicTicketReportService
 
         if ($this->taskIsNeededForUser($user, $tickets, $date)) {
             $task = $user->tasks()->create([
-                'name' => "Отметка времени использования техники за " . $date->clone()->isoFormat('DD.MM.YYYY'),
+                'name' => 'Отметка времени использования техники за '.$date->clone()->isoFormat('DD.MM.YYYY'),
                 'expired_at' => $this->addHours(15, $date->clone()),
                 'status' => 36,
             ]);
             $task->update(['created_at' => $date]);
             $notification = new Notification([
-                'name' => 'Была создана задача ' . '"Ответка времени использования техники за ' . $date->clone()->isoFormat('DD.MM.YYYY') . '"',
+                'name' => 'Была создана задача '.'"Ответка времени использования техники за '.$date->clone()->isoFormat('DD.MM.YYYY').'"',
                 'user_id' => $task->responsible_user_id,
                 'created_at' => now(),
                 'type' => 110,
                 'task_id' => $task->id,
             ]);
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+            $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
             $notification->save();
         }
     }
@@ -65,10 +67,11 @@ class TechnicTicketReportService
 
         foreach ($tickets as $ticket) {
             $today_report_exists = $ticket->reports()->whereDate('date', $date)->exists();
-            if (!$today_report_exists) {
+            if (! $today_report_exists) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -80,13 +83,13 @@ class TechnicTicketReportService
         if ($date->startOfDay()->greaterThanOrEqualTo(Carbon::now()->startOfDay()) and $this->userIsActiveRespSomewhere($tickets, $user, $date)) {
             return false;
         }
-        if (!$task_created) {
+        if (! $task_created) {
             return false;
         }
         if ($this->userIsActiveRespSomewhere($tickets, $user, $date)) {
             foreach ($tickets as $ticket) {
                 $today_report_exists = $ticket->reports()->whereDate('date', $date)->exists();
-                if (!$today_report_exists) {
+                if (! $today_report_exists) {
                     return false;
                 }
             }
@@ -95,11 +98,6 @@ class TechnicTicketReportService
         return true;
     }
 
-    /**
-     * @param $tickets
-     * @param $user
-     * @return bool
-     */
     public function userIsActiveRespSomewhere($tickets, $user, $date = null): bool
     {
         foreach ($tickets as $ticket) {
@@ -114,9 +112,9 @@ class TechnicTicketReportService
             }
 
         }
+
         return false;
     }
-
 
     public function createCloseTasksForEveryoneEveryday()
     {

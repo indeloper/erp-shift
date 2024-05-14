@@ -3,16 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\Contractors\Contractor;
-use App\Models\Group;
 use App\Models\Notification;
 use App\Models\Task;
-use App\Models\TaskChangingField;
 use App\Models\User;
 use Carbon\Carbon;
 use Fomvasss\Dadata\Facades\DadataSuggest;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Expr\BinaryOp\Greater;
 
 class CheckContractorsInfo extends Command
 {
@@ -53,8 +49,8 @@ class CheckContractorsInfo extends Command
         $exists = 0;
         foreach ($contractors as $contractor) {
             if ($contractor->ogrn) {
-                try  {
-                    $result = DadataSuggest::suggest('party', ["query" => $contractor->ogrn, 'count' => 1]);
+                try {
+                    $result = DadataSuggest::suggest('party', ['query' => $contractor->ogrn, 'count' => 1]);
 
                     $change = $this->checkAndCreateTask($result, $contractor);
 
@@ -64,16 +60,16 @@ class CheckContractorsInfo extends Command
                         $exists += 1;
                     }
                 } catch (\RuntimeException $e) {
-                    $this->error('Error with ' . $contractor->ogrn . ' ogrn!');
+                    $this->error('Error with '.$contractor->ogrn.' ogrn!');
 
                     $errors += 1;
                 }
             }
         }
 
-        $this->line($errors . ' errors');
-        $this->line($changes . ' changes');
-        $this->line($exists . ' exists or empty');
+        $this->line($errors.' errors');
+        $this->line($changes.' changes');
+        $this->line($exists.' exists or empty');
     }
 
     public function checkAndCreateTask(array $dadata, Contractor $contractor): bool
@@ -110,12 +106,11 @@ class CheckContractorsInfo extends Command
 
         $task = Task::where('is_solved', 1)->whereResult(2)->whereStatus(37)->where('contractor_id', $contractor->id)->orderBy('id', 'desc')->first();
 
-        if ($task && !Carbon::now()->subDays(30)->gt(Carbon::parse($task->created_at))) {
+        if ($task && ! Carbon::now()->subDays(30)->gt(Carbon::parse($task->created_at))) {
             return false;
         }
 
         $users = User::whereIn('group_id', [7])->get();
-
 
         foreach ($users as $user) {
             $this->createTask($contractor, $changingFields, $user->id);
@@ -142,10 +137,10 @@ class CheckContractorsInfo extends Command
 
         $notification = new Notification();
         $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+        $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
 
         $notification->update([
-            'name' => 'Новая задача «' . $task->name . '»',
+            'name' => 'Новая задача «'.$task->name.'»',
             'task_id' => $task->id,
             'contractor_id' => $task->contractor_id,
             'user_id' => $task->responsible_user_id,

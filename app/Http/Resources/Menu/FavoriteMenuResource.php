@@ -27,9 +27,9 @@ class FavoriteMenuResource extends JsonResource
             'icon_path' => $this->icon_path,
             'actives' => $this->actives,
             'toggle_favorite_route' => route('layout::menu::favorite::toggle', [
-                'menu_item' => $this->id
+                'menu_item' => $this->id,
             ]),
-            'is_favorite' => auth()->user()->menuItems->contains($this->id)
+            'is_favorite' => auth()->user()->menuItems->contains($this->id),
         ];
     }
 }

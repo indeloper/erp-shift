@@ -20,8 +20,8 @@ class BladeDirectivesTest extends TestCase
 
         // Then $result should be like this
         $this->assertEquals($result,
-            '<a href=' . route('users::card', $user->id) . ' class="activity-content__link">' .
-            $user->long_full_name . '</a>'
+            '<a href='.route('users::card', $user->id).' class="activity-content__link">'.
+            $user->long_full_name.'</a>'
         );
     }
 
@@ -32,6 +32,6 @@ class BladeDirectivesTest extends TestCase
         $this->expectException(ModelNotFoundException::class);
 
         // When we use @user() blade directive with random number
-        Blade::compileString("@user(-179)");
+        Blade::compileString('@user(-179)');
     }
 }

@@ -2,14 +2,12 @@
 
 namespace App\Models\WorkVolume;
 
+use App\Models\FileEntry;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-
-use App\Models\FileEntry;
 
 class WorkVolumeRequest extends Model
 {
@@ -22,18 +20,18 @@ class WorkVolumeRequest extends Model
         'tongue_description',
         'tongue_soil_description',
         'pile_description',
-        'pile_soil_description'
+        'pile_soil_description',
     ];
 
     public $tongue_pile_names = [
         0 => 'Шпунт',
-        1 => 'Сваи'
+        1 => 'Сваи',
     ];
 
     public $request_status = [
         0 => 'Не просмотрен',
         1 => 'Положительный',
-        2 => 'Отрицательный'
+        2 => 'Отрицательный',
     ];
 
     public function files()
@@ -55,11 +53,11 @@ class WorkVolumeRequest extends Model
     public function save_documents($documents = [])
     {
         if ($documents) {
-            foreach($documents as $document) {
+            foreach ($documents as $document) {
                 $file = new WorkVolumeRequestFile();
 
                 $mime = $document->getClientOriginalExtension();
-                $file_name =  'project-' . $this->project_id . '/work_volume'. $this->work_volume_id .'request_file-' . uniqid() . '.' . $mime;
+                $file_name = 'project-'.$this->project_id.'/work_volume'.$this->work_volume_id.'request_file-'.uniqid().'.'.$mime;
 
                 Storage::disk('work_volume_request_files')->put($file_name, File::get($document));
 
@@ -86,7 +84,7 @@ class WorkVolumeRequest extends Model
         if ($project_documents) {
             $project_docs = ProjectDocument::whereIn('id', $project_documents)->get();
 
-            foreach($project_docs as $document) {
+            foreach ($project_docs as $document) {
                 $file = new WorkVolumeRequestFile();
 
                 $file->file_name = $document->file_name;
@@ -99,7 +97,7 @@ class WorkVolumeRequest extends Model
             }
         }
     }
-    
+
     public function getCreatedAtAttribute($date)
     {
         return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');

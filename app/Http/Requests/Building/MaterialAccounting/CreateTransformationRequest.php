@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Building\MaterialAccounting;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-
-use \Carbon\Carbon;
 
 class CreateTransformationRequest extends FormRequest
 {
@@ -24,6 +23,7 @@ class CreateTransformationRequest extends FormRequest
                 break;
             }
         }
+
         return $return;
     }
 
@@ -47,7 +47,7 @@ class CreateTransformationRequest extends FormRequest
             'responsible_user_id' => 'required|exists:users,id',
             'object_id' => 'required|exists:project_objects,id',
 
-            'planned_date_to' => 'required|after_or_equal:' . $afterThisDate,
+            'planned_date_to' => 'required|after_or_equal:'.$afterThisDate,
 
             'reason' => 'required|string|max:250',
 

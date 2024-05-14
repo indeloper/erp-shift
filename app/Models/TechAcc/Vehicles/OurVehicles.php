@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurVehicles extends Model
 {
-    use SoftDeletes, Documentable;
+    use Documentable, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -43,8 +43,7 @@ class OurVehicles extends Model
      */
     public function getOwnerNameAttribute()
     {
-        if (is_int($this->owner) and $this->owner > 0)
-        {
+        if (is_int($this->owner) and $this->owner > 0) {
             return self::OWNERS[$this->owner];
         } else {
             return $this->owner;
@@ -58,12 +57,13 @@ class OurVehicles extends Model
      */
     public function getFullNameAttribute()
     {
-        return $this->category->name . ' ' . $this->mark . ' '. $this->model . ' '. $this->number . ' '. $this->trailer_number;
+        return $this->category->name.' '.$this->mark.' '.$this->model.' '.$this->number.' '.$this->trailer_number;
     }
     /** Relations */
 
     /**
      * Relation to parent category
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()
@@ -73,6 +73,7 @@ class OurVehicles extends Model
 
     /**
      * Relation to author category
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function author()
@@ -82,6 +83,7 @@ class OurVehicles extends Model
 
     /**
      * Relation to vehicle parameters
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function parameters()
@@ -93,14 +95,13 @@ class OurVehicles extends Model
 
     /**
      * This function create or update vehicle parameters
-     * @param array $parameters
      */
     public function updateParameters(array $parameters)
     {
         foreach ($parameters as $parameter) {
             $this->parameters()->updateOrCreate(
-                ['id' => $parameter['id'] ?? 0], ['value' => $parameter['value'], 'characteristic_id' => $parameter['characteristic_id']
-            ]);
+                ['id' => $parameter['id'] ?? 0], ['value' => $parameter['value'], 'characteristic_id' => $parameter['characteristic_id'],
+                ]);
         }
     }
 }

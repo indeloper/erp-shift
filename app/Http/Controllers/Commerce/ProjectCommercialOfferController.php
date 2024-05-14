@@ -3,28 +3,45 @@
 namespace App\Http\Controllers\Commerce;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
+use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\CommercialOffer\CommercialOfferAdvancement;
+use App\Models\CommercialOffer\CommercialOfferManualNote;
+use App\Models\CommercialOffer\CommercialOfferManualRequirement;
+use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
+use App\Models\CommercialOffer\CommercialOfferNote;
+use App\Models\CommercialOffer\CommercialOfferRequest;
+use App\Models\CommercialOffer\CommercialOfferRequestFile;
+use App\Models\CommercialOffer\CommercialOfferRequirement;
+use App\Models\CommercialOffer\CommercialOfferWork;
+use App\Models\Contractors\Contractor;
+use App\Models\Contractors\ContractorContact;
+use App\Models\Contractors\ContractorFile;
+use App\Models\FileEntry;
+use App\Models\Group;
+use App\Models\Manual\ManualWork;
+use App\Models\Notification;
+use App\Models\Project;
+use App\Models\ProjectDocument;
+use App\Models\ProjectObject;
+use App\Models\ProjectResponsibleUser;
+use App\Models\Review;
+use App\Models\Task;
+use App\Models\User;
+use App\Models\WorkVolume\WorkVolume;
+use App\Models\WorkVolume\WorkVolumeMaterial;
+use App\Models\WorkVolume\WorkVolumeWork;
+use App\Models\WorkVolume\WorkVolumeWorkMaterial;
 use App\Services\Commerce\SplitService;
 use App\Traits\TimeCalculator;
-
-use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
-
-use App\Models\{FileEntry, Group, Notification,
-    Project, ProjectResponsibleUser, Review, Task,
-    User, ProjectDocument, ProjectObject};
-use App\Models\Contractors\{ContractorFile, Contractor, ContractorContact};
-use App\Models\Manual\ManualWork;
-use App\Models\WorkVolume\{WorkVolume, WorkVolumeWork, WorkVolumeMaterial, WorkVolumeWorkMaterial};
-use App\Models\CommercialOffer\{CommercialOffer, CommercialOfferRequest,
-    CommercialOfferRequestFile, CommercialOfferAdvancement,
-    CommercialOfferNote, CommercialOfferRequirement,
-    CommercialOfferMaterialSplit, CommercialOfferWork,
-    CommercialOfferManualNote, CommercialOfferManualRequirement};
-
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, DB, File, Session, Storage};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectCommercialOfferController extends Controller
 {
@@ -62,7 +79,7 @@ class ProjectCommercialOfferController extends Controller
         //control splits material type
         foreach ($splits as $split) {
             $wv_mat = $work_volume->materials->where('manual_material_id', $split->man_mat_id)->first();
-            if($wv_mat) {
+            if ($wv_mat) {
                 if ($split->material_type != $wv_mat->material_type) {
                     $split->material_type = $wv_mat->material_type;
                     $split->save();
@@ -73,15 +90,15 @@ class ProjectCommercialOfferController extends Controller
         $works_files = $commercial_offer->works->where('subcontractor_file_id', '!=', null)->pluck('subcontractor_file_id')->unique();
         $materials_files = $splits->pluck('subcontractor_file')->unique();
 
-        $subcontractors = Contractor::with(['file' => function($q) use ($works_files, $commercial_offer) {
+        $subcontractors = Contractor::with(['file' => function ($q) use ($works_files, $commercial_offer) {
             $q->where('type', 0)->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($works_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($works_files, $commercial_offer) {
             $q->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
-        $material_subcontractors = Contractor::with(['file' => function($q) use ($materials_files, $commercial_offer) {
+        $material_subcontractors = Contractor::with(['file' => function ($q) use ($materials_files, $commercial_offer) {
             $q->where('type', 1)->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($materials_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($materials_files, $commercial_offer) {
             $q->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
@@ -95,7 +112,7 @@ class ProjectCommercialOfferController extends Controller
 
         $com_offers_options = CommercialOffer::where('project_id', $project_id)
             ->with('work_volume')
-            ->whereHas('work_volume', function($q) {
+            ->whereHas('work_volume', function ($q) {
                 $q->where('status', 2);
             })
             ->whereIn('status', [1, 2, 3, 4, 5])
@@ -123,7 +140,6 @@ class ProjectCommercialOfferController extends Controller
         ]);
     }
 
-
     public function card_pile($project_id, $com_offer_id)
     {
         $commercial_offer = CommercialOffer::with('notes', 'requirements', 'advancements', 'project')
@@ -142,7 +158,6 @@ class ProjectCommercialOfferController extends Controller
             $materials_ids[] = $work->relations->pluck('wv_material_id')->toArray();
         }
 
-
         $work_volume_materials = $work_volume->shown_materials;
 
         $commercial_offer_requests = CommercialOfferRequest::where('project_id', $project_id)
@@ -160,15 +175,15 @@ class ProjectCommercialOfferController extends Controller
         $works_files = $commercial_offer->works->where('subcontractor_file_id', '!=', null)->pluck('subcontractor_file_id')->unique();
         $materials_files = $splits->where('subcontractor_file_id', '!=', null)->pluck('subcontractor_file_id')->unique();
 
-        $subcontractors = Contractor::with(['file' => function($q) use ($works_files, $commercial_offer) {
+        $subcontractors = Contractor::with(['file' => function ($q) use ($works_files, $commercial_offer) {
             $q->where('type', 0)->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($works_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($works_files, $commercial_offer) {
             $q->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
-        $material_subcontractors = Contractor::with(['file' => function($q) use ($materials_files, $commercial_offer) {
+        $material_subcontractors = Contractor::with(['file' => function ($q) use ($materials_files, $commercial_offer) {
             $q->where('type', 1)->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($materials_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($materials_files, $commercial_offer) {
             $q->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
@@ -182,7 +197,7 @@ class ProjectCommercialOfferController extends Controller
 
         $com_offers_options = CommercialOffer::where('project_id', $project_id)
             ->with('work_volume')
-            ->whereHas('work_volume', function($q) {
+            ->whereHas('work_volume', function ($q) {
                 $q->where('status', 2);
             })
             ->whereIn('status', [1, 2, 3, 4, 5])
@@ -209,7 +224,6 @@ class ProjectCommercialOfferController extends Controller
             'work_groups' => (new ManualWork())->work_group,
         ]);
     }
-
 
     public function card_double($project_id, $com_offer_id)
     {
@@ -253,15 +267,15 @@ class ProjectCommercialOfferController extends Controller
         $works_files = $commercial_offer->works->where('subcontractor_file_id', '!=', null)->pluck('subcontractor_file_id')->unique();
         $materials_files = $splits->where('subcontractor_file_id', '!=', null)->pluck('subcontractor_file_id')->unique();
 
-        $subcontractors = Contractor::with(['file' => function($q) use ($works_files, $commercial_offer) {
+        $subcontractors = Contractor::with(['file' => function ($q) use ($works_files, $commercial_offer) {
             $q->where('type', 0)->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($works_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($works_files, $commercial_offer) {
             $q->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
-        $material_subcontractors = Contractor::with(['file' => function($q) use ($materials_files, $commercial_offer) {
+        $material_subcontractors = Contractor::with(['file' => function ($q) use ($materials_files, $commercial_offer) {
             $q->where('type', 1)->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($materials_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($materials_files, $commercial_offer) {
             $q->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
@@ -273,7 +287,7 @@ class ProjectCommercialOfferController extends Controller
 
         $com_offers_options = CommercialOffer::where('project_id', $project_id)
             ->with('work_volume')
-            ->whereHas('work_volume', function($q) {
+            ->whereHas('work_volume', function ($q) {
                 $q->where('status', 2);
             })
             ->whereIn('status', [1, 2, 3, 4, 5])
@@ -301,21 +315,22 @@ class ProjectCommercialOfferController extends Controller
         ]);
     }
 
-
     public function edit($project_id, $com_offer_id)
     {
         $commercial_offer = CommercialOffer::with('notes', 'requirements', 'advancements', 'project')
             ->findOrFail($com_offer_id);
 
-        if($commercial_offer->status != 1) {
+        if ($commercial_offer->status != 1) {
             //there is a bug when task is not closed, but CO was already finished
-            if (strpos(url()->previous(),'common_task')) {
-                $commercial_offer->unsolved_tasks->where('status', 5)->each(function($task) {$task->solve();});
+            if (strpos(url()->previous(), 'common_task')) {
+                $commercial_offer->unsolved_tasks->where('status', 5)->each(function ($task) {
+                    $task->solve();
+                });
             }
 
             abort(403);
         } elseif ($commercial_offer->is_uploaded) {
-            return redirect()->route('projects::commercial_offer::card_'. ($commercial_offer->is_tongue ? 'tongue' : 'pile'), [$project_id, $com_offer_id]);
+            return redirect()->route('projects::commercial_offer::card_'.($commercial_offer->is_tongue ? 'tongue' : 'pile'), [$project_id, $com_offer_id]);
         }
 
         $manual_notes = CommercialOfferManualNote::where('commercial_offer_type', '=', $commercial_offer->is_tongue ? 1 : 2)->get();
@@ -353,15 +368,15 @@ class ProjectCommercialOfferController extends Controller
         $works_files = $commercial_offer->works->pluck('subcontractor_file_id')->unique();
         $materials_files = $splits->pluck('subcontractor_file')->unique();
 
-        $subcontractors = Contractor::with(['file' => function($q) use ($works_files, $commercial_offer) {
+        $subcontractors = Contractor::with(['file' => function ($q) use ($works_files, $commercial_offer) {
             $q->where('type', 0)->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($works_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($works_files, $commercial_offer) {
             $q->whereIn('id', $works_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
-        $material_subcontractors = Contractor::with(['file' => function($q) use ($materials_files, $commercial_offer) {
+        $material_subcontractors = Contractor::with(['file' => function ($q) use ($materials_files, $commercial_offer) {
             $q->where('type', 1)->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
-        }])->whereHas('file', function($q) use ($materials_files, $commercial_offer) {
+        }])->whereHas('file', function ($q) use ($materials_files, $commercial_offer) {
             $q->whereIn('id', $materials_files)->whereIn('commercial_offer_id', $commercial_offer->siblings->pluck('id'));
         })->get();
 
@@ -373,8 +388,8 @@ class ProjectCommercialOfferController extends Controller
 
         $project = Project::findOrFail($project_id);
         $object = ProjectObject::findOrFail($project->object_id);
-        $title = isset($commercial_offer->title) ? $commercial_offer->title : 'Коммерческое предложение на ' . $work_volume->project_name . ' «' . $object->name . '» по адресу: ' . $object->address .
-            (isset($object->cadastral_number) ? ', на земельном участке с кадастровым номером ' . $object->cadastral_number : '');
+        $title = isset($commercial_offer->title) ? $commercial_offer->title : 'Коммерческое предложение на '.$work_volume->project_name.' «'.$object->name.'» по адресу: '.$object->address.
+            (isset($object->cadastral_number) ? ', на земельном участке с кадастровым номером '.$object->cadastral_number : '');
         $contacts = ContractorContact::where('contractor_id', $project->contractor_id)->get();
 
         return view('projects.commercial_offer.edit', [
@@ -395,7 +410,6 @@ class ProjectCommercialOfferController extends Controller
         ]);
     }
 
-
     public function split_material(Request $request, $com_offer_id)
     {
         DB::beginTransaction();
@@ -414,7 +428,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function set_contract_number(Request $request, $project_id, $com_offer_id)
     {
         DB::beginTransaction();
@@ -428,7 +441,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function add_advancement(Request $request, $project_id, $com_offer_id)
     {
         $com_offer = CommercialOffer::findOrFail($com_offer_id);
@@ -440,20 +452,20 @@ class ProjectCommercialOfferController extends Controller
                 'commercial_offer_id' => $com_offer_id,
                 'value' => $request->avans_value ? $request->avans_value : 0,
                 'is_percent' => $request->avans_unit === '%' ? 1 : 0,
-                'description' => trim(($request->avans_title . ' в размере ' . $avans_value . ' руб.' . ($request->avans_note ? ', ' . $request->avans_note : '')))
+                'description' => trim(($request->avans_title.' в размере '.$avans_value.' руб.'.($request->avans_note ? ', '.$request->avans_note : ''))),
             ]
         );
 
         DB::commit();
+
         return \GuzzleHttp\json_encode(true);
     }
-
 
     public function change_advancement(Request $request, $com_offer_id)
     {
         $count = CommercialOfferAdvancement::where('id', $request->adv_id)->update(['description' => trim($request->adv_desc)]);
 
-        if(trim($request->adv_desc) == '') {
+        if (trim($request->adv_desc) == '') {
             CommercialOfferAdvancement::where('id', $request->adv_id)->delete();
         } elseif ($count == 0) {
             CommercialOfferAdvancement::create(
@@ -461,7 +473,7 @@ class ProjectCommercialOfferController extends Controller
                     'commercial_offer_id' => $com_offer_id,
                     'value' => 0,
                     'is_percent' => 0,
-                    'description' => trim($request->adv_desc)
+                    'description' => trim($request->adv_desc),
                 ]
             );
         }
@@ -469,19 +481,19 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(0);
     }
 
-
     public function change_comment(Request $request, $com_offer_id)
     {
         if ($request->note_id > 0) {
             $count = CommercialOfferNote::where('id', $request->note_id)->update(['note' => trim($request->note)]);
 
-            if(trim($request->note) == '') {
+            if (trim($request->note) == '') {
                 CommercialOfferNote::where('id', $request->note_id)->delete();
+
                 return \GuzzleHttp\json_encode(-1);
             } elseif ($count == 0) {
                 $new_note = new CommercialOfferNote([
                     'commercial_offer_id' => $com_offer_id,
-                    'note' => trim($request->note)
+                    'note' => trim($request->note),
                 ]);
                 $new_note->save();
 
@@ -493,7 +505,7 @@ class ProjectCommercialOfferController extends Controller
         } else {
             $new_note = new CommercialOfferNote([
                 'commercial_offer_id' => $com_offer_id,
-                'note' => trim($request->note)
+                'note' => trim($request->note),
             ]);
             $new_note->save();
 
@@ -501,19 +513,19 @@ class ProjectCommercialOfferController extends Controller
         }
     }
 
-
     public function change_require(Request $request, $com_offer_id)
     {
         if ($request->req_id > 0) {
             $count = CommercialOfferRequirement::where('id', $request->req_id)->update(['requirement' => trim($request->req)]);
 
-            if(trim($request->req) == ''){
+            if (trim($request->req) == '') {
                 CommercialOfferRequirement::where('id', $request->req_id)->delete();
+
                 return \GuzzleHttp\json_encode(-1);
             } elseif ($count == 0) {
                 $new_req = new CommercialOfferRequirement([
                     'commercial_offer_id' => $com_offer_id,
-                    'requirement' => trim($request->req)
+                    'requirement' => trim($request->req),
                 ]);
                 $new_req->save();
 
@@ -524,14 +536,13 @@ class ProjectCommercialOfferController extends Controller
         } else {
             $new_req = new CommercialOfferRequirement([
                 'commercial_offer_id' => $com_offer_id,
-                'requirement' => trim($request->req)
+                'requirement' => trim($request->req),
             ]);
             $new_req->save();
 
             return \GuzzleHttp\json_encode($new_req->id);
         }
     }
-
 
     public function delete_require(Request $request)
     {
@@ -540,7 +551,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(0);
     }
 
-
     public function delete_advancement(Request $request)
     {
         CommercialOfferAdvancement::where('id', $request->id)->delete();
@@ -548,14 +558,12 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(0);
     }
 
-
     public function delete_comment(Request $request)
     {
         CommercialOfferNote::where('id', $request->id)->delete();
 
         return \GuzzleHttp\json_encode(0);
     }
-
 
     public function request_store(Request $request, $project_id)
     {
@@ -624,12 +632,12 @@ class ProjectCommercialOfferController extends Controller
                             $remember_old_new_split[$mat_split_old->id] = $mat_split_copy->id;
                         }
                         // replicating children and updating parent_id
-                        foreach ($splits->where('parent_id', '!=' , null) as $mat_split_old) {
+                        foreach ($splits->where('parent_id', '!=', null) as $mat_split_old) {
                             $mat_split_copy = $mat_split_old->replicate();
                             $mat_split_copy->com_offer_id = $commercial_offer->id;
                             $mat_split_copy->man_mat_id = $mat_split_old->man_mat_id;
 
-                            if (!isset($remember_old_new_split[$mat_split_old->parent_id])) {
+                            if (! isset($remember_old_new_split[$mat_split_old->parent_id])) {
                                 continue;
                             }
                             $mat_split_copy->parent_id = $remember_old_new_split[$mat_split_old->parent_id];
@@ -653,15 +661,15 @@ class ProjectCommercialOfferController extends Controller
                         } else {
                             foreach ($commercial_offer->work_volume->works as $work) {
                                 CommercialOfferWork::create([
-                                    "work_volume_work_id" => $work->id,
-                                    "commercial_offer_id" => $commercial_offer->id,
-                                    "count" => $work->count,
-                                    "term" => $work->term,
-                                    "price_per_one" => $work->price_per_one,
-                                    "result_price" => $work->result_price,
-                                    "subcontractor_file_id" => $work->subcontractor_file_id,
-                                    "is_hidden" => $work->is_hidden,
-                                    "order" => $work->order,
+                                    'work_volume_work_id' => $work->id,
+                                    'commercial_offer_id' => $commercial_offer->id,
+                                    'count' => $work->count,
+                                    'term' => $work->term,
+                                    'price_per_one' => $work->price_per_one,
+                                    'result_price' => $work->result_price,
+                                    'subcontractor_file_id' => $work->subcontractor_file_id,
+                                    'is_hidden' => $work->is_hidden,
+                                    'order' => $work->order,
                                 ]);
                             }
                         }
@@ -674,22 +682,22 @@ class ProjectCommercialOfferController extends Controller
                         'contractor_id' => $project->contractor_id,
                         'target_id' => $commercial_offer->id,
                         'expired_at' => Carbon::now()->addHours(24),
-                        'status' => 5
+                        'status' => 5,
                     ]);
 
                     $task->save();
 
                     $notification = new Notification();
                     $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+                    $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
                     $notification->update([
-                        'name' => 'Новая задача «' . $task->name . '»',
+                        'name' => 'Новая задача «'.$task->name.'»',
                         'task_id' => $task->id,
                         'user_id' => $task->responsible_user_id,
                         'contractor_id' => $project->contractor_id,
                         'project_id' => $project->id,
                         'object_id' => $project->object_id,
-                        'type' => 28
+                        'type' => 28,
                     ]);
                 } else {
                     $commercial_offer = $offer;
@@ -703,28 +711,28 @@ class ProjectCommercialOfferController extends Controller
                 if ($thisTask == 0) {
                     $tongueTask = new Task();
 
-                            $tongueTask->project_id = $project_id;
-                            $tongueTask->name =  'Назначение ответственного за КП (шпунт)';
-                            $tongueTask->status = 15;
-                            $tongueTask->responsible_user_id = Group::find(50/*7*/)->getUsers()->first()->id;
-                            $tongueTask->contractor_id = $project->contractor_id;
-                            $tongueTask->expired_at = Carbon::now()->addHours(3);
-                            $tongueTask->target_id = 0;
-                            $tongueTask->prev_task_id = $task->id ?? 0;
+                    $tongueTask->project_id = $project_id;
+                    $tongueTask->name = 'Назначение ответственного за КП (шпунт)';
+                    $tongueTask->status = 15;
+                    $tongueTask->responsible_user_id = Group::find(50/*7*/)->getUsers()->first()->id;
+                    $tongueTask->contractor_id = $project->contractor_id;
+                    $tongueTask->expired_at = Carbon::now()->addHours(3);
+                    $tongueTask->target_id = 0;
+                    $tongueTask->prev_task_id = $task->id ?? 0;
 
                     $tongueTask->save();
 
                     $notification = new Notification();
                     $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $tongueTask->task_route();
+                    $notification->additional_info = ' Ссылка на задачу: '.$tongueTask->task_route();
                     $notification->update([
-                        'name' => 'Новая задача «'. $tongueTask->name . '»',
+                        'name' => 'Новая задача «'.$tongueTask->name.'»',
                         'task_id' => $tongueTask->id,
                         'user_id' => $tongueTask->responsible_user_id,
                         'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
                         'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
                         'object_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->object_id : null,
-                        'type' => 30
+                        'type' => 30,
                     ]);
                 }
             }
@@ -742,11 +750,11 @@ class ProjectCommercialOfferController extends Controller
             $com_offer_request->save();
 
             if ($request->tongue_documents) {
-                foreach($request->tongue_documents as $document) {
+                foreach ($request->tongue_documents as $document) {
                     $file = new CommercialOfferRequestFile();
 
                     $mime = $document->getClientOriginalExtension();
-                    $file_name =  'project-' . $com_offer_request->project_id . '-com_offer'. $com_offer_request->commercial_offer_id .'-request_file-' . uniqid() . '.' . $mime;
+                    $file_name = 'project-'.$com_offer_request->project_id.'-com_offer'.$com_offer_request->commercial_offer_id.'-request_file-'.uniqid().'.'.$mime;
 
                     Storage::disk('commercial_offer_request_files')->put($file_name, File::get($document));
 
@@ -770,7 +778,7 @@ class ProjectCommercialOfferController extends Controller
             if ($request->project_documents_tongue) {
                 $project_docs = ProjectDocument::whereIn('id', $request->project_documents_tongue)->get();
 
-                foreach($request->project_documents_tongue as $document_id) {
+                foreach ($request->project_documents_tongue as $document_id) {
                     $file = new CommercialOfferRequestFile();
 
                     $file->file_name = $project_docs->where('id', $document_id)->first()->file_name;
@@ -783,7 +791,6 @@ class ProjectCommercialOfferController extends Controller
                 }
             }
         }
-
 
         if ($offer) {
             if (($offer->is_tongue == 0) || ($offer->is_tongue == 0 && $offer->status != 1)) {
@@ -843,12 +850,12 @@ class ProjectCommercialOfferController extends Controller
                         $remember_old_new_split[$mat_split_old->id] = $mat_split_copy->id;
                     }
                     // replicating children and updating parent_id
-                    foreach ($splits->where('parent_id', '!=' , null) as $mat_split_old) {
+                    foreach ($splits->where('parent_id', '!=', null) as $mat_split_old) {
                         $mat_split_copy = $mat_split_old->replicate();
                         $mat_split_copy->com_offer_id = $commercial_offer->id;
                         $mat_split_copy->man_mat_id = $mat_split_old->man_mat_id;
 
-                        if (!isset($remember_old_new_split[$mat_split_old->parent_id])) {
+                        if (! isset($remember_old_new_split[$mat_split_old->parent_id])) {
                             continue;
                         }
                         $mat_split_copy->parent_id = $remember_old_new_split[$mat_split_old->parent_id];
@@ -872,15 +879,15 @@ class ProjectCommercialOfferController extends Controller
                     } else {
                         foreach ($commercial_offer->work_volume->works as $work) {
                             CommercialOfferWork::create([
-                                "work_volume_work_id" => $work->id,
-                                "commercial_offer_id" => $commercial_offer->id,
-                                "count" => $work->count,
-                                "term" => $work->term,
-                                "price_per_one" => $work->price_per_one,
-                                "result_price" => $work->result_price,
-                                "subcontractor_file_id" => $work->subcontractor_file_id,
-                                "is_hidden" => $work->is_hidden,
-                                "order" => $work->order,
+                                'work_volume_work_id' => $work->id,
+                                'commercial_offer_id' => $commercial_offer->id,
+                                'count' => $work->count,
+                                'term' => $work->term,
+                                'price_per_one' => $work->price_per_one,
+                                'result_price' => $work->result_price,
+                                'subcontractor_file_id' => $work->subcontractor_file_id,
+                                'is_hidden' => $work->is_hidden,
+                                'order' => $work->order,
                             ]);
                         }
                     }
@@ -893,22 +900,22 @@ class ProjectCommercialOfferController extends Controller
                     'contractor_id' => $project->contractor_id,
                     'target_id' => $commercial_offer->id,
                     'expired_at' => Carbon::now()->addHours(24),
-                    'status' => 5
+                    'status' => 5,
                 ]);
 
                 $task->save();
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+                $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
                 $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
+                    'name' => 'Новая задача «'.$task->name.'»',
                     'task_id' => $task->id,
                     'user_id' => $task->responsible_user_id,
                     'contractor_id' => $project->contractor_id,
                     'project_id' => $project->id,
                     'object_id' => $project->object_id,
-                    'type' => 29
+                    'type' => 29,
                 ]);
             } else {
                 $commercial_offer = $offer;
@@ -927,11 +934,11 @@ class ProjectCommercialOfferController extends Controller
             $com_offer_request->save();
 
             if ($request->pile_documents) {
-                foreach($request->pile_documents as $document) {
+                foreach ($request->pile_documents as $document) {
                     $file = new CommercialOfferRequestFile();
 
                     $mime = $document->getClientOriginalExtension();
-                    $file_name =  'project-' . $com_offer_request->project_id . '-com_offer'. $com_offer_request->commercial_offer_id .'-request_file-' . uniqid() . '.' . $mime;
+                    $file_name = 'project-'.$com_offer_request->project_id.'-com_offer'.$com_offer_request->commercial_offer_id.'-request_file-'.uniqid().'.'.$mime;
 
                     Storage::disk('commercial_offer_request_files')->put($file_name, File::get($document));
 
@@ -955,7 +962,7 @@ class ProjectCommercialOfferController extends Controller
             if ($request->project_documents_pile) {
                 $project_docs = ProjectDocument::whereIn('id', $request->project_documents_pile)->get();
 
-                foreach($request->project_documents_pile as $document_id) {
+                foreach ($request->project_documents_pile as $document_id) {
                     $file = new CommercialOfferRequestFile();
 
                     $file->file_name = $project_docs->where('id', $document_id)->first()->file_name;
@@ -969,7 +976,7 @@ class ProjectCommercialOfferController extends Controller
             }
         }
 
-        if (isset($CO) and (($request->has('add_tongue') && !$request->has('add_pile')) or ($request->has('add_pile') && !$request->has('add_tongue')))) {
+        if (isset($CO) and (($request->has('add_tongue') && ! $request->has('add_pile')) or ($request->has('add_pile') && ! $request->has('add_tongue')))) {
             $type = $request->has('add_tongue') ? 0 : 1;
             $com_offer_for_update = CommercialOffer::where('project_id', $project_id)->where('is_tongue', $type)->get()->last();
             if (isset($com_offer_for_update)) {
@@ -982,24 +989,23 @@ class ProjectCommercialOfferController extends Controller
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+                $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
                 $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
+                    'name' => 'Новая задача «'.$task->name.'»',
                     'task_id' => $task->id,
                     'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->contractor_id,
                     'project_id' => $task->project_id,
                     'object_id' => $project->object_id,
-                    'type' => $is_tongue ? 33 : 34
+                    'type' => $is_tongue ? 33 : 34,
                 ]);
             }
         }
 
         DB::commit();
 
-        return back()->with("com_offer", true);
+        return back()->with('com_offer', true);
     }
-
 
     public function request_update(Request $request)
     {
@@ -1017,7 +1023,7 @@ class ProjectCommercialOfferController extends Controller
                 $file = new CommercialOfferRequestFile();
 
                 $mime = $document->getClientOriginalExtension();
-                $file_name = 'project-' . $com_offer_request->project_id . '-com_offer' . $com_offer_request->commercial_offer_id . '-request_file-' . uniqid() . '.' . $mime;
+                $file_name = 'project-'.$com_offer_request->project_id.'-com_offer'.$com_offer_request->commercial_offer_id.'-request_file-'.uniqid().'.'.$mime;
 
                 Storage::disk('commercial_offer_request_files')->put($file_name, File::get($document));
 
@@ -1041,7 +1047,7 @@ class ProjectCommercialOfferController extends Controller
         if ($request->project_documents) {
             $project_docs = ProjectDocument::whereIn('id', $request->project_documents)->get();
 
-            foreach($request->project_documents as $document_id) {
+            foreach ($request->project_documents as $document_id) {
                 $file = new CommercialOfferRequestFile();
 
                 $file->file_name = $project_docs->where('id', $document_id)->first()->file_name;
@@ -1062,14 +1068,14 @@ class ProjectCommercialOfferController extends Controller
 
         $notification = new Notification();
         $notification->save();
-        $notification->additional_info = "\r\nЗаказчик: " . $proj->contractor_name
-            . "\r\nНазвание объекта: " . $proj->object->name
-            .  "\r\nАдрес объекта: " . $proj->object->address .
-            "\r\n" . 'Ссылка на проект: ' . route('projects::card', $com_offer_request->project_id);
+        $notification->additional_info = "\r\nЗаказчик: ".$proj->contractor_name
+            ."\r\nНазвание объекта: ".$proj->object->name
+            ."\r\nАдрес объекта: ".$proj->object->address.
+            "\r\n".'Ссылка на проект: '.route('projects::card', $com_offer_request->project_id);
         $notification->update([
-            'name' => ('Пользователь ' . $user . ' ' .
-                ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ') . 'заявку на редактирование КП ' . ($com_offer_request->is_tongue ? 'шпунтового' : 'свайного')
-                . ' направления версии ' . $KP->version . ' по проекту ' . Project::find($com_offer_request->project_id)->name),
+            'name' => ('Пользователь '.$user.' '.
+                ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ').'заявку на редактирование КП '.($com_offer_request->is_tongue ? 'шпунтового' : 'свайного')
+                .' направления версии '.$KP->version.' по проекту '.Project::find($com_offer_request->project_id)->name),
             'user_id' => $com_offer_request->user_id,
             'contractor_id' => $proj->contractor_id,
             'project_id' => $com_offer_request->project_id,
@@ -1084,7 +1090,6 @@ class ProjectCommercialOfferController extends Controller
         return back();
     }
 
-
     public function attach_subcontractor(AddSubcontractorRequest $request, $wv_id)
     {
         DB::beginTransaction();
@@ -1094,7 +1099,7 @@ class ProjectCommercialOfferController extends Controller
             $file = new ContractorFile();
 
             $mime = $request->document->getClientOriginalExtension();
-            $file_name = 'project-' . CommercialOffer::find($request->com_offer_id)->project_id . '-com_offers' . $request->commercial_offer_id . '-contractor_file-' . uniqid() . '.' . $mime;
+            $file_name = 'project-'.CommercialOffer::find($request->com_offer_id)->project_id.'-com_offers'.$request->commercial_offer_id.'-contractor_file-'.uniqid().'.'.$mime;
 
             Storage::disk('commercial_offers_contractor_files')->put($file_name, File::get($request->document));
 
@@ -1114,7 +1119,7 @@ class ProjectCommercialOfferController extends Controller
 
             $file->save();
 
-            if ($request->type === "1") {
+            if ($request->type === '1') {
                 CommercialOfferMaterialSplit::whereIn('id', $request->subcontractor_works)->update(['subcontractor_file_id' => $file->id]);
             } else {
                 $commercial_offer->worksForToggling()->whereIn('id', $request->subcontractor_works)->update(['subcontractor_file_id' => $file->id]);
@@ -1132,13 +1137,12 @@ class ProjectCommercialOfferController extends Controller
         return redirect()->back();
     }
 
-
     public function set_work_price(Request $request)
     {
 
         $work = CommercialOfferWork::find($request->work_id);
-        if (!$work) {
-        $work = WorkVolumeWork::findOrFail($request->work_id);
+        if (! $work) {
+            $work = WorkVolumeWork::findOrFail($request->work_id);
         }
 
         $work->price_per_one = $request->value;
@@ -1149,11 +1153,10 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode($work->result_price);
     }
 
-
     public function set_work_term(Request $request)
     {
         $work = CommercialOfferWork::find($request->work_id);
-        if (!$work) {
+        if (! $work) {
             $work = WorkVolumeWork::findOrFail($request->work_id);
         }
 
@@ -1164,10 +1167,9 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function set_material_price(Request $request)
     {
-        $value = (float)str_replace(',','.', $request->value);
+        $value = (float) str_replace(',', '.', $request->value);
 
         $material = CommercialOfferMaterialSplit::findOrFail($request->split_id);
 
@@ -1180,7 +1182,6 @@ class ProjectCommercialOfferController extends Controller
         return response()->json($result_price);
     }
 
-
     public function set_material_used(Request $request)
     {
         $material = CommercialOfferMaterialSplit::findOrFail($request->split_id);
@@ -1192,14 +1193,12 @@ class ProjectCommercialOfferController extends Controller
         return response()->json($material->is_used);
     }
 
-
     public function set_nds(Request $request)
     {
-        CommercialOffer::where('id',$request->com_offer)->update(['nds' => $request->nds]);
+        CommercialOffer::where('id', $request->com_offer)->update(['nds' => $request->nds]);
 
         return \GuzzleHttp\json_encode(true);
     }
-
 
     public function toggle_work_mat(Request $request)
     {
@@ -1213,17 +1212,16 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function get_subcontractors(Request $request)
     {
         $contractors = Contractor::query();
 
         if ($request->q) {
             $contractors->where(function ($contractors) use ($request) {
-                $contractors->where('full_name', 'like', '%' . trim($request->q) . '%')
-                    ->orWhere('short_name', 'like', '%' . trim($request->q) . '%')
-                    ->orWhere('inn', 'like', '%' . trim($request->q) . '%')
-                    ->orWhere('kpp', 'like', '%' . trim($request->q) . '%');
+                $contractors->where('full_name', 'like', '%'.trim($request->q).'%')
+                    ->orWhere('short_name', 'like', '%'.trim($request->q).'%')
+                    ->orWhere('inn', 'like', '%'.trim($request->q).'%')
+                    ->orWhere('kpp', 'like', '%'.trim($request->q).'%');
             });
         }
         $contractors_count = $contractors->count();
@@ -1231,28 +1229,27 @@ class ProjectCommercialOfferController extends Controller
 
         $results = [[
             'value' => '',
-            'text' => 'Показано '. ($contractors_count < 3 ? $contractors_count : '3') .' из '. $contractors_count . ' найденных']];
+            'text' => 'Показано '.($contractors_count < 3 ? $contractors_count : '3').' из '.$contractors_count.' найденных']];
 
         foreach ($contractors as $contractor) {
             $results[] = [
                 'id' => $contractor->id,
-                'text' => $contractor->short_name . ', ИНН: ' . $contractor->inn,
+                'text' => $contractor->short_name.', ИНН: '.$contractor->inn,
             ];
         }
 
         return ['results' => $results];
     }
 
-
     public function detach_subcontractors(Request $request)
     {
         DB::beginTransaction();
 
-        if($request->type === "1") {
+        if ($request->type === '1') {
             CommercialOfferMaterialSplit::where('subcontractor_file_id', $request->subcontractor_id)->update(['subcontractor_file_id' => null]);
         } else {
             CommercialOfferWork::where('subcontractor_file_id', $request->subcontractor_id)->update(['subcontractor_file_id' => null]);
-//            WorkVolumeWork::where('subcontractor_file_id', $request->subcontractor_id)->update(['subcontractor_file_id' => null]);
+            //            WorkVolumeWork::where('subcontractor_file_id', $request->subcontractor_id)->update(['subcontractor_file_id' => null]);
         }
         ContractorFile::where('id', $request->subcontractor_id)->delete();
 
@@ -1261,7 +1258,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function delete_securuty_payment(Request $request)
     {
         CommercialOfferMaterialSplit::findOrFail($request->split_id)->delete();
@@ -1269,17 +1265,16 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function change_security_pay(Request $request)
     {
-        $value = (float)str_replace(',','.', $request->value);
+        $value = (float) str_replace(',', '.', $request->value);
         $material = CommercialOfferMaterialSplit::findOrFail($request->split_id);
 
         $result_price = $value * $request->mat_count;
 
         $material->security_price_one = $request->value;
 
-        if($request->type == 2) {
+        if ($request->type == 2) {
             $material->security_price_result = $result_price;
         } else {
             $material->security_price_result = $result_price;
@@ -1290,7 +1285,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode($result_price);
     }
 
-
     public function create_offer_pdf($offer_id, $COtype = 'regular')
     {
         DB::beginTransaction();
@@ -1300,7 +1294,6 @@ class ProjectCommercialOfferController extends Controller
 
         DB::commit();
     }
-
 
     public function set_signer(Request $request, $offer_id)
     {
@@ -1313,7 +1306,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function set_contact(Request $request, $offer_id)
     {
         $offer = CommercialOffer::findOrFail($offer_id);
@@ -1325,24 +1317,23 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function attach_document(Request $request, $offer_id)
     {
         DB::beginTransaction();
 
         $offer = CommercialOffer::findOrFail($offer_id);
-        if (!$offer->file_name and !$request->commercial_offer) {
+        if (! $offer->file_name and ! $request->commercial_offer) {
             return back();
         }
 
         if ($request->commercial_offer) {
             $mime = $request->commercial_offer->getClientOriginalExtension();
-            $file_name = 'project-' . $offer->project_id . '_commercial_offer-' . uniqid() . '.' . $mime;
+            $file_name = 'project-'.$offer->project_id.'_commercial_offer-'.uniqid().'.'.$mime;
 
             Storage::disk('commercial_offers')->put($file_name, File::get($request->commercial_offer));
 
             FileEntry::create(['filename' => $file_name, 'size' => $request->commercial_offer->getSize(),
-                'mime' => $request->commercial_offer->getClientMimeType(), 'original_filename' => $request->commercial_offer->getClientOriginalName(), 'user_id' => Auth::user()->id,]);
+                'mime' => $request->commercial_offer->getClientMimeType(), 'original_filename' => $request->commercial_offer->getClientOriginalName(), 'user_id' => Auth::user()->id, ]);
 
             $offer->file_name = $file_name;
             $offer->is_uploaded = 1;
@@ -1350,12 +1341,12 @@ class ProjectCommercialOfferController extends Controller
 
         if ($request->budget) {
             $mime = $request->budget->getClientOriginalExtension();
-            $file_name = 'project-' . $offer->project_id . '_budget-' . uniqid() . '.' . $mime;
+            $file_name = 'project-'.$offer->project_id.'_budget-'.uniqid().'.'.$mime;
 
             Storage::disk('budget')->put($file_name, File::get($request->budget));
 
             FileEntry::create(['filename' => $file_name, 'size' => $request->budget->getSize(),
-                'mime' => $request->budget->getClientMimeType(), 'original_filename' => $request->budget->getClientOriginalName(), 'user_id' => Auth::user()->id,]);
+                'mime' => $request->budget->getClientMimeType(), 'original_filename' => $request->budget->getClientOriginalName(), 'user_id' => Auth::user()->id, ]);
 
             $offer->budget = $file_name;
         }
@@ -1380,28 +1371,28 @@ class ProjectCommercialOfferController extends Controller
                     'project_id' => $offer->project_id,
                     'name' => 'Согласование КП (шпунт)',
                     'responsible_user_id' => Group::find($group_id)->getUsers()->first()->id,
-//                    'responsible_user_id' => User::where('group_id', $group_id)->first()->id, example of new vacation logic
+                    //                    'responsible_user_id' => User::where('group_id', $group_id)->first()->id, example of new vacation logic
                     'contractor_id' => $project->contractor_id,
                     'target_id' => $offer->id,
-                    'prev_task_id' => $prev_task? $prev_task->id : null,
+                    'prev_task_id' => $prev_task ? $prev_task->id : null,
                     'expired_at' => $this->addHours(8),
-                    'status' => 16
+                    'status' => 16,
                 ]);
 
                 $task->save();
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = "\r\nЗаказчик: " . $project->contractor_name
-                    . "\r\nНазвание объекта: " . $project->object->name
-                    .  "\r\nАдрес объекта: " . $project->object->address . "\r\n" . 'Ссылка на задачу: ' . $task->task_route();
+                $notification->additional_info = "\r\nЗаказчик: ".$project->contractor_name
+                    ."\r\nНазвание объекта: ".$project->object->name
+                    ."\r\nАдрес объекта: ".$project->object->address."\r\n".'Ссылка на задачу: '.$task->task_route();
                 $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
+                    'name' => 'Новая задача «'.$task->name.'»',
                     'task_id' => $task->id, 'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
                     'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 33
+                    'type' => 33,
                 ]);
 
                 $task = $offer->unsolved_tasks->where('status', 5)->first();
@@ -1410,7 +1401,7 @@ class ProjectCommercialOfferController extends Controller
                     $task->solve_n_notify();
                 }
             }
-        } else if ($offer->is_tongue == 0) {
+        } elseif ($offer->is_tongue == 0) {
             foreach ([5, 73] as $group_id) {
                 $prev_task = Task::where('target_id', $offer->id)->where('status', 5)->where('is_solved', 0)->first();
                 $task = new Task([
@@ -1421,24 +1412,24 @@ class ProjectCommercialOfferController extends Controller
                     'target_id' => $offer->id,
                     'prev_task_id' => $prev_task ? $prev_task->id : null,
                     'expired_at' => $this->addHours(8),
-                    'status' => 16
+                    'status' => 16,
                 ]);
 
                 $task->save();
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = "\r\n<b>Заказчик:</b> " . $project->contractor_name
-                    . "\r\n<b>Название объекта:</b> " . $project->object->name
-                    .  "\r\n<b>Адрес объекта:</b> " . $project->object->address . "\r\n" . '<b>Ссылка на задачу:</b> ' . $task->task_route();
+                $notification->additional_info = "\r\n<b>Заказчик:</b> ".$project->contractor_name
+                    ."\r\n<b>Название объекта:</b> ".$project->object->name
+                    ."\r\n<b>Адрес объекта:</b> ".$project->object->address."\r\n".'<b>Ссылка на задачу:</b> '.$task->task_route();
                 $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
+                    'name' => 'Новая задача «'.$task->name.'»',
                     'task_id' => $task->id,
                     'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
                     'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 34
+                    'type' => 34,
                 ]);
 
                 $task = $offer->unsolved_tasks->where('status', 5)->first();
@@ -1450,9 +1441,8 @@ class ProjectCommercialOfferController extends Controller
         }
         DB::commit();
 
-        return redirect()->route('projects::card', $offer->project_id)->with("com_offer", true);
+        return redirect()->route('projects::card', $offer->project_id)->with('com_offer', true);
     }
-
 
     public function agree_commercial_offer($offer_id)
     {
@@ -1465,13 +1455,13 @@ class ProjectCommercialOfferController extends Controller
 
         $offer->save();
 
-        $task = Task::where('project_id', $offer->project_id)->where('status', 6)->where(function($q) {
+        $task = Task::where('project_id', $offer->project_id)->where('status', 6)->where(function ($q) {
             $q->orWhere('is_solved', 0)->orWhere('revive_at', '<>', null);
         })->first();
 
         if ($task) {
             Notification::create([
-                'name' => 'Задача «' . $task->name . '» закрыта',
+                'name' => 'Задача «'.$task->name.'» закрыта',
                 'task_id' => $task->id,
                 'user_id' => $task->responsible_user_id,
                 'contractor_id' => $task->project_id ? $project->contractor_id : null,
@@ -1490,15 +1480,15 @@ class ProjectCommercialOfferController extends Controller
 
             $notification = new Notification();
             $notification->save();
-            $notification->additional_info = "\r\nЗаказчик: " . $project->contractor_name
-                . "\r\nНазвание объекта: " . $project->object->name
-                .  "\r\nАдрес объекта: " . $project->object->address ."\r\n"
-                . 'Исполнитель: ' . User::find($task->responsible_user_id)->long_full_name
-                . 'Ссылка на проект: ' . route('projects::card', [$task->project_id, 'task' => $task->id]);
+            $notification->additional_info = "\r\nЗаказчик: ".$project->contractor_name
+                ."\r\nНазвание объекта: ".$project->object->name
+                ."\r\nАдрес объекта: ".$project->object->address."\r\n"
+                .'Исполнитель: '.User::find($task->responsible_user_id)->long_full_name
+                .'Ссылка на проект: '.route('projects::card', [$task->project_id, 'task' => $task->id]);
             $notification->update([
-                'name' => 'Задача «' . $task->name . '» закрыта с результатом: ' . $status_for_humans['accept'] .
-                    (is_null($task->revive_at) ? '' : '. Дата, на которую перенесли: ' .  strftime('%d.%m.%Y', strtotime($task->revive_at)))
-                    . (is_null($task->final_note) ? '' : '. Комментарий: ' . $task->final_note),
+                'name' => 'Задача «'.$task->name.'» закрыта с результатом: '.$status_for_humans['accept'].
+                    (is_null($task->revive_at) ? '' : '. Дата, на которую перенесли: '.strftime('%d.%m.%Y', strtotime($task->revive_at)))
+                    .(is_null($task->final_note) ? '' : '. Комментарий: '.$task->final_note),
                 'task_id' => $task->id,
                 'user_id' => Group::find(5/*3*/)->getUsers()->first()->id,
                 'status' => 2,
@@ -1510,7 +1500,6 @@ class ProjectCommercialOfferController extends Controller
 
             $task->solve();
         }
-
 
         if ($project->respUsers()->where('role', ($offer->is_tongue ? 6 : 5))->count() > 0) {
             $mainEngineerOfTonguePostId = 8;
@@ -1528,26 +1517,26 @@ class ProjectCommercialOfferController extends Controller
 
             $add_RP_task = Task::create([
                 'project_id' => $project->id,
-                'name' => 'Назначение ответственного руководителя проектов ' . $taskNameSuffix,
+                'name' => 'Назначение ответственного руководителя проектов '.$taskNameSuffix,
                 'responsible_user_id' => $mainEngineer ? $mainEngineer->user_id : 6,
                 'contractor_id' => $project->contractor_id,
                 'target_id' => $offer->id,
                 'prev_task_id' => $task ? $task->id : null,
                 'status' => $taskStatus,
-                'expired_at' => $this->addHours(11)
+                'expired_at' => $this->addHours(11),
             ]);
 
             $notification = new Notification();
             $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $add_RP_task->task_route();
+            $notification->additional_info = ' Ссылка на задачу: '.$add_RP_task->task_route();
             $notification->update([
-                'name' => 'Новая задача «' . $add_RP_task->name . '»',
+                'name' => 'Новая задача «'.$add_RP_task->name.'»',
                 'task_id' => $add_RP_task->id,
                 'user_id' => $add_RP_task->responsible_user_id,
                 'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
                 'project_id' => $add_RP_task->project_id ?: null,
                 'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
-                'type' => 63
+                'type' => 63,
             ]);
         }
 
@@ -1568,28 +1557,28 @@ class ProjectCommercialOfferController extends Controller
                     'expired_at' => $this->addHours(48),
                     'prev_task_id' => isset($task) ? $task->id : null,
                     'target_id' => $offer->id,
-                    'status' => 12
+                    'status' => 12,
                 ]);
 
                 $task->save();
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+                $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
                 $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
+                    'name' => 'Новая задача «'.$task->name.'»',
                     'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
                     'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 38
+                    'type' => 38,
                 ]);
 
                 $task_created = true;
             }
         }
 
-        if (!$task_created) {
+        if (! $task_created) {
             foreach (ProjectResponsibleUser::where('project_id', $project->id)->where('role', 7)->get() as $user) {
                 $task = new Task([
                     'project_id' => $offer->project_id,
@@ -1600,16 +1589,16 @@ class ProjectCommercialOfferController extends Controller
                     'prev_task_id' => isset($task) ? $task->id : null,
                     'expired_at' => $this->addHours(48),
                     'target_id' => $offer->id,
-                    'status' => 12
+                    'status' => 12,
                 ]);
 
                 $task->save();
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+                $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
                 $notification->update([
-                    'name' => 'Новая задача «' . $task->name . '»',
+                    'name' => 'Новая задача «'.$task->name.'»',
                     'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
@@ -1621,9 +1610,8 @@ class ProjectCommercialOfferController extends Controller
 
         DB::commit();
 
-        return redirect()->route('projects::card', $offer->project_id)->with("com_offer", true);
+        return redirect()->route('projects::card', $offer->project_id)->with('com_offer', true);
     }
-
 
     public function get_offer(Request $request)
     {
@@ -1632,10 +1620,9 @@ class ProjectCommercialOfferController extends Controller
         return response()->json($offer);
     }
 
-
     public function add_manual_note(Request $request, $com_offer_id)
     {
-        if($request->names) {
+        if ($request->names) {
             foreach ($request->names as $name) {
                 $note = new CommercialOfferNote([
                     'note' => $name,
@@ -1647,7 +1634,6 @@ class ProjectCommercialOfferController extends Controller
 
         return \GuzzleHttp\json_encode(true);
     }
-
 
     public function add_manual_requirement(Request $request, $com_offer_id)
     {
@@ -1664,7 +1650,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function create_double_kp(Request $request)
     {
         DB::beginTransaction();
@@ -1676,7 +1661,7 @@ class ProjectCommercialOfferController extends Controller
         $wvTongue = WorkVolume::where('project_id', $project->id)->where('status', 2)->where('type', 0)->first()->load('shown_materials.parts');
         $doubleCO = CommercialOffer::where('project_id', $project->id)->where('status', 5)->where('is_tongue', 2)->first();
 
-        if (!$doubleCO) {
+        if (! $doubleCO) {
             // make double WV for double CO
             $wv_double = new WorkVolume();
 
@@ -1716,7 +1701,7 @@ class ProjectCommercialOfferController extends Controller
                     foreach ($old_relations as $item) {
                         $material_id = key($item);
 
-                        if($material_id == $material->id) {
+                        if ($material_id == $material->id) {
                             $new_relation[] = [$new_material->id => $item[$material_id]];
                         }
                     }
@@ -1729,14 +1714,14 @@ class ProjectCommercialOfferController extends Controller
                     foreach ($material->parts as $part) {
                         $new_material = $part->replicate();
 
-                        $new_material->work_volume_id = $wv_double->id;;
+                        $new_material->work_volume_id = $wv_double->id;
                         $new_material->complect_id = $new_complect->id;
                         $new_material->save();
 
                         foreach ($old_relations as $item) {
                             $material_id = key($item);
 
-                            if($material_id == $part->id) {
+                            if ($material_id == $part->id) {
                                 $new_relation[] = [$new_material->id => $item[$material_id]];
                             }
                         }
@@ -1754,7 +1739,7 @@ class ProjectCommercialOfferController extends Controller
                 foreach ($new_relation as $item) {
                     $work_id = current($item);
 
-                    if($work_id == $work->id) {
+                    if ($work_id == $work->id) {
                         $result[] = [key($item) => $new_work->id];
                     }
                 }
@@ -1775,13 +1760,13 @@ class ProjectCommercialOfferController extends Controller
 
                 foreach ($tasks as $item) {
                     Notification::create([
-                        'name' => 'Задача «' . $item->name . '» закрыта',
+                        'name' => 'Задача «'.$item->name.'» закрыта',
                         'task_id' => $item->id,
                         'user_id' => $item->responsible_user_id,
                         'contractor_id' => $project->contractor_id,
                         'project_id' => $project->id,
                         'object_id' => $project->object_id,
-                        'type' => 3
+                        'type' => 3,
                     ]);
 
                     $item->solve();
@@ -1796,7 +1781,7 @@ class ProjectCommercialOfferController extends Controller
             $commercial_offer->project_id = $project->id;
             $commercial_offer->work_volume_id = $wv_double->id;
             $commercial_offer->status = 5;
-            $commercial_offer->version = 'Ш' . $offers_countTongue . 'С' . $offers_countPile;
+            $commercial_offer->version = 'Ш'.$offers_countTongue.'С'.$offers_countPile;
             $commercial_offer->file_name = 0;
             $commercial_offer->is_tongue = 2;
             $commercial_offer->contact_id = $offerTongue->contact_id;
@@ -1823,7 +1808,6 @@ class ProjectCommercialOfferController extends Controller
                     $new_note->save();
                 }
 
-
                 if ($prev_com_offer->commercial_offer_works()->count()) {
                     foreach ($prev_com_offer->works as $work) {
                         $new_work = $work->replicate();
@@ -1833,28 +1817,30 @@ class ProjectCommercialOfferController extends Controller
                 } else {
                     foreach ($commercial_offer->work_volume->works as $work) {
                         CommercialOfferWork::create([
-                            "work_volume_work_id" => $work->id,
-                            "commercial_offer_id" => $commercial_offer->id,
-                            "count" => $work->count,
-                            "term" => $work->term,
-                            "price_per_one" => $work->price_per_one,
-                            "result_price" => $work->result_price,
-                            "subcontractor_file_id" => $work->subcontractor_file_id,
-                            "is_hidden" => $work->is_hidden,
-                            "order" => $work->order,
+                            'work_volume_work_id' => $work->id,
+                            'commercial_offer_id' => $commercial_offer->id,
+                            'count' => $work->count,
+                            'term' => $work->term,
+                            'price_per_one' => $work->price_per_one,
+                            'result_price' => $work->result_price,
+                            'subcontractor_file_id' => $work->subcontractor_file_id,
+                            'is_hidden' => $work->is_hidden,
+                            'order' => $work->order,
                         ]);
                     }
                 }
                 //take new materials
                 $new_wv_mats = WorkVolumeMaterial::where('work_volume_id', $wv_double->id)->get();
-                $split_adapter = $new_wv_mats->groupBy('manual_material_id')->map(function ($group) { return $group->sum('count');});
+                $split_adapter = $new_wv_mats->groupBy('manual_material_id')->map(function ($group) {
+                    return $group->sum('count');
+                });
 
                 //get splits from previous com_offer
                 $control_count = $prev_com_offer->mat_splits->groupBy('man_mat_id'); //here are old ones
                 //creating splits for new commercial_offer
                 foreach ($split_adapter as $manual_id => $count) {
                     if (in_array($manual_id, array_keys($control_count->toArray()))) {
-                        if (($count == $control_count[$manual_id]->whereIn('type', [1,3,5])->sum('count'))) { //if there was no changes amount of
+                        if (($count == $control_count[$manual_id]->whereIn('type', [1, 3, 5])->sum('count'))) { //if there was no changes amount of
                             foreach ($control_count[$manual_id] as $old_split) {
                                 $new_split = $old_split->replicate();
                                 $new_split->man_mat_id = $old_split->man_mat_id;
@@ -1890,16 +1876,16 @@ class ProjectCommercialOfferController extends Controller
                 'contractor_id' => $project->contractor_id,
                 'target_id' => $commercial_offer->id,
                 'status' => 6,
-                'expired_at' => $this->addHours(48)
+                'expired_at' => $this->addHours(48),
             ]);
 
             $notification = new Notification();
             $notification->save();
-            $notification->additional_info = "\r\nЗаказчик: " . $project->contractor_name
-                . "\r\nНазвание объекта: " . $project->object->name
-                .  "\r\nАдрес объекта: " . $project->object->address .".\r\n" . 'Ссылка на задачу: ' . $task_1->task_route();
+            $notification->additional_info = "\r\nЗаказчик: ".$project->contractor_name
+                ."\r\nНазвание объекта: ".$project->object->name
+                ."\r\nАдрес объекта: ".$project->object->address.".\r\n".'Ссылка на задачу: '.$task_1->task_route();
             $notification->update([
-                'name' => 'Новая задача «' . $task_1->name . '»',
+                'name' => 'Новая задача «'.$task_1->name.'»',
                 'task_id' => $task_1->id,
                 'user_id' => $task_1->responsible_user_id,
                 'contractor_id' => $project->contractor_id,
@@ -1917,14 +1903,15 @@ class ProjectCommercialOfferController extends Controller
         return back();
     }
 
-
     public function upload(CommercialOfferReqRequest $request, $project_id)
     {
         if ($request->axios) {
             return back();
         }
         $project = Project::find($project_id);
-        if(! $request->has('negotiation_type')) return back();
+        if (! $request->has('negotiation_type')) {
+            return back();
+        }
 
         DB::beginTransaction();
 
@@ -1934,8 +1921,7 @@ class ProjectCommercialOfferController extends Controller
             $old_offer = CommercialOffer::findOrFail($request->com_offer_id_tongue);
             $option = $old_offer->option;
             $old_offer->decline();
-        }
-        elseif($request->com_offer_id_pile != 'new') {
+        } elseif ($request->com_offer_id_pile != 'new') {
             $old_offer = CommercialOffer::findOrFail($request->com_offer_id_pile);
             $option = $old_offer->option;
             $old_offer->decline();
@@ -1953,8 +1939,8 @@ class ProjectCommercialOfferController extends Controller
             'is_save_pile',
             'option' => $option,
             'depth',
-            'type' => !$request->is_tongue,
-            'version' => $existing_WVs->max('version') + 1
+            'type' => ! $request->is_tongue,
+            'version' => $existing_WVs->max('version') + 1,
         ]);
 
         $parent_WV->save();
@@ -1966,7 +1952,7 @@ class ProjectCommercialOfferController extends Controller
         $offer = new CommercialOffer([
             'project_id' => $project_id,
             'work_volume_id' => $parent_WV->id,
-            'name' => 'Коммерческое предложение (' . ($request->is_tongue ? 'шпунтовое' : 'свайное') . ' направление) загружено',
+            'name' => 'Коммерческое предложение ('.($request->is_tongue ? 'шпунтовое' : 'свайное').' направление) загружено',
             'file_name' => '0',
             'user_id' => Auth::id(),
             'status' => '1',
@@ -1976,36 +1962,36 @@ class ProjectCommercialOfferController extends Controller
             'is_uploaded' => 1,
             'option' => $option,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ]);
 
         $offer->save();
 
         if ($request->commercial_offer) {
             $mime = $request->commercial_offer->getClientOriginalExtension();
-            $file_name = 'project-' . $offer->project_id . '_commercial_offer-' . uniqid() . '.' . $mime;
+            $file_name = 'project-'.$offer->project_id.'_commercial_offer-'.uniqid().'.'.$mime;
 
             Storage::disk('commercial_offers')->put($file_name, File::get($request->commercial_offer));
 
             FileEntry::create(['filename' => $file_name, 'size' => $request->commercial_offer->getSize(),
-                'mime' => $request->commercial_offer->getClientMimeType(), 'original_filename' => $request->commercial_offer->getClientOriginalName(), 'user_id' => Auth::user()->id,]);
+                'mime' => $request->commercial_offer->getClientMimeType(), 'original_filename' => $request->commercial_offer->getClientOriginalName(), 'user_id' => Auth::user()->id, ]);
 
             $offer->file_name = $file_name;
         }
 
         if ($request->budget) {
             $mime = $request->budget->getClientOriginalExtension();
-            $file_name = 'project-' . $offer->project_id . '_budget-' . uniqid() . '.' . $mime;
+            $file_name = 'project-'.$offer->project_id.'_budget-'.uniqid().'.'.$mime;
 
             Storage::disk('budget')->put($file_name, File::get($request->budget));
 
             FileEntry::create(['filename' => $file_name, 'size' => $request->budget->getSize(),
-                'mime' => $request->budget->getClientMimeType(), 'original_filename' => $request->budget->getClientOriginalName(), 'user_id' => Auth::user()->id,]);
+                'mime' => $request->budget->getClientMimeType(), 'original_filename' => $request->budget->getClientOriginalName(), 'user_id' => Auth::user()->id, ]);
 
             $offer->budget = $file_name;
         }
 
-        if($request->negotiation_type == 1) {
+        if ($request->negotiation_type == 1) {
             // add as actual CO
             $offer->to_negotiation(); //send tasks and go further to script
         } elseif ($request->negotiation_type == 2) {
@@ -2028,25 +2014,25 @@ class ProjectCommercialOfferController extends Controller
 
                 $add_RP_task = Task::create([
                     'project_id' => $project->id,
-                    'name' => 'Назначение ответственного руководителя проектов ' . $taskNameSuffix,
+                    'name' => 'Назначение ответственного руководителя проектов '.$taskNameSuffix,
                     'responsible_user_id' => $mainEngineer ? $mainEngineer->user_id : 6,
                     'contractor_id' => $project->contractor_id,
                     'target_id' => $offer->id,
                     'status' => $taskStatus,
-                    'expired_at' => $this->addHours(11)
+                    'expired_at' => $this->addHours(11),
                 ]);
 
                 $notification = new Notification();
                 $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $add_RP_task->task_route();
+                $notification->additional_info = ' Ссылка на задачу: '.$add_RP_task->task_route();
                 $notification->update([
-                    'name' => 'Новая задача «' . $add_RP_task->name . '»',
+                    'name' => 'Новая задача «'.$add_RP_task->name.'»',
                     'task_id' => $add_RP_task->id,
                     'user_id' => $add_RP_task->responsible_user_id,
                     'contractor_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->contractor_id : null,
                     'project_id' => $add_RP_task->project_id ? $add_RP_task->project_id : null,
                     'object_id' => $add_RP_task->project_id ? Project::find($add_RP_task->project_id)->object_id : null,
-                    'type' => 63
+                    'type' => 63,
                 ]);
             }
         }
@@ -2058,7 +2044,6 @@ class ProjectCommercialOfferController extends Controller
         return redirect(route('projects::card', $project_id));
     }
 
-
     public function upload_signed_pdf($project_id)
     {
         DB::beginTransaction();
@@ -2067,8 +2052,8 @@ class ProjectCommercialOfferController extends Controller
 
             $decoded_pdf_text = base64_decode(request()->hash);
             $path_to_save = storage_path('app/public/docs/commercial_offers');
-            $file_name = 'project-' . $project_id . '_commercial_offer-' . uniqid() . '.pdf';
-            $pdf_file = fopen($path_to_save . '/' . $file_name, 'w');
+            $file_name = 'project-'.$project_id.'_commercial_offer-'.uniqid().'.pdf';
+            $pdf_file = fopen($path_to_save.'/'.$file_name, 'w');
             $size = fwrite($pdf_file, $decoded_pdf_text);
             fclose($pdf_file);
 
@@ -2092,7 +2077,6 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(false);
     }
 
-
     public function update_title(Request $request)
     {
         DB::beginTransaction();
@@ -2106,7 +2090,6 @@ class ProjectCommercialOfferController extends Controller
         return response()->json(true);
     }
 
-
     public function get_review(Request $request)
     {
         if (strpos($request->reviewable_type, '.') === false) {
@@ -2118,17 +2101,17 @@ class ProjectCommercialOfferController extends Controller
         $review = Review::where('reviewable_id', $request->reviewable_id)
             ->where('reviewable_type', $review_type);
 
-        if (in_array($review_type,['MaterialWorkRelation', 'App\Models\Manual\ManualWork'])) {
+        if (in_array($review_type, ['MaterialWorkRelation', 'App\Models\Manual\ManualWork'])) {
             $review->where('commercial_offer_id', $request->commercial_offer_id);
         }
         $review = $review->first();
         $text = '';
-        if($review) {
+        if ($review) {
             $text = $review->review;
         }
+
         return \GuzzleHttp\json_encode($text);
     }
-
 
     public function store_review(Request $request)
     {
@@ -2148,7 +2131,6 @@ class ProjectCommercialOfferController extends Controller
 
         return \GuzzleHttp\json_encode(true);
     }
-
 
     public function make_copy(Request $request, $curr_project_id, $com_offer_id)
     {

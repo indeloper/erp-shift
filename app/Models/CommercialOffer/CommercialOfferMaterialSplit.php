@@ -4,10 +4,8 @@ namespace App\Models\CommercialOffer;
 
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorFile;
-use App\Models\Manual\ManualMaterial;
-use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\Manual\ManualMaterialParameter;
-
+use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Services\Commerce\SplitService;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,11 +29,11 @@ class CommercialOfferMaterialSplit extends Model
     ];
 
     public $english_types = [
-      1 => 'sale',
-      2 => 'buyback',
-      3 => 'rent',
-      4 => 'security',
-      5 => 'given',
+        1 => 'sale',
+        2 => 'buyback',
+        3 => 'rent',
+        4 => 'security',
+        5 => 'given',
     ];
 
     public $modification_types = [
@@ -51,36 +49,31 @@ class CommercialOfferMaterialSplit extends Model
 
     public function manual()
     {
-        return $this->morphTo(null,'material_type','man_mat_id', 'id')->withDefault(function ($manual) {
+        return $this->morphTo(null, 'material_type', 'man_mat_id', 'id')->withDefault(function ($manual) {
             $manual->id = $this->manual_material_id;
             $manual->name = 'Объединённый материал';
         })->withTrashed();
     }
-
 
     public function getParametersAttribute()
     {
         return $this->WV_material->parameters;
     }
 
-
     public function getWorkVolumeIdAttribute()
     {
         return CommercialOffer::where('id', $this->com_offer_id)->first()->work_volume_id;
     }
-
 
     public function WV_material()
     {
         return $this->belongsTo(WorkVolumeMaterial::class, 'man_mat_id', 'manual_material_id');
     }
 
-
     public function getSiblings()
     {
         return CommercialOfferMaterialSplit::where('man_mat_id', $this->man_mat_id)->where('com_offer_id', $this->com_offer_id)->whereNotIn('type', $this->modification_types)->where('id', '!=', $this->id)->select('id', 'type', 'time', 'count')->get();
     }
-
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany | CommercialOfferMaterialSplit
@@ -95,7 +88,7 @@ class CommercialOfferMaterialSplit extends Model
      */
     public function parent()
     {
-        return $this->hasOne(CommercialOfferMaterialSplit::class, 'id','parent_id')->with('parent')->withDefault($this->attributesToArray());
+        return $this->hasOne(CommercialOfferMaterialSplit::class, 'id', 'parent_id')->with('parent')->withDefault($this->attributesToArray());
 
     }
 
@@ -111,12 +104,12 @@ class CommercialOfferMaterialSplit extends Model
 
     public function contractor()
     {
-        return $this->hasOneThrough(Contractor::class, ContractorFile::class, 'id', 'id' ,'subcontractor_file_id', 'contractor_id');
+        return $this->hasOneThrough(Contractor::class, ContractorFile::class, 'id', 'id', 'subcontractor_file_id', 'contractor_id');
     }
 
     public function getTypeNameAttribute()
     {
-        return $this->types[$this->type - 1] . ($this->time ? " {$this->time} мес." : '');
+        return $this->types[$this->type - 1].($this->time ? " {$this->time} мес." : '');
     }
 
     public function getCommentSuffixAttribute()
@@ -126,8 +119,9 @@ class CommercialOfferMaterialSplit extends Model
 
     public function getNameAttribute()
     {
-        $mat_name =  $this->manual->name ?? 'Материал';
-        return $mat_name . ' ' . $this->type_name . $this->comment_suffix;
+        $mat_name = $this->manual->name ?? 'Материал';
+
+        return $mat_name.' '.$this->type_name.$this->comment_suffix;
     }
 
     public function getHumanRentTimeAttribute()
@@ -143,10 +137,10 @@ class CommercialOfferMaterialSplit extends Model
     {
         $materials = WorkVolumeMaterial::where('combine_id', $this->WV_material->combine_id)->pluck('manual_material_id');
 
-        $name = 'С' . ManualMaterialParameter::whereIn('mat_id', $materials)
-                ->whereNotIn('attr_id', [92])
-                ->where('attr_id', '93')
-                ->select(DB::raw('sum(value) as value'))->first()->value * 10 . '.' . ManualMaterialParameter::whereIn('mat_id', $materials)->whereNotIn('attr_id', [92])->where('attr_id', '95')->first()->value . '-СВ';
+        $name = 'С'.ManualMaterialParameter::whereIn('mat_id', $materials)
+            ->whereNotIn('attr_id', [92])
+            ->where('attr_id', '93')
+            ->select(DB::raw('sum(value) as value'))->first()->value * 10 .'.'.ManualMaterialParameter::whereIn('mat_id', $materials)->whereNotIn('attr_id', [92])->where('attr_id', '95')->first()->value.'-СВ';
 
         return $name;
     }
@@ -169,6 +163,7 @@ class CommercialOfferMaterialSplit extends Model
             $this->deleteModifications();
             $this->children()->update(['parent_id' => null]);
             $this->delete();
+
             return null;
         } else {
             $this->count -= $count;
@@ -179,6 +174,7 @@ class CommercialOfferMaterialSplit extends Model
                 }
             }
             $this->save();
+
             return $this;
         }
     }

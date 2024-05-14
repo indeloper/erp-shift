@@ -15,6 +15,6 @@ $factory->define(OurVehicles::class, function (Faker $faker) {
         'trailer_number' => rand(0, 1) ? $faker->randomNumber(9) : '',
         'mark' => $faker->word,
         'model' => $faker->word,
-        'owner' => OurVehicles::OWNERS[rand(1,5)],
+        'owner' => OurVehicles::OWNERS[rand(1, 5)],
     ];
 });

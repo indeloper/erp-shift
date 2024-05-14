@@ -163,7 +163,7 @@ class UserTest extends TestCase
         // When user make post request with any data
         $data = [
             'user_id' => $changedUser->id,
-            'job_category_id' => $jobCategory->id
+            'job_category_id' => $jobCategory->id,
         ];
         $response = $this->actingAs($user)->post(route('users::update_job_category'), $data);
 
@@ -213,7 +213,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['first_name' => 'Arthur', 'last_name' => 'Pirozhkov']);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?name={$user->name}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?name={$user->name}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -241,7 +241,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['first_name' => 'Pupa', 'last_name' => 'Lupin']);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?name=pup"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index').'?name=pup']))->json();
 
         // Then ...
         // In response we must have array
@@ -270,7 +270,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['first_name' => 'Cat', 'last_name' => 'Concat']);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?name%5B0%5D={$user1->first_name}&name%5B1%5D={$user2->last_name}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?name%5B0%5D={$user1->first_name}&name%5B1%5D={$user2->last_name}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -287,7 +287,6 @@ class UserTest extends TestCase
         $this->assertEquals($user1->id, $response['data']['users'][0]['id']);
         $this->assertEquals($user2->id, $response['data']['users'][1]['id']);
 
-
     }
 
     /** @test */
@@ -300,7 +299,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?email={$user->email}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?email={$user->email}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -328,7 +327,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create();
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?email%5B0%5D={$user1->email}&email%5B1%5D={$user2->email}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?email%5B0%5D={$user1->email}&email%5B1%5D={$user2->email}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -356,7 +355,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['department_id' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?department_id={$user->department_id}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?department_id={$user->department_id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -384,7 +383,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['department_id' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?department_id%5B0%5D={$user1->department_id}&department_id%5B1%5D={$user2->department_id}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?department_id%5B0%5D={$user1->department_id}&department_id%5B1%5D={$user2->department_id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -412,7 +411,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['group_id' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?group_id={$user->group_id}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?group_id={$user->group_id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -440,7 +439,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['group_id' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?group_id%5B0%5D={$user1->group_id}&group_id%5B1%5D={$user2->group_id}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?group_id%5B0%5D={$user1->group_id}&group_id%5B1%5D={$user2->group_id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -468,7 +467,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['company' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?company={$user->company}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?company={$user->company}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -496,7 +495,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['company' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?company%5B0%5D={$user1->company}&company%5B1%5D={$user2->company}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?company%5B0%5D={$user1->company}&company%5B1%5D={$user2->company}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -524,7 +523,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['job_category_id' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?job_category_id={$user->job_category_id}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?job_category_id={$user->job_category_id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -552,7 +551,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['job_category_id' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?job_category_id%5B0%5D={$user1->job_category_id}&job_category_id%5B1%5D={$user2->job_category_id}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?job_category_id%5B0%5D={$user1->job_category_id}&job_category_id%5B1%5D={$user2->job_category_id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -580,7 +579,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['person_phone' => 98765432101]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?person_phone=765432"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index').'?person_phone=765432']))->json();
 
         // Then ...
         // In response we must have array
@@ -608,7 +607,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['person_phone' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?person_phone%5B0%5D={$user1->person_phone}&person_phone%5B1%5D={$user2->person_phone}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?person_phone%5B0%5D={$user1->person_phone}&person_phone%5B1%5D={$user2->person_phone}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -636,7 +635,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['work_phone' => 98765432101]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?work_phone=765432"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index').'?work_phone=765432']))->json();
 
         // Then ...
         // In response we must have array
@@ -664,7 +663,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['work_phone' => 777]);
 
         // When we make post request
-        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index') . "?work_phone%5B0%5D={$user1->work_phone}&work_phone%5B1%5D={$user2->work_phone}"]))->json();
+        $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?work_phone%5B0%5D={$user1->work_phone}&work_phone%5B1%5D={$user2->work_phone}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -692,7 +691,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['birthday' => now()->subYears(25)->format('d-m-Y')]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?birthday={$user->birthday}|"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?birthday={$user->birthday}|"]))->json();
 
         // Then ...
         // In response we must have array
@@ -719,7 +718,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create(['birthday' => now()->subYears(10)->format('d-m-Y')]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?birthday=|{$user->birthday}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?birthday=|{$user->birthday}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -747,7 +746,7 @@ class UserTest extends TestCase
         $user2 = factory(User::class)->create(['birthday' => now()->subYears(10)->format('d-m-Y')]);
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?birthday={$user2->birthday}|{$user->birthday}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?birthday={$user2->birthday}|{$user->birthday}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -814,7 +813,7 @@ class UserTest extends TestCase
         $object->users()->attach($users->pluck('id')->toArray());
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?project_object_id={$object->id}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?project_object_id={$object->id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -848,7 +847,7 @@ class UserTest extends TestCase
         $object2->users()->attach($users2->pluck('id')->toArray());
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?project_object_id%5B0%5D={$object->id}&project_object_id%5B1%5D={$object2->id}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?project_object_id%5B0%5D={$object->id}&project_object_id%5B1%5D={$object2->id}"]))->json();
 
         // Then ...
         // In response we must have array
@@ -879,7 +878,7 @@ class UserTest extends TestCase
         $object2 = factory(ProjectObject::class)->create();
 
         // When we make post request
-        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index') . "?project_object_id%5B0%5D={$object->id}&project_object_id%5B1%5D={$object2->id}"]))->json();
+        $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?project_object_id%5B0%5D={$object->id}&project_object_id%5B1%5D={$object2->id}"]))->json();
 
         // Then ...
         // In response we must have array

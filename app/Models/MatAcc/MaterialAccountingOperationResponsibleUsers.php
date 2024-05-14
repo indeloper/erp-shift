@@ -11,7 +11,7 @@ class MaterialAccountingOperationResponsibleUsers extends Model
     protected $fillable = [
         'operation_id',
         'user_id',
-        'type'
+        'type',
     ];
 
     public $additional_info = [];
@@ -23,17 +23,16 @@ class MaterialAccountingOperationResponsibleUsers extends Model
         2 => 'to responsible',
     ];
 
-
-    public static function boot() {
+    public static function boot()
+    {
 
         parent::boot();
 
-        static::created(function($user) {
+        static::created(function ($user) {
             event((new MaterialAccountingOperationResponsibleUsersEvents)->respUserCreated($user));
         });
 
     }
-
 
     public function operation()
     {

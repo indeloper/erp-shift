@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Traits\DevExtremeDataSourceLoadable;
 use App\Models\Notifications\NotificationsForPermissions;
+use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -38,12 +38,12 @@ class Permission extends Model
 
     protected $appends = ['label', 'key'];
 
-    function getLabelAttribute()
+    public function getLabelAttribute()
     {
         return $this->name;
     }
 
-    function getKeyAttribute()
+    public function getKeyAttribute()
     {
         return $this->id;
     }
@@ -55,7 +55,7 @@ class Permission extends Model
 
     public function getUsersIdsByCodename($codename = null)
     {
-        if (!$codename) {
+        if (! $codename) {
             return [];
         }
 
@@ -75,10 +75,10 @@ class Permission extends Model
 
     public function scopeUsersIdsByCodename(Builder $query, $codename = null)
     {
-        if (!$codename) {
+        if (! $codename) {
             return [];
         }
-        
+
         return $this->getUsersIdsByCodename($codename);
     }
 }

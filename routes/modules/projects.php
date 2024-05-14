@@ -1,4 +1,5 @@
 <?php
+
 Route::group(['middleware' => 'can:projects'], function () {
     Route::get('/', 'ProjectController@index')->name('index');
     Route::get('/card/{id}', 'ProjectController@card')->name('card');
@@ -16,7 +17,6 @@ Route::group(['middleware' => 'can:projects'], function () {
     Route::post('/importance-toggler', 'ProjectController@importance_toggler')->name('importance_toggler');
     Route::post('/update_time_responsible', 'ProjectController@updateTimeResponsibleUser')->name('update_time_responsible');
 });
-
 
 Route::post('/delete-resp-user', 'ProjectController@delete_resp_user')->name('delete_resp_user');
 Route::post('/select-user/{id}', 'ProjectController@select_user')->name('select_user');
@@ -71,7 +71,6 @@ Route::get('ajax/get_nodes', 'WVCalvulatorController@get_nodes');
 
 Route::post('ajax/count_weight', 'WVCalvulatorController@count_weight')->name('work_volume::count_weight');
 
-
 Route::post('ajax/get_pile_name', 'WVCalvulatorController@create_mount_calc')->name('work_volume::create_mount_calc');
 Route::post('ajax/get-one-work', 'ProjectWorkVolumeController@get_one_work')->name('work_volume::get_one_work');
 Route::post('ajax/get-one-work-manual', 'ProjectWorkVolumeController@get_one_work_manual')->name('work_volume::get_one_work_manual');
@@ -81,9 +80,6 @@ Route::get('ajax/get-material', 'ProjectWorkVolumeController@get_material')->nam
 Route::get('ajax/get-material-work', 'ProjectWorkVolumeController@get_material_work');
 Route::get('ajax/get_composite_pile', 'ProjectWorkVolumeController@get_composite_pile');
 Route::post('ajax/get_pile_name', 'ProjectWorkVolumeController@get_pile_name')->name('work_volume::get_pile_name');
-
-
-
 
 Route::post('/work_volume/{wv_id}/attach-material', 'ProjectWorkVolumeController@attach_material')->name('work_volume::attach_material');
 Route::post('/work_volume/detach-material', 'ProjectWorkVolumeController@detach_material')->name('work_volume::detach_material');
@@ -106,7 +102,6 @@ Route::get('commercial_offer/{offer_id}/create_offer_pdf', 'ProjectCommercialOff
 
 Route::get('commercial_offer/{offer_id}/gantt', 'ProjectCommercialOfferController@gantt')->name('commercial_offer::gantt');
 Route::post('commercial_offer/{offer_id}/gantt/send', 'ProjectCommercialOfferController@gantt_send')->name('commercial_offer::gantt_send');
-
 
 Route::post('{id}/commercial_offer/{offer_id}/add_advancement', 'ProjectCommercialOfferController@add_advancement')->name('commercial_offer::add_advancement');
 Route::post('{id}/commercial_offer/{offer_id}/set_contract_number', 'ProjectCommercialOfferController@set_contract_number')->name('commercial_offer::set_contract_number');

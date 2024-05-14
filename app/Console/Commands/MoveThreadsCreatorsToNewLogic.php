@@ -41,7 +41,7 @@ class MoveThreadsCreatorsToNewLogic extends Command
     {
         DB::beginTransaction();
 
-        foreach(Thread::get() as $thread) {
+        foreach (Thread::get() as $thread) {
             $oldCrutchLogicCreatorId = $thread->creator()->id;
             // fix
             $thread->update(['creator_id' => $oldCrutchLogicCreatorId]);

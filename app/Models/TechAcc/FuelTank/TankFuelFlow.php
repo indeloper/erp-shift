@@ -2,16 +2,14 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
+use App\Traits\DevExtremeDataSourceLoadable;
+use App\Traits\Logable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\Logable;
-use App\Traits\DevExtremeDataSourceLoadable;
-use Illuminate\Support\Facades\Auth;
 
 class TankFuelFlow extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable, Logable;
+    use DevExtremeDataSourceLoadable, Logable, SoftDeletes;
 
     protected $guarded = ['id'];
-   
 }

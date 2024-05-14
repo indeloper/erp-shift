@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
@@ -22,11 +21,11 @@ class UserPolicy
 
     public function card(User $me, User $user)
     {
-        return (($user->id == $me->id) or $me->can('users'));
+        return ($user->id == $me->id) or $me->can('users');
     }
 
     public function update(User $me, User $user)
     {
-        return (($user->id == $me->id) or $me->can('users_edit'));
+        return ($user->id == $me->id) or $me->can('users_edit');
     }
 }

@@ -28,8 +28,9 @@ class q3wMaterialSupplyPlanningController extends Controller
     /**
      * Get materials for supply planning details.
      *
-     * @param int $planningObjectId The ID of the planning object.
+     * @param  int  $planningObjectId  The ID of the planning object.
      * @return \Illuminate\Http\JsonResponse The JSON response containing the materials for supply planning.
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException If the user is not authorized to access the material supply planning.
      */
     public function getMaterialsForSupplyPlanning($planningObjectId)
@@ -54,7 +55,8 @@ class q3wMaterialSupplyPlanningController extends Controller
         return response()->json($data);
     }
 
-    public function getSummary(Request $request) {
+    public function getSummary(Request $request)
+    {
         return q3wMaterialSupplyMaterial::leftJoin('q3w_material_supply_planning', 'q3w_material_supply_materials.supply_planning_id', '=', 'q3w_material_supply_planning.id')
             ->leftJoin('project_objects', 'q3w_material_supply_materials.source_project_object_id', '=', 'project_objects.id')
             ->leftJoin('q3w_material_supply_objects', 'q3w_material_supply_planning.planning_object_id', '=', 'q3w_material_supply_objects.id')
@@ -64,7 +66,7 @@ class q3wMaterialSupplyPlanningController extends Controller
                 'project_objects.short_name as project_object_name',
                 'q3w_material_standards.name as standard_name',
                 'q3w_material_supply_planning.quantity',
-                'q3w_material_supply_materials.weight'
+                'q3w_material_supply_materials.weight',
             ])
             ->get()
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
@@ -87,12 +89,12 @@ class q3wMaterialSupplyPlanningController extends Controller
             ->leftJoin('q3w_material_comments', 'q3w_material_comments.id', '=', 'q3w_materials.comment_id')
             ->leftJoin('q3w_material_supply_materials', 'q3w_materials.id', '=', 'q3w_material_supply_materials.material_id')
             ->whereBetween('q3w_materials.quantity', [$quantity - SUPPLY_PLANNING_QUANTITY_DELTA, $quantity + SUPPLY_PLANNING_QUANTITY_DELTA])
-            ->where(function($query) use ($detailType, $projectObject) {
+            ->where(function ($query) use ($detailType, $projectObject) {
                 switch ($detailType) {
-                    case "otherRemains":
+                    case 'otherRemains':
                         $query->where('project_object', '<>', $projectObject);
                         break;
-                    case "selfRemains":
+                    case 'selfRemains':
                         $query->where('project_object', '=', $projectObject);
                         break;
                 }
@@ -112,16 +114,17 @@ class q3wMaterialSupplyPlanningController extends Controller
                 'q3w_material_standards.name as standard_name',
                 'q3w_material_standards.weight',
                 'q3w_material_comments.comment',
-                'q3w_material_supply_materials.material_id as supply_material_id'
+                'q3w_material_supply_materials.material_id as supply_material_id',
 
             ])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function getAvailableMaterialList(Request $request) {
+    public function getAvailableMaterialList(Request $request)
+    {
         $filterData = json_decode($request->input('loadOptions'));
 
-        if (!isset($filterData->userData->brand_type_id) || !isset($filterData->userData->quantity)) {
+        if (! isset($filterData->userData->brand_type_id) || ! isset($filterData->userData->quantity)) {
             return json_encode([]);
         }
 
@@ -139,7 +142,7 @@ class q3wMaterialSupplyPlanningController extends Controller
                     $join->on('supply_materials.source_project_object_id', 'project_objects.id');
                     $join->on('supply_materials.planning_object_id', DB::raw($filterData->userData->planning_object_id));
                     $join->on('supply_materials.supply_quantity', DB::raw($filterData->userData->quantity));
-            })
+                })
             ->whereNotNull('brand_type_id')
             ->where('quantity', '<>', 0)
             ->where('amount', '<>', 0)
@@ -161,19 +164,18 @@ class q3wMaterialSupplyPlanningController extends Controller
                 DB::raw('supply_materials.weight as reserved_weight'),
                 DB::raw('IFNULL(supply_materials.id, UUID()) as reserved_id'),
                 DB::raw('round(sum(`amount` * `quantity` * `q3w_material_standards`.`weight`), 3) as summary_weight'),
-                DB::raw('(select round(sum(tmp_supply_materials.weight), 3) ' .
-                    'from q3w_material_supply_materials as tmp_supply_materials ' .
-                    'left join q3w_material_supply_planning as tmp_supply_planning ' .
-                    'on tmp_supply_materials.supply_planning_id = tmp_supply_planning.id ' .
+                DB::raw('(select round(sum(tmp_supply_materials.weight), 3) '.
+                    'from q3w_material_supply_materials as tmp_supply_materials '.
+                    'left join q3w_material_supply_planning as tmp_supply_planning '.
+                    'on tmp_supply_materials.supply_planning_id = tmp_supply_planning.id '.
                     'where tmp_supply_planning.planning_object_id <> '.$filterData->userData->planning_object_id.' '.
-                    'and tmp_supply_planning.quantity between ' . ($filterData->userData->quantity - SUPPLY_PLANNING_QUANTITY_DELTA) .' and '.($filterData->userData->quantity + SUPPLY_PLANNING_QUANTITY_DELTA).' '.
+                    'and tmp_supply_planning.quantity between '.($filterData->userData->quantity - SUPPLY_PLANNING_QUANTITY_DELTA).' and '.($filterData->userData->quantity + SUPPLY_PLANNING_QUANTITY_DELTA).' '.
                     'and tmp_supply_materials.standard_id = q3w_materials.standard_id '.
-                    'and tmp_supply_materials.source_project_object_id = q3w_materials.project_object) as reserved_weight_on_other_objects')
+                    'and tmp_supply_materials.source_project_object_id = q3w_materials.project_object) as reserved_weight_on_other_objects'),
             ])
             ->get()
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
-
 
     /**
      * Returns the JSON of data.
@@ -206,8 +208,8 @@ class q3wMaterialSupplyPlanningController extends Controller
                                             join `q3w_material_standards` on `q3w_materials`.`standard_id` = `q3w_material_standards`.`id`
                                    where `q3w_materials`.`project_object` = `q3w_material_supply_planning`.`project_object_id`
                                      and `q3w_material_brands_relations`.`brand_id` = `q3w_material_supply_planning`.`brand_id`
-                                     and `q3w_materials`.`quantity` between `q3w_material_supply_planning`.`quantity` - ' . SUPPLY_PLANNING_QUANTITY_DELTA . ' and `q3w_material_supply_planning`.`quantity` + ' . SUPPLY_PLANNING_QUANTITY_DELTA . '),
-                                  0) as `remains_weight`')
+                                     and `q3w_materials`.`quantity` between `q3w_material_supply_planning`.`quantity` - '.SUPPLY_PLANNING_QUANTITY_DELTA.' and `q3w_material_supply_planning`.`quantity` + '.SUPPLY_PLANNING_QUANTITY_DELTA.'),
+                                  0) as `remains_weight`'),
             ])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
@@ -215,21 +217,20 @@ class q3wMaterialSupplyPlanningController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
-        $data = json_decode($request->all()["data"]);
+        $data = json_decode($request->all()['data']);
 
         DB::beginTransaction();
 
         $materialSupplyPlanningRow = new q3wMaterialSupplyPlanning([
-                'planning_object_id' => $data->supply_object_id,
-                'brand_type_id' => $data->brand_type_id,
-                'quantity' => $data->quantity,
-                'planned_project_weight' => $data->planned_project_weight
-            ]
+            'planning_object_id' => $data->supply_object_id,
+            'brand_type_id' => $data->brand_type_id,
+            'quantity' => $data->quantity,
+            'planned_project_weight' => $data->planned_project_weight,
+        ]
         );
 
         $materialSupplyPlanningRow->save();
@@ -245,7 +246,7 @@ class q3wMaterialSupplyPlanningController extends Controller
 
             if (isset($supplyMaterial)) {
                 $supplyMaterial->update([
-                    'weight' => $supplyMaterialData->data->reserved_weight
+                    'weight' => $supplyMaterialData->data->reserved_weight,
                 ]);
             } else {
                 q3wMaterialSupplyMaterial::create([
@@ -261,21 +262,19 @@ class q3wMaterialSupplyPlanningController extends Controller
 
         return response()->json([
             'result' => 'ok',
-            'key' => $materialSupplyPlanningRow->id
+            'key' => $materialSupplyPlanningRow->id,
         ], 201);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request)
     {
-        $id = $request->all()["key"]["id"];
-        $modifiedData = json_decode($request->all()["modifiedData"]);
-
+        $id = $request->all()['key']['id'];
+        $modifiedData = json_decode($request->all()['modifiedData']);
 
         DB::beginTransaction();
 
@@ -284,7 +283,7 @@ class q3wMaterialSupplyPlanningController extends Controller
         if (isset($modifiedData->planned_project_weight)) {
             $materialSupplyPlanningRow->update(
                 [
-                    "planned_project_weight" => $modifiedData->planned_project_weight
+                    'planned_project_weight' => $modifiedData->planned_project_weight,
                 ]
             );
 
@@ -296,7 +295,7 @@ class q3wMaterialSupplyPlanningController extends Controller
 
             if (isset($supplyMaterial)) {
                 $supplyMaterial->update([
-                    'weight' => $supplyMaterialData->data->reserved_weight
+                    'weight' => $supplyMaterialData->data->reserved_weight,
                 ]);
             } else {
                 $supplyMaterial = q3wMaterialSupplyMaterial::create([
@@ -313,25 +312,24 @@ class q3wMaterialSupplyPlanningController extends Controller
         DB::commit();
 
         return response()->json([
-            'result' => 'ok'
+            'result' => 'ok',
         ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function delete(Request $request)
     {
-        $id = $request->all()["key"]["id"];
+        $id = $request->all()['key']['id'];
 
-        q3wMaterialSupplyMaterial::where("supply_planning_id", "=", $id)->delete();
+        q3wMaterialSupplyMaterial::where('supply_planning_id', '=', $id)->delete();
         q3wMaterialSupplyPlanning::findOrFail($id)->delete();
 
         return response()->json([
-            'result' => 'ok'
+            'result' => 'ok',
         ], 200);
     }
 }

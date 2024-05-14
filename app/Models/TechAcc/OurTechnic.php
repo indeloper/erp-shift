@@ -7,29 +7,29 @@ use App\Models\TechAcc\Defects\Defects;
 use App\Models\User;
 use App\Traits\DefaultSortable;
 use App\Traits\Defectable;
+use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Documentable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
-use App\Traits\DevExtremeDataSourceLoadable;
 
 class OurTechnic extends Model
 {
-    use DevExtremeDataSourceLoadable, Documentable, Defectable, SoftDeletes, DefaultSortable;
+    use DefaultSortable, Defectable, DevExtremeDataSourceLoadable, Documentable, SoftDeletes;
 
     protected $guarded = ['id'];
 
     public $defaultSortOrder = [
-        'name' => 'asc'
+        'name' => 'asc',
     ];
 
     // protected $fillable = ['brand','model','owner','start_location_id','technic_category_id','exploitation_start','inventory_number',];
 
-    // protected $appends = 
-    // ['category_name', 
-    // // 'name', 
+    // protected $appends =
+    // ['category_name',
+    // // 'name',
     // 'human_status', 'release_date', 'short_tickets', 'work_link'];
 
     // protected $with = ['defectsLight', 'start_location'];
@@ -99,7 +99,7 @@ class OurTechnic extends Model
 
     public function category_characteristics()
     {
-        return $this->belongsToMany(CategoryCharacteristic::class,  'category_characteristic_technic', 'technic_id')
+        return $this->belongsToMany(CategoryCharacteristic::class, 'category_characteristic_technic', 'technic_id')
             ->withPivot('value')
             ->as('data');
     }
@@ -123,7 +123,6 @@ class OurTechnic extends Model
 
     /**
      * This is short data of tickets for summary on technics page
-     *
      */
     // public function getShortTicketsAttribute()
     // {
@@ -146,6 +145,7 @@ class OurTechnic extends Model
 
     /**
      * This function find responsible RP for technic
+     *
      * @return User|Collection
      */
     // public function getResponsibleUser()
@@ -187,7 +187,8 @@ class OurTechnic extends Model
 
     /**
      * Scope for technics without tickets in some statuses or defects
-     * @param $query
+     *
+     * @param  $query
      * @return mixed
      */
     // public function scopeFree($query)

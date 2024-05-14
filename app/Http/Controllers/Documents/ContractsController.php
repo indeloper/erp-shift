@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Documents;
 
+use App\Http\Controllers\Controller;
+use App\Models\Contract\Contract;
 use App\Models\Project;
 use App\Traits\AdditionalFunctions;
-use App\Models\Contract\Contract;
-
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class ContractsController extends Controller
@@ -33,7 +32,7 @@ class ContractsController extends Controller
                 'entities' => Project::$entities,
                 'types' => Contract::getModel()->contract_types,
                 'statuses' => Contract::getModel()->contract_status,
-            ]
+            ],
         ]);
     }
 
@@ -47,18 +46,18 @@ class ContractsController extends Controller
             $contracts_query->where(function ($query) use ($search) {
                 return
                     $query->orWhere('foreign_id', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
-                    ->orWhereHas('subcontractor', function ($q) use ($search) {
-                        return $q->where('name', 'like', "%{$search}%");
-                    });
+                        ->orWhere('name', 'like', "%{$search}%")
+                        ->orWhereHas('subcontractor', function ($q) use ($search) {
+                            return $q->where('name', 'like', "%{$search}%");
+                        });
             });
         }
 
         if ($request->object_id and $request->from_mat_acc) {
             $object_id = $request->object_id;
-            $contracts_query->whereHas('project', function($q) use($object_id) {
-                    return $q->where('object_id', $object_id);
-                })->whereNull('main_contract_id')
+            $contracts_query->whereHas('project', function ($q) use ($object_id) {
+                return $q->where('object_id', $object_id);
+            })->whereNull('main_contract_id')
                 ->where('type', 1)
                 ->whereIn('status', [5, 6]);
         }
@@ -78,7 +77,7 @@ class ContractsController extends Controller
             if ($latest_versions->count() > 1) {
                 $label .= " {$contract->project->name}";
             }
-            $contracts_json[] = ['code' => $contract->id . '', 'label' => $label];
+            $contracts_json[] = ['code' => $contract->id.'', 'label' => $label];
         }
 
         return response()->json($contracts_json);

@@ -9,10 +9,10 @@ use Carbon\Carbon;
 use Faker\Generator as Faker;
 
 $factory->define(OurTechnicTicket::class, function (Faker $faker, $attributes) {
-    if(!ProjectObject::count()) {
+    if (! ProjectObject::count()) {
         factory(ProjectObject::class, 6)->create();
     }
-    if (!OurTechnic::count()) {
+    if (! OurTechnic::count()) {
         $technic_id = factory(OurTechnic::class)->create();
     } else {
         $technic_id = OurTechnic::first()->id;

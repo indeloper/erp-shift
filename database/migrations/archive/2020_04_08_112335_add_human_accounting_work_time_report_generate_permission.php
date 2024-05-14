@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddHumanAccountingWorkTimeReportGeneratePermission extends Migration
 {
@@ -15,9 +15,9 @@ class AddHumanAccountingWorkTimeReportGeneratePermission extends Migration
 
         $insert[] = [
             'category' => 18,
-            "name" => self::PERMISSION_NAME,
-            "codename" => self::PERMISSION_CODENAME,
-            'created_at' => now()
+            'name' => self::PERMISSION_NAME,
+            'codename' => self::PERMISSION_CODENAME,
+            'created_at' => now(),
         ];
 
         DB::beginTransaction();
@@ -30,12 +30,12 @@ class AddHumanAccountingWorkTimeReportGeneratePermission extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

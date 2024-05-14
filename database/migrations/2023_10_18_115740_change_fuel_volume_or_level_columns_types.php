@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeFuelVolumeOrLevelColumnsTypes extends Migration
 {
@@ -36,7 +36,7 @@ class ChangeFuelVolumeOrLevelColumnsTypes extends Migration
 
         Schema::table('fuel_tank_flow_remains', function (Blueprint $table) {
             $table->dropColumn('volume');
-        });   
+        });
         Schema::table('fuel_tank_flow_remains', function (Blueprint $table) {
             $table->integer('volume')->nullable()->after('fuel_tank_id')->comment('Количество топлива');
         });

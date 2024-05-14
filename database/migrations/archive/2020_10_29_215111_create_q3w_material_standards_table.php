@@ -1,9 +1,9 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class CreateQ3wMaterialStandardsTable extends Migration
 {
@@ -28,7 +28,7 @@ class CreateQ3wMaterialStandardsTable extends Migration
             $table->index('material_type');
         });
 
-        Schema::table('q3w_material_standards', function($table) {
+        Schema::table('q3w_material_standards', function ($table) {
             $table->foreign('material_type')->references('id')->on('q3w_material_types');
         });
 
@@ -102,8 +102,6 @@ class CreateQ3wMaterialStandardsTable extends Migration
         //Какая-то проблема с таким вызовом через putty. Придется делать руками после миграций.
         //Artisan::call('db:seed', array('--class' => 'materialsSeeder'));
     }
-
-
 
     /**
      * Reverse the migrations.

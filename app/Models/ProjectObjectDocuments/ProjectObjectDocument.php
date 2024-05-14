@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ProjectObjectDocument extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
     protected $guarded = [];
 
@@ -56,13 +56,12 @@ class ProjectObjectDocument extends Model
     public function getPermissionsAttribute()
     {
         $permissionsArray = [];
-        $permissions = Permission::where("category", 20)->get();
+        $permissions = Permission::where('category', 20)->get();
 
-        foreach ($permissions as $permission){
+        foreach ($permissions as $permission) {
             $permissionsArray[$permission->codename] = Auth::user()->can($permission->codename);
         }
 
         return $permissionsArray;
     }
-    
 }

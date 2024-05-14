@@ -8,10 +8,7 @@ use App\Models\User;
 
 final class UserRepository implements UserRepositoryInterface
 {
-
     /**
-     * @param $userId
-     *
      * @return User|null
      */
     public function getUserById($userId)
@@ -19,5 +16,4 @@ final class UserRepository implements UserRepositoryInterface
         return User::query()
             ->find($userId);
     }
-
 }

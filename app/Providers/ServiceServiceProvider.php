@@ -34,5 +34,4 @@ class ServiceServiceProvider extends ServiceProvider
             UserService::class
         );
     }
-
 }

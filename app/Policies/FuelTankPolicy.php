@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FuelTankPolicy
@@ -13,7 +13,6 @@ class FuelTankPolicy
     /**
      * Determine whether the user can create fuel tanks.
      *
-     * @param  \App\Models\User  $user
      * @param  \App\Models\TechAcc\FuelTank\FuelTank  $fuelTank
      * @return mixed
      */
@@ -26,8 +25,6 @@ class FuelTankPolicy
     /**
      * Determine whether the user can update the fuel tank.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\TechAcc\FuelTank\FuelTank  $fuelTank
      * @return mixed
      */
     public function update(User $user, FuelTank $fuelTank)
@@ -39,8 +36,6 @@ class FuelTankPolicy
     /**
      * Determine whether the user can delete the fuel tank.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\TechAcc\FuelTank\FuelTank  $fuelTank
      * @return mixed
      */
     public function destroy(User $user, FuelTank $fuelTank)

@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddVIPnotificationForLogist extends Migration
 {
@@ -18,7 +18,7 @@ class AddVIPnotificationForLogist extends Migration
         DB::beginTransaction();
 
         $notification_group = [
-            'notification_id'  => self::NOTIFICATION_TYPE,
+            'notification_id' => self::NOTIFICATION_TYPE,
             'user_id' => User::HARDCODED_PERSONS['router'],
         ];
 

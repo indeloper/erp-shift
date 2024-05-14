@@ -11,10 +11,8 @@ class ManualMaterialCategoryAttribute extends Model
 
     protected $fillable = ['name', 'description', 'is_required', 'unit', 'category_id', 'is_preset', 'from', 'to', 'step', 'value', 'is_display'];
 
-
     public function category()
     {
         return $this->hasOne(ManualMaterialCategory::class, 'id', 'category_id');
     }
 }
-

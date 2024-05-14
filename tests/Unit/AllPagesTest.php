@@ -2,13 +2,10 @@
 
 namespace Tests\Unit;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-use App\Models\User;
 
 class AllPagesTest extends TestCase
 {
@@ -16,11 +13,8 @@ class AllPagesTest extends TestCase
 
     /**
      * A basic test example.
-     *
-     * @return void
      */
-
-    public function setUp() :void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -71,11 +65,11 @@ class AllPagesTest extends TestCase
         $response->assertStatus(200);
     }
 
-//    public function test_document_templates()
-//    {
-//        $response = $this->get('/document_templates');
-//        $response->assertStatus(200);
-//    }
+    //    public function test_document_templates()
+    //    {
+    //        $response = $this->get('/document_templates');
+    //        $response->assertStatus(200);
+    //    }
 
     public function test_notifications()
     {

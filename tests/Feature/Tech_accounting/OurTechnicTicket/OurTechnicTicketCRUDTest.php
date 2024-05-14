@@ -7,7 +7,6 @@ use Tests\Feature\Tech_accounting\OurTechnicTicket\OurTechnicTicketTestCase;
 
 class OurTechnicTicketCRUDTest extends OurTechnicTicketTestCase
 {
-
     /** @test */
     public function it_can_store_ticket_and_give_it_type_three() //store
     {

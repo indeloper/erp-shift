@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest\ProjectStatRequest;
 use App\Models\Project;
 use App\Services\Commerce\ProjectDashboardService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class ProjectDashboardController extends Controller
 {
@@ -23,7 +23,7 @@ class ProjectDashboardController extends Controller
     {
         $project = Project::findOrFail($request->project_id);
 
-        $data =(new ProjectDashboardService())->collectStats($project);
+        $data = (new ProjectDashboardService())->collectStats($project);
 
         return response([
             'data' => $data,

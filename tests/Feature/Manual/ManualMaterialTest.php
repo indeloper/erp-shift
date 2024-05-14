@@ -6,13 +6,12 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\User;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class ManualMaterialTest extends TestCase
 {
     use WithFaker;
-
 
     /** @test */
     public function it_replaces_comma_with_dot_only_in_numbers()
@@ -44,7 +43,7 @@ class ManualMaterialTest extends TestCase
 
         $this->assertEquals(ManualMaterial::latest()->first()->name, $mat_name);
     }
-    
+
     /** @test */
     public function it_replaces_comme_even_when_stored_in_code()
     {

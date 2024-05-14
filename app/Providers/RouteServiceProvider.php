@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -23,10 +23,10 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Route::macro('registerBaseRoutes', function($controller, $attachmentsRoutes = false) {
+        Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = false) {
             Route::get('/', $controller.'@getPageCore')->name('getPageCore');
             Route::apiResource('resource', $controller);
-            if($attachmentsRoutes) {
+            if ($attachmentsRoutes) {
                 Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
                 Route::post('downloadAttachments', $controller.'@downloadAttachments')->name('downloadAttachments');
             }
@@ -65,47 +65,47 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware('web')->namespace(($this->namespace))->group(base_path('routes/web.php'));
 
-        Route::middleware(['web','activeuser', 'auth'])->namespace($this->namespace)->group(function() {
+        Route::middleware(['web', 'activeuser', 'auth'])->namespace($this->namespace)->group(function () {
 
-                Route::prefix('contractors')->as('contractors::')->namespace('Commerce')->group(function () {
-                    require base_path('routes/modules/contractors.php');
-                });
+            Route::prefix('contractors')->as('contractors::')->namespace('Commerce')->group(function () {
+                require base_path('routes/modules/contractors.php');
+            });
 
-                Route::prefix('building')->as('building::')->namespace('Building')->group(function() {
-                    Route::prefix('mat_acc')->as('mat_acc::')->namespace('MaterialAccounting')->group(function() {
-                        Route::prefix('arrival')->as('arrival::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/arrival.php');
-                        });
-                        Route::prefix('write_off')->as('write_off::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/write_off.php');
-                        });
-                        Route::prefix('transformation')->as('transformation::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/transformation.php');
-                        });
-                        Route::prefix('moving')->as('moving::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/moving.php');
-                        });
-
-                        require base_path('routes/modules/building/material_accounting/main.php');
+            Route::prefix('building')->as('building::')->namespace('Building')->group(function () {
+                Route::prefix('mat_acc')->as('mat_acc::')->namespace('MaterialAccounting')->group(function () {
+                    Route::prefix('arrival')->as('arrival::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/arrival.php');
+                    });
+                    Route::prefix('write_off')->as('write_off::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/write_off.php');
+                    });
+                    Route::prefix('transformation')->as('transformation::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/transformation.php');
+                    });
+                    Route::prefix('moving')->as('moving::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/moving.php');
                     });
 
-                    Route::prefix('tech_acc')->as('tech_acc::')->namespace('TechAccounting')->group(function() {
-                        require base_path('routes/modules/building/tech_accounting/tech.php');
-                    });
-
-                    Route::prefix('vehicles')->as('vehicles::')->namespace('TechAccounting')->group(function() {
-                        require base_path('routes/modules/building/tech_accounting/vehicles.php');
-                    });
+                    require base_path('routes/modules/building/material_accounting/main.php');
                 });
 
-                Route::namespace('Commerce')->prefix('projects')->as('projects::')->group(function() {
-                    require base_path('routes/modules/projects.php');
+                Route::prefix('tech_acc')->as('tech_acc::')->namespace('TechAccounting')->group(function () {
+                    require base_path('routes/modules/building/tech_accounting/tech.php');
                 });
 
-                Route::namespace('System')->prefix('messages')->as('messages::')->group(function() {
-                    require base_path('routes/modules/messages.php');
+                Route::prefix('vehicles')->as('vehicles::')->namespace('TechAccounting')->group(function () {
+                    require base_path('routes/modules/building/tech_accounting/vehicles.php');
                 });
             });
+
+            Route::namespace('Commerce')->prefix('projects')->as('projects::')->group(function () {
+                require base_path('routes/modules/projects.php');
+            });
+
+            Route::namespace('System')->prefix('messages')->as('messages::')->group(function () {
+                require base_path('routes/modules/messages.php');
+            });
+        });
     }
 
     /**
@@ -140,5 +140,4 @@ class RouteServiceProvider extends ServiceProvider
             ->name('profile::')
             ->group(base_path('routes/user/profile.php'));
     }
-
 }

@@ -18,12 +18,12 @@ $factory->define(FuelTankOperation::class, function (Faker $faker) {
     $type = $faker->randomElement([1, 2]);
 
     $fuel_tank = FuelTank::inRandomOrder()->first();
-    if(!$fuel_tank) {
+    if (! $fuel_tank) {
         $fuel_tank = factory(FuelTank::class)->create();
     }
 
     $ourTechnic = OurTechnic::inRandomOrder()->first();
-    if(!$ourTechnic) {
+    if (! $ourTechnic) {
         $ourTechnic = factory(OurTechnic::class)->create();
     }
 
@@ -41,7 +41,7 @@ $factory->define(FuelTankOperation::class, function (Faker $faker) {
     ];
 });
 
-$factory->state(FuelTankOperation::class, 'outgo', function($faker) {
+$factory->state(FuelTankOperation::class, 'outgo', function ($faker) {
     return [
         'our_technic_id' => factory(OurTechnic::class)->create(),
         'contractor_id' => '',
@@ -49,7 +49,7 @@ $factory->state(FuelTankOperation::class, 'outgo', function($faker) {
     ];
 });
 
-$factory->state(FuelTankOperation::class, 'income', function($faker) {
+$factory->state(FuelTankOperation::class, 'income', function ($faker) {
     $contractor = Contractor::count() ? Contractor::inRandomOrder()->first() : factory(Contractor::class)->create();
 
     return [
@@ -59,7 +59,7 @@ $factory->state(FuelTankOperation::class, 'income', function($faker) {
     ];
 });
 
-$factory->state(FuelTankOperation::class, 'manual', function($faker) {
+$factory->state(FuelTankOperation::class, 'manual', function ($faker) {
     return [
         'contractor_id' => '',
         'our_technic_id' => '',

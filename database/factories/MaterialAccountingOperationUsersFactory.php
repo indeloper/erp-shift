@@ -9,6 +9,7 @@ use Faker\Generator as Faker;
 
 $factory->define(MaterialAccountingOperationResponsibleUsers::class, function (Faker $faker) {
     $passedAttributes = func_get_arg(1);
+
     return [
         'operation_id' => function () use ($passedAttributes) {
             if (! in_array('operation_id', $passedAttributes)) {

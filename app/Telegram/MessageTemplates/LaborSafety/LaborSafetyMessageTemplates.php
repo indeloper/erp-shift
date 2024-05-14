@@ -9,9 +9,9 @@ use morphos\Russian\RussianLanguage;
 
 class LaborSafetyMessageTemplates
 {
-    public function getLaborSafetyNewOrderRequestNotificationTemplateParams($params) {
+    public function getLaborSafetyNewOrderRequestNotificationTemplateParams($params)
+    {
         $orderRequestId = $params['orderRequest']->id;
-
 
         $orderRequestAuthor = User::find($params['orderRequest']->author_user_id);
         $orderRequestAuthorName = $orderRequestAuthor->format('L f. p.', 'именительный') ?? null;
@@ -23,11 +23,11 @@ class LaborSafetyMessageTemplates
         $text =
             '<b>Заявка на формирование приказов</b>'
             ."\n".
-            "<i>"
-            . "<a href='$orderRequestAuthorUrl'>$orderRequestAuthorName</a> "
-            . RussianLanguage::verb('создал', mb_strtolower($orderRequestAuthor->gender))
+            '<i>'
+            ."<a href='$orderRequestAuthorUrl'>$orderRequestAuthorName</a> "
+            .RussianLanguage::verb('создал', mb_strtolower($orderRequestAuthor->gender))
             ." заявку <u>#$orderRequestId</u>"
-            . "</i>"
+            .'</i>'
             ."\n"."\n"
             ."<b>Организация:</b> $company->name"
             ."\n"
@@ -36,11 +36,11 @@ class LaborSafetyMessageTemplates
         $message = [
             'parse_mode' => 'HTML',
             'reply_markup' => json_encode(['inline_keyboard' => []]),
-            'text' => $text
+            'text' => $text,
         ];
 
         return [
-            'message' => $message
+            'message' => $message,
         ];
     }
 }

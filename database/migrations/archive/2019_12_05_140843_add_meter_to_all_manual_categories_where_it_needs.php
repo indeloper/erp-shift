@@ -1,11 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
-
 use App\Models\Manual\ManualMaterialCategory;
-
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 class AddMeterToAllManualCategoriesWhereItNeeds extends Migration
@@ -23,7 +19,7 @@ class AddMeterToAllManualCategoriesWhereItNeeds extends Migration
         // Угловой элемент E22 (LV22/C9)
         $attr_meter = $category->attributes()->whereUnit('м')->first();
 
-        $category->formula .= ' <attr>' . $attr_meter->id . '</attr>' . ' метров';
+        $category->formula .= ' <attr>'.$attr_meter->id.'</attr>'.' метров';
         $category->save();
 
         DB::commit();

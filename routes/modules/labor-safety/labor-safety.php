@@ -21,4 +21,3 @@ Route::post('/labor-safety/orders-and-requests/download', 'LaborSafety\LaborSafe
 
 Route::get('/labor-safety/request-workers/list', 'LaborSafety\LaborSafetyRequestController@getRequestWorkers')->name('labor-safety.request-workers.list');
 Route::get('/labor-safety/request-workers/worker-types', 'LaborSafety\LaborSafetyRequestController@getRequestWorkersTypes')->name('labor-safety.request-workers.worker-types');
-

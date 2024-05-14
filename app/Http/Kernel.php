@@ -2,10 +2,9 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\ActiveUser;
 use App\Http\Middleware\LogRequests;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
-use App\Http\Middleware\ActiveUser;
-
 
 class Kernel extends HttpKernel
 {
@@ -18,7 +17,7 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \App\Http\Middleware\CheckForMaintenanceMode::class,
-//        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        //        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStringsLimited::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
@@ -64,7 +63,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'activeuser' => ActiveUser::class,
-        'log.requests' => LogRequests::class
+        'log.requests' => LogRequests::class,
     ];
 
     /**

@@ -1,11 +1,11 @@
 <?php
+
 Route::group(['middleware' => 'can:contractors'], function () {
     Route::get('/', 'ContractorController@index')->name('index');
     Route::get('/card/{id}', 'ContractorController@card')->name('card');
     Route::get('/create', 'ContractorController@create')->name('create')->middleware('can:contractors_create');
     Route::get('/edit/{id}', 'ContractorController@edit')->name('edit')->middleware('can:contractors_edit');
     Route::get('/tasks/{id}', 'ContractorController@tasks')->name('tasks');
-
 
     Route::post('/store', 'ContractorController@store')->name('store')->middleware('can:contractors_create');
     Route::post('/update/{id}', 'ContractorController@update')->name('update')->middleware('can:contractors_edit');

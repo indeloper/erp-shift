@@ -50,7 +50,7 @@ class Department extends Model
             }
         }
 
-        $perm = array_filter($perm, function($v, $k) use ($groups) {
+        $perm = array_filter($perm, function ($v, $k) use ($groups) {
             return $v == $groups->count();
         }, ARRAY_FILTER_USE_BOTH);
 

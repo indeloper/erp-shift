@@ -1,9 +1,9 @@
 <?php
 
-use Faker\Generator as Faker;
-
 use App\Models\Department;
 use App\Models\Group;
+use Faker\Generator as Faker;
+
 /*
 |--------------------------------------------------------------------------
 | Model Factories

@@ -4,24 +4,23 @@ namespace App\Events;
 
 use App\Models\Notification;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Support\Facades\Auth;
-use Telegram\Bot\Laravel\Facades\Telegram;
-use App\Models\User;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class NotificationCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $target_user;
+
     public $text;
+
     public $notifications;
+
     public $type;
+
     public $notification_id;
 
     /**
@@ -49,6 +48,6 @@ class NotificationCreated implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel(config('app.env') . '.App.User.'. $this->target_user);
+        return new Channel(config('app.env').'.App.User.'.$this->target_user);
     }
 }

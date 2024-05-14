@@ -3,21 +3,16 @@
 namespace App\Http\Controllers\Documents;
 
 use App\Http\Controllers\Controller;
-use App\Models\Manual\ManualMaterial;
+use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\Project;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\DB;
-
-use App\Models\Project;
-use App\Models\CommercialOffer\CommercialOffer;
-
 
 class CommercialOffersController extends Controller
 {
     public function index(Request $request)
     {
-        $nice_statuses = implode(',',CommercialOffer::NICE_STATUSES);
+        $nice_statuses = implode(',', CommercialOffer::NICE_STATUSES);
 
         $com_offers = CommercialOffer::forDocuments();
         $material_names = [];
@@ -35,14 +30,14 @@ class CommercialOffersController extends Controller
                         $from = Carbon::createFromFormat('d.m.Y', $dates[0])->toDateString();
                         $to = Carbon::createFromFormat('d.m.Y', $dates[1])->toDateString();
                         $com_offers->whereDate($iter, '>=', $from)->whereDate($iter, '<=', $to);
-                    } else if ($iter == 'commercial_offers.status') {
+                    } elseif ($iter == 'commercial_offers.status') {
                         $search = mb_strtolower($values[$key]);
                         $result = array_filter($com_offers->getModel()->com_offer_status, function ($item) use ($search) {
                             return stristr(mb_strtolower($item), $search);
                         });
 
                         $com_offers->WhereIn($iter, array_keys($result));
-                    } else if ($iter == 'projects.entity') {
+                    } elseif ($iter == 'projects.entity') {
                         $search = mb_strtolower($values[$key]);
                         $result = array_filter(Project::$entities, function ($item) use ($search) {
                             return stristr(mb_strtolower($item), $search);
@@ -53,16 +48,16 @@ class CommercialOffersController extends Controller
                 } elseif ($iter == 'material') {
                     $mat_names[] = $values[$key];
                 } else {
-                    $com_offers->where($iter, 'like', '%' . $values[$key] . '%');
+                    $com_offers->where($iter, 'like', '%'.$values[$key].'%');
                 }
             }
 
             if ($mat_names) {
                 $com_offers->where(function ($query) use ($mat_names) {
                     foreach ($mat_names as $name) {
-                        $query->orWhereHas('work_volume.materials', function($work_volume) use ($name) {
-                         $work_volume->whereHasMorph('manual', ['App\Models\Manual\ManualMaterial'], function($mat) use ($name) {
-                                $mat->where('name', 'like', '%' . $name . '%')
+                        $query->orWhereHas('work_volume.materials', function ($work_volume) use ($name) {
+                            $work_volume->whereHasMorph('manual', ['App\Models\Manual\ManualMaterial'], function ($mat) use ($name) {
+                                $mat->where('name', 'like', '%'.$name.'%')
                                     ->where('material_type', 'regular');
                             });
                         });

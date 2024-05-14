@@ -3,9 +3,7 @@
 use App\Models\Company\Company;
 use App\Models\Employees\Employees1cSubdivision;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use SebastianBergmann\Environment\Console;
 
 class employeeSubdivisionsSeeder extends Seeder
 {
@@ -405,7 +403,7 @@ class employeeSubdivisionsSeeder extends Seeder
 
             $subdivisionParentId = null;
 
-            if (!empty($subdivision->subdivisionParentUID)) {
+            if (! empty($subdivision->subdivisionParentUID)) {
                 $subdivisionParentId = Employees1cSubdivision::where('subdivision_1c_uid', '=', $subdivision->subdivisionParentUID)->get()->first();
                 if (isset($subdivisionParentId)) {
                     $subdivisionParentId = $subdivisionParentId->id;
@@ -418,9 +416,9 @@ class employeeSubdivisionsSeeder extends Seeder
                         'subdivision_1c_uid' => $subdivision->subdivisionUID,
                     ],
                     [
-                        "subdivision_parent_id" => $subdivisionParentId,
-                        "name" => $subdivision->subdivisionName,
-                        "company_id" => $company->id
+                        'subdivision_parent_id' => $subdivisionParentId,
+                        'name' => $subdivision->subdivisionName,
+                        'company_id' => $company->id,
                     ]
                 );
             }

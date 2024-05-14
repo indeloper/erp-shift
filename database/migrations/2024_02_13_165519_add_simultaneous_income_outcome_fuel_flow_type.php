@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +22,7 @@ class AddSimultaneousIncomeOutcomeFuelFlowType extends Migration
      */
     public function down()
     {
-        foreach(self::NEW_ENTRIES as $newEntry) {
+        foreach (self::NEW_ENTRIES as $newEntry) {
             DB::table('fuel_tank_flow_types')->where('slug', $newEntry['slug'])->delete();
         }
     }
@@ -32,18 +30,18 @@ class AddSimultaneousIncomeOutcomeFuelFlowType extends Migration
     public function getNewEntries()
     {
         $newEntries = self::NEW_ENTRIES;
-        foreach($newEntries as $key=>$newEntry) {
+        foreach ($newEntries as $key => $newEntry) {
             $newEntries[$key]['created_at'] = now();
             $newEntries[$key]['updated_at'] = now();
         }
+
         return $newEntries;
     }
 
     const NEW_ENTRIES = [
         [
-            'name' => 'Прямая заправка', 
+            'name' => 'Прямая заправка',
             'slug' => 'simultaneous_income_outcome',
         ],
     ];
-
 }

@@ -6,9 +6,9 @@ use App\Models\q3wMaterial\q3wMaterialBrandType;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wStandardPropertiesRelations;
 use App\Models\q3wMaterial\q3wStandardProperty;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddQ3wMaterialsBrandsTable extends Migration
 {
@@ -31,8 +31,8 @@ class AddQ3wMaterialsBrandsTable extends Migration
 
         foreach ($brandTypeNames as $brandTypeName) {
             $brandType = new q3wMaterialBrandType();
-            $brandType -> name = $brandTypeName;
-            $brandType -> save();
+            $brandType->name = $brandTypeName;
+            $brandType->save();
         }
 
         Schema::create('q3w_material_brands', function (Blueprint $table) {
@@ -318,7 +318,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
             ['ЗД-2', '9', ''],
             ['ЗД-3', '9', '']];
 
-        foreach ($brands as $brand){
+        foreach ($brands as $brand) {
             if (empty($brand[2])) {
                 $materialBrandTypeId = null;
             } else {
@@ -326,10 +326,10 @@ class AddQ3wMaterialsBrandsTable extends Migration
             }
 
             $materialBrand = new q3wMaterialBrand();
-            $materialBrand -> name = $brand[0];
-            $materialBrand -> material_type_id = $brand[1];
-            $materialBrand -> brand_type_id = $materialBrandTypeId;
-            $materialBrand -> save();
+            $materialBrand->name = $brand[0];
+            $materialBrand->material_type_id = $brand[1];
+            $materialBrand->brand_type_id = $materialBrandTypeId;
+            $materialBrand->save();
         }
 
         Schema::create('q3w_material_brands_relations', function (Blueprint $table) {
@@ -345,11 +345,11 @@ class AddQ3wMaterialsBrandsTable extends Migration
 
         $materialBrands = q3wMaterialBrand::all();
 
-        foreach ($materialBrands as $materialBrand){
+        foreach ($materialBrands as $materialBrand) {
             if ($materialBrand->material_type_id == 7) {
-                $materialStandards = q3wMaterialStandard::where('name', 'like', '%к ' . $materialBrand->name)->get();
+                $materialStandards = q3wMaterialStandard::where('name', 'like', '%к '.$materialBrand->name)->get();
             } else {
-                $materialStandards = q3wMaterialStandard::where('name', 'like', '%' . $materialBrand->name . '%')->get();
+                $materialStandards = q3wMaterialStandard::where('name', 'like', '%'.$materialBrand->name.'%')->get();
             }
             foreach ($materialStandards as $materialStandard) {
                 $brandRelation = new q3wMaterialBrandsRelation();
@@ -363,7 +363,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $materialBrand = new q3wMaterialBrand([
             'name' => 'AZ 24-700',
             'material_type_id' => 1,
-            'brand_type_id' => q3wMaterialBrandType::where('name', 'like', 'AZ')->first()->id
+            'brand_type_id' => q3wMaterialBrandType::where('name', 'like', 'AZ')->first()->id,
         ]);
         $materialBrand->save();
 
@@ -379,7 +379,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $materialBrand = new q3wMaterialBrand([
             'name' => 'Л5-УМ',
             'material_type_id' => 1,
-            'brand_type_id' => q3wMaterialBrandType::where('name', 'like', 'Л5-УМ')->first()->id
+            'brand_type_id' => q3wMaterialBrandType::where('name', 'like', 'Л5-УМ')->first()->id,
         ]);
         $materialBrand->save();
 
@@ -397,7 +397,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $materialBrand = new q3wMaterialBrand([
             'name' => 'Замок-обойма ОБ',
             'material_type_id' => 6,
-            'brand_type_id' => null
+            'brand_type_id' => null,
         ]);
         $materialBrand->save();
 
@@ -410,7 +410,6 @@ class AddQ3wMaterialsBrandsTable extends Migration
             $brandRelation->save();
         }
 
-
         Schema::create('q3w_standard_properties', function (Blueprint $table) {
             $table->increments('id')->comment('Уникальный идентификатор');
             $table->string('name')->comment('Наименование свойства');
@@ -422,8 +421,8 @@ class AddQ3wMaterialsBrandsTable extends Migration
 
         foreach ($standardPropertiesNames as $standardPropertiesName) {
             $standardProperty = new q3wStandardProperty();
-            $standardProperty -> name = $standardPropertiesName;
-            $standardProperty -> save();
+            $standardProperty->name = $standardPropertiesName;
+            $standardProperty->save();
         }
 
         Schema::create('q3w_standard_properties_relations', function (Blueprint $table) {
@@ -440,7 +439,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'Клиновидный')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%клин%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -450,7 +449,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'Обрезок')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%обрез%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -460,7 +459,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'С замком')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%замком%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -470,7 +469,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'С листом')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%с лист%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -480,7 +479,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'С трубой')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%с труб%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -490,7 +489,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'Спаренный')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%спаренный%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -500,7 +499,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'Стыкованный')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%стыков%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -510,7 +509,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'Угловой')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%Угловой ш%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;
@@ -520,7 +519,7 @@ class AddQ3wMaterialsBrandsTable extends Migration
         $standardPropertyId = q3wStandardProperty::where('name', 'like', 'Угловой')->first()->id;
         $materialStandards = q3wMaterialStandard::where('name', 'like', '%углового ш%')->get();
 
-        foreach ($materialStandards as $standard){
+        foreach ($materialStandards as $standard) {
             $propertyRelation = new q3wStandardPropertiesRelations();
             $propertyRelation->standard_property_id = $standardPropertyId;
             $propertyRelation->standard_id = $standard->id;

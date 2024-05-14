@@ -26,7 +26,7 @@ class AttachContractRequest extends FormRequest
         return [
             'operation_id' => 'required|exists:material_accounting_operations,id',
             'contract_id' => 'required|exists:contracts,id',
-            'task_id' => 'required|exists:tasks,id'
+            'task_id' => 'required|exists:tasks,id',
         ];
     }
 }

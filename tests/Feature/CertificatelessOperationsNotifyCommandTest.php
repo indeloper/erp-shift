@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Contract\Contract;
+use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Models\Notification;
+use App\Models\User;
 use Carbon\Carbon;
-use App\Models\{Contract\Contract, Notification, User};
-use App\Models\MatAcc\{MaterialAccountingOperation,
-    MaterialAccountingOperationMaterials};
 use Tests\TestCase;
 
 class CertificatelessOperationsNotifyCommandTest extends TestCase

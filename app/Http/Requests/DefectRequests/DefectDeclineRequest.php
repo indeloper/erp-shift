@@ -24,7 +24,7 @@ class DefectDeclineRequest extends FormRequest
     public function rules()
     {
         return [
-            'comment' => ['required', 'string', 'max:300']
+            'comment' => ['required', 'string', 'max:300'],
         ];
     }
 }

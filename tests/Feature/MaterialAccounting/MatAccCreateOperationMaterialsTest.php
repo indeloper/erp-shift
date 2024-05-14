@@ -3,15 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Manual\ManualMaterial;
+use App\Models\MatAcc\MaterialAccountingBase;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 use App\Models\ProjectObject;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
-use App\Models\MatAcc\MaterialAccountingBase;
 
 class MatAccCreateOperationMaterialsTest extends TestCase
 {
@@ -34,7 +32,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
                 'material_id' => $manualMaterial->id,
                 'material_unit' => array_flip((new MaterialAccountingOperationMaterials)->units_name)[$manualMaterial->category->category_unit],
                 'material_count' => 5,
-            ]
+            ],
         ];
         $this->assertEquals(MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operation, $materials, 2 /* -> arrival accept material type */, 'arrival'), true);
 
@@ -77,7 +75,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
                 'material_id' => $manualMaterial->id,
                 'material_unit' => array_flip((new MaterialAccountingOperationMaterials)->units_name)[$manualMaterial->category->category_unit],
                 'material_count' => 5,
-            ]
+            ],
         ];
 
         MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operationArrival, $materials, 2 /* -> arrival accept material type */, 'arrival');
@@ -117,7 +115,6 @@ class MatAccCreateOperationMaterialsTest extends TestCase
             'object_id_to' => ProjectObject::orderBy('id', 'desc')->first()->id,
         ]);
 
-
         $manualMaterial = ManualMaterial::with('category')->first();
 
         $materials = [
@@ -125,7 +122,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
                 'material_id' => $manualMaterial->id,
                 'material_unit' => array_flip((new MaterialAccountingOperationMaterials)->units_name)[$manualMaterial->category->category_unit],
                 'material_count' => 5,
-            ]
+            ],
         ];
 
         MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operationArrival, $materials, 2 /* -> arrival accept material type */, 'arrival');
@@ -175,7 +172,6 @@ class MatAccCreateOperationMaterialsTest extends TestCase
             'object_id_to' => ProjectObject::orderBy('id', 'desc')->first()->id,
         ]);
 
-
         $manualMaterial = ManualMaterial::with('category')->take(2)->get();
 
         $materials_from = [
@@ -183,7 +179,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
                 'material_id' => $manualMaterial[0]->id,
                 'material_unit' => array_flip((new MaterialAccountingOperationMaterials)->units_name)[$manualMaterial[0]->category->category_unit],
                 'material_count' => 5,
-            ]
+            ],
         ];
 
         $materials_to = [
@@ -191,7 +187,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
                 'material_id' => $manualMaterial[1]->id,
                 'material_unit' => array_flip((new MaterialAccountingOperationMaterials)->units_name)[$manualMaterial[1]->category->category_unit],
                 'material_count' => 4,
-            ]
+            ],
         ];
 
         MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($operationArrival, $materials_from, 2 /* -> arrival accept material type */, 'arrival');

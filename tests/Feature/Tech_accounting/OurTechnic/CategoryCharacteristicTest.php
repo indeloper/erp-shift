@@ -7,15 +7,13 @@ use App\Models\TechAcc\TechnicCategory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
-
 class CategoryCharacteristicTest extends TestCase
 {
-
     use DatabaseTransactions;
 
     protected $characteristic;
 
-    public function setUp() :void
+    public function setUp(): void
     {
         parent::setUp();
 

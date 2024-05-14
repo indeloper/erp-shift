@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\ProjectRequest;
 
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProjectTimeResponsibleUserRequest extends FormRequest

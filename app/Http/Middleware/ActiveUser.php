@@ -11,12 +11,11 @@ class ActiveUser
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        if (!Auth::user()->status) {
+        if (! Auth::user()->status) {
             Auth::logout();
 
             return redirect()->route('login');
@@ -24,5 +23,4 @@ class ActiveUser
 
         return $next($request);
     }
-
 }

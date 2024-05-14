@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CreateFuelTankTransferHystoriesTable extends Migration
 {
@@ -39,7 +39,7 @@ class CreateFuelTankTransferHystoriesTable extends Migration
             $table->foreign('fuel_tank_flow_id')->references('id')->on('fuel_tank_flows');
 
             $table->integer('fuel_level')->nullable()->comment('Остаток топлива в емкости');
-            
+
             $table->date('event_date')->comment('Дата время факта события');
             $table->timestamps();
             $table->softDeletes();

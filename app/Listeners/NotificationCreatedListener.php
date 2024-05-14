@@ -27,7 +27,6 @@ class NotificationCreatedListener
     /**
      * Handle the event -> send Message In Telegram.
      *
-     * @param  NotificationCreated  $notificationCreated
      * @return void
      */
     public function handle(NotificationCreated $notificationCreated)
@@ -49,16 +48,16 @@ class NotificationCreatedListener
         $message = [
             'chat_id' => $userChatId,
             'parse_mode' => 'HTML',
-            'text' => $messageParams['text'] ?? ''
+            'text' => $messageParams['text'] ?? '',
         ];
 
-        if(!empty($messageParams['reply_markup'])) {
+        if (! empty($messageParams['reply_markup'])) {
             $message['reply_markup'] = $messageParams['reply_markup'];
         }
 
         try {
             // if ($this->appInProduction() and $this->userHasChatIdAndAllowThisNotification($user, $type) and $this->userIsActive($user)) {
-                new TelegramApi('sendMessage', $message, $messageParams['options'] ?? []);
+            new TelegramApi('sendMessage', $message, $messageParams['options'] ?? []);
             // }
         } catch (\Throwable $e) {
             try {
@@ -72,7 +71,7 @@ class NotificationCreatedListener
                     $message = [
                         'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
                         'parse_mode' => 'HTML',
-                        'text' => $text
+                        'text' => $text,
                     ];
 
                     new TelegramApi('sendMessage', $message);
@@ -87,7 +86,7 @@ class NotificationCreatedListener
                 $message = [
                     'chat_id' => '-1001558926749',
                     'parse_mode' => 'HTML',
-                    'text' => $userChatId
+                    'text' => $userChatId,
                 ];
 
                 new TelegramApi('sendMessage', $message);
@@ -103,7 +102,7 @@ class NotificationCreatedListener
 
     public function appInProduction(): bool
     {
-        return in_array(config('app.env'),  ['production', 'local']);
+        return in_array(config('app.env'), ['production', 'local']);
     }
 
     public function userHasChatIdAndAllowThisNotification(User $user, int $type): bool
@@ -121,53 +120,53 @@ class NotificationCreatedListener
     {
         $user = auth()->user();
         $errorsBag = $exception->errors();
-        $error = $exception->getMessage() ? 'Ошибка: ' . $exception->getMessage() : 'Неизвестная ошибка.';
-        $exceptionClass = 'Класс ошибки - ' . get_class($exception) . '.';
-        $file = $exception->getFile() ? 'В файле: ' .
+        $error = $exception->getMessage() ? 'Ошибка: '.$exception->getMessage() : 'Неизвестная ошибка.';
+        $exceptionClass = 'Класс ошибки - '.get_class($exception).'.';
+        $file = $exception->getFile() ? 'В файле: '.
             preg_replace('/\/var\/www\/html/', '', $exception->getFile()) : '';
-        $line = $exception->getLine() ? 'На строке ' . $exception->getLine() . '.' : '';
+        $line = $exception->getLine() ? 'На строке '.$exception->getLine().'.' : '';
 
-        $general_info = 'Пользователь ' . $user->long_full_name .
-            ' с id ' . $user->id . ' не прошёл валидацию на стороне сервера.'.PHP_EOL.
-            'URL: ' . request()->fullUrl() . '. Метод: ' . request()->method() . '.' .PHP_EOL;
+        $general_info = 'Пользователь '.$user->long_full_name.
+            ' с id '.$user->id.' не прошёл валидацию на стороне сервера.'.PHP_EOL.
+            'URL: '.request()->fullUrl().'. Метод: '.request()->method().'.'.PHP_EOL;
 
         $data = '';
         foreach (request()->all() as $name => $value) {
             if ($name != 'password' && $name != 'password_confirmation' && is_string($name) && is_string($value)) {
-                $data .= $name . ' => ' . (is_array($value) ? implode(' ', $value) : $value) . PHP_EOL;
+                $data .= $name.' => '.(is_array($value) ? implode(' ', $value) : $value).PHP_EOL;
             }
         }
 
-        $dataInfo = ($data != '') ? ('Переданные данные: '. PHP_EOL . $data) : '';
+        $dataInfo = ($data != '') ? ('Переданные данные: '.PHP_EOL.$data) : '';
 
         $fileErrors = '';
         foreach (request()->allFiles() as $name => $files) {
-            $fileErrors .= $name . ' => [' . PHP_EOL;
+            $fileErrors .= $name.' => ['.PHP_EOL;
             foreach ($files as $key => $file) {
-                $fileErrors .= "{$key} -> Название: {$file->getClientOriginalName()}." .
-                    " Расширение: {$file->getClientOriginalExtension()}." .
-                    " MIME-тип: {$file->getMimeType()}. Размер: {$file->getSize()} байт(ов)." . PHP_EOL;
+                $fileErrors .= "{$key} -> Название: {$file->getClientOriginalName()}.".
+                    " Расширение: {$file->getClientOriginalExtension()}.".
+                    " MIME-тип: {$file->getMimeType()}. Размер: {$file->getSize()} байт(ов).".PHP_EOL;
             }
 
             $fileErrors .= ']';
         }
 
-        $filesInfo = ($fileErrors != '') ? ('Переданные файлы: '. PHP_EOL . $fileErrors) : '';
+        $filesInfo = ($fileErrors != '') ? ('Переданные файлы: '.PHP_EOL.$fileErrors) : '';
 
         if ($errorsBag) {
             $errors = '';
             $fails = $errorsBag;
             foreach ($fails as $name => $fail) {
-                $errors .= $name . ' => ' . implode($fail).PHP_EOL;
+                $errors .= $name.' => '.implode($fail).PHP_EOL;
             }
         } else {
             $errors = 'Отсутствуют';
         }
 
-        $error_bag = 'Ошибки валидации: '.PHP_EOL. $errors;
+        $error_bag = 'Ошибки валидации: '.PHP_EOL.$errors;
 
-        $final = $error . PHP_EOL . $exceptionClass . PHP_EOL . $file . PHP_EOL . $line .
-            PHP_EOL . $general_info . $dataInfo . PHP_EOL . $filesInfo. PHP_EOL . PHP_EOL .$error_bag;
+        $final = $error.PHP_EOL.$exceptionClass.PHP_EOL.$file.PHP_EOL.$line.
+            PHP_EOL.$general_info.$dataInfo.PHP_EOL.$filesInfo.PHP_EOL.PHP_EOL.$error_bag;
 
         return $final;
     }
@@ -177,29 +176,29 @@ class NotificationCreatedListener
         $data = '';
         foreach (request()->all() as $name => $value) {
             if ($name != 'password' && $name != 'password_confirmation' && is_string($name) && is_string($value)) {
-                $data .= $name . ' => ' . (is_array($value) ? implode(' ', $value) : $value) . PHP_EOL;
+                $data .= $name.' => '.(is_array($value) ? implode(' ', $value) : $value).PHP_EOL;
             }
         }
 
-        $error = $exception->getMessage() ? 'Ошибка: ' . $exception->getMessage() : 'Неизвестная ошибка.';
-        $exceptionClass = 'Класс ошибки - ' . get_class($exception) . '.';
-        $file = $exception->getFile() ? 'В файле: ' .
+        $error = $exception->getMessage() ? 'Ошибка: '.$exception->getMessage() : 'Неизвестная ошибка.';
+        $exceptionClass = 'Класс ошибки - '.get_class($exception).'.';
+        $file = $exception->getFile() ? 'В файле: '.
             preg_replace('/\/var\/www\/html/', '', $exception->getFile()) : '';
-        $line = $exception->getLine() ? 'На строке ' . $exception->getLine() . '.' : '';
-        $path = request()->path() ? 'На странице: ' . request()->path() . '.' : '';
-        $userInfo = (Auth::user() ? 'Пользователь: ' . Auth::user()->full_name : 'Нет пользователя') .
-            ', ip - ' . request()->ip();
-        $dataInfo = ($data != '') ? ('Переданные данные: ' . PHP_EOL . $data) : '';
-        $text = $error . PHP_EOL . $exceptionClass . PHP_EOL . $file . PHP_EOL . $line .
-            PHP_EOL . $path . PHP_EOL . $userInfo . PHP_EOL . $dataInfo;
+        $line = $exception->getLine() ? 'На строке '.$exception->getLine().'.' : '';
+        $path = request()->path() ? 'На странице: '.request()->path().'.' : '';
+        $userInfo = (Auth::user() ? 'Пользователь: '.Auth::user()->full_name : 'Нет пользователя').
+            ', ip - '.request()->ip();
+        $dataInfo = ($data != '') ? ('Переданные данные: '.PHP_EOL.$data) : '';
+        $text = $error.PHP_EOL.$exceptionClass.PHP_EOL.$file.PHP_EOL.$line.
+            PHP_EOL.$path.PHP_EOL.$userInfo.PHP_EOL.$dataInfo;
 
         return $text;
     }
 
     public function sendTelegramMessage($message)
     {
-        $ch = curl_init('https://api.telegram.org/bot' . config('telegram.bot_token') . '/sendMessage');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        $ch = curl_init('https://api.telegram.org/bot'.config('telegram.bot_token').'/sendMessage');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($message, JSON_UNESCAPED_UNICODE));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

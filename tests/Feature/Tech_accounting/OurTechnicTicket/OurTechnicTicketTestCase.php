@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Tests\Feature\Tech_accounting\OurTechnicTicket;
 
 use App\Models\Department;
@@ -19,14 +18,20 @@ use Tests\TestCase;
 abstract class OurTechnicTicketTestCase extends TestCase
 {
     protected $warehouse_users;
-    protected $rps;
-    protected $rps_and_prorabs;
-    protected $objects;
-    protected $service;
-    protected $logists;
-    protected $logist;
-    protected $prorabs;
 
+    protected $rps;
+
+    protected $rps_and_prorabs;
+
+    protected $objects;
+
+    protected $service;
+
+    protected $logists;
+
+    protected $logist;
+
+    protected $prorabs;
 
     protected function setUp(): void
     {
@@ -48,11 +53,10 @@ abstract class OurTechnicTicketTestCase extends TestCase
 
     }
 
-
     /**
-     * @param int $count
-     * @param array $overrides
-     * @param array $overrides_users
+     * @param  int  $count
+     * @param  array  $overrides
+     * @param  array  $overrides_users
      * @return Collection
      */
     public function seedTicketsWithUsers($count = 1, $overrides = [], $overrides_users = [])
@@ -77,7 +81,7 @@ abstract class OurTechnicTicketTestCase extends TestCase
         return $tickets;
     }
 
-    protected function validFields ($overrides = [])
+    protected function validFields($overrides = [])
     {
         return array_merge([
             'our_technic_id' => factory(OurTechnic::class)->create()->id,

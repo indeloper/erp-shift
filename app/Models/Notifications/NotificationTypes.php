@@ -20,7 +20,7 @@ class NotificationTypes extends Model
         8 => 'Notifications related to Projects',
         9 => 'Notifications related to Users',
         10 => 'Notifications related to Tech Accounting and tasks',
-        11 => 'Notifications related to Human Resources Accounting'
+        11 => 'Notifications related to Human Resources Accounting',
     ];
 
     const WDIM_FOR_EVERYONE = [

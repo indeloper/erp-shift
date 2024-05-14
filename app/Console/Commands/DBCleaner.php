@@ -38,8 +38,9 @@ class DBCleaner extends Command
         'manual_works',
         'manual_tongues',
 
-        'notification_types'
+        'notification_types',
     ];
+
     /**
      * The name and signature of the console command.
      *
@@ -61,7 +62,7 @@ class DBCleaner extends Command
      */
     public function __construct()
     {
-        $this->description .= implode(" \n " ,$this->protected_tables);
+        $this->description .= implode(" \n ", $this->protected_tables);
         parent::__construct();
     }
 
@@ -73,16 +74,15 @@ class DBCleaner extends Command
     public function handle()
     {
         $tables = DB::select('SHOW TABLES');
-        $tables = array_map('current',$tables);
+        $tables = array_map('current', $tables);
 
         DB::beginTransaction();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         foreach ($tables as $table) {
-            if(!in_array($table, $this->protected_tables))
-            {
+            if (! in_array($table, $this->protected_tables)) {
                 DB::table($table)->truncate();
-                $this->info('truncated ' . $table);
+                $this->info('truncated '.$table);
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');

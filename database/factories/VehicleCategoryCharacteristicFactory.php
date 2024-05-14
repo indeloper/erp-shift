@@ -4,7 +4,6 @@
 
 use App\Models\TechAcc\Vehicles\VehicleCategories;
 use App\Models\TechAcc\Vehicles\VehicleCategoryCharacteristics;
-use App\Models\User;
 use Faker\Generator as Faker;
 
 $factory->define(VehicleCategoryCharacteristics::class, function (Faker $faker) {

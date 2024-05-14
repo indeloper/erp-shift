@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Database\Seeder;
-
-use App\Models\Manual\ManualWork;
+use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
-use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialParameter;
+use App\Models\Manual\ManualWork;
+use Illuminate\Database\Seeder;
+
 class DefaultManual extends Seeder
 {
     /**

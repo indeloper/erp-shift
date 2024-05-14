@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddRowsInNotificationsForPermissionsTable extends Migration
 {
@@ -18,11 +18,11 @@ class AddRowsInNotificationsForPermissionsTable extends Migration
             // Tasks-related notifications
             [
                 'notification_id' => 52,
-                'permission' => 'tasks_default_myself'
+                'permission' => 'tasks_default_myself',
             ],
             [
                 'notification_id' => 52,
-                'permission' => 'tasks_default_others'
+                'permission' => 'tasks_default_others',
             ],
         ]);
 

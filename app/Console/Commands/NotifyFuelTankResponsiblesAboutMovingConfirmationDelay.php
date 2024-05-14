@@ -3,13 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Permission;
-use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
-use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
 {
@@ -46,14 +42,12 @@ class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
     {
         $fuelTanksAwaitingMovingConfirmation = FuelTank::where('awaiting_confirmation', 1)->get();
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
-        foreach($fuelTanksAwaitingMovingConfirmation as $tank) {
+        foreach ($fuelTanksAwaitingMovingConfirmation as $tank) {
             (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
 
-            foreach ($notificationRecipientsOffice as $userId) { 
+            foreach ($notificationRecipientsOffice as $userId) {
                 (new FuelNotifications)->notifyOfficeResponsiblesAboutFuelTankMovingConfirmationDelayed($tank, $userId);
             }
         }
     }
-
-    
 }

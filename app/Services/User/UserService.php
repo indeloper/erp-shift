@@ -8,14 +8,12 @@ use App\Repositories\User\UserRepositoryInterface;
 
 final class UserService implements UserServiceInterface
 {
-
     /** @var UserRepositoryInterface */
     public $userRepository;
 
     public function __construct(
         UserRepositoryInterface $userRepository
-    )
-    {
+    ) {
         $this->userRepository = $userRepository;
     }
 
@@ -25,5 +23,4 @@ final class UserService implements UserServiceInterface
             $userId
         );
     }
-
 }

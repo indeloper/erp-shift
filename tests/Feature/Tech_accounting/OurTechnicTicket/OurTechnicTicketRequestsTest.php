@@ -67,16 +67,16 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     /** @test */
     public function user_can_decline_ticket_and_task_will_be_closed_and_comment_will_be_created()
     {
-        $this->actingAs(User::first());//creating ticket as ivan
+        $this->actingAs(User::first()); //creating ticket as ivan
         $request = $this->validFields(['resp_rp_user_id' => $this->authed_user->id]);
         $ticket = $this->service->createNewTicket($request);
 
-        $this->actingAs($this->authed_user);//accepting ticket as rp
+        $this->actingAs($this->authed_user); //accepting ticket as rp
         $final_note = $this->faker()->sentence;
 
         $this->put(route('building::tech_acc::our_technic_tickets.update', $ticket->id), [
             'acceptance' => 'reject',
-            'final_note' => $final_note
+            'final_note' => $final_note,
         ])->assertSessionDoesntHaveErrors();
 
         $ticket->refresh();
@@ -90,7 +90,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_creates_notification_on_ticket_store()
     {
-        $this->actingAs(User::find(1));//rps skips this step
+        $this->actingAs(User::find(1)); //rps skips this step
         $technic = factory(OurTechnic::class)->create();
         $request = $this->validFields(['our_technic_id' => $technic->id]);
 
@@ -107,7 +107,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_attach_vehicles_on_ticket_store()
     {
-        $this->actingAs(User::find(1));//rps skips this step
+        $this->actingAs(User::find(1)); //rps skips this step
         $vehicles = factory(OurVehicles::class)->create();
         $request = $this->validFields(['vehicle_ids' => [$vehicles->id]]);
 
@@ -145,7 +145,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         ]);
         $ticket = $this->service->createNewTicket($request);
 
-        $this->actingAs($this->authed_user);//accepting ticket as rp
+        $this->actingAs($this->authed_user); //accepting ticket as rp
         $this->put(route('building::tech_acc::our_technic_tickets.update', $ticket->id), [
             'acceptance' => 'confirm',
         ])->assertStatus(200);
@@ -242,7 +242,6 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $this->assertNotEmpty($ticket->tasks()->where('is_solved', 0)->where('status', 32)->get());
     }
 
-
     /** @test */
     public function when_user_confirm_sending_notification_is_sent()
     {
@@ -270,7 +269,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6], [
             'request_resp_user_id' => $moving_resp,
             'recipient_user_id' => $moving_resp,
-            ])->first();
+        ])->first();
         $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31]));
         $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
 
@@ -397,7 +396,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $ticket->refresh();
 
         $comment = Comment::latest()->first();
-//        dd(FileEntry::all());
+        //        dd(FileEntry::all());
         $this->assertEquals(6, $ticket->status);
         $this->assertEquals($files->count(), $comment->files()->count());
     }
@@ -429,7 +428,6 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $this->assertNotEmpty($ticket->tasks()->where('is_solved', 1)->where('status', 32)->get());
         $this->assertNotEmpty($ticket->tasks()->where('is_solved', 1)->where('status', 31)->get());
     }
-
 
     /** @test */
     public function rp_can_accept_ticket_and_choose_process_resp_user()
@@ -472,6 +470,6 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
 
         $this->assertNotEmpty($usage_user->tasks, 'There is no task, but has to be one');
 
-        $this->assertEquals('Отметка времени использования техники за ' . Carbon::now()->isoFormat('DD.MM.YYYY'), $usage_user->tasks()->first()->name);
+        $this->assertEquals('Отметка времени использования техники за '.Carbon::now()->isoFormat('DD.MM.YYYY'), $usage_user->tasks()->first()->name);
     }
 }

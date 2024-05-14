@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Group;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddPermissionsForForeman extends Migration
 {
@@ -23,12 +23,12 @@ class AddPermissionsForForeman extends Migration
                 [
                     'group_id' => $group,
                     'permission_id' => $permissionOne,
-                    'created_at' => now()
+                    'created_at' => now(),
                 ],
                 [
                     'group_id' => $group,
                     'permission_id' => $permissionTwo,
-                    'created_at' => now()
+                    'created_at' => now(),
                 ],
             ]);
         }

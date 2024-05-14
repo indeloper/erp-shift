@@ -1,13 +1,13 @@
 <?php
 
-use Faker\Generator as Faker;
-
-use App\Models\User;
 use App\Models\Project;
 use App\Models\ProjectResponsibleUser;
+use App\Models\User;
+use Faker\Generator as Faker;
 
 $factory->define(ProjectResponsibleUser::class, function (Faker $faker) {
     $passedAttributes = func_get_arg(1);
+
     return [
         'project_id' => function () use ($passedAttributes) {
             if (! in_array('project_id', $passedAttributes)) {
@@ -19,6 +19,6 @@ $factory->define(ProjectResponsibleUser::class, function (Faker $faker) {
                 return factory(User::class)->create()->id;
             }
         },
-        'role' => 1
+        'role' => 1,
     ];
 });

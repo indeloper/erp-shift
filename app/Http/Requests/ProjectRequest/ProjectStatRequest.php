@@ -27,7 +27,7 @@ class ProjectStatRequest extends FormRequest
     public function rules()
     {
         return [
-            'project_id' => 'required'
+            'project_id' => 'required',
         ];
     }
 }

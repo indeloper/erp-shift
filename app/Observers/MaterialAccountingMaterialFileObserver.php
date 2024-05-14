@@ -9,7 +9,6 @@ class MaterialAccountingMaterialFileObserver
     /**
      * Handle the material accounting material file "created" event.
      *
-     * @param  MaterialAccountingMaterialFile  $materialAccountingMaterialFile
      * @return void
      */
     public function created(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
@@ -20,7 +19,6 @@ class MaterialAccountingMaterialFileObserver
     /**
      * Handle the material accounting material file "created" event.
      *
-     * @param  MaterialAccountingMaterialFile  $materialAccountingMaterialFile
      * @return void
      */
     public function saved(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
@@ -40,7 +38,6 @@ class MaterialAccountingMaterialFileObserver
     /**
      * Handle the material accounting material file "updated" event.
      *
-     * @param  MaterialAccountingMaterialFile  $materialAccountingMaterialFile
      * @return void
      */
     public function updated(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
@@ -51,7 +48,6 @@ class MaterialAccountingMaterialFileObserver
     /**
      * Handle the material accounting material file "deleted" event.
      *
-     * @param  MaterialAccountingMaterialFile  $materialAccountingMaterialFile
      * @return void
      */
     public function deleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
@@ -62,7 +58,6 @@ class MaterialAccountingMaterialFileObserver
     /**
      * Handle the material accounting material file "restored" event.
      *
-     * @param  MaterialAccountingMaterialFile  $materialAccountingMaterialFile
      * @return void
      */
     public function restored(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
@@ -73,7 +68,6 @@ class MaterialAccountingMaterialFileObserver
     /**
      * Handle the material accounting material file "force deleted" event.
      *
-     * @param  MaterialAccountingMaterialFile  $materialAccountingMaterialFile
      * @return void
      */
     public function forceDeleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile)

@@ -22,6 +22,4 @@ Route::prefix('menu')
                     });
             });
 
-
-
     });

@@ -2,14 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Events\NotificationCreated;
-use Illuminate\Console\Command;
-
-use Carbon\Carbon;
-
+use App\Models\Notification;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\Notification;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class CheckExTasks extends Command
@@ -62,16 +59,16 @@ class CheckExTasks extends Command
                 if ($percent <= 0.3 && $percent > 0) {
                     $notification = new Notification();
                     $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+                    $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
                     $notification->update([
-                        'name' => 'Задача «' . $task->name . '» скоро будет просрочена.',
+                        'name' => 'Задача «'.$task->name.'» скоро будет просрочена.',
                         'user_id' => $task->responsible_user_id,
                         'task_id' => $task->id,
                         'contractor_id' => $task->contractor_id,
                         'project_id' => $task->project_id,
                         'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
                         'created_at' => now(),
-                        'type' => 1
+                        'type' => 1,
                     ]);
 
                     $task->update(['notify_send' => 1]);
@@ -81,16 +78,16 @@ class CheckExTasks extends Command
                 if ($diff == 1) {
                     $notification = new Notification();
                     $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+                    $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
                     $notification->update([
-                        'name' => 'Задача «' . $task->name . '» просрочена.',
+                        'name' => 'Задача «'.$task->name.'» просрочена.',
                         'user_id' => $task->responsible_user_id,
                         'task_id' => $task->id,
                         'contractor_id' => $task->contractor_id,
                         'project_id' => $task->project_id,
                         'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
                         'created_at' => now(),
-                        'type' => 2
+                        'type' => 2,
                     ]);
 
                     if ($task->project_id) {
@@ -104,34 +101,34 @@ class CheckExTasks extends Command
                     if ($task->chief()) {
                         $notification = new Notification();
                         $notification->save();
-                        $notification->additional_info = ' Ссылка на события проекта: ' . $route;
+                        $notification->additional_info = ' Ссылка на события проекта: '.$route;
                         $notification->update([
-                            'name' => 'Задача исполнителя ' . User::find($task->responsible_user_id)->long_full_name . ' «' . $task->name . '» просрочена.',
+                            'name' => 'Задача исполнителя '.User::find($task->responsible_user_id)->long_full_name.' «'.$task->name.'» просрочена.',
                             'user_id' => $task->chief(),
                             'task_id' => $task->id,
                             'contractor_id' => $task->contractor_id,
                             'project_id' => $task->project_id,
                             'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
                             'created_at' => now(),
-                            'type' => 5
+                            'type' => 5,
                         ]);
                     }
 
                     $ceo = User::where('group_id', 5/*3*/)->first();
 
-                    if ($task->chief() != $ceo->id and $ceo->id != $task->responsible_user_id){
+                    if ($task->chief() != $ceo->id and $ceo->id != $task->responsible_user_id) {
                         $notification = new Notification();
                         $notification->save();
-                        $notification->additional_info = ' Ссылка на события проекта: ' . $route;
+                        $notification->additional_info = ' Ссылка на события проекта: '.$route;
                         $notification->update([
-                            'name' => 'Задача исполнителя ' . User::find($task->responsible_user_id)->user_name() . ' «' . $task->name . '» просрочена.',
+                            'name' => 'Задача исполнителя '.User::find($task->responsible_user_id)->user_name().' «'.$task->name.'» просрочена.',
                             'user_id' => $ceo->id,
                             'task_id' => $task->id,
                             'contractor_id' => $task->contractor_id,
                             'project_id' => $task->project_id,
                             'object_id' => isset($task->project->object->id) ? $task->project->object->id : null,
                             'created_at' => Carbon::now(),
-                            'type' => 5
+                            'type' => 5,
                         ]);
                     }
 

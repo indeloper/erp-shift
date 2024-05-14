@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\q3wMaterial\q3wMaterialTransformationType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTransformationTypesTable extends Migration
 {
@@ -32,8 +32,8 @@ class CreateTransformationTypesTable extends Migration
 
         foreach ($transformationTypeNames as $transformationTypeName) {
             $transformationType = new q3wMaterialTransformationType();
-            $transformationType -> value = $transformationTypeName;
-            $transformationType -> save();
+            $transformationType->value = $transformationTypeName;
+            $transformationType->save();
         }
     }
 
@@ -44,7 +44,7 @@ class CreateTransformationTypesTable extends Migration
      */
     public function down()
     {
-        Schema::table('q3w_material_operations', function(Blueprint $table) {
+        Schema::table('q3w_material_operations', function (Blueprint $table) {
             $table->dropForeign(['transformation_type_id']);
             $table->dropColumn(['transformation_type_id']);
         });

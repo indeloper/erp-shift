@@ -9,15 +9,15 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
-
 class TechnicCategoryTest extends TestCase
 {
     use WithoutMiddleware;
 
     protected $technic;
+
     protected $ivan;
 
-    public function setUp() :void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -44,7 +44,6 @@ class TechnicCategoryTest extends TestCase
 
         $this->assertCount(2, $this->technic->category_characteristics);
     }
-
 
     /** @test */
     public function it_returns_only_its_technics()

@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewRepairControlTaskNotification extends Migration
 {
@@ -23,22 +21,22 @@ class AddNewRepairControlTaskNotification extends Migration
                 'id' => 79,
                 'group' => 10,
                 'name' => self::NOTIFICATION_NAME,
-                'for_everyone' => 0 // for groups
+                'for_everyone' => 0, // for groups
             ],
         ]);
 
         DB::table('notifications_for_groups')->insert([
             [
                 'notification_id' => 79,
-                'group_id' => 46
+                'group_id' => 46,
             ],
             [
                 'notification_id' => 79,
-                'group_id' => 47
+                'group_id' => 47,
             ],
             [
                 'notification_id' => 79,
-                'group_id' => 48
+                'group_id' => 48,
             ],
         ]);
 

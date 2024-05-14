@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Building;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\NodeRequest;
 use App\Http\Requests\ManualRequests\TypicalNodesRequest;
 use App\Models\Manual\ManualMaterial;
@@ -9,7 +10,6 @@ use App\Models\Manual\ManualNodeCategories;
 use App\Models\Manual\ManualNodeMaterials;
 use App\Models\Manual\ManualNodes;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class ManualNodesController extends Controller
@@ -19,15 +19,14 @@ class ManualNodesController extends Controller
         $node_categories = ManualNodeCategories::query();
 
         if ($request->search) {
-            $node_categories = $node_categories->where('id', 'like', '%' . $request->search . '%')
-                ->orWhere('name', 'like', '%' . $request->search . '%');
+            $node_categories = $node_categories->where('id', 'like', '%'.$request->search.'%')
+                ->orWhere('name', 'like', '%'.$request->search.'%');
         }
 
         return view('building.materials.nodes.index')->with([
-            'node_categories' => $node_categories->get()
+            'node_categories' => $node_categories->get(),
         ]);
     }
-
 
     public function category_store(TypicalNodesRequest $request)
     {
@@ -46,7 +45,6 @@ class ManualNodesController extends Controller
         return back();
     }
 
-
     public function category_update(TypicalNodesRequest $request)
     {
         DB::beginTransaction();
@@ -63,7 +61,6 @@ class ManualNodesController extends Controller
 
         return back();
     }
-
 
     public function category_delete(Request $request)
     {
@@ -82,7 +79,6 @@ class ManualNodesController extends Controller
         return response()->json(true);
     }
 
-
     public function view_category(Request $request, $id)
     {
         $node_category = ManualNodeCategories::findOrFail($id);
@@ -91,8 +87,8 @@ class ManualNodesController extends Controller
 
         if ($request->search) {
             $nodes = ManualNodes::where('node_category_id', $id);
-            $nodes = $nodes->where('id', 'like', '%' . $request->search . '%')
-                ->orWhere('name', 'like', '%' . $request->search . '%')->with(['node_category', 'node_materials', 'node_materials.materials', 'node_materials.materials.category'])->get();
+            $nodes = $nodes->where('id', 'like', '%'.$request->search.'%')
+                ->orWhere('name', 'like', '%'.$request->search.'%')->with(['node_category', 'node_materials', 'node_materials.materials', 'node_materials.materials.category'])->get();
         }
 
         // $mat_ids = ManualNodeMaterials::whereIn('node_id', $nodes->pluck('id'))->pluck('manual_material_id');
@@ -111,10 +107,10 @@ class ManualNodesController extends Controller
                 $buy_cost += isset($node_material->materials->buy_cost) ? $node_material->materials->buy_cost * $count : 0;
                 $use_cost += isset($node_material->materials->use_cost) ? $node_material->materials->buy_cost * $count : 0;
 
-                if(isset($node_material->materials->category->category_unit)) {
+                if (isset($node_material->materials->category->category_unit)) {
                     if ($node_material->materials->category->category_unit === 'т') {
                         $weight += $count * (1 + $node->node_category->safety_factor / 100);
-                    } elseif($node_material->materials->category->category_unit !== 'т') {
+                    } elseif ($node_material->materials->category->category_unit !== 'т') {
                         if ($node_material->materials->parameters->where('is_preset', 1)
                             ->where(function ($q) {
                                 $q->where('name', 'Масса 1 шт');
@@ -139,10 +135,9 @@ class ManualNodesController extends Controller
             // 'materials' => $manual_materials,
             'buy_cost' => $buy_cost_array,
             'use_cost' => $use_cost_array,
-            'weight' => $weight_array
+            'weight' => $weight_array,
         ]);
     }
-
 
     public function store(NodeRequest $request)
     {
@@ -163,7 +158,7 @@ class ManualNodesController extends Controller
                 ManualNodeMaterials::create([
                     'node_id' => $node->id,
                     'manual_material_id' => $material,
-                    'count' => $request->count[$key]
+                    'count' => $request->count[$key],
                 ]);
             }
         }
@@ -172,7 +167,6 @@ class ManualNodesController extends Controller
 
         return back();
     }
-
 
     public function update(NodeRequest $request)
     {
@@ -194,7 +188,7 @@ class ManualNodesController extends Controller
                 ManualNodeMaterials::create([
                     'node_id' => $node->id,
                     'manual_material_id' => $material,
-                    'count' => $request->count[$key]
+                    'count' => $request->count[$key],
                 ]);
             }
         }
@@ -203,7 +197,6 @@ class ManualNodesController extends Controller
 
         return back();
     }
-
 
     public function clone(NodeRequest $request)
     {
@@ -222,7 +215,7 @@ class ManualNodesController extends Controller
                 ManualNodeMaterials::create([
                     'node_id' => $node->id,
                     'manual_material_id' => $material,
-                    'count' => $request->count[$key]
+                    'count' => $request->count[$key],
                 ]);
             }
         }
@@ -231,7 +224,6 @@ class ManualNodesController extends Controller
 
         return back();
     }
-
 
     public function delete(Request $request)
     {
@@ -245,13 +237,12 @@ class ManualNodesController extends Controller
         return response()->json(true);
     }
 
-
     public function get_materials(Request $request)
     {
         $wv_materials = ManualMaterial::query();
 
         if ($request->q) {
-            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%' . trim($request->q) . '%');
+            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim($request->q).'%');
         }
 
         $wv_materials = $wv_materials->take(50)->get();
@@ -260,7 +251,7 @@ class ManualNodesController extends Controller
         foreach ($wv_materials as $wv_material) {
             $results[] = [
                 'id' => $wv_material->id,
-                'text' => $wv_material->name
+                'text' => $wv_material->name,
             ];
         }
 

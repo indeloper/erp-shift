@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-
 use App\Models\FileEntry;
 
 trait Documentable
@@ -30,6 +29,7 @@ trait Documentable
 
     /**
      * Relation for photos
+     *
      * @return mixed
      */
     public function photos()
@@ -39,6 +39,7 @@ trait Documentable
 
     /**
      * Relation for videos
+     *
      * @return mixed
      */
     public function videos()

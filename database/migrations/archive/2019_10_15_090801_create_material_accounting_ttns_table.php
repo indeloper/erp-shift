@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateMaterialAccountingTtnsTable extends Migration
 {
@@ -23,7 +23,6 @@ class CreateMaterialAccountingTtnsTable extends Migration
             $table->string('take_fact_departure_time')->nullable();
             $table->string('take_weight')->nullable();
             $table->string('take_places_count')->nullable();
-
 
             $table->string('give_time')->nullable();
             $table->string('give_fact_arrival_time')->nullable();

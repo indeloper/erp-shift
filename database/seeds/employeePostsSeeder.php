@@ -3,11 +3,8 @@
 use App\Models\Company\Company;
 use App\Models\Employees\Employees1cPost;
 use App\Models\Employees\Employees1cPostInflection;
-use App\Models\Employees\Employees1cSubdivision;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use SebastianBergmann\Environment\Console;
 
 class employeePostsSeeder extends Seeder
 {
@@ -1185,8 +1182,7 @@ class employeePostsSeeder extends Seeder
         }', false);
 
         foreach ($posts->data as $post) {
-            if (empty($post->postUID))
-            {
+            if (empty($post->postUID)) {
                 continue;
             }
 
@@ -1197,25 +1193,25 @@ class employeePostsSeeder extends Seeder
                         'post_1c_uid' => $post->postUID,
                     ],
                     [
-                        "name" => $post->postName,
-                        "company_id" => $company->id
+                        'name' => $post->postName,
+                        'company_id' => $company->id,
                     ]
                 );
 
-                    Log::channel('stderr')->info('[info] ' . var_dump($post->inflection->nominative));
-                    Employees1cPostInflection::updateOrCreate(
-                        [
-                            'post_id' => $employeePost->id
-                        ],
-                        [
-                            'nominative' => $post->inflection->nominative,
-                            'genitive' => $post->inflection->genitive,
-                            'dative' => $post->inflection->dative,
-                            'accusative' => $post->inflection->accusative,
-                            'ablative' => $post->inflection->ablative,
-                            'prepositional' => $post->inflection->prepositional
-                        ]
-                    );
+                Log::channel('stderr')->info('[info] '.var_dump($post->inflection->nominative));
+                Employees1cPostInflection::updateOrCreate(
+                    [
+                        'post_id' => $employeePost->id,
+                    ],
+                    [
+                        'nominative' => $post->inflection->nominative,
+                        'genitive' => $post->inflection->genitive,
+                        'dative' => $post->inflection->dative,
+                        'accusative' => $post->inflection->accusative,
+                        'ablative' => $post->inflection->ablative,
+                        'prepositional' => $post->inflection->prepositional,
+                    ]
+                );
 
             }
         }

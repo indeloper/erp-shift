@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\q3wMaterial\operations\q3wTransformOperationStage;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddNewQ3wTransformOperationStage extends Migration
@@ -17,8 +15,8 @@ class AddNewQ3wTransformOperationStage extends Migration
         $transformStageName = 'Технологические потери исходных материалов';
 
         $transferOperationStage = new q3wTransformOperationStage();
-        $transferOperationStage -> name = $transformStageName;
-        $transferOperationStage -> save();
+        $transferOperationStage->name = $transformStageName;
+        $transferOperationStage->save();
     }
 
     /**

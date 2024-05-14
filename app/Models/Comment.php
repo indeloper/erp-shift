@@ -22,7 +22,7 @@ class Comment extends Model
     {
         parent::__construct($attributes);
 
-        static::deleted(function($comment) {
+        static::deleted(function ($comment) {
             $comment->documents()->delete();
         });
     }
@@ -34,6 +34,7 @@ class Comment extends Model
     /**
      * This getter parse blade directive if comment
      * have it, otherwise return old comment
+     *
      * @return string
      */
     public function getPrettyCommentAttribute()
@@ -47,6 +48,7 @@ class Comment extends Model
 
     /**
      * Getter for created_at formatting
+     *
      * @return Carbon|null
      */
     public function getCreatedAtFormattedAttribute()

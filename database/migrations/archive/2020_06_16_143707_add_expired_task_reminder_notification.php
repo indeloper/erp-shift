@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddExpiredTaskReminderNotification extends Migration
@@ -21,7 +19,7 @@ class AddExpiredTaskReminderNotification extends Migration
                 'id' => 111,
                 'group' => 1,
                 'name' => 'Уведомление о необходимости выполнить задач',
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ],
         ]);
 

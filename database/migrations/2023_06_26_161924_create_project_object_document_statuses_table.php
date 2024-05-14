@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CreateProjectObjectDocumentStatusesTable extends Migration
 {
@@ -49,7 +49,7 @@ class CreateProjectObjectDocumentStatusesTable extends Migration
             ['name' => 'Оформлен и готов к передаче', 'style' => '#ffcd72'], // 7 -> 6
             ['name' => 'Передан заказчику', 'style' => '#ffcd72'], // 8 -> 7
             ['name' => 'Передан в офис', 'style' => '#ffcd72'], // 9 -> 8
-            
+
             ['name' => 'Получен офисом', 'style' => '#1f931f'], // 10 -> 9
         ]);
     }

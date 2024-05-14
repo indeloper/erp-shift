@@ -1,9 +1,9 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class ChangeConsignmentNoteNumberFieldType extends Migration
 {
@@ -15,7 +15,7 @@ class ChangeConsignmentNoteNumberFieldType extends Migration
     public function up()
     {
         Schema::table('q3w_material_operations', function (Blueprint $table) {
-            $table->string('consignment_note_number')->default('0')->comment("Номер ТТН")->change();
+            $table->string('consignment_note_number')->default('0')->comment('Номер ТТН')->change();
         });
     }
 

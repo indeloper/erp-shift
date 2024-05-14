@@ -23,12 +23,10 @@ class CommercialOfferUpdate extends FormRequest
      *
      * @return array
      */
-
-
     public function rules()
     {
         return [
-            'document' => 'required|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,dwg,dwl,dwl2,dxf,mpp,gif,bmp,txt,rtf,pptx'
+            'document' => 'required|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,dwg,dwl,dwl2,dxf,mpp,gif,bmp,txt,rtf,pptx',
         ];
     }
 }

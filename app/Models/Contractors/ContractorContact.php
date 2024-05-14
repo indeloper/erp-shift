@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ContractorContact extends Model
 {
     protected $fillable = [
-        'first_name', 'last_name', 'patronymic', 'position', 'email', 'phone_number', 'note', 'contractor_id'
+        'first_name', 'last_name', 'patronymic', 'position', 'email', 'phone_number', 'note', 'contractor_id',
     ];
 
     public function projects()
@@ -20,7 +20,7 @@ class ContractorContact extends Model
 
     public function phones()
     {
-        return $this->hasMany( ContractorContactPhone::class, 'contact_id', 'id');
+        return $this->hasMany(ContractorContactPhone::class, 'contact_id', 'id');
     }
 
     public function getCreatedAtAttribute($date)

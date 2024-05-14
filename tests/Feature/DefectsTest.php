@@ -2,26 +2,28 @@
 
 namespace Tests\Feature;
 
-use App\Models\{Comment,
-    FileEntry,
-    Group,
-    Notification,
-    ProjectObject,
-    Task,
-    TechAcc\Defects\Defects,
-    TechAcc\FuelTank\FuelTank,
-    TechAcc\OurTechnic,
-    User};
-
-use Tests\TestCase;
+use App\Models\Comment;
+use App\Models\FileEntry;
+use App\Models\Group;
+use App\Models\Notification;
+use App\Models\ProjectObject;
+use App\Models\Task;
+use App\Models\TechAcc\Defects\Defects;
+use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\TechAcc\OurTechnic;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
+use Tests\TestCase;
+
 class DefectsTest extends TestCase
 {
     use DatabaseTransactions;
 
     protected $user_that_can;
+
     protected $user_that_cannot;
+
     protected $principle;
 
     const GROUPS_WITH_PERMISSION = [
@@ -44,6 +46,7 @@ class DefectsTest extends TestCase
 
     /**
      * Function find or create necessary user
+     *
      * @return User
      */
     public function findOrNewUserFromGroupFortySeven()
@@ -154,7 +157,7 @@ class DefectsTest extends TestCase
         $data = [
             'defectable_id' => factory(OurTechnic::class)->create()->id,
             'defectable_type' => 1,
-            'description' => $this->faker->paragraph
+            'description' => $this->faker->paragraph,
         ];
         $response = $this->actingAs($user)->post(route('building::tech_acc::defects.store'), $data);
 
@@ -294,7 +297,7 @@ class DefectsTest extends TestCase
         $data = [
             'defectable_id' => factory(OurTechnic::class)->create()->id,
             'defectable_type' => 1,
-            'description' => $this->faker->paragraph . $this->faker->paragraph . $this->faker->paragraph,
+            'description' => $this->faker->paragraph.$this->faker->paragraph.$this->faker->paragraph,
         ];
         $response = $this->actingAs($user)->post(route('building::tech_acc::defects.store'), $data);
 
@@ -498,7 +501,7 @@ class DefectsTest extends TestCase
 
         // When we make post request with data
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.select_responsible', $defect->id), [
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         $defect->refresh();
@@ -691,7 +694,7 @@ class DefectsTest extends TestCase
         // When we add comment to defect
         $defect->comments()->create([
             'comment' => 'bla-bla',
-            'author_id' => $user->id
+            'author_id' => $user->id,
         ]);
 
         // Then ...
@@ -960,7 +963,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with show_all
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?show_active=true']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?show_active=true']))->json();
 
         // Then ...
         // This array must contains three defects
@@ -978,7 +981,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?status=диагно']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?status=диагно']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -998,7 +1001,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?user_id=1']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?user_id=1']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1023,7 +1026,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?user_id%5B0%5D={$user1}&user_id%5B1%5D={$user2}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?user_id%5B0%5D={$user1}&user_id%5B1%5D={$user2}"]))->json();
 
         // Then ...
         // This array must contains three defects
@@ -1043,7 +1046,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?responsible_user_id=2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?responsible_user_id=2']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1063,7 +1066,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?responsible_user_id%5B0%5D=1&responsible_user_id%5B1%5D=2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?responsible_user_id%5B0%5D=1&responsible_user_id%5B1%5D=2']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1083,7 +1086,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?responsible_user_id%5B0%5D=2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?responsible_user_id%5B0%5D=2']))->json();
 
         // Then ...
         // This array must contains nothing
@@ -1102,7 +1105,7 @@ class DefectsTest extends TestCase
 
         // When we make get request with date
         $date = now()->subDay()->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_start_date={$date}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_start_date={$date}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1123,7 +1126,7 @@ class DefectsTest extends TestCase
 
         // When we make get request with date
         $date = now()->subDay()->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_end_date={$date}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_end_date={$date}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1145,7 +1148,7 @@ class DefectsTest extends TestCase
         // When we make get request with dates
         $date1 = now()->subDays(2)->format('d.m.Y');
         $date2 = now()->addDays(8)->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_start_date={$date1}&repair_end_date={$date2}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_start_date={$date1}&repair_end_date={$date2}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1167,7 +1170,7 @@ class DefectsTest extends TestCase
         // When we make get request with dates
         $date1 = now()->subDays(2)->format('d.m.Y');
         $date2 = now()->addDays(8)->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_end_date={$date2}&repair_start_date={$date1}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_end_date={$date2}&repair_start_date={$date1}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1175,7 +1178,6 @@ class DefectsTest extends TestCase
         // And this defect is $defect2, $defect3
         $this->assertEquals([$defect2->id, $defect3->id], [$response['data']['defects'][0]['id'], $response['data']['defects'][1]['id']]);
     }
-
 
     /** @test */
     public function defect_filter_brand()
@@ -1193,7 +1195,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with brand
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?brand=brand3"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?brand=brand3']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1246,7 +1248,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with model
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?model=model1"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?model=model1']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1272,7 +1274,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with owner
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?owner=ООО%20«СТРОЙМАСТЕР»"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?owner=ООО%20«СТРОЙМАСТЕР»']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1298,7 +1300,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with inventory_number
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?inventory_number=98"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?inventory_number=98']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1327,7 +1329,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with inventory_number
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?inventory_number%5B0%5D=986&inventory_number%5B1%5D=77"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?inventory_number%5B0%5D=986&inventory_number%5B1%5D=77']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1356,7 +1358,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with inventory number and owner
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?owner=РО&inventory_number=98"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?owner=РО&inventory_number=98']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1385,7 +1387,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with inventory number and owner
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?owner=ПРОСТОЧТОБЫНЕНАШЛО&inventory_number=98"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?owner=ПРОСТОЧТОБЫНЕНАШЛО&inventory_number=98']))->json();
 
         // Then ...
         // This array must contains nothing
@@ -1409,7 +1411,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?defectable={$technic1->id}%7C1"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?defectable={$technic1->id}%7C1"]))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1436,7 +1438,7 @@ class DefectsTest extends TestCase
         $defect3 = factory(Defects::class)->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?defectable={$fuelTank1->id}%7C2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?defectable={$fuelTank1->id}%7C2"]))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1464,7 +1466,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?defectable%5B0%5D={$technic1->id}%7C1&defectable%5B1%5D={$fuelTank2->id}%7C2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?defectable%5B0%5D={$technic1->id}%7C1&defectable%5B1%5D={$fuelTank2->id}%7C2"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1487,7 +1489,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make post request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?status%5B0%5D=Новая%20заявка&status%5B1%5D=Диагностика']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?status%5B0%5D=Новая%20заявка&status%5B1%5D=Диагностика']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1512,7 +1514,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?tank_number={$fuelTank1->tank_number}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?tank_number={$fuelTank1->tank_number}"]))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1540,7 +1542,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?tank_number%5B0%5D={$fuelTank1->tank_number}&tank_number%5B1%5D={$fuelTank2->tank_number}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?tank_number%5B0%5D={$fuelTank1->tank_number}&tank_number%5B1%5D={$fuelTank2->tank_number}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1563,7 +1565,7 @@ class DefectsTest extends TestCase
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?anything=nothing"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?anything=nothing']))->json();
 
         // Then this array must contains three defects
         $this->assertCount(3, $response['data']['defects']);

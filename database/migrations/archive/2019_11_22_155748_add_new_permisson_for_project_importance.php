@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewPermissonForProjectImportance extends Migration
 {
@@ -22,23 +20,22 @@ class AddNewPermissonForProjectImportance extends Migration
                 'name' => 'Доступ к изменению важности проекта',
                 'codename' => 'update_project_importance',
                 'category' => 2,
-                'created_at' => now()
-            ]
+                'created_at' => now(),
+            ],
         ]);
 
         DB::table('group_permissions')->insert([
             [
                 'group_id' => 5,
                 'permission_id' => 47,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => 47,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
-
 
         DB::commit();
     }

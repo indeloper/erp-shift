@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\{Notification, User};
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Console\Command;
 
 class NotifySender extends Command
@@ -69,32 +70,37 @@ class NotifySender extends Command
     /**
      * Function check parameters and
      * can stop execution
-     * @param string $text
-     * @param string $place
-     * @param string $users
-     * @param bool $have_errors
+     *
+     * @param  bool  $have_errors
      */
     public function checkParameters(string $text, string $place, string $users, $have_errors = false)
     {
         // check $text
         if ($text == 'Стандартное сообщение') {
-            if (! $this->confirm('Looks like you dont send any text here. Do you want to continue?')) { $have_errors = true; }
+            if (! $this->confirm('Looks like you dont send any text here. Do you want to continue?')) {
+                $have_errors = true;
+            }
         }
         // check $place
-        if (! in_array($place, array_keys(self::PLACES))) { $this->error('Bad $place parameter value! Check inputs'); $have_errors = true; }
+        if (! in_array($place, array_keys(self::PLACES))) {
+            $this->error('Bad $place parameter value! Check inputs');
+            $have_errors = true;
+        }
 
         // check $users
-        if (! in_array($users, array_keys(self::USERS))) { $this->error('Bad $users parameter value! Check inputs'); $have_errors = true; }
+        if (! in_array($users, array_keys(self::USERS))) {
+            $this->error('Bad $users parameter value! Check inputs');
+            $have_errors = true;
+        }
 
-        if ($have_errors) exit(5);
+        if ($have_errors) {
+            exit(5);
+        }
     }
 
     /**
      * Function create notifications with
      * $text to $recipients
-     * @param string $text
-     * @param string $place
-     * @param string $users
      */
     public function generateNotifications(string $text, string $place, string $users)
     {

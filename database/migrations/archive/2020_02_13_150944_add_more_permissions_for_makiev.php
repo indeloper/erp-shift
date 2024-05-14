@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddMorePermissionsForMakiev extends Migration
 {
@@ -21,7 +19,7 @@ class AddMorePermissionsForMakiev extends Migration
             [
                 'group_id' => 35,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

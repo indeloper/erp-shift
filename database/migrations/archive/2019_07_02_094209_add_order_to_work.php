@@ -1,11 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-
-use App\Models\WorkVolume\WorkVolumeWork;
-use App\Models\WorkVolume\WorkVolume;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddOrderToWork extends Migration
 {
@@ -25,7 +22,7 @@ class AddOrderToWork extends Migration
         foreach ($work_volume_works as $works) {
             foreach ($works as $key => $work) {
                 $work->order = $key;
-                
+
                 $work->save();
             }
         }

@@ -203,10 +203,10 @@ return [
         ],
 
         'message_files' => [
-        'driver' => 'local',
-        'root' => storage_path('app/public/docs/message_files'),
-        'url' => env('APP_URL').'/message_files',
-        'visibility' => 'private',
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/message_files'),
+            'url' => env('APP_URL').'/message_files',
+            'visibility' => 'private',
         ],
 
         's3' => [
@@ -238,7 +238,7 @@ return [
             'url' => env('APP_URL').'storage/docs/fuel_flow/',
             'visibility' => 'private',
         ],
-        
+
         'zip_archives' => [
             'driver' => 'local',
             'root' => storage_path('app/public/docs/zip_archives'),

@@ -7,8 +7,6 @@ use App\Models\TechAcc\FuelTank\FuelOperationsHistory;
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\User;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class FuelOperationHistoryTest extends TestCase
 {

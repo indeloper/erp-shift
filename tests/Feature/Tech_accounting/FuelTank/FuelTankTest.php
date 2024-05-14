@@ -2,17 +2,14 @@
 
 namespace Tests\Feature\Tech_accounting\FuelTank;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\Group;
-use App\Models\User;
 use App\Models\ProjectObject;
-
+use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class FuelTankTest extends TestCase
 {
@@ -23,10 +20,9 @@ class FuelTankTest extends TestCase
         parent::setUp();
 
         $this->rps = Group::with('users')->find([27, 13, 19, 47])->pluck('users')->flatten();
-        $this->response_user =  $this->rps->random();
+        $this->response_user = $this->rps->random();
         $this->actingAs($this->response_user);
     }
-
 
     public function testStoreFuelTank()
     {
@@ -38,7 +34,6 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-
     public function testUpdateFuelTank()
     {
         $fuelTank = factory(FuelTank::class)->create();
@@ -46,7 +41,7 @@ class FuelTankTest extends TestCase
         $updatedFuelTank = factory(FuelTank::class)
             ->make([
                 'object_id' => factory(ProjectObject::class)->create()->id,
-                'explotation_start' => Carbon::parse($fuelTank->explotation_start)->addHour()
+                'explotation_start' => Carbon::parse($fuelTank->explotation_start)->addHour(),
             ]);
 
         $response = $this->put(route('building::tech_acc::fuel_tank.update', $fuelTank->id), $updatedFuelTank->toArray());
@@ -57,7 +52,6 @@ class FuelTankTest extends TestCase
         $this->assertEquals($updatedFuelTank->explotation_start, $latestFuelTank->explotation_start);
         $this->assertEquals(200, $response->status());
     }
-
 
     public function testDestroyFuelTank()
     {
@@ -90,7 +84,6 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-
     public function testSomeOneWhoCantStoreFuelTank()
     {
         $countFuelTanks = FuelTank::count();
@@ -101,7 +94,6 @@ class FuelTankTest extends TestCase
 
         $this->assertEquals(403, $response->status());
     }
-
 
     public function testSomeOneWhoCantUpdateFuelTank()
     {
@@ -119,7 +111,6 @@ class FuelTankTest extends TestCase
 
         $this->assertEquals(403, $response->status());
     }
-
 
     public function testSomeOneWhoCantDestroyFuelTank()
     {

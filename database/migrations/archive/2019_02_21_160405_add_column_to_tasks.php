@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnToTasks extends Migration
 {
@@ -30,11 +30,11 @@ class AddColumnToTasks extends Migration
     public function down()
     {
         Schema::table('tasks', function (Blueprint $table) {
-             $table->dropColumn('questionnaire_token');
-             $table->dropColumn('is_sent');
-             $table->dropColumn('sent_to');
-             $table->dropColumn('com_offer_id');
-             $table->dropColumn('com_offer_added');
+            $table->dropColumn('questionnaire_token');
+            $table->dropColumn('is_sent');
+            $table->dropColumn('sent_to');
+            $table->dropColumn('com_offer_id');
+            $table->dropColumn('com_offer_added');
         });
     }
 }

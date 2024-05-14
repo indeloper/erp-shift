@@ -11,7 +11,6 @@
 |
 */
 
-use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['activeuser', 'auth']], function () {
@@ -24,7 +23,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::post('contracts_filtered', 'Documents\ContractsController@contractsFiltered')->name('contracts::filtered')->middleware('can:contracts');
     Route::any('contracts/get_contracts', 'Documents\ContractsController@get_contracts')->name('contracts::get_contracts');
 
-    Route::group(['prefix' => 'objects', 'as' => 'objects::',  'namespace' => "Commerce", 'middleware' => 'can:objects'], function () {
+    Route::group(['prefix' => 'objects', 'as' => 'objects::',  'namespace' => 'Commerce', 'middleware' => 'can:objects'], function () {
         Route::get('/', 'ObjectController@returnPageCore')->name('base-template');
 
         Route::get('/index', 'ObjectController@index')->name('index');
@@ -45,11 +44,10 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('tasks/current-user-tasks-contractors-list', 'Tasks\TasksController@currentUserTasksContractorsList')->name('tasks.current-user-tasks-contractors.list');
     Route::get('tasks/current-user-tasks-split-material-list', 'Tasks\TasksController@currentUserTasksSplitMaterialList')->name('tasks.current-user-tasks-split-material.list');
 
-    Route::group(['prefix' => 'tasks', 'as' => 'tasks::', 'namespace' => "Tasks"], function () {
+    Route::group(['prefix' => 'tasks', 'as' => 'tasks::', 'namespace' => 'Tasks'], function () {
         Route::get('/', 'TasksController@index')->name('index');
         Route::get('/card/{id}', 'TasksController@card')->name('card');
         Route::get('search_projects', 'TasksController@searchProjects')->name('search_projects');
-
 
         Route::get('/get-users', 'TasksController@get_users')->name('get_users');
         Route::get('/get-contractors', 'TasksController@get_contractors')->name('get_contractors');
@@ -74,7 +72,6 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::get('/common_task/{id}', 'TaskCommerceController@common_task')->name('common_task');
         Route::get('/usual/{id}', 'TaskCommerceController@slimTask')->name('slim_task');
 
-
         Route::any('/common_task/{id}/solve_task', 'TaskCommerceController@solve_task')->name('solve_task');
 
         Route::get('/tech_task/{id}', 'TechAccTasksController@tech_task')->name('tech_task');
@@ -84,7 +81,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('decline_request', 'TaskCommerceController@declineRequest')->name('decline_request');
     });
 
-    Route::group(['prefix' => 'building', 'as' => 'building::', 'namespace' => "Building"], function () {
+    Route::group(['prefix' => 'building', 'as' => 'building::', 'namespace' => 'Building'], function () {
 
         Route::group(['prefix' => 'materials', 'as' => 'materials::', 'middleware' => 'can:manual_materials'], function () {
             Route::get('/', 'ManualMaterialCategoryController@index')->name('index');
@@ -127,7 +124,6 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
             Route::get('ajax/get_materials', 'ManualNodesController@get_materials')->name('node::get_materials');
 
-
             /*Route::post('/select_work', 'ManualMaterialController@select_work')->name('select_work');
             Route::post('/select_attr_value', 'ManualMaterialController@select_attr_value')->name('select_attr_value');
             Route::post('/search_by_attributes', 'ManualMaterialController@search_by_attributes')->name('search_by_attributes');
@@ -154,7 +150,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'project_documents', 'as' => 'project_documents::', 'namespace' => "Documents", 'middleware' => 'can:project_documents'], function () {
+    Route::group(['prefix' => 'project_documents', 'as' => 'project_documents::', 'namespace' => 'Documents', 'middleware' => 'can:project_documents'], function () {
         Route::get('/', 'ProjectDocumentationController@index')->name('index');
         Route::get('/card/{id}/create', 'ProjectDocumentationController@create')->name('create');
         Route::get('/card/{id}', 'ProjectDocumentationController@card')->name('card');
@@ -163,15 +159,15 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('/update', 'ProjectDocumentationController@update')->name('update');
     });
 
-    Route::group(['prefix' => 'commercial_offers', 'as' => 'commercial_offers::', 'namespace' => "Documents", 'middleware' => 'can:commercial_offers'], function () {
+    Route::group(['prefix' => 'commercial_offers', 'as' => 'commercial_offers::', 'namespace' => 'Documents', 'middleware' => 'can:commercial_offers'], function () {
         Route::any('/', 'CommercialOffersController@index')->name('index');
     });
 
-    Route::group(['prefix' => 'work_volumes', 'as' => 'work_volumes::', 'namespace' => "Documents", 'middleware' => 'can:work_volumes'], function () {
+    Route::group(['prefix' => 'work_volumes', 'as' => 'work_volumes::', 'namespace' => 'Documents', 'middleware' => 'can:work_volumes'], function () {
         Route::any('/', 'WorkVolumesController@index')->name('index');
     });
 
-    Route::group(['prefix' => 'users', 'as' => 'users::', 'namespace' => "Common", ], function () {
+    Route::group(['prefix' => 'users', 'as' => 'users::', 'namespace' => 'Common'], function () {
         Route::get('/', 'UserController@index')->name('index')->middleware('can:users');
         Route::get('/create', 'UserController@create')->name('create')->middleware('can:users_create');
         Route::get('/card/{id}', 'UserController@card')->name('card');
@@ -200,7 +196,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('/setUserSetting', 'UserController@setSetting')->name('set-user-setting');
     });
 
-    Route::group(['prefix' => 'notifications', 'as' => 'notifications::', 'namespace' => "Common"], function () {
+    Route::group(['prefix' => 'notifications', 'as' => 'notifications::', 'namespace' => 'Common'], function () {
         Route::get('/', 'NotificationController@index')->name('index');
         Route::post('/view', 'NotificationController@view')->name('view');
         Route::post('/view/all', 'NotificationController@view_all')->name('view_all');
@@ -208,13 +204,13 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::get('/redirect/{encoded_url}', 'NotificationController@redirect')->name('redirect');
     });
 
-    Route::group(['prefix' => 'document_templates', 'as' => 'document_templates::', 'namespace' => "Documents"], function () {
+    Route::group(['prefix' => 'document_templates', 'as' => 'document_templates::', 'namespace' => 'Documents'], function () {
         Route::get('/', 'DocumentTemplateController@index')->name('index');
         Route::get('/create_offer_template', 'DocumentTemplateController@create_offer_template')->name('create_offer_template');
         Route::post('/create_offer_template/store', 'DocumentTemplateController@create_offer_template_store')->name('create_offer_template::store');
     });
 
-    Route::group(['prefix' => 'support', 'as' => 'support::', 'namespace' => "System"], function () {
+    Route::group(['prefix' => 'support', 'as' => 'support::', 'namespace' => 'System'], function () {
         Route::get('/', 'SupportController@index')->name('index');
         Route::post('/support_send_mail', 'SupportController@support_send_mail')->name('support_send_mail');
         Route::post('/update_ticket_async', 'SupportController@update_ticket_async')->name('update_ticket_async');
@@ -225,7 +221,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::get('report', 'SupportController@report')->name('report');
     });
 
-    Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'System', 'middleware' => ['can:that_noone_can']], function() {
+    Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'System', 'middleware' => ['can:that_noone_can']], function () {
         Route::get('notifications', 'AdminController@admin')->name('notifications');
         Route::get('validate-material-accounting-data', 'AdminController@validateMaterialAccountingData')->name('validate-material-accounting_data');
         Route::get('get-material-accounting-data-validation-result', 'AdminController@getMaterialAccountingDataValidationResult')->name('get-material-accounting-data-validation-result');
@@ -236,7 +232,6 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::get('/permission/categories', 'PermissionsController@getCategories')->name('permission.categories');
         Route::apiResource('permission', 'PermissionsController');
     });
-
 
     Route::post('file_entry/downloadAttachments', 'FileEntryController@downloadAttachments')->name('fileEntry.downloadAttachments');
     Route::resource('file_entry', 'FileEntryController')
@@ -285,10 +280,10 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::post('/materials/table/print', 'q3wMaterial\q3wMaterialController@printMaterialsTable')->name('materials.table.print');
     Route::get('/materials/remains', 'q3wMaterial\q3wMaterialController@remains')->name('materials.remains')->middleware('can:material_accounting_material_remains_report_access');
     Route::get('/materials/remains/list', 'q3wMaterial\q3wMaterialController@materialRemainsList')->name('materials.remains.list')->middleware('can:material_accounting_material_remains_report_access');
-    Route::post('/materials/remains/print', 'q3wMaterial\q3wMaterialController@exportMaterialRemains')->name('materials.remains.print')->middleware('can:material_accounting_material_remains_report_access') ;
+    Route::post('/materials/remains/print', 'q3wMaterial\q3wMaterialController@exportMaterialRemains')->name('materials.remains.print')->middleware('can:material_accounting_material_remains_report_access');
     Route::get('/materials/objects-remains', 'q3wMaterial\q3wMaterialController@objectsRemains')->name('materials.objects.remains')->middleware('can:material_accounting_objects_remains_report_access');
     Route::get('/materials/objects-remains/list', 'q3wMaterial\q3wMaterialController@objectsRemainsList')->name('materials.objects.remains.list')->middleware('can:material_accounting_objects_remains_report_access');
-    Route::post('/materials/objects-remains/print', 'q3wMaterial\q3wMaterialController@exportObjectsRemains')->name('materials.objects.remains.print')->middleware('can:material_accounting_objects_remains_report_access') ;
+    Route::post('/materials/objects-remains/print', 'q3wMaterial\q3wMaterialController@exportObjectsRemains')->name('materials.objects.remains.print')->middleware('can:material_accounting_objects_remains_report_access');
     Route::get('/materials/list', 'q3wMaterial\q3wMaterialController@show')->name('materials.list');
     Route::get('/materials/actual/list', 'q3wMaterial\q3wMaterialController@actualProjectObjectMaterialsList')->name('materials.actual.list');
     Route::get('/materials/reserved/list/', 'q3wMaterial\q3wMaterialController@reservedMaterialsList')->name('materials.reserved.list');
@@ -300,7 +295,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     //Material Types
     Route::get('/materials/material-type', 'q3wMaterial\q3wMaterialTypeController@index')->name('materials.types.index')->middleware('can:material_accounting_materials_types_editing');
     Route::get('/materials/material-type/list', 'q3wMaterial\q3wMaterialTypeController@show')->name('materials.types.list'); //!!!
-    Route::get('/materials/material-type/by-key', 'q3wMaterial\q3wMaterialTypeController@byKey')->name('materials.types.by-key');//!!!
+    Route::get('/materials/material-type/by-key', 'q3wMaterial\q3wMaterialTypeController@byKey')->name('materials.types.by-key'); //!!!
 
     Route::put('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@update')->name('materials.types.update')->middleware('can:material_accounting_materials_types_editing');
     Route::post('/materials/material-type/', 'q3wMaterial\q3wMaterialTypeController@store')->name('materials.types.store')->middleware('can:material_accounting_materials_types_editing');
@@ -308,8 +303,8 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
     //Material Standards
     Route::get('/materials/material-standard', 'q3wMaterial\q3wMaterialStandardController@index')->name('materials.standards.index')->middleware('can:material_accounting_materials_standards_editing');
-    Route::get('/materials/material-standard/list', 'q3wMaterial\q3wMaterialStandardController@show')->name('materials.standards.list');//!!!
-    Route::get('/materials/material-standard/listex', 'q3wMaterial\q3wMaterialStandardController@list')->name('materials.standards.listex');//!!!
+    Route::get('/materials/material-standard/list', 'q3wMaterial\q3wMaterialStandardController@show')->name('materials.standards.list'); //!!!
+    Route::get('/materials/material-standard/listex', 'q3wMaterial\q3wMaterialStandardController@list')->name('materials.standards.listex'); //!!!
     Route::get('/materials/standard-properties/list', 'q3wMaterial\q3wMaterialStandardController@standardPropertiesList')->name('materials.standard-properties.list');
     Route::get('/materials/standard-brand-types/list', 'q3wMaterial\q3wMaterialStandardController@brandTypesList')->name('materials.brand-types.list');
     Route::get('/materials/standard-brands/list', 'q3wMaterial\q3wMaterialStandardController@brandsList')->name('materials.brands.list');
@@ -389,6 +384,5 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     require base_path('routes/modules/project_object_documents/project_object_documents.php');
     require base_path('routes/modules/timesheet/timesheet.php');
 });
-
 
 Auth::routes();

@@ -1,5 +1,6 @@
 <?php
-Route::group(['prefix' => 'timesheet', 'as' => 'timesheet::',  'namespace' => "Timesheet"], function () {
+
+Route::group(['prefix' => 'timesheet', 'as' => 'timesheet::',  'namespace' => 'Timesheet'], function () {
 
     Route::group([
         'prefix' => 'timesheet-card',

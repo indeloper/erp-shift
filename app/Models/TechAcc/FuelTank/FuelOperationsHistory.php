@@ -42,7 +42,7 @@ class FuelOperationsHistory extends Model
             ],
             'object_id' => [
                 'class' => ProjectObject::class,
-                'name_method' => 'name'
+                'name_method' => 'name',
             ],
             'contractor_id' => [
                 'class' => Contractor::class,
@@ -50,25 +50,23 @@ class FuelOperationsHistory extends Model
             ],
             'author_id' => [
                 'class' => User::class,
-                'name_method' => 'full_name'
+                'name_method' => 'full_name',
             ],
-            ];
+        ];
 
         $casted_data = [];
 
         foreach ($raw_data as $old_new => $values) {
-            foreach ($values as $field => $value)
-            {
-                if (key_exists($field, $fields_to_cast))
-                {
+            foreach ($values as $field => $value) {
+                if (array_key_exists($field, $fields_to_cast)) {
                     $name_method = $fields_to_cast[$field]['name_method'];
                     $casted_data[$old_new][$field] = $fields_to_cast[$field]['class']::find($value)->$name_method;
                 } else {
                     if ($field == 'owner_id') {
                         $casted_data[$old_new][$field] = OurTechnic::$owners[$value];
-                    } else if ($field == 'operation_date') {
+                    } elseif ($field == 'operation_date') {
                         $casted_data[$old_new][$field] = Carbon::parse($value)->isoFormat('D.MM.YYYY');
-                    } else if($field != 'result_value') {
+                    } elseif ($field != 'result_value') {
                         $casted_data[$old_new][$field] = $value;
                     }
                 }

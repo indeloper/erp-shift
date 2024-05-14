@@ -2,7 +2,6 @@
 
 namespace App\Models\Messenger;
 
-use App\Models\Messenger\MessageForwards;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -118,8 +117,7 @@ class Message extends Eloquent
     /**
      * Returns unread messages given the userId.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $userId
+     * @param  int  $userId
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeUnreadForUser(Builder $query, $userId)
@@ -130,7 +128,7 @@ class Message extends Eloquent
                 $query->where('user_id', $userId)
                     ->whereNull('deleted_at')
                     ->where(function (Builder $q) {
-                        $q->where('last_read', '<', $this->getConnection()->raw($this->getConnection()->getTablePrefix() . $this->getTable() . '.created_at'))
+                        $q->where('last_read', '<', $this->getConnection()->raw($this->getConnection()->getTablePrefix().$this->getTable().'.created_at'))
                             ->orWhereNull('last_read');
                     });
             });

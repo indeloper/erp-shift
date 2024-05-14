@@ -6,13 +6,10 @@ use App\Models\Contract\Contract;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Notification;
 use App\Models\Task;
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class ContractApproved
 {
@@ -41,7 +38,7 @@ class ContractApproved
 
         foreach ($operations as $operation) {
             $task = Task::create([
-                'name' => 'Контроль договора в операции ' . mb_strtolower($operation->type_name),
+                'name' => 'Контроль договора в операции '.mb_strtolower($operation->type_name),
                 'project_id' => $contract->project_id,
                 'responsible_user_id' => $operation->author_id,
                 'target_id' => $operation->id,
@@ -51,9 +48,9 @@ class ContractApproved
 
             $notification = new Notification();
             $notification->save();
-            $notification->additional_info = '. Перейти к задаче можно по ссылке: ' . PHP_EOL . $task->task_route();
+            $notification->additional_info = '. Перейти к задаче можно по ссылке: '.PHP_EOL.$task->task_route();
             $notification->update([
-                'name' => 'Создана задача: ' . $task->name,
+                'name' => 'Создана задача: '.$task->name,
                 'task_id' => $task->id,
                 'object_id' => $object_id,
                 'user_id' => $task->responsible_user_id,

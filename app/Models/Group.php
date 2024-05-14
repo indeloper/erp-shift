@@ -10,15 +10,19 @@ class Group extends Model
     protected $fillable = ['name', 'department_id'];
 
     const FOREMEN = [14, 23, 31];
+
     const PROJECT_MANAGERS = [8, 13, 19, 27, 58];
+
     const LOGIST = [15, 16, 17];
+
     const MECHANICS = [46, 47];
+
     const PTO = [52, 53, 62];
 
     public function permissions()
     {
         return Permission::where('group_permissions.group_id', $this->id)
-            ->leftJoin('group_permissions', 'group_permissions.permission_id','=','permissions.id')
+            ->leftJoin('group_permissions', 'group_permissions.permission_id', '=', 'permissions.id')
             ->get();
     }
 

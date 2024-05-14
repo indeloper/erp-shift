@@ -40,7 +40,9 @@ class CreateUsageReportTask extends Command
      */
     public function handle()
     {
-        $grouped_tickets = OurTechnicTicket::where('status', 7)->get()->groupBy(function($item) {return $item->users()->ofType('usage_resp_user_id')->activeResp()->first()->id ?? '-1';});
+        $grouped_tickets = OurTechnicTicket::where('status', 7)->get()->groupBy(function ($item) {
+            return $item->users()->ofType('usage_resp_user_id')->activeResp()->first()->id ?? '-1';
+        });
         $report_service = new TechnicTicketReportService();
 
         foreach ($grouped_tickets as $user_id => $tickets) {
@@ -48,5 +50,4 @@ class CreateUsageReportTask extends Command
             $report_service->checkAndCreateTaskForUserId($user_id, $tickets);
         }
     }
-
 }

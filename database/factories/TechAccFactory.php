@@ -18,7 +18,7 @@ $factory->define(CategoryCharacteristic::class, function (Faker $faker) {
 $factory->define(OurTechnic::class, function (Faker $faker) {
     return [
         'brand' => $faker->word,
-        'model' => $faker->word . $faker->randomNumber(3),
+        'model' => $faker->word.$faker->randomNumber(3),
         'owner' => OurTechnic::$owners[array_rand(OurTechnic::$owners)],
         'start_location_id' => ProjectObject::count() ? ProjectObject::inRandomOrder()->first()->id : factory(ProjectObject::class)->create()->id,
         'technic_category_id' => TechnicCategory::count() ? TechnicCategory::inRandomOrder()->first()->id : factory(TechnicCategory::class)->create()->id,

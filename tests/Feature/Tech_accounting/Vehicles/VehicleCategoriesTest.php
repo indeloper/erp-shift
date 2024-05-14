@@ -2,12 +2,15 @@
 
 namespace Tests\Feature\Tech_accounting\Vehicles;
 
-use Tests\TestCase;
+use App\Models\TechAcc\Vehicles\OurVehicleParameters;
+use App\Models\TechAcc\Vehicles\OurVehicles;
+use App\Models\TechAcc\Vehicles\VehicleCategories;
+use App\Models\TechAcc\Vehicles\VehicleCategoryCharacteristics;
 use App\Models\User;
-use App\Models\TechAcc\Vehicles\{OurVehicleParameters, OurVehicles, VehicleCategories, VehicleCategoryCharacteristics};
-
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
 class VehicleCategoriesTest extends TestCase
 {
     use DatabaseTransactions;
@@ -15,9 +18,13 @@ class VehicleCategoriesTest extends TestCase
     protected $user;
 
     const BLA_BLA = 'bla-bla';
+
     const BLA = 'bla';
+
     const CHAR_NAME = 'b';
+
     const CHAR_UNIT = 'мм';
+
     const GROUPS_WITH_PERMISSIONS = [15, 17, 47];
 
     public function setUp(): void
@@ -139,8 +146,8 @@ class VehicleCategoriesTest extends TestCase
                     'name' => self::CHAR_NAME,
                     'show' => 1,
                     'unit' => self::CHAR_UNIT,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         // Then we must have forbidden error
@@ -163,8 +170,8 @@ class VehicleCategoriesTest extends TestCase
                     'show' => 1,
                     'required' => 0,
                     'unit' => self::CHAR_UNIT,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         // Then in session shouldn't be errors
@@ -201,8 +208,8 @@ class VehicleCategoriesTest extends TestCase
                     'show' => 1,
                     'required' => 0,
                     'unit' => self::CHAR_UNIT,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         // Then in session shouldn't be errors
@@ -242,8 +249,8 @@ class VehicleCategoriesTest extends TestCase
                     'name' => self::CHAR_NAME,
                     'show' => 1,
                     'unit' => self::CHAR_UNIT,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         // Then in session should be errors
@@ -287,8 +294,8 @@ class VehicleCategoriesTest extends TestCase
                     //'name' => self::CHAR_NAME,
                     //'show' => 1,
                     'unit' => self::CHAR_UNIT,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         // Then in session should be errors
@@ -317,14 +324,14 @@ class VehicleCategoriesTest extends TestCase
                     'unit' => self::CHAR_UNIT,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 2,
+                    'name' => self::CHAR_NAME. 2,
                     'show' => 1,
-                    'unit' => self::CHAR_UNIT . 2,
+                    'unit' => self::CHAR_UNIT. 2,
                 ],
                 [
                     'name' => self::CHAR_NAME,
@@ -332,14 +339,14 @@ class VehicleCategoriesTest extends TestCase
                     'unit' => self::CHAR_UNIT,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 2,
+                    'name' => self::CHAR_NAME. 2,
                     'show' => 1,
-                    'unit' => self::CHAR_UNIT . 2,
+                    'unit' => self::CHAR_UNIT. 2,
                 ],
                 [
                     'name' => self::CHAR_NAME,
@@ -347,26 +354,26 @@ class VehicleCategoriesTest extends TestCase
                     'unit' => self::CHAR_UNIT,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 2,
+                    'name' => self::CHAR_NAME. 2,
                     'show' => 1,
-                    'unit' => self::CHAR_UNIT . 2,
+                    'unit' => self::CHAR_UNIT. 2,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 2,
+                    'name' => self::CHAR_NAME. 2,
                     'show' => 1,
-                    'unit' => self::CHAR_UNIT . 2,
+                    'unit' => self::CHAR_UNIT. 2,
                 ],
-            ]
+            ],
         ]);
 
         // Then in session should be errors
@@ -501,12 +508,12 @@ class VehicleCategoriesTest extends TestCase
                     'unit' => self::CHAR_UNIT,
                 ],
                 [
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
                     'required' => 0,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
-            ]
+            ],
         ]);
         // And refresh our category
         $vehicleCategory->refresh();
@@ -536,12 +543,12 @@ class VehicleCategoriesTest extends TestCase
             'characteristics' => [
                 [
                     'id' => $willUpdate->id,
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
                     'required' => 1,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
-            ]
+            ],
         ]);
         // And refresh our category
         $vehicleCategory->refresh();
@@ -550,9 +557,9 @@ class VehicleCategoriesTest extends TestCase
         $response->assertOk();
         // And our category characteristic must change
         $characteristic = $vehicleCategory->characteristics->find($willUpdate->id);
-        $this->assertEquals(self::CHAR_NAME . 1, $characteristic->name);
+        $this->assertEquals(self::CHAR_NAME. 1, $characteristic->name);
         $this->assertEquals(0, $characteristic->show);
-        $this->assertEquals(self::CHAR_UNIT . 1, $characteristic->unit);
+        $this->assertEquals(self::CHAR_UNIT. 1, $characteristic->unit);
         $this->assertEquals(1, $characteristic->required);
     }
 
@@ -575,12 +582,12 @@ class VehicleCategoriesTest extends TestCase
             'characteristics' => [
                 [
                     'id' => $willUpdate->id,
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
                     'required' => 1,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
-            ]
+            ],
         ]);
         // And refresh our category
         $vehicleCategory->refresh();
@@ -589,10 +596,10 @@ class VehicleCategoriesTest extends TestCase
         $response->assertOk();
         // And our category characteristic must change
         $characteristic = $vehicleCategory->characteristics->find($willUpdate->id);
-        $this->assertEquals(self::CHAR_NAME . 1, $characteristic->name);
+        $this->assertEquals(self::CHAR_NAME. 1, $characteristic->name);
         $this->assertEquals(0, $characteristic->show);
         $this->assertEquals(1, $characteristic->required);
-        $this->assertEquals(self::CHAR_UNIT . 1, $characteristic->unit);
+        $this->assertEquals(self::CHAR_UNIT. 1, $characteristic->unit);
         $this->assertEquals('', $vehicleCategory->description);
     }
 
@@ -615,12 +622,12 @@ class VehicleCategoriesTest extends TestCase
             'deleted_characteristic_ids' => [$willDelete->id],
             'characteristics' => [
                 [
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
                     'required' => 1,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
-            ]
+            ],
         ]);
         // And refresh our category
         $vehicleCategory->refresh();
@@ -641,15 +648,15 @@ class VehicleCategoriesTest extends TestCase
 
         // When we make put request with data
         $response = $this->actingAs($user)->put(route('building::vehicles::vehicle_categories.update', $vehicleCategory->id), [
-//            'name' => self::BLA_BLA,
+            //            'name' => self::BLA_BLA,
             'description' => self::BLA,
-//            'characteristics' => [
-//                [
-//                    'name' => self::CHAR_NAME . 1,
-//                    'show' => 0,
-//                    'unit' => self::CHAR_UNIT . 1,
-//                ],
-//            ]
+            //            'characteristics' => [
+            //                [
+            //                    'name' => self::CHAR_NAME . 1,
+            //                    'show' => 0,
+            //                    'unit' => self::CHAR_UNIT . 1,
+            //                ],
+            //            ]
         ]);
 
         // Then in session should be errors
@@ -758,12 +765,12 @@ class VehicleCategoriesTest extends TestCase
             'characteristics' => [
                 [
                     'id' => $willUpdate->id,
-                    'name' => self::CHAR_NAME . 1,
+                    'name' => self::CHAR_NAME. 1,
                     'show' => 0,
                     'required' => 1,
-                    'unit' => self::CHAR_UNIT . 1,
+                    'unit' => self::CHAR_UNIT. 1,
                 ],
-            ]
+            ],
         ]);
         // And refresh our category
         $vehicleCategory->refresh();
@@ -800,11 +807,11 @@ class VehicleCategoriesTest extends TestCase
         // Then category should be deleted
         $this->assertTrue($vehicleCategory->trashed());
         // Category characteristics should be deleted - UPD NOW NOT
-//        $this->assertTrue($characteristic->trashed());
+        //        $this->assertTrue($characteristic->trashed());
         // Category vehicles should be deleted
         $this->assertTrue($vehicle->trashed());
         // Vehicle parameters should be deleted - UPD NOW NOT
-//        $this->assertTrue($parameter->trashed());
+        //        $this->assertTrue($parameter->trashed());
     }
 
     /** @test */

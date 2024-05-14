@@ -4,10 +4,8 @@ namespace App\Traits;
 
 use App\Models\Group;
 
-trait UserSearchByGroup {
-    /**
-     * @return array
-     */
+trait UserSearchByGroup
+{
     public function findAllUsersAndReturnGroupIds(array $searchGroups): array
     {
         $usersFromGroup = [];

@@ -3,15 +3,17 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
 class NotifySenderCommandTest extends TestCase
 {
     use DatabaseTransactions;
 
     protected $user1;
+
     protected $user2;
+
     protected $user3;
 
     public function setUp(): void

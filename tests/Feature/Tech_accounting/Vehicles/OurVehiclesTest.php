@@ -3,12 +3,10 @@
 namespace Tests\Feature\Tech_accounting\Vehicles;
 
 use App\Models\FileEntry;
-use App\Models\TechAcc\Vehicles\{
-    OurVehicleParameters,
-    OurVehicles,
-    VehicleCategories,
-    VehicleCategoryCharacteristics
-};
+use App\Models\TechAcc\Vehicles\OurVehicleParameters;
+use App\Models\TechAcc\Vehicles\OurVehicles;
+use App\Models\TechAcc\Vehicles\VehicleCategories;
+use App\Models\TechAcc\Vehicles\VehicleCategoryCharacteristics;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -20,13 +18,19 @@ class OurVehiclesTest extends TestCase
     use DatabaseTransactions, WithFaker;
 
     protected $user;
+
     protected $vehicle_category;
 
     const NUMBER = '012345678';
+
     const TRAILER_NUMBER = '876543210';
+
     const MARK = 'LADA';
+
     const MODEL = 'NINE';
+
     const OWNER = 1;
+
     const GROUPS_WITH_PERMISSIONS = [15, 17, 47];
 
     public function setUp(): void
@@ -223,9 +227,9 @@ class OurVehiclesTest extends TestCase
             'parameters' => [
                 [
                     'characteristic_id' => $this->vehicle_category->characteristics->first()->id,
-                    'value' => 'SMTH'
-                ]
-            ]
+                    'value' => 'SMTH',
+                ],
+            ],
         ];
         $response = $this->actingAs($user)->post(route('building::vehicles::vehicle_categories.our_vehicles.store', $this->vehicle_category->id), $request);
 
@@ -424,9 +428,9 @@ class OurVehiclesTest extends TestCase
                 [
                     'id' => $parameter->id,
                     'characteristic_id' => $parameter->characteristic_id,
-                    'value' => ''
-                ]
-            ]
+                    'value' => '',
+                ],
+            ],
         ];
 
         // When we make put request with data
@@ -476,9 +480,9 @@ class OurVehiclesTest extends TestCase
             'parameters' => [
                 [
                     'id' => '',
-                    'value' => ''
-                ]
-            ]
+                    'value' => '',
+                ],
+            ],
         ];
 
         // When we make put request with data
@@ -510,14 +514,14 @@ class OurVehiclesTest extends TestCase
         // Then vehicle should be deleted
         $this->assertTrue($vehicle->trashed());
         // Vehicle parameters should be deleted - UPD NOW NOT
-//        $this->assertTrue($parameter->trashed());
+        //        $this->assertTrue($parameter->trashed());
     }
 
     /** @test */
     public function it_collect_full_name_as_text()
     {
         $vehicleCategory = factory(VehicleCategories::class)->create([
-            'name' => 'Fastest car EVER'
+            'name' => 'Fastest car EVER',
         ]);
 
         // Given fresh vehicle

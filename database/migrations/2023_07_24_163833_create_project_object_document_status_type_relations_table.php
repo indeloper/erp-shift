@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CreateProjectObjectDocumentStatusTypeRelationsTable extends Migration
 {
@@ -24,7 +24,7 @@ class CreateProjectObjectDocumentStatusTypeRelationsTable extends Migration
             $table->foreign('document_type_id', 'project_object_document_type_foreign')->references('id')->on('project_object_document_types');
 
             $table->boolean('default_selection')->nullable()->comment('Статус при создании');
-            
+
             $table->timestamps();
         });
 
@@ -46,13 +46,13 @@ class CreateProjectObjectDocumentStatusTypeRelationsTable extends Migration
     public function uploadData()
     {
         DB::table('project_object_document_status_type_relations')->insert([
-            ['document_type_id' => 1, 'document_status_id' => 2, 'default_selection' => true], 
+            ['document_type_id' => 1, 'document_status_id' => 2, 'default_selection' => true],
             ['document_type_id' => 1, 'document_status_id' => 9, 'default_selection' => false],
 
             ['document_type_id' => 2, 'document_status_id' => 1, 'default_selection' => true],
             ['document_type_id' => 2, 'document_status_id' => 4, 'default_selection' => false],
             ['document_type_id' => 2, 'document_status_id' => 8, 'default_selection' => false],
-            ['document_type_id' => 2, 'document_status_id' => 9, 'default_selection' => false], 
+            ['document_type_id' => 2, 'document_status_id' => 9, 'default_selection' => false],
 
             ['document_type_id' => 3, 'document_status_id' => 1, 'default_selection' => true],
             ['document_type_id' => 3, 'document_status_id' => 5, 'default_selection' => false],
@@ -77,5 +77,4 @@ class CreateProjectObjectDocumentStatusTypeRelationsTable extends Migration
             ['document_type_id' => 7, 'document_status_id' => 9, 'default_selection' => false],
         ]);
     }
-
 }

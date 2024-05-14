@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ActionLog extends Model
 {
-    use SoftDeletes, HasAuthor;
+    use HasAuthor, SoftDeletes;
 
     protected $fillable = ['user_id', 'actions', 'logable_type', 'logable_id'];
 
@@ -16,6 +16,7 @@ class ActionLog extends Model
 
     /**
      * Relation to logable model
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function logable()

@@ -8,7 +8,6 @@ use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\User;
 use App\Telegram\TelegramServices;
 use Carbon\Carbon;
-use morphos\Russian\FirstNamesInflection;
 use morphos\Russian\RussianLanguage;
 
 class FuelMessageTemplates
@@ -21,7 +20,7 @@ class FuelMessageTemplates
 
         $callbackData = [
             'eventName' => 'fuelTankMovementConfirmation',
-            'eventId' => $tankId
+            'eventId' => $tankId,
         ];
 
         $inlineKeyboard = [
@@ -29,8 +28,8 @@ class FuelMessageTemplates
                 [
                     'callback_data' => json_encode($callbackData),
                     'text' => 'Подтвердить',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $keyboard = [
@@ -43,15 +42,15 @@ class FuelMessageTemplates
         return [
             'text' => $messageText,
             'reply_markup' => json_encode($keyboard),
-            'options' => ['tankId' => $tankId]
+            'options' => ['tankId' => $tankId],
         ];
     }
 
     public function getFuelTankMovingConfirmationForNewResponsibleMessageParams($params)
     {
         $chatMessage = json_decode($params['tank']->chat_message_tmp);
-        
-        if(!$chatMessage) {
+
+        if (! $chatMessage) {
             return [];
         }
 
@@ -64,14 +63,13 @@ class FuelMessageTemplates
             'message_id' => $messageId,
             'parse_mode' => 'HTML',
             'reply_markup' => json_encode(['inline_keyboard' => []]),
-            'text' => 
-                $text
-                . "\n"."\n".
-                "✅"
-                . " Перемещение подтверждено "
-                . Carbon::create(now())->format('d.m.Y в H:m')
-        ]; 
-        
+            'text' => $text
+                ."\n"."\n".
+                '✅'
+                .' Перемещение подтверждено '
+                .Carbon::create(now())->format('d.m.Y в H:m'),
+        ];
+
         return [
             'message' => $message,
         ];
@@ -79,44 +77,43 @@ class FuelMessageTemplates
 
     public function getFuelTankMovingConfirmationForPreviousResponsibleMessageParams($params)
     {
-         $lastTankTransferHistory = FuelTankTransferHistory::query()
+        $lastTankTransferHistory = FuelTankTransferHistory::query()
             ->where('fuel_tank_id', $params['tank']->id)
             ->whereNull('fuel_tank_flow_id')
             ->orderByDesc('id')
             ->first();
-        
+
         $newResponsible = User::find($params['tank']->responsible_id);
         $newResponsibleFIO = $newResponsible->format('L f. p.', 'именительный') ?? null;
         $newResponsibleUrl = $newResponsible->getExternalUserUrl();
-        
-        $text = 
+
+        $text =
             '<b>Перемещение топливной емкости</b>'
             ."\n".
             "<i><a href='{$newResponsibleUrl}'>{$newResponsibleFIO}</a> "
-            . RussianLanguage::verb('подтвердил', mb_strtolower($newResponsible->gender)). " перемещение " 
-            . Carbon::create(now())->format('d.m.Y в H:m') 
-            . "</i>"
+            .RussianLanguage::verb('подтвердил', mb_strtolower($newResponsible->gender)).' перемещение '
+            .Carbon::create(now())->format('d.m.Y в H:m')
+            .'</i>'
             ."\n"."\n"
             ."<b>Номер емкости:</b> {$params['tank']->tank_number}"
             ."\n"
             ."<b>Остаток топлива:</b> {$params['tank']->fuel_level} л"
             ."\n"
-            ."<b>С объекта:</b> ". (ProjectObject::find($lastTankTransferHistory->previous_object_id)->short_name ?? null)
+            .'<b>С объекта:</b> '.(ProjectObject::find($lastTankTransferHistory->previous_object_id)->short_name ?? null)
             ."\n"
-            ."<b>На объект:</b> ". (ProjectObject::find($params['tank']->object_id)->short_name ?? null )    
-        ;
+            .'<b>На объект:</b> '.(ProjectObject::find($params['tank']->object_id)->short_name ?? null);
 
         $previousResponsible = User::find($lastTankTransferHistory->previous_responsible_id);
         $chatId = $previousResponsible->chat_id ?? null;
 
         $message = [
-            'chat_id' => $chatId, 
+            'chat_id' => $chatId,
             'parse_mode' => 'HTML',
-            'text' => $text
-        ]; 
-        
+            'text' => $text,
+        ];
+
         return [
-            'message' => $message
+            'message' => $message,
         ];
     }
 
@@ -127,7 +124,7 @@ class FuelMessageTemplates
             ->whereNull('fuel_tank_flow_id')
             ->orderByDesc('id')
             ->first();
-        
+
         $newResponsible = User::find($params['tank']->responsible_id);
         $previousResponsible = User::find($lastTankTransferHistory->previous_responsible_id);
         $newResponsibleFIO = $newResponsible->format('L f. p.', 'именительный') ?? null;
@@ -136,32 +133,31 @@ class FuelMessageTemplates
         $newResponsibleUrl = $newResponsible->getExternalUserUrl();
 
         $previousResponsibleUrl = $previousResponsible ? $previousResponsible->getExternalUserUrl() : null;
-        
-        $text = 
+
+        $text =
             '<b>Перемещение топливной емкости</b>'
             ."\n".
-            "<i>"
-            . Carbon::create(now())->format('d.m.Y в H:m') 
-            ." завершено перемещение топливной емкости"
-            . "</i>"
+            '<i>'
+            .Carbon::create(now())->format('d.m.Y в H:m')
+            .' завершено перемещение топливной емкости'
+            .'</i>'
             ."\n"."\n"
             ."<b>Номер емкости:</b> {$params['tank']->tank_number}"
             ."\n"
             ."<b>Остаток топлива:</b> {$params['tank']->fuel_level} л"
             ."\n"
-            ."<b>С объекта:</b> ". (ProjectObject::find($lastTankTransferHistory->previous_object_id)->short_name ?? null) . " (<a href='{$previousResponsibleUrl}'>{$previousResponsibleFIO})</a>"
+            .'<b>С объекта:</b> '.(ProjectObject::find($lastTankTransferHistory->previous_object_id)->short_name ?? null)." (<a href='{$previousResponsibleUrl}'>{$previousResponsibleFIO})</a>"
             ."\n"
-            ."<b>На объект:</b> ". (ProjectObject::find($params['tank']->object_id)->short_name ?? null ) . " (<a href='{$newResponsibleUrl}'>{$newResponsibleFIO}</a>)"
-        ;
+            .'<b>На объект:</b> '.(ProjectObject::find($params['tank']->object_id)->short_name ?? null)." (<a href='{$newResponsibleUrl}'>{$newResponsibleFIO}</a>)";
 
         $message = [
             'parse_mode' => 'HTML',
             'reply_markup' => json_encode(['inline_keyboard' => []]),
-            'text' => $text
-        ]; 
-        
+            'text' => $text,
+        ];
+
         return [
-            'message' => $message
+            'message' => $message,
         ];
     }
 }

@@ -6,14 +6,19 @@ use App\Models\TechAcc\Defects\Defects;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
+
 class DefectExpireCommandTest extends TestCase
 {
     use DatabaseTransactions;
 
     protected $defect1;
+
     protected $defect2;
+
     protected $defect3;
+
     protected $defect4;
+
     protected $user;
 
     public function setUp(): void

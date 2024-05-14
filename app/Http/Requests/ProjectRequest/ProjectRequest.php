@@ -23,22 +23,20 @@ class ProjectRequest extends FormRequest
      *
      * @return array
      */
+    public function messages()
+    {
+        return [
+            'contractor_ids.*.exist' => 'Контрагент не найден',
+            'contractor_ids.*.required' => 'Поле КОНТРАГЕНТ обязательно для заполнения',
 
+            'name.required' => 'Поле НАЗВАНИЕ ПРОЕКТА обязательно для заполнения',
+            'name.max' => 'Максимальное число символов : 200',
 
-     public function messages()
-     {
-         return [
-             'contractor_ids.*.exist' => 'Контрагент не найден',
-             'contractor_ids.*.required' => 'Поле КОНТРАГЕНТ обязательно для заполнения',
-
-             'name.required' => 'Поле НАЗВАНИЕ ПРОЕКТА обязательно для заполнения',
-             'name.max' => 'Максимальное число символов : 200',
-
-             'object_address.max' => 'Максимальное число символов : 150',
-             'object_address.required' => 'Поле АДРЕС ОБЪЕКТА обязательно для заполнения',
-             'description.max' => 'Максимальное число символов : 200',
-             'contractor_contact_ids.required' => 'Контакты не указаны. Необходимо добавить хотя бы одно контактное лицо в проект.',
-         ];
+            'object_address.max' => 'Максимальное число символов : 150',
+            'object_address.required' => 'Поле АДРЕС ОБЪЕКТА обязательно для заполнения',
+            'description.max' => 'Максимальное число символов : 200',
+            'contractor_contact_ids.required' => 'Контакты не указаны. Необходимо добавить хотя бы одно контактное лицо в проект.',
+        ];
     }
 
     public function rules()
@@ -50,7 +48,7 @@ class ProjectRequest extends FormRequest
             'entity' => 'required|in:1,2',
             'object_id' => 'required|exists:project_objects,id',
             'description' => $this->description ? 'string:max:200' : '',
-            'contractor_contact_ids' => stristr(request()->pathInfo, 'update') ? 'nullable' : 'required'
+            'contractor_contact_ids' => stristr(request()->pathInfo, 'update') ? 'nullable' : 'required',
         ];
     }
 }

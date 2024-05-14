@@ -6,8 +6,6 @@ use App\Models\SupportMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SupportMailTest extends TestCase
 {

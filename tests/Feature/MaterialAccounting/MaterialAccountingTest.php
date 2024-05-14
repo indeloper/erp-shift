@@ -2,11 +2,16 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-use App\Models\{Group, Manual\ManualMaterialCategory, Manual\ManualReference, ProjectObject, User};
 use App\Models\Contractors\Contractor;
+use App\Models\Group;
 use App\Models\Manual\ManualMaterial;
-use App\Models\MatAcc\{MaterialAccountingBase, MaterialAccountingOperation, MaterialAccountingOperationMaterials};
+use App\Models\Manual\ManualReference;
+use App\Models\MatAcc\MaterialAccountingBase;
+use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Models\ProjectObject;
+use App\Models\User;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class MaterialAccountingTest extends TestCase
@@ -292,7 +297,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 12
+            'count' => 12,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -312,7 +317,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 0
+            'count' => 0,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -332,7 +337,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => ($base->id + 1),
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -352,7 +357,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -381,7 +386,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -410,7 +415,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -441,7 +446,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -472,7 +477,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -542,7 +547,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 12
+            'count' => 12,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -562,7 +567,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 0
+            'count' => 0,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -582,7 +587,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => ($base->id + 1),
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -602,7 +607,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -622,7 +627,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -651,7 +656,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -682,7 +687,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -713,7 +718,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -742,7 +747,7 @@ class MaterialAccountingTest extends TestCase
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -774,7 +779,7 @@ class MaterialAccountingTest extends TestCase
                 'material_id' => $material->id,
                 'material_unit' => 1,
                 'material_count' => 10,
-                'used' => 1
+                'used' => 1,
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -798,7 +803,7 @@ class MaterialAccountingTest extends TestCase
                 'material_id' => $material->id,
                 'material_unit' => 1,
                 'material_count' => 10,
-                'used' => 1
+                'used' => 1,
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -837,8 +842,8 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -889,14 +894,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -952,14 +957,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -991,14 +996,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::part_send', $newOperation->id), $data);
@@ -1046,14 +1051,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -1085,14 +1090,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::part_send', $newOperation->id), $data);
@@ -1140,14 +1145,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -1179,14 +1184,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::part_send', $newOperation->id), $data);
@@ -1204,7 +1209,6 @@ class MaterialAccountingTest extends TestCase
         $this->assertEquals(10, $operationMaterial->count);
     }
 
-
     /** @test */
     public function user_without_permission_cannot_create_transformation_with_used_materials()
     {
@@ -1221,8 +1225,8 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1247,8 +1251,8 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1286,16 +1290,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1346,28 +1350,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1416,16 +1420,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1476,28 +1480,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1546,16 +1550,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1606,28 +1610,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1676,16 +1680,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1736,28 +1740,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1815,7 +1819,7 @@ class MaterialAccountingTest extends TestCase
                 [
                     'parameter_id' => 3,
                     'value_id' => [
-//                        'reference_name' => $reference->name,
+                        //                        'reference_name' => $reference->name,
                         'reference_id' => $reference->id,
                         'parameters' => [
                             [
@@ -1823,15 +1827,14 @@ class MaterialAccountingTest extends TestCase
                                 'value' => [
                                     'from' => 0,
                                     'to' => 16,
-                                ]
-                            ]
-                        ]
+                                ],
+                            ],
+                        ],
                     ],
-                ]
+                ],
             ]];
 
-
-//        $response = $this->get(route('building::mat_acc::report_card'))->viewData('bases');
+        //        $response = $this->get(route('building::mat_acc::report_card'))->viewData('bases');
         $response = $this->post(route('building::mat_acc::report_card::filter_base'), $payload)->json('result');
         dd($response);
     }
@@ -1879,7 +1882,7 @@ class MaterialAccountingTest extends TestCase
 
         $payload = [
             'materials' => [
-                $operation_mat
+                $operation_mat,
             ],
             'object_id' => $object->id,
             'planned_date_to' => Carbon::now(),
@@ -1892,15 +1895,14 @@ class MaterialAccountingTest extends TestCase
         $expected_result = [
             'transform' => true,
             'failure' => false,
-            'solutions' =>
-                [
-                    $old_base->id => [
-                        'status' => 'transform',
-                        'to' => $base->id,
-                        'count' => 5,
-                        'message' => "На ". Carbon::now()->isoFormat('DD.MM.YYYY') . " имеется 5 т {$material->name} выбранного вами б/у материала. 5 т будет переведено в б/у автоматически."
-                    ]
-                ]
+            'solutions' => [
+                $old_base->id => [
+                    'status' => 'transform',
+                    'to' => $base->id,
+                    'count' => 5,
+                    'message' => 'На '.Carbon::now()->isoFormat('DD.MM.YYYY')." имеется 5 т {$material->name} выбранного вами б/у материала. 5 т будет переведено в б/у автоматически.",
+                ],
+            ],
         ];
         $this->assertEquals($expected_result, $response->json());
     }
@@ -1934,7 +1936,7 @@ class MaterialAccountingTest extends TestCase
 
         $payload = [
             'materials' => [
-                $operation_mat
+                $operation_mat,
             ],
             'object_id' => $object->id,
             'planned_date_to' => Carbon::now(),
@@ -1947,15 +1949,14 @@ class MaterialAccountingTest extends TestCase
         $expected_result = [
             'transform' => true,
             'failure' => false,
-            'solutions' =>
-                [
-                    $old_base->id => [
-                        'status' => 'transform',
-                        'to' => $base->id,
-                        'count' => 5,
-                        'message' => "На ". Carbon::now()->isoFormat('DD.MM.YYYY') . " имеется 5 т {$material->name} выбранного вами нового материала. 5 т будет переведено в новый автоматически."
-                    ]
-                ]
+            'solutions' => [
+                $old_base->id => [
+                    'status' => 'transform',
+                    'to' => $base->id,
+                    'count' => 5,
+                    'message' => 'На '.Carbon::now()->isoFormat('DD.MM.YYYY')." имеется 5 т {$material->name} выбранного вами нового материала. 5 т будет переведено в новый автоматически.",
+                ],
+            ],
         ];
         $this->assertEquals($expected_result, $response->json());
     }

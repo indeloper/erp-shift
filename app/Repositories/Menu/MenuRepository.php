@@ -8,7 +8,6 @@ use App\Models\Menu\MenuItem;
 
 final class MenuRepository implements MenuRepositoryInterface
 {
-
     public function getMenuItems()
     {
         return MenuItem::query()
@@ -23,5 +22,4 @@ final class MenuRepository implements MenuRepositoryInterface
         return MenuItem::query()
             ->find($menuItemId);
     }
-
 }

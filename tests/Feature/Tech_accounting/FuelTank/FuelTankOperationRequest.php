@@ -64,7 +64,6 @@ class FuelTankOperationRequest extends TestCase
         $test_request = factory(FuelTankOperation::class)->raw();
         $test_request['file_ids'] = factory(FileEntry::class, 5)->create()->pluck('id')->merge($file_to_stay->id);
 
-
         $this->put(route('building::tech_acc::fuel_tank_operations.update', $operation->id), $test_request)->assertStatus(200);
 
         $operation->refresh();
@@ -137,7 +136,6 @@ class FuelTankOperationRequest extends TestCase
         $this->delete(route('building::tech_acc::fuel_tank_operations.destroy', $operation->id))->assertStatus(403);
     }
 
-
     /** @test */
     public function it_returns_full_data_on_show_method()
     {
@@ -163,6 +161,6 @@ class FuelTankOperationRequest extends TestCase
         // then toggle comments below
 
         $this->assertNotEquals($all_operations->first()->id, $view_operations[0]->id);
-//        $this->assertEquals($all_operations->first()->id, $view_operations[0]->id);
+        //        $this->assertEquals($all_operations->first()->id, $view_operations[0]->id);
     }
 }

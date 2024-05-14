@@ -23,20 +23,18 @@ class ProjectDocumentUpdate extends FormRequest
      *
      * @return array
      */
-
-     public function messages()
-     {
-         return [
-             'document.file' => 'Необходимо загрузить файл',
-             'document.required' => 'Необходимо загрузить файл',
-         ];
+    public function messages()
+    {
+        return [
+            'document.file' => 'Необходимо загрузить файл',
+            'document.required' => 'Необходимо загрузить файл',
+        ];
     }
-
 
     public function rules()
     {
         return [
-            'document' => 'required|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,dwg,dwl,dwl2,dxf,mpp,gif,bmp,txt,rtf,pptx'
+            'document' => 'required|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,dwg,dwl,dwl2,dxf,mpp,gif,bmp,txt,rtf,pptx',
         ];
     }
 }

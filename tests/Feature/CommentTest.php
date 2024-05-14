@@ -8,12 +8,9 @@ use App\Models\TechAcc\Defects\Defects;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CommentTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,7 +43,6 @@ class CommentTest extends TestCase
             'commentable_type' => $defect->class_name,
         ])->assertStatus(200);
 
-
         $this->assertEquals($defect->id, Comment::latest()->first()->commentable->id);
         $this->assertEquals(get_class($defect), get_class(Comment::latest()->first()->commentable));
     }
@@ -64,7 +60,6 @@ class CommentTest extends TestCase
         $this->assertEquals(Comment::latest()->first()->documents->pluck('id'), $files->pluck('id'));
     }
 
-
     /** @test */
     public function it_deletes_files_with_comment()
     {
@@ -76,7 +71,6 @@ class CommentTest extends TestCase
 
         $this->assertCount(0, FileEntry::find($files->pluck('id')));
     }
-
 
     /** @test */
     public function it_can_update_comment()

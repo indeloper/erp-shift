@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\LaborSafety\LaborSafetyWorkerType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddFieldsToLaborSafety extends Migration
 {
@@ -23,12 +23,12 @@ class AddFieldsToLaborSafety extends Migration
 
             $laborSafetyWorkerTypesArray = [
                 'Руководитель проектов',
-                'Заместитель руководителя проектов'
+                'Заместитель руководителя проектов',
             ];
 
             foreach ($laborSafetyWorkerTypesArray as $laborSafetyWorkerTypesElement) {
                 $laborSafetyWorkerTypes = new LaborSafetyWorkerType([
-                    'name' => $laborSafetyWorkerTypesElement
+                    'name' => $laborSafetyWorkerTypesElement,
                 ]);
                 $laborSafetyWorkerTypes->save();
             }

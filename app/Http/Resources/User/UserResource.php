@@ -18,7 +18,7 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'first_name' => $this->first_name,
             'patronymic' => $this->patronymic,
-            'user_card_route' => route('users::card', $this->id)
+            'user_card_route' => route('users::card', $this->id),
         ];
     }
 }

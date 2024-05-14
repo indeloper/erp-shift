@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddTechAccountingTechnicCategoryPermissions extends Migration
 {
@@ -18,21 +16,21 @@ class AddTechAccountingTechnicCategoryPermissions extends Migration
             // tasks
             [
                 'category' => 13,
-                "name" => 'Создание категории техники',
-                "codename" => 'tech_acc_tech_category_create',
-                'created_at' => now()
+                'name' => 'Создание категории техники',
+                'codename' => 'tech_acc_tech_category_create',
+                'created_at' => now(),
             ],
             [
                 'category' => 13,
-                "name" => 'Редактирование категории техники',
-                "codename" => 'tech_acc_tech_category_update',
-                'created_at' => now()
+                'name' => 'Редактирование категории техники',
+                'codename' => 'tech_acc_tech_category_update',
+                'created_at' => now(),
             ],
             [
                 'category' => 13,
-                "name" => 'Удаление категории техники',
-                "codename" => 'tech_acc_tech_category_delete',
-                'created_at' => now()
+                'name' => 'Удаление категории техники',
+                'codename' => 'tech_acc_tech_category_delete',
+                'created_at' => now(),
             ],
         ]);
 
@@ -44,47 +42,47 @@ class AddTechAccountingTechnicCategoryPermissions extends Migration
             [
                 'group_id' => 15,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 15,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 15,
                 'permission_id' => $permissionThree,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 17,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 17,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 17,
                 'permission_id' => $permissionThree,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionThree,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }

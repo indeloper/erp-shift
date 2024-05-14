@@ -21,7 +21,7 @@ class FullOurTechnicSeeder extends Seeder
 
         $technics = factory(OurTechnic::class, 3)->create(['technic_category_id' => $category->id]);
 
-        $technics->each(function($technic) use ($category_characteristics) {
+        $technics->each(function ($technic) use ($category_characteristics) {
             $technic->setCharacteristicsValue([
                 [
                     'id' => $category_characteristics->first()->id,

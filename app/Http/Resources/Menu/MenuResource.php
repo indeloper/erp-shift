@@ -28,9 +28,9 @@ class MenuResource extends JsonResource
             'actives' => $this->actives,
             'children' => self::collection($this->children),
             'toggle_favorite_route' => route('layout::menu::favorite::toggle', [
-                'menu_item' => $this->id
+                'menu_item' => $this->id,
             ]),
-            'is_favorite' => auth()->user()->menuItems->contains($this->id)
+            'is_favorite' => auth()->user()->menuItems->contains($this->id),
         ];
     }
 }

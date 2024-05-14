@@ -1,10 +1,7 @@
 <?php
 
-use App\Models\TechAcc\OurTechnic;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class ChangeStartLocationIdColumnInOurTechnicsTable extends Migration
 {

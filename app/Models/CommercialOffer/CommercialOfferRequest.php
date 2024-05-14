@@ -9,7 +9,7 @@ class CommercialOfferRequest extends Model
     public $request_status = [
         0 => 'Не просмотрен',
         1 => 'Положительный',
-        2 => 'Отрицательный'
+        2 => 'Отрицательный',
     ];
 
     public function files()

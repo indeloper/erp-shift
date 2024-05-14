@@ -1,10 +1,7 @@
 <?php
 
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddPermissionToSeeFuelHistory extends Migration
 {
@@ -16,7 +13,6 @@ class AddPermissionToSeeFuelHistory extends Migration
         'Просмотр истории изменения операции по топливу',
     ];
 
-
     public function up()
     {
         $insert = [];
@@ -26,7 +22,7 @@ class AddPermissionToSeeFuelHistory extends Migration
                 'category' => 17,
                 'name' => self::PERMISSION_NAMES[$key],
                 'codename' => $codename,
-                'created_at' => now()
+                'created_at' => now(),
             ];
         }
 
@@ -40,12 +36,12 @@ class AddPermissionToSeeFuelHistory extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Artisan;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication, WithFaker, DatabaseTransactions;
+    use CreatesApplication, DatabaseTransactions, WithFaker;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Artisan::call("migrate");
+        Artisan::call('migrate');
     }
 }

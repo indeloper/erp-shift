@@ -1,11 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use App\Models\Manual\ManualMaterialCategory;
-
 
 class AddUnitWeightToSheetGkToManualMaterialParameters extends Migration
 {
@@ -28,12 +25,12 @@ class AddUnitWeightToSheetGkToManualMaterialParameters extends Migration
         ]);
 
         foreach ($category->materials as $material) {
-            $weight_per_square_meter = (float)str_replace(',','.', $material->parameters()->where('name', 'Удельная площадь')->first()->value ?? 0);
-            $square_meter = (float)str_replace(',','.', $material->parameters()->where('name', 'Масса 1 м2')->first()->value ?? 0);
+            $weight_per_square_meter = (float) str_replace(',', '.', $material->parameters()->where('name', 'Удельная площадь')->first()->value ?? 0);
+            $square_meter = (float) str_replace(',', '.', $material->parameters()->where('name', 'Масса 1 м2')->first()->value ?? 0);
 
             $material->parameters()->create([
                 'attr_id' => $attr_new->id,
-                'value' => (($weight_per_square_meter * $square_meter) / 1000)
+                'value' => (($weight_per_square_meter * $square_meter) / 1000),
             ]);
         }
 

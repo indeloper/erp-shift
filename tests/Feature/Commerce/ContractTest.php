@@ -56,7 +56,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?contracts.contract_id={$contract->contract_id}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?contracts.contract_id={$contract->contract_id}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -76,7 +76,7 @@ class ContractTest extends TestCase
 
         // When we use filter scope
         $result = $this->actingAs($user)->post(route('contracts::filtered', [
-            'url' => route('contracts::index') . "?contracts.contract_id%5B0%5D=102&contracts.contract_id%5B1%5D=101"
+            'url' => route('contracts::index').'?contracts.contract_id%5B0%5D=102&contracts.contract_id%5B1%5D=101',
         ]))->json();
 
         // Then results should have six contracts
@@ -96,7 +96,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?contracts.foreign_id={$contract->foreign_id}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?contracts.foreign_id={$contract->foreign_id}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -116,7 +116,7 @@ class ContractTest extends TestCase
 
         // When we use filter scope
         $result = $this->actingAs($user)->post(route('contracts::filtered', [
-            'url' => route('contracts::index') . '?contracts.foreign_id%5B0%5D=СП&contracts.foreign_id%5B1%5D=КА'
+            'url' => route('contracts::index').'?contracts.foreign_id%5B0%5D=СП&contracts.foreign_id%5B1%5D=КА',
         ]))->json();
 
         // Then results should have six contracts
@@ -140,7 +140,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?contractors.short_name={$contractor->short_name}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?contractors.short_name={$contractor->short_name}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -168,7 +168,7 @@ class ContractTest extends TestCase
 
         // When we use filter scope
         $result = $this->actingAs($user)->post(route('contracts::filtered', [
-            'url' => route('contracts::index') . "?contractors.short_name%5B0%5D={$contractor->short_name}&contractors.short_name%5B1%5D={$anotherContractor->short_name}"
+            'url' => route('contracts::index')."?contractors.short_name%5B0%5D={$contractor->short_name}&contractors.short_name%5B1%5D={$anotherContractor->short_name}",
         ]))->json();
 
         // Then results should have six contracts
@@ -192,7 +192,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?project_objects.address={$object->address}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?project_objects.address={$object->address}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -220,7 +220,7 @@ class ContractTest extends TestCase
 
         // When we use filter scope
         $result = $this->actingAs($user)->post(route('contracts::filtered', [
-            'url' => route('contracts::index') . "?project_objects.address%5B0%5D={$object->address}&project_objects.address%5B1%5D={$anotherObject->id}"
+            'url' => route('contracts::index')."?project_objects.address%5B0%5D={$object->address}&project_objects.address%5B1%5D={$anotherObject->id}",
         ]))->json();
 
         // Then results should have six contracts
@@ -242,7 +242,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?projects.name={$project->name}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?projects.name={$project->name}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -266,7 +266,7 @@ class ContractTest extends TestCase
 
         // When we use filter scope
         $result = $this->actingAs($user)->post(route('contracts::filtered', [
-            'url' => route('contracts::index') . "?projects.name%5B0%5D={$project->name}&projects.name%5B1%5D={$anotherProject->name}"
+            'url' => route('contracts::index')."?projects.name%5B0%5D={$project->name}&projects.name%5B1%5D={$anotherProject->name}",
         ]))->json();
 
         // Then results should have six contracts
@@ -286,7 +286,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?contracts.name={$contract->name}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?contracts.name={$contract->name}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -306,7 +306,7 @@ class ContractTest extends TestCase
 
         // When we use filter scope
         $result = $this->actingAs($user)->post(route('contracts::filtered', [
-            'url' => route('contracts::index') . "?contracts.name%5B0%5D={$contracts[0]->name}&contracts.name%5B1%5D={$contract->name}"
+            'url' => route('contracts::index')."?contracts.name%5B0%5D={$contracts[0]->name}&contracts.name%5B1%5D={$contract->name}",
         ]))->json();
 
         // Then results should have six contracts
@@ -326,7 +326,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?contracts.status={$contract->status}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?contracts.status={$contract->status}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -346,7 +346,7 @@ class ContractTest extends TestCase
 
         // When we use filter scope
         $result = $this->actingAs($user)->post(route('contracts::filtered', [
-            'url' => route('contracts::index') . "?contracts.status%5B0%5D={$contracts[0]->status}&contracts.status%5B1%5D={$contract->status}"
+            'url' => route('contracts::index')."?contracts.status%5B0%5D={$contracts[0]->status}&contracts.status%5B1%5D={$contract->status}",
         ]))->json();
 
         // Then results should have six contracts
@@ -371,7 +371,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?projects.entity={$project->entity}"]))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?projects.entity={$project->entity}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -391,8 +391,8 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $dateRange = now()->subMonth()->format('d.m.Y') . '|' . now()->format('d.m.Y');
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . "?contracts.created_at={$dateRange}"]))->json();
+        $dateRange = now()->subMonth()->format('d.m.Y').'|'.now()->format('d.m.Y');
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index')."?contracts.created_at={$dateRange}"]))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -411,7 +411,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . '?search=гаран']))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index').'?search=гаран']))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);
@@ -430,7 +430,7 @@ class ContractTest extends TestCase
         $user = factory(User::class)->create(['group_id' => self::USERS_THAT_CAN_WORK_WITH_CONTRACTS[array_rand(self::USERS_THAT_CAN_WORK_WITH_CONTRACTS)]]);
 
         // When we use filter scope
-        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index') . '?search=гаран•соглашение']))->json();
+        $result = $this->actingAs($user)->post(route('contracts::filtered', ['url' => route('contracts::index').'?search=гаран•соглашение']))->json();
 
         // Then results should have one contract
         $this->assertNotEmpty($result['contracts']);

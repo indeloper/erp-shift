@@ -3,15 +3,14 @@
 namespace App\Actions\Fuel;
 
 use App\Models\Notification;
-use App\Models\Permission;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Telegram\Dialogs\FuelDialogs;
 use App\Telegram\TelegramServices;
 use Illuminate\Support\Facades\DB;
 
-class FuelActions {
-
+class FuelActions
+{
     public function handleMovingFuelTankConfirmation($tank, $user)
     {
         $lastTankTransferHistory = FuelTankTransferHistory::query()
@@ -30,45 +29,44 @@ class FuelActions {
             'responsible_id' => $tank->responsible_id,
             'fuel_level' => $tank->fuel_level,
             'event_date' => now(),
-            'tank_moving_confirmation' => true
+            'tank_moving_confirmation' => true,
         ]);
 
-                
         // подтверждение новому ответственному
         $newResponsibleMessageParams = (new TelegramServices)->getMessageParams(
             [
                 'template' => 'fuelTankMovingConfirmationTextForNewResponsible',
-                'tank' => $tank
+                'tank' => $tank,
             ]
         );
 
         $previousResponsibleMessageParams = (new TelegramServices)->getMessageParams(
             [
                 'template' => 'fuelTankMovingConfirmationTextForPreviousResponsible',
-                'tank' => $tank
+                'tank' => $tank,
             ]
         );
 
         $officeResponsiblesMessageParams = (new TelegramServices)->getMessageParams(
             [
                 'template' => 'fuelTankMovingConfirmationTextForOfficeResponsibles',
-                'tank' => $tank
+                'tank' => $tank,
             ]
         );
 
         (new FuelDialogs)->handleFuelTankMovingDialogMessages(
             $newResponsibleMessageParams, $previousResponsibleMessageParams, $officeResponsiblesMessageParams
-        );  
-        
+        );
+
         $tank->awaiting_confirmation = false;
         $tank->comment_movement_tmp = null;
         $tank->chat_message_tmp = null;
         $tank->save();
 
-        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-' . $tank->id . '_endNotificationHook';
+        $notificationHook = 'notificationHook_confirmFuelTankRecieve-id-'.$tank->id.'_endNotificationHook';
         $notification = Notification::where([
             ['user_id', $user->id],
-            ['name', 'LIKE', '%' . $notificationHook . '%']
+            ['name', 'LIKE', '%'.$notificationHook.'%'],
         ])->orderByDesc('id')->first();
 
         if ($notification) {
@@ -86,7 +84,7 @@ class FuelActions {
         $tank->chat_message_tmp = json_encode([
             'chatId' => $chatId,
             'messageId' => $messageId,
-            'text' => $text
+            'text' => $text,
         ]);
         $tank->save();
     }

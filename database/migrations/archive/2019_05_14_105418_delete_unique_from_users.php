@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class DeleteUniqueFromUsers extends Migration
 {
@@ -14,8 +14,8 @@ class DeleteUniqueFromUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropUnique( ['person_phone'] );
-            $table->dropUnique( ['work_phone'] );
+            $table->dropUnique(['person_phone']);
+            $table->dropUnique(['work_phone']);
         });
     }
 
@@ -27,8 +27,8 @@ class DeleteUniqueFromUsers extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string( 'person_phone' )->unique()->change();
-            $table->string( 'work_phone' )->unique()->change();
+            $table->string('person_phone')->unique()->change();
+            $table->string('work_phone')->unique()->change();
         });
     }
 }

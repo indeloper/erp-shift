@@ -1,8 +1,7 @@
 <?php
 
-use Faker\Generator as Faker;
-
 use App\Models\Manual\ManualMaterialCategory;
+use Faker\Generator as Faker;
 
 $factory->define(ManualMaterialCategory::class, function (Faker $faker) {
     $units = ['шт', 'т', 'м.п', 'м2', 'м3'];

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Events\NotificationCreated;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
@@ -56,17 +55,17 @@ class CheckDelayedTasks extends Command
 
             $notification = new Notification();
             $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
+            $notification->additional_info = ' Ссылка на задачу: '.$task->task_route();
             $notification->update([
-                'name' => 'Новая задача «' . $task->name . '»',
+                'name' => 'Новая задача «'.$task->name.'»',
                 'task_id' => $task->id,
                 'user_id' => $task->responsible_user_id,
                 'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                 'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null
+                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
             ]);
 
-            $this->info('task '. $task->name .' was revived');
+            $this->info('task '.$task->name.' was revived');
         }
 
         DB::commit();

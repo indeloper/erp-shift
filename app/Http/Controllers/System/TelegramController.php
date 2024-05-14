@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\System;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Telegram\Dialogs\FuelDialogs;
 use App\Telegram\TelegramApi;
+use Illuminate\Http\Request;
 
 class TelegramController extends Controller
 {
@@ -56,5 +56,4 @@ class TelegramController extends Controller
     //     new TelegramApi('editMessageText', $data);
     // }
 
-    
 }

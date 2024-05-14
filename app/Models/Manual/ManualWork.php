@@ -31,7 +31,7 @@ class ManualWork extends Model
     // WDIM == What Does It Mean
     public $WDIM_is_copied = [
         0 => false, // original work
-        1 => true   // copy
+        1 => true,   // copy
     ];
 
     public function material_relations()

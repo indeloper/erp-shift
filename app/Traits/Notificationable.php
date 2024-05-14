@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Notification;
+
 trait Notificationable
 {
     public function notifications()

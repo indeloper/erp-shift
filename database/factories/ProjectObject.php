@@ -9,6 +9,6 @@ use Illuminate\Database\Eloquent\Factory;
 $factory->define(ProjectObject::class, function (Faker $faker) {
     return [
         'name' => $faker->word,
-        'address' => $faker->address
+        'address' => $faker->address,
     ];
 });

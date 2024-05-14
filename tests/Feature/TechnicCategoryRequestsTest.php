@@ -8,17 +8,18 @@ use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class TechnicCategoryRequestsTest extends TestCase
 {
     use DatabaseTransactions, WithFaker;
 
     protected $ivan;
+
     protected $boss;
 
-    public function setUp() :void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -27,7 +28,7 @@ class TechnicCategoryRequestsTest extends TestCase
 
         $this->ivan = User::first();
         $this->boss = User::find(6);
-        $permissions = Permission::whereIn('codename', ['tech_acc_tech_category_delete','tech_acc_tech_category_update', 'tech_acc_tech_category_create'])->get();
+        $permissions = Permission::whereIn('codename', ['tech_acc_tech_category_delete', 'tech_acc_tech_category_update', 'tech_acc_tech_category_create'])->get();
 
         $this->boss->user_permissions()->attach($permissions->pluck('id'));
         $this->actingAs($this->boss);
@@ -56,9 +57,9 @@ class TechnicCategoryRequestsTest extends TestCase
 
         $this->get(route('building::tech_acc::technic_category.create'))
             ->assertSee('Создание категории');
-//      edit is not implemented yet
-//        $this->get(route('building::tech_acc::technic_category.edit', $category->id))
-//            ->assertSee($category->name);
+        //      edit is not implemented yet
+        //        $this->get(route('building::tech_acc::technic_category.edit', $category->id))
+        //            ->assertSee($category->name);
 
         $this->get(route('building::tech_acc::technic_category.index'))
             ->assertSee($category->name);
@@ -80,9 +81,9 @@ class TechnicCategoryRequestsTest extends TestCase
         $category_name = $this->faker()->words(3, true);
 
         $this->postJson(route('building::tech_acc::technic_category.store'), [
-                'name' => $category_name,
-                'description' => $this->faker()->sentence(),
-            ])->assertSee('success');
+            'name' => $category_name,
+            'description' => $this->faker()->sentence(),
+        ])->assertSee('success');
 
         $this->assertDatabaseHas('technic_categories', ['name' => $category_name]);
     }
@@ -93,20 +94,19 @@ class TechnicCategoryRequestsTest extends TestCase
         $category_name = $this->faker()->words(3, true);
         $characteristic_name = $this->faker()->words(3, true);
 
-
         $this->postJson(route('building::tech_acc::technic_category.store'), [
-                'characteristics' => [
-                    [
-                        'name' => $characteristic_name,
-                        'unit' => $this->faker()->word(),
-                        'description' => $this->faker()->sentence(),
-                        'is_hidden' => $this->faker()->numberBetween(0, 1),
-                        'required' => $this->faker()->numberBetween(0, 1),
-                    ]
+            'characteristics' => [
+                [
+                    'name' => $characteristic_name,
+                    'unit' => $this->faker()->word(),
+                    'description' => $this->faker()->sentence(),
+                    'is_hidden' => $this->faker()->numberBetween(0, 1),
+                    'required' => $this->faker()->numberBetween(0, 1),
                 ],
-                'name' => $category_name,
-                'description' => $this->faker()->sentence(),
-            ]);
+            ],
+            'name' => $category_name,
+            'description' => $this->faker()->sentence(),
+        ]);
 
         $this->assertDatabaseHas('technic_categories', ['name' => $category_name]);
         $this->assertDatabaseHas('category_characteristics', ['name' => $characteristic_name]);
@@ -118,17 +118,17 @@ class TechnicCategoryRequestsTest extends TestCase
     public function it_checks_that_all_attributes_are_present_and_forbid_to_store_model()
     {
         $this->postJson(route('building::tech_acc::technic_category.store'), [
-                'characteristics' => [
-                    [
-//                        'name' => $this->faker()->words(3, true), //comment it to get an error
-                        'unit' => $this->faker()->word(),
-                        'description' => $this->faker()->sentence(),
-                        'is_hidden' => $this->faker()->numberBetween(0, 1),
-                    ]
+            'characteristics' => [
+                [
+                    //                        'name' => $this->faker()->words(3, true), //comment it to get an error
+                    'unit' => $this->faker()->word(),
+                    'description' => $this->faker()->sentence(),
+                    'is_hidden' => $this->faker()->numberBetween(0, 1),
                 ],
-                'name' => $this->faker()->words(3, true),
-                'description' => $this->faker()->sentence(),
-            ])
+            ],
+            'name' => $this->faker()->words(3, true),
+            'description' => $this->faker()->sentence(),
+        ])
             ->assertSee('errors');
 
         $this->assertDatabaseMissing('technic_categories', ['description' => $this->faker()->sentence()]);
@@ -172,7 +172,7 @@ class TechnicCategoryRequestsTest extends TestCase
         $category_new_name = $this->faker()->words(3, true);
         $characteristic_new_name = $this->faker()->words(3, true);
 
-        $this->putJson(route('building::tech_acc::technic_category.update', $old_category->first()->id),[
+        $this->putJson(route('building::tech_acc::technic_category.update', $old_category->first()->id), [
             'characteristics' => [
                 [
                     'id' => $old_category->category_characteristics->first()->id,
@@ -181,7 +181,7 @@ class TechnicCategoryRequestsTest extends TestCase
                     'description' => $this->faker()->sentence(),
                     'is_hidden' => $this->faker()->numberBetween(0, 1),
                     'required' => $this->faker()->numberBetween(0, 1),
-                ]
+                ],
             ],
             'name' => $category_new_name,
             'description' => $old_category->description,
@@ -204,7 +204,7 @@ class TechnicCategoryRequestsTest extends TestCase
         $characteristic_new_name = $this->faker()->words(3, true);
         $another_characteristic_name = $this->faker()->words(3, true);
 
-        $this->putJson(route('building::tech_acc::technic_category.update', $old_category->first()->id),[
+        $this->putJson(route('building::tech_acc::technic_category.update', $old_category->first()->id), [
             'characteristics' => [
                 [
                     'id' => $old_category->category_characteristics->first()->id,
@@ -212,7 +212,7 @@ class TechnicCategoryRequestsTest extends TestCase
                     'unit' => $this->faker()->word(),
                     'description' => $this->faker()->sentence(),
                     'is_hidden' => $this->faker()->numberBetween(0, 1),
-                    'required' => $this->faker()->numberBetween(0, 1)
+                    'required' => $this->faker()->numberBetween(0, 1),
                 ],
                 [
                     'id' => 0,
@@ -220,8 +220,8 @@ class TechnicCategoryRequestsTest extends TestCase
                     'unit' => $this->faker()->word(),
                     'description' => $this->faker()->sentence(),
                     'is_hidden' => $this->faker()->numberBetween(0, 1),
-                    'required' => $this->faker()->numberBetween(0, 1)
-                ]
+                    'required' => $this->faker()->numberBetween(0, 1),
+                ],
             ],
             'name' => $category_new_name,
             'description' => $old_category->description,
@@ -241,8 +241,7 @@ class TechnicCategoryRequestsTest extends TestCase
         $characteristic = factory(CategoryCharacteristic::class, 2)->create();
         $technic->addCharacteristic($characteristic);
 
-
-        $this->putJson(route('building::tech_acc::technic_category.update', $technic->first()->id),[
+        $this->putJson(route('building::tech_acc::technic_category.update', $technic->first()->id), [
             'deleted_characteristic_ids' => [
                 $characteristic->last()->id,
             ],

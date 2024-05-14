@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\q3wMaterial;
 
 use App\Traits\DevExtremeDataSourceLoadable;
@@ -8,8 +10,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wMaterialSupplyPlanning extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $table = "q3w_material_supply_planning";
-    protected $guarded = array('id');
+    protected $table = 'q3w_material_supply_planning';
+
+    protected $guarded = ['id'];
 }
