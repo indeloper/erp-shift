@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use Throwable;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Telegram\TelegramApi;
 use Exception;
@@ -12,6 +11,7 @@ use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Telegram\Bot\Laravel\Facades\Telegram;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
