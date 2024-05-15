@@ -1397,7 +1397,7 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                $this->prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice'] = [
+                $this->prepareNotifications[\App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice::class] = [
                     'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => "\r\nЗаказчик: ".$project->contractor_name.
@@ -1432,7 +1432,7 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                $this->prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice'] = [
+                $this->prepareNotifications[\App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice::class] = [
                     'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => "\r\n<b>Заказчик:</b> ".$project->contractor_name.
@@ -1476,7 +1476,7 @@ class ProjectCommercialOfferController extends Controller
         })->first();
 
         if ($task) {
-            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                 'user_ids' => $task->responsible_user_id,
                 'name' => 'Задача «'.$task->name.'» закрыта',
                 'task_id' => $task->id,
@@ -1494,7 +1494,7 @@ class ProjectCommercialOfferController extends Controller
 
             $task->refresh();
 
-            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                 'user_ids' => Group::find(5/*3*/)->getUsers()->first()->id,
                 'name' => 'Задача «'.$task->name.'» закрыта с результатом: '.$status_for_humans['accept'].
                     (is_null($task->revive_at) ? '' : '. Дата, на которую перенесли: '.
@@ -1540,7 +1540,7 @@ class ProjectCommercialOfferController extends Controller
                 'expired_at' => $this->addHours(11),
             ]);
 
-            $this->prepareNotifications['App\Notifications\Task\ProjectLeaderAppointmentTaskNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Task\ProjectLeaderAppointmentTaskNotice::class] = [
                 'user_ids' => $add_RP_task->responsible_user_id,
                 'name' => 'Новая задача «'.$add_RP_task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
@@ -1574,7 +1574,7 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                $this->prepareNotifications['App\Notifications\Task\ContractCreationTaskNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Task\ContractCreationTaskNotice::class] = [
                     'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -1604,7 +1604,7 @@ class ProjectCommercialOfferController extends Controller
 
                 $task->save();
 
-                $this->prepareNotifications['App\Notifications\Task\OfferChangeControlTaskNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Task\OfferChangeControlTaskNotice::class] = [
                     'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -1770,7 +1770,7 @@ class ProjectCommercialOfferController extends Controller
                 $tasks = Task::where('project_id', $project->id)->where('status', 6)->whereIn('target_id', $offers_id)->get();
 
                 foreach ($tasks as $item) {
-                    $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+                    $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                         'user_ids' => $item->responsible_user_id,
                         'name' => 'Задача «'.$item->name.'» закрыта',
                         'task_id' => $item->id,
@@ -1889,7 +1889,7 @@ class ProjectCommercialOfferController extends Controller
                 'expired_at' => $this->addHours(48),
             ]);
 
-            $this->prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfJointOfferTaskNotice'] = [
+            $this->prepareNotifications[\App\Notifications\CommercialOffer\CustomerApprovalOfJointOfferTaskNotice::class] = [
                 'user_ids' => $task_1->responsible_user_id,
                 'name' => 'Новая задача «'.$task_1->name.'»',
                 'additional_info' => "\r\nЗаказчик: ".$project->contractor_name.
@@ -2034,7 +2034,7 @@ class ProjectCommercialOfferController extends Controller
                     'expired_at' => $this->addHours(11),
                 ]);
 
-                $this->prepareNotifications['App\Notifications\Task\ProjectLeaderAppointmentTaskNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Task\ProjectLeaderAppointmentTaskNotice::class] = [
                     'user_ids' => $add_RP_task->responsible_user_id,
                     'name' => 'Новая задача «'.$add_RP_task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -2113,7 +2113,7 @@ class ProjectCommercialOfferController extends Controller
         $review = Review::where('reviewable_id', $request->reviewable_id)
             ->where('reviewable_type', $review_type);
 
-        if (in_array($review_type, ['MaterialWorkRelation', 'App\Models\Manual\ManualWork'])) {
+        if (in_array($review_type, ['MaterialWorkRelation', \App\Models\Manual\ManualWork::class])) {
             $review->where('commercial_offer_id', $request->commercial_offer_id);
         }
         $review = $review->first();

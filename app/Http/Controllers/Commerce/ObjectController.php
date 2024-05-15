@@ -454,7 +454,7 @@ class ObjectController extends Controller
 
             ActionLog::create([
                 'logable_id' => $id,
-                'logable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument',
+                'logable_type' => \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class,
                 'actions' => $actions,
                 'user_id' => Auth::user()->id,
             ]);

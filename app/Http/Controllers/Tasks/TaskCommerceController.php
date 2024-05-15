@@ -283,7 +283,7 @@ class TaskCommerceController extends Controller
 
                     $task_1->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice::class] = [
                         'user_ids' => $task_1->responsible_user_id,
                         'name' => 'Новая задача «'.$task_1->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
@@ -326,7 +326,7 @@ class TaskCommerceController extends Controller
 
                         $new_task->save();
 
-                        $prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice::class] = [
                             'user_ids' => $new_task->responsible_user_id,
                             'name' => 'Новая задача «'.$new_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
@@ -345,7 +345,7 @@ class TaskCommerceController extends Controller
                         $notificationProjectObject = ProjectObject::find($project->object_id);
                         $notificationText = 'Коммерческое предложение согласовано.'.PHP_EOL.'Адрес: '.$notificationProjectObject->address.PHP_EOL;
 
-                        $prepareNotifications['App\Notifications\CommercialOffer\CommercialOfferApprovedNotice'] = [
+                        $prepareNotifications[\App\Notifications\CommercialOffer\CommercialOfferApprovedNotice::class] = [
                             'user_ids' => $usersToNotifyAboutAcceptedCommercialOffer->pluck('id')->toArray(),
                             'name' => $notificationText,
                             'additional_info' => 'Коммерческое предложение: ',
@@ -497,7 +497,7 @@ class TaskCommerceController extends Controller
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
                         'name' => 'Новая задача «'.$task_2->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
@@ -633,7 +633,7 @@ class TaskCommerceController extends Controller
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
                         'name' => 'Новая задача «'.$task_2->name.'»',
                         'task_id' => $task_2->id,
@@ -678,7 +678,7 @@ class TaskCommerceController extends Controller
                             'expired_at' => $this->addHours(11),
                         ]);
 
-                        $prepareNotifications['App\Notifications\Task\ProjectLeaderAppointmentTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\Task\ProjectLeaderAppointmentTaskNotice::class] = [
                             'user_ids' => $add_RP_task->responsible_user_id,
                             'name' => 'Новая задача «'.$add_RP_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
@@ -712,7 +712,7 @@ class TaskCommerceController extends Controller
 
                         $new_task->save();
 
-                        $prepareNotifications['App\Notifications\Task\ContractCreationTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\Task\ContractCreationTaskNotice::class] = [
                             'user_ids' => $new_task->responsible_user_id,
                             'name' => 'Новая задача «'.$new_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
@@ -743,7 +743,7 @@ class TaskCommerceController extends Controller
 
                         $new_task->save();
 
-                        $prepareNotifications['App\Notifications\Task\OfferChangeControlTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\Task\OfferChangeControlTaskNotice::class] = [
                             'user_ids' => $new_task->responsible_user_id,
                             'name' => 'Новая задача «'.$new_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
@@ -888,7 +888,7 @@ class TaskCommerceController extends Controller
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
                         'name' => 'Новая задача «'.$task_2->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
@@ -1009,7 +1009,7 @@ class TaskCommerceController extends Controller
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
                         'name' => 'Новая задача «'.$task_2->name.'»',
                         'task_id' => $task_2->id,
@@ -1034,7 +1034,7 @@ class TaskCommerceController extends Controller
                         .strftime('%d.%m.%Y', strtotime($task->revive_at))).(is_null($task->final_note) ? ''
                     : '. Комментарий: '.$task->final_note);
 
-            $prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+            $prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                 'user_ids' => Group::find(5/*3*/)->getUsers()->first()->id,
                 'name' => $name,
                 'additional_info' => "\r\nЗаказчик: ".Project::find($task->project_id)->contractor_name.
@@ -1058,7 +1058,7 @@ class TaskCommerceController extends Controller
                 ($request->description ? ', с комментарием: '.$request->description : '');
             $task->solve_n_notify();
 
-            $prepareNotifications['App\Notifications\Contract\ContractDeletionRequestResolutionNotice'] = [
+            $prepareNotifications[\App\Notifications\Contract\ContractDeletionRequestResolutionNotice::class] = [
                 'user_ids' => $task->user_id,
                 'name' => 'Запрашиваемый вами договор '.$contract->name_for_humans.
                     ' '.$task->results[$task->status][$task->result].

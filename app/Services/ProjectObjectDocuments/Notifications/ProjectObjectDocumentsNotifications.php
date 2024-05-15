@@ -87,7 +87,7 @@ class ProjectObjectDocumentsNotifications
     public function checkNeedSendNotifications()
     {
         $isNotificationsTodayAlreadySent = ActionLog::where([
-            ['logable_type', 'App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications'],
+            ['logable_type', \App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications::class],
             ['created_at', '>', now()->today()],
         ])->exists();
 
@@ -105,7 +105,7 @@ class ProjectObjectDocumentsNotifications
 
         ActionLog::create([
             'logable_id' => 0,
-            'logable_type' => 'App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications',
+            'logable_type' => \App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications::class,
             'actions' => $actions,
             'user_id' => 0,
         ]);

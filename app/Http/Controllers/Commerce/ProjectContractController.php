@@ -177,7 +177,7 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $this->prepareNotifications['App\Notifications\Contract\ContractFormationTaskCreationNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Contract\ContractFormationTaskCreationNotice::class] = [
                 'user_ids' => $task->responsible_user_id,
                 'name' => 'Новая задача «'.$task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
@@ -266,7 +266,7 @@ class ProjectContractController extends Controller
         $old_task = $tasks->first();
         $tasks->update(['is_solved' => 1]);
         if ($old_task) {
-            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                 'user_ids' => $old_task->responsible_user_id,
                 'name' => 'Задача «'.$old_task->name.'» закрыта',
                 'task_id' => $old_task->id,
@@ -290,7 +290,7 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $this->prepareNotifications['App\Notifications\Contract\ContractFormationTaskCreationNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Contract\ContractFormationTaskCreationNotice::class] = [
                 'user_ids' => $task->responsible_user_id,
                 'name' => 'Новая задача «'.$task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
@@ -382,7 +382,7 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $this->prepareNotifications['App\Notifications\Contract\ContractApprovalTaskCreationNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalTaskCreationNotice::class] = [
                     'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -463,7 +463,7 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $this->prepareNotifications['App\Notifications\Contract\ContractSignatureControlTaskRecreationNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Contract\ContractSignatureControlTaskRecreationNotice::class] = [
                     'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -548,7 +548,7 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $this->prepareNotifications['App\Notifications\Contract\ContractApprovalTaskCreationNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalTaskCreationNotice::class] = [
                     'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -695,7 +695,7 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $this->prepareNotifications['App\Notifications\Contract\ContractSignatureControlTaskCreationNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Contract\ContractSignatureControlTaskCreationNotice::class] = [
                 'user_ids' => $task->responsible_user_id,
                 'name' => 'Новая задача «'.$task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
@@ -751,7 +751,7 @@ class ProjectContractController extends Controller
 
         $task->save();
 
-        $this->prepareNotifications['App\Notifications\Contract\ContractApprovalControlTaskCreationNotice'] = [
+        $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalControlTaskCreationNotice::class] = [
             'user_ids' => $task->responsible_user_id,
             'name' => 'Новая задача «'.$task->name.'»',
             'additional_info' => ' Ссылка на задачу: ',
@@ -962,7 +962,7 @@ class ProjectContractController extends Controller
             'status' => 20,
         ]);
 
-        $this->prepareNotifications['App\Notifications\Contract\ContractDeletionControlTaskCreationNotice'] = [
+        $this->prepareNotifications[\App\Notifications\Contract\ContractDeletionControlTaskCreationNotice::class] = [
             'user_ids' => $task->responsible_user_id,
             'name' => 'Новая задача «'.$task->name.'. '.$task->description.'»',
             'additional_info' => ' Ссылка на задачу: ',

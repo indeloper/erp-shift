@@ -214,7 +214,7 @@ class ProjectWorkVolumeController extends Controller
         }
 
         if ($task) {
-            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                 'user_ids' => $task->responsible_user_id,
                 'name' => 'Задача «'.$task->name.'» закрыта',
                 'task_id' => $task->id,
@@ -254,7 +254,7 @@ class ProjectWorkVolumeController extends Controller
         $tasks = Task::where('project_id', $work_volume->project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->where('is_solved', 0)->get();
 
         foreach ($tasks as $item) {     //close all tasks from last com_offer
-            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                 'user_ids' => $item->responsible_user_id,
                 'name' => 'Задача «'.$item->name.'» закрыта',
                 'task_id' => $item->id,
@@ -283,7 +283,7 @@ class ProjectWorkVolumeController extends Controller
 
                 $tongueTask->save();
 
-                $this->prepareNotifications['App\Notifications\CommercialOffer\AppointmentOfResponsibleForOfferSheetPilingTaskNotice'] = [
+                $this->prepareNotifications[\App\Notifications\CommercialOffer\AppointmentOfResponsibleForOfferSheetPilingTaskNotice::class] = [
                     'user_ids' => $tongueTask->responsible_user_id,
                     'name' => 'Новая задача «'.$tongueTask->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -407,8 +407,8 @@ class ProjectWorkVolumeController extends Controller
             $task_CO->save();
 
             $className = $request->is_tongue ?
-                'App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice' :
-                'App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice';
+                \App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice::class :
+                \App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice::class;
 
             $this->prepareNotifications[$className] = [
                 'user_ids' => $task_CO->responsible_user_id,
@@ -1248,7 +1248,7 @@ class ProjectWorkVolumeController extends Controller
                     $task17->status = 17;
                     $task17->save();
 
-                    $this->prepareNotifications['App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice'] = [
+                    $this->prepareNotifications[\App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice::class] = [
                         'user_ids' => $task17->responsible_user_id,
                         'name' => 'Новая задача «'.$task17->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
@@ -1288,8 +1288,8 @@ class ProjectWorkVolumeController extends Controller
                 $tongueTask->save();
 
                 $className = $tongueTask->status == 3 ?
-                    'App\Notifications\Claim\SheetPilingCalculationTaskCreationNotice' :
-                    'App\Notifications\Claim\AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice';
+                    \App\Notifications\Claim\SheetPilingCalculationTaskCreationNotice::class :
+                    \App\Notifications\Claim\AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice::class;
 
                 $this->prepareNotifications[$className] = [
                     'user_ids' => $tongueTask->responsible_user_id,
@@ -1305,7 +1305,7 @@ class ProjectWorkVolumeController extends Controller
                 $lastTask = $wv_tongue->tasks()->whereStatus(3)->whereResponsibleUserId(Auth::id())->orderByDesc('id')->first() ?? null;
 
                 if ($lastTask) {
-                    $this->prepareNotifications['App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice'] = [
+                    $this->prepareNotifications[\App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice::class] = [
                         'user_ids' => $lastTask->responsible_user_id,
                         'name' => $lastTask->name,
                         'additional_info' => ' Ссылка на задачу: ',
@@ -1380,7 +1380,7 @@ class ProjectWorkVolumeController extends Controller
 
                 $pileTask->save();
 
-                $this->prepareNotifications['App\Notifications\Claim\PileDrivingCalculationTaskCreationNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Claim\PileDrivingCalculationTaskCreationNotice::class] = [
                     'user_ids' => $pileTask->responsible_user_id,
                     'name' => 'Новая задача «'.$pileTask->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
@@ -1393,7 +1393,7 @@ class ProjectWorkVolumeController extends Controller
             } else {
                 $lastTask = Task::where('project_id', $project_id)->where('target_id', $wv_pile->id)->where('is_solved', 0)->get()->last();
                 if ($lastTask) {
-                    $this->prepareNotifications['App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice'] = [
+                    $this->prepareNotifications[\App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice::class] = [
                         'user_ids' => $lastTask->responsible_user_id,
                         'name' => 'Новая задача «'.$lastTask->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
@@ -1585,7 +1585,7 @@ class ProjectWorkVolumeController extends Controller
             $tasks = Task::where('project_id', $project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->where('is_solved', 0)->get();
 
             foreach ($tasks as $item) {
-                $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+                $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                     'user_ids' => $item->responsible_user_id,
                     'name' => 'Задача «'.$item->name.'» закрыта',
                     'task_id' => $item->id,
@@ -1646,7 +1646,7 @@ class ProjectWorkVolumeController extends Controller
 
             $user = auth()->user()->long_full_name;
 
-            $this->prepareNotifications['App\Notifications\Claim\WorkVolumeClaimProcessingNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Claim\WorkVolumeClaimProcessingNotice::class] = [
                 'user_ids' => $wv_request->user_id,
                 'name' => ('Пользователь '.$user.' '.
                             ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ').
@@ -1730,7 +1730,7 @@ class ProjectWorkVolumeController extends Controller
                             $task18->status = 18;
                             $task18->save();
 
-                            $this->prepareNotifications['App\Notifications\Claim\SheetPilingWorkExecutionControlTaskCreationNotice'] = [
+                            $this->prepareNotifications[\App\Notifications\Claim\SheetPilingWorkExecutionControlTaskCreationNotice::class] = [
                                 'user_ids' => $task18->responsible_user_id,
                                 'name' => 'Новая задача «'.$task18->name.'»',
                                 'additional_info' => ' Ссылка на задачу: ',
@@ -1757,7 +1757,7 @@ class ProjectWorkVolumeController extends Controller
                     $task17->status = 17;
                     $task17->save();
 
-                    $this->prepareNotifications['App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice'] = [
+                    $this->prepareNotifications[\App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice::class] = [
                         'user_ids' => $task17->responsible_user_id,
                         'name' => 'Новая задача «'.$task17->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
@@ -1797,7 +1797,7 @@ class ProjectWorkVolumeController extends Controller
 
         $user = auth()->user()->long_full_name;
 
-        $this->prepareNotifications['App\Notifications\Claim\WorkVolumeClaimProcessingNotice'] = [
+        $this->prepareNotifications[\App\Notifications\Claim\WorkVolumeClaimProcessingNotice::class] = [
             'user_ids' => $wv_request->user_id,
             'name' => ('Пользователь '.$user.' '.'подтвердил(а) заявку на редактирование ОР '.
                 ($wv_request->tongue_pile ? 'свайного' : 'шпунтового')

@@ -136,11 +136,11 @@ class CommercialOffer extends Model
     public function reviews($type = null, $reviewable_id = null)
     {
         if (is_null($type) and is_null($reviewable_id)) {
-            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->whereIn('reviewable_type', ['MaterialWorkRelation', 'App\Models\Manual\ManualWork']);
+            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->whereIn('reviewable_type', ['MaterialWorkRelation', \App\Models\Manual\ManualWork::class]);
         } elseif ($type == '1') {
             return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->where('reviewable_id', $reviewable_id)->where('reviewable_type', 'MaterialWorkRelation');
         } elseif ($type == '2') {
-            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->where('reviewable_id', $reviewable_id)->where('reviewable_type', 'App\Models\Manual\ManualWork');
+            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->where('reviewable_id', $reviewable_id)->where('reviewable_type', \App\Models\Manual\ManualWork::class);
         }
 
         return collect();

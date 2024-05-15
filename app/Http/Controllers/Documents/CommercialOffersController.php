@@ -56,7 +56,7 @@ class CommercialOffersController extends Controller
                 $com_offers->where(function ($query) use ($mat_names) {
                     foreach ($mat_names as $name) {
                         $query->orWhereHas('work_volume.materials', function ($work_volume) use ($name) {
-                            $work_volume->whereHasMorph('manual', ['App\Models\Manual\ManualMaterial'], function ($mat) use ($name) {
+                            $work_volume->whereHasMorph('manual', [\App\Models\Manual\ManualMaterial::class], function ($mat) use ($name) {
                                 $mat->where('name', 'like', '%'.$name.'%')
                                     ->where('material_type', 'regular');
                             });

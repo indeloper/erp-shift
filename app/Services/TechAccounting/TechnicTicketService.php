@@ -101,7 +101,7 @@ class TechnicTicketService
                 'status' => 28,
             ]);
 
-            $this->prepareNotifications['App\Notifications\Technic\TechnicRequestApprovalNotice'] = [
+            $this->prepareNotifications[\App\Notifications\Technic\TechnicRequestApprovalNotice::class] = [
                 'user_ids' => $responsible_rp_id,
                 'name' => "Была создана заявка на {$new_ticket->our_technic->brand} {$new_ticket->our_technic->model}",
                 'additional_info' => "\nНеобходимо принять решение по заявке ",
