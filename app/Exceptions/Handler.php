@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Throwable;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Telegram\TelegramApi;
 use Exception;
@@ -38,9 +39,9 @@ class Handler extends ExceptionHandler
      *
      * @return void
      *
-     * @throws Exception
+     * @throws \Throwable
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         if (auth()->check() and $this->isDeployedEnvironment()) {
             if ($exception instanceof ValidationException) {
@@ -77,7 +78,7 @@ class Handler extends ExceptionHandler
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
 
         if (auth()->check()) {
