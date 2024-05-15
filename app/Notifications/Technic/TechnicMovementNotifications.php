@@ -2,13 +2,13 @@
 
 namespace App\Notifications\Technic;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;
 use App\Models\User;
+use App\Notifications\Equipment\EquipmentMovementNotice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use morphos\Russian\Cases;
@@ -191,11 +191,11 @@ class TechnicMovementNotifications
     public function notifyUsers($notificationRecipientsIds, $notificationText)
     {
         foreach($notificationRecipientsIds as $id) {
-            dispatchNotify(
+            EquipmentMovementNotice::send(
                 $id,
-                $notificationText,
-                '',
-                NotificationType::EQUIPMENT_MOVEMENT_NOTIFICATION
+                [
+                    'name' => $notificationText,
+                ]
             );
         }
     }
@@ -266,11 +266,11 @@ class TechnicMovementNotifications
             }
         }
 
-        dispatchNotify(
+        EquipmentMovementNotice::send(
             $dataObj->responsible_id,
-            $notificationText,
-            '',
-            NotificationType::EQUIPMENT_MOVEMENT_NOTIFICATION
+            [
+                'name' => $notificationText,
+            ]
         );
     }
 

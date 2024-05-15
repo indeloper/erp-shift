@@ -1,12 +1,10 @@
 <?php
 namespace App\Services\TechAccounting;
 
-
-use App\Domain\Enum\NotificationType;
-use App\Models\Notification\Notification;
 use App\Models\Task;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
+use App\Notifications\TimestampTechniqueUsageNotice;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
@@ -44,12 +42,10 @@ class TechnicTicketReportService
             ]);
             $task->update(['created_at' => $date]);
 
-            dispatchNotify(
+            TimestampTechniqueUsageNotice::send(
                 $task->responsible_user_id,
-                'Была создана задача ' . '"Ответка времени использования техники за ' . $date->clone()->isoFormat('DD.MM.YYYY') . '"',
-                '',
-                NotificationType::TIMESTAMP_TECHNIQUE_USAGE,
                 [
+                    'name' => 'Была создана задача ' . '"Ответка времени использования техники за ' . $date->clone()->isoFormat('DD.MM.YYYY') . '"',
                     'additional_info' => ' Ссылка на задачу: ',
                     'url' => $task->task_route(),
                     'created_at' => now(),

@@ -2,16 +2,15 @@
 
 namespace App\Services\ProjectObjectDocuments\Notifications;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
-use App\Models\Notification\Notification;
 use App\Models\ProjectObject;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentsStatusType;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNotice;
 use Illuminate\Support\Facades\DB;
 
 class ProjectObjectDocumentsNotifications {
@@ -73,15 +72,12 @@ class ProjectObjectDocumentsNotifications {
     {
         foreach($this->notificationsToSendArr as $notification)
         {
-            foreach($notification['notificationRecipients'] as $userId)
-            {
-                dispatchNotify(
-                    $userId,
-                    $notification['notificationText'],
-                    '',
-                    NotificationType::DOCUMENT_FLOW_ON_OBJECTS_NOTIFICATION
-                );
-            }
+            DocumentFlowOnObjectsNotice::send(
+                $notification['notificationRecipients']->toArray(),
+                [
+                    'name' => $notification['notificationText'],
+                ]
+            );
         }
     }
 

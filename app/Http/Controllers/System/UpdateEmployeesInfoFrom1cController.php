@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\System;
 
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Employees\Employee;
@@ -11,6 +10,8 @@ use App\Models\Employees\Employees1cPost;
 use App\Models\Employees\Employees1cPostInflection;
 use App\Models\Employees\Employees1cSubdivision;
 use App\Models\User;
+use App\Notifications\Employee\EmployeeTerminationNotice;
+use App\Notifications\Employee\NewEmployeeArrivalNotice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use function morphos\Russian\pluralize;
@@ -222,11 +223,11 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             }
 
             foreach ($notificationRecipients as $recipient) {
-                dispatchNotify(
+                NewEmployeeArrivalNotice::send(
                     $recipient->id,
-                    $newEmployeesNotificationMessageText,
-                    '',
-                    NotificationType::NEW_EMPLOYEE_ARRIVAL
+                    [
+                        'name' => $newEmployeesNotificationMessageText,
+                    ]
                 );
             }
         }
@@ -238,11 +239,11 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 $dismissedEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$dismissedEmployee->fullName}</a> ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
             }
             foreach ($notificationRecipients as $recipient) {
-                dispatchNotify(
+                EmployeeTerminationNotice::send(
                     $recipient->id,
-                    $dismissedEmployeesNotificationMessageText,
-                    '',
-                    NotificationType::EMPLOYEE_TERMINATION
+                    [
+                        'name' => $dismissedEmployeesNotificationMessageText,
+                    ]
                 );
             }
         }

@@ -2,15 +2,22 @@
 
 namespace App\Models\MatAcc;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
 use App\Models\Manual\ManualMaterial;
-use App\Models\Notification\Notification;
 use App\Models\ProjectObject;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\Operation\OperationCancelledNotice;
+use App\Notifications\Operation\OperationCompletionNotice;
+use App\Notifications\Operation\OperationConfirmedNotice;
+use App\Notifications\Operation\OperationCreationRequestUpdatedNotice;
+use App\Notifications\Operation\OperationDraftApprovalNotice;
+use App\Notifications\Operation\OperationDraftDeclinedNotice;
+use App\Notifications\Operation\OperationStatusConflictNotice;
+use App\Notifications\Operation\PartialOperationClosureNotice;
+use App\Notifications\Operation\WriteOffOperationRejectionNotice;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use App\Traits\NotificationGenerator;
 use App\Traits\Taskable;
@@ -755,12 +762,10 @@ class MaterialAccountingOperation extends Model
             $controlTask->save();
 
             if ($status_result == 'decline') {
-                dispatchNotify(
+                WriteOffOperationRejectionNotice::send(
                     $this->author->id,
-                    'Ваша операция списания была отклонена',
-                    '',
-                    NotificationType::WRITE_OFF_OPERATION_REJECTION_NOTIFICATION,
                     [
+                        'name' => 'Ваша операция списания была отклонена',
                         'task_id' => $controlTask->id,
                     ]
                 );
@@ -782,15 +787,12 @@ class MaterialAccountingOperation extends Model
 
     public function generateOperationDraftDeclineNotification()
     {
-        dispatchNotify(
+        OperationDraftDeclinedNotice::send(
             $this->author->id,
-            $this->generateOperationDraftDeclinedNotificationText(),
-            '',
-            NotificationType::OPERATION_DRAFT_DECLINED_NOTIFICATION,
             [
+                'name' => $this->generateOperationDraftDeclinedNotificationText(),
                 'additional_info' => 'Перейти к операции можно по ссылке: ',
                 'url' => $this->general_url,
-                'name' => $this->generateOperationDraftDeclinedNotificationText(),
                 'target_id' => $this->id,
                 'status' => 7,
             ]
@@ -817,12 +819,10 @@ class MaterialAccountingOperation extends Model
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach (array_unique($user_ids) as $user) {
-            dispatchNotify(
+            OperationCancelledNotice::send(
                 $user,
-                $this->generateOperationDeclinedNotificationText(),
-                '',
-                NotificationType::OPERATION_CANCELLED_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationDeclinedNotificationText(),
                     'additional_info' => 'Перейти к операции можно по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -861,12 +861,10 @@ class MaterialAccountingOperation extends Model
 
     public function generateDraftAcceptNotification($oldAuthor)
     {
-        dispatchNotify(
+        OperationDraftApprovalNotice::send(
             $oldAuthor,
-            $this->generateOperationDraftAcceptNotificationText(),
-            '',
-            NotificationType::OPERATION_DRAFT_APPROVAL_NOTIFICATION,
             [
+                'name' => $this->generateOperationDraftAcceptNotificationText(),
                 'additional_info' => 'Перейти к операции можно по ссылке: ',
                 'url' => PHP_EOL . $this->general_url,
                 'target_id' => $this->id,
@@ -894,12 +892,10 @@ class MaterialAccountingOperation extends Model
         if ($this->isMovingOperation())
             return $this->generateMovingPartSendNotifications($partSendType);
 
-        dispatchNotify(
+        PartialOperationClosureNotice::send(
             $this->author_id,
-            $this->generateOperationPartSaveNotificationText($partSendType),
-            '',
-            NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
             [
+                'name' => $this->generateOperationPartSaveNotificationText($partSendType),
                 'additional_info' => 'Перейти к операции можно по ссылке: ',
                 'url' => $this->general_url,
                 'target_id' => $this->id,
@@ -908,12 +904,10 @@ class MaterialAccountingOperation extends Model
         );
 
         if ($this->isWriteOffOperation()) {
-            dispatchNotify(
+            PartialOperationClosureNotice::send(
                 Group::find(6)->getUsers()->first()->id,
-                $this->generateOperationPartSaveNotificationText($partSendType),
-                '',
-                NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationPartSaveNotificationText($partSendType),
                     'additional_info' => 'Перейти к операции можно по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -928,12 +922,10 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author_id, $this->responsible_users()->where('type', $partSendType == 8 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $user) {
-            dispatchNotify(
+            PartialOperationClosureNotice::send(
                 $user,
-                $this->generateOperationPartSaveNotificationText($partSendType),
-                '',
-                NotificationType::PARTIAL_OPERATION_CLOSURE_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationPartSaveNotificationText($partSendType),
                     'additional_info' => '. Перейти к операции можно по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -965,12 +957,10 @@ class MaterialAccountingOperation extends Model
         $users = $this->type == 2 ? [$this->author->id, Group::find(6)->getUsers()->first()->id] : [$this->author->id];
 
         foreach ($users as $userId) {
-            dispatchNotify(
+            OperationCompletionNotice::send(
                 $userId,
-                $this->generateOperationEndNotificationText($sendType),
-                '',
-                NotificationType::OPERATION_COMPLETION_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationEndNotificationText($sendType),
                     'additional_info' => 'Перейти к операции можно по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -985,12 +975,10 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author->id, $this->responsible_users()->where('type', $sendType == 1 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $userId) {
-            dispatchNotify(
+            OperationCompletionNotice::send(
                 $userId,
-                $this->generateOperationEndNotificationText($sendType),
-                '',
-                NotificationType::OPERATION_COMPLETION_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationEndNotificationText($sendType),
                     'additional_info' => 'Перейти к операции можно по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -1023,12 +1011,10 @@ class MaterialAccountingOperation extends Model
         $users = $this->type == 2 ? [$this->responsible_user->user_id, Group::find(6)->getUsers()->first()->id] : [$this->responsible_user->user_id];
 
         foreach ($users as $userId) {
-            dispatchNotify(
+            OperationConfirmedNotice::send(
                 $userId,
-                $this->generateOperationAcceptNotificationText(),
-                '',
-                NotificationType::OPERATION_CONFIRMED_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationAcceptNotificationText(),
                     'additional_info' => 'Перейти к операции можно по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -1043,12 +1029,10 @@ class MaterialAccountingOperation extends Model
         $users = $this->responsible_users()->whereIn('type', [1, 2])->pluck('user_id')->toArray();
 
         foreach ($users as $userId) {
-            dispatchNotify(
+            OperationConfirmedNotice::send(
                 $userId,
-                $this->generateOperationAcceptNotificationText(),
-                '',
-                NotificationType::OPERATION_CONFIRMED_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationAcceptNotificationText(),
                     'additional_info' => 'Перейти к операции можно по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -1081,12 +1065,10 @@ class MaterialAccountingOperation extends Model
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach ($user_ids as $user) {
-            dispatchNotify(
+            OperationStatusConflictNotice::send(
                 $user,
-                $this->generateOperationConflictNotificationText(),
-                '',
-                NotificationType::OPERATION_STATUS_CONFLICT_NOTIFICATION,
                 [
+                    'name' => $this->generateOperationConflictNotificationText(),
                     'additional_info' => 'Для подробностей перейдите по ссылке: ',
                     'url' => $this->general_url,
                     'target_id' => $this->id,
@@ -1115,12 +1097,10 @@ class MaterialAccountingOperation extends Model
     {
         if ($this->status != 5) return;
 
-        dispatchNotify(
+        OperationCreationRequestUpdatedNotice::send(
             $this->responsible_RP,
-            $this->generateOperationDraftUpdateNotificationText(),
-            '',
-            NotificationType::OPERATION_CREATION_REQUEST_UPDATED_NOTIFICATION,
             [
+                'name' => $this->generateOperationDraftUpdateNotificationText(),
                 'additional_info' => 'Перейти к операции можно по ссылке: ',
                 'url' => $this->general_url,
                 'target_id' => $this->id,

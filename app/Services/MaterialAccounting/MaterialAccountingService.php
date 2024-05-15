@@ -2,7 +2,6 @@
 
 namespace App\Services\MaterialAccounting;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Requests\Building\MaterialAccounting\SendMovingRequest;
 use App\Models\Group;
 use App\Models\Manual\ManualMaterial;
@@ -11,9 +10,9 @@ use App\Models\Manual\ManualReference;
 use App\Models\MatAcc\MaterialAccountingMaterialFile;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
-use App\Models\Notification\Notification;
 use App\Models\ProjectObject;
 use App\Models\User;
+use App\Notifications\Material\MaterialDifferenceNotice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -216,14 +215,12 @@ class MaterialAccountingService {
                 array_push($user_ids, ...$this->operation->responsible_users()->pluck('user_id')->toArray());
 
                 foreach ($user_ids as $user_id) {
-                    dispatchNotify(
+                    MaterialDifferenceNotice::send(
                         $user_id,
-                        "По операции перемещения материалов c объекта {$this->operation->object_from->name_tag} на объект {$this->operation->object_to->name_tag};" .
-                        " в периоде выполнения: {$this->operation->planned_date_from} - {$this->operation->planned_date_to}" .
-                        ', выявлено расхождение в количестве фактически отправленного и фактически полученного материала.',
-                        '',
-                        NotificationType::MATERIAL_DIFFERENCE_NOTIFICATION,
                         [
+                            'name' => "По операции перемещения материалов c объекта {$this->operation->object_from->name_tag} на объект {$this->operation->object_to->name_tag};" .
+                                    " в периоде выполнения: {$this->operation->planned_date_from} - {$this->operation->planned_date_to}" .
+                                    ', выявлено расхождение в количестве фактически отправленного и фактически полученного материала.',
                             'additional_info' => ' Перейти к операции можно по ссылке: ',
                             'url' => $this->operation->general_url,
                             'status' => 6,

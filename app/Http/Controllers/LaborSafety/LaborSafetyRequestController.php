@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
@@ -18,6 +17,9 @@ use App\Models\Permission;
 use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\User;
+use App\Notifications\Labor\LaborCancelNotification;
+use App\Notifications\Labor\LaborSafetyNotification;
+use App\Notifications\Labor\LaborSignedNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -1292,12 +1294,10 @@ class LaborSafetyRequestController extends Controller
                 $projectObject = ProjectObject::find($requestRow->project_object_id);
 
                 foreach ($userIds as $userId) {
-                    dispatchNotify(
+                    LaborSafetyNotification::send(
                         $userId,
-                        'Заявка на формирование приказов',
-                        'Заявка на формирование приказов',
-                        NotificationType::LABOR_SAFETY,
                         [
+                            'name' => 'Заявка на формирование приказов',
                             'target_id' => $requestRow->id,
                             'status' => 7,
                             'orderRequestId' => $requestRow->id,
@@ -1310,33 +1310,23 @@ class LaborSafetyRequestController extends Controller
 
                 break;
             case 3:
-
                 $message = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
-
-                dispatchNotify(
+                LaborCancelNotification::send(
                     $requestRow->author_id,
-                    $message,
-                    $message,
-                    NotificationType::LABOR_CANCEL,
                     [
+                        'name' => $message,
                         'target_id' => $requestRow->id,
                         'status' => 7
                     ]
                 );
 
-
-
                 break;
             case 4:
-
                 $message = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
-
-                dispatchNotify(
+                LaborSignedNotification::send(
                     $requestRow->author_id,
-                    $message,
-                    $message,
-                    NotificationType::LABOR_SIGNED,
                     [
+                        'name' => $message,
                         'target_id' => $requestRow->id,
                         'status' => 7
                     ]

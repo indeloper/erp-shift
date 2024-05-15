@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObject;
@@ -19,6 +18,7 @@ use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Models\User;
+use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
@@ -535,12 +535,10 @@ class q3wMaterialTransformationOperationController extends Controller
             PHP_EOL .
             $notificationText;
 
-        dispatchNotify(
+        TaskPostponedAndClosedNotice::send(
             $notifiedUserId,
-            $notificationText,
-            '',
-            NotificationType::TASK_POSTPONED_AND_CLOSED_NOTIFICATION,
             [
+                'name' => $notificationText,
                 'additional_info' => 'Ссылка на операцию:',
                 'url' => $operation->url,
                 'target_id' => $operation->id,

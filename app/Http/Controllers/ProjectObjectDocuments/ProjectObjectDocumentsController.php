@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\ProjectObjectDocuments;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUser;
@@ -18,6 +17,7 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusOptions;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use App\Models\User;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNewStatusNotice;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReport;
@@ -408,11 +408,11 @@ class ProjectObjectDocumentsController extends Controller
 
         foreach($notificationRecipients as $userId)
         {
-            dispatchNotify(
+            DocumentFlowOnObjectsNewStatusNotice::send(
                 $userId,
-                'Документооборот на объектах | ' . "\n" . $objectName . ' | ' . "\n" . $document->document_name . ' | ' . "\n" . 'Новый статус: ' . $statusName,
-                '',
-                NotificationType::DOCUMENT_FLOW_ON_OBJECTS_NEW_STATUS
+                [
+                    'name' => 'Документооборот на объектах | ' . "\n" . $objectName . ' | ' . "\n" . $document->document_name . ' | ' . "\n" . 'Новый статус: ' . $statusName,
+                ]
             );
         }
     }
