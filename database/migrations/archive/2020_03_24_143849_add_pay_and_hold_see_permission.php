@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddPayAndHoldSeePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_pay_and_hold_see';
 
@@ -77,4 +77,4 @@ class AddPayAndHoldSeePermission extends Migration
 
         DB::commit();
     }
-}
+};

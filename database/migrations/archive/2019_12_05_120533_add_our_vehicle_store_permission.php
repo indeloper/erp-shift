@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddOurVehicleStorePermission extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -59,4 +59,4 @@ class AddOurVehicleStorePermission extends Migration
 
         DB::commit();
     }
-}
+};

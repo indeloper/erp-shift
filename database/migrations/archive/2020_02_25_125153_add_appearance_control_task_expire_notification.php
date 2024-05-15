@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddAppearanceControlTaskExpireNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 102;
 
@@ -63,4 +63,4 @@ class AddAppearanceControlTaskExpireNotification extends Migration
 
         DB::commit();
     }
-}
+};

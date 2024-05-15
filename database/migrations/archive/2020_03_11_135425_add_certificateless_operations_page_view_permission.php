@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddCertificatelessOperationsPageViewPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'see_certificateless_operations',
@@ -178,4 +178,4 @@ class AddCertificatelessOperationsPageViewPermission extends Migration
 
         DB::commit();
     }
-}
+};

@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Lexx\ChatMessenger\Models\Models;
 
-class AddSoftdeletesToThreadsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -30,4 +30,4 @@ class AddSoftdeletesToThreadsTable extends Migration
             $table->dropSoftDeletes();
         });
     }
-}
+};

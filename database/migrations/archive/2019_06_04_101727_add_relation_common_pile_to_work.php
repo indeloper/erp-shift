@@ -4,7 +4,7 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualRelationMaterialWork;
 use Illuminate\Database\Migrations\Migration;
 
-class AddRelationCommonPileToWork extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -32,4 +32,4 @@ class AddRelationCommonPileToWork extends Migration
     {
 
     }
-}
+};

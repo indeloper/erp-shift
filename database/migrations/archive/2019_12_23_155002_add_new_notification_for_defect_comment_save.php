@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationForDefectCommentSave extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о новом комментарии к заявке на неисправность';
 
@@ -69,4 +69,4 @@ class AddNewNotificationForDefectCommentSave extends Migration
 
         DB::commit();
     }
-}
+};

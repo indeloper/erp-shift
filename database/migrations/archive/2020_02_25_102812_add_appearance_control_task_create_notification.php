@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddAppearanceControlTaskCreateNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 101;
 
@@ -63,4 +63,4 @@ class AddAppearanceControlTaskCreateNotification extends Migration
 
         DB::commit();
     }
-}
+};

@@ -3,7 +3,7 @@
 use App\Models\LaborSafety\LaborSafetyWorkerType;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewWorkerType1 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -33,4 +33,4 @@ class AddNewWorkerType1 extends Migration
     {
         LaborSafetyWorkerType::where('name', '=', 'Замещающий геодезиста')->forceDelete();
     }
-}
+};

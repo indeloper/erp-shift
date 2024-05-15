@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddProjectTimeResponsibleUserAssignmentTaskNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 100;
 
@@ -63,4 +63,4 @@ class AddProjectTimeResponsibleUserAssignmentTaskNotification extends Migration
 
         DB::commit();
     }
-}
+};

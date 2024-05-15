@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewNotificationForControllOperationsOne extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 92;
 
@@ -54,4 +54,4 @@ class AddNewNotificationForControllOperationsOne extends Migration
 
         DB::commit();
     }
-}
+};

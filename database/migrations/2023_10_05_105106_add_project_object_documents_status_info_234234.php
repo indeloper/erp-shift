@@ -5,7 +5,7 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddProjectObjectDocumentsStatusInfo234234 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -130,4 +130,4 @@ class AddProjectObjectDocumentsStatusInfo234234 extends Migration
             ])
             ->delete();
     }
-}
+};

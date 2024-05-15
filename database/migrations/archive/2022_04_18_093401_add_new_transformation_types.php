@@ -4,7 +4,7 @@ use App\Models\q3wMaterial\q3wMaterialTransformationType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class AddNewTransformationTypes extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -68,4 +68,4 @@ class AddNewTransformationTypes extends Migration
         q3wMaterialTransformationType::where('value', 'like', 'Роспуск угловых')->first()->forceDelete();
         q3wMaterialTransformationType::where('value', 'like', 'Роспуск спаренной балки')->first()->forceDelete();
     }
-}
+};

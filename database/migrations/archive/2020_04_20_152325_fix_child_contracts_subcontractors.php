@@ -3,7 +3,7 @@
 use App\Models\Contract\Contract;
 use Illuminate\Database\Migrations\Migration;
 
-class FixChildContractsSubcontractors extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -28,4 +28,4 @@ class FixChildContractsSubcontractors extends Migration
     {
         //nothing to do here, what's done is done
     }
-}
+};

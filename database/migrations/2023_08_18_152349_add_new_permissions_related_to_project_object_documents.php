@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewPermissionsRelatedToProjectObjectDocuments extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -70,4 +70,4 @@ class AddNewPermissionsRelatedToProjectObjectDocuments extends Migration
             'category' => 20,
         ],
     ];
-}
+};

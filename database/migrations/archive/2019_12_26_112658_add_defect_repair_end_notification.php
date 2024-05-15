@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddDefectRepairEndNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о завершении работ по заявке на неисправность';
 
@@ -69,4 +69,4 @@ class AddDefectRepairEndNotification extends Migration
 
         DB::commit();
     }
-}
+};

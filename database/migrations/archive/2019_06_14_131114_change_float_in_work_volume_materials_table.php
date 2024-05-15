@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeFloatInWorkVolumeMaterialsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -23,4 +23,4 @@ class ChangeFloatInWorkVolumeMaterialsTable extends Migration
     {
         DB::statement('ALTER TABLE work_volume_materials CHANGE COLUMN count count DOUBLE(10, 2) NULL DEFAULT NULL ;');
     }
-}
+};

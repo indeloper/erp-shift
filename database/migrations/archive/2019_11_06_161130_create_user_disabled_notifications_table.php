@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserDisabledNotificationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -156,4 +156,4 @@ class CreateUserDisabledNotificationsTable extends Migration
     {
         Schema::dropIfExists('user_disabled_notifications');
     }
-}
+};

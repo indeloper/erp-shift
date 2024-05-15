@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProjectObjectDocumentStatusesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -53,4 +53,4 @@ class CreateProjectObjectDocumentStatusesTable extends Migration
             ['name' => 'Получен офисом', 'style' => '#1f931f'], // 10 -> 9
         ]);
     }
-}
+};

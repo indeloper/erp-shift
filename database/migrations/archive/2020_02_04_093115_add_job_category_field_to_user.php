@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class AddJobCategoryFieldToUser extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -34,4 +34,4 @@ class AddJobCategoryFieldToUser extends Migration
             $table->dropColumn('job_category_id');
         });
     }
-}
+};

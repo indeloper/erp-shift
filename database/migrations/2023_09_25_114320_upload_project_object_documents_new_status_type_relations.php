@@ -4,7 +4,7 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class UploadProjectObjectDocumentsNewStatusTypeRelations extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -44,4 +44,4 @@ class UploadProjectObjectDocumentsNewStatusTypeRelations extends Migration
             ['document_type_id' => 4, 'document_status_id' => $newStatus->id, 'default_selection' => false],
         ]);
     }
-}
+};

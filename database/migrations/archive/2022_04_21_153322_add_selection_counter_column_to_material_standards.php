@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class AddSelectionCounterColumnToMaterialStandards extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -44,4 +44,4 @@ class AddSelectionCounterColumnToMaterialStandards extends Migration
             $table->dropColumn('selection_counter');
         });
     }
-}
+};

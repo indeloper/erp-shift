@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationAboutDefextExpiring extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о скором окончании периода ремонта по заявке на неисправность';
 
@@ -57,4 +57,4 @@ class AddNewNotificationAboutDefextExpiring extends Migration
 
         DB::commit();
     }
-}
+};

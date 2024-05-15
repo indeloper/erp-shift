@@ -4,7 +4,7 @@ use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AttachFormulaToAllMaterials extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -111,4 +111,4 @@ class AttachFormulaToAllMaterials extends Migration
     {
 
     }
-}
+};

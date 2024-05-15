@@ -4,7 +4,7 @@ use App\Models\Group;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddPermissionsForForeman extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'tech_acc_our_technic_tickets_see',
@@ -51,4 +51,4 @@ class AddPermissionsForForeman extends Migration
 
         DB::commit();
     }
-}
+};

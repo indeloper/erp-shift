@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddTimecardManagePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_timecard_management';
 
@@ -78,4 +78,4 @@ class AddTimecardManagePermission extends Migration
 
         DB::commit();
     }
-}
+};

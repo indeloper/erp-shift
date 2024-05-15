@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class AddAncestorBaseIdColumnToMaterialAccountingBasesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -49,4 +49,4 @@ class AddAncestorBaseIdColumnToMaterialAccountingBasesTable extends Migration
             $table->dropColumn('ancestor_base_id');
         });
     }
-}
+};

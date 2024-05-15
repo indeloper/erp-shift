@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddReportGroupDeletePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_report_group_destroy';
 
@@ -58,4 +58,4 @@ class AddReportGroupDeletePermission extends Migration
 
         DB::commit();
     }
-}
+};

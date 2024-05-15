@@ -4,7 +4,7 @@ use App\Models\q3wMaterial\operations\q3wOperationFile;
 use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use Illuminate\Database\Migrations\Migration;
 
-class addNewFileTypeToUpload extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -34,4 +34,4 @@ class addNewFileTypeToUpload extends Migration
         q3wOperationFile::where('upload_file_type', '=', $customFileType->id)->forceDelete();
         $customFileType->forceDelete();
     }
-}
+};

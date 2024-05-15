@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddUserObjectAppointPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_user_to_project_appointment';
 
@@ -78,4 +78,4 @@ class AddUserObjectAppointPermission extends Migration
 
         DB::commit();
     }
-}
+};

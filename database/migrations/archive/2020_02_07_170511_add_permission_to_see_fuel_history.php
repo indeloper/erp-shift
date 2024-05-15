@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddPermissionToSeeFuelHistory extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'see_fuel_operation_history',
@@ -64,4 +64,4 @@ class AddPermissionToSeeFuelHistory extends Migration
 
         DB::commit();
     }
-}
+};

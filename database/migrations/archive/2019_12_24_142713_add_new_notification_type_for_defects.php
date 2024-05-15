@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationTypeForDefects extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о изменении периода ремонта по заявке на неисправность';
 
@@ -69,4 +69,4 @@ class AddNewNotificationTypeForDefects extends Migration
 
         DB::commit();
     }
-}
+};

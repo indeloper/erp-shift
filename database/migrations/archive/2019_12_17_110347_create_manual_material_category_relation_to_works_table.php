@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateManualMaterialCategoryRelationToWorksTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -30,4 +30,4 @@ class CreateManualMaterialCategoryRelationToWorksTable extends Migration
     {
         Schema::dropIfExists('manual_material_category_relation_to_works');
     }
-}
+};

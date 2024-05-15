@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateContractKeyDatesPreselectedNamesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -58,4 +58,4 @@ class CreateContractKeyDatesPreselectedNamesTable extends Migration
     {
         Schema::dropIfExists('contract_key_dates_preselected_names');
     }
-}
+};

@@ -5,7 +5,7 @@ use App\Models\Manual\ManualMaterialCategoryRelationToWork;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class FillInNewRelationsMaterialToWorks extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -45,4 +45,4 @@ class FillInNewRelationsMaterialToWorks extends Migration
     {
 
     }
-}
+};

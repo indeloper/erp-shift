@@ -3,7 +3,7 @@
 use App\Models\q3wMaterial\q3wMaterialTransformationType;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewTransformationType extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -26,4 +26,4 @@ class AddNewTransformationType extends Migration
     {
         q3wMaterialTransformationType::where('value', 'like', 'Изготовление клиновидного')->first()->forceDelete();
     }
-}
+};

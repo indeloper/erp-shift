@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddMaterialAccountingBaseMoveToNewStatePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'mat_acc_base_move_to_new';
 
@@ -62,4 +62,4 @@ class AddMaterialAccountingBaseMoveToNewStatePermission extends Migration
 
         DB::commit();
     }
-}
+};

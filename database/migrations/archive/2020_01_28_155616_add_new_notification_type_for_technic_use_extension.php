@@ -4,7 +4,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationTypeForTechnicUseExtension extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 87;
 
@@ -58,4 +58,4 @@ class AddNewNotificationTypeForTechnicUseExtension extends Migration
 
         DB::commit();
     }
-}
+};

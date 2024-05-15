@@ -6,7 +6,7 @@ use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
 use Illuminate\Database\Migrations\Migration;
 
-class FillPiles extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -110,4 +110,4 @@ class FillPiles extends Migration
     {
         //
     }
-}
+};

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddJobCategoryViewPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_job_categories_view';
 
@@ -78,4 +78,4 @@ class AddJobCategoryViewPermission extends Migration
 
         DB::commit();
     }
-}
+};

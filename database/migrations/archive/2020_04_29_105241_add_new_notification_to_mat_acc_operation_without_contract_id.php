@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewNotificationToMatAccOperationWithoutContractId extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 109;
 
@@ -54,4 +54,4 @@ class AddNewNotificationToMatAccOperationWithoutContractId extends Migration
 
         DB::commit();
     }
-}
+};

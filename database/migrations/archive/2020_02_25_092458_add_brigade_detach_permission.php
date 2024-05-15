@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddBrigadeDetachPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_project_brigade_detachment';
 
@@ -93,4 +93,4 @@ class AddBrigadeDetachPermission extends Migration
 
         DB::commit();
     }
-}
+};

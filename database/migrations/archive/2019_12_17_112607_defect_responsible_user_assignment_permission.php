@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class DefectResponsibleUserAssignmentPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_NAME = 'tech_acc_defects_responsible_user_assignment';
 
@@ -51,4 +51,4 @@ class DefectResponsibleUserAssignmentPermission extends Migration
 
         DB::commit();
     }
-}
+};

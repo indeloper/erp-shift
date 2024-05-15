@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommercialOfferManualNotesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -50,4 +50,4 @@ class CreateCommercialOfferManualNotesTable extends Migration
     {
         Schema::dropIfExists('commercial_offer_manual_notes');
     }
-}
+};

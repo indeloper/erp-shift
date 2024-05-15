@@ -4,7 +4,7 @@ use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use Illuminate\Database\Migrations\Migration;
 
-class FixMaterialStandardsNamesAndWeight extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -63,4 +63,4 @@ class FixMaterialStandardsNamesAndWeight extends Migration
             }
         }
     }
-}
+};

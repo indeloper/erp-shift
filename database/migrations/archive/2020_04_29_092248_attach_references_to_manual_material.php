@@ -6,7 +6,7 @@ use App\Models\Manual\ManualReference;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AttachReferencesToManualMaterial extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -46,4 +46,4 @@ class AttachReferencesToManualMaterial extends Migration
     {
         ManualMaterial::query()->update(['manual_reference_id' => 0]);
     }
-}
+};

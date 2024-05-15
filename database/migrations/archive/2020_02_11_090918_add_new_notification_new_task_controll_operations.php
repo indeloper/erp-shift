@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewNotificationNewTaskControllOperations extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 95;
 
@@ -50,4 +50,4 @@ class AddNewNotificationNewTaskControllOperations extends Migration
 
         DB::commit();
     }
-}
+};

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewPermissionsToRP extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'tech_acc_our_technic_tickets_see',
@@ -69,4 +69,4 @@ class AddNewPermissionsToRP extends Migration
 
         DB::commit();
     }
-}
+};

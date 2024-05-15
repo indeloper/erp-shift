@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddObjectTimeResponsibleUserChangePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_project_time_responsible_user_change';
 
@@ -78,4 +78,4 @@ class AddObjectTimeResponsibleUserChangePermission extends Migration
 
         DB::commit();
     }
-}
+};

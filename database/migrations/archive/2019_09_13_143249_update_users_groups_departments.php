@@ -4,7 +4,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class UpdateUsersGroupsDepartments extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -412,4 +412,4 @@ class UpdateUsersGroupsDepartments extends Migration
     {
         // rest
     }
-}
+};

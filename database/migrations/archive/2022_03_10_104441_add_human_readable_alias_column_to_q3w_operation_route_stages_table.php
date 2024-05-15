@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddHumanReadableAliasColumnToQ3wOperationRouteStagesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -136,4 +136,4 @@ class AddHumanReadableAliasColumnToQ3wOperationRouteStagesTable extends Migratio
             $table->dropColumn('human_readable_name');
         });
     }
-}
+};

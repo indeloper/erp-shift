@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddMoreSymbolLimitsToRequests extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -41,4 +41,4 @@ class AddMoreSymbolLimitsToRequests extends Migration
             $table->string('result_comment')->nullable()->change();
         });
     }
-}
+};

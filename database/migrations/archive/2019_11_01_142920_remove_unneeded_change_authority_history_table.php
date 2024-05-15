@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class RemoveUnneededChangeAuthorityHistoryTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,4 +14,4 @@ class RemoveUnneededChangeAuthorityHistoryTable extends Migration
     {
         Schema::dropIfExists('change_authority_histories');
     }
-}
+};

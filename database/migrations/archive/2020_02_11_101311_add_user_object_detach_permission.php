@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddUserObjectDetachPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_user_detach_from_project';
 
@@ -78,4 +78,4 @@ class AddUserObjectDetachPermission extends Migration
 
         DB::commit();
     }
-}
+};

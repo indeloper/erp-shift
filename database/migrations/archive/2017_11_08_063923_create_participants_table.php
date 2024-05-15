@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Lexx\ChatMessenger\Models\Models;
 
-class CreateParticipantsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -32,4 +32,4 @@ class CreateParticipantsTable extends Migration
     {
         Schema::dropIfExists(Models::table('participants'));
     }
-}
+};

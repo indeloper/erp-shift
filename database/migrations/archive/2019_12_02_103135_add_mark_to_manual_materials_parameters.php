@@ -4,7 +4,7 @@ use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddMarkToManualMaterialsParameters extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -147,4 +147,4 @@ class AddMarkToManualMaterialsParameters extends Migration
         $category_angle->attributes()->where('name', 'Марка')->delete();
         $category_angle->attributes()->where('name', 'Аналоги')->delete();
     }
-}
+};

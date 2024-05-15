@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProjectObjectDocumentsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -54,4 +54,4 @@ class CreateProjectObjectDocumentsTable extends Migration
         Comment::where('commentable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class)->delete();
         FileEntry::where('documentable_type', \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class)->delete();
     }
-}
+};

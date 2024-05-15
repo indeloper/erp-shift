@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddStoreTicketPermissionToPermissionsTable extends Migration
+return new class extends Migration
 {
     const PERMISSION_HUMAN_NAME = 'Создание заявки на использование и/или перемещение техники';
 
@@ -60,4 +60,4 @@ class AddStoreTicketPermissionToPermissionsTable extends Migration
 
         DB::commit();
     }
-}
+};

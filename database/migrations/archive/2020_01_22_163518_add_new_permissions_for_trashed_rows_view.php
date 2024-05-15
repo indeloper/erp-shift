@@ -4,7 +4,7 @@ use App\Models\Permission;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewPermissionsForTrashedRowsView extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'tech_acc_vehicle_categories_trashed',
@@ -62,4 +62,4 @@ class AddNewPermissionsForTrashedRowsView extends Migration
 
         DB::commit();
     }
-}
+};

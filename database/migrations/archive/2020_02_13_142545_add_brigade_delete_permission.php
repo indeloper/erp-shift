@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddBrigadeDeletePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_brigade_delete';
 
@@ -63,4 +63,4 @@ class AddBrigadeDeletePermission extends Migration
 
         DB::commit();
     }
-}
+};

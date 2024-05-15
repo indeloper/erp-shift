@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeFuelVolumeOrLevelColumnsTypes extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -60,4 +60,4 @@ class ChangeFuelVolumeOrLevelColumnsTypes extends Migration
             $table->dropForeign(['object_id']);
         });
     }
-}
+};

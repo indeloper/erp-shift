@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQ3wMaterialsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -72,4 +72,4 @@ class CreateQ3wMaterialsTable extends Migration
         Schema::dropIfExists('q3w_project_object_material_accounting_types');
         Schema::dropIfExists('q3w_materials');
     }
-}
+};

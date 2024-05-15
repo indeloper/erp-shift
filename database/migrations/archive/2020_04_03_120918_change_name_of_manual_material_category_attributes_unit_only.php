@@ -4,7 +4,7 @@ use App\Models\Manual\ManualMaterialCategoryAttribute;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class ChangeNameOfManualMaterialCategoryAttributesUnitOnly extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -42,4 +42,4 @@ class ChangeNameOfManualMaterialCategoryAttributesUnitOnly extends Migration
     {
         // no way
     }
-}
+};

@@ -8,7 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQ3wMaterialOperationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -287,4 +287,4 @@ class CreateQ3wMaterialOperationsTable extends Migration
         Schema::dropIfExists('q3w_operation_route_stage_types');
         Schema::dropIfExists('q3w_operation_routes');
     }
-}
+};

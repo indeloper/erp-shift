@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddExpiredTaskReminderNotification extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -39,4 +39,4 @@ class AddExpiredTaskReminderNotification extends Migration
 
         DB::commit();
     }
-}
+};

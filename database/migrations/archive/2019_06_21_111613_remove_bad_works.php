@@ -3,7 +3,7 @@
 use App\Models\Manual\ManualRelationMaterialWork;
 use Illuminate\Database\Migrations\Migration;
 
-class RemoveBadWorks extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -24,4 +24,4 @@ class RemoveBadWorks extends Migration
     {
         //
     }
-}
+};

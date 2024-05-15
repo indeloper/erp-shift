@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQ3wMaterialStandardsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -112,4 +112,4 @@ class CreateQ3wMaterialStandardsTable extends Migration
     {
         Schema::dropIfExists('q3w_material_standards');
     }
-}
+};

@@ -3,7 +3,7 @@
 use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeManualCategoriesAttributes extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -100,4 +100,4 @@ class ChangeManualCategoriesAttributes extends Migration
 
         $category->attributes()->where('name', 'Длина стороны б')->delete();
     }
-}
+};

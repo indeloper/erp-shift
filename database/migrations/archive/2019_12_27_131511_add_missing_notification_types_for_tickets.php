@@ -4,7 +4,7 @@ use App\Models\Group;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddMissingNotificationTypesForTickets extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о удалении заявки на неисправность';
 
@@ -85,4 +85,4 @@ class AddMissingNotificationTypesForTickets extends Migration
 
         DB::commit();
     }
-}
+};

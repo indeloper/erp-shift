@@ -3,7 +3,7 @@
 use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeRequiredAttrsInManualCategories extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -34,4 +34,4 @@ class ChangeRequiredAttrsInManualCategories extends Migration
         $category->load('materials.parameters', 'attributes');
         $category->attributes()->where('name', 'Длина')->update(['is_required' => 1]);
     }
-}
+};

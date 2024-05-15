@@ -4,7 +4,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewPermissionsForTechTicketsAndDefects extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'tech_acc_our_technic_tickets_see',
@@ -85,4 +85,4 @@ class AddNewPermissionsForTechTicketsAndDefects extends Migration
 
         DB::commit();
     }
-}
+};

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewDbEntriesToProjectObjectDocumentsModule extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -42,4 +42,4 @@ class AddNewDbEntriesToProjectObjectDocumentsModule extends Migration
             'category' => 20,
         ])->delete();
     }
-}
+};

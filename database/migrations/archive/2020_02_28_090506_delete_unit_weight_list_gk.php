@@ -3,7 +3,7 @@
 use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 
-class DeleteUnitWeightListGk extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -33,4 +33,4 @@ class DeleteUnitWeightListGk extends Migration
     {
         //
     }
-}
+};

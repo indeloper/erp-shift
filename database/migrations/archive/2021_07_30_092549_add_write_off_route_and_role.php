@@ -10,7 +10,7 @@ use App\Models\q3wMaterial\q3wMaterialSnapshotMaterial;
 use App\Models\UserPermission;
 use Illuminate\Database\Migrations\Migration;
 
-class AddWriteOffRouteAndRole extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -72,4 +72,4 @@ class AddWriteOffRouteAndRole extends Migration
 
         q3wOperationRouteStage::where('operation_route_id', 4)->forceDelete();
     }
-}
+};

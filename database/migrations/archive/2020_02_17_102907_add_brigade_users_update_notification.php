@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddBrigadeUsersUpdateNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 99;
 
@@ -63,4 +63,4 @@ class AddBrigadeUsersUpdateNotification extends Migration
 
         DB::commit();
     }
-}
+};

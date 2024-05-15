@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddBrigadeEditPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_brigade_update';
 
@@ -63,4 +63,4 @@ class AddBrigadeEditPermission extends Migration
 
         DB::commit();
     }
-}
+};

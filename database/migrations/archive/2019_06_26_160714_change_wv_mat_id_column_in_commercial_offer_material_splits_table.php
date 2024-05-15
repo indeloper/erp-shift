@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeWvMatIdColumnInCommercialOfferMaterialSplitsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -47,4 +47,4 @@ class ChangeWvMatIdColumnInCommercialOfferMaterialSplitsTable extends Migration
             $table->renameColumn('man_mat_id', 'wv_mat_id');
         });
     }
-}
+};
