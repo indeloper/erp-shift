@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DynamicTicketUpdateRequest;
 use App\Http\Requests\TicketStoreRequest;

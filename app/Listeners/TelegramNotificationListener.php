@@ -3,8 +3,9 @@
 namespace App\Listeners;
 
 use App\Actions\Fuel\FuelActions;
-use App\Domain\Enum\NotificationType;
 use App\Events\TelegramNotificationEvent;
+use App\Notifications\DefaultNotification;
+use App\Notifications\Fuel\NewFuelTankResponsibleNotification;
 
 class TelegramNotificationListener
 {
@@ -32,8 +33,8 @@ class TelegramNotificationListener
         $message = $event->message;
 
         if (in_array($notificationType, [
-            NotificationType::FUEL_NEW_TANK_RESPONSIBLE,
-            NotificationType::FUEL_NOT_AWAITING_CONFIRMATION
+            NewFuelTankResponsibleNotification::class,
+            DefaultNotification::class
         ])) {
             (new FuelActions)->storeFuelTankChatMessageTmp(
                 $notificationData->getData()['tank_id'],

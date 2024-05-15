@@ -11,39 +11,8 @@
 |
 */
 
-use App\Domain\Enum\NotificationType;
-use App\Models\Company\Company;
-use App\Models\ProjectObject;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/example-fuel', function () {
-
-    $tank = \App\Models\TechAcc\FuelTank\FuelTank::query()->find(38);
-
-    $requestRow = \App\Models\LaborSafety\LaborSafetyRequest::query()
-        ->find(658);
-
-    $orderRequestAuthor = User::find($requestRow->author_user_id);
-
-    $company = Company::find($requestRow->company_id);
-    $projectObject = ProjectObject::find($requestRow->project_object_id);
-
-    dispatchNotify(
-        1,
-        'Заявка на формирование приказов',
-        'Заявка на формирование приказов',
-        NotificationType::LABOR_SAFETY,
-        [
-            'target_id' => $requestRow->id,
-            'status' => 7,
-            'orderRequestId' => $requestRow->id,
-            'orderRequestAuthor' => $orderRequestAuthor,
-            'company' => $company,
-            'projectObject' => $projectObject
-        ]
-    );
-});
 
 Route::group(['middleware' => ['activeuser', 'auth']], function () {
 

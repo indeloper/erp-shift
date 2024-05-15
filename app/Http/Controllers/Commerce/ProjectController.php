@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use App\Domain\Enum\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
 use App\Notifications\Claim\SheetPilingCalculationTaskCreationNotice;

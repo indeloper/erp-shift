@@ -6,7 +6,6 @@ namespace App\Services\Notification;
 
 use App\Domain\DTO\Notification\NotificationData;
 use App\Domain\DTO\Notification\NotificationSortData;
-use App\Domain\Enum\NotificationType;
 use App\Models\Notification\Notification;
 use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;

@@ -2,7 +2,6 @@
 
 namespace App\Notifications\Fuel;
 
-use App\Domain\Enum\NotificationType;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
