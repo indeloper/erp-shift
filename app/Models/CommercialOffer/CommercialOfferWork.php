@@ -90,7 +90,7 @@ class CommercialOfferWork extends Model
      *
      * @return Contractor | null
      */
-    public function subcontractor()
+    public function subcontractor(): Contractor
     {
         return $this->subcontractor_file->contractor ?? null;
     }

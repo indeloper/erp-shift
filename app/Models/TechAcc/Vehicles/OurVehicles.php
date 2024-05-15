@@ -60,7 +60,7 @@ class OurVehicles extends Model
      *
      * @return string
      */
-    public function getFullNameAttribute()
+    public function getFullNameAttribute(): string
     {
         return $this->category->name.' '.$this->mark.' '.$this->model.' '.$this->number.' '.$this->trailer_number;
     }

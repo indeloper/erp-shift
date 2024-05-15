@@ -15,7 +15,7 @@ class CommercialOfferTest extends TestCase
      *
      * @return void
      */
-    public function it_creates_uploaded_com_offer()
+    public function it_creates_uploaded_com_offer(): void
     {
         Storage::fake();
         $this->actingAs(User::find(27));

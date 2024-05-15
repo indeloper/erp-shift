@@ -194,7 +194,7 @@ class Task extends Model
      *
      * @return string
      */
-    public function getCreatedAtFormattedAttribute($date)
+    public function getCreatedAtFormattedAttribute($date): string
     {
         return Carbon::parse($date)->format(self::ADDITIONAL_DATE_FORMAT);
     }

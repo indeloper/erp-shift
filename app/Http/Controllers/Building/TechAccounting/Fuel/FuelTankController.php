@@ -268,7 +268,7 @@ class FuelTankController extends StandardEntityResourceController
      * @param  FuelTank  $tank
      * @return void
      */
-    public function notifyNewTankResponsible($tank)
+    public function notifyNewTankResponsible(FuelTank $tank)
     {
         NewFuelTankResponsibleNotification::send(
             $tank->responsible_id,

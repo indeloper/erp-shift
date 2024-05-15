@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Models\FileEntry;
 use App\Models\Permission;
 use App\Models\User;
@@ -49,7 +51,7 @@ class StandardEntityResourceController extends Controller
         $this->setAdditionalResources();
     }
 
-    public function getPageCore()
+    public function getPageCore(): View
     {
         $bladePath = '1_base.desktop.index';
         if ($this->isMobile) {
@@ -142,7 +144,7 @@ class StandardEntityResourceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
 
         $entity = $this->baseModel::find($id);
@@ -173,7 +175,7 @@ class StandardEntityResourceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $data = (array) json_decode($request->input('data'));
         $entity = $this->baseModel::findOrFail($id);
@@ -198,7 +200,7 @@ class StandardEntityResourceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $entity = $this->baseModel::findOrFail($id);
         DB::beginTransaction();
@@ -332,7 +334,7 @@ class StandardEntityResourceController extends Controller
         return $permissionsArray;
     }
 
-    public function uploadFile(Request $request)
+    public function uploadFile(Request $request): JsonResponse
     {
         $uploadedFile = $request->files->all()['files'][0];
         $documentable_id = $request->input('id');
@@ -361,7 +363,7 @@ class StandardEntityResourceController extends Controller
 
     }
 
-    public function downloadAttachments(Request $request, FilesUploadService $filesUploadService)
+    public function downloadAttachments(Request $request, FilesUploadService $filesUploadService): JsonResponse
     {
 
         if (! count($request->fliesIds)) {

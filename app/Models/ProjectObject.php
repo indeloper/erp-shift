@@ -35,7 +35,7 @@ class ProjectObject extends Model
      *
      * @return string
      */
-    public function getLocationAttribute()
+    public function getLocationAttribute(): string
     {
         return $this->name.', '.$this->address;
     }
@@ -47,7 +47,7 @@ class ProjectObject extends Model
      *
      * @return string
      */
-    public function getNameTagAttribute()
+    public function getNameTagAttribute(): string
     {
         return $this->short_name ?? $this->location;
     }

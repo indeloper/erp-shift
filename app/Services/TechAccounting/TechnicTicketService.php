@@ -293,7 +293,7 @@ class TechnicTicketService
     /**
      * @return OurTechnicTicket $new_ticket
      */
-    public function calculateTicketType($attributes, OurTechnicTicket $new_ticket)
+    public function calculateTicketType($attributes, OurTechnicTicket $new_ticket): OurTechnicTicket
     {
         $usage_date = $attributes['usage_from_date'] ?? null;
         $sending_date = $attributes['getting_to_date'] ?? null;
@@ -522,7 +522,7 @@ class TechnicTicketService
     /**
      * @return OurTechnicTicket
      */
-    public function updateTicket(OurTechnicTicket $ourTechnicTicket, $request)
+    public function updateTicket(OurTechnicTicket $ourTechnicTicket, $request): OurTechnicTicket
     {
         if (($ourTechnicTicket->usage_from_date or $ourTechnicTicket->usage_to_date) and isset($request['getting_to_date'])) {
             if ($ourTechnicTicket->usage_from_date < Carbon::parse($request['getting_to_date'])) {

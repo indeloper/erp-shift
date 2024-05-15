@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Building;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\NodeRequest;
 use App\Http\Requests\ManualRequests\TypicalNodesRequest;
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class ManualNodesController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $node_categories = ManualNodeCategories::query();
 
@@ -62,7 +64,7 @@ class ManualNodesController extends Controller
         return back();
     }
 
-    public function category_delete(Request $request)
+    public function category_delete(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -79,7 +81,7 @@ class ManualNodesController extends Controller
         return response()->json(true);
     }
 
-    public function view_category(Request $request, $id)
+    public function view_category(Request $request, $id): View
     {
         $node_category = ManualNodeCategories::findOrFail($id);
 
@@ -225,7 +227,7 @@ class ManualNodesController extends Controller
         return back();
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         DB::beginTransaction();
 

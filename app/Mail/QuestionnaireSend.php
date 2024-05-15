@@ -33,7 +33,7 @@ class QuestionnaireSend extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): static
     {
         return $this->view('emails.questionnaire', [
             'task' => $this->task,

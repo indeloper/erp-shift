@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\System;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class PermissionsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
             $permission = new Permission(json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/));
@@ -58,7 +59,7 @@ class PermissionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
         //
     }
@@ -69,7 +70,7 @@ class PermissionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $req = json_decode($request['data']);
         $permission = Permission::findOrFail($id);
@@ -92,7 +93,7 @@ class PermissionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $permission = Permission::find($id);
         $permission->delete();
@@ -102,7 +103,7 @@ class PermissionsController extends Controller
         ], 200);
     }
 
-    public function getCategories()
+    public function getCategories(): JsonResponse
     {
         $categories = (new Permission)->categories;
         $categoriesArray = [];

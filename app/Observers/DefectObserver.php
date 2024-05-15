@@ -44,7 +44,7 @@ class DefectObserver
      *
      * @return void
      */
-    public function saved(Defects $defect)
+    public function saved(Defects $defect): void
     {
         /*if ($defect->isInDiagnostics()) return;
         if (! $principal_mechanic = Group::find(47)->getUsers()->first()) { $this->generateNoPrincipleMechanicNotification(); return; }

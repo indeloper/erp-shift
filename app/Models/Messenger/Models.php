@@ -2,6 +2,10 @@
 
 namespace App\Models\Messenger;
 
+use Lexx\ChatMessenger\Models\Message;
+use Lexx\ChatMessenger\Models\Participant;
+use Lexx\ChatMessenger\Models\Thread;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 
 class Models
@@ -32,7 +36,7 @@ class Models
      *
      * @param  string  $model
      */
-    public static function setMessageModel($model)
+    public static function setMessageModel(string $model)
     {
         static::$models[Message::class] = $model;
     }
@@ -42,7 +46,7 @@ class Models
      *
      * @param  string  $model
      */
-    public static function setParticipantModel($model)
+    public static function setParticipantModel(string $model)
     {
         static::$models[Participant::class] = $model;
     }
@@ -52,7 +56,7 @@ class Models
      *
      * @param  string  $model
      */
-    public static function setThreadModel($model)
+    public static function setThreadModel(string $model)
     {
         static::$models[Thread::class] = $model;
     }
@@ -62,7 +66,7 @@ class Models
      *
      * @param  string  $model
      */
-    public static function setUserModel($model)
+    public static function setUserModel(string $model)
     {
         static::$models[self::$userModelLookupKey] = $model;
     }
@@ -81,7 +85,7 @@ class Models
      * @param  string  $table
      * @return string
      */
-    public static function table($table)
+    public static function table(string $table): string
     {
         if (isset(static::$tables[$table])) {
             return static::$tables[$table];
@@ -96,7 +100,7 @@ class Models
      * @param  string  $model
      * @return string
      */
-    public static function classname($model)
+    public static function classname(string $model): string
     {
         if (isset(static::$models[$model])) {
             return static::$models[$model];
@@ -110,7 +114,7 @@ class Models
      *
      * @return \Lexx\ChatMessenger\Models\Message
      */
-    public static function message(array $attributes = [])
+    public static function message(array $attributes = []): Message
     {
         return static::make(Message::class, $attributes);
     }
@@ -120,7 +124,7 @@ class Models
      *
      * @return \Lexx\ChatMessenger\Models\Participant
      */
-    public static function participant(array $attributes = [])
+    public static function participant(array $attributes = []): Participant
     {
         return static::make(Participant::class, $attributes);
     }
@@ -130,7 +134,7 @@ class Models
      *
      * @return \Lexx\ChatMessenger\Models\Thread
      */
-    public static function thread(array $attributes = [])
+    public static function thread(array $attributes = []): Thread
     {
         return static::make(Thread::class, $attributes);
     }
@@ -140,7 +144,7 @@ class Models
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public static function user(array $attributes = [])
+    public static function user(array $attributes = []): Model
     {
         return static::make(User::class, $attributes);
     }
@@ -151,7 +155,7 @@ class Models
      * @param  string  $model
      * @return \Illuminate\Database\Eloquent\Model
      */
-    protected static function make($model, array $attributes = [])
+    protected static function make(string $model, array $attributes = []): Model
     {
         $model = static::classname($model);
 

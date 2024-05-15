@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Employees;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Employees\Employee;
 use Illuminate\Http\Request;
@@ -51,7 +52,7 @@ class EmployeesController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
 
     }

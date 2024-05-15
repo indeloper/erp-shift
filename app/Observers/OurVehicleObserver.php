@@ -11,7 +11,7 @@ class OurVehicleObserver
      *
      * @return void
      */
-    public function deleting(OurVehicles $ourVehicles)
+    public function deleting(OurVehicles $ourVehicles): void
     {
         //        $ourVehicles->parameters()->get()->each(function ($item) { $item->delete(); });
         $ourVehicles->documents()->get()->each(function ($item) {

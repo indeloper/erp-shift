@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Building;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\MaterialsRequest;
 use App\Models\FileEntry;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ManualMaterialController extends Controller
 {
-    public function card(Request $request, $id)
+    public function card(Request $request, $id): View
     {
         $showMaterials = $request->materials ?? false;
         $onlyTrashed = $request->deleted ?? false;
@@ -317,7 +319,7 @@ class ManualMaterialController extends Controller
         return response()->json($unique_values);
     }
 
-    public function search_by_attributes(Request $request)
+    public function search_by_attributes(Request $request): JsonResponse
     {
         $className = $request->className ?? 'ManualMaterial';
 
@@ -353,7 +355,7 @@ class ManualMaterialController extends Controller
         return response()->json($result);
     }
 
-    public function get_all_materials(Request $request)
+    public function get_all_materials(Request $request): JsonResponse
     {
         $category = ManualMaterialCategory::where('id', $request->category_id)
             ->with([
@@ -366,7 +368,7 @@ class ManualMaterialController extends Controller
         return response()->json($category->first());
     }
 
-    public function get_materials(Request $request)
+    public function get_materials(Request $request): JsonResponse
     {
         $category = ManualMaterialCategory::where('id', $request->category_id)
             ->with([

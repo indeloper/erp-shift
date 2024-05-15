@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
@@ -50,7 +52,7 @@ class LaborSafetyHtml extends Html
      *                           + IMG_SRC_SEARCH: optional to speed up images loading from remote url when files can be found locally
      *                           + IMG_SRC_REPLACE: optional to speed up images loading from remote url when files can be found locally
      */
-    public static function addHtml($element, $html, $fullHTML = false, $preserveWhiteSpace = true, $options = null)
+    public static function addHtml(AbstractContainer $element, string $html, bool $fullHTML = false, bool $preserveWhiteSpace = true, $options = null)
     {
         /*
          * @todo parse $stylesheet for default styles.  Should result in an array based on id, class and element,
@@ -94,7 +96,7 @@ class LaborSafetyHtml extends Html
      * @param  array  $styles  Array with all styles
      * @param  array  $data  Array to transport data to a next level in the DOM tree, for example level of listitems
      */
-    protected static function parseNode($node, $element, $styles = [], $data = [])
+    protected static function parseNode(DOMNode $node, AbstractContainer $element, array $styles = [], array $data = [])
     {
         // Populate styles array
         $styleTypes = ['font', 'paragraph', 'list', 'table', 'row', 'cell'];
@@ -179,7 +181,7 @@ class LaborSafetyHtml extends Html
      * @param  array  $styles
      * @param  array  $data
      */
-    protected static function parseChildNodes($node, $element, $styles, $data)
+    protected static function parseChildNodes(DOMNode $node, AbstractContainer $element, array $styles, array $data)
     {
         if ($node->nodeName != 'li') {
             $cNodes = $node->childNodes;
@@ -198,7 +200,7 @@ class LaborSafetyHtml extends Html
      *
      * @param  \PhpOffice\PhpWord\Element\AbstractContainer  $element
      */
-    protected static function parsePageBreak($element)
+    protected static function parsePageBreak(AbstractContainer $element)
     {
         $element->addPageBreak();
     }
@@ -208,7 +210,7 @@ class LaborSafetyHtml extends Html
      *
      * @param  \PhpOffice\PhpWord\Element\AbstractContainer  $element
      */
-    protected static function parseWordBreak($element)
+    protected static function parseWordBreak(AbstractContainer $element)
     {
         $element->addTextBreak();
     }
@@ -221,7 +223,7 @@ class LaborSafetyHtml extends Html
      * @param  array  &$styles
      * @param  array  &$data
      */
-    protected static function parseList($node, $element, &$styles, &$data)
+    protected static function parseList(DOMNode $node, AbstractContainer $element, array &$styles, array &$data)
     {
         $isOrderedList = $node->nodeName === 'ol';
         if (isset($data['listdepth'])) {
@@ -265,7 +267,7 @@ class LaborSafetyHtml extends Html
      * @param  bool  $isOrderedList
      * @return array
      */
-    protected static function getListStyle($isOrderedList)
+    protected static function getListStyle(bool $isOrderedList): array
     {
         if ($isOrderedList) {
             return [
@@ -308,7 +310,7 @@ class LaborSafetyHtml extends Html
      * @param  array  &$styles
      * @param  array  $data
      */
-    protected static function parseListItem($node, $element, &$styles, $data)
+    protected static function parseListItem(DOMNode $node, AbstractContainer $element, array &$styles, array $data)
     {
         $styles['paragraph'] = ['align' => 'both'];
 
@@ -331,7 +333,7 @@ class LaborSafetyRequestController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('labor-safety.labor-safety-orders-and-requests');
     }
@@ -384,7 +386,7 @@ class LaborSafetyRequestController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY);
 
@@ -485,7 +487,7 @@ class LaborSafetyRequestController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $id = $request->all()['key'];
 
@@ -558,7 +560,7 @@ class LaborSafetyRequestController extends Controller
         ], 200);
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         $id = $request['key'];
 

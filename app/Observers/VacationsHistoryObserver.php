@@ -15,7 +15,7 @@ class VacationsHistoryObserver
      *
      * @return void
      */
-    public function saved(VacationsHistory $vacationsHistory)
+    public function saved(VacationsHistory $vacationsHistory): void
     {
         if ($vacationsHistory->wasRecentlyCreated) {
             return $this->newVacation($vacationsHistory);

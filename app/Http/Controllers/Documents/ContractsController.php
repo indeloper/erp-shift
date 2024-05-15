@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Documents;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\Contract\Contract;
 use App\Models\Project;
@@ -13,7 +14,7 @@ class ContractsController extends Controller
 {
     use AdditionalFunctions;
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $newRequest = $this->createNewRequest($request->toArray());
 

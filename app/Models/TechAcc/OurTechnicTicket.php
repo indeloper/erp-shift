@@ -340,7 +340,7 @@ class OurTechnicTicket extends Model
      *
      * @return Builder
      */
-    public function scopePermissionCheck(Builder $query)
+    public function scopePermissionCheck(Builder $query): Builder
     {
         $check = boolval(auth()->user()->hasPermission('tech_acc_our_technic_tickets_see'));
 

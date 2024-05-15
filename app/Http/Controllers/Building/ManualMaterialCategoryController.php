@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Building;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\CategoryRequest;
 use App\Models\Manual\ManualMaterialCategory;
@@ -15,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class ManualMaterialCategoryController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $categories = ManualMaterialCategory::with('attributes', 'documents');
 
@@ -154,7 +156,7 @@ class ManualMaterialCategoryController extends Controller
         return \GuzzleHttp\json_encode($test + 1);
     }
 
-    public function getNeedAttributes(Request $request)
+    public function getNeedAttributes(Request $request): JsonResponse
     {
         $category = ManualMaterialCategory::find($request->category_id);
 

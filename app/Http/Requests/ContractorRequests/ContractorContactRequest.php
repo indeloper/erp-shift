@@ -23,7 +23,7 @@ class ContractorContactRequest extends FormRequest
      *
      * @return array
      */
-    protected function prepareForValidation()
+    protected function prepareForValidation(): array
     {
         if ($this->has('phone_number')) {
             $this->merge(['phone_number' => preg_replace('~[\D]~', '', $this->phone_number)]);

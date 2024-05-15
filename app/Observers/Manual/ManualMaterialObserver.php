@@ -13,7 +13,7 @@ class ManualMaterialObserver
      *
      * @return void
      */
-    public function saved(ManualMaterial $manualMaterial)
+    public function saved(ManualMaterial $manualMaterial): void
     {
         if ($manualMaterial->isDirty('manual_reference_id')) {
             DB::beginTransaction();

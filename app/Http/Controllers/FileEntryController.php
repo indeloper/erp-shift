@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use App\Models\FileEntry;
 use Illuminate\Http\Request;
 use ZipArchive;
 
 class FileEntryController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $file_ids = $this->system_service->storeFileEntries($request->all());
 
@@ -29,7 +30,7 @@ class FileEntryController extends Controller
 
     // для использования метода надо в модели прописать STORAGE_PATH
     // есть метод с похожим функционалом в
-    public function downloadAttachments(Request $request)
+    public function downloadAttachments(Request $request): JsonResponse
     {
         if (! count($request->fliesIds)) {
             return response()->json('no files recieved', 200);

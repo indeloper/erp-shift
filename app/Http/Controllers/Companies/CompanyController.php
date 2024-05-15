@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Companies;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class CompanyController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
 
     }

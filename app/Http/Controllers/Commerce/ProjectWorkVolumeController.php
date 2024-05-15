@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest\WorkVolumeReqRequest;
 use App\Models\CommercialOffer\CommercialOffer;
@@ -49,7 +52,7 @@ class ProjectWorkVolumeController extends Controller
         $work_volume->save();
     }
 
-    public function card_tongue($project_id, $work_volume_id)
+    public function card_tongue($project_id, $work_volume_id): View
     {
         $work_volume = WorkVolume::where('work_volumes.id', $work_volume_id)
             ->with('works_tongue.materials', 'works_tongue.manual', 'shown_materials', 'shown_materials.parts')
@@ -111,7 +114,7 @@ class ProjectWorkVolumeController extends Controller
         ]);
     }
 
-    public function card_pile($project_id, $work_volume_id)
+    public function card_pile($project_id, $work_volume_id): View
     {
         $work_volume = WorkVolume::where('work_volumes.id', $work_volume_id)
             ->with('works_pile.materials', 'works_pile.manual')
@@ -452,7 +455,7 @@ class ProjectWorkVolumeController extends Controller
         }
     }
 
-    public function edit_one(Request $request)
+    public function edit_one(Request $request): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -522,7 +525,7 @@ class ProjectWorkVolumeController extends Controller
         return redirect()->back();
     }
 
-    public function save_one(Request $request, $work_volume_id)
+    public function save_one(Request $request, $work_volume_id): RedirectResponse
     {
         DB::beginTransaction();
         $mat_ids = $request->material_id ? $request->material_id : [];
@@ -867,7 +870,7 @@ class ProjectWorkVolumeController extends Controller
         return ['results' => $results];
     }
 
-    public function create_composite_pile(Request $request, $wv_id)
+    public function create_composite_pile(Request $request, $wv_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -948,7 +951,7 @@ class ProjectWorkVolumeController extends Controller
         return ['results' => $results];
     }
 
-    public function get_work_count(Request $request)
+    public function get_work_count(Request $request): JsonResponse
     {
         $mat_ids = $request->material_ids ? $request->material_ids : [];
 
@@ -1101,7 +1104,7 @@ class ProjectWorkVolumeController extends Controller
         return back();
     }
 
-    public function detach_material(Request $request)
+    public function detach_material(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1859,7 +1862,7 @@ class ProjectWorkVolumeController extends Controller
         return back();
     }
 
-    public function delete_works($work_volume_id, $work_group_id)
+    public function delete_works($work_volume_id, $work_group_id): RedirectResponse
     {
         $works = WorkVolumeWork::where('work_volume_works.work_volume_id', $work_volume_id)
             ->where('manual_works.work_group_id', $work_group_id)
@@ -1875,7 +1878,7 @@ class ProjectWorkVolumeController extends Controller
         return redirect()->back();
     }
 
-    public function stop_edit()
+    public function stop_edit(): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1903,7 +1906,7 @@ class ProjectWorkVolumeController extends Controller
         return response()->json(true);
     }
 
-    public function replace_material(Request $request)
+    public function replace_material(Request $request): JsonResponse
     {
         DB::beginTransaction();
         $offer = CommercialOffer::find($request->commercial_offer_id);
@@ -1930,7 +1933,7 @@ class ProjectWorkVolumeController extends Controller
         return response()->json(true);
     }
 
-    public function count_nodes(Request $request)
+    public function count_nodes(Request $request): JsonResponse
     {
         $weight = ManualNodeMaterials::where('node_id', $request->mat_id)->sum('count') * 1.05;
 
@@ -1993,14 +1996,14 @@ class ProjectWorkVolumeController extends Controller
         return back();
     }
 
-    public function detach_compile(Request $request, $work_volume_id)
+    public function detach_compile(Request $request, $work_volume_id): JsonResponse
     {
         WorkVolumeMaterial::find($request->complect_id)->destroy_complect();
 
         return response()->json(true);
     }
 
-    public function close_work_volume(Request $request, $work_volume_id)
+    public function close_work_volume(Request $request, $work_volume_id): RedirectResponse
     {
         DB::beginTransaction();
         $work_volume = WorkVolume::findOrFail($work_volume_id);

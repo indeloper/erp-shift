@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\AttachContractRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToNewRequest;
@@ -61,7 +65,7 @@ class MaterialAccountingController extends Controller
         ]);
     }
 
-    public function print_operations()
+    public function print_operations(): View
     {
         $results = json_decode(request()->results);
         $params = $results->filter_params;
@@ -110,7 +114,7 @@ class MaterialAccountingController extends Controller
 
     }
 
-    public function report_card()
+    public function report_card(): View
     {
         $bases = MaterialAccountingBase::index()->with('comments')->get();
 
@@ -155,7 +159,7 @@ class MaterialAccountingController extends Controller
         return (new BasesReportExport($this->filter_base($customRequest)->getData(), $customRequest))->export();
     }
 
-    public function closed_operation($operation_id)
+    public function closed_operation($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', '!=', 5)->findOrFail($operation_id);
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient']);
@@ -302,7 +306,7 @@ class MaterialAccountingController extends Controller
         return response()->json(['result' => $operations]);
     }
 
-    public function get_search_values(Request $request)
+    public function get_search_values(Request $request): Response
     {
         $response = (new MaterialAccountingService())->getSearchValues($request->search);
 
@@ -311,7 +315,7 @@ class MaterialAccountingController extends Controller
         ]);
     }
 
-    public function operations_get_search_values(Request $request)
+    public function operations_get_search_values(Request $request): Response
     {
         $response = (new MaterialAccountingService())->getSearchValues($request->search_untrimmed, true);
 
@@ -320,7 +324,7 @@ class MaterialAccountingController extends Controller
         ]);
     }
 
-    public function filter_base(Request $request)
+    public function filter_base(Request $request): JsonResponse
     {
         $bases = MaterialAccountingBase::with(['object', 'material.convertation_parameters', 'comments'])->where('count', '>', 0);
         $manual_search = MaterialAccountingBase::$filter;
@@ -514,7 +518,7 @@ class MaterialAccountingController extends Controller
         return response()->json(['result' => $bases->each->append('comment_name')]);
     }
 
-    public function upload(Request $request, $operation_id)
+    public function upload(Request $request, $operation_id): JsonResponse
     {
         if ($request->file) {
             $file = new MaterialAccountingOperationFile();
@@ -550,7 +554,7 @@ class MaterialAccountingController extends Controller
         return response()->json($file);
     }
 
-    public function part_upload(Request $request, $operation_id)
+    public function part_upload(Request $request, $operation_id): JsonResponse
     {
         if ($request->file) {
             $file = new MaterialAccountingMaterialFile();
@@ -586,7 +590,7 @@ class MaterialAccountingController extends Controller
         return response()->json($file);
     }
 
-    public function delete_file(Request $request, $operation_id)
+    public function delete_file(Request $request, $operation_id): JsonResponse
     {
         MaterialAccountingOperationFile::where('operation_id', $operation_id)->where('file_name', $request->file_name)->delete();
         MaterialAccountingMaterialFile::where('operation_id', $operation_id)->where('file_name', $request->file_name)->delete();
@@ -812,7 +816,7 @@ class MaterialAccountingController extends Controller
         return \GuzzleHttp\json_encode($operation->url);
     }
 
-    public function update_part_task($task_id)
+    public function update_part_task($task_id): View
     {
         $task = Task::find($task_id);
 
@@ -828,7 +832,7 @@ class MaterialAccountingController extends Controller
         ]);
     }
 
-    public function delete_part_task($task_id)
+    public function delete_part_task($task_id): View
     {
         $task = Task::find($task_id);
 
@@ -837,7 +841,7 @@ class MaterialAccountingController extends Controller
         ]);
     }
 
-    public function certificatelessTask($task_id)
+    public function certificatelessTask($task_id): View
     {
         $task = Task::whereStatus(43)->findOrFail($task_id)->load('taskable');
 
@@ -892,7 +896,7 @@ class MaterialAccountingController extends Controller
         return response()->json($objects_json);
     }
 
-    public function get_suppliers(Request $request)
+    public function get_suppliers(Request $request): JsonResponse
     {
         $suppliers = Contractor::byType(Contractor::SUPPLIER);
 
@@ -924,7 +928,7 @@ class MaterialAccountingController extends Controller
         return response()->json($suppliers_json);
     }
 
-    public function get_users(Request $request)
+    public function get_users(Request $request): JsonResponse
     {
         $users = User::getAllUsers()->where('status', 1);
         $users_json = [];
@@ -1055,7 +1059,7 @@ class MaterialAccountingController extends Controller
         return response()->json($types_json);
     }
 
-    public function get_materials(Request $request)
+    public function get_materials(Request $request): JsonResponse
     {
         $units = array_flip(MaterialAccountingOperationMaterials::getModel()->units_name);
         $materials = ManualMaterial::with('category');
@@ -1179,7 +1183,7 @@ class MaterialAccountingController extends Controller
         return response()->json($materials_json);
     }
 
-    public function getMaterialCategoryDescription(Request $request)
+    public function getMaterialCategoryDescription(Request $request): JsonResponse
     {
         $material = ManualMaterial::where('id', $request->id)
             ->with('category.documents')
@@ -1188,7 +1192,7 @@ class MaterialAccountingController extends Controller
         return response()->json(['status' => 'success', 'message' => $material->category->description ?? 'Нет описания', 'documents' => $material->category->documents]);
     }
 
-    public function get_bases(Request $request)
+    public function get_bases(Request $request): JsonResponse
     {
         $bases = MaterialAccountingBase::with('object', 'material')->where('count', '>', 0);
 
@@ -1201,14 +1205,14 @@ class MaterialAccountingController extends Controller
         return response()->json(['result' => $bases->get()]);
     }
 
-    public function get_base_comments(Request $request)
+    public function get_base_comments(Request $request): Response
     {
         $base = MaterialAccountingBase::findOrFail($request->base_id);
 
         return response(['comments' => $base->comments]);
     }
 
-    public function check_problem($operation_id)
+    public function check_problem($operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::findOrFail($operation_id);
         $operation->load(['materials.manual']);
@@ -1261,7 +1265,7 @@ class MaterialAccountingController extends Controller
         return response()->json(['result' => $message]);
     }
 
-    public function suggestSolution(Request $request)
+    public function suggestSolution(Request $request): Response
     {
         $period = CarbonPeriod::create($request->planned_date_to, Carbon::today()->endOfDay());
 
@@ -1369,7 +1373,7 @@ class MaterialAccountingController extends Controller
         return response($materials_solutions);
     }
 
-    public function doSolutions(Request $request)
+    public function doSolutions(Request $request): Response
     {
         $solutions = $request->solutions;
         DB::beginTransaction();
@@ -1403,7 +1407,7 @@ class MaterialAccountingController extends Controller
         ]);
     }
 
-    public function close_operation($operation_id)
+    public function close_operation($operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::findOrFail($operation_id);
 
@@ -1439,7 +1443,7 @@ class MaterialAccountingController extends Controller
         return response()->json(['status' => 'error', 'message' => 'Нельзя отменить операцию']);
     }
 
-    public function materials_count(Request $request)
+    public function materials_count(Request $request): JsonResponse
     {
         $materials = ManualMaterial::with('convertation_parameters', 'category')->whereIn('id', json_decode($request->materials)->material_id)->get();
         $weight = 0;
@@ -1477,7 +1481,7 @@ class MaterialAccountingController extends Controller
         return $report->export();
     }
 
-    public function redirector($operation_id)
+    public function redirector($operation_id): RedirectResponse
     {
         $url = MaterialAccountingOperation::findOrFail($operation_id)->url;
 
@@ -1499,7 +1503,7 @@ class MaterialAccountingController extends Controller
      *
      * @return mixed
      */
-    public function findResponsibleProjectManager(Request $request, array $users_json = [])
+    public function findResponsibleProjectManager(Request $request, array $users_json = []): JsonResponse
     {
         $only_one = User::find($request->responsible_RP);
 
@@ -1510,7 +1514,7 @@ class MaterialAccountingController extends Controller
         return response()->json($users_json);
     }
 
-    public function attach_material(Request $request)
+    public function attach_material(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1537,7 +1541,7 @@ class MaterialAccountingController extends Controller
         return response()->json($result);
     }
 
-    public function getSiblings(Request $request)
+    public function getSiblings(Request $request): Response
     {
         $base = MaterialAccountingBase::find($request->base_id);
 
@@ -1581,7 +1585,7 @@ class MaterialAccountingController extends Controller
         return back();
     }
 
-    public function moveToUsed(MaterialAccountingBaseMoveToUsedRequest $request)
+    public function moveToUsed(MaterialAccountingBaseMoveToUsedRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1593,7 +1597,7 @@ class MaterialAccountingController extends Controller
         return response()->json(true);
     }
 
-    public function moveToNew(MaterialAccountingBaseMoveToNewRequest $request)
+    public function moveToNew(MaterialAccountingBaseMoveToNewRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1605,7 +1609,7 @@ class MaterialAccountingController extends Controller
         return response()->json(true);
     }
 
-    public function getMaterialsFromBase(Request $request)
+    public function getMaterialsFromBase(Request $request): JsonResponse
     {
         $bases = collect();
 

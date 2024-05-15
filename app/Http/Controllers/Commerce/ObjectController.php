@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProjectObjectDocuments\ProjectObjectDocumentsController;
 use App\Models\ActionLog;
@@ -38,7 +40,7 @@ class ObjectController extends Controller
         $this->components = $components;
     }
 
-    public function returnPageCore()
+    public function returnPageCore(): View
     {
         $basePath = resource_path().'/views/objects';
         $componentsPath = resource_path().'/views/objects/desktop/components';
@@ -135,7 +137,7 @@ class ObjectController extends Controller
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = json_decode($request->input('data'));
         if (empty($request->input('data'))) {
@@ -516,7 +518,7 @@ class ObjectController extends Controller
         );
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $data = json_decode($request->input('data'));
 
@@ -609,7 +611,7 @@ class ObjectController extends Controller
         });
     }
 
-    public function getPermissions()
+    public function getPermissions(): JsonResponse
     {
         $permissions = (new ProjectObject())->permissions;
 

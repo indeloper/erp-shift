@@ -131,7 +131,7 @@ class MaterialAccountingOperationMaterials extends Model
      *
      * @return string
      */
-    public function getMaterialNameAttribute()
+    public function getMaterialNameAttribute(): string
     {
         return $this->manual()->first()->name.($this->used ? ' Б/У' : '');
     }
@@ -264,7 +264,7 @@ class MaterialAccountingOperationMaterials extends Model
      *
      * @return bool
      */
-    public function solveTasksBeforeDeleting()
+    public function solveTasksBeforeDeleting(): bool
     {
         $this->operation->unsolved_tasks()->where('target_id', $this->id)->get()->each(function ($unsolved_task) {
             $unsolved_task->solve_n_notify();

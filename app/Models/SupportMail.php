@@ -51,7 +51,7 @@ class SupportMail extends Model
      *
      * @return Builder
      */
-    public function scopeBasic(Builder $query, Request $request)
+    public function scopeBasic(Builder $query, Request $request): Builder
     {
         $query->orderByRaw("(CASE WHEN status IN ('new', 'in_work', 'matching', 'accept', 'development', 'check') THEN id END) DESC")
             ->orderByRaw("CASE WHEN status = 'decline' THEN 1 ELSE 2 END ASC")

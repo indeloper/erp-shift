@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialParameter;
@@ -703,7 +705,7 @@ class WVCalvulatorController extends Controller
 
     }
 
-    public function create_mount_calc(Request $request, $work_volume_id)
+    public function create_mount_calc(Request $request, $work_volume_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -1274,7 +1276,7 @@ class WVCalvulatorController extends Controller
         return redirect()->back();
     }
 
-    public function count_weight(Request $request)
+    public function count_weight(Request $request): JsonResponse
     {
         $material_value = 0;
 

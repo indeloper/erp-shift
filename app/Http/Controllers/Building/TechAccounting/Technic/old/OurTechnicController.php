@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OurTechnicStoreRequest;
 use App\Http\Requests\OurTechnicUpdateRequest;
@@ -22,14 +25,14 @@ class OurTechnicController extends Controller
         $this->service = new TechnicCategoryService();
     }
 
-    public function index(Request $request, $category_id)
+    public function index(Request $request, $category_id): View
     {
         $data = $this->service->collectDataForTransport($request->all(), $category_id);
 
         return view('tech_accounting.technics.technics_list', $data);
     }
 
-    public function store(OurTechnicStoreRequest $request)
+    public function store(OurTechnicStoreRequest $request): JsonResponse
     {
         $technic = $this->service->createOurTechnicWithAttributes($request->all());
 
@@ -40,7 +43,7 @@ class OurTechnicController extends Controller
         );
     }
 
-    public function update(OurTechnicUpdateRequest $request, $category, OurTechnic $ourTechnic)
+    public function update(OurTechnicUpdateRequest $request, $category, OurTechnic $ourTechnic): JsonResponse
     {
         $technic = $this->service->updateOurTechnicWithAttributes($ourTechnic, $request->all());
 
@@ -65,7 +68,7 @@ class OurTechnicController extends Controller
 
     }
 
-    public function get_technics(Request $request)
+    public function get_technics(Request $request): Response
     {
         $ourTechnicQuery = OurTechnic::query();
         if ($request->free_only) {
@@ -112,7 +115,7 @@ class OurTechnicController extends Controller
         ]);
     }
 
-    public function getTechnicsPaginated(Request $request, $ourTechnicCategoryId)
+    public function getTechnicsPaginated(Request $request, $ourTechnicCategoryId): Response
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);
@@ -130,7 +133,7 @@ class OurTechnicController extends Controller
         ]);
     }
 
-    public function getTrashedTechnicsPaginated(Request $request, $ourTechnicCategoryId)
+    public function getTrashedTechnicsPaginated(Request $request, $ourTechnicCategoryId): Response
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);
@@ -148,7 +151,7 @@ class OurTechnicController extends Controller
         ]);
     }
 
-    public function display_trashed(Request $request, $category_id)
+    public function display_trashed(Request $request, $category_id): View
     {
         $data = $this->service->collectDataForTrashedTransport($request->all(), $category_id);
 

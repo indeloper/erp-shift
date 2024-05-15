@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialBrand;
@@ -22,7 +23,7 @@ class q3wMaterialStandardController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('materials.material-standard')->with([
             'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
@@ -49,7 +50,7 @@ class q3wMaterialStandardController extends Controller
      *
      * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -140,7 +141,7 @@ class q3wMaterialStandardController extends Controller
      *
      * @return JsonResponse
      */
-    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
+    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard): JsonResponse
     {
         DB::beginTransaction();
 

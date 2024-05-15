@@ -11,7 +11,7 @@ class WorkVolumeMaterialObserver
      *
      * @return void
      */
-    public function saving(WorkVolumeMaterial $workVolumeMaterial)
+    public function saving(WorkVolumeMaterial $workVolumeMaterial): void
     {
         if (! $workVolumeMaterial->material_type) {
             $workVolumeMaterial->material_type = 'regular';

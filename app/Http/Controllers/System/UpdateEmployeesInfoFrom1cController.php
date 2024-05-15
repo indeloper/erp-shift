@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\System;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Employees\Employee;
@@ -18,7 +19,7 @@ use function morphos\Russian\pluralize;
 
 class UpdateEmployeesInfoFrom1cController extends Controller
 {
-    public function uploadData(Request $request)
+    public function uploadData(Request $request): JsonResponse
     {
         // Проверка токена временно здесь, т.к. другие способы подразумевают аутентификацию пользователя.
         // На первом решили действовать без перенастройки на стороне 1с

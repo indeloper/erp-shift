@@ -13,7 +13,7 @@ trait AdditionalFunctions
      * @param  array  $array
      * @return bool
      */
-    public function all_values_in_array_are($value, $array)
+    public function all_values_in_array_are($value, array $array): bool
     {
         return boolval(reset($array) == $value && count(array_unique($array)) == 1);
     }

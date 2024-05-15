@@ -15,7 +15,7 @@ class CommercialOffersObserver
      *
      * @return void
      */
-    public function saved(CommercialOffer $commercialOffer)
+    public function saved(CommercialOffer $commercialOffer): void
     {
         if ($commercialOffer->isNotAgreedWithCustomer()) {
             return;
@@ -31,7 +31,7 @@ class CommercialOffersObserver
      *
      * @return void
      */
-    public function projectImportanceLogic(CommercialOffer $commercialOffer)
+    public function projectImportanceLogic(CommercialOffer $commercialOffer): void
     {
         $project = Project::findOrFail($commercialOffer->project_id);
 

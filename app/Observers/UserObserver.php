@@ -12,7 +12,7 @@ class UserObserver
      *
      * @return void
      */
-    public function saved(User $user)
+    public function saved(User $user): void
     {
         if ($this->isDeleted($user)) {
             return $this->notificationAfterUserRemove($user);

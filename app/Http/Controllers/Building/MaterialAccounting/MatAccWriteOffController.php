@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\CreateWriteOffRequest;
 use App\Http\Requests\Building\MaterialAccounting\SendWriteOffRequest;
@@ -23,7 +26,7 @@ use Illuminate\Support\Facades\DB;
 
 class MatAccWriteOffController extends Controller
 {
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $from_resp = User::find($request->resp);
         $from_obj = ProjectObject::find($request->obj);
@@ -35,7 +38,7 @@ class MatAccWriteOffController extends Controller
         ]);
     }
 
-    public function work($operation_id)
+    public function work($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 2)->where('status', 1)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -46,7 +49,7 @@ class MatAccWriteOffController extends Controller
         ]);
     }
 
-    public function confirm($operation_id)
+    public function confirm($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 2)->where('status', 2)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -57,7 +60,7 @@ class MatAccWriteOffController extends Controller
         ]);
     }
 
-    public function complete($operation_id)
+    public function complete($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 2)->whereIn('status', [3, 7])->findOrFail($operation_id);
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient']);
@@ -67,7 +70,7 @@ class MatAccWriteOffController extends Controller
         ]);
     }
 
-    public function conflict($operation_id)
+    public function conflict($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 2)->where('status', 4)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -78,7 +81,7 @@ class MatAccWriteOffController extends Controller
         ]);
     }
 
-    public function edit($operation_id)
+    public function edit($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 2)->whereIn('status', [1, 4])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -92,7 +95,7 @@ class MatAccWriteOffController extends Controller
         ]);
     }
 
-    public function draft($operation_id)
+    public function draft($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 2)->whereIn('status', [5, 8])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -106,7 +109,7 @@ class MatAccWriteOffController extends Controller
         ]);
     }
 
-    public function store(CreateWriteOffRequest $request)
+    public function store(CreateWriteOffRequest $request): JsonResponse
     {
         if (! Auth::user()->can('mat_acc_write_off_create') && ! $request->is_draft) {
             return response()->json(['message' => 'У вас нет прав для создания операции списания!']);
@@ -180,7 +183,7 @@ class MatAccWriteOffController extends Controller
         return response()->json(['operation_id' => $operation->id]);
     }
 
-    public function update(CreateWriteOffRequest $request, $operation_id)
+    public function update(CreateWriteOffRequest $request, $operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::where('type', 2)->whereIn('status', [1, 4, 5, 8])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -284,7 +287,7 @@ class MatAccWriteOffController extends Controller
         return response()->json(true);
     }
 
-    public function send(SendWriteOffRequest $request, $operation_id)
+    public function send(SendWriteOffRequest $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -298,7 +301,7 @@ class MatAccWriteOffController extends Controller
         return response()->json($result);
     }
 
-    public function part_send(SendWriteOffRequest $request, $operation_id)
+    public function part_send(SendWriteOffRequest $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -315,7 +318,7 @@ class MatAccWriteOffController extends Controller
         return response()->json($result);
     }
 
-    public function accept(Request $request, $operation_id)
+    public function accept(Request $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -338,7 +341,7 @@ class MatAccWriteOffController extends Controller
      * @param  int  $id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function control($id)
+    public function control(int $id): View
     {
         $task = Task::findOrFail($id);
 
@@ -377,7 +380,7 @@ class MatAccWriteOffController extends Controller
      * @param  int  $task_id
      * @return mixed
      */
-    public function solve_control(Request $request, $task_id)
+    public function solve_control(Request $request, int $task_id): RedirectResponse
     {
         DB::beginTransaction();
 

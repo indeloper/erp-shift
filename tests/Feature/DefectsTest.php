@@ -49,7 +49,7 @@ class DefectsTest extends TestCase
      *
      * @return User
      */
-    public function findOrNewUserFromGroupFortySeven()
+    public function findOrNewUserFromGroupFortySeven(): User
     {
         return Group::find(47)->getUsers()->first() ?? User::factory()->create(['group_id' => 47, 'department_id' => 13]);
     }

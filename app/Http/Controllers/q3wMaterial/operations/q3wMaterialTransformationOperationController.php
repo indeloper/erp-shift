@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObject;
@@ -36,7 +37,7 @@ class q3wMaterialTransformationOperationController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         //
     }
@@ -46,7 +47,7 @@ class q3wMaterialTransformationOperationController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         if (isset($request->projectObjectId)) {
             $projectObjectId = $request->projectObjectId;
@@ -70,7 +71,7 @@ class q3wMaterialTransformationOperationController extends Controller
         ]);
     }
 
-    public function view(Request $request)
+    public function view(Request $request): View
     {
         if (isset($request->operationId)) {
             $operation = q3wMaterialOperation::findOrFail($request->operationId);
@@ -301,7 +302,7 @@ class q3wMaterialTransformationOperationController extends Controller
         }
     }
 
-    public function validateMaterialList(Request $request)
+    public function validateMaterialList(Request $request): JsonResponse
     {
 
         $errors = [];
@@ -362,7 +363,7 @@ class q3wMaterialTransformationOperationController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
         $requestData = json_decode($request['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
@@ -824,7 +825,7 @@ class q3wMaterialTransformationOperationController extends Controller
         }
     }
 
-    public function completed(Request $request)
+    public function completed(Request $request): View
     {
         $operation = q3wMaterialOperation::leftJoin('project_objects', 'project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
             ->leftJoin('users', 'users.id', '=', 'q3w_material_operations.source_responsible_user_id')
@@ -882,7 +883,7 @@ class q3wMaterialTransformationOperationController extends Controller
         return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
     }
 
-    public function isUserResponsibleForMaterialAccountingWebRequest(Request $request)
+    public function isUserResponsibleForMaterialAccountingWebRequest(Request $request): JsonResponse
     {
         $requestData = json_decode($request['data']);
 

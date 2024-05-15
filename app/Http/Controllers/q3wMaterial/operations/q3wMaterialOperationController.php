@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
 use App\Models\ProjectObject;
@@ -29,7 +30,7 @@ class q3wMaterialOperationController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('materials.operations.all');
     }
@@ -49,7 +50,7 @@ class q3wMaterialOperationController extends Controller
      *
      * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
 
     }
@@ -112,7 +113,7 @@ class q3wMaterialOperationController extends Controller
      *
      * @return JsonResponse
      */
-    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
+    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard): JsonResponse
     {
 
     }
@@ -123,7 +124,7 @@ class q3wMaterialOperationController extends Controller
      * @param  q3wMaterialStandard  $q3wMaterialStandard
      * @return JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
 
     }
@@ -161,7 +162,7 @@ class q3wMaterialOperationController extends Controller
         return response()->json(null);
     }
 
-    public function print(Request $request)
+    public function print(Request $request): View
     {
         $filterOptions = json_decode($request->input('filterOptions'));
         $filterList = json_decode($request->input('filterList'));

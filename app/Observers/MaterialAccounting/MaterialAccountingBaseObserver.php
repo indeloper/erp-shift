@@ -11,7 +11,7 @@ class MaterialAccountingBaseObserver
      *
      * @return void
      */
-    public function saving(MaterialAccountingBase $materialAccountingBase)
+    public function saving(MaterialAccountingBase $materialAccountingBase): void
     {
         if (! $materialAccountingBase->unit) {
             $materialAccountingBase->unit = $materialAccountingBase->material->category_unit;

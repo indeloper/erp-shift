@@ -84,7 +84,7 @@ class Message extends Eloquent
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function recipients()
+    public function recipients(): HasMany
     {
         return $this->participants()->where('user_id', '!=', $this->user_id);
     }
@@ -115,7 +115,7 @@ class Message extends Eloquent
      * @param  int  $userId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeUnreadForUser(Builder $query, $userId)
+    public function scopeUnreadForUser(Builder $query, int $userId): Builder
     {
         return $query->has('thread')
             ->where('user_id', '!=', $userId)

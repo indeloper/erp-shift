@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialSupplyExpectedDeliveries;
 use Illuminate\Http\Request;
@@ -44,7 +45,7 @@ class q3wMaterialSupplyExpectedDeliveryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY);
 
@@ -69,7 +70,7 @@ class q3wMaterialSupplyExpectedDeliveryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $id = $request->all()['key'];
         $modifiedData = json_decode($request->all()['modifiedData'], JSON_OBJECT_AS_ARRAY);
@@ -88,7 +89,7 @@ class q3wMaterialSupplyExpectedDeliveryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         $id = $request->all()['key'];
 

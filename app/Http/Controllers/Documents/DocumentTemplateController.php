@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Documents;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorContact;
@@ -13,12 +14,12 @@ use PDF;
 
 class DocumentTemplateController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         return view('document_templates.index');
     }
 
-    public function create_offer_template()
+    public function create_offer_template(): View
     {
         return view('document_templates.form_commercial_doc');
     }

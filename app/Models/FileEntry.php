@@ -20,7 +20,7 @@ class FileEntry extends Model
      *
      * @return string|null
      */
-    public function getSourceLinkAttribute()
+    public function getSourceLinkAttribute(): ?string
     {
         if (! $this->documentable_type) {
             return null;

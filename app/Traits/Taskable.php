@@ -22,7 +22,7 @@ trait Taskable
      *
      * @return MorphMany
      */
-    public function active_tasks()
+    public function active_tasks(): MorphMany
     {
         return $this->tasks()->where('is_solved', 0);
     }

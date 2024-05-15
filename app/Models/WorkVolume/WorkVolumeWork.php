@@ -78,7 +78,7 @@ class WorkVolumeWork extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne | null
      */
-    public function subcontractor()
+    public function subcontractor(): HasOne
     {
         return $this->subcontractor_file->contractor ?? null;
     }

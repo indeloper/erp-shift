@@ -29,7 +29,7 @@ class OurTechnicTicketReportObserver
      *
      * @return void
      */
-    public function updating(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function updating(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $comment = 'Изменен отчет об использовании';
 

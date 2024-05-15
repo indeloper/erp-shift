@@ -12,7 +12,7 @@ class CommercialOfferMaterialSplitObserver
      * @param  CommercialOfferMaterialSplit  $commercialOfferMaterialSplit
      * @return void
      */
-    public function saving(CommercialOfferMaterialSplit $split)
+    public function saving(CommercialOfferMaterialSplit $split): void
     {
         if (! $split->unit) {
             $split->unit = $split->WV_material->manual->category_unit ?? 'т';

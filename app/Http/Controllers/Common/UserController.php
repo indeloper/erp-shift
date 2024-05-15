@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Common;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequests\UserCreateRequest;
 use App\Http\Requests\UserRequests\UserUpdatePasswordRequest;
@@ -92,7 +95,7 @@ class UserController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function create()
+    public function create(): View
     {
         return view('users.create', [
             'groups' => Group::all(),
@@ -101,7 +104,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(UserCreateRequest $request)
+    public function store(UserCreateRequest $request): RedirectResponse
     {
         $user = new User();
 
@@ -141,7 +144,7 @@ class UserController extends Controller
         return \GuzzleHttp\json_encode($groups);
     }
 
-    public function card($id)
+    public function card($id): View
     {
         $user = User::withoutGlobalScope('email')->findOrFail($id);
         $user->load('group');
@@ -184,7 +187,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function edit($id)
+    public function edit($id): View
     {
         $user = User::withoutGlobalScope('email')->findOrFail($id);
 
@@ -203,7 +206,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UserUpdateRequest $request, $id)
+    public function update(UserUpdateRequest $request, $id): RedirectResponse
     {
         $user = User::withoutGlobalScope('email')->findOrFail($id);
 
@@ -244,7 +247,7 @@ class UserController extends Controller
         return redirect()->route('users::card', $user->id);
     }
 
-    public function change_password(UserUpdatePasswordRequest $request, $id)
+    public function change_password(UserUpdatePasswordRequest $request, $id): RedirectResponse
     {
         if (Auth::id() != $id) {
             abort(403);
@@ -294,7 +297,7 @@ class UserController extends Controller
         return redirect()->back();
     }
 
-    public function from_vacation(Request $request, $id)
+    public function from_vacation(Request $request, $id): JsonResponse
     {
         if (User::find($id)->in_vacation == 0) {
             return response()->json(false);
@@ -325,7 +328,7 @@ class UserController extends Controller
         return redirect()->route('users::index');
     }
 
-    public function department_permissions(Request $request)
+    public function department_permissions(Request $request): View
     {
         $departaments = Department::with('users');
 
@@ -339,7 +342,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function group_permissions(Request $request, $department_id)
+    public function group_permissions(Request $request, $department_id): View
     {
         $department = Department::findOrFail($department_id);
         $groups = Group::whereDepartmentId($department_id)->with('users', 'group_permissions');
@@ -358,7 +361,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function user_permissions(Request $request, $group_id)
+    public function user_permissions(Request $request, $group_id): View
     {
         $group = Group::whereId($group_id)->with(['users' => function ($q) use ($request) {
             if ($request->search) {
@@ -384,7 +387,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function add_permissions(Request $request)
+    public function add_permissions(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -486,7 +489,7 @@ class UserController extends Controller
         }
     }
 
-    public function disableAllNotifications($user, $userAllowedNotifications)
+    public function disableAllNotifications($user, $userAllowedNotifications): RedirectResponse
     {
         foreach ($userAllowedNotifications as $NotificationId) {
             UserDisabledNotifications::updateOrCreate(
@@ -498,7 +501,7 @@ class UserController extends Controller
         return redirect(route('notifications::index'));
     }
 
-    public function get_users_for_tech_tickets(Request $request, $users_json = [])
+    public function get_users_for_tech_tickets(Request $request, $users_json = []): JsonResponse
     {
         $users = User::forTechTickets($request->q, $request->group_ids)->where('id', '!=', $request->without ?? 0)->get();
 
@@ -539,7 +542,7 @@ class UserController extends Controller
         return ['results' => $users_json];
     }
 
-    public function get_authors_for_defects(Request $request, $users_json = [])
+    public function get_authors_for_defects(Request $request, $users_json = []): JsonResponse
     {
         $newRequest = $this->createNewRequest($request->except('q'));
         $user_ids = Defects::filter($newRequest)->pluck('user_id')->unique()->toArray();
@@ -554,7 +557,7 @@ class UserController extends Controller
         return response()->json($users_json);
     }
 
-    public function get_responsible_users_for_defects(Request $request, $users_json = [])
+    public function get_responsible_users_for_defects(Request $request, $users_json = []): JsonResponse
     {
         $newRequest = $this->createNewRequest($request->except('q'));
         $responsible_user_ids = Defects::filter($newRequest)->whereNotNull('responsible_user_id')->pluck('responsible_user_id')->unique()->toArray();
@@ -569,7 +572,7 @@ class UserController extends Controller
         return response()->json($users_json);
     }
 
-    public function getUsersPaginated(Request $request)
+    public function getUsersPaginated(Request $request): JsonResponse
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);

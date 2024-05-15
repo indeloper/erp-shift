@@ -74,7 +74,7 @@ class NotifySender extends Command
      *
      * @param  bool  $have_errors
      */
-    public function checkParameters(string $text, string $place, string $users, $have_errors = false)
+    public function checkParameters(string $text, string $place, string $users, bool $have_errors = false)
     {
         // check $text
         if ($text == 'Стандартное сообщение') {

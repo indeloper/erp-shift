@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\System;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SupportRequests\SupportMailRequest;
 use App\Models\FileEntry;
@@ -27,7 +30,7 @@ class SupportController extends Controller
 {
     use TimeCalculator;
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $support_tickets = SupportMail::basic($request);
 
@@ -179,7 +182,7 @@ class SupportController extends Controller
         return $ticket;
     }
 
-    public function task_agreed(Request $request, $task_id)
+    public function task_agreed(Request $request, $task_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -361,7 +364,7 @@ class SupportController extends Controller
         return $report->export();
     }
 
-    public function updateLink(Request $request)
+    public function updateLink(Request $request): JsonResponse
     {
         abort_if(auth()->id() != 1, Response::HTTP_FORBIDDEN);
         DB::beginTransaction();

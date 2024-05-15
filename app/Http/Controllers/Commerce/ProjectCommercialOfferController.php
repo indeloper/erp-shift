@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommercialOffer\AddSubcontractorRequest;
 use App\Http\Requests\ProjectRequest\CommercialOfferReqRequest;
@@ -55,7 +58,7 @@ class ProjectCommercialOfferController extends Controller
 
     protected $prepareNotifications = [];
 
-    public function card_tongue($project_id, $com_offer_id)
+    public function card_tongue($project_id, $com_offer_id): View
     {
         $commercial_offer = CommercialOffer::with('notes', 'requirements', 'advancements', 'project')
             ->findOrFail($com_offer_id);
@@ -148,7 +151,7 @@ class ProjectCommercialOfferController extends Controller
         ]);
     }
 
-    public function card_pile($project_id, $com_offer_id)
+    public function card_pile($project_id, $com_offer_id): View
     {
         $commercial_offer = CommercialOffer::with('notes', 'requirements', 'advancements', 'project')
             ->findOrFail($com_offer_id);
@@ -233,7 +236,7 @@ class ProjectCommercialOfferController extends Controller
         ]);
     }
 
-    public function card_double($project_id, $com_offer_id)
+    public function card_double($project_id, $com_offer_id): View
     {
         $commercial_offer = CommercialOffer::with('notes', 'requirements', 'advancements', 'project')
             ->findOrFail($com_offer_id);
@@ -1105,7 +1108,7 @@ class ProjectCommercialOfferController extends Controller
         return back();
     }
 
-    public function attach_subcontractor(AddSubcontractorRequest $request, $wv_id)
+    public function attach_subcontractor(AddSubcontractorRequest $request, $wv_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -1182,7 +1185,7 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function set_material_price(Request $request)
+    public function set_material_price(Request $request): JsonResponse
     {
         $value = (float) str_replace(',', '.', $request->value);
 
@@ -1197,7 +1200,7 @@ class ProjectCommercialOfferController extends Controller
         return response()->json($result_price);
     }
 
-    public function set_material_used(Request $request)
+    public function set_material_used(Request $request): JsonResponse
     {
         $material = CommercialOfferMaterialSplit::findOrFail($request->split_id);
 
@@ -1459,7 +1462,7 @@ class ProjectCommercialOfferController extends Controller
         return redirect()->route('projects::card', $offer->project_id)->with('com_offer', true);
     }
 
-    public function agree_commercial_offer($offer_id)
+    public function agree_commercial_offer($offer_id): RedirectResponse
     {
         $this->prepareNotifications = [];
         DB::beginTransaction();
@@ -1623,7 +1626,7 @@ class ProjectCommercialOfferController extends Controller
         return redirect()->route('projects::card', $offer->project_id)->with('com_offer', true);
     }
 
-    public function get_offer(Request $request)
+    public function get_offer(Request $request): JsonResponse
     {
         $offer = CommercialOffer::find($request->id);
 
@@ -2089,7 +2092,7 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(false);
     }
 
-    public function update_title(Request $request)
+    public function update_title(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -2144,7 +2147,7 @@ class ProjectCommercialOfferController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function make_copy(Request $request, $curr_project_id, $com_offer_id)
+    public function make_copy(Request $request, $curr_project_id, $com_offer_id): RedirectResponse
     {
         $offer = CommercialOffer::findOrFail($com_offer_id);
 

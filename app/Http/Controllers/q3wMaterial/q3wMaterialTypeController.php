@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialType;
 use http\Exception;
@@ -14,7 +16,7 @@ class q3wMaterialTypeController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('materials.material-type');
     }
@@ -34,7 +36,7 @@ class q3wMaterialTypeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
             $materialType = new q3wMaterialType(json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/));
@@ -102,7 +104,7 @@ class q3wMaterialTypeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         try {
             $id = $request->all()['key'];
@@ -130,7 +132,7 @@ class q3wMaterialTypeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         try {
             $id = $request->all()['key'];

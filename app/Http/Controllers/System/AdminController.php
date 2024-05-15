@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\System;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Carbon\Carbon;
@@ -10,7 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 
 class AdminController extends Controller
 {
-    public function admin()
+    public function admin(): View
     {
         return view('support.admin');
     }
@@ -25,7 +27,7 @@ class AdminController extends Controller
         return back();
     }
 
-    public function loginAsUserId(Request $request)
+    public function loginAsUserId(Request $request): RedirectResponse
     {
         if (auth()->user()->is_su) {
             auth()->login(User::findOrFail($request->user_id), false);

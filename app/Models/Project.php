@@ -77,7 +77,7 @@ class Project extends Model
      *
      * @return Builder
      */
-    public function scopeContractsStarted(Builder $query)
+    public function scopeContractsStarted(Builder $query): Builder
     {
         return $query->has('ready_contracts');
     }
@@ -338,7 +338,7 @@ class Project extends Model
     /**
      * @return Builder
      */
-    public static function getAllProjects()
+    public static function getAllProjects(): Builder
     {
         return Project::select('projects.*', 'contractors.short_name as contractor_name', 'contractors.inn as contractor_inn', 'contractors.id as contractor_id', 'users.last_name', 'users.first_name', 'users.patronymic', 'project_objects.name as project_name', 'project_objects.address as project_address', 'project_objects.short_name as object_short_name', 'tasks.project_id', 'tasks.created_at as task_date')
             ->leftJoin('users', 'users.id', '=', 'projects.user_id')

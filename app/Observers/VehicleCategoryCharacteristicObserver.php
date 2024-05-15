@@ -21,7 +21,7 @@ class VehicleCategoryCharacteristicObserver
      *
      * @return void
      */
-    public function deleting(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics)
+    public function deleting(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics): void
     {
         $vehicleCategoryCharacteristics->parameters()->get()->each(function ($item) {
             $item->delete();

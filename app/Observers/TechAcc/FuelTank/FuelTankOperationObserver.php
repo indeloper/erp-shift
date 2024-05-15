@@ -14,7 +14,7 @@ class FuelTankOperationObserver
      *
      * @return void
      */
-    public function creating(FuelTankOperation $fuelTankOperation)
+    public function creating(FuelTankOperation $fuelTankOperation): void
     {
         if (auth()->id()) {
             $fuelTankOperation->author_id = auth()->id();
@@ -29,7 +29,7 @@ class FuelTankOperationObserver
      *
      * @return void
      */
-    public function updating(FuelTankOperation $fuelTankOperation)
+    public function updating(FuelTankOperation $fuelTankOperation): void
     {
         $fields_to_reculc = [
             'fuel_tank_id',

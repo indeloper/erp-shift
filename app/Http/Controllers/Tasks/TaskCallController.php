@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tasks;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequests\TaskCallRequest;
 use App\Models\Contractors\BankDetail;
@@ -21,7 +23,7 @@ class TaskCallController extends Controller
 {
     use TimeCalculator;
 
-    public function new_call(Request $request, $id)
+    public function new_call(Request $request, $id): View
     {
         $call = Task::findOrFail($id);
 
@@ -62,7 +64,7 @@ class TaskCallController extends Controller
         ]);
     }
 
-    public function close_call(TaskCallRequest $request, $id)
+    public function close_call(TaskCallRequest $request, $id): RedirectResponse
     {
         DB::beginTransaction();
 

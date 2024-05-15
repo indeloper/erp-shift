@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Builder;
+
 trait TicketResponsibleUser
 {
     public $ticket_responsible_types = [
@@ -22,7 +24,7 @@ trait TicketResponsibleUser
      * @param  mixed  $human_type
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeOfType($query, $human_type)
+    public function scopeOfType(Builder $query, $human_type): Builder
     {
         $type = array_search($human_type, $this->ticket_responsible_types);
 

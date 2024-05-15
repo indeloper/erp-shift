@@ -150,7 +150,7 @@ class MaterialAccountingOperation extends Model
      *
      * @return Builder
      */
-    public function scopeIndex(Builder $query)
+    public function scopeIndex(Builder $query): Builder
     {
         $query->with(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials' => function ($q) {
             $q->groupBy('manual_material_id', 'operation_id', 'used')->select('*')->with('manual');
@@ -449,7 +449,7 @@ class MaterialAccountingOperation extends Model
      *
      * @return HasManyThrough
      */
-    public function unsolved_tasks()
+    public function unsolved_tasks(): HasManyThrough
     {
         return $this->tasks()->where('is_solved', 0);
     }
@@ -1158,7 +1158,7 @@ class MaterialAccountingOperation extends Model
      *
      * @return bool
      */
-    public function wasDraftAndUserCanCreateOperationAndNoConflictInOperation($oldStatus, $is_conflict)
+    public function wasDraftAndUserCanCreateOperationAndNoConflictInOperation($oldStatus, $is_conflict): bool
     {
         return $this->isWasDraft($oldStatus) and auth()->user()->isOperationCreator($this->getEnglishTypeNameAttribute()) and ! $is_conflict;
     }

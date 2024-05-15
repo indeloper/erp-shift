@@ -21,7 +21,7 @@ class MaterialAccountingMaterialFileObserver
      *
      * @return void
      */
-    public function saved(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function saved(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         $operationMaterial = $materialAccountingMaterialFile->operationMaterial;
         if ($operationMaterial) {

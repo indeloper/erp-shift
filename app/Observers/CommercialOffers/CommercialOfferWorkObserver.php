@@ -11,7 +11,7 @@ class CommercialOfferWorkObserver
      *
      * @return void
      */
-    public function saving(CommercialOfferWork $commercialOfferWork)
+    public function saving(CommercialOfferWork $commercialOfferWork): void
     {
         if (! $commercialOfferWork->unit) {
             $commercialOfferWork->unit = $commercialOfferWork->manual->unit;

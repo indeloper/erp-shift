@@ -50,7 +50,7 @@ class SystemService
      *                             ]
      * @return Comment
      */
-    public function storeComment($attributes, $commentable = null, $text = null)
+    public function storeComment(array $attributes, $commentable = null, $text = null): Comment
     {
         $attributes = $this->overrideCommentRequest($attributes, $commentable, $text);
 

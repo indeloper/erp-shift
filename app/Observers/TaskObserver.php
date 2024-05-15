@@ -12,7 +12,7 @@ class TaskObserver
      *
      * @return void
      */
-    public function saved(Task $task)
+    public function saved(Task $task): void
     {
         if ($task->wasRecentlyCreated) {
             if ($task->status == 21) {

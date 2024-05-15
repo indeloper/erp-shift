@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DynamicTicketUpdateRequest;
 use App\Http\Requests\TicketStoreRequest;
@@ -38,7 +40,7 @@ class OurTechnicTicketController extends Controller
      *
      * @return Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $data = $this->our_ticket_service->collectShortTicketsData($request->all());
 
@@ -50,7 +52,7 @@ class OurTechnicTicketController extends Controller
      *
      * @return Response
      */
-    public function store(TicketStoreRequest $request)
+    public function store(TicketStoreRequest $request): JsonResponse
     {
         $new_ticket = $this->our_ticket_service->createNewTicket($request->all());
 
@@ -62,7 +64,7 @@ class OurTechnicTicketController extends Controller
      *
      * @return Response
      */
-    public function update(DynamicTicketUpdateRequest $request, OurTechnicTicket $ourTechnicTicket)
+    public function update(DynamicTicketUpdateRequest $request, OurTechnicTicket $ourTechnicTicket): Response
     {
         $updated_ticket = $this->our_ticket_service->updateTicketStatus($ourTechnicTicket, $request->all());
 
@@ -77,7 +79,7 @@ class OurTechnicTicketController extends Controller
      *
      * @throws \Exception
      */
-    public function destroy(OurTechnicTicket $ourTechnicTicket)
+    public function destroy(OurTechnicTicket $ourTechnicTicket): Response
     {
         $ourTechnicTicket->close()->delete();
 
@@ -111,7 +113,7 @@ class OurTechnicTicketController extends Controller
         ];
     }
 
-    public function reassignment(OurTechnicTicket $ourTechnicTicket, Request $request)
+    public function reassignment(OurTechnicTicket $ourTechnicTicket, Request $request): JsonResponse
     {
         DB::beginTransaction();
 

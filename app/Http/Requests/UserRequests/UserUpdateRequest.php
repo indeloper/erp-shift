@@ -63,7 +63,7 @@ class UserUpdateRequest extends FormRequest
      *
      * @return array
      */
-    protected function prepareForValidation()
+    protected function prepareForValidation(): array
     {
         if ($this->has('person_phone')) {
             $this->merge(['person_phone' => preg_replace('~[\D]~', '', $this->person_phone)]);

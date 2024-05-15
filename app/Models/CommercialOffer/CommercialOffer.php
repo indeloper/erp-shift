@@ -2,6 +2,7 @@
 
 namespace App\Models\CommercialOffer;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -87,7 +88,7 @@ class CommercialOffer extends Model
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForDocuments($query)
+    public function scopeForDocuments(Builder $query): Builder
     {
         return $query->with('project')
             ->leftjoin('users', 'users.id', '=', 'commercial_offers.user_id')
@@ -137,7 +138,7 @@ class CommercialOffer extends Model
      * @param  int|null  $reviewable_id  Index of material or work
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function reviews($type = null, $reviewable_id = null): HasMany
+    public function reviews($type = null, ?int $reviewable_id = null): HasMany
     {
         if (is_null($type) and is_null($reviewable_id)) {
             return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->whereIn('reviewable_type', ['MaterialWorkRelation', \App\Models\Manual\ManualWork::class]);
@@ -254,7 +255,7 @@ class CommercialOffer extends Model
      *                    be sure to merge them with your local events_cache <- but
      *                    now with new notification backend we don't need to do this
      */
-    public function to_negotiation()
+    public function to_negotiation(): Collection
     {
         $this->status = 2;
         $project = Project::findOrFail($this->project_id);
@@ -559,7 +560,7 @@ class CommercialOffer extends Model
      *
      * @return CommercialOffer
      */
-    public function createCopy($project_id, $option = null)
+    public function createCopy($project_id, $option = null): CommercialOffer
     {
         DB::beginTransaction();
 

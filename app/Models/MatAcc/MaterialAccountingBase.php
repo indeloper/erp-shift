@@ -57,7 +57,7 @@ class MaterialAccountingBase extends Model
      *
      * @return Builder
      */
-    public function scopeIndex(Builder $query)
+    public function scopeIndex(Builder $query): Builder
     {
         $query->where('date', Carbon::now()->format('d.m.Y'))
             ->with('object', 'material.parameters.attribute', 'material.convertation_parameters')
@@ -78,7 +78,7 @@ class MaterialAccountingBase extends Model
      *
      * @return string
      */
-    public function getMaterialNameAttribute()
+    public function getMaterialNameAttribute(): string
     {
         return $this->material->name.($this->used ? ' Б/У' : '');
     }

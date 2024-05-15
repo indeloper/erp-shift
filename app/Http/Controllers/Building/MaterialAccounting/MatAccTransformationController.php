@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\CreateTransformationRequest;
 use App\Http\Requests\Building\MaterialAccounting\SendTransformationRequest;
@@ -18,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class MatAccTransformationController extends Controller
 {
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $from_resp = User::find($request->resp);
         $from_obj = ProjectObject::find($request->obj);
@@ -30,7 +32,7 @@ class MatAccTransformationController extends Controller
         ]);
     }
 
-    public function work($operation_id)
+    public function work($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 3)->where('status', 1)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -41,7 +43,7 @@ class MatAccTransformationController extends Controller
         ]);
     }
 
-    public function confirm($operation_id)
+    public function confirm($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 3)->where('status', 2)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -52,7 +54,7 @@ class MatAccTransformationController extends Controller
         ]);
     }
 
-    public function complete($operation_id)
+    public function complete($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 3)->whereIn('status', [3, 7])->findOrFail($operation_id);
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient']);
@@ -62,7 +64,7 @@ class MatAccTransformationController extends Controller
         ]);
     }
 
-    public function conflict($operation_id)
+    public function conflict($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 3)->where('status', 4)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -73,7 +75,7 @@ class MatAccTransformationController extends Controller
         ]);
     }
 
-    public function edit($operation_id)
+    public function edit($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 3)->whereIn('status', [1, 4])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -86,7 +88,7 @@ class MatAccTransformationController extends Controller
         ]);
     }
 
-    public function draft($operation_id)
+    public function draft($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 3)->whereIn('status', [5, 8])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -105,7 +107,7 @@ class MatAccTransformationController extends Controller
     // 5 => 'plan_to', // NOW only for transformation
     // 6 => 'plan_from' // NOW only for transformation
 
-    public function store(CreateTransformationRequest $request)
+    public function store(CreateTransformationRequest $request): JsonResponse
     {
         if (! Auth::user()->can('mat_acc_transformation_create') && ! $request->is_draft) {
             return response()->json(['message' => 'У вас нет прав для создания операции поступления!']);
@@ -172,7 +174,7 @@ class MatAccTransformationController extends Controller
         return response()->json(true);
     }
 
-    public function update(CreateTransformationRequest $request, $operation_id)
+    public function update(CreateTransformationRequest $request, $operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::where('type', 3)->whereIn('status', [1, 4, 5, 8])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -275,7 +277,7 @@ class MatAccTransformationController extends Controller
         return response()->json(true);
     }
 
-    public function send(SendTransformationRequest $request, $operation_id)
+    public function send(SendTransformationRequest $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -289,7 +291,7 @@ class MatAccTransformationController extends Controller
         return response()->json($result);
     }
 
-    public function part_send(SendTransformationRequest $request, $operation_id)
+    public function part_send(SendTransformationRequest $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -306,7 +308,7 @@ class MatAccTransformationController extends Controller
         return response()->json($result_to);
     }
 
-    public function accept(Request $request, $operation_id)
+    public function accept(Request $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 

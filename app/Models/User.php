@@ -164,7 +164,7 @@ class User extends Authenticatable
      *
      * @return Builder
      */
-    public function scopeFilter(Builder $query, Request $request)
+    public function scopeFilter(Builder $query, Request $request): Builder
     {
         $filters = $request->filters ?? [];
         $values = $request->values ?? [];
@@ -241,7 +241,7 @@ class User extends Authenticatable
      *
      * @return Builder
      */
-    public function scopeForDefects(Builder $query, ?string $q, array $user_ids = [])
+    public function scopeForDefects(Builder $query, ?string $q, array $user_ids = []): Builder
     {
         $q = $q ?? false;
 
@@ -274,7 +274,7 @@ class User extends Authenticatable
      *
      * @return string
      */
-    public function getCardRouteAttribute()
+    public function getCardRouteAttribute(): string
     {
         return route('users::card', $this->id);
     }
@@ -402,7 +402,7 @@ class User extends Authenticatable
      *
      * @return bool | Exception
      */
-    public function isOperationDrafter(string $type)
+    public function isOperationDrafter(string $type): bool
     {
         if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
             return new Exception("Given Operation type doesn't exist");
@@ -417,7 +417,7 @@ class User extends Authenticatable
      *
      * @return bool | Exception
      */
-    public function isOperationCreator(string $type)
+    public function isOperationCreator(string $type): bool
     {
         if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
             return new Exception("Given Operation type doesn't exist");
@@ -507,7 +507,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isInGroup(...$groups_to_check)
+    public function isInGroup(...$groups_to_check): bool
     {
         return ! empty(array_intersect($groups_to_check, $this->getAllGroupIds()));
     }
@@ -712,7 +712,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isProjectTimeResponsibleOrProjectResponsibleRP(int $projectId)
+    public function isProjectTimeResponsibleOrProjectResponsibleRP(int $projectId): bool
     {
         $project = Project::find($projectId);
 

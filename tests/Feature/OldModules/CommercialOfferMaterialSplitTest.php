@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\OldModules;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Manual\ManualMaterial;
 use App\Services\Commerce\SplitService;
@@ -18,7 +19,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     /**
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function createBasicSplit($count = null)
+    public function createBasicSplit($count = null): Model
     {
         return $this->commercial_offer->mat_splits()->create([
             'count' => $count ?? $this->faker()->randomNumber(3),

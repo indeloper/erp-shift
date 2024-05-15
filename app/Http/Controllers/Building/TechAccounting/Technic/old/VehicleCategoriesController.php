@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VehicleCategoryRequests\VehicleCategoryDestroyRequest;
 use App\Http\Requests\VehicleCategoryRequests\VehicleCategoryStoreRequest;
@@ -12,21 +14,21 @@ use Illuminate\Support\Facades\DB;
 
 class VehicleCategoriesController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $vehicle_categories = VehicleCategories::withCount('vehicles')->get();
 
         return view('tech_accounting.vehicles.index', compact('vehicle_categories'));
     }
 
-    public function create()
+    public function create(): View
     {
         (new AuthorizeService())->authorizeVehicleCategoryCreate();
 
         return view('tech_accounting.vehicles.create_category');
     }
 
-    public function store(VehicleCategoryStoreRequest $request)
+    public function store(VehicleCategoryStoreRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -41,19 +43,19 @@ class VehicleCategoriesController extends Controller
         ]);
     }
 
-    public function show(VehicleCategories $vehicle_category)
+    public function show(VehicleCategories $vehicle_category): View
     {
         return view('tech_accounting.vehicles.category_card', compact('vehicle_category'));
     }
 
-    public function edit(VehicleCategories $vehicle_category)
+    public function edit(VehicleCategories $vehicle_category): View
     {
         (new AuthorizeService())->authorizeVehicleCategoryEdit();
 
         return view('tech_accounting.vehicles.edit_category', compact('vehicle_category'));
     }
 
-    public function update(VehicleCategoryUpdateRequest $request, VehicleCategories $vehicle_category)
+    public function update(VehicleCategoryUpdateRequest $request, VehicleCategories $vehicle_category): JsonResponse
     {
         DB::beginTransaction();
 
@@ -71,7 +73,7 @@ class VehicleCategoriesController extends Controller
         ]);
     }
 
-    public function destroy(VehicleCategoryDestroyRequest $request, VehicleCategories $vehicle_category)
+    public function destroy(VehicleCategoryDestroyRequest $request, VehicleCategories $vehicle_category): JsonResponse
     {
         DB::beginTransaction();
 
@@ -82,14 +84,14 @@ class VehicleCategoriesController extends Controller
         return response()->json(true);
     }
 
-    public function display_trashed()
+    public function display_trashed(): View
     {
         $vehicle_categories = VehicleCategories::onlyTrashed()->withCount('trashed_vehicles')->get();
 
         return view('tech_accounting.vehicles.index_trashed', compact('vehicle_categories'));
     }
 
-    public function show_trashed($vehicle_category)
+    public function show_trashed($vehicle_category): View
     {
         $vehicle_category = VehicleCategories::onlyTrashed()->findOrFail($vehicle_category);
 

@@ -160,7 +160,7 @@ trait DevExtremeDataSourceLoadable
      * @param  object  $loadOption
      * @return Builder|static
      */
-    public function dxLoadOptions($loadOption, $useHavingInsteadOfWhere = false)
+    public function dxLoadOptions(object $loadOption, $useHavingInsteadOfWhere = false)
     {
         $result = $this::query();
 

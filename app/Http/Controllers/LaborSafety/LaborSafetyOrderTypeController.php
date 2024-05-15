@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\LaborSafety\LaborSafetyOrderType;
 use Illuminate\Http\Request;
@@ -14,7 +16,7 @@ class LaborSafetyOrderTypeController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('labor-safety.labor-safety-order-types');
     }
@@ -71,7 +73,7 @@ class LaborSafetyOrderTypeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $id = $request->all()['key'];
         $modifiedData = json_decode($request->all()['modifiedData'], JSON_OBJECT_AS_ARRAY);

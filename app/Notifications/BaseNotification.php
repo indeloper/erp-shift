@@ -31,7 +31,7 @@ class BaseNotification extends Notification
      * @param  int|int[]  $users
      * @return void
      */
-    public static function send($users, array $notificationData)
+    public static function send($users, array $notificationData): void
     {
         if (! is_array($users)) {
             $users = [$users];

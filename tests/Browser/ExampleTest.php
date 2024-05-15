@@ -18,7 +18,7 @@ class ExampleTest extends DuskTestCase
      *
      * @return void
      */
-    public function login()
+    public function login(): void
     {
 
     }

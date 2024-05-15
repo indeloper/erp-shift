@@ -41,7 +41,7 @@ class Comment extends Model
      *
      * @return string
      */
-    public function getPrettyCommentAttribute()
+    public function getPrettyCommentAttribute(): string
     {
         if (strpos($this->comment, '@') !== false) {
             return Blade::compileString($this->comment);
@@ -55,7 +55,7 @@ class Comment extends Model
      *
      * @return Carbon|null
      */
-    public function getCreatedAtFormattedAttribute()
+    public function getCreatedAtFormattedAttribute(): ?Carbon
     {
         return $this->created_at->format(self::DATE_FORMAT);
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Notifications\Technic\TechnicUsageExtensionRequestApprovalNotice;
@@ -18,7 +20,7 @@ class OurTechnicTicketActionsController extends Controller
     use NotificationGenerator;
 
     // 1338
-    public function close(Request $request, OurTechnicTicket $ourTechnicTicket)
+    public function close(Request $request, OurTechnicTicket $ourTechnicTicket): JsonResponse
     {
         $this->authorize('close', $ourTechnicTicket);
 
@@ -41,7 +43,7 @@ class OurTechnicTicketActionsController extends Controller
     }
 
     // 1339
-    public function request_extension(Request $request, OurTechnicTicket $ourTechnicTicket)
+    public function request_extension(Request $request, OurTechnicTicket $ourTechnicTicket): JsonResponse
     {
         $this->authorize('request_extension', $ourTechnicTicket);
 
@@ -75,7 +77,7 @@ class OurTechnicTicketActionsController extends Controller
     }
 
     // 1340, 1341
-    public function agree_extension(Request $request, OurTechnicTicket $ourTechnicTicket)
+    public function agree_extension(Request $request, OurTechnicTicket $ourTechnicTicket): RedirectResponse
     {
         $this->authorize('agree_extension', $ourTechnicTicket);
 

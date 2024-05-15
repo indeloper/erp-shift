@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Timesheet;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Employees\Employee;
 use App\Models\Timesheet\TimesheetCard;
@@ -82,7 +83,7 @@ class TimesheetCardsController extends StandardEntityResourceController
         return Carbon::parse("{$year}-{$month}-01")->endOfMonth()->day;
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         DB::beginTransaction();
 

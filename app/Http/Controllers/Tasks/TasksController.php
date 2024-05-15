@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tasks;
 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequests\TaskCreateRequest;
 use App\Models\CommercialOffer\CommercialOffer;
@@ -318,7 +320,7 @@ class TasksController extends Controller
         return ['results' => $results];
     }
 
-    public function card($id)
+    public function card($id): View
     {
         $task = Task::where('tasks.id', $id)
             ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
@@ -370,7 +372,7 @@ class TasksController extends Controller
         ]);
     }
 
-    public function solve(Request $request, $id)
+    public function solve(Request $request, $id): RedirectResponse
     {
         $task = Task::findOrFail($id);
 
@@ -435,7 +437,7 @@ class TasksController extends Controller
         return redirect()->route('tasks::index');
     }
 
-    public function redirect()
+    public function redirect(): RedirectResponse
     {
         if (! (Auth::user()->can('tasks') || Auth::user()->can('dashbord'))) {
             return redirect()->route('notifications::index');
@@ -444,7 +446,7 @@ class TasksController extends Controller
         return redirect()->route('tasks::index');
     }
 
-    public function error()
+    public function error(): View
     {
         if (session()->has('errors')) {
             return view('errors.custom_error');
@@ -499,7 +501,7 @@ class TasksController extends Controller
         return $proj_stats;
     }
 
-    public function showTasksReportFilterForm(Request $request)
+    public function showTasksReportFilterForm(Request $request): View
     {
         return view('tasks.filter-tasks-report');
     }

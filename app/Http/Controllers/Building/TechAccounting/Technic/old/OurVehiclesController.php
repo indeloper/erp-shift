@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OurVehicleRequests\OurVehicleDeleteRequest;
 use App\Http\Requests\OurVehicleRequests\OurVehicleStoreRequest;
@@ -14,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class OurVehiclesController extends Controller
 {
-    public function index(VehicleCategories $vehicle_category)
+    public function index(VehicleCategories $vehicle_category): View
     {
         return view('tech_accounting.vehicles.vehicles_list', [
             'data' => [
@@ -25,7 +28,7 @@ class OurVehiclesController extends Controller
         ]);
     }
 
-    public function store(OurVehicleStoreRequest $request)
+    public function store(OurVehicleStoreRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -43,7 +46,7 @@ class OurVehiclesController extends Controller
         );
     }
 
-    public function update(OurVehicleUpdateRequest $request, VehicleCategories $vehicle_category, OurVehicles $our_vehicle)
+    public function update(OurVehicleUpdateRequest $request, VehicleCategories $vehicle_category, OurVehicles $our_vehicle): JsonResponse
     {
         DB::beginTransaction();
 
@@ -60,7 +63,7 @@ class OurVehiclesController extends Controller
         ]);
     }
 
-    public function destroy(OurVehicleDeleteRequest $request, VehicleCategories $vehicle_category, OurVehicles $our_vehicle)
+    public function destroy(OurVehicleDeleteRequest $request, VehicleCategories $vehicle_category, OurVehicles $our_vehicle): JsonResponse
     {
         DB::beginTransaction();
 
@@ -71,7 +74,7 @@ class OurVehiclesController extends Controller
         return response()->json(true);
     }
 
-    public function get_vehicles(Request $request)
+    public function get_vehicles(Request $request): Response
     {
         if ($request->q != '') {
             $vehicles = OurVehicles::where('model', 'like', "%{$request->q}%")
@@ -85,7 +88,7 @@ class OurVehiclesController extends Controller
         ]);
     }
 
-    public function index_trashed($vehicle_category)
+    public function index_trashed($vehicle_category): View
     {
         $vehicle_category = VehicleCategories::withTrashed()->findOrFail($vehicle_category);
 

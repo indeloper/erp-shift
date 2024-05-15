@@ -36,7 +36,7 @@ class q3wMaterialSupplyObjectController extends Controller
      *
      * @param  int  $id
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         $object = q3wMaterialSupplyObject::findOrFail($id);
         $object->update([
@@ -51,7 +51,7 @@ class q3wMaterialSupplyObjectController extends Controller
      *
      * @param  int  $id
      */
-    public function destroy($id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
         $object = Q3wMaterialSupplyObject::findOrFail($id);
         $object->delete();

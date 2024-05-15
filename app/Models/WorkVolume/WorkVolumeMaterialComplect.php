@@ -39,7 +39,7 @@ class WorkVolumeMaterialComplect extends Model //this is like manual for materia
      * @param  mixed  ...$attrs
      * @return ManualMaterialParameter
      */
-    public function convert_to(...$attrs)
+    public function convert_to(...$attrs): ManualMaterialParameter
     {
         return new ManualMaterialParameter(['value' => 1]);
     }

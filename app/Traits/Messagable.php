@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -59,7 +60,7 @@ trait Messagable
      *
      * @return int
      */
-    public function newThreadsCount()
+    public function newThreadsCount(): int
     {
         return $this->threadsWithNewMessages()->count();
     }
@@ -69,7 +70,7 @@ trait Messagable
      *
      * @return int
      */
-    public function unreadMessages()
+    public function unreadMessages(): int
     {
         return \App\Models\Messenger\Message::unreadForUser($this->getKey())->get();
     }
@@ -79,7 +80,7 @@ trait Messagable
      *
      * @return int
      */
-    public function unreadMessagesCount()
+    public function unreadMessagesCount(): int
     {
         return count($this->unreadMessages());
     }
@@ -89,7 +90,7 @@ trait Messagable
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function threadsWithNewMessages()
+    public function threadsWithNewMessages(): Collection
     {
         return $this->threads()
             ->where(function (Builder $q) {
@@ -120,7 +121,7 @@ trait Messagable
      *
      * @return int
      */
-    public function favourites()
+    public function favourites(): int
     {
         return $this->starred();
     }
@@ -130,7 +131,7 @@ trait Messagable
      *
      * @return string $name
      */
-    public function getNameAttribute()
+    public function getNameAttribute(): string
     {
         $this->attributes['full_name'] = $this->full_name;
         if ($this->attributes['first_name']) {

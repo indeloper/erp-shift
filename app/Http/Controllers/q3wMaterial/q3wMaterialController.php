@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
@@ -27,7 +28,7 @@ class q3wMaterialController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $projectObjectId = (new UsersSetting)->getSetting('material_accounting_last_project_object_id');
         if (! isset($projectObjectId)) {
@@ -52,7 +53,7 @@ class q3wMaterialController extends Controller
         ]);
     }
 
-    public function table(Request $request)
+    public function table(Request $request): View
     {
         $projectObjectId = $request->project_object ?? ProjectObject::whereNotNull('short_name')
             ->orderBy('short_name')
@@ -69,7 +70,7 @@ class q3wMaterialController extends Controller
         ]);
     }
 
-    public function remains(Request $request)
+    public function remains(Request $request): View
     {
         $projectObjectId = $request->projectObjectId ?? ProjectObject::whereNotNull('short_name')
             ->orderBy('short_name')
@@ -88,7 +89,7 @@ class q3wMaterialController extends Controller
         ]);
     }
 
-    public function objectsRemains(Request $request)
+    public function objectsRemains(Request $request): View
     {
         $detailing_level = (new UsersSetting)->getSetting('material_accounting_objects_remains_report_access') ?: 1;
 
