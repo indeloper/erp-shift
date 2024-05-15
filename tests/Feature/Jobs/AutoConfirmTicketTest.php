@@ -15,7 +15,7 @@ class AutoConfirmTicketTest extends TestCase
     {
         $ticket = OurTechnicTicket::factory()->create();
 
-        AutoConfirmTicket::dispatchNow($ticket);
+        AutoConfirmTicket::dispatchSync($ticket);
 
         $ticket->refresh();
         $this->assertEquals($ticket->status, 2);

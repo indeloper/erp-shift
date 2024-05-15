@@ -21,7 +21,7 @@ class FuelTankOperationObserver
         }
         FuelTankService::guardAgainstNegativeValue($fuelTankOperation, null, $fuelTankOperation->old_fuel_level);
 
-        ProcessFuelTankOperation::dispatchNow($fuelTankOperation);
+        ProcessFuelTankOperation::dispatchSync($fuelTankOperation);
     }
 
     /**
@@ -51,9 +51,9 @@ class FuelTankOperationObserver
                 $old_tank->fuel_level -= $old_value;
                 $old_tank->save();
 
-                ProcessFuelTankOperation::dispatchNow($fuelTankOperation, null, FuelTank::find($fuelTankOperation->fuel_tank_id));
+                ProcessFuelTankOperation::dispatchSync($fuelTankOperation, null, FuelTank::find($fuelTankOperation->fuel_tank_id));
             } else {
-                ProcessFuelTankOperation::dispatchNow($fuelTankOperation, $value_change);
+                ProcessFuelTankOperation::dispatchSync($fuelTankOperation, $value_change);
             }
         }
         FuelTankService::createHistory($fuelTankOperation);
@@ -62,7 +62,7 @@ class FuelTankOperationObserver
     public function deleting(FuelTankOperation $fuelTankOperation)
     {
         FuelTankService::guardAgainstNegativeValue($fuelTankOperation, -$fuelTankOperation->value_diff);
-        ProcessFuelTankOperation::dispatchNow($fuelTankOperation, -$fuelTankOperation->value_diff);
+        ProcessFuelTankOperation::dispatchSync($fuelTankOperation, -$fuelTankOperation->value_diff);
     }
 
     public function deleted(FuelTankOperation $fuelTankOperation)
@@ -72,6 +72,6 @@ class FuelTankOperationObserver
 
     public function restoring(FuelTankOperation $fuelTankOperation)
     {
-        ProcessFuelTankOperation::dispatchNow($fuelTankOperation);
+        ProcessFuelTankOperation::dispatchSync($fuelTankOperation);
     }
 }
