@@ -2,9 +2,9 @@
 
 namespace App\Models\MatAcc;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Events\MaterialAccountingOperationResponsibleUsersEvents;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MaterialAccountingOperationResponsibleUsers extends Model

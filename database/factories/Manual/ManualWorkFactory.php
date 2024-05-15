@@ -3,7 +3,6 @@
 namespace Database\Factories\Manual;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Manual\ManualWork;
 
 class ManualWorkFactory extends Factory
 {

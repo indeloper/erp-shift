@@ -2,7 +2,6 @@
 
 namespace App\Models\Contract;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
@@ -12,6 +11,7 @@ use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\Request;

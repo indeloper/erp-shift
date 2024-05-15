@@ -2,7 +2,6 @@
 
 namespace App\Models\MatAcc;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
@@ -17,6 +16,7 @@ use App\Traits\Taskable;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -28,7 +28,6 @@ use Illuminate\Support\Facades\DB;
 class MaterialAccountingOperation extends Model
 {
     use HasFactory;
-
     use NotificationGenerator, SoftDeletes, Taskable;
 
     protected $fillable = [

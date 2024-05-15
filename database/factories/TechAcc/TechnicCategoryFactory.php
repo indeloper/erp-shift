@@ -1,11 +1,8 @@
 <?php
 
-
-
 namespace Database\Factories\TechAcc;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\TechAcc\TechnicCategory;
 
 class TechnicCategoryFactory extends Factory
 {

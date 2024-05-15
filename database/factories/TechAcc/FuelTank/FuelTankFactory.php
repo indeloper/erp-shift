@@ -1,12 +1,9 @@
 <?php
 
-
-
 namespace Database\Factories\TechAcc\FuelTank;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\ProjectObject;
-use App\Models\TechAcc\FuelTank\FuelTank;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FuelTankFactory extends Factory
 {

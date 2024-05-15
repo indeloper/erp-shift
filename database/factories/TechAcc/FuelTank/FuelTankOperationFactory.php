@@ -1,17 +1,14 @@
 <?php
 
-
-
 namespace Database\Factories\TechAcc\FuelTank;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FuelTankOperationFactory extends Factory
 {

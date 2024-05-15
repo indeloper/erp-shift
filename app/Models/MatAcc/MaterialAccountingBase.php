@@ -2,13 +2,13 @@
 
 namespace App\Models\MatAcc;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Comment;
 use App\Models\Manual\ManualMaterial;
 use App\Models\ProjectObject;
 use App\Traits\Commentable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -26,9 +26,8 @@ use Illuminate\Http\Request;
  */
 class MaterialAccountingBase extends Model
 {
-    use HasFactory;
-
     use Commentable;
+    use HasFactory;
 
     protected $fillable = [
         'object_id',

@@ -2,9 +2,8 @@
 
 namespace Database\Factories\Contractors;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Contractors\Contractor;
-use App\Models\Contractors\ContractorContact;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ContractorContactFactory extends Factory
 {

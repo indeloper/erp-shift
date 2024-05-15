@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Menu\MenuItem;
 use App\Models\Notifications\NotificationsForUsers;
@@ -20,6 +19,7 @@ use App\Traits\TicketResponsibleUser;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
@@ -29,9 +29,8 @@ use function morphos\Russian\inflectName;
 
 class User extends Authenticatable
 {
-    use HasFactory;
-
     use DefaultSortable, DevExtremeDataSourceLoadable, Logable, Messagable, Notifiable, Reviewable, TicketResponsibleUser;
+    use HasFactory;
 
     public $defaultSortOrder = [
         'user_full_name' => 'asc',

@@ -2,17 +2,16 @@
 
 namespace App\Models\TechAcc\Vehicles;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 use App\Traits\Documentable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurVehicles extends Model
 {
-    use HasFactory;
-
     use Documentable, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'category_id',

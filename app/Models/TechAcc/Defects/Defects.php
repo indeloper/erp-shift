@@ -2,7 +2,6 @@
 
 namespace App\Models\TechAcc\Defects;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
@@ -11,6 +10,7 @@ use App\Traits\Documentable;
 use App\Traits\Notificationable;
 use App\Traits\Taskable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -18,9 +18,8 @@ use Illuminate\Support\Carbon;
 
 class Defects extends Model
 {
-    use HasFactory;
-
     use Commentable, Documentable, Notificationable, SoftDeletes, Taskable;
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -40,7 +39,7 @@ class Defects extends Model
     protected $casts = [
         'repair_start_date' => 'datetime',
         'repair_end_date' => 'datetime',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
 
     protected $hidden = ['contractor'];

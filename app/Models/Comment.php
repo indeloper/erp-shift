@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Documentable;
 use App\Traits\RussianShortDates;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 
 class Comment extends Model
 {
-    use HasFactory;
-
     use Documentable;
+    use HasFactory;
     use RussianShortDates;
 
     protected $guarded = ['id'];

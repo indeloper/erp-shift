@@ -2,10 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Project;
-use App\Models\ProjectResponsibleUser;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProjectResponsibleUserFactory extends Factory
 {

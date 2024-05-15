@@ -1,8 +1,5 @@
 <?php
 
-use Database\Seeders\employeesSeeder;
-use Database\Seeders\employeeSubdivisionsSeeder;
-use Database\Seeders\employeePostsSeeder;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
 use App\Models\Company\CompanyReportTemplateType;
@@ -13,6 +10,9 @@ use App\Models\LaborSafety\LaborSafetyWorkerType;
 use App\Models\Permission;
 use App\Models\Timesheet\EmployeesReportGroup;
 use App\Models\UserPermission;
+use Database\Seeders\employeePostsSeeder;
+use Database\Seeders\employeesSeeder;
+use Database\Seeders\employeeSubdivisionsSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;

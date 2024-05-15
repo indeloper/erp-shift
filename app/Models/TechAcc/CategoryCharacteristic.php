@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CategoryCharacteristic extends Model
 {
     use HasFactory;
-
     use SoftDeletes;
 
     protected $fillable = ['name', 'description', 'is_hidden', 'unit', 'required'];

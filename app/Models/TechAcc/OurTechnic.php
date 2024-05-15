@@ -2,7 +2,6 @@
 
 namespace App\Models\TechAcc;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\User;
@@ -12,15 +11,15 @@ use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Documentable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
 class OurTechnic extends Model
 {
-    use HasFactory;
-
     use DefaultSortable, Defectable, DevExtremeDataSourceLoadable, Documentable, SoftDeletes;
+    use HasFactory;
 
     protected $guarded = ['id'];
 

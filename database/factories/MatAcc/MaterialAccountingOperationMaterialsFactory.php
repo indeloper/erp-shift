@@ -1,13 +1,10 @@
 <?php
 
-
-
 namespace Database\Factories\MatAcc;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Manual\ManualMaterial;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MaterialAccountingOperationMaterialsFactory extends Factory
 {

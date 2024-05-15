@@ -1,13 +1,10 @@
 <?php
 
-
-
 namespace Database\Factories\TechAcc\Defects;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\TechAcc\Defects\Defects;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class DefectsFactory extends Factory
 {

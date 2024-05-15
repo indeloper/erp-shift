@@ -2,9 +2,8 @@
 
 namespace Database\Factories\Manual;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Manual\ManualMaterialCategory;
-use App\Models\Manual\ManualMaterialCategoryAttribute;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ManualMaterialCategoryAttributeFactory extends Factory
 {

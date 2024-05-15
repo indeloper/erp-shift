@@ -1,13 +1,10 @@
 <?php
 
-
-
 namespace Database\Factories\Contract;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Contract\Contract;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ContractFactory extends Factory
 {

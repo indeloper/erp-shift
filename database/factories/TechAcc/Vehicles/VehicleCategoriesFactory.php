@@ -1,12 +1,9 @@
 <?php
 
-
-
 namespace Database\Factories\TechAcc\Vehicles;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\TechAcc\Vehicles\VehicleCategories;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class VehicleCategoriesFactory extends Factory
 {

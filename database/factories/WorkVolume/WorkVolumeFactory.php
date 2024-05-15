@@ -1,13 +1,10 @@
 <?php
 
-
-
 namespace Database\Factories\WorkVolume;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Project;
 use App\Models\User;
-use App\Models\WorkVolume\WorkVolume;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class WorkVolumeFactory extends Factory
 {

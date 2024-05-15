@@ -2,7 +2,6 @@
 
 namespace App\Models\Contractors;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectContractors;
@@ -12,14 +11,14 @@ use App\Traits\DefaultSortable;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\SmartSearchable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contractor extends Model
 {
-    use HasFactory;
-
     use DefaultSortable, DevExtremeDataSourceLoadable, SmartSearchable, SoftDeletes;
+    use HasFactory;
 
     protected $guarded = ['id'];
 

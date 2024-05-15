@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ManualReference extends Model
 {
     use HasFactory;
-
     use SoftDeletes;
 
     protected $fillable = ['name', 'description', 'category_id'];

@@ -1,13 +1,10 @@
 <?php
 
-
-
 namespace Database\Factories\TechAcc\Vehicles;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\TechAcc\Vehicles\OurVehicleParameters;
 use App\Models\TechAcc\Vehicles\OurVehicles;
 use App\Models\TechAcc\Vehicles\VehicleCategoryCharacteristics;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OurVehicleParametersFactory extends Factory
 {

@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ProjectObjectDocuments\ProjectObjectDocuments;
 use App\Http\Controllers\ProjectObjectDocuments;
+use App\Http\Controllers\ProjectObjectDocuments\ProjectObjectDocuments;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['can:project_object_documents_access'])->group(function () {

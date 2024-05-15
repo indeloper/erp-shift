@@ -2,8 +2,8 @@
 
 namespace App\Models\Contractors;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\ProjectContact;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ContractorContact extends Model

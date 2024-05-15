@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
@@ -11,15 +10,15 @@ use App\Traits\Notificationable;
 use App\Traits\NotificationGenerator;
 use App\Traits\SmartSearchable;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Task extends Model
 {
-    use HasFactory;
-
     use DevExtremeDataSourceLoadable, Notificationable, NotificationGenerator, SmartSearchable, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'name',

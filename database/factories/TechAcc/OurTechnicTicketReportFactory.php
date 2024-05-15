@@ -1,13 +1,11 @@
 <?php
 
-
 namespace Database\Factories\TechAcc;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Department;
 use App\Models\Group;
 use App\Models\TechAcc\OurTechnicTicket;
-use App\Models\TechAcc\OurTechnicTicketReport;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OurTechnicTicketReportFactory extends Factory
 {

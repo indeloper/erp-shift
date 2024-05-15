@@ -1,14 +1,11 @@
 <?php
 
-
-
 namespace Database\Factories\TechAcc;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\ProjectObject;
-use App\Models\TechAcc\CategoryCharacteristic;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OurTechnicFactory extends Factory
 {

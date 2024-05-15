@@ -2,9 +2,9 @@
 
 namespace App\Models\WorkVolume;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Task;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 class WorkVolume extends Model
 {
     use HasFactory;
-
     use SoftDeletes;
 
     protected $fillable = ['user_id', 'project_id', 'version', 'status', 'is_save_tongue', 'is_save_pile', 'depth', 'type', 'option'];

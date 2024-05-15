@@ -2,7 +2,6 @@
 
 namespace App\Models\CommercialOffer;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Company\Company;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
@@ -23,6 +22,7 @@ use App\Traits\Commentable;
 use App\Traits\Reviewable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
@@ -31,9 +31,8 @@ use PDF;
 
 class CommercialOffer extends Model
 {
-    use HasFactory;
-
     use Commentable, Reviewable, SoftDeletes;
+    use HasFactory;
 
     public $com_offer_status = [
         1 => 'В работе',

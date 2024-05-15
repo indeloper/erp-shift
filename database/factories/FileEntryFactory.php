@@ -1,12 +1,9 @@
 <?php
 
-
-
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\FileEntry;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FileEntryFactory extends Factory
 {

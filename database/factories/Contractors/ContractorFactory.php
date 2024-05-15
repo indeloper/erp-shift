@@ -3,7 +3,6 @@
 namespace Database\Factories\Contractors;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Contractors\Contractor;
 
 class ContractorFactory extends Factory
 {

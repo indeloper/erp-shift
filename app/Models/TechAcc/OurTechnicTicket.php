@@ -2,7 +2,6 @@
 
 namespace App\Models\TechAcc;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Vehicles\OurVehicles;
 use App\Models\User;
@@ -14,14 +13,14 @@ use App\Traits\RussianShortDates;
 use App\Traits\Taskable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurTechnicTicket extends Model
 {
-    use HasFactory;
-
     use Commentable;
+    use HasFactory;
     use Notificationable;
     use NotificationGenerator;
     use RussianShortDates;

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ManualMaterialCategoryAttribute extends Model
 {
     use HasFactory;
-
     use SoftDeletes;
 
     protected $fillable = ['name', 'description', 'is_required', 'unit', 'category_id', 'is_preset', 'from', 'to', 'step', 'value', 'is_display'];

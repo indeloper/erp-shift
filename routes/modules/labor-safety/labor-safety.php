@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LaborSafety;
 use Illuminate\Support\Facades\Route;
+
 /*Route::group(['middleware' => 'can:contractors'], function () {
     Route::get('/', 'ContractorController@index')->name('index');
     Route::get('/card/{id}', 'ContractorController@card')->name('card');

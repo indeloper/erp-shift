@@ -1,11 +1,8 @@
 <?php
 
-
-
 namespace Database\Factories\Manual;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Manual\ManualReference;
 
 class ManualReferenceFactory extends Factory
 {

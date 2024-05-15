@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ManualMaterialParameter extends Model
 {
     use HasFactory;
-
     use SoftDeletes;
 
     protected $fillable = ['attr_id', 'mat_id', 'value'];

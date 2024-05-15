@@ -2,7 +2,6 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Company\Company;
 use App\Models\ProjectObject;
 use App\Models\User;
@@ -11,14 +10,14 @@ use App\Traits\Defectable;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Logable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTank extends Model
 {
-    use HasFactory;
-
     use DefaultSortable, Defectable, DevExtremeDataSourceLoadable, Logable, SoftDeletes;
+    use HasFactory;
 
     protected $guarded = ['id'];
 
