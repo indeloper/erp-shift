@@ -41,7 +41,7 @@ class SystemTest extends TestCase
 
         $this->actingAs($ivan);
 
-        $file = factory(FileEntry::class)->create();
+        $file = FileEntry::factory()->create();
 
         $this->delete(route('file_entry.destroy', $file->id));
 
@@ -79,7 +79,7 @@ class SystemTest extends TestCase
 
         $this->actingAs($ivan);
 
-        $file = factory(FileEntry::class)->create();
+        $file = FileEntry::factory()->create();
 
         $this->delete(route('file_entry.destroy', $file->id));
 

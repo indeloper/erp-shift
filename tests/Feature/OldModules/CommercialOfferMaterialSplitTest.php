@@ -36,7 +36,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     {
         parent::setUp();
 
-        $this->commercial_offer = factory(CommercialOffer::class)->create();
+        $this->commercial_offer = CommercialOffer::factory()->create();
         $this->split_service = new SplitService();
     }
 

@@ -16,9 +16,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_write_off_operation_no_certificates_logic_fires(): void
     {
         // Given material accounting write off operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 2]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 2]);
         // Given operation write off part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 8]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 8]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -36,9 +36,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_transformation_operation_no_certificates_logic_fires(): void
     {
         // Given material accounting transformation operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 3]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 3]);
         // Given operation transformation part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 8]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 8]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -56,10 +56,10 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_arrival_operation_with_certificates_no_certificates_logic_fires(): void
     {
         // Given material accounting arrival operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 1]);
         // Given operation arrival part material with certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -77,10 +77,10 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_moving_operation_with_certificates_no_certificates_logic_fires(): void
     {
         // Given material accounting moving operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 4]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 4]);
         // Given operation moving part material with certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -98,9 +98,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_arrival_operation_without_certificates_certificates_logic_fires(): void
     {
         // Given material accounting arrival operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 1]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -118,9 +118,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_moving_operation_without_certificates_certificates_logic_fires(): void
     {
         // Given material accounting moving operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 4]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 4]);
         // Given operation moving part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -138,12 +138,12 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_arrival_operation_without_certificate_in_one_part_save_certificates_logic_fires(): void
     {
         // Given material accounting arrival operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 1]);
         // Given operation arrival part material with certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -161,12 +161,12 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_moving_operation_without_certificate_in_one_part_save_certificates_logic_fires(): void
     {
         // Given material accounting moving operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 4]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 4]);
         // Given operation arrival part material with certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -184,9 +184,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_arrival_operation_without_certificates_logic_fires_detailed(): void
     {
         // Given material accounting arrival operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 1]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -212,9 +212,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function when_somebody_complete_moving_operation_without_certificate_in_one_part_save_certificates_logic_fires_detailed(): void
     {
         // Given material accounting moving operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 4]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 4]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -240,9 +240,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function if_certificate_worker_has_task_for_arrival_operation_but_after_he_upload_certificates_for_all_part_saves_task_should_be_solved(): void
     {
         // Given material accounting arrival operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 1]);
         // Given operation arrival part material without certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -265,7 +265,7 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
         $this->assertEquals("Новая задача «{$task->name}».", $certificateWorker->notifications->first()->name);
 
         // After certificate worker will upload certificate for this operation
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
 
         // Then task should be solved
         $this->assertEquals(1, $task->refresh()->is_solved);
@@ -279,9 +279,9 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function if_certificate_worker_has_task_for_moving_operation_but_after_he_upload_certificates_for_all_part_saves_task_should_be_solved(): void
     {
         // Given material accounting moving operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 4]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 4]);
         // Given operation arrival part material without certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -304,7 +304,7 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
         $this->assertEquals("Новая задача «{$task->name}».", $certificateWorker->notifications->first()->name);
 
         // After certificate worker will upload certificate for this operation
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
 
         // Then task should be solved
         $this->assertEquals(1, $task->refresh()->is_solved);
@@ -318,11 +318,11 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function if_certificate_worker_has_task_for_arrival_operation_but_after_he_upload_certificate_for_one_part_save_task_should_not_be_solved(): void
     {
         // Given material accounting arrival operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 1]);
         // Given operation arrival part material without certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // And another one
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -345,7 +345,7 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
         $this->assertEquals("Новая задача «{$task->name}».", $certificateWorker->notifications->first()->name);
 
         // After certificate worker will upload certificate for this operation
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
 
         // Then task shouldn't be solved
         $this->assertEquals(0, $task->refresh()->is_solved);
@@ -357,11 +357,11 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
     public function if_certificate_worker_has_task_for_moving_operation_but_after_he_upload_certificate_for_one_part_save_task_should_not_be_solved(): void
     {
         // Given material accounting moving operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['type' => 4]);
+        $operation = MaterialAccountingOperation::factory()->create(['type' => 4]);
         // Given operation arrival part material without certificate
-        $partSave = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        $partSave = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // And another one
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given tasks count
         $tasksCount = Task::count();
         // Given notifications count
@@ -384,7 +384,7 @@ class MaterialAccountingCertificatesLogicTest extends TestCase
         $this->assertEquals("Новая задача «{$task->name}».", $certificateWorker->notifications->first()->name);
 
         // After certificate worker will upload certificate for this operation
-        factory(MaterialAccountingMaterialFile::class)->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
+        MaterialAccountingMaterialFile::factory()->create(['type' => 3, 'operation_id' => $operation->id, 'operation_material_id' => $partSave->id]);
 
         // Then task shouldn't be solved
         $this->assertEquals(0, $task->refresh()->is_solved);

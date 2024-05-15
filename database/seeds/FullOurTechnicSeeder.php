@@ -14,12 +14,12 @@ class FullOurTechnicSeeder extends Seeder
      */
     public function run()
     {
-        $category = factory(TechnicCategory::class)->create();
-        $category_characteristics = factory(CategoryCharacteristic::class, 2)->create();
+        $category = TechnicCategory::factory()->create();
+        $category_characteristics = CategoryCharacteristic::factory()->count(2)->create();
 
         $category->addCharacteristic($category_characteristics->pluck('id'));
 
-        $technics = factory(OurTechnic::class, 3)->create(['technic_category_id' => $category->id]);
+        $technics = OurTechnic::factory()->count(3)->create(['technic_category_id' => $category->id]);
 
         $technics->each(function ($technic) use ($category_characteristics) {
             $technic->setCharacteristicsValue([

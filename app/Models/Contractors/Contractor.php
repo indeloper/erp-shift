@@ -2,6 +2,7 @@
 
 namespace App\Models\Contractors;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\ProjectContractors;
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contractor extends Model
 {
+    use HasFactory;
+
     use DefaultSortable, DevExtremeDataSourceLoadable, SmartSearchable, SoftDeletes;
 
     protected $guarded = ['id'];

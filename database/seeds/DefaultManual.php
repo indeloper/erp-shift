@@ -17,41 +17,41 @@ class DefaultManual extends Seeder
     public function run()
     {
         //заполняем работы
-        factory(ManualWork::class)->create(['name' => 'Вибропогружение шпунта', 'work_group_id' => '1']);
-        factory(ManualWork::class)->create(['name' => 'Виброизвлечение шпунта', 'work_group_id' => '1']);
-        factory(ManualWork::class)->create(['name' => 'Доставка шпунта', 'work_group_id' => '1']);
-        factory(ManualWork::class)->create(['name' => 'Доставка свай', 'work_group_id' => '2']);
-        factory(ManualWork::class)->create(['name' => 'Устройство свайного поля', 'work_group_id' => '2']);
-        factory(ManualWork::class)->create(['name' => 'Резание свай', 'work_group_id' => '2']);
-        factory(ManualWork::class)->create(['name' => 'Глубокие раскопки', 'work_group_id' => '3']);
-        factory(ManualWork::class)->create(['name' => 'Забор грунта', 'work_group_id' => '3']);
-        factory(ManualWork::class)->create(['name' => 'Извлечение полезных ископаемых', 'work_group_id' => '3']);
-        factory(ManualWork::class)->create(['name' => 'Крепление шпунта', 'work_group_id' => '4']);
-        factory(ManualWork::class)->create(['name' => 'Крепление свай', 'work_group_id' => '4']);
-        factory(ManualWork::class)->create(['name' => 'Расчёт количества шпунта', 'work_group_id' => '1']);
-        factory(ManualWork::class)->create(['name' => 'Очистка шпунта', 'work_group_id' => '1']);
-        factory(ManualWork::class)->create(['name' => 'Вколачивание шпунта', 'work_group_id' => '1']);
-        factory(ManualWork::class)->create(['name' => 'Забор свай', 'work_group_id' => '2']);
-        factory(ManualWork::class)->create(['name' => 'Разбор свайного поля', 'work_group_id' => '2']);
-        factory(ManualWork::class)->create(['name' => 'Сварка свай', 'work_group_id' => '2']);
-        factory(ManualWork::class)->create(['name' => 'Малой глубины раскопки', 'work_group_id' => '3']);
-        factory(ManualWork::class)->create(['name' => 'Забор глины', 'work_group_id' => '3']);
-        factory(ManualWork::class)->create(['name' => 'Извлечение металла из земли', 'work_group_id' => '3']);
-        factory(ManualWork::class)->create(['name' => 'Крепление рабочих материалов', 'work_group_id' => '4']);
-        factory(ManualWork::class)->create(['name' => 'Крепление расходников', 'work_group_id' => '4']);
+        ManualWork::factory()->create(['name' => 'Вибропогружение шпунта', 'work_group_id' => '1']);
+        ManualWork::factory()->create(['name' => 'Виброизвлечение шпунта', 'work_group_id' => '1']);
+        ManualWork::factory()->create(['name' => 'Доставка шпунта', 'work_group_id' => '1']);
+        ManualWork::factory()->create(['name' => 'Доставка свай', 'work_group_id' => '2']);
+        ManualWork::factory()->create(['name' => 'Устройство свайного поля', 'work_group_id' => '2']);
+        ManualWork::factory()->create(['name' => 'Резание свай', 'work_group_id' => '2']);
+        ManualWork::factory()->create(['name' => 'Глубокие раскопки', 'work_group_id' => '3']);
+        ManualWork::factory()->create(['name' => 'Забор грунта', 'work_group_id' => '3']);
+        ManualWork::factory()->create(['name' => 'Извлечение полезных ископаемых', 'work_group_id' => '3']);
+        ManualWork::factory()->create(['name' => 'Крепление шпунта', 'work_group_id' => '4']);
+        ManualWork::factory()->create(['name' => 'Крепление свай', 'work_group_id' => '4']);
+        ManualWork::factory()->create(['name' => 'Расчёт количества шпунта', 'work_group_id' => '1']);
+        ManualWork::factory()->create(['name' => 'Очистка шпунта', 'work_group_id' => '1']);
+        ManualWork::factory()->create(['name' => 'Вколачивание шпунта', 'work_group_id' => '1']);
+        ManualWork::factory()->create(['name' => 'Забор свай', 'work_group_id' => '2']);
+        ManualWork::factory()->create(['name' => 'Разбор свайного поля', 'work_group_id' => '2']);
+        ManualWork::factory()->create(['name' => 'Сварка свай', 'work_group_id' => '2']);
+        ManualWork::factory()->create(['name' => 'Малой глубины раскопки', 'work_group_id' => '3']);
+        ManualWork::factory()->create(['name' => 'Забор глины', 'work_group_id' => '3']);
+        ManualWork::factory()->create(['name' => 'Извлечение металла из земли', 'work_group_id' => '3']);
+        ManualWork::factory()->create(['name' => 'Крепление рабочих материалов', 'work_group_id' => '4']);
+        ManualWork::factory()->create(['name' => 'Крепление расходников', 'work_group_id' => '4']);
 
         //заполняем категории
-        factory(ManualMaterialCategory::class)->create(['name' => 'Шпунт']);
-        factory(ManualMaterialCategory::class)->create(['name' => 'Сваи']);
-        factory(ManualMaterialCategory::class)->create(['name' => 'Крепления']);
+        ManualMaterialCategory::factory()->create(['name' => 'Шпунт']);
+        ManualMaterialCategory::factory()->create(['name' => 'Сваи']);
+        ManualMaterialCategory::factory()->create(['name' => 'Крепления']);
 
         //добавляем им атрибуты
-        factory(ManualMaterialCategoryAttribute::class, 12)->create();
+        ManualMaterialCategoryAttribute::factory()->count(12)->create();
 
         //создаем материалы в наших категориях
-        factory(ManualMaterial::class, 12)->create();
+        ManualMaterial::factory()->count(12)->create();
 
         //добавляем им параметры
-        factory(ManualMaterialParameter::class, 12)->create();
+        ManualMaterialParameter::factory()->count(12)->create();
     }
 }

@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class SupportMail extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['title', 'description', 'user_id', 'page_path', 'status', 'solved_at', 'estimate', 'result_description', 'gitlab_link'];
 
     protected $appends = ['status_name'];

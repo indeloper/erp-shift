@@ -37,7 +37,7 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function user_without_permissions_sees_nothing_but_index()
     {
-        $category = factory(TechnicCategory::class)->create();
+        $category = TechnicCategory::factory()->create();
         $this->actingAs($this->ivan);
 
         $this->get(route('building::tech_acc::technic_category.create'))
@@ -53,7 +53,7 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function user_with_permissions_can_see_technic_category_pages()
     {
-        $category = factory(TechnicCategory::class)->create();
+        $category = TechnicCategory::factory()->create();
 
         $this->get(route('building::tech_acc::technic_category.create'))
             ->assertSee('Создание категории');
@@ -68,7 +68,7 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function user_can_see_edit_technic_category_page()
     {
-        $technic = factory(TechnicCategory::class)->create();
+        $technic = TechnicCategory::factory()->create();
 
         $this->get(route('building::tech_acc::technic_category.edit', $technic->id))
             ->assertSee('Редактирование категории');
@@ -138,7 +138,7 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function user_can_delete_technic_category()
     {
-        $technic = factory(TechnicCategory::class, 2)->create();
+        $technic = TechnicCategory::factory()->count(2)->create();
 
         $this->deleteJson(route('building::tech_acc::technic_category.destroy', $technic->first()->id))
             ->assertSee('success');
@@ -150,9 +150,9 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function after_deleting_a_category_technics_also_have_to_be_deleted()
     {
-        $technic_category = factory(TechnicCategory::class)->create();
+        $technic_category = TechnicCategory::factory()->create();
 
-        $technic = factory(OurTechnic::class, 5)->create(['technic_category_id' => $technic_category->id]);
+        $technic = OurTechnic::factory()->count(5)->create(['technic_category_id' => $technic_category->id]);
 
         $this->deleteJson(route('building::tech_acc::technic_category.destroy', $technic_category->id))
             ->assertSee('success');
@@ -164,8 +164,8 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function user_can_edit_attributes_of_a_category()
     {
-        $old_category = factory(TechnicCategory::class)->create();
-        $characteristic = factory(CategoryCharacteristic::class)->create();
+        $old_category = TechnicCategory::factory()->create();
+        $characteristic = CategoryCharacteristic::factory()->create();
 
         $old_category->addCharacteristic($characteristic);
 
@@ -195,8 +195,8 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function user_can_add_characteristics_to_a_category_by_update()
     {
-        $old_category = factory(TechnicCategory::class)->create();
-        $characteristic = factory(CategoryCharacteristic::class)->create();
+        $old_category = TechnicCategory::factory()->create();
+        $characteristic = CategoryCharacteristic::factory()->create();
 
         $old_category->addCharacteristic($characteristic);
 
@@ -237,8 +237,8 @@ class TechnicCategoryRequestsTest extends TestCase
     /** @test */
     public function user_can_delete_one_characteristic_from_a_category_by_update()
     {
-        $technic = factory(TechnicCategory::class)->create();
-        $characteristic = factory(CategoryCharacteristic::class, 2)->create();
+        $technic = TechnicCategory::factory()->create();
+        $characteristic = CategoryCharacteristic::factory()->count(2)->create();
         $technic->addCharacteristic($characteristic);
 
         $this->putJson(route('building::tech_acc::technic_category.update', $technic->first()->id), [

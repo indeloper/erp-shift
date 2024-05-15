@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Events\ProjectEvents;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
+    use HasFactory;
+
     use Logable, SoftDeletes, Taskable;
 
     protected $fillable = [

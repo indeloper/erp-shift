@@ -20,9 +20,9 @@ class NotifySenderCommandTest extends TestCase
     {
         parent::setUp();
 
-        $this->user1 = factory(User::class)->create(['chat_id' => 'anything']);
-        $this->user2 = factory(User::class)->create(['chat_id' => 'second anything']);
-        $this->user3 = factory(User::class)->create();
+        $this->user1 = User::factory()->create(['chat_id' => 'anything']);
+        $this->user2 = User::factory()->create(['chat_id' => 'second anything']);
+        $this->user3 = User::factory()->create();
     }
 
     /** @test */

@@ -2,6 +2,7 @@
 
 namespace App\Models\CommercialOffer;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Company\Company;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
@@ -30,6 +31,8 @@ use PDF;
 
 class CommercialOffer extends Model
 {
+    use HasFactory;
+
     use Commentable, Reviewable, SoftDeletes;
 
     public $com_offer_status = [

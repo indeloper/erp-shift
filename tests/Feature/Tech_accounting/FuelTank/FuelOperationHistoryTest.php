@@ -14,7 +14,7 @@ class FuelOperationHistoryTest extends TestCase
     public function it_stores_curr_and_prev_values_of_a_changed_field()
     {
         $this->actingAs(User::whereIn('group_id', Group::PROJECT_MANAGERS)->first());
-        $operation = factory(FuelTankOperation::class)->state('outgo')->create(['value' => 10]);
+        $operation = FuelTankOperation::factory()->outgo()->create(['value' => 10]);
 
         $operation->value = 1;
         $operation->save();

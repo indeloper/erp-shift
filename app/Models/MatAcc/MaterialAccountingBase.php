@@ -2,6 +2,7 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Comment;
 use App\Models\Manual\ManualMaterial;
 use App\Models\ProjectObject;
@@ -25,6 +26,8 @@ use Illuminate\Http\Request;
  */
 class MaterialAccountingBase extends Model
 {
+    use HasFactory;
+
     use Commentable;
 
     protected $fillable = [

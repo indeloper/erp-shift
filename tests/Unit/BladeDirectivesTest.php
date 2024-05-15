@@ -13,7 +13,7 @@ class BladeDirectivesTest extends TestCase
     public function user_directive_returns_hyperlink()
     {
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When we use @user() blade directive
         $result = Blade::compileString("@user({$user->id})");

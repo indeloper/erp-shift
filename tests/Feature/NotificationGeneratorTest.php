@@ -39,13 +39,13 @@ class NotificationGeneratorTest extends TestCase
         {
             use NotificationGenerator;
         };
-        $this->TECHNIC_RESPONSIBLE_RP = Group::find(23)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 23]);
-        $this->CEO = Group::find(5)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 5]);
-        $this->SUB_CEO = Group::find(6)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 6]);
-        $this->PRINCIPAL_MECHANIC = Group::find(47)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 47]);
-        $this->DEFECT = factory(Defects::class)->create();
+        $this->TECHNIC_RESPONSIBLE_RP = Group::find(23)->getUsers()->first() ?? User::factory()->create(['group_id' => 23]);
+        $this->CEO = Group::find(5)->getUsers()->first() ?? User::factory()->create(['group_id' => 5]);
+        $this->SUB_CEO = Group::find(6)->getUsers()->first() ?? User::factory()->create(['group_id' => 6]);
+        $this->PRINCIPAL_MECHANIC = Group::find(47)->getUsers()->first() ?? User::factory()->create(['group_id' => 47]);
+        $this->DEFECT = Defects::factory()->create();
         $this->TECHNIC = $this->DEFECT->defectable;
-        $ticket = factory(OurTechnicTicket::class)->create(['our_technic_id' => $this->TECHNIC->id]);
+        $ticket = OurTechnicTicket::factory()->create(['our_technic_id' => $this->TECHNIC->id]);
         $ticket->users()->attach($this->TECHNIC_RESPONSIBLE_RP->id, ['type' => 1]);
     }
 
@@ -194,7 +194,7 @@ class NotificationGeneratorTest extends TestCase
     public function defect_decline_notification_test_with_resp_user()
     {
         // Given responsible user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given defect with responsible user
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id]);
         $defect = $this->DEFECT->refresh();
@@ -312,7 +312,7 @@ class NotificationGeneratorTest extends TestCase
     public function defect_responsible_user_store_notification_test()
     {
         // Given responsible user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given defect with responsible user
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id]);
         $defect = $this->DEFECT->refresh();
@@ -343,7 +343,7 @@ class NotificationGeneratorTest extends TestCase
     public function defect_responsible_user_store_notification_second_test()
     {
         // Given responsible user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given defect with responsible user, but without tickets
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id]);
         $defect = $this->DEFECT->refresh();
@@ -446,7 +446,7 @@ class NotificationGeneratorTest extends TestCase
     {
         // Given user
         $responsible_user = $this->PRINCIPAL_MECHANIC;
-        $user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given new defect with responsible user without notifications
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id, 'status' => 3]);
         $defect = $this->DEFECT->refresh();
@@ -485,7 +485,7 @@ class NotificationGeneratorTest extends TestCase
     public function defect_expire_notification_second()
     {
         // Given user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given new defect with responsible user without notifications
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id, 'status' => 3]);
         $defect = $this->DEFECT->refresh();
@@ -520,7 +520,7 @@ class NotificationGeneratorTest extends TestCase
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
 
         // When we make put request with data
         $data = [
@@ -559,7 +559,7 @@ class NotificationGeneratorTest extends TestCase
         // When we make put request with data
         $data = [
             'comment' => $this->faker->paragraph,
-            'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? factory(ProjectObject::class)->create()->id,
+            'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? ProjectObject::factory()->create()->id,
         ];
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.end_repair', $defect->refresh()->id), $data);
 
@@ -619,7 +619,7 @@ class NotificationGeneratorTest extends TestCase
     public function our_technic_ticket_close_notification()
     {
         // Given technic ticket
-        $ticket = factory(OurTechnicTicket::class)->create();
+        $ticket = OurTechnicTicket::factory()->create();
 
         // When we call close() function
         $ticket->close();
@@ -643,7 +643,7 @@ class NotificationGeneratorTest extends TestCase
     public function our_technic_ticket_use_extension_notifications()
     {
         // Given ticket
-        $ourTechnicTicket = factory(OurTechnicTicket::class)->create();
+        $ourTechnicTicket = OurTechnicTicket::factory()->create();
 
         // When we call this method
         $this->trait_instance->generateOurTechnicTicketUseExtensionNotifications($ourTechnicTicket);
@@ -668,9 +668,9 @@ class NotificationGeneratorTest extends TestCase
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call generateBirthdayTodayNotifications()
         $this->trait_instance->generateBirthdayTodayNotifications(collect([$user3]));
@@ -693,9 +693,9 @@ class NotificationGeneratorTest extends TestCase
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call generateBirthdayTodayNotifications()
         $this->trait_instance->generateBirthdayTodayNotifications(collect([]));
@@ -711,9 +711,9 @@ class NotificationGeneratorTest extends TestCase
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
         $birthdayDate = now()->addDays(7)->format('d.m.Y');
 
         // When we call generateBirthdayNextWeekNotifications()
@@ -737,9 +737,9 @@ class NotificationGeneratorTest extends TestCase
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call generateBirthdayNextWeekNotifications()
         $this->trait_instance->generateBirthdayNextWeekNotifications(collect([]));

@@ -18,7 +18,7 @@ class ManualMaterialTest extends TestCase
     {
         $this->actingAs(User::find(19));
 
-        $attr = factory(ManualMaterialCategoryAttribute::class, 4)->create();
+        $attr = ManualMaterialCategoryAttribute::factory()->count(4)->create();
         $mat_name = $this->faker()->words(3, true);
         $request = [
             'name' => $mat_name,
@@ -47,7 +47,7 @@ class ManualMaterialTest extends TestCase
     /** @test */
     public function it_replaces_comme_even_when_stored_in_code()
     {
-        $param = factory(ManualMaterialParameter::class)->create(['value' => '123,4']);
+        $param = ManualMaterialParameter::factory()->create(['value' => '123,4']);
 
         $this->assertEquals(123.4, $param->value);
     }

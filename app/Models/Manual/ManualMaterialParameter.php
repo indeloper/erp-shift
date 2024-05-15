@@ -2,11 +2,14 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualMaterialParameter extends Model
 {
+    use HasFactory;
+
     use SoftDeletes;
 
     protected $fillable = ['attr_id', 'mat_id', 'value'];

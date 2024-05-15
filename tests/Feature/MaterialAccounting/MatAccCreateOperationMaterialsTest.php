@@ -19,7 +19,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
     {
         $basesCount = MaterialAccountingBase::count();
 
-        $operation = factory(MaterialAccountingOperation::class)->create([
+        $operation = MaterialAccountingOperation::factory()->create([
             'type' => 1, // arrival
             'planned_date_from' => Carbon::today()->subDays(5)->format('d.m.Y'),
             'planned_date_to' => Carbon::today()->format('d.m.Y'),
@@ -56,13 +56,13 @@ class MatAccCreateOperationMaterialsTest extends TestCase
     {
         $basesCount = MaterialAccountingBase::count();
 
-        $operationArrival = factory(MaterialAccountingOperation::class)->create([
+        $operationArrival = MaterialAccountingOperation::factory()->create([
             'type' => 1, // arrival
             'planned_date_from' => Carbon::today()->subDays(5)->format('d.m.Y'),
             'planned_date_to' => Carbon::today()->format('d.m.Y'),
         ]);
 
-        $operation = factory(MaterialAccountingOperation::class)->create([
+        $operation = MaterialAccountingOperation::factory()->create([
             'type' => 2, // write off
             'planned_date_from' => Carbon::today()->subDays(5)->format('d.m.Y'),
             'planned_date_to' => Carbon::today()->format('d.m.Y'),
@@ -101,13 +101,13 @@ class MatAccCreateOperationMaterialsTest extends TestCase
     {
         $basesCount = MaterialAccountingBase::count();
 
-        $operationArrival = factory(MaterialAccountingOperation::class)->create([
+        $operationArrival = MaterialAccountingOperation::factory()->create([
             'type' => 1, // arrival
             'planned_date_from' => Carbon::today()->subDays(5)->format('d.m.Y'),
             'planned_date_to' => Carbon::today()->format('d.m.Y'),
         ]);
 
-        $operation = factory(MaterialAccountingOperation::class)->create([
+        $operation = MaterialAccountingOperation::factory()->create([
             'type' => 4, // moving
             'planned_date_from' => Carbon::today()->subDays(5)->format('d.m.Y'),
             'planned_date_to' => Carbon::today()->format('d.m.Y'),
@@ -158,13 +158,13 @@ class MatAccCreateOperationMaterialsTest extends TestCase
     {
         $basesCount = MaterialAccountingBase::count();
 
-        $operationArrival = factory(MaterialAccountingOperation::class)->create([
+        $operationArrival = MaterialAccountingOperation::factory()->create([
             'type' => 1, // arrival
             'planned_date_from' => Carbon::today()->subDays(5)->format('d.m.Y'),
             'planned_date_to' => Carbon::today()->format('d.m.Y'),
         ]);
 
-        $operation = factory(MaterialAccountingOperation::class)->create([
+        $operation = MaterialAccountingOperation::factory()->create([
             'type' => 3, // transformation
             'planned_date_from' => Carbon::today()->subDays(5)->format('d.m.Y'),
             'planned_date_to' => Carbon::today()->format('d.m.Y'),

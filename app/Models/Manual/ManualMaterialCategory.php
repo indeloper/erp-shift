@@ -2,6 +2,7 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Documentable;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 class ManualMaterialCategory extends Model
 {
+    use HasFactory;
+
     use Documentable, Reviewable, SoftDeletes;
 
     protected $fillable = ['name', 'description', 'category_unit', 'formula'];

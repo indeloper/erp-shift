@@ -2,6 +2,7 @@
 
 namespace App\Models\TechAcc\Defects;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
@@ -17,6 +18,8 @@ use Illuminate\Support\Carbon;
 
 class Defects extends Model
 {
+    use HasFactory;
+
     use Commentable, Documentable, Notificationable, SoftDeletes, Taskable;
 
     protected $fillable = [

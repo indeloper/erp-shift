@@ -38,7 +38,7 @@ class ProjectTest extends TestCase
         // Given no projects
         Project::query()->delete();
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When user make post request with data
         $data = [];
@@ -53,12 +53,12 @@ class ProjectTest extends TestCase
     {
         Project::query()->delete();
         // Given object
-        $object = factory(ProjectObject::class)->create(['short_name' => 'NAMETAG']);
+        $object = ProjectObject::factory()->create(['short_name' => 'NAMETAG']);
         // Given two projects collection
-        $firstCollection = factory(Project::class, 10)->create(['object_id' => $object->id]);
-        $secondCollection = factory(Project::class, 10)->create(['object_id' => $object->id]);
+        $firstCollection = Project::factory()->count(10)->create(['object_id' => $object->id]);
+        $secondCollection = Project::factory()->count(10)->create(['object_id' => $object->id]);
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When user make post request with data
         $data = [];
@@ -77,12 +77,12 @@ class ProjectTest extends TestCase
     {
         Project::query()->delete();
         // Given object
-        $object = factory(ProjectObject::class)->create(['short_name' => 'NAMETAG']);
+        $object = ProjectObject::factory()->create(['short_name' => 'NAMETAG']);
         // Given projects
-        $firstCollection = factory(Project::class, 10)->create(['object_id' => $object->id]);
-        $project = factory(Project::class)->create();
+        $firstCollection = Project::factory()->count(10)->create(['object_id' => $object->id]);
+        $project = Project::factory()->create();
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When user make post request with data
         $data = ['selected' => $project->id];
@@ -102,10 +102,10 @@ class ProjectTest extends TestCase
     {
         Project::query()->delete();
         // Given projects
-        $firstCollection = factory(Project::class, 10)->create(['name' => 'AS ALWAYS ШПУНТ']);
-        $project = factory(Project::class)->create(['name' => 'NEW FRESH NAME']);
+        $firstCollection = Project::factory()->count(10)->create(['name' => 'AS ALWAYS ШПУНТ']);
+        $project = Project::factory()->create(['name' => 'NEW FRESH NAME']);
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When user make post request with data
         $data = ['q' => 'NEW'];
@@ -124,12 +124,12 @@ class ProjectTest extends TestCase
     {
         Project::query()->delete();
         // Given object !!! In this case I'll use short name, but it also can search by name and address of object
-        $object = factory(ProjectObject::class)->create(['short_name' => 'NAMETAG']);
+        $object = ProjectObject::factory()->create(['short_name' => 'NAMETAG']);
         // Given projects
-        $firstCollection = factory(Project::class, 10)->create(['object_id' => factory(ProjectObject::class)->create()->id]);
-        $project = factory(Project::class)->create(['object_id' => $object->id]);
+        $firstCollection = Project::factory()->count(10)->create(['object_id' => ProjectObject::factory()->create()->id]);
+        $project = Project::factory()->create(['object_id' => $object->id]);
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When user make post request with data
         $data = ['q' => mb_substr($object->short_name, 0, 6)];

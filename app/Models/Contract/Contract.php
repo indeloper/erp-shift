@@ -2,6 +2,7 @@
 
 namespace App\Models\Contract;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 
 class Contract extends Model
 {
+    use HasFactory;
+
     public $contract_status = [
         1 => 'В работе',
         2 => 'На согласовании',

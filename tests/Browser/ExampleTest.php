@@ -25,7 +25,7 @@ class ExampleTest extends DuskTestCase
 
     public function testNewCall()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $this->browse(function ($browser) use ($user) {
             $browser->visit('/login')
@@ -35,11 +35,11 @@ class ExampleTest extends DuskTestCase
                 ->assertPathIs('/users');
         });
 
-        $this->contractor = factory(Contractor::class)->create();
-        $this->contact = factory(ContractorContact::class)->create(['contractor_id' => $this->contractor->id]);
-        $this->object = factory(ProjectObject::class)->create();
-        $this->project = factory(Project::class)->create(['contractor_id' => $this->contractor, 'object_id' => $this->object]);
-        $this->task = factory(Task::class)->create(['responsible_user_id' => $user->id]);
+        $this->contractor = Contractor::factory()->create();
+        $this->contact = ContractorContact::factory()->create(['contractor_id' => $this->contractor->id]);
+        $this->object = ProjectObject::factory()->create();
+        $this->project = Project::factory()->create(['contractor_id' => $this->contractor, 'object_id' => $this->object]);
+        $this->task = Task::factory()->create(['responsible_user_id' => $user->id]);
 
         $this->browse(function ($browser) {
             $browser->visit('/tasks/new_call/'.$this->task->id.'?contractor_id='.$this->contractor->id.'&contact_id='.$this->contact->id.'&project_id='.$this->project->id)

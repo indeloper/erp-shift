@@ -2,6 +2,7 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTankOperation extends Model
 {
+    use HasFactory;
+
     use Documentable;
     use SoftDeletes;
 

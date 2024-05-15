@@ -20,7 +20,7 @@ class CommentTest extends TestCase
     /** @test */
     public function it_can_associate_ticket()
     {
-        $ticket = factory(OurTechnicTicket::class)->create();
+        $ticket = OurTechnicTicket::factory()->create();
 
         $this->post(route('comments.store'), [
             'comment' => 'hi',
@@ -35,7 +35,7 @@ class CommentTest extends TestCase
     /** @test */
     public function it_can_associate_defects()
     {
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         $this->post(route('comments.store'), [
             'comment' => 'hi',
@@ -50,7 +50,7 @@ class CommentTest extends TestCase
     /** @test */
     public function it_can_attach_files()
     {
-        $files = factory(FileEntry::class, 5)->create();
+        $files = FileEntry::factory()->count(5)->create();
 
         $this->post(route('comments.store'), [
             'comment' => $this->faker()->sentence,
@@ -63,8 +63,8 @@ class CommentTest extends TestCase
     /** @test */
     public function it_deletes_files_with_comment()
     {
-        $comment = factory(Comment::class)->create();
-        $files = factory(FileEntry::class, 6)->create();
+        $comment = Comment::factory()->create();
+        $files = FileEntry::factory()->count(6)->create();
         $comment->documents()->saveMany($files);
 
         $this->delete(route('comments.destroy', $comment->id))->assertStatus(200);
@@ -75,9 +75,9 @@ class CommentTest extends TestCase
     /** @test */
     public function it_can_update_comment()
     {
-        $comment = factory(Comment::class)->create();
-        $files = factory(FileEntry::class, 5)->create();
-        $new_files = factory(FileEntry::class, 2)->create();
+        $comment = Comment::factory()->create();
+        $files = FileEntry::factory()->count(5)->create();
+        $new_files = FileEntry::factory()->count(2)->create();
         $comment->files()->saveMany($files);
 
         $new_comment_text = $this->faker()->sentence;

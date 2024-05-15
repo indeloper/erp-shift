@@ -36,7 +36,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     public function it_can_store_ticket_report() //store
     {
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $this->ourTechnicTicket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->make([
                     'our_technic_ticket_id' => $this->ourTechnicTicket->id,
                 ])
@@ -50,7 +50,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_can_update_ticket_report() //update
     {
-        $old_ticket = factory(OurTechnicTicketReport::class)
+        $old_ticket = OurTechnicTicketReport::factory()
             ->create([
                 'our_technic_ticket_id' => $this->ourTechnicTicket->id,
             ]);
@@ -71,7 +71,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_can_destroy_ticket_report() //delete
     {
-        $ticket_need_delete = factory(OurTechnicTicketReport::class, 2)
+        $ticket_need_delete = OurTechnicTicketReport::factory()->count(2)
             ->create([
                 'our_technic_ticket_id' => $this->ourTechnicTicket->id,
                 'user_id' => $this->response_user,
@@ -96,7 +96,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
         ]);
 
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $ticket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->raw([
                     'our_technic_ticket_id' => $ticket->id,
                 ])
@@ -119,7 +119,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
         ]);
 
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $ticket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->raw([
                     'our_technic_ticket_id' => $ticket->id,
                 ])
@@ -145,7 +145,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
         $task->save();
 
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $ticket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->raw([
                     'our_technic_ticket_id' => $ticket->id,
                     'date' => $date->isoFormat('YYYY-MM-DD'),
@@ -242,7 +242,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
         $task->created_at = $date;
         $task->save();
 
-        factory(OurTechnicTicketReport::class)
+        OurTechnicTicketReport::factory()
             ->create([
                 'our_technic_ticket_id' => $ticket->id,
                 'date' => $date->isoFormat('YYYY-MM-DD'),

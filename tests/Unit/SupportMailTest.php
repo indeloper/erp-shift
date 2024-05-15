@@ -13,15 +13,15 @@ class SupportMailTest extends TestCase
     public function main_scope_order_support_mails_in_right_way()
     {
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $this->actingAs($user);
         // Given support mails
-        $supportMail1 = factory(SupportMail::class)->create(['status' => 'new']);
-        $supportMail2 = factory(SupportMail::class)->create(['status' => 'in_work']);
-        $supportMail3 = factory(SupportMail::class)->create(['status' => 'matching']);
-        $supportMail4 = factory(SupportMail::class)->create(['status' => 'resolved']);
-        $supportMail5 = factory(SupportMail::class)->create(['status' => 'accept']);
-        $supportMail6 = factory(SupportMail::class)->create(['status' => 'decline']);
+        $supportMail1 = SupportMail::factory()->create(['status' => 'new']);
+        $supportMail2 = SupportMail::factory()->create(['status' => 'in_work']);
+        $supportMail3 = SupportMail::factory()->create(['status' => 'matching']);
+        $supportMail4 = SupportMail::factory()->create(['status' => 'resolved']);
+        $supportMail5 = SupportMail::factory()->create(['status' => 'accept']);
+        $supportMail6 = SupportMail::factory()->create(['status' => 'decline']);
 
         // When we use basic scope
         $result = SupportMail::basic(request())->get();
@@ -35,15 +35,15 @@ class SupportMailTest extends TestCase
     public function main_scope_work_with_request()
     {
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $this->actingAs($user);
         // Given support mails
-        $supportMail1 = factory(SupportMail::class)->create(['status' => 'new']);
-        $supportMail2 = factory(SupportMail::class)->create(['status' => 'in_work']);
-        $supportMail3 = factory(SupportMail::class)->create(['status' => 'matching']);
-        $supportMail4 = factory(SupportMail::class)->create(['status' => 'resolved']);
-        $supportMail5 = factory(SupportMail::class)->create(['status' => 'accept']);
-        $supportMail6 = factory(SupportMail::class)->create(['status' => 'decline']);
+        $supportMail1 = SupportMail::factory()->create(['status' => 'new']);
+        $supportMail2 = SupportMail::factory()->create(['status' => 'in_work']);
+        $supportMail3 = SupportMail::factory()->create(['status' => 'matching']);
+        $supportMail4 = SupportMail::factory()->create(['status' => 'resolved']);
+        $supportMail5 = SupportMail::factory()->create(['status' => 'accept']);
+        $supportMail6 = SupportMail::factory()->create(['status' => 'decline']);
         // Given request
         $request = Request::create('', 'GET', ['search' => $supportMail1->title]);
 

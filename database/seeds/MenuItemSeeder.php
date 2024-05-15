@@ -12,7 +12,7 @@ class MenuItemSeeder extends Seeder
      */
     public function run()
     {
-        $tasks = factory(MenuItem::class)->create([
+        $tasks = MenuItem::factory()->create([
             'title' => 'Задачи',
             'parent_id' => null,
             'route_name' => 'tasks::index',
@@ -28,7 +28,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $projects = factory(MenuItem::class)->create([
+        $projects = MenuItem::factory()->create([
             'title' => 'Проекты',
             'parent_id' => null,
             'route_name' => 'projects::index',
@@ -43,7 +43,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $commerce = factory(MenuItem::class)->create([
+        $commerce = MenuItem::factory()->create([
             'title' => 'Коммерция',
             'parent_id' => null,
             'route_name' => null,
@@ -64,7 +64,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $contractors = factory(MenuItem::class)->create([
+        $contractors = MenuItem::factory()->create([
             'title' => 'Контрагенты',
             'parent_id' => $commerce->id,
             'route_name' => 'contractors::index',
@@ -79,7 +79,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $objects = factory(MenuItem::class)->create([
+        $objects = MenuItem::factory()->create([
             'title' => 'Объекты',
             'parent_id' => $commerce->id,
             'route_name' => 'objects::base-template',
@@ -94,7 +94,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $manualMaterials = factory(MenuItem::class)->create([
+        $manualMaterials = MenuItem::factory()->create([
             'title' => 'Материалы',
             'parent_id' => $commerce->id,
             'route_name' => 'building::materials::index',
@@ -109,7 +109,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $manualWorks = factory(MenuItem::class)->create([
+        $manualWorks = MenuItem::factory()->create([
             'title' => 'Работы',
             'parent_id' => $commerce->id,
             'route_name' => 'building::works::index',
@@ -127,7 +127,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         $commercial_block_task_report_xlsx_export_access
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Отчет по задачам и КП',
                 'parent_id' => $commerce->id,
                 'route_name' => 'tasks.filter-tasks-report',
@@ -144,7 +144,7 @@ class MenuItemSeeder extends Seeder
                 'status' => true,
             ]);
 
-        $materials = factory(MenuItem::class)->create([
+        $materials = MenuItem::factory()->create([
             'title' => 'Строительство',
             'parent_id' => null,
             'route_name' => null,
@@ -168,7 +168,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         $material_accounting_operation_list_access
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Операции',
                 'parent_id' => $materials->id,
                 'route_name' => 'materials.operations.index',
@@ -184,7 +184,7 @@ class MenuItemSeeder extends Seeder
             ]);
 
         $material_accounting_material_list_access
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Материалы',
                 'parent_id' => $materials->id,
                 'route_name' => 'materials.index',
@@ -199,7 +199,7 @@ class MenuItemSeeder extends Seeder
                 'status' => true,
             ]);
 
-        $material_supply_planning_access = factory(MenuItem::class)->create([
+        $material_supply_planning_access = MenuItem::factory()->create([
             'title' => 'Планирование поставок',
             'parent_id' => $materials->id,
             'route_name' => 'materials.supply-planning.index',
@@ -215,7 +215,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         $material_accounting_material_table_access
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Табель учета материалов',
                 'parent_id' => $materials->id,
                 'route_name' => 'materials.table',
@@ -231,7 +231,7 @@ class MenuItemSeeder extends Seeder
             ]);
 
         $material_accounting_material_remains_report_access
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Остатки материалов',
                 'parent_id' => $materials->id,
                 'route_name' => 'materials.remains',
@@ -247,7 +247,7 @@ class MenuItemSeeder extends Seeder
             ]);
 
         $material_accounting_objects_remains_report_access
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Остатки на объектах',
                 'parent_id' => $materials->id,
                 'route_name' => 'materials.objects.remains',
@@ -263,7 +263,7 @@ class MenuItemSeeder extends Seeder
             ]);
 
         $material_accounting_materials_standards_editing
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Эталоны',
                 'parent_id' => $materials->id,
                 'route_name' => 'materials.standards.index',
@@ -279,7 +279,7 @@ class MenuItemSeeder extends Seeder
             ]);
 
         $material_accounting_materials_types_editing
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Типы материалов',
                 'parent_id' => $materials->id,
                 'route_name' => 'materials.types.index',
@@ -294,7 +294,7 @@ class MenuItemSeeder extends Seeder
                 'status' => true,
             ]);
 
-        $technics_access_permission = factory(MenuItem::class)->create([
+        $technics_access_permission = MenuItem::factory()->create([
             'title' => 'Учет техники',
             'parent_id' => null,
             'route_name' => null,
@@ -308,7 +308,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $ourTechnicList = factory(MenuItem::class)->create([
+        $ourTechnicList = MenuItem::factory()->create([
             'title' => 'Список техники',
             'parent_id' => $technics_access_permission->id,
             'route_name' => 'building::tech_acc::technic::ourTechnicList::getPageCore',
@@ -323,7 +323,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $technics_movement_crud = factory(MenuItem::class)->create([
+        $technics_movement_crud = MenuItem::factory()->create([
             'title' => 'Перемещения техники',
             'parent_id' => $technics_access_permission->id,
             'route_name' => 'building::tech_acc::technic::movements::getPageCore',
@@ -343,7 +343,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         $technics_brands_models_categories_read_create_update_delete
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Категории техники',
                 'parent_id' => $technics_access_permission->id,
                 'route_name' => 'building::tech_acc::technic::technicCategory::getPageCore',
@@ -360,7 +360,7 @@ class MenuItemSeeder extends Seeder
                 'status' => true,
             ]);
 
-        $technicBrand = factory(MenuItem::class)->create([
+        $technicBrand = MenuItem::factory()->create([
             'title' => 'Марки техники',
             'parent_id' => $technics_access_permission->id,
             'route_name' => 'building::tech_acc::technic::technicBrand::getPageCore',
@@ -377,7 +377,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $technicBrandModel = factory(MenuItem::class)->create([
+        $technicBrandModel = MenuItem::factory()->create([
             'title' => 'Модели техники',
             'parent_id' => $technics_access_permission->id,
             'route_name' => 'building::tech_acc::technic::technicBrandModel::getPageCore',
@@ -394,7 +394,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $fuel = factory(MenuItem::class)->create([
+        $fuel = MenuItem::factory()->create([
             'title' => 'Учет топлива',
             'parent_id' => null,
             'route_name' => null,
@@ -412,7 +412,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $fuel_tanks_access = factory(MenuItem::class)->create([
+        $fuel_tanks_access = MenuItem::factory()->create([
             'title' => 'Топливные емкости',
             'parent_id' => $fuel->id,
             'route_name' => 'building::tech_acc::fuel::tanks::getPageCore',
@@ -427,7 +427,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $fuel_tank_flows_access = factory(MenuItem::class)->create([
+        $fuel_tank_flows_access = MenuItem::factory()->create([
             'title' => 'Топливный журнал',
             'parent_id' => $fuel->id,
             'route_name' => 'building::tech_acc::fuel::fuelFlow::getPageCore',
@@ -443,7 +443,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         $fuel_tank_operations_report_advanced_filter_settings_access
-            = factory(MenuItem::class)->create([
+            = MenuItem::factory()->create([
                 'title' => 'Отчет по топливу',
                 'parent_id' => $fuel->id,
                 'route_name' => 'building::tech_acc::fuel::reports::fuelTankPeriodReport::getPageCore',
@@ -457,7 +457,7 @@ class MenuItemSeeder extends Seeder
                 'status' => true,
             ]);
 
-        $fuel_tanks_movements_report_access = factory(MenuItem::class)->create([
+        $fuel_tanks_movements_report_access = MenuItem::factory()->create([
             'title' => 'Перемещение емкостей',
             'parent_id' => $fuel->id,
             'route_name' => 'building::tech_acc::fuel::reports::tanksMovementReport::getPageCore',
@@ -471,7 +471,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $documents = factory(MenuItem::class)->create([
+        $documents = MenuItem::factory()->create([
             'title' => 'Документооборот',
             'parent_id' => null,
             'route_name' => null,
@@ -496,7 +496,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $project_object_documents_access = factory(MenuItem::class)->create([
+        $project_object_documents_access = MenuItem::factory()->create([
             'title' => 'Площадка ⇆ Офис',
             'parent_id' => $documents->id,
             'route_name' => 'project-object-documents',
@@ -511,7 +511,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $project_documents = factory(MenuItem::class)->create([
+        $project_documents = MenuItem::factory()->create([
             'title' => 'Проектная документация',
             'parent_id' => $documents->id,
             'route_name' => 'project_documents::index',
@@ -526,7 +526,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $commercial_offers = factory(MenuItem::class)->create([
+        $commercial_offers = MenuItem::factory()->create([
             'title' => 'Коммерч. предложения',
             'parent_id' => $documents->id,
             'route_name' => 'commercial_offers::index',
@@ -541,7 +541,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $contracts = factory(MenuItem::class)->create([
+        $contracts = MenuItem::factory()->create([
             'title' => 'Договоры',
             'parent_id' => $documents->id,
             'route_name' => 'contracts::index',
@@ -556,7 +556,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $work_volumes = factory(MenuItem::class)->create([
+        $work_volumes = MenuItem::factory()->create([
             'title' => 'Объемы работ',
             'parent_id' => $documents->id,
             'route_name' => 'work_volumes::index',
@@ -571,7 +571,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $labor = factory(MenuItem::class)->create([
+        $labor = MenuItem::factory()->create([
             'title' => 'Охрана труда',
             'parent_id' => null,
             'route_name' => null,
@@ -589,7 +589,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $labor_safety_order_creation = factory(MenuItem::class)->create([
+        $labor_safety_order_creation = MenuItem::factory()->create([
             'title' => 'Заявки и приказы',
             'parent_id' => $labor->id,
             'route_name' => 'labor-safety.orders-and-requests.index',
@@ -603,7 +603,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $labor_safety_order_types_editing = factory(MenuItem::class)->create([
+        $labor_safety_order_types_editing = MenuItem::factory()->create([
             'title' => 'Шаблоны приказов',
             'parent_id' => $labor->id,
             'route_name' => 'labor-safety.order-types.index',
@@ -617,7 +617,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $is_su = factory(MenuItem::class)->create([
+        $is_su = MenuItem::factory()->create([
             'title' => 'Администрирование',
             'parent_id' => null,
             'route_name' => null,
@@ -632,7 +632,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $notifications = factory(MenuItem::class)->create([
+        $notifications = MenuItem::factory()->create([
             'title' => 'Рассылка уведомлений',
             'parent_id' => $is_su->id,
             'route_name' => 'admin.notifications',
@@ -643,7 +643,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $accounting_data = factory(MenuItem::class)->create([
+        $accounting_data = MenuItem::factory()->create([
             'title' => 'Проверка мат. учета',
             'parent_id' => $is_su->id,
             'route_name' => 'admin.validate-material-accounting_data',
@@ -654,7 +654,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $permissions = factory(MenuItem::class)->create([
+        $permissions = MenuItem::factory()->create([
             'title' => 'Управление доступами',
             'parent_id' => $is_su->id,
             'route_name' => 'admin.permissions',
@@ -665,7 +665,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $permissions = factory(MenuItem::class)->create([
+        $permissions = MenuItem::factory()->create([
             'title' => 'Роли пользователей',
             'parent_id' => $is_su->id,
             'route_name' => 'admin.permissions',
@@ -676,7 +676,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        $permissions = factory(MenuItem::class)->create([
+        $permissions = MenuItem::factory()->create([
             'title' => 'Шаблоны телеграм',
             'parent_id' => $is_su->id,
             'route_name' => 'admin.telegram-route-templates::getPageCore',
@@ -687,7 +687,7 @@ class MenuItemSeeder extends Seeder
             'status' => false,
         ]);
 
-        $users = factory(MenuItem::class)->create([
+        $users = MenuItem::factory()->create([
             'title' => 'Сотрудники',
             'parent_id' => null,
             'route_name' => 'users::index',
@@ -702,7 +702,7 @@ class MenuItemSeeder extends Seeder
             'status' => true,
         ]);
 
-        //        $support = factory(MenuItem::class)->create([
+        //        $support = MenuItem::factory()->create([
         //            'title'      => 'Техническая поддержка',
         //            'parent_id'  => null,
         //            'route_name' => 'support::index',

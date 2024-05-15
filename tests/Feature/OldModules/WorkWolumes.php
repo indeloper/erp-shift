@@ -17,12 +17,12 @@ class WorkWolumes extends TestCase
     public function when_we_store_work_volume_with_tongue_name_that_already_exist_request_should_return_errors()
     {
         // Given user
-        $user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given project
-        $project = factory(Project::class)->create();
+        $project = Project::factory()->create();
         // Given tongue work volume with name
         $name = 'FIRST';
-        $work_volume = factory(WorkVolume::class)->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 0]);
+        $work_volume = WorkVolume::factory()->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 0]);
 
         // When we make post-request with data
         $data = [
@@ -41,12 +41,12 @@ class WorkWolumes extends TestCase
     public function when_we_store_work_volume_with_pile_name_that_already_exist_request_should_return_errors()
     {
         // Given user
-        $user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given project
-        $project = factory(Project::class)->create();
+        $project = Project::factory()->create();
         // Given pile work volume with name
         $name = 'FIRST';
-        $work_volume = factory(WorkVolume::class)->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 1]);
+        $work_volume = WorkVolume::factory()->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 1]);
 
         // When we make post-request with data
         $data = [
@@ -65,13 +65,13 @@ class WorkWolumes extends TestCase
     public function when_we_store_work_volume_with_both_names_already_exist_request_should_return_errors()
     {
         // Given user
-        $user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given project
-        $project = factory(Project::class)->create();
+        $project = Project::factory()->create();
         // Given tongue and pile work volumes with name
         $name = 'FIRST';
-        $work_volume_tongue = factory(WorkVolume::class)->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 0]);
-        $work_volume_pile = factory(WorkVolume::class)->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 1]);
+        $work_volume_tongue = WorkVolume::factory()->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 0]);
+        $work_volume_pile = WorkVolume::factory()->create(['user_id' => $user->id, 'project_id' => $project->id, 'option' => $name, 'type' => 1]);
 
         // When we make post-request with data
         $data = [

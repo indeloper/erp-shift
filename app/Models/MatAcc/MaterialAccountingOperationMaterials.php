@@ -2,6 +2,7 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Comment;
 use App\Models\Manual\ManualMaterial;
 use App\Models\Task;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 
 class MaterialAccountingOperationMaterials extends Model
 {
+    use HasFactory;
+
     use SoftDeletes;
 
     protected $fillable = [

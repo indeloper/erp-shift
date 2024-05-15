@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Menu\MenuItem;
 use App\Models\Notifications\NotificationsForUsers;
@@ -28,6 +29,8 @@ use function morphos\Russian\inflectName;
 
 class User extends Authenticatable
 {
+    use HasFactory;
+
     use DefaultSortable, DevExtremeDataSourceLoadable, Logable, Messagable, Notifiable, Reviewable, TicketResponsibleUser;
 
     public $defaultSortOrder = [

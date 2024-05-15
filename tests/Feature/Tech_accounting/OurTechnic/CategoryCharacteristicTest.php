@@ -17,16 +17,16 @@ class CategoryCharacteristicTest extends TestCase
     {
         parent::setUp();
 
-        $this->characteristic = factory(CategoryCharacteristic::class)->create();
+        $this->characteristic = CategoryCharacteristic::factory()->create();
     }
 
     /** @test */
     public function this_can_have_own_set_of_technic_category()
     {
-        $firstCharacteristic = factory(CategoryCharacteristic::class)->create();
-        $secondCharacteristic = factory(CategoryCharacteristic::class)->create();
+        $firstCharacteristic = CategoryCharacteristic::factory()->create();
+        $secondCharacteristic = CategoryCharacteristic::factory()->create();
 
-        $technic = factory(TechnicCategory::class)->create();
+        $technic = TechnicCategory::factory()->create();
 
         $technic->addCharacteristic([$firstCharacteristic, $secondCharacteristic]);
 
@@ -34,7 +34,7 @@ class CategoryCharacteristicTest extends TestCase
 
         // different technic not equal
 
-        $anotherTechnic = factory(TechnicCategory::class)->create();
+        $anotherTechnic = TechnicCategory::factory()->create();
 
         $anotherTechnic->addCharacteristic($firstCharacteristic);
 

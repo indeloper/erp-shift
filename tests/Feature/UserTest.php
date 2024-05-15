@@ -25,9 +25,9 @@ class UserTest extends TestCase
     {
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we use whoHaveBirthdayToday() scope
         $result = User::whoHaveBirthdayToday()->get();
@@ -44,9 +44,9 @@ class UserTest extends TestCase
     {
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subMonth()->subYear()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subMonth()->subYears(2)->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subMonth()->subYear()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subMonth()->subYears(2)->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we use whoHaveBirthdayToday() scope
         $result = User::whoHaveBirthdayToday()->get();
@@ -60,9 +60,9 @@ class UserTest extends TestCase
     {
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->addWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->addWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->addWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->addWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we use whoHaveBirthdayNextWeek() scope
         $result = User::whoHaveBirthdayNextWeek()->get();
@@ -79,9 +79,9 @@ class UserTest extends TestCase
     {
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subMonth()->subYear()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subMonth()->subYears(2)->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subMonth()->subYear()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subMonth()->subYears(2)->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we use whoHaveBirthdayNextWeek() scope
         $result = User::whoHaveBirthdayNextWeek()->get();
@@ -94,8 +94,8 @@ class UserTest extends TestCase
     public function user_can_have_job_category()
     {
         // Given user with job category
-        $jobCategory = factory(JobCategory::class)->create();
-        $user = factory(User::class)->create(['job_category_id' => $jobCategory->id]);
+        $jobCategory = JobCategory::factory()->create();
+        $user = User::factory()->create(['job_category_id' => $jobCategory->id]);
 
         // Then ...
         // User should have jobCategory relation
@@ -109,10 +109,10 @@ class UserTest extends TestCase
     public function user_can_have_report_group_through_job_category()
     {
         // Given report group
-        $reportGroup = factory(ReportGroup::class)->create();
+        $reportGroup = ReportGroup::factory()->create();
         // Given user with job category
-        $jobCategory = factory(JobCategory::class)->create(['report_group_id' => $reportGroup]);
-        $user = factory(User::class)->create(['job_category_id' => $jobCategory->id]);
+        $jobCategory = JobCategory::factory()->create(['report_group_id' => $reportGroup]);
+        $user = User::factory()->create(['job_category_id' => $jobCategory->id]);
 
         // Then ...
         // User should have reportGroup relation
@@ -156,9 +156,9 @@ class UserTest extends TestCase
         // Given user without permission
         $user = User::whereIn('group_id', [5, 6, 8])->inRandomOrder()->first();
         // Given user
-        $changedUser = factory(User::class)->create();
+        $changedUser = User::factory()->create();
         // Given job category
-        $jobCategory = factory(JobCategory::class)->create();
+        $jobCategory = JobCategory::factory()->create();
 
         // When user make post request with any data
         $data = [
@@ -183,7 +183,7 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', []))->json();
@@ -209,8 +209,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['first_name' => 'Arthur', 'last_name' => 'Pirozhkov']);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['first_name' => 'Arthur', 'last_name' => 'Pirozhkov']);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?name={$user->name}"]))->json();
@@ -236,9 +236,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['first_name' => 'Lupa', 'last_name' => 'Pupin']);
-        $user2 = factory(User::class)->create(['first_name' => 'Pupa', 'last_name' => 'Lupin']);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['first_name' => 'Lupa', 'last_name' => 'Pupin']);
+        $user2 = User::factory()->create(['first_name' => 'Pupa', 'last_name' => 'Lupin']);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index').'?name=pup']))->json();
@@ -265,9 +265,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['first_name' => 'Tik', 'last_name' => 'Tok']);
-        $user2 = factory(User::class)->create(['first_name' => 'Cat', 'last_name' => 'Concat']);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['first_name' => 'Tik', 'last_name' => 'Tok']);
+        $user2 = User::factory()->create(['first_name' => 'Cat', 'last_name' => 'Concat']);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?name%5B0%5D={$user1->first_name}&name%5B1%5D={$user2->last_name}"]))->json();
@@ -295,8 +295,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create();
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create();
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?email={$user->email}"]))->json();
@@ -322,9 +322,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create();
-        $user2 = factory(User::class)->create();
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?email%5B0%5D={$user1->email}&email%5B1%5D={$user2->email}"]))->json();
@@ -351,8 +351,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['department_id' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['department_id' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?department_id={$user->department_id}"]))->json();
@@ -378,9 +378,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['department_id' => 555]);
-        $user2 = factory(User::class)->create(['department_id' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['department_id' => 555]);
+        $user2 = User::factory()->create(['department_id' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?department_id%5B0%5D={$user1->department_id}&department_id%5B1%5D={$user2->department_id}"]))->json();
@@ -407,8 +407,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['group_id' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['group_id' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?group_id={$user->group_id}"]))->json();
@@ -434,9 +434,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['group_id' => 555]);
-        $user2 = factory(User::class)->create(['group_id' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['group_id' => 555]);
+        $user2 = User::factory()->create(['group_id' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?group_id%5B0%5D={$user1->group_id}&group_id%5B1%5D={$user2->group_id}"]))->json();
@@ -463,8 +463,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['company' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['company' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?company={$user->company}"]))->json();
@@ -490,9 +490,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['company' => 555]);
-        $user2 = factory(User::class)->create(['company' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['company' => 555]);
+        $user2 = User::factory()->create(['company' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?company%5B0%5D={$user1->company}&company%5B1%5D={$user2->company}"]))->json();
@@ -519,8 +519,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['job_category_id' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['job_category_id' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?job_category_id={$user->job_category_id}"]))->json();
@@ -546,9 +546,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['job_category_id' => 555]);
-        $user2 = factory(User::class)->create(['job_category_id' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['job_category_id' => 555]);
+        $user2 = User::factory()->create(['job_category_id' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?job_category_id%5B0%5D={$user1->job_category_id}&job_category_id%5B1%5D={$user2->job_category_id}"]))->json();
@@ -575,8 +575,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['person_phone' => 98765432101]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['person_phone' => 98765432101]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index').'?person_phone=765432']))->json();
@@ -602,9 +602,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['person_phone' => 555]);
-        $user2 = factory(User::class)->create(['person_phone' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['person_phone' => 555]);
+        $user2 = User::factory()->create(['person_phone' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?person_phone%5B0%5D={$user1->person_phone}&person_phone%5B1%5D={$user2->person_phone}"]))->json();
@@ -631,8 +631,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['work_phone' => 98765432101]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['work_phone' => 98765432101]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index').'?work_phone=765432']))->json();
@@ -658,9 +658,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user1 = factory(User::class)->create(['work_phone' => 555]);
-        $user2 = factory(User::class)->create(['work_phone' => 777]);
+        $users = User::factory()->count(5)->create();
+        $user1 = User::factory()->create(['work_phone' => 555]);
+        $user2 = User::factory()->create(['work_phone' => 777]);
 
         // When we make post request
         $response = $this->actingAs($user1)->post(route('users::paginated', ['url' => route('users::index')."?work_phone%5B0%5D={$user1->work_phone}&work_phone%5B1%5D={$user2->work_phone}"]))->json();
@@ -687,8 +687,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['birthday' => now()->subYears(25)->format('d-m-Y')]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['birthday' => now()->subYears(25)->format('d-m-Y')]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?birthday={$user->birthday}|"]))->json();
@@ -714,8 +714,8 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['birthday' => now()->subYears(10)->format('d-m-Y')]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['birthday' => now()->subYears(10)->format('d-m-Y')]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?birthday=|{$user->birthday}"]))->json();
@@ -741,9 +741,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create(['birthday' => now()->subYears(20)->format('d-m-Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(10)->format('d-m-Y')]);
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create(['birthday' => now()->subYears(20)->format('d-m-Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(10)->format('d-m-Y')]);
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?birthday={$user2->birthday}|{$user->birthday}"]))->json();
@@ -768,9 +768,9 @@ class UserTest extends TestCase
     public function user_can_be_appointed_to_project()
     {
         // Given project
-        $project = factory(Project::class)->create();
+        $project = Project::factory()->create();
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When we add user on project
         $project->users()->save($user);
@@ -784,10 +784,10 @@ class UserTest extends TestCase
     public function user_can_have_many_appoints_to_projects()
     {
         // Given projects
-        $project1 = factory(Project::class)->create();
-        $project2 = factory(Project::class)->create();
+        $project1 = Project::factory()->create();
+        $project2 = Project::factory()->create();
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // When we add user on projects
         $project1->users()->save($user);
@@ -805,10 +805,10 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 5)->create();
-        $user = factory(User::class)->create();
+        $users = User::factory()->count(5)->create();
+        $user = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Attach users to object
         $object->users()->attach($users->pluck('id')->toArray());
 
@@ -836,12 +836,12 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 2)->create();
-        $users2 = factory(User::class, 2)->create();
-        $user = factory(User::class)->create();
+        $users = User::factory()->count(2)->create();
+        $users2 = User::factory()->count(2)->create();
+        $user = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
-        $object2 = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
+        $object2 = ProjectObject::factory()->create();
         // Attach users to object
         $object->users()->attach($users->pluck('id')->toArray());
         $object2->users()->attach($users2->pluck('id')->toArray());
@@ -870,12 +870,12 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given users
-        $users = factory(User::class, 2)->create();
-        $users2 = factory(User::class, 2)->create();
-        $user = factory(User::class)->create();
+        $users = User::factory()->count(2)->create();
+        $users2 = User::factory()->count(2)->create();
+        $user = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
-        $object2 = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
+        $object2 = ProjectObject::factory()->create();
 
         // When we make post request
         $response = $this->actingAs($user)->post(route('users::paginated', ['url' => route('users::index')."?project_object_id%5B0%5D={$object->id}&project_object_id%5B1%5D={$object2->id}"]))->json();
@@ -899,9 +899,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given brigade
-        $brigade = factory(Brigade::class)->create();
+        $brigade = Brigade::factory()->create();
         // Given user from this brigade
-        $user = factory(User::class)->create(['brigade_id' => $brigade->id]);
+        $user = User::factory()->create(['brigade_id' => $brigade->id]);
 
         // Then user should have brigade() relation
         $this->assertInstanceOf(Brigade::class, $user->brigade);
@@ -915,9 +915,9 @@ class UserTest extends TestCase
         // Given no users
         User::query()->delete();
         // Given user
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         // Given brigades where user is foreman
-        $brigade = factory(Brigade::class)->create(['foreman_id' => $user->id]);
+        $brigade = Brigade::factory()->create(['foreman_id' => $user->id]);
 
         // Then user should have brigades() relation
         $this->assertEquals($brigade->id, $user->brigades->first()->id);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 
 class ProjectObject extends Model
 {
+    use HasFactory;
+
     use DefaultSortable, DevExtremeDataSourceLoadable, Logable, SmartSearchable;
 
     protected $guarded = ['id'];

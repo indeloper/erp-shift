@@ -23,8 +23,8 @@ class FuelTankOperationRequest extends TestCase
     /** @test */
     public function it_stores_valid_request()
     {
-        $test_request = factory(FuelTankOperation::class)->raw();
-        $test_request['file_ids'] = factory(FileEntry::class, 2)->create(['mime' => 'video'])->pluck('id');
+        $test_request = FuelTankOperation::factory()->raw();
+        $test_request['file_ids'] = FileEntry::factory()->count(2)->create(['mime' => 'video'])->pluck('id');
 
         $this->post(route('building::tech_acc::fuel_tank_operations.store'), $test_request)->assertSessionDoesntHaveErrors()->assertStatus(200);
 
@@ -34,7 +34,7 @@ class FuelTankOperationRequest extends TestCase
     /** @test */
     public function it_destroys_operation_by_id()
     {
-        $operation = factory(FuelTankOperation::class)->create();
+        $operation = FuelTankOperation::factory()->create();
 
         $this->delete(route('building::tech_acc::fuel_tank_operations.destroy', $operation->id))->assertStatus(200);
 
@@ -44,8 +44,8 @@ class FuelTankOperationRequest extends TestCase
     /** @test */
     public function it_updates_operation_with_valid_request()
     {
-        $operation = factory(FuelTankOperation::class)->create();
-        $test_request = factory(FuelTankOperation::class)->raw();
+        $operation = FuelTankOperation::factory()->create();
+        $test_request = FuelTankOperation::factory()->raw();
 
         $this->put(route('building::tech_acc::fuel_tank_operations.update', $operation->id), $test_request)->assertStatus(200);
 
@@ -56,13 +56,13 @@ class FuelTankOperationRequest extends TestCase
     /** @test */
     public function it_updates_operation_with_files()
     {
-        $operation = factory(FuelTankOperation::class)->create();
+        $operation = FuelTankOperation::factory()->create();
 
-        $file_to_stay = factory(FileEntry::class)->create();
-        $operation->attachFiles(factory(FileEntry::class, 5)->create()->pluck('id')->merge($file_to_stay->id));
+        $file_to_stay = FileEntry::factory()->create();
+        $operation->attachFiles(FileEntry::factory()->count(5)->create()->pluck('id')->merge($file_to_stay->id));
 
-        $test_request = factory(FuelTankOperation::class)->raw();
-        $test_request['file_ids'] = factory(FileEntry::class, 5)->create()->pluck('id')->merge($file_to_stay->id);
+        $test_request = FuelTankOperation::factory()->raw();
+        $test_request['file_ids'] = FileEntry::factory()->count(5)->create()->pluck('id')->merge($file_to_stay->id);
 
         $this->put(route('building::tech_acc::fuel_tank_operations.update', $operation->id), $test_request)->assertStatus(200);
 
@@ -73,9 +73,9 @@ class FuelTankOperationRequest extends TestCase
     /** @test */
     public function it_also_attaches_files_with_valid_request()
     {
-        $test_request = factory(FuelTankOperation::class)->raw();
-        $test_request['file_ids'] = factory(FileEntry::class, 3)->create()->pluck('id');
-        $test_request['file_ids'] = $test_request['file_ids']->merge(factory(FileEntry::class, 2)->create(['mime' => 'video'])->pluck('id'));
+        $test_request = FuelTankOperation::factory()->raw();
+        $test_request['file_ids'] = FileEntry::factory()->count(3)->create()->pluck('id');
+        $test_request['file_ids'] = $test_request['file_ids']->merge(FileEntry::factory()->count(2)->create(['mime' => 'video'])->pluck('id'));
 
         $this->post(route('building::tech_acc::fuel_tank_operations.store'), $test_request)->assertStatus(200);
 
@@ -91,7 +91,7 @@ class FuelTankOperationRequest extends TestCase
             'fuel_tank_id' => $this->faker->randomNumber(3),
             'author_id' => 1,
             'object_id' => ProjectObject::inRandomOrder()->first()->id,
-            'our_technic_id' => factory(OurTechnic::class)->create(),
+            'our_technic_id' => OurTechnic::factory()->create(),
             'value' => $this->faker->randomFloat(3, 0, 300),
             'type' => 1,
             'description' => $this->faker->text(),
@@ -109,7 +109,7 @@ class FuelTankOperationRequest extends TestCase
     {
         $this->withExceptionHandling();
         $this->actingAs(User::active()->take(2)->get()->last());
-        $test_request = factory(FuelTankOperation::class)->raw();
+        $test_request = FuelTankOperation::factory()->raw();
 
         $this->post(route('building::tech_acc::fuel_tank_operations.store'), $test_request)->assertSessionDoesntHaveErrors()->assertStatus(403);
 
@@ -119,7 +119,7 @@ class FuelTankOperationRequest extends TestCase
     /** @test */
     public function it_deletes_operation_on_method()
     {
-        $operation = factory(FuelTankOperation::class)->create();
+        $operation = FuelTankOperation::factory()->create();
         $this->delete(route('building::tech_acc::fuel_tank_operations.destroy', $operation->id))->assertStatus(200);
 
         $this->assertSoftDeleted($operation);
@@ -132,14 +132,14 @@ class FuelTankOperationRequest extends TestCase
 
         $this->withExceptionHandling();
 
-        $operation = factory(FuelTankOperation::class)->create();
+        $operation = FuelTankOperation::factory()->create();
         $this->delete(route('building::tech_acc::fuel_tank_operations.destroy', $operation->id))->assertStatus(403);
     }
 
     /** @test */
     public function it_returns_full_data_on_show_method()
     {
-        $operation = factory(FuelTankOperation::class)->state('income')->create();
+        $operation = FuelTankOperation::factory()->income()->create();
 
         $response = $this->get(route('building::tech_acc::fuel_tank_operations.show', $operation->id))
             ->assertStatus(200);
@@ -150,7 +150,7 @@ class FuelTankOperationRequest extends TestCase
     /** @test */
     public function it_paginate_results_for_index()
     {
-        $all_operations = factory(FuelTankOperation::class, 11)->create();
+        $all_operations = FuelTankOperation::factory()->count(11)->create();
 
         $response = $this->get(route('building::tech_acc::fuel_tank_operations.index', ['page' => 2]))->assertStatus(200);
 

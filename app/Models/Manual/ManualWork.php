@@ -2,12 +2,15 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualWork extends Model
 {
+    use HasFactory;
+
     use Reviewable, SoftDeletes;
 
     protected $fillable = ['work_group_id', 'name', 'description', 'price_per_unit', 'unit', 'unit_per_days', 'nds', 'show_material', 'is_copied'];

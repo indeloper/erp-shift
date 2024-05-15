@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Documentable;
 use App\Traits\RussianShortDates;
 use Carbon\Carbon;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Blade;
 
 class Comment extends Model
 {
+    use HasFactory;
+
     use Documentable;
     use RussianShortDates;
 

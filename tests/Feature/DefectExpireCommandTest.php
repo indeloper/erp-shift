@@ -26,16 +26,16 @@ class DefectExpireCommandTest extends TestCase
         parent::setUp();
 
         // Given user
-        $this->user = User::whereIn('group_id', [46, 47, 48])->where('is_deleted', 0)->first() ?? factory(User::class)->create(['group_id' => 47]);
+        $this->user = User::whereIn('group_id', [46, 47, 48])->where('is_deleted', 0)->first() ?? User::factory()->create(['group_id' => 47]);
         // Given four defects
         // One that will expire soon
-        $this->defect1 = factory(Defects::class)->create(['responsible_user_id' => $this->user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()]);
+        $this->defect1 = Defects::factory()->create(['responsible_user_id' => $this->user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()]);
         // Second with normal dates
-        $this->defect2 = factory(Defects::class)->create(['responsible_user_id' => $this->user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(1)]);
+        $this->defect2 = Defects::factory()->create(['responsible_user_id' => $this->user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(1)]);
         // Third is closed
-        $this->defect3 = factory(Defects::class)->create(['responsible_user_id' => $this->user->id, 'status' => 4, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(2)]);
+        $this->defect3 = Defects::factory()->create(['responsible_user_id' => $this->user->id, 'status' => 4, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(2)]);
         // Fourth is in diagnosis
-        $this->defect4 = factory(Defects::class)->create(['responsible_user_id' => $this->user->id, 'status' => 2]);
+        $this->defect4 = Defects::factory()->create(['responsible_user_id' => $this->user->id, 'status' => 2]);
     }
 
     /** @test */

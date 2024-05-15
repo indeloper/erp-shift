@@ -2,11 +2,14 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualMaterial extends Model
 {
+    use HasFactory;
+
     use SoftDeletes;
 
     protected $fillable = ['name', 'description', 'category_id', 'passport_file', 'buy_cost', 'use_cost', 'manual_reference_id'];

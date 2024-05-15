@@ -2,6 +2,7 @@
 
 namespace App\Models\TechAcc;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Vehicles\OurVehicles;
 use App\Models\User;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurTechnicTicket extends Model
 {
+    use HasFactory;
+
     use Commentable;
     use Notificationable;
     use NotificationGenerator;

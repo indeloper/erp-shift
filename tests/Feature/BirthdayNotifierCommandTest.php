@@ -23,9 +23,9 @@ class BirthdayNotifierCommandTest extends TestCase
     public function when_we_call_command_some_notifications_should_generate_today_birthday()
     {
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call notify:send command
         $this->artisan('birthday:check');
@@ -42,9 +42,9 @@ class BirthdayNotifierCommandTest extends TestCase
     public function when_we_call_command_some_notifications_should_generate_next_week_birthday()
     {
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->addWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->addWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->addWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->addWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call notify:send command
         $this->artisan('birthday:check');
@@ -61,9 +61,9 @@ class BirthdayNotifierCommandTest extends TestCase
     public function when_we_call_command_some_notifications_should_generate_mixed()
     {
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->addWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->addWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call notify:send command
         $this->artisan('birthday:check');

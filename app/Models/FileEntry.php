@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class FileEntry extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['filename', 'size', 'mime', 'original_filename', 'user_id', 'documentable_id', 'documentable_type'];
 
     protected $appends = ['source_link', 'label', 'name'];

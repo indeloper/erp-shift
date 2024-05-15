@@ -2,11 +2,14 @@
 
 namespace App\Models\Contractors;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\ProjectContact;
 use Illuminate\Database\Eloquent\Model;
 
 class ContractorContact extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'first_name', 'last_name', 'patronymic', 'position', 'email', 'phone_number', 'note', 'contractor_id',
     ];

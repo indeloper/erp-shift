@@ -22,7 +22,7 @@ class MatAccPartToBaseTest extends TestCase
     {
         $basesCount = MaterialAccountingBase::count();
 
-        $operation = factory(MaterialAccountingOperation::class)->create([
+        $operation = MaterialAccountingOperation::factory()->create([
             'type' => 1, // arrival
         ]);
 
