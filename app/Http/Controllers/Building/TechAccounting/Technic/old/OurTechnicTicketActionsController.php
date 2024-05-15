@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 class OurTechnicTicketActionsController extends Controller
 {
     use NotificationGenerator;
+
     // 1338
     public function close(Request $request, OurTechnicTicket $ourTechnicTicket)
     {
@@ -26,18 +27,19 @@ class OurTechnicTicketActionsController extends Controller
         $ourTechnicTicket->close();
 
         $ourTechnicTicket->comments()->create([
-            'comment' => 'Отметка об окончании использования техники. Комментарий пользователя: ' . $request->comment,
+            'comment' => 'Отметка об окончании использования техники. Комментарий пользователя: '.$request->comment,
             'author_id' => Auth::user()->id,
-            'system' => 1
+            'system' => 1,
         ]);
 
         DB::commit();
 
         return response()->json([
             'status' => 'success',
-            'data' => $ourTechnicTicket->loadAllMissingRelations()
+            'data' => $ourTechnicTicket->loadAllMissingRelations(),
         ]);
     }
+
     // 1339
     public function request_extension(Request $request, OurTechnicTicket $ourTechnicTicket)
     {
@@ -46,31 +48,32 @@ class OurTechnicTicketActionsController extends Controller
         DB::beginTransaction();
 
         $comment = $ourTechnicTicket->comments()->create([
-            'comment' => 'Запрос продления использования техники. Комментарий пользователя: ' . $request->comment,
+            'comment' => 'Запрос продления использования техники. Комментарий пользователя: '.$request->comment,
             'author_id' => Auth::user()->id,
             'system' => 1,
         ]);
 
         $task = $ourTechnicTicket->tasks()->create([
             'name' => 'Запрос продления использования техники.',
-            'description' => 'Предыдущая дата: '  . Carbon::parse($ourTechnicTicket->usage_to_date)->format('d.m.Y') . '. Новая дата: ' . $request->usage_to_date . '. Комментарий: ' . $comment->comment . '.',
+            'description' => 'Предыдущая дата: '.Carbon::parse($ourTechnicTicket->usage_to_date)->format('d.m.Y').'. Новая дата: '.$request->usage_to_date.'. Комментарий: '.$comment->comment.'.',
             'responsible_user_id' => $ourTechnicTicket->users()->wherePivot('type', 1)->first()->id,
             'expired_at' => Carbon::now()->addHours(8),
-            'status' => 27
+            'status' => 27,
         ]);
 
         $task->changing_fields()->create([
             'field_name' => 'usage_to_date',
-            'value' => $request->usage_to_date
+            'value' => $request->usage_to_date,
         ]);
 
         DB::commit();
 
         return response()->json([
             'status' => 'success',
-            'data' => $ourTechnicTicket->loadAllMissingRelations()
+            'data' => $ourTechnicTicket->loadAllMissingRelations(),
         ]);
     }
+
     // 1340, 1341
     public function agree_extension(Request $request, OurTechnicTicket $ourTechnicTicket)
     {
@@ -88,7 +91,7 @@ class OurTechnicTicketActionsController extends Controller
             TechnicUsageExtensionRequestApprovalNotice::send(
                 $ourTechnicTicket->users()->ofType('usage_resp_user_id')->first()->id,
                 [
-                    'name' => "Продление до ". $task->changing_fields->where('field_name', 'usage_to_date')->first()->value .
+                    'name' => 'Продление до '.$task->changing_fields->where('field_name', 'usage_to_date')->first()->value.
                               " по заявке № $ourTechnicTicket->id согласовано.",
                     'additional_info' => "\nСсылка на заявку: ",
                     'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
@@ -105,7 +108,7 @@ class OurTechnicTicketActionsController extends Controller
             TechnicUsageExtensionRequestRejectionNotice::send(
                 $ourTechnicTicket->users()->ofType('usage_resp_user_id')->first()->id,
                 [
-                    'name' => "Продление до ". $task->changing_fields->where('field_name','usage_to_date')->first()->value .
+                    'name' => 'Продление до '.$task->changing_fields->where('field_name', 'usage_to_date')->first()->value.
                               " по заявке № $ourTechnicTicket->id отклонено с комментарием: $task->final_note",
                     'additional_info' => "\nСсылка на заявку: ",
                     'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
@@ -121,7 +124,7 @@ class OurTechnicTicketActionsController extends Controller
         $task->refresh();
 
         $ourTechnicTicket->comments()->create([
-            'comment' => ($task->get_result . ' Комментарий: ' .$task->final_note),
+            'comment' => ($task->get_result.' Комментарий: '.$task->final_note),
             'author_id' => Auth::user()->id,
             'system' => 1,
         ]);

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['prefix' => 'notifications', 'as' => 'notifications::', 'namespace' => "Common"], function () {
+Route::group(['prefix' => 'notifications', 'as' => 'notifications::', 'namespace' => 'Common'], function () {
     Route::get('/', 'NotificationController@index')->name('index');
     Route::get('/items', 'NotificationController@items')->name('items');
     Route::post('/settings/items', 'NotificationController@settings')->name('settings::items');

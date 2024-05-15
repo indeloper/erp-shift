@@ -4,34 +4,46 @@ namespace App\Http\Controllers\Tasks;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequests\TaskCreateRequest;
-use App\Notifications\Task\StandardTaskCreationNotice;
-use App\Models\{FileEntry, Group, Notification\Notification, Project, SupportMail, Task, TaskFile, TaskRedirect, User};
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
+use App\Models\FileEntry;
+use App\Models\Group;
+use App\Models\Notification\Notification;
+use App\Models\Project;
+use App\Models\SupportMail;
+use App\Models\Task;
+use App\Models\TaskFile;
+use App\Models\TaskRedirect;
+use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
+use App\Notifications\Task\StandardTaskCreationNotice;
 use App\Services\Commerce\ProjectDashboardService;
 use App\Services\Tasks\Reports\TasksXLSXReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, DB, File, Storage};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use ReflectionClass;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TasksController extends Controller
 {
-
     public function index(Request $request)
     {
-        if(!Auth::user()->can('dashbord') && !Auth::user()->can('tasks')) return abort(403);
+        if (! Auth::user()->can('dashbord') && ! Auth::user()->can('tasks')) {
+            return abort(403);
+        }
 
         $tasks = Task::query()
             ->where(function ($query) {
                 $query->orWhere('tasks.is_solved', 0);
 
-                $query->orWhere(function ($query){
+                $query->orWhere(function ($query) {
                     $query->whereNotNull('tasks.revive_at')
-                        ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())') );
+                        ->where(DB::Raw('date(tasks.revive_at)'), '>', DB::Raw('date(now())'));
                 });
             })
             ->where('tasks.responsible_user_id', Auth::user()->id)
@@ -48,13 +60,13 @@ class TasksController extends Controller
                 'tasks.name',
                 'projects.name',
                 'project_objects.address',
-                'contractors.short_name'
+                'contractors.short_name',
             ], $request->search);
         }
 
         if ($request->has('name')) {
             $tasks = ($request->get('name') == 'asc') ? $tasks->orderBy('tasks.name') : $tasks->orderByDesc('tasks.name');
-        } else if ($request->has('date')) {
+        } elseif ($request->has('date')) {
             $tasks = $request->get('date') == 'asc' ? $tasks->orderBy('tasks.expired_at') : $tasks->orderByDesc('tasks.expired_at');
         } else {
             //default sorting
@@ -72,16 +84,15 @@ class TasksController extends Controller
                     ->where('status', '!=', 3)
                     ->select('status', 'type')
                     ->get(),
-                'offers' =>
-                    CommercialOffer::whereIn('commercial_offers.id', [DB::raw('select max(commercial_offers.id) from commercial_offers GROUP BY project_id, is_tongue')])
-                        ->where('status', '!=', 3)
-                        ->where('is_tongue', '!=', 2)
-                        ->select('status', 'is_tongue', 'id')
-                        ->get(),
+                'offers' => CommercialOffer::whereIn('commercial_offers.id', [DB::raw('select max(commercial_offers.id) from commercial_offers GROUP BY project_id, is_tongue')])
+                    ->where('status', '!=', 3)
+                    ->where('is_tongue', '!=', 2)
+                    ->select('status', 'is_tongue', 'id')
+                    ->get(),
                 'contracts' => Contract::whereIn('id', [DB::raw('select max(id) from contracts GROUP BY contract_id, type')])
                     ->where('status', '!=', 3)
                     ->select('status', 'contract_id', 'type')
-                    ->get()
+                    ->get(),
             ];
         } else {
             $data = [
@@ -105,40 +116,40 @@ class TasksController extends Controller
             $data['proj_stats'] = $proj_stats;
         }
 
-//        dd($data['work_volumes']->where('status', 1)->groupBy('project_id'));
+        //        dd($data['work_volumes']->where('status', 1)->groupBy('project_id'));
         //dd($data);
         return view('tasks.index', $data);
     }
 
-
     public function store(TaskCreateRequest $request)
     {
-        if (((Auth::user()->can('tasks_default_myself') && $request->responsible_user_id == Auth::user()->id)) or Auth::user()->is_su) {}
-        elseif ((Auth::user()->can('tasks_default_others') && $request->responsible_user_id != Auth::user()->id)) {}
-        else return abort(403);
+        if (((Auth::user()->can('tasks_default_myself') && $request->responsible_user_id == Auth::user()->id)) or Auth::user()->is_su) {
+        } elseif ((Auth::user()->can('tasks_default_others') && $request->responsible_user_id != Auth::user()->id)) {
+        } else {
+            return abort(403);
+        }
 
         DB::beginTransaction();
 
         $task = new Task();
 
-        $task->name  = $request->name;
-        $task->description  = $request->description;
-        $task->project_id  = $request->project_id;
-        $task->status  = 1;
-        $task->contractor_id  = $request->contractor_id;
+        $task->name = $request->name;
+        $task->description = $request->description;
+        $task->project_id = $request->project_id;
+        $task->status = 1;
+        $task->contractor_id = $request->contractor_id;
         $task->user_id = Auth::user()->id;
         $task->responsible_user_id = $request->responsible_user_id;
-        $task->expired_at  = new Carbon($request->expired_at);
+        $task->expired_at = new Carbon($request->expired_at);
 
         $task->save();
 
-
         if ($request->documents) {
-            foreach($request->documents as $document) {
+            foreach ($request->documents as $document) {
                 $file = new TaskFile();
 
                 $mime = $document->getClientOriginalExtension();
-                $file_name =  'task-' . $task->id . '/task_files-' . uniqid() . '.' . $mime;
+                $file_name = 'task-'.$task->id.'/task_files-'.uniqid().'.'.$mime;
 
                 Storage::disk('task_files')->put($file_name, File::get($document));
 
@@ -147,7 +158,7 @@ class TasksController extends Controller
                     'size' => $document->getSize(),
                     'mime' => $document->getClientMimeType(),
                     'original_filename' => $document->getClientOriginalName(),
-                    'user_id' => Auth::user()->id
+                    'user_id' => Auth::user()->id,
                 ]);
 
                 $file->file_name = $file_name;
@@ -182,15 +193,14 @@ class TasksController extends Controller
         return redirect()->route('tasks::index');
     }
 
-
     public function get_projects(Request $request)
     {
         $projects = Project::getAllProjects();
 
         if ($request->q) {
-            $projects = $projects->where('projects.name', 'like', '%' . $request->q . '%')
+            $projects = $projects->where('projects.name', 'like', '%'.$request->q.'%')
                 ->orWhere('contractors.short_name', 'like', "%{$request->q}%")
-                ->orWhere('project_objects.address', 'like', '%' . $request->q . '%');
+                ->orWhere('project_objects.address', 'like', '%'.$request->q.'%');
         }
 
         $projects_found_count = $projects->count();
@@ -199,23 +209,21 @@ class TasksController extends Controller
 
         $results[] = [
             'id' => '',
-            'text' => 'Показано ' . ($projects_found_count < 10 ? $projects_found_count : 10) . ' из ' . $projects_found_count . ' найденных',
+            'text' => 'Показано '.($projects_found_count < 10 ? $projects_found_count : 10).' из '.$projects_found_count.' найденных',
             'disabled' => true,
         ];
         foreach ($projects as $project) {
             $results[] = [
                 'id' => $project->id,
-                'text' =>
-                    'Контрагент: ' . $project->contractor_name
-                    . ". Адрес: " . mb_strimwidth($project->project_address, 0, 50, '...')
-//                    . ' "' . mb_strimwidth($project->name, 0, 40) . '"' //in case you also need project name. but it becomes a really mess with it.
+                'text' => 'Контрагент: '.$project->contractor_name
+                    .'. Адрес: '.mb_strimwidth($project->project_address, 0, 50, '...')
+                //                    . ' "' . mb_strimwidth($project->name, 0, 40) . '"' //in case you also need project name. but it becomes a really mess with it.
                 ,
             ];
         }
 
         return ['results' => $results];
     }
-
 
     public function get_users(Request $request)
     {
@@ -228,15 +236,15 @@ class TasksController extends Controller
 
         if ($request->q) {
             $groups = Group::where('name', $request->q)
-                ->orWhere('name', 'like', '%' . $request->q . '%')
+                ->orWhere('name', 'like', '%'.$request->q.'%')
                 ->pluck('id')
                 ->toArray();
 
-            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $request->q . '%')
-                ->orWhere(DB::raw('CONCAT(last_name, " ", first_name)'), 'like', '%' . $request->q . '%')
+            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$request->q.'%')
+                ->orWhere(DB::raw('CONCAT(last_name, " ", first_name)'), 'like', '%'.$request->q.'%')
                 ->orWhere('users.id', $request->q);
 
-            if (!empty($groups)) {
+            if (! empty($groups)) {
                 $users = $users->orWhereIn('group_id', [$groups]);
             }
         }
@@ -246,14 +254,13 @@ class TasksController extends Controller
         $results = [];
         foreach ($users as $user) {
             $results[] = [
-                 'id' => $user->id,
-                 'text' => trim($user->last_name . ' ' . $user->first_name . ' ' . $user->patronymic) . ', ' . $user->group_name,
-             ];
+                'id' => $user->id,
+                'text' => trim($user->last_name.' '.$user->first_name.' '.$user->patronymic).', '.$user->group_name,
+            ];
         }
 
         return ['results' => $results];
     }
-
 
     public function get_responsible_users(Request $request, $id)
     {
@@ -263,13 +270,13 @@ class TasksController extends Controller
 
         if ($request->q) {
             $groups = Group::where('name', $request->q)
-                ->orWhere('name', 'like', '%' . $request->q . '%')
+                ->orWhere('name', 'like', '%'.$request->q.'%')
                 ->pluck('id')
                 ->toArray();
 
-            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $request->q . '%');
+            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$request->q.'%');
 
-            if (!empty($groups)) {
+            if (! empty($groups)) {
                 $users = $users->orWhereIn('group_id', [$groups]);
             }
         }
@@ -279,24 +286,23 @@ class TasksController extends Controller
         $results = [];
         foreach ($users as $user) {
             $results[] = [
-                 'id' => $user->id,
-                 'text' => $user->full_name . ', Должность: ' . $user->group_name,
-             ];
+                'id' => $user->id,
+                'text' => $user->full_name.', Должность: '.$user->group_name,
+            ];
         }
 
         return ['results' => $results];
     }
-
 
     public function get_contractors(Request $request)
     {
         $contractors = Contractor::query();
 
         if ($request->q) {
-            $contractors = $contractors->where('full_name', 'like', '%' . trim($request->q) . '%')
-                ->orWhere('short_name', 'like', '%' . trim($request->q) . '%')
-                ->orWhere('inn', 'like', '%' . trim($request->q) . '%')
-                ->orWhere('kpp', 'like', '%' . trim($request->q) . '%');
+            $contractors = $contractors->where('full_name', 'like', '%'.trim($request->q).'%')
+                ->orWhere('short_name', 'like', '%'.trim($request->q).'%')
+                ->orWhere('inn', 'like', '%'.trim($request->q).'%')
+                ->orWhere('kpp', 'like', '%'.trim($request->q).'%');
         }
 
         $contractors = $contractors->where('in_archive', 0)->take(6)->get();
@@ -304,14 +310,13 @@ class TasksController extends Controller
         $results = [];
         foreach ($contractors as $contractor) {
             $results[] = [
-                 'id' => $contractor->id,
-                 'text' => $contractor->short_name . ', ИНН: ' . $contractor->inn,
-             ];
+                'id' => $contractor->id,
+                'text' => $contractor->short_name.', ИНН: '.$contractor->inn,
+            ];
         }
 
         return ['results' => $results];
     }
-
 
     public function card($id)
     {
@@ -346,7 +351,9 @@ class TasksController extends Controller
             ->leftJoin('users', 'users.id', '=', 'task_files.user_id')
             ->select(DB::raw('CONCAT(users.last_name, " ", users.first_name, " ", users.patronymic) AS full_name'), 'task_files.*');
 
-        if ($this->isWorkAgreementTask($task)) { $ticket_files = SupportMail::findOrFail($task->target_id)->files; }
+        if ($this->isWorkAgreementTask($task)) {
+            $ticket_files = SupportMail::findOrFail($task->target_id)->files;
+        }
 
         $task_redirects = TaskRedirect::where('task_id', $id);
 
@@ -363,7 +370,6 @@ class TasksController extends Controller
         ]);
     }
 
-
     public function solve(Request $request, $id)
     {
         $task = Task::findOrFail($id);
@@ -372,11 +378,11 @@ class TasksController extends Controller
         $task->is_solved = 1;
 
         if ($request->documents) {
-            foreach($request->documents as $document) {
+            foreach ($request->documents as $document) {
                 $file = new TaskFile();
 
                 $mime = $document->getClientOriginalExtension();
-                $file_name =  'task-' . $task->id . '/task_files-' . uniqid() . '.' . $mime;
+                $file_name = 'task-'.$task->id.'/task_files-'.uniqid().'.'.$mime;
 
                 Storage::disk('task_files')->put($file_name, File::get($document));
 
@@ -385,7 +391,7 @@ class TasksController extends Controller
                     'size' => $document->getSize(),
                     'mime' => $document->getClientMimeType(),
                     'original_filename' => $document->getClientOriginalName(),
-                    'user_id' => Auth::user()->id
+                    'user_id' => Auth::user()->id,
                 ]);
 
                 $file->file_name = $file_name;
@@ -403,14 +409,15 @@ class TasksController extends Controller
         return redirect()->route('tasks::index');
     }
 
-
     public function update_resp_user(Request $request, $id)
     {
         $task = Task::findOrFail($id);
 
-        if (((Auth::user()->can('tasks_default_others') && $request->responsible_user_id != Auth::user()->id)) or Auth::user()->is_su) {}
-        elseif ((Auth::user()->can('tasks_default_myself') && $request->responsible_user_id == Auth::user()->id)) {}
-        else return abort(403);
+        if (((Auth::user()->can('tasks_default_others') && $request->responsible_user_id != Auth::user()->id)) or Auth::user()->is_su) {
+        } elseif ((Auth::user()->can('tasks_default_myself') && $request->responsible_user_id == Auth::user()->id)) {
+        } else {
+            return abort(403);
+        }
 
         $task_redirect = new TaskRedirect();
 
@@ -430,9 +437,10 @@ class TasksController extends Controller
 
     public function redirect()
     {
-        if (!(Auth::user()->can('tasks') || Auth::user()->can('dashbord'))) {
+        if (! (Auth::user()->can('tasks') || Auth::user()->can('dashbord'))) {
             return redirect()->route('notifications::index');
         }
+
         return redirect()->route('tasks::index');
     }
 
@@ -460,25 +468,25 @@ class TasksController extends Controller
     public function searchProjects(Request $request)
     {
         $important_projects = Project::with(['object', 'contractor', 'com_offers']);
-//            ->whereHas('com_offers', function ($q) {
-//                $q->whereIn('status', [4, 5]);
-//            });
-            if ($request->search) {
-                $important_projects = $important_projects->where(function ($query) use ($request) {
-                    $query->orWhereHas('object', function ($q) use ($request) {
-                        $q->where('short_name', 'like', '%' . $request->search . '%');
-                    })
+        //            ->whereHas('com_offers', function ($q) {
+        //                $q->whereIn('status', [4, 5]);
+        //            });
+        if ($request->search) {
+            $important_projects = $important_projects->where(function ($query) use ($request) {
+                $query->orWhereHas('object', function ($q) use ($request) {
+                    $q->where('short_name', 'like', '%'.$request->search.'%');
+                })
                     ->orWhereHas('contractor', function ($q) use ($request) {
-                        $q->where('short_name', 'like', '%' . $request->search . '%');
+                        $q->where('short_name', 'like', '%'.$request->search.'%');
                     });
-                });
+            });
 
-            } else {
-                $important_projects = $important_projects->whereHas('object', function ($q) {
-                    $q->orderBy('updated_at', 'desc');
-                    $q->whereNotNull('short_name');
-                });
-            }
+        } else {
+            $important_projects = $important_projects->whereHas('object', function ($q) {
+                $q->orderBy('updated_at', 'desc');
+                $q->whereNotNull('short_name');
+            });
+        }
 
         $important_projects = $important_projects->limit(8)
             ->get();
@@ -491,17 +499,17 @@ class TasksController extends Controller
         return $proj_stats;
     }
 
-    public function showTasksReportFilterForm(Request $request){
+    public function showTasksReportFilterForm(Request $request)
+    {
         return view('tasks.filter-tasks-report');
     }
 
-    public function downloadTasksReport(Request $request){
+    public function downloadTasksReport(Request $request)
+    {
         $filterOptions = json_decode($request->input('filterOptions'));
         $reportType = json_decode($request->input('reportType'))->reportType;
 
-
-
-        if ($reportType == "tasks") {
+        if ($reportType == 'tasks') {
             $tasks = (new Task)
                 ->dxLoadOptions($filterOptions)
                 ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
@@ -537,7 +545,7 @@ class TasksController extends Controller
                 ->distinct()
                 ->get()
                 ->toArray();
-        } elseif ($reportType == "tasksAndMaterials") {
+        } elseif ($reportType == 'tasksAndMaterials') {
             $tasks = (new Task)
                 ->dxLoadOptions($filterOptions)
                 ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
@@ -559,7 +567,7 @@ class TasksController extends Controller
                     'commercial_offers.id AS commercial_offers_id',
                     'commercial_offers.option AS commercial_offers_title',
                     DB::Raw("CASE `commercial_offer_material_splits`.`material_type` WHEN 'regular' THEN `manual_materials`.`name` WHEN 'complect' THEN `work_volume_material_complects`.`name` END AS `material_name`"),
-                    'commercial_offer_material_splits.count AS material_count'
+                    'commercial_offer_material_splits.count AS material_count',
                 ])
                 ->where(function ($query) {
                     $query->orWhere('tasks.is_solved', 0);
@@ -582,8 +590,6 @@ class TasksController extends Controller
                 ->groupBy(['id', 'commercial_offers_id'])
                 ->toArray();
         }
-
-
 
         return (new TasksXLSXReport($tasks, $reportType))->export();
     }

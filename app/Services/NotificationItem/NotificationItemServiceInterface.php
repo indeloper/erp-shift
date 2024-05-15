@@ -10,7 +10,6 @@ use Illuminate\Support\Collection;
 
 interface NotificationItemServiceInterface
 {
-
     public function store(
         string $class,
         string $description,
@@ -25,5 +24,4 @@ interface NotificationItemServiceInterface
         int $userId,
         NotificationSettingsData $data
     );
-
 }

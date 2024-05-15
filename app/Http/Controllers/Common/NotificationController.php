@@ -15,11 +15,11 @@ use App\Services\Notification\NotificationServiceInterface;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
 use App\Services\System\NotificationService;
 use Illuminate\Support\Facades\DB;
+
 use function auth;
 
 class NotificationController extends Controller
 {
-
     private $notificationService;
 
     private $notificationItemService;
@@ -28,7 +28,7 @@ class NotificationController extends Controller
         NotificationServiceInterface $notificationService,
         NotificationItemServiceInterface $notificationItemService
     ) {
-        $this->notificationService     = $notificationService;
+        $this->notificationService = $notificationService;
         $this->notificationItemService = $notificationItemService;
     }
 
@@ -101,5 +101,4 @@ class NotificationController extends Controller
 
         return redirect($url);
     }
-
 }

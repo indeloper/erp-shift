@@ -46,13 +46,13 @@ class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
     {
         $fuelTanksAwaitingMovingConfirmation = FuelTank::where('awaiting_confirmation', 1)->get();
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
-        foreach($fuelTanksAwaitingMovingConfirmation as $tank) {
+        foreach ($fuelTanksAwaitingMovingConfirmation as $tank) {
 
             NewFuelTankResponsibleNotification::send(
                 $tank->responsible_id,
                 [
                     'name' => (new FuelNotifications)->renderNewFuelTankResponsible($tank),
-                    'tank_id' => $tank->id
+                    'tank_id' => $tank->id,
                 ]
             );
 
@@ -75,12 +75,10 @@ class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
                         'tank' => $tank,
                         'lastTankTransferHistory' => $lastTankTransferHistory,
                         'newResponsible' => $newResponsible,
-                        'previousResponsible' => $previousResponsible
+                        'previousResponsible' => $previousResponsible,
                     ]
                 );
             }
         }
     }
-
-
 }

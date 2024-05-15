@@ -19,12 +19,12 @@ class FuelDialogs
         $tank = FuelTank::find(json_decode($event['data'])->eventId);
         $user = User::where('chat_id', $event['from']['id'])->first();
 
-        if(!$tank->awaiting_confirmation) {
+        if (! $tank->awaiting_confirmation) {
             DefaultNotification::send(
                 $user->id,
                 [
-                    'name' => 'Подтверждение об изменении ответственного топливной емкости № ' . $tank->tank_number . ' не требуется',
-                    'tank_id' => $tank->id
+                    'name' => 'Подтверждение об изменении ответственного топливной емкости № '.$tank->tank_number.' не требуется',
+                    'tank_id' => $tank->id,
                 ]
             );
         }
@@ -43,7 +43,7 @@ class FuelDialogs
     {
         $chatMessage = json_decode($tank->chat_message_tmp);
 
-        if(!$chatMessage) {
+        if (! $chatMessage) {
             return [];
         }
 
@@ -79,7 +79,7 @@ class FuelDialogs
                 'name' => 'Перемещение топливной емкости',
                 'tank' => $tank,
                 'lastTankTransferHistory' => $lastTankTransferHistory,
-                'newResponsible' => $newResponsible
+                'newResponsible' => $newResponsible,
             ]
         );
     }
@@ -88,8 +88,7 @@ class FuelDialogs
     {
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
         foreach ($notificationRecipientsOffice as $userId) {
-            $user =  User::find($userId);
-
+            $user = User::find($userId);
 
             $lastTankTransferHistory = FuelTankTransferHistory::query()
                 ->where('fuel_tank_id', $tank->id)
@@ -107,7 +106,7 @@ class FuelDialogs
                     'tank' => $tank,
                     'lastTankTransferHistory' => $lastTankTransferHistory,
                     'newResponsible' => $newResponsible,
-                    'previousResponsible' => $previousResponsible
+                    'previousResponsible' => $previousResponsible,
                 ]
             );
         }

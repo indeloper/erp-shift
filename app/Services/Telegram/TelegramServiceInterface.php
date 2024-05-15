@@ -23,5 +23,4 @@ interface TelegramServiceInterface
         string $messageId,
         string $text
     );
-
 }

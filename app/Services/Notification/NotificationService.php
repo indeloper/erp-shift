@@ -16,24 +16,21 @@ use Illuminate\Support\Facades\Log;
 final class NotificationService implements NotificationServiceInterface
 {
     private $notificationRepository;
+
     private $userRepository;
+
     private $notificationItemService;
+
     public function __construct(
         NotificationRepositoryInterface $notificationRepository,
         UserRepositoryInterface $userRepository,
         NotificationItemServiceInterface $notificationItemService
-    )
-    {
+    ) {
         $this->notificationRepository = $notificationRepository;
         $this->userRepository = $userRepository;
         $this->notificationItemService = $notificationItemService;
     }
 
-    /**
-     * @param \App\Domain\DTO\Notification\NotificationData $data
-     *
-     * @return \App\Models\Notification\Notification
-     */
     public function store(NotificationData $data): Notification
     {
         return $this->notificationRepository->create(
@@ -41,11 +38,6 @@ final class NotificationService implements NotificationServiceInterface
         );
     }
 
-    /**
-     * @param  \App\Domain\DTO\Notification\NotificationData  $notificationData
-     *
-     * @return void
-     */
     public function sendNotify(NotificationData $notificationData): void
     {
         $user = $this->userRepository->getUserById(
@@ -58,18 +50,20 @@ final class NotificationService implements NotificationServiceInterface
 
         if ($notification === null) {
             Log::error('Нет такого уведомления');
+
             return;
         }
 
         if ($user === null) {
             Log::error('Нет пользователя для отправки уведомления');
+
             return;
         }
 
-//        if (!Gate::forUser($user)->any($notification->permissions->pluck('codename'))) {
-//            Log::error('Нет прав');
-//            return;
-//        }
+        //        if (!Gate::forUser($user)->any($notification->permissions->pluck('codename'))) {
+        //            Log::error('Нет прав');
+        //            return;
+        //        }
 
         $notificationClass = $notificationData->getClass();
 
@@ -115,7 +109,6 @@ final class NotificationService implements NotificationServiceInterface
 
     public function viewAll(int $id): void
     {
-       $this->notificationRepository->viewAll($id);
+        $this->notificationRepository->viewAll($id);
     }
-
 }

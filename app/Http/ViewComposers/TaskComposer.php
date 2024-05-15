@@ -18,7 +18,7 @@ class TaskComposer
 
         if (auth()->user()->disabledInSystemNotifications()->isNotEmpty()) {
             $notifications->whereRaw('CASE WHEN is_showing = 1 AND type IN ('.
-                implode(',', auth()->user()->disabledInSystemNotifications()->pluck('notification_id')->toArray()) .')
+                implode(',', auth()->user()->disabledInSystemNotifications()->pluck('notification_id')->toArray()).')
                 THEN 0 ELSE is_showing = 1 END');
         } else {
             $notifications->where('is_showing', 1);

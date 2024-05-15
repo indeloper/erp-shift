@@ -30,11 +30,15 @@ class MaterialAccountingOperationResponsibleUsersEvents
     {
         $operation = MaterialAccountingOperation::find($user->operation_id);
 
-        if ($operation->isConflict()) return;
+        if ($operation->isConflict()) {
+            return;
+        }
 
         // RP
         $additional_user = is_array($user->additional_info) ? false : $user->additional_info;
-        if ($additional_user == 'skip') return;
+        if ($additional_user == 'skip') {
+            return;
+        }
 
         /** Отправка уведомлений */
         $notificationClass = $this->operationIsDraft($operation) ?
@@ -67,7 +71,6 @@ class MaterialAccountingOperationResponsibleUsersEvents
         }
     }
 
-
     /**
      * Get the channels the event should broadcast on.
      *
@@ -80,49 +83,50 @@ class MaterialAccountingOperationResponsibleUsersEvents
 
     public function generateNotificationText($operation)
     {
-        if ($operation->status == 4) return;
+        if ($operation->status == 4) {
+            return;
+        }
         $typeLowered = mb_strtolower($operation->type_name);
 
-        if ($this->operationIsDraft($operation))
+        if ($this->operationIsDraft($operation)) {
             return $this->generateDraftOperationNotification($operation, $typeLowered);
+        }
 
         return $this->generateCreatedOperationNotification($operation, $typeLowered);
     }
-
 
     public function operationIsDraft($operation): bool
     {
         return $operation->status == 5;
     }
 
-
     public function operationIsMoving($operation): bool
     {
         return $operation->type == 4;
     }
 
-
     public function generateCreatedOperationNotification($operation, $typeLowered): string
     {
-        $text = "Запланирована новая операция {$typeLowered} материалов на объекте: {$operation->short_name};" .
-                " Период выполнения: {$operation->planned_date_from}" . (!in_array($operation->type, [2, 3]) ? " - {$operation->planned_date_to}" : '');
+        $text = "Запланирована новая операция {$typeLowered} материалов на объекте: {$operation->short_name};".
+                " Период выполнения: {$operation->planned_date_from}".(! in_array($operation->type, [2, 3]) ? " - {$operation->planned_date_to}" : '');
 
-        if ($this->operationIsMoving($operation))
-            $text = "Запланирована новая операция {$typeLowered} материалов c объекта {$operation->object_from->name_tag} на объект {$operation->object_to->name_tag};" .
+        if ($this->operationIsMoving($operation)) {
+            $text = "Запланирована новая операция {$typeLowered} материалов c объекта {$operation->object_from->name_tag} на объект {$operation->object_to->name_tag};".
                 " Период выполнения: {$operation->planned_date_from} - {$operation->planned_date_to}";
+        }
 
         return $text;
     }
 
-
     public function generateDraftOperationNotification($operation, $typeLowered): string
     {
-        $text = "Пользователь {$operation->author->long_full_name} запрашивает ваше согласование на {$typeLowered} материалов на объекте: {$operation->short_name};" .
-                " Период выполнения: {$operation->planned_date_from}" . (!in_array($operation->type, [2, 3]) ? " - {$operation->planned_date_to}" : '');
+        $text = "Пользователь {$operation->author->long_full_name} запрашивает ваше согласование на {$typeLowered} материалов на объекте: {$operation->short_name};".
+                " Период выполнения: {$operation->planned_date_from}".(! in_array($operation->type, [2, 3]) ? " - {$operation->planned_date_to}" : '');
 
-        if ($this->operationIsMoving($operation))
-            $text = "Пользователь {$operation->author->long_full_name} запрашивает ваше согласование на {$typeLowered} материалов c объекта {$operation->object_from->name_tag} на объект {$operation->object_to->name_tag};" .
+        if ($this->operationIsMoving($operation)) {
+            $text = "Пользователь {$operation->author->long_full_name} запрашивает ваше согласование на {$typeLowered} материалов c объекта {$operation->object_from->name_tag} на объект {$operation->object_to->name_tag};".
                 " Период выполнения: {$operation->planned_date_from} - {$operation->planned_date_to}";
+        }
 
         return $text;
     }

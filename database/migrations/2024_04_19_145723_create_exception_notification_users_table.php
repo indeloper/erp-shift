@@ -20,7 +20,6 @@ class CreateExceptionNotificationUsersTable extends Migration
 
             $table->unsignedInteger('user_id');
 
-
             $table->string('channel');
 
             $table->primary(['notification_item_id', 'user_id', 'channel'], 'primary_exception_notification_users');
@@ -36,7 +35,6 @@ class CreateExceptionNotificationUsersTable extends Migration
                 ->on('users')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
-
 
         });
     }

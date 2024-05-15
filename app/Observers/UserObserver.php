@@ -10,13 +10,13 @@ class UserObserver
     /**
      * Handle the user "stored" event.
      *
-     * @param  User  $user
      * @return void
      */
     public function saved(User $user)
     {
-        if ($this->isDeleted($user))
+        if ($this->isDeleted($user)) {
             return $this->notificationAfterUserRemove($user);
+        }
     }
 
     public function notificationAfterUserRemove($user)
@@ -24,7 +24,7 @@ class UserObserver
         NewTasksFromDeletedUserNotice::send(
             $user->role_codes,
             [
-                'name' => 'Пользователь ' . $user->long_full_name . ' был удалён из системы. С новыми задачами можно ознакомиться здесь: ',
+                'name' => 'Пользователь '.$user->long_full_name.' был удалён из системы. С новыми задачами можно ознакомиться здесь: ',
                 'additional_info' => ', со списком проектов: ',
                 'url' => route('users::card', $user->role_codes),
                 'tasks_url' => route('tasks::index'),

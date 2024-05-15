@@ -4,16 +4,19 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class MakeErpNotification extends Command
 {
     protected $signature = 'make:erp-notification {name?} {description?}';
+
     protected $description = 'Create an ERP notification with the given class name and description';
 
     protected $className;
+
     protected $bladeName;
+
     protected $notificationDescription;
 
     public function handle()
@@ -21,11 +24,11 @@ class MakeErpNotification extends Command
         $name = $this->argument('name');
         $description = $this->argument('description');
 
-        if (!$name) {
+        if (! $name) {
             $name = $this->ask('Введите имя для класса уведомления');
         }
 
-        if (!$description) {
+        if (! $description) {
             $description = $this->ask('Введите описание уведомления');
         }
 
@@ -74,6 +77,6 @@ class MakeErpNotification extends Command
 
     protected function getStub($filename)
     {
-        return file_get_contents(__DIR__ . '/Generators/stubs/notification/' . $filename);
+        return file_get_contents(__DIR__.'/Generators/stubs/notification/'.$filename);
     }
 }

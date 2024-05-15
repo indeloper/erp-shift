@@ -19,18 +19,18 @@ class FuelNotifications
 
     public function notifyAdminsAboutFuelBalanceMissmatches($data)
     {
-            $admins = User::where([
-                ['is_su', true],
-                ['chat_id', '<>', NULL],
-            ])->get();
+        $admins = User::where([
+            ['is_su', true],
+            ['chat_id', '<>', null],
+        ])->get();
 
-            $userIds = $admins->pluck('id')->toArray();
-            $data['name'] = 'Ошибка в топливных остатках';
+        $userIds = $admins->pluck('id')->toArray();
+        $data['name'] = 'Ошибка в топливных остатках';
 
-            FuelTanksLevelCheckNotification::send(
-                $userIds,
-                $data
-            );
+        FuelTanksLevelCheckNotification::send(
+            $userIds,
+            $data
+        );
     }
 
     public function renderNewFuelTankResponsible(FuelTank $tank)
@@ -47,7 +47,6 @@ class FuelNotifications
         $previousResponsibleFIO = $previousResponsible->format('L f. p.', 'родительный') ?? null;
         $previousResponsibleUrl = $previousResponsible->getExternalUserUrl();
 
-
         $fromObject = ProjectObject::find(
             $lastFuelHistoryTransfer->previous_object_id
         )->short_name ?? null;
@@ -62,5 +61,4 @@ class FuelNotifications
             'toObject'
         ));
     }
-
 }

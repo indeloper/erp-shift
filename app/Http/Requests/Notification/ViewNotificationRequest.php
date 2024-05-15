@@ -24,7 +24,7 @@ class ViewNotificationRequest extends FormRequest
     public function rules()
     {
         return [
-            'notify_id' => ['required', 'exists:notifications,id']
+            'notify_id' => ['required', 'exists:notifications,id'],
         ];
     }
 }

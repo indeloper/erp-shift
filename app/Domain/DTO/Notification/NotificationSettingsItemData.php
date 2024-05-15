@@ -6,7 +6,6 @@ namespace App\Domain\DTO\Notification;
 
 final class NotificationSettingsItemData
 {
-
     private $id;
 
     private $mail;
@@ -21,10 +20,10 @@ final class NotificationSettingsItemData
         bool $telegram,
         bool $system
     ) {
-        $this->id       = $id;
-        $this->mail     = $mail;
+        $this->id = $id;
+        $this->mail = $mail;
         $this->telegram = $telegram;
-        $this->system   = $system;
+        $this->system = $system;
     }
 
     public function getId(): int
@@ -46,5 +45,4 @@ final class NotificationSettingsItemData
     {
         return $this->system;
     }
-
 }

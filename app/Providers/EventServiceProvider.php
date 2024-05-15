@@ -22,13 +22,13 @@ class EventServiceProvider extends ServiceProvider
         'project.created' => [
             '\App\Events\ProjectEvents@projectCreated',
         ],
-//        NotificationCreated::class => [
-//            NotificationCreatedListener::class,
-//        ]
+        //        NotificationCreated::class => [
+        //            NotificationCreatedListener::class,
+        //        ]
 
         TelegramNotificationEvent::class => [
-            TelegramNotificationListener::class
-        ]
+            TelegramNotificationListener::class,
+        ],
     ];
 
     /**

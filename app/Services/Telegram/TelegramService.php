@@ -25,8 +25,7 @@ final class TelegramService implements TelegramServiceInterface
     public function __construct(
         Api $api,
         UserRepositoryInterface $userRepository
-    )
-    {
+    ) {
         $this->telegram = $api;
         $this->userRepository = $userRepository;
     }
@@ -38,13 +37,13 @@ final class TelegramService implements TelegramServiceInterface
                 $data->getNotificationData()->getUserId()
             );
 
-
             return $this->telegram->sendMessage([
                 'chat_id' => $user->chat_id,
                 'text' => $data->getNotificationData()->getName(),
             ]);
         } catch (\Throwable $throwable) {
             Log::error($throwable->getMessage());
+
             return null;
         }
     }
@@ -59,16 +58,17 @@ final class TelegramService implements TelegramServiceInterface
             );
 
             return $this->telegram->sendMessage([
-                     'chat_id' => $user->chat_id,
-                     'parse_mode' => 'HTML',
-                     'reply_markup' => $data->getKeyboard() ?? json_encode(['inline_keyboard' => []]),
-                     'text' => view($pathView, [
-                         'notificationData' => $data->getNotificationData(),
-                     ])->render(),
-                 ]);
+                'chat_id' => $user->chat_id,
+                'parse_mode' => 'HTML',
+                'reply_markup' => $data->getKeyboard() ?? json_encode(['inline_keyboard' => []]),
+                'text' => view($pathView, [
+                    'notificationData' => $data->getNotificationData(),
+                ])->render(),
+            ]);
 
         } catch (\Throwable $throwable) {
             Log::error($throwable->getMessage());
+
             return null;
         }
     }
@@ -95,11 +95,10 @@ final class TelegramService implements TelegramServiceInterface
                 'message_id' => $messageId,
                 'parse_mode' => 'HTML',
                 'reply_markup' => json_encode(['inline_keyboard' => []]),
-                'text' => $text
+                'text' => $text,
             ]);
         } catch (\Throwable $throwable) {
             Log::error($throwable->getMessage());
         }
     }
-
 }

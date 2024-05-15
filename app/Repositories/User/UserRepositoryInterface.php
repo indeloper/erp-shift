@@ -8,11 +8,5 @@ use App\Models\User;
 
 interface UserRepositoryInterface
 {
-
-    /**
-     * @param int $userId
-     *
-     * @return \App\Models\User
-     */
     public function getUserById(int $userId): ?User;
 }

@@ -13,7 +13,6 @@ class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification exten
 
     const DESCRIPTION = 'Уведомление для ответственных в офисе о задержке подтверждения перемещения топливного бака';
 
-
     public function toMail($notifiable)
     {
         return (new MailMessage)
@@ -36,6 +35,4 @@ class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification exten
             'notifications.telegram.fuel.fuel_notify_office_responsibles_about_tank_moving_confirmation_delayed'
         );
     }
-
-
 }

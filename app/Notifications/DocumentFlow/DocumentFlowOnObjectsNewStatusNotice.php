@@ -20,7 +20,7 @@ class DocumentFlowOnObjectsNewStatusNotice extends BaseNotification
             ->markdown('notifications.mail.document_flow.document-flow-on-objects-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

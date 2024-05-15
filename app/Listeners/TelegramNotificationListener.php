@@ -34,7 +34,7 @@ class TelegramNotificationListener
 
         if (in_array($notificationType, [
             NewFuelTankResponsibleNotification::class,
-            DefaultNotification::class
+            DefaultNotification::class,
         ])) {
             (new FuelActions)->storeFuelTankChatMessageTmp(
                 $notificationData->getData()['tank_id'],

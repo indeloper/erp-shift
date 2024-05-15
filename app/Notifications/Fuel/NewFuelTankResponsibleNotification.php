@@ -44,10 +44,10 @@ class NewFuelTankResponsibleNotification extends BaseNotification
                             'text' => 'Подтвердить',
                             'callback_data' => json_encode([
                                 'eventName' => TelegramEventType::FUEL_TANK_MOVEMENT_CONFIRMATION,
-                                'eventId' => $this->notificationData->getData()['tank_id']
-                            ])
+                                'eventId' => $this->notificationData->getData()['tank_id'],
+                            ]),
                         ])
                     )
-        );
+            );
     }
 }

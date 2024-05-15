@@ -20,7 +20,7 @@ class TechnicalFaultReportAssignmentTaskCreationNotice extends BaseNotification
             ->markdown('notifications.mail.technic.technic-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

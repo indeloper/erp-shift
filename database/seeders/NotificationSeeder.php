@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Notification\NotificationItem;
 use App\Notifications\BaseNotification;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
 use Illuminate\Database\Seeder;
@@ -21,7 +20,7 @@ class NotificationSeeder extends Seeder
         $notificationService = app(NotificationItemServiceInterface::class);
 
         foreach ($files as $file) {
-            $className = 'App\\Notifications\\' . pathinfo($file, PATHINFO_FILENAME);
+            $className = 'App\\Notifications\\'.pathinfo($file, PATHINFO_FILENAME);
 
             if (is_subclass_of($className, BaseNotification::class)) {
                 $description = constant("$className::DESCRIPTION");
@@ -34,29 +33,29 @@ class NotificationSeeder extends Seeder
             }
         }
 
-//        scandir(\)
-//
-//        $oClass = new ReflectionClass(\App\Notifications\UserTestCreateNotice::class);
-//
-//        $oClass->getExtension()
-//
-//        $notificationService = app(NotificationItemServiceInterface::class);
-//
-//        $consts = $oClass->getConstants();
-//
-//        foreach ($consts as $const) {
-//            $class = NotificationType::determinateNotificationClassByType(
-//                $const
-//            );
-//
-//            $description = $class::DESCRIPTION;
-//
-//            $notificationService->store(
-//                $const,
-//                $class,
-//                $description,
-//                true
-//            );
-//        }
+        //        scandir(\)
+        //
+        //        $oClass = new ReflectionClass(\App\Notifications\UserTestCreateNotice::class);
+        //
+        //        $oClass->getExtension()
+        //
+        //        $notificationService = app(NotificationItemServiceInterface::class);
+        //
+        //        $consts = $oClass->getConstants();
+        //
+        //        foreach ($consts as $const) {
+        //            $class = NotificationType::determinateNotificationClassByType(
+        //                $const
+        //            );
+        //
+        //            $description = $class::DESCRIPTION;
+        //
+        //            $notificationService->store(
+        //                $const,
+        //                $class,
+        //                $description,
+        //                true
+        //            );
+        //        }
     }
 }

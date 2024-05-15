@@ -20,7 +20,7 @@ class OfferCreationPilingDirectionTaskNotice extends BaseNotification
             ->markdown('notifications.mail.commercial_offer.commercial-offer-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

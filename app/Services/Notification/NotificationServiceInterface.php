@@ -11,12 +11,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface NotificationServiceInterface
 {
-
-    /**
-     * @param \App\Domain\DTO\Notification\NotificationData $data
-     *
-     * @return \App\Models\Notification\Notification
-     */
     public function store(NotificationData $data): Notification;
 
     public function sendNotify(NotificationData $notificationData);
@@ -28,5 +22,4 @@ interface NotificationServiceInterface
     public function view(int $idNotify): void;
 
     public function viewAll(int $id): void;
-
 }

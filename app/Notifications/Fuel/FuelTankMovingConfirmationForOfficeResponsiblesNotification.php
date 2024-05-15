@@ -19,6 +19,4 @@ class FuelTankMovingConfirmationForOfficeResponsiblesNotification extends BaseNo
             'notifications.telegram.fuel.confirm_fuel_tank_moving_previous_responsible'
         );
     }
-
-
 }

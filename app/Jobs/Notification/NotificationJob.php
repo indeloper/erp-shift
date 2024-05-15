@@ -15,6 +15,7 @@ class NotificationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $notificationData;
+
     private $notificationService;
 
     public $tries = 1;
@@ -26,8 +27,7 @@ class NotificationJob implements ShouldQueue
      */
     public function __construct(
         NotificationData $data
-    )
-    {
+    ) {
         $this->notificationData = $data;
 
         $notificationService = app(NotificationServiceInterface::class);

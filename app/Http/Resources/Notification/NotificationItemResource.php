@@ -19,7 +19,7 @@ class NotificationItemResource extends JsonResource
             'description' => $this->description,
             'mail' => $this->mail,
             'telegram' => $this->telegram,
-            'system' => $this->system
+            'system' => $this->system,
         ];
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\TechAccounting;
 
 use App\Models\FileEntry;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 class TechnicTicketService
 {
     use NotificationGenerator;
+
     protected $prepareNotifications = [];
 
     /**
@@ -51,9 +53,10 @@ class TechnicTicketService
             'process_resp_user_id',
         ],
         7 => [
-            'usage_resp_user_id'
+            'usage_resp_user_id',
         ],
     ];
+
     public $responsible_user_task_status_map = [
         'resp_rp_user_id' => 28,
         'usage_resp_user_id' => 29,
@@ -68,7 +71,6 @@ class TechnicTicketService
         $this->system_service = new SystemService();
     }
 
-
     public function createNewTicket($attributes)
     {
         $this->prepareNotifications = [];
@@ -80,26 +82,23 @@ class TechnicTicketService
         $this->updateTicketVehicles($attributes['vehicle_ids'] ?? [], $new_ticket);
         $new_ticket->refresh();
 
-        if (Auth::user()->isInGroup(13, 19, 27, 8)) //rps skips this step
-        {
+        if (Auth::user()->isInGroup(13, 19, 27, 8)) { //rps skips this step
             $new_ticket->status = $this->status_calculator->getIncreasedStatus($new_ticket);
             $new_ticket->save();
 
-            if($new_ticket->status == 5) {
+            if ($new_ticket->status == 5) {
                 $this->createTaskAndNotificationForReadyForUsage($new_ticket);
             } else {
                 $this->createTaskAndNotificationForWatingForProcessing($new_ticket);
             }
-        }
-        else
-        {
+        } else {
             $responsible_rp_id = $new_ticket->users()->wherePivot('type', 1)->first()->id;
 
             $new_ticket->tasks()->create([
                 'name' => 'Согласование заявки',
                 'responsible_user_id' => $responsible_rp_id,
                 'expired_at' => $this->addHours(24),
-                'status' => 28
+                'status' => 28,
             ]);
 
             $this->prepareNotifications['App\Notifications\Technic\TechnicRequestApprovalNotice'] = [
@@ -118,6 +117,7 @@ class TechnicTicketService
 
         $new_ticket->refresh();
         $new_ticket->loadMissing(['users', 'our_technic', 'sending_object', 'getting_object', 'comments.files']);
+
         return $new_ticket;
     }
 
@@ -128,7 +128,7 @@ class TechnicTicketService
         $result = $request['acceptance'] ?? $result;
         if ($result != 'update') {
             if ($auto) {
-                $ourTechnicTicket->tasks()->where('status', 28)->get()->each(function($task) use($request) {
+                $ourTechnicTicket->tasks()->where('status', 28)->get()->each(function ($task) {
                     $task->solve_n_notify();
                 });
             } else {
@@ -143,26 +143,26 @@ class TechnicTicketService
             $changes = 'Были изменены следующие поля: ';
             foreach ($ourTechnicTicket->getChanges() as $field => $value) {
                 if ($field == 'sending_from_date') {
-                    $changes .= "Дата начала отправки, ";
+                    $changes .= 'Дата начала отправки, ';
                 } elseif ($field == 'sending_to_date') {
-                    $changes .= "Дата окончания отправки, ";
+                    $changes .= 'Дата окончания отправки, ';
                 } elseif ($field == 'getting_from_date') {
-                    $changes .= "Дата начала получения, ";
+                    $changes .= 'Дата начала получения, ';
                 } elseif ($field == 'getting_to_date') {
-                    $changes .= "Дата окончания получения, ";
-                }elseif ($field == 'our_technic_id') {
-                    $changes .= "Техническое устройство, ";
+                    $changes .= 'Дата окончания получения, ';
+                } elseif ($field == 'our_technic_id') {
+                    $changes .= 'Техническое устройство, ';
                 }
             }
             if ($old_recipient != $request['recipient_user_id']) {
-                $changes .= "Ответственынй за получение, ";
+                $changes .= 'Ответственынй за получение, ';
 
             }
             if ($old_sender != $request['ticket_resp_user_id']) {
-                $changes .= "Ответственный за отправку, ";
+                $changes .= 'Ответственный за отправку, ';
             }
             if ($old_vehicle != $request['vehicle_ids'][0]) {
-                $changes .= "Транспорт, ";
+                $changes .= 'Транспорт, ';
             }
 
             $ourTechnicTicket->comments()->create([
@@ -172,11 +172,9 @@ class TechnicTicketService
             ]);
         }
 
-        if ($ourTechnicTicket->status == 1)
-        {
+        if ($ourTechnicTicket->status == 1) {
             $ourTechnicTicket->status = $this->status_calculator->getIncreasedStatus($ourTechnicTicket, $result);
-            if ($result == 'confirm')
-            {
+            if ($result == 'confirm') {
                 $this->attachUsersToTicketWithId($request, $ourTechnicTicket);
                 if ($auto) {
                     $ourTechnicTicket->comments()->create([
@@ -194,31 +192,29 @@ class TechnicTicketService
 
                 $this->generateTicketAcceptedNotification($ourTechnicTicket);
 
-                if ($ourTechnicTicket->status == 5)
-                {
+                if ($ourTechnicTicket->status == 5) {
                     $this->createTaskAndNotificationForReadyForUsage($ourTechnicTicket);
                 } else {
                     $this->createTaskAndNotificationForWatingForProcessing($ourTechnicTicket);
                 }
-            } else $this->generateFailureComment($ourTechnicTicket, $request, $result);
-        }
-
-        else if (in_array($ourTechnicTicket->status, [2, 4]))
-        {
+            } else {
+                $this->generateFailureComment($ourTechnicTicket, $request, $result);
+            }
+        } elseif (in_array($ourTechnicTicket->status, [2, 4])) {
             $ourTechnicTicket->status = $this->status_calculator->getIncreasedStatus($ourTechnicTicket, $result);
             if ($result == 'confirm') {
                 $ourTechnicTicket->comments()->create([
-                    'comment' => 'Заявка была обработана' . $this->getCommentFromRequest($request),
+                    'comment' => 'Заявка была обработана'.$this->getCommentFromRequest($request),
                     'author_id' => Auth::id(),
                     'system' => 1,
                 ]);
                 $this->updateTicket($ourTechnicTicket, $request);
                 $this->createTaskAndNotificationForMoving($ourTechnicTicket);
 
-            } else $this->generateFailureComment($ourTechnicTicket, $request, $result);
-        }
-
-        elseif ($ourTechnicTicket->status == 5){
+            } else {
+                $this->generateFailureComment($ourTechnicTicket, $request, $result);
+            }
+        } elseif ($ourTechnicTicket->status == 5) {
             $ourTechnicTicket->status = $this->status_calculator->getIncreasedStatus($ourTechnicTicket, $result);
 
             $ourTechnicTicket->comments()->create([
@@ -229,26 +225,22 @@ class TechnicTicketService
 
             $ourTechnicTicket->save();
             (new TechnicTicketReportService())->checkAndCreateTaskForUserId($ourTechnicTicket->users()->ofType('usage_resp_user_id')->first()->id);
-        }
-
-        elseif ($ourTechnicTicket->status == 6)
-        {
+        } elseif ($ourTechnicTicket->status == 6) {
             if ($result == 'rollback') {
                 $ourTechnicTicket->comments()->create([
-                    'comment' => 'Перемещение не удалось, заявка возвращена ' . $this->getCommentFromRequest($request),
+                    'comment' => 'Перемещение не удалось, заявка возвращена '.$this->getCommentFromRequest($request),
                     'author_id' => Auth::id(),
                     'system' => 1,
                 ]);
 
                 $ourTechnicTicket->status = $this->status_calculator->getIncreasedStatus($ourTechnicTicket, $result);
-                $ourTechnicTicket->tasks()->whereIn('status', [31, 32])->get()->each(function($task) {
+                $ourTechnicTicket->tasks()->whereIn('status', [31, 32])->get()->each(function ($task) {
                     $task->solve_n_notify();
                 });
                 $this->createTaskAndNotificationForWatingForProcessing($ourTechnicTicket);
-            }
-            elseif ($result == 'confirm') {
+            } elseif ($result == 'confirm') {
                 $comment = $ourTechnicTicket->comments()->create([
-                    'comment' => 'Перемещение техники подтверждено' . $this->getCommentFromRequest($request),
+                    'comment' => 'Перемещение техники подтверждено'.$this->getCommentFromRequest($request),
                     'author_id' => Auth::id(),
                     'system' => 1,
                 ]);
@@ -272,6 +264,7 @@ class TechnicTicketService
         $ourTechnicTicket->loadAllMissingRelations();
 
         DB::commit();
+
         return $ourTechnicTicket;
     }
 
@@ -298,8 +291,6 @@ class TechnicTicketService
     }
 
     /**
-     * @param $attributes
-     * @param OurTechnicTicket $new_ticket
      * @return OurTechnicTicket $new_ticket
      */
     public function calculateTicketType($attributes, OurTechnicTicket $new_ticket)
@@ -316,10 +307,6 @@ class TechnicTicketService
         return $new_ticket;
     }
 
-    /**
-     * @param $attributes
-     * @param OurTechnicTicket $new_ticket
-     */
     public function attachUsersToTicketWithId($attributes, OurTechnicTicket $new_ticket)
     {
         $this->makeSureTicketIsSaved($new_ticket);
@@ -341,24 +328,18 @@ class TechnicTicketService
                 $new_ticket->users()->attach($attributes[$type_name], ['type' => $type_id]);
             }
         }
-        if (!$new_ticket->users()->where('type', 5)->exists()) {
+        if (! $new_ticket->users()->where('type', 5)->exists()) {
             $new_ticket->users()->attach(Auth::id(), ['type' => 5]);
         }
     }
 
-    /**
-     * @param OurTechnicTicket $new_ticket
-     */
     public function makeSureTicketIsSaved(OurTechnicTicket $new_ticket)
     {
-        if (!$new_ticket->id) {
+        if (! $new_ticket->id) {
             $new_ticket->save();
         }
     }
 
-    /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     */
     public function createTaskAndNotificationForReadyForUsage(OurTechnicTicket $ourTechnicTicket): void
     {
         $user_types = $this->ticket_status_responsible_user_map[$ourTechnicTicket->status];
@@ -370,7 +351,7 @@ class TechnicTicketService
                 'name' => 'Подтверждение начала использования',
                 'responsible_user_id' => $usage_responsible_user->id,
                 'expired_at' => $this->addHours(24),
-                'status' => $this->responsible_user_task_status_map[$user_type]
+                'status' => $this->responsible_user_task_status_map[$user_type],
             ]);
 
             TechnicUsageStartTaskNotice::send(
@@ -386,9 +367,6 @@ class TechnicTicketService
         }
     }
 
-    /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     */
     public function createTaskAndNotificationForWatingForProcessing(OurTechnicTicket $ourTechnicTicket): void
     {
         $logist_id = $ourTechnicTicket->getResponsibleType('process_resp_user_id')->id;
@@ -397,14 +375,14 @@ class TechnicTicketService
             'name' => 'Обработка заявки на технику',
             'responsible_user_id' => $logist_id,
             'expired_at' => $this->addHours(24),
-            'status' => 30
+            'status' => 30,
         ]);
 
         RequestProcessingRequiredNotice::send(
             $logist_id,
             [
                 'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                'additional_info' => "Ссылка: ",
+                'additional_info' => 'Ссылка: ',
                 'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                 'created_at' => now(),
                 'target_id' => $ourTechnicTicket->id,
@@ -412,9 +390,6 @@ class TechnicTicketService
         );
     }
 
-    /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     */
     public function createTaskAndNotificationForMoving(OurTechnicTicket $ourTechnicTicket): void
     {
         $sending_responsible_user = $ourTechnicTicket->users()->ofType('request_resp_user_id')->first();
@@ -425,14 +400,14 @@ class TechnicTicketService
             'name' => 'Подтверждение перемещения',
             'responsible_user_id' => $sending_responsible_user->id,
             'expired_at' => $this->addHours(24),
-            'status' => 31
+            'status' => 31,
         ]);
 
         TechnicDispatchConfirmationNotice::send(
             $sending_responsible_user->id,
             [
                 'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                'additional_info' => "Ссылка: ",
+                'additional_info' => 'Ссылка: ',
                 'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                 'created_at' => now(),
                 'target_id' => $ourTechnicTicket->id,
@@ -445,14 +420,14 @@ class TechnicTicketService
             'name' => 'Подтверждение перемещения',
             'responsible_user_id' => $getting_responsible_user->id,
             'expired_at' => $this->addHours(24),
-            'status' => 32
+            'status' => 32,
         ]);
 
         TechnicReceiptConfirmationNotice::send(
             $getting_responsible_user->id,
             [
                 'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                'additional_info' => "Ссылка: ",
+                'additional_info' => 'Ссылка: ',
                 'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
                 'created_at' => now(),
                 'target_id' => $ourTechnicTicket->id,
@@ -460,16 +435,12 @@ class TechnicTicketService
         );
     }
 
-    /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     * @param $request
-     */
     public function closeResponsibleUserTask(OurTechnicTicket $ourTechnicTicket, $request)
     {
         $curr_types = $this->ticket_status_responsible_user_map[$ourTechnicTicket->status];
 
         if (isset($request['task_status'])) {
-            $ourTechnicTicket->tasks()->where('status', $request['task_status'])->get()->each(function($task) use($request, $ourTechnicTicket) {
+            $ourTechnicTicket->tasks()->where('status', $request['task_status'])->get()->each(function ($task) use ($request, $ourTechnicTicket) {
                 $task->final_note = $request['final_note'] ?? '';
                 $task->solve_n_notify();
                 $this->generateMovingNotificationsIfNeeded($task, $ourTechnicTicket);
@@ -477,7 +448,7 @@ class TechnicTicketService
         } else {
             foreach ($curr_types as $curr_type) {
                 if ($this->isAuthIsTicketRespOfType($ourTechnicTicket, $curr_type)) {
-                    $ourTechnicTicket->tasks()->where('status', $this->responsible_user_task_status_map[$curr_type])->get()->each(function($task) use($request) {
+                    $ourTechnicTicket->tasks()->where('status', $this->responsible_user_task_status_map[$curr_type])->get()->each(function ($task) use ($request) {
                         $task->final_note = $request['final_note'] ?? '';
                         $task->solve_n_notify();
                     });
@@ -487,19 +458,13 @@ class TechnicTicketService
         }
     }
 
-    /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     * @return bool
-     */
     public function isTechnicMovingComplete(OurTechnicTicket $ourTechnicTicket): bool
     {
         return $ourTechnicTicket->tasks()->whereIn('status', [31, 32])->where('is_solved', 0)->count() == 0;
     }
 
     /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     * @param $curr_type
-     * @return bool
+     * @param  $curr_type
      */
     public function isAuthIsTicketRespOfType(OurTechnicTicket $ourTechnicTicket, $curr_types): bool
     {
@@ -514,6 +479,7 @@ class TechnicTicketService
                 break;
             }
         }
+
         return $authed;
     }
 
@@ -537,34 +503,23 @@ class TechnicTicketService
         return view('tech_accounting.reports.ttn', $data->all());
     }
 
-    /**
-     * @param $request
-     * @return string
-     */
     public function getCommentFromRequest($request): string
     {
-        return (isset($request['comment']) ? ' с комментарием: ' . $request['comment'] : '');
+        return isset($request['comment']) ? ' с комментарием: '.$request['comment'] : '';
     }
 
-    /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     * @param $request
-     * @param $result
-     */
     public function generateFailureComment(OurTechnicTicket $ourTechnicTicket, $request, $result): void
     {
         $this->generateTicketFailureNotification($ourTechnicTicket, $result);
 
         $ourTechnicTicket->comments()->create([
-            'comment' => 'Заявка была ' . ($result == 'hold' ? 'удержана' : 'отклонена') . $this->getCommentFromRequest($request),
+            'comment' => 'Заявка была '.($result == 'hold' ? 'удержана' : 'отклонена').$this->getCommentFromRequest($request),
             'author_id' => Auth::id(),
             'system' => 1,
         ]);
     }
 
     /**
-     * @param OurTechnicTicket $ourTechnicTicket
-     * @param $request
      * @return OurTechnicTicket
      */
     public function updateTicket(OurTechnicTicket $ourTechnicTicket, $request)
@@ -599,7 +554,7 @@ class TechnicTicketService
             } catch (\Throwable $throwable) {
                 $controllerName = get_class($this);
                 $message = "В контроллере $controllerName, не удалось отправить уведомление $class, возникла ошибка: ";
-                Log::error($message . $throwable->getMessage());
+                Log::error($message.$throwable->getMessage());
             }
         }
     }

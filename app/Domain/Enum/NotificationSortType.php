@@ -6,7 +6,6 @@ namespace App\Domain\Enum;
 
 final class NotificationSortType
 {
-
     const NAME = 'name';
 
     const CONTRACTOR_SHORT_NAME = 'contractor.short_name';
@@ -24,5 +23,4 @@ final class NotificationSortType
             self::DATA,
         ];
     }
-
 }

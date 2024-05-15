@@ -19,7 +19,7 @@ class IncomingCallProcessingNotice extends BaseNotification
             ->markdown('notifications.mail.incoming-call-processing-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

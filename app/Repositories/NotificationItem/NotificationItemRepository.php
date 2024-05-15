@@ -7,20 +7,18 @@ namespace App\Repositories\NotificationItem;
 use App\Models\Notification\NotificationItem;
 use Illuminate\Database\Eloquent\Collection;
 
-final class NotificationItemRepository
-    implements NotificationItemRepositoryInterface
+final class NotificationItemRepository implements NotificationItemRepositoryInterface
 {
-
     public function store(
         string $class,
         string $description,
         bool $status = false
     ): NotificationItem {
         return NotificationItem::query()->updateOrCreate([
-            'class'       => $class,
+            'class' => $class,
         ], [
             'description' => $description,
-            'status'      => $status,
+            'status' => $status,
         ]);
     }
 
@@ -39,5 +37,4 @@ final class NotificationItemRepository
             ->where('status', true)
             ->get();
     }
-
 }

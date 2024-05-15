@@ -24,7 +24,7 @@ class NotificationResource extends JsonResource
             'contractor' => $this->contractor,
             'created_at' => $this->created_at,
             'route_delete' => route('notifications::delete'),
-            'route_view' => route('notifications::view')
+            'route_view' => route('notifications::view'),
         ];
     }
 }

@@ -59,12 +59,12 @@ final class NotificationRepository implements NotificationRepositoryInterface
 
                 $query->when($sort->getSelector() === NotificationSortType::OBJECT_ADDRESS,
                     function (Builder $query) use ($sort) {
-                    $query->orderBy('project_objects.address', $sort->getDirection());
-                });
+                        $query->orderBy('project_objects.address', $sort->getDirection());
+                    });
 
                 $query->when($sort->getSelector() === NotificationSortType::CONTRACTOR_SHORT_NAME,
                     function (Builder $query) use ($sort) {
-                        $query->orderBy(DB::raw("contractors.short_name"), $sort->getDirection());
+                        $query->orderBy(DB::raw('contractors.short_name'), $sort->getDirection());
                     });
             })
             ->when($sort->getSelector() === null, function (Builder $query) {
@@ -78,7 +78,7 @@ final class NotificationRepository implements NotificationRepositoryInterface
         Notification::query()
             ->where('id', $idNotify)
             ->update([
-                'is_deleted' => true
+                'is_deleted' => true,
             ]);
     }
 
@@ -87,7 +87,7 @@ final class NotificationRepository implements NotificationRepositoryInterface
         Notification::query()
             ->where('id', $idNotify)
             ->update([
-                'is_seen' => true
+                'is_seen' => true,
             ]);
     }
 
@@ -96,8 +96,7 @@ final class NotificationRepository implements NotificationRepositoryInterface
         Notification::query()
             ->where('user_id', $id)
             ->update([
-                'is_seen' => true
+                'is_seen' => true,
             ]);
     }
-
 }

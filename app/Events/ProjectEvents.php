@@ -26,18 +26,18 @@ class ProjectEvents
 
     public function projectCreated(Project $project)
     {
-//        Log::info('Passing into event');
+        //        Log::info('Passing into event');
         $project_creator = User::find($project->user_id);
         $ceos = User::whereIn('id', [6, 9, 27])->get()->pluck('id')->toArray();
-//        Log::info('initiator: ' . $project_creator->first_name . ' to whom: ' . $ceos->first()->last_name . ' count_ceos: ' . $ceos->count());
+        //        Log::info('initiator: ' . $project_creator->first_name . ' to whom: ' . $ceos->first()->last_name . ' count_ceos: ' . $ceos->count());
         if ($project_creator and $ceos->count() > 0) {
             NewProjectCreationNotice::send(
                 $ceos,
                 [
-                    'name' => 'Был создан проект "' . $project->name . '". Автор: ' . $project_creator->long_full_name,
-                    'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
-                        "\r\nНазвание объекта: " . $project->object->name .
-                        "\r\nАдрес объекта: " . $project->object->address .
+                    'name' => 'Был создан проект "'.$project->name.'". Автор: '.$project_creator->long_full_name,
+                    'additional_info' => "\r\nЗаказчик: ".$project->contractor_name.
+                        "\r\nНазвание объекта: ".$project->object->name.
+                        "\r\nАдрес объекта: ".$project->object->address.
                         "\r\nЧтобы просмотреть проект, перейдите по ссылке: ",
                     'url' => route('projects::card', $project->id),
                     'contractor_id' => $project->contractor_id,

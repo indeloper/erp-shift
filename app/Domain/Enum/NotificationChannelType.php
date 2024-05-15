@@ -7,7 +7,9 @@ namespace App\Domain\Enum;
 final class NotificationChannelType
 {
     const MAIL = 'mail';
+
     const TELEGRAM = 'telegram';
+
     const SYSTEM = 'system';
 
     public static function values(): array

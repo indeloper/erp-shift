@@ -13,7 +13,6 @@ class VacationsHistoryObserver
     /**
      * Handle the vacations history "saved" event.
      *
-     * @param  VacationsHistory  $vacationsHistory
      * @return void
      */
     public function saved(VacationsHistory $vacationsHistory)
@@ -32,8 +31,8 @@ class VacationsHistoryObserver
         UserLeaveSubstitutionNotice::send(
             $vacationsHistory->support_user_id,
             [
-                'name' => 'Сообщаем, что с ' . $vacationsHistory->from_date . ' по ' . $vacationsHistory->by_date .
-                          ' вы будете заменять пользователя ' . $vacation_user->long_full_name .
+                'name' => 'Сообщаем, что с '.$vacationsHistory->from_date.' по '.$vacationsHistory->by_date.
+                          ' вы будете заменять пользователя '.$vacation_user->long_full_name.
                           ', так как он будет в отпуске',
             ]
         );
@@ -55,7 +54,7 @@ class VacationsHistoryObserver
         NewTasksFromUserOnLeaveNotice::send(
             $vacationsHistory->support_user_id,
             [
-                'name' => 'Пользователь ' . $vacation_user->long_full_name .
+                'name' => 'Пользователь '.$vacation_user->long_full_name.
                           ' ушел в отпуск. С новыми задачами можно ознакомиться здесь: на странице задач',
             ]
         );
@@ -68,10 +67,9 @@ class VacationsHistoryObserver
         SubstituteUserReturnFromLeaveTaskTransferNotice::send(
             $vacationsHistory->support_user_id,
             [
-                'name' => 'Пользователь ' . $vacation_user->long_full_name .
+                'name' => 'Пользователь '.$vacation_user->long_full_name.
                           ' вышел из отпуска. Ему вернутся задачи и позиции в проектах',
             ]
         );
     }
 }
-

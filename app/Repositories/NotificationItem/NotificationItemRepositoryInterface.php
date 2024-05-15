@@ -18,5 +18,4 @@ interface NotificationItemRepositoryInterface
     public function getNotificationByClass(string $class): ?NotificationItem;
 
     public function getNotifications(): Collection;
-
 }

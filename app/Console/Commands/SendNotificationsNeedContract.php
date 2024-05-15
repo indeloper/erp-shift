@@ -50,12 +50,12 @@ class SendNotificationsNeedContract extends Command
             ->get();
 
         foreach ($operations as $operation) {
-// TODO заменить хардкод 28
+            // TODO заменить хардкод 28
             TechnicalMaintenanceCompletionNotice::send(
                 28,
                 [
-                    'name' => 'На объекте ' . $operation->object_to->name_tag . ' существуют операции без договора!',
-                    'object_id' => $operation->object_id_to
+                    'name' => 'На объекте '.$operation->object_to->name_tag.' существуют операции без договора!',
+                    'object_id' => $operation->object_id_to,
                 ]
             );
         }

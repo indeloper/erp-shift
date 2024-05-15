@@ -20,7 +20,7 @@ class ContractorDeletionControlTaskNotice extends BaseNotification
             ->markdown('notifications.mail.contractor.contractor-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 
