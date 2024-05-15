@@ -6,17 +6,24 @@ use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
 use App\Models\Manual\ManualMaterial;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\Operation\OperationCancelledNotice;
+use App\Notifications\Operation\OperationCompletionNotice;
+use App\Notifications\Operation\OperationConfirmedNotice;
+use App\Notifications\Operation\OperationCreationRequestUpdatedNotice;
+use App\Notifications\Operation\OperationDraftApprovalNotice;
+use App\Notifications\Operation\OperationDraftDeclinedNotice;
+use App\Notifications\Operation\OperationStatusConflictNotice;
+use App\Notifications\Operation\PartialOperationClosureNotice;
+use App\Notifications\Operation\WriteOffOperationRejectionNotice;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use App\Traits\NotificationGenerator;
 use App\Traits\Taskable;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -27,8 +34,7 @@ use Illuminate\Support\Facades\DB;
 
 class MaterialAccountingOperation extends Model
 {
-    use HasFactory;
-    use NotificationGenerator, SoftDeletes, Taskable;
+    use SoftDeletes, NotificationGenerator, Taskable;
 
     protected $fillable = [
         'type',
@@ -101,7 +107,7 @@ class MaterialAccountingOperation extends Model
     public $material_type_map = [
         1 => [2],
         2 => [2],
-        3 => [4, 5],
+        3 => [4,5],
         4 => [4],
     ];
 
@@ -138,12 +144,12 @@ class MaterialAccountingOperation extends Model
 
     /**
      * Scope for operations index page
-     *
+     * @param Builder $query
      * @return Builder
      */
     public function scopeIndex(Builder $query)
     {
-        $query->with(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials' => function ($q) {
+        $query->with(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials' => function($q) {
             $q->groupBy('manual_material_id', 'operation_id', 'used')->select('*')->with('manual');
         }])->where('type', '!=', 5)
             ->where('is_close', '!=', 1)
@@ -179,7 +185,7 @@ class MaterialAccountingOperation extends Model
         $text = '';
 
         if ($this->is_close) {
-            if (! $this->contract_id and in_array($this->type, [1, 4]) and ! in_array($this->object_id_to, [76, 192])) {
+            if (!$this->contract_id and in_array($this->type, [1, 4]) and !in_array($this->object_id_to, [76, 192])) {
                 $text = ' (Требуется прикрепить договор)';
             } else {
                 $text = ' (Закрыта)';
@@ -187,18 +193,19 @@ class MaterialAccountingOperation extends Model
         }
 
         if ($this->materialsPartTo()->count() or $this->materialsPartFrom()->count()) {
-            return $this->status_names[$this->status].$text;
+            return $this->status_names[$this->status] . $text;
         }
 
-        if (! ($this->actual_date_from != null) and $this->status == 1 and $this->is_close != 1 and $this->type != 4) {
+        if (!($this->actual_date_from != null) and $this->status == 1 and $this->is_close != 1 and $this->type != 4) {
             return 'Запланировано';
         }
 
-        if ($this->isMovingOperation() and $this->status == 1 and (! $this->actual_date_from and ! $this->actual_date_to)) {
+
+        if ($this->isMovingOperation() and $this->status == 1 and (!$this->actual_date_from and !$this->actual_date_to)) {
             return 'Запланировано';
         }
 
-        return $this->status_names[$this->status].$text;
+        return $this->status_names[$this->status] . $text;
     }
 
     public function getTotalWeigthAttribute()
@@ -228,7 +235,7 @@ class MaterialAccountingOperation extends Model
             $this->status = 5;
         }
 
-        return route('building::mat_acc::'.$this->eng_type_name[$this->type].'::'.$this->eng_status_names[$this->status], $this->id);
+        return route('building::mat_acc::' . $this->eng_type_name[$this->type] . '::' . $this->eng_status_names[$this->status], $this->id);
     }
 
     public function getGeneralUrlAttribute()
@@ -244,7 +251,7 @@ class MaterialAccountingOperation extends Model
             return route('building::mat_acc::operations');
         }
 
-        return route('building::mat_acc::'.$this->eng_type_name[$this->type].'::'.'edit', $this->id);
+        return route('building::mat_acc::' . $this->eng_type_name[$this->type] . '::' . 'edit', $this->id);
     }
 
     public function getClosedDateAttribute()
@@ -265,7 +272,7 @@ class MaterialAccountingOperation extends Model
     {
         if ($this->object_id_from) {
             return $this->object_from->short_name ?? $this->object_from->name;
-        } elseif ($this->object_id_to) {
+        } elseif($this->object_id_to) {
             return $this->object_to->short_name ?? $this->object_to->name;
         }
     }
@@ -275,7 +282,6 @@ class MaterialAccountingOperation extends Model
         if ($this->object_id_to) {
             return $this->object_to->short_name ?? $this->object_to->name;
         }
-
         return '';
     }
 
@@ -284,7 +290,6 @@ class MaterialAccountingOperation extends Model
         if ($this->object_id_from) {
             return $this->object_from->short_name ?? $this->object_from->name;
         }
-
         return '';
     }
 
@@ -292,16 +297,17 @@ class MaterialAccountingOperation extends Model
     {
         if ($this->object_id_from) {
             return $this->object_from->address;
-        } elseif ($this->object_id_to) {
+        } elseif($this->object_id_to) {
             return $this->object_to->address;
         }
     }
+
 
     public function getShortNameAttribute()
     {
         if ($this->object_id_from) {
             return $this->object_from->name_tag;
-        } elseif ($this->object_id_to) {
+        } elseif($this->object_id_to) {
             return $this->object_to->name_tag;
         }
     }
@@ -403,25 +409,23 @@ class MaterialAccountingOperation extends Model
 
     public function delete_tasks()
     {
-        return $this->hasManyThrough(Task::class, MaterialAccountingOperationMaterials::class, 'operation_id', 'target_id', 'id', 'id')
+        return $this->hasManyThrough(Task::class, MaterialAccountingOperationMaterials::class, 'operation_id' , 'target_id' , 'id', 'id')
             ->where('status', 22);
     }
 
     /**
      * Relation for all tasks that
      * can be created for operation
-     *
      * @return HasManyThrough
      */
     public function tasks()
     {
-        return $this->hasManyThrough(Task::class, MaterialAccountingOperationMaterials::class, 'operation_id', 'target_id', 'id', 'id')
+        return $this->hasManyThrough(Task::class, MaterialAccountingOperationMaterials::class, 'operation_id' , 'target_id' , 'id', 'id')
             ->whereIn('status', self::TASK_STATUSES);
     }
 
     /**
      * Morph relation to tasks
-     *
      * @return MorphMany
      */
     public function tasksMorphed()
@@ -437,7 +441,6 @@ class MaterialAccountingOperation extends Model
 
     /**
      * Relation only for unsolved tasks for operation
-     *
      * @return HasManyThrough
      */
     public function unsolved_tasks()
@@ -553,6 +556,7 @@ class MaterialAccountingOperation extends Model
             $mats = $mats->merge($this->parent->getParentMatParts());
         }
 
+
         return $mats;
     }
 
@@ -568,12 +572,12 @@ class MaterialAccountingOperation extends Model
 
     public function contract()
     {
-        return $this->belongsTo(Contract::class, 'contract_id', 'id');
+        return $this->belongsTo( Contract::class, 'contract_id', 'id');
     }
 
     public function getGratestParent()
     {
-        if ($this->parent) {
+        if($this->parent){
             return $this->parent->getGratestParent();
         }
 
@@ -607,13 +611,14 @@ class MaterialAccountingOperation extends Model
 
     public function checkClosed()
     {
-        return ! ($this->is_closed or $this->status == 7) ?: abort(403);
+        return !($this->is_closed or $this->status == 7)?: abort(403);
     }
+
 
     public function materialDifference($main_materials, $part_materials)
     {
         // if ($is_dd) dump($main_materials, $part_materials);
-        if (! $part_materials) {
+        if (!$part_materials) {
             return [$main_materials];
         }
 
@@ -622,7 +627,7 @@ class MaterialAccountingOperation extends Model
         foreach ($part_materials->whereIn('base_id', $main_materials->pluck('base_id')) as $part_material) {
             $main_material = $main_materials->where('base_id', $part_material->base_id)->whereNotIn('id', $new_materials->pluck('id'))->first();
 
-            if (! $main_material) {
+            if (!$main_material) {
                 $main_material = $new_materials->where('base_id', $part_material->base_id)->first();
                 $link = 1;
             }
@@ -633,13 +638,12 @@ class MaterialAccountingOperation extends Model
                 } else {
                     $main_material->count -= $part_material->count;
                 }
-                if (! $link) {
+                if (!$link) {
                     $new_materials->push($main_material);
                 }
             }
             $link = 0;
         }
-
         // if ($is_dd) dd($main_materials);
         return $main_materials->where('count', '>', 0)->values();
     }
@@ -698,7 +702,7 @@ class MaterialAccountingOperation extends Model
                 }
                 $base = $base->first();
 
-                if (! isset($base->unit)) {
+                if (!isset($base->unit)) {
                     return true;
                 }
 
@@ -710,12 +714,12 @@ class MaterialAccountingOperation extends Model
                 if ($base->unit == $unit) {
                 } else {
                     $convertParam = $mat
-                        ->convert_from($unit)
-                        ->where('unit', $base->unit)->first()->value ?? 0;
+                            ->convert_from($unit)
+                            ->where('unit', $base->unit)->first()->value ?? 0;
                     if ($convertParam) {
                         $count = $count * $convertParam;
                     } else {
-                        //                        $message = 'Невозможно списать  ' . $mat->name . ' т.к. нет параметра для перевода в единицу измерения (' . $base->unit . '), в которой он лежит на объекте';
+//                        $message = 'Невозможно списать  ' . $mat->name . ' т.к. нет параметра для перевода в единицу измерения (' . $base->unit . '), в которой он лежит на объекте';
 
                         return true;
                     }
@@ -725,8 +729,8 @@ class MaterialAccountingOperation extends Model
                     if ($base->unit == $existPart->units_name[$existPart->unit]) {
                     } else {
                         $convertParam = $mat
-                            ->convert_from($unit)
-                            ->where('unit', $base->unit)->first()->value ?? 0;
+                                ->convert_from($unit)
+                                ->where('unit', $base->unit)->first()->value ?? 0;
 
                         if ($convertParam) {
                             $existPart->count = $existPart->count * $convertParam;
@@ -735,7 +739,7 @@ class MaterialAccountingOperation extends Model
                         }
                     }
                 }
-                if (! isset($base->count) or (round($count, 3)) > round($base->count + ($existPart->count ?? 0), 3) or ! $base->count) {
+                if (!isset($base->count) or (round($count, 3)) > round($base->count + ($existPart->count ?? 0), 3) or !$base->count) {
                     return true;
                 }
 
@@ -754,17 +758,17 @@ class MaterialAccountingOperation extends Model
 
             // update task
             $controlTask->result = $status_result === 'accept' ? 1 : 2;
-            $controlTask->final_note = $controlTask->descriptions[$controlTask->status].$controlTask->results[$controlTask->status][$controlTask->result];
+            $controlTask->final_note = $controlTask->descriptions[$controlTask->status] . $controlTask->results[$controlTask->status][$controlTask->result];
             $controlTask->save();
 
             if ($status_result == 'decline') {
-                //notify operation creator
-                $notify = Notification::create([
-                    'name' => 'Ваша операция списания была отклонена',
-                    'task_id' => $controlTask->id,
-                    'user_id' => $this->author->id,
-                    'type' => 13,
-                ]);
+                WriteOffOperationRejectionNotice::send(
+                    $this->author->id,
+                    [
+                        'name' => 'Ваша операция списания была отклонена',
+                        'task_id' => $controlTask->id,
+                    ]
+                );
             }
 
             $controlTask->solve_n_notify();
@@ -772,40 +776,39 @@ class MaterialAccountingOperation extends Model
         // otherwise, do nothing
     }
 
+
     public function generateOperationDeclineNotifications($oldStatus = null)
     {
-        if ($this->isWasDraft($oldStatus)) {
+        if ($this->isWasDraft($oldStatus))
             return $this->generateOperationDraftDeclineNotification();
-        }
 
         return $this->generateStandardOperationDeclineNotification();
     }
 
     public function generateOperationDraftDeclineNotification()
     {
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftDeclinedNotificationText(),
-            'user_id' => $this->author->id,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 58,
-        ]);
+        OperationDraftDeclinedNotice::send(
+            $this->author->id,
+            [
+                'name' => $this->generateOperationDraftDeclinedNotificationText(),
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftDeclinedNotificationText()
     {
         $typeLowered = $this->getLoweredTypeAttribute();
         $userFullName = auth()->user()->long_full_name;
-        $text = "Пользователь {$userFullName} отклонил запрос на {$typeLowered} материалов на объекте: {$this->object_text};".
-            " в периоде выполнения: {$this->planned_date_from}".(! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
+        $text = "Пользователь {$userFullName} отклонил запрос на {$typeLowered} материалов на объекте: {$this->object_text};" .
+            " в периоде выполнения: {$this->planned_date_from}" . (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
 
-        if ($this->isMovingOperation()) {
-            $text = "Пользователь {$userFullName} отклонил запрос на {$typeLowered} материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
+        if ($this->isMovingOperation())
+            $text = "Пользователь {$userFullName} отклонил запрос на {$typeLowered} материалов c объекта " . ($this->object_from->name_tag) . " на объект " . ($this->object_to->name_tag) . ";" .
                 " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}";
-        }
 
         return $text;
     }
@@ -816,16 +819,16 @@ class MaterialAccountingOperation extends Model
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach (array_unique($user_ids) as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationDeclinedNotificationText(),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 55,
-            ]);
+            OperationCancelledNotice::send(
+                $user,
+                [
+                    'name' => $this->generateOperationDeclinedNotificationText(),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -844,76 +847,73 @@ class MaterialAccountingOperation extends Model
     public function generateOperationDeclinedNotificationText()
     {
         $typeLowered = $this->getLoweredTypeAttribute();
-        $text = "Операция {$typeLowered} материалов на объекте: {$this->object_text};".
-            " в периоде выполнения: {$this->planned_date_from}".
-            (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '').
-            ' отменена';
+        $text = "Операция {$typeLowered} материалов на объекте: {$this->object_text};" .
+            " в периоде выполнения: {$this->planned_date_from}" .
+            (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '') .
+            " отменена";
 
-        if ($this->isMovingOperation()) {
-            $text = "Операция {$typeLowered} материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
+        if ($this->isMovingOperation())
+            $text = "Операция {$typeLowered} материалов c объекта " . ($this->object_from->name_tag) ." на объект " . ($this->object_to->name_tag) . ";" .
                 " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to} отменена";
-        }
 
         return $text;
     }
 
     public function generateDraftAcceptNotification($oldAuthor)
     {
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftAcceptNotificationText(),
-            'user_id' => $oldAuthor,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 57,
-        ]);
+        OperationDraftApprovalNotice::send(
+            $oldAuthor,
+            [
+                'name' => $this->generateOperationDraftAcceptNotificationText(),
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => PHP_EOL . $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftAcceptNotificationText()
     {
         $typeLowered = $this->getLoweredTypeAttribute();
         $userFullName = $this->author->long_full_name;
-        $text = "Пользователь {$userFullName} согласовал запрос на {$typeLowered} материалов на объекте: {$this->object_text};".
-            " в периоде выполнения: {$this->planned_date_from}".(! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
+        $text = "Пользователь {$userFullName} согласовал запрос на {$typeLowered} материалов на объекте: {$this->object_text};" .
+            " в периоде выполнения: {$this->planned_date_from}" . (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
 
-        if ($this->isMovingOperation()) {
-            $text = "Пользователь {$userFullName} согласовал запрос на {$typeLowered} материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
+        if ($this->isMovingOperation())
+            $text = "Пользователь {$userFullName} согласовал запрос на {$typeLowered} материалов c объекта " . ($this->object_from->name_tag) ." на объект " . ($this->object_to->name_tag) . ";" .
                 " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}";
-        }
 
         return $text;
     }
 
     public function generatePartSendNotification($partSendType = false)
     {
-        if ($this->isMovingOperation()) {
+        if ($this->isMovingOperation())
             return $this->generateMovingPartSendNotifications($partSendType);
-        }
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-            'user_id' => $this->author_id,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 59,
-        ]);
-
-        if ($this->isWriteOffOperation()) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
+        PartialOperationClosureNotice::send(
+            $this->author_id,
+            [
                 'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-                'user_id' => Group::find(6)->getUsers()->first()->id,
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
                 'target_id' => $this->id,
                 'status' => 7,
-                'type' => 59,
-            ]);
+            ]
+        );
+
+        if ($this->isWriteOffOperation()) {
+            PartialOperationClosureNotice::send(
+                Group::find(6)->getUsers()->first()->id,
+                [
+                    'name' => $this->generateOperationPartSaveNotificationText($partSendType),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -922,16 +922,16 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author_id, $this->responsible_users()->where('type', $partSendType == 8 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 59,
-            ]);
+            PartialOperationClosureNotice::send(
+                $user,
+                [
+                    'name' => $this->generateOperationPartSaveNotificationText($partSendType),
+                    'additional_info' => '. Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -939,36 +939,34 @@ class MaterialAccountingOperation extends Model
     {
         $typeLowered = $this->getLoweredTypeAttribute();
         $userFullName = auth()->user()->long_full_name;
-        $text = "Выполнено частичное {$typeLowered} материала пользователем {$userFullName} по операции «{$this->type_name}» материалов на объекте: {$this->object_text};".
-            " в периоде выполнения: {$this->planned_date_from}".(! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
+        $text = "Выполнено частичное {$typeLowered} материала пользователем {$userFullName} по операции «{$this->type_name}» материалов на объекте: {$this->object_text};" .
+            " в периоде выполнения: {$this->planned_date_from}" . (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
 
-        if ($this->isMovingOperation()) {
-            $text = ($partSendType == 9 ? 'Выполнено частичное поступление материала на объект '.($this->object_to->name_tag).'' : 'Выполнена частичная отправка материала с объекта '.($this->object_from->name_tag).'')." пользователем {$userFullName} по операции «{$this->type_name}» материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
+        if ($this->isMovingOperation())
+            $text = ($partSendType == 9 ? "Выполнено частичное поступление материала на объект " . ($this->object_to->name_tag) . "" : "Выполнена частичная отправка материала с объекта " . ($this->object_from->name_tag) ."") . " пользователем {$userFullName} по операции «{$this->type_name}» материалов c объекта " . ( $this->object_from->name_tag) . " на объект " . ($this->object_to->name_tag) . ";" .
                 " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}";
-        }
 
         return $text;
     }
 
     public function generateOperationEndNotifications($sendType = false)
     {
-        if ($this->isMovingOperation()) {
+        if ($this->isMovingOperation())
             return $this->generateMovingEndNotifications($sendType);
-        }
 
         $users = $this->type == 2 ? [$this->author->id, Group::find(6)->getUsers()->first()->id] : [$this->author->id];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationEndNotificationText($sendType),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 60,
-            ]);
+            OperationCompletionNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationEndNotificationText($sendType),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -977,16 +975,16 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author->id, $this->responsible_users()->where('type', $sendType == 1 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationEndNotificationText($sendType),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 60,
-            ]);
+            OperationCompletionNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationEndNotificationText($sendType),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -994,37 +992,35 @@ class MaterialAccountingOperation extends Model
     {
         $typeLowered = $this->getLoweredTypeAttribute();
         $userFullName = auth()->user()->long_full_name;
-        $text = "Пользователь {$userFullName} завершил операцию {$typeLowered} материалов на объекте: {$this->object_text};".
-            " в периоде выполнения: {$this->planned_date_from}".(! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '').
+        $text = "Пользователь {$userFullName} завершил операцию {$typeLowered} материалов на объекте: {$this->object_text};" .
+            " в периоде выполнения: {$this->planned_date_from}" . (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '') .
             '. Требуется подтвердить операцию';
 
-        if ($this->isMovingOperation()) {
-            $text = ($sendType == 2 ? "Пользователь {$userFullName} завершил получение материалов на объект ".($this->object_to->name_tag).'' : "Пользователь {$userFullName} завершил отправку материалов с объекта ".($this->object_from->name_tag).'')." по операции {$typeLowered} материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
+        if ($this->isMovingOperation())
+            $text = ($sendType == 2 ? "Пользователь {$userFullName} завершил получение материалов на объект " . ($this->object_to->name_tag) . "" : "Пользователь {$userFullName} завершил отправку материалов с объекта " . ($this->object_from->name_tag) . "") . " по операции {$typeLowered} материалов c объекта " . ($this->object_from->name_tag) . " на объект " . ($this->object_to->name_tag) . ";" .
                 " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}";
-        }
 
         return $text;
     }
 
     public function generateOperationAcceptNotifications()
     {
-        if ($this->isMovingOperation()) {
+        if ($this->isMovingOperation())
             return $this->generateMovingAcceptNotifications();
-        }
 
         $users = $this->type == 2 ? [$this->responsible_user->user_id, Group::find(6)->getUsers()->first()->id] : [$this->responsible_user->user_id];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationAcceptNotificationText(),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 61,
-            ]);
+            OperationConfirmedNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationAcceptNotificationText(),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1033,16 +1029,16 @@ class MaterialAccountingOperation extends Model
         $users = $this->responsible_users()->whereIn('type', [1, 2])->pluck('user_id')->toArray();
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationAcceptNotificationText(),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 61,
-            ]);
+            OperationConfirmedNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationAcceptNotificationText(),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1050,86 +1046,78 @@ class MaterialAccountingOperation extends Model
     {
         $typeLowered = $this->getLoweredTypeAttribute();
         $userFullName = auth()->user()->long_full_name;
-        $text = "Пользователь {$userFullName} подтвердил операцию {$typeLowered} материалов на объекте: {$this->object_text};".
-            " в периоде выполнения: {$this->planned_date_from}".(! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '').
+        $text = "Пользователь {$userFullName} подтвердил операцию {$typeLowered} материалов на объекте: {$this->object_text};" .
+            " в периоде выполнения: {$this->planned_date_from}" . (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '') .
             '. Операция закрыта';
 
-        if ($this->isMovingOperation()) {
-            $text = "Пользователь {$userFullName} подтвердил операцию {$typeLowered} материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
-                " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}".
+        if ($this->isMovingOperation())
+            $text = "Пользователь {$userFullName} подтвердил операцию {$typeLowered} материалов c объекта " . ($this->object_from->name_tag) . " на объект " . ($this->object_to->name_tag) . ";" .
+                " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}" .
                 '. Операция закрыта';
-        }
 
         return $text;
     }
 
     public function generateOperationConflictNotifications()
     {
-        if ($this->status != 4) {
-            return;
-        }
+        if ($this->status != 4) return;
         $user_ids = [$this->author->id, $this->responsible_user->user_id];
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach ($user_ids as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Для подробностей перейдите по ссылке: '.PHP_EOL.$this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationConflictNotificationText(),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 62,
-            ]);
+            OperationStatusConflictNotice::send(
+                $user,
+                [
+                    'name' => $this->generateOperationConflictNotificationText(),
+                    'additional_info' => 'Для подробностей перейдите по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
     public function generateOperationConflictNotificationText()
     {
         $typeLowered = $this->getLoweredTypeAttribute();
-        $text = "Операция на {$typeLowered} материалов на объекте: {$this->object_text};".
-            " в периоде выполнения: {$this->planned_date_from}".(! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '').
+        $text = "Операция на {$typeLowered} материалов на объекте: {$this->object_text};" .
+            " в периоде выполнения: {$this->planned_date_from}" . (! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '') .
             ', не может быть выполнена';
 
-        if ($this->isMovingOperation()) {
-            $text = "Операция {$typeLowered} материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
-                " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}".
+        if ($this->isMovingOperation())
+            $text = "Операция {$typeLowered} материалов c объекта " . ($this->object_from->name_tag) ." на объект " . ( $this->object_to->name_tag) .";" .
+                " в периоде выполнения: {$this->planned_date_from} - {$this->planned_date_to}" .
                 ', не может быть выполнена';
-        }
 
         return $text;
     }
 
     public function generateDraftUpdateNotifications()
     {
-        if ($this->status != 5) {
-            return;
-        }
+        if ($this->status != 5) return;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: '.PHP_EOL.$this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftUpdateNotificationText(),
-            'user_id' => $this->responsible_RP,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 64,
-        ]);
-
+        OperationCreationRequestUpdatedNotice::send(
+            $this->responsible_RP,
+            [
+                'name' => $this->generateOperationDraftUpdateNotificationText(),
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftUpdateNotificationText()
     {
         $typeLowered = $this->getLoweredTypeAttribute();
-        $text = "Пользователь {$this->author->long_full_name} обновил запрос на {$typeLowered} материалов на объекте: {$this->object_text};".
-            " Период выполнения: {$this->planned_date_from}".(! in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
+        $text = "Пользователь {$this->author->long_full_name} обновил запрос на {$typeLowered} материалов на объекте: {$this->object_text};" .
+            " Период выполнения: {$this->planned_date_from}" . (!in_array($this->type, [2, 3]) ? " - {$this->planned_date_to}" : '');
 
-        if ($this->isMovingOperation($this)) {
-            $text = "Пользователь {$this->author->long_full_name} обновил запрос на {$typeLowered} материалов c объекта ".($this->object_from->name_tag).' на объект '.($this->object_to->name_tag).';'.
+        if ($this->isMovingOperation($this))
+            $text = "Пользователь {$this->author->long_full_name} обновил запрос на {$typeLowered} материалов c объекта " . ($this->object_from->name_tag) . " на объект " . ($this->object_to->name_tag) . ";" .
                 " Период выполнения: {$this->planned_date_from} - {$this->planned_date_to}";
-        }
 
         return $text;
     }
@@ -1137,22 +1125,26 @@ class MaterialAccountingOperation extends Model
     /**
      * This function return true if we have
      * draft that updated nice, without conflicts
+     * @param $oldStatus
+     * @param $is_conflict
+     * @return bool
      */
     public function wasDraftAndUserCanWorkOnlyWithDraftsAndNoConflictInOperation($oldStatus, $is_conflict): bool
     {
-        return $this->isWasDraft($oldStatus) and auth()->user()->isOperationDrafter($this->getEnglishTypeNameAttribute()) and ! $is_conflict;
+        return $this->isWasDraft($oldStatus) and auth()->user()->isOperationDrafter($this->getEnglishTypeNameAttribute()) and !$is_conflict;
     }
 
     /**
      * This function return true if we have
      * draft that updated by user who can
      * create operations of given $type
-     *
+     * @param $oldStatus
+     * @param $is_conflict
      * @return bool
      */
     public function wasDraftAndUserCanCreateOperationAndNoConflictInOperation($oldStatus, $is_conflict)
     {
-        return $this->isWasDraft($oldStatus) and auth()->user()->isOperationCreator($this->getEnglishTypeNameAttribute()) and ! $is_conflict;
+        return $this->isWasDraft($oldStatus) and auth()->user()->isOperationCreator($this->getEnglishTypeNameAttribute()) and !$is_conflict;
     }
 
     public function send(Request $request)
@@ -1179,8 +1171,10 @@ class MaterialAccountingOperation extends Model
         return (new MaterialAccountingService($this))->compareMaterials();
     }
 
+
     /**
      * Function create certificate control task for operation
+     * @return void
      */
     public function makeCertificateControlTask(): void
     {
@@ -1194,6 +1188,7 @@ class MaterialAccountingOperation extends Model
         $this->generateCertificateControlTaskNotification($newTask);
     }
 
+
     public function update_fact()
     {
         $result_mats = $this->materials()
@@ -1203,7 +1198,7 @@ class MaterialAccountingOperation extends Model
         if (in_array($this->type, [3, 4])) {
             MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this, $this->materialsPartTo->toArray(), 2);
             MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this, $this->materialsPartFrom->toArray(), 1);
-        } elseif (in_array($this->type, [1, 2])) {
+        } elseif(in_array($this->type, [1, 2])) {
             MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this, $this->materialsPartTo->toArray(), 1);
             MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this, $this->materialsPartFrom->toArray(), 1);
 

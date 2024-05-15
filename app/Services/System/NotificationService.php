@@ -1,18 +1,20 @@
 <?php
 
+
 namespace App\Services\System;
 
-use App\Models\Notification;
+
+use App\Models\Notification\Notification;
 use App\Models\Notifications\TgNotificationUrl;
 use App\Telegram\TelegramApi;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Telegram\Bot\Laravel\Facades\Telegram;
 
 class NotificationService
 {
     /**
+     * @param $encoded_url
      * @return mixed
      */
     public function decodeNotificationUrl($encoded_url)
@@ -25,7 +27,7 @@ class NotificationService
 
     public function replaceUrl($message, $notificationId)
     {
-        if (! $notificationId) {
+        if (!$notificationId) {
             return $message;
         }
 
@@ -71,6 +73,8 @@ class NotificationService
     }
 
     /**
+     * @param $notification_id
+     * @param $url
      * @return string
      */
     public function encodeNotificationUrl($notification_id, $url)
@@ -104,53 +108,53 @@ class NotificationService
     {
         $user = auth()->user();
         $errorsBag = $exception->errors();
-        $error = $exception->getMessage() ? 'Ошибка: '.$exception->getMessage() : 'Неизвестная ошибка.';
-        $exceptionClass = 'Класс ошибки - '.get_class($exception).'.';
-        $file = $exception->getFile() ? 'В файле: '.
+        $error = $exception->getMessage() ? 'Ошибка: ' . $exception->getMessage() : 'Неизвестная ошибка.';
+        $exceptionClass = 'Класс ошибки - ' . get_class($exception) . '.';
+        $file = $exception->getFile() ? 'В файле: ' .
             preg_replace('/\/var\/www\/html/', '', $exception->getFile()) : '';
-        $line = $exception->getLine() ? 'На строке '.$exception->getLine().'.' : '';
+        $line = $exception->getLine() ? 'На строке ' . $exception->getLine() . '.' : '';
 
-        $general_info = 'Пользователь '.$user->long_full_name.
-            ' с id '.$user->id.' не прошёл валидацию на стороне сервера.'.PHP_EOL.
-            'URL: '.request()->fullUrl().'. Метод: '.request()->method().'.'.PHP_EOL;
+        $general_info = 'Пользователь ' . $user->long_full_name .
+            ' с id ' . $user->id . ' не прошёл валидацию на стороне сервера.' . PHP_EOL .
+            'URL: ' . request()->fullUrl() . '. Метод: ' . request()->method() . '.' . PHP_EOL;
 
         $data = '';
         foreach (request()->all() as $name => $value) {
             if ($name != 'password' && $name != 'password_confirmation' && is_string($name) && is_string($value)) {
-                $data .= $name.' => '.(is_array($value) ? implode(' ', $value) : $value).PHP_EOL;
+                $data .= $name . ' => ' . (is_array($value) ? implode(' ', $value) : $value) . PHP_EOL;
             }
         }
 
-        $dataInfo = ($data != '') ? ('Переданные данные: '.PHP_EOL.$data) : '';
+        $dataInfo = ($data != '') ? ('Переданные данные: ' . PHP_EOL . $data) : '';
 
         $fileErrors = '';
         foreach (request()->allFiles() as $name => $files) {
-            $fileErrors .= $name.' => ['.PHP_EOL;
+            $fileErrors .= $name . ' => [' . PHP_EOL;
             foreach ($files as $key => $file) {
-                $fileErrors .= "{$key} -> Название: {$file->getClientOriginalName()}.".
-                    " Расширение: {$file->getClientOriginalExtension()}.".
-                    " MIME-тип: {$file->getMimeType()}. Размер: {$file->getSize()} байт(ов).".PHP_EOL;
+                $fileErrors .= "{$key} -> Название: {$file->getClientOriginalName()}." .
+                    " Расширение: {$file->getClientOriginalExtension()}." .
+                    " MIME-тип: {$file->getMimeType()}. Размер: {$file->getSize()} байт(ов)." . PHP_EOL;
             }
 
             $fileErrors .= ']';
         }
 
-        $filesInfo = ($fileErrors != '') ? ('Переданные файлы: '.PHP_EOL.$fileErrors) : '';
+        $filesInfo = ($fileErrors != '') ? ('Переданные файлы: ' . PHP_EOL . $fileErrors) : '';
 
         if ($errorsBag) {
             $errors = '';
             $fails = $errorsBag;
             foreach ($fails as $name => $fail) {
-                $errors .= $name.' => '.implode($fail).PHP_EOL;
+                $errors .= $name . ' => ' . implode($fail) . PHP_EOL;
             }
         } else {
             $errors = 'Отсутствуют';
         }
 
-        $error_bag = 'Ошибки валидации: '.PHP_EOL.$errors;
+        $error_bag = 'Ошибки валидации: ' . PHP_EOL . $errors;
 
-        $final = $error.PHP_EOL.$exceptionClass.PHP_EOL.$file.PHP_EOL.$line.
-            PHP_EOL.$general_info.$dataInfo.PHP_EOL.$filesInfo.PHP_EOL.PHP_EOL.$error_bag;
+        $final = $error . PHP_EOL . $exceptionClass . PHP_EOL . $file . PHP_EOL . $line .
+            PHP_EOL . $general_info . $dataInfo . PHP_EOL . $filesInfo . PHP_EOL . PHP_EOL . $error_bag;
 
         return $final;
     }
@@ -160,21 +164,21 @@ class NotificationService
         $data = '';
         foreach (request()->all() as $name => $value) {
             if ($name != 'password' && $name != 'password_confirmation' && is_string($name) && is_string($value)) {
-                $data .= $name.' => '.(is_array($value) ? implode(' ', $value) : $value).PHP_EOL;
+                $data .= $name . ' => ' . (is_array($value) ? implode(' ', $value) : $value) . PHP_EOL;
             }
         }
 
-        $error = $exception->getMessage() ? 'Ошибка: '.$exception->getMessage() : 'Неизвестная ошибка.';
-        $exceptionClass = 'Класс ошибки - '.get_class($exception).'.';
-        $file = $exception->getFile() ? 'В файле: '.
+        $error = $exception->getMessage() ? 'Ошибка: ' . $exception->getMessage() : 'Неизвестная ошибка.';
+        $exceptionClass = 'Класс ошибки - ' . get_class($exception) . '.';
+        $file = $exception->getFile() ? 'В файле: ' .
             preg_replace('/\/var\/www\/html/', '', $exception->getFile()) : '';
-        $line = $exception->getLine() ? 'На строке '.$exception->getLine().'.' : '';
-        $path = request()->path() ? 'На странице: '.request()->path().'.' : '';
-        $userInfo = (Auth::user() ? 'Пользователь: '.Auth::user()->full_name : 'Нет пользователя').
-            ', ip - '.request()->ip();
-        $dataInfo = ($data != '') ? ('Переданные данные: '.PHP_EOL.$data) : '';
-        $text = $error.PHP_EOL.$exceptionClass.PHP_EOL.$file.PHP_EOL.$line.
-            PHP_EOL.$path.PHP_EOL.$userInfo.PHP_EOL.$dataInfo;
+        $line = $exception->getLine() ? 'На строке ' . $exception->getLine() . '.' : '';
+        $path = request()->path() ? 'На странице: ' . request()->path() . '.' : '';
+        $userInfo = (Auth::user() ? 'Пользователь: ' . Auth::user()->full_name : 'Нет пользователя') .
+            ', ip - ' . request()->ip();
+        $dataInfo = ($data != '') ? ('Переданные данные: ' . PHP_EOL . $data) : '';
+        $text = $error . PHP_EOL . $exceptionClass . PHP_EOL . $file . PHP_EOL . $line .
+            PHP_EOL . $path . PHP_EOL . $userInfo . PHP_EOL . $dataInfo;
 
         return $text;
     }

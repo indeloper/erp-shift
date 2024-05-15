@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 
 trait Notificationable
 {

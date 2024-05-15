@@ -4,7 +4,11 @@ namespace App\Console\Commands;
 
 use App\Models\Permission;
 use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
+use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
+use App\Notifications\Fuel\FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification;
+use App\Notifications\Fuel\NewFuelTankResponsibleNotification;
 use Illuminate\Console\Command;
 
 class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
@@ -42,12 +46,41 @@ class NotifyFuelTankResponsiblesAboutMovingConfirmationDelay extends Command
     {
         $fuelTanksAwaitingMovingConfirmation = FuelTank::where('awaiting_confirmation', 1)->get();
         $notificationRecipientsOffice = (new Permission)->getUsersIdsByCodename('notify_about_all_fuel_tanks_transfer');
-        foreach ($fuelTanksAwaitingMovingConfirmation as $tank) {
-            (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
+        foreach($fuelTanksAwaitingMovingConfirmation as $tank) {
+
+            NewFuelTankResponsibleNotification::send(
+                $tank->responsible_id,
+                [
+                    'name' => (new FuelNotifications)->renderNewFuelTankResponsible($tank),
+                    'tank_id' => $tank->id
+                ]
+            );
+
+            $lastTankTransferHistory = FuelTankTransferHistory::query()
+                ->where('fuel_tank_id', $tank->id)
+                ->whereNull('fuel_tank_flow_id')
+                ->orderByDesc('id')
+                ->first();
+
+            $newResponsible = User::find($tank->responsible_id);
+
+            $previousResponsible = User::find($lastTankTransferHistory->previous_responsible_id);
 
             foreach ($notificationRecipientsOffice as $userId) {
-                (new FuelNotifications)->notifyOfficeResponsiblesAboutFuelTankMovingConfirmationDelayed($tank, $userId);
+
+                FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification::send(
+                    $userId,
+                    [
+                        'name' => 'Перемещение топливной емкости',
+                        'tank' => $tank,
+                        'lastTankTransferHistory' => $lastTankTransferHistory,
+                        'newResponsible' => $newResponsible,
+                        'previousResponsible' => $previousResponsible
+                    ]
+                );
             }
         }
     }
+
+
 }

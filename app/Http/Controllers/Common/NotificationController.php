@@ -2,63 +2,95 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Domain\DTO\Notification\NotificationSettingsData;
+use App\Domain\DTO\Notification\NotificationSortData;
 use App\Http\Controllers\Controller;
-use App\Models\Notification;
-use App\Models\Notifications\NotificationTypes;
+use App\Http\Requests\Notification\DeleteNotificationRequest;
+use App\Http\Requests\Notification\NotificationRequest;
+use App\Http\Requests\Notification\NotificationSettingsItemsRequest;
+use App\Http\Requests\Notification\ViewNotificationRequest;
+use App\Http\Resources\Notification\NotificationItemResource;
+use App\Http\Resources\Notification\NotificationResource;
+use App\Services\Notification\NotificationServiceInterface;
+use App\Services\NotificationItem\NotificationItemServiceInterface;
 use App\Services\System\NotificationService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use function auth;
 
 class NotificationController extends Controller
 {
+
+    private $notificationService;
+
+    private $notificationItemService;
+
+    public function __construct(
+        NotificationServiceInterface $notificationService,
+        NotificationItemServiceInterface $notificationItemService
+    ) {
+        $this->notificationService     = $notificationService;
+        $this->notificationItemService = $notificationItemService;
+    }
+
     public function index()
     {
-        $notifications = Notification::orderBy('is_seen', 'asc')
-            ->orderBy('created_at', 'desc')
-            ->with('task', 'wv_request', 'wv_request.wv', 'co_request', 'co_request.co')
-            ->leftjoin('project_objects', 'project_objects.id', '=', 'notifications.object_id')
-            ->leftjoin('contractors', 'contractors.id', '=', 'notifications.contractor_id')
-            ->where('notifications.user_id', Auth::user()->id)
-            ->where('is_deleted', 0);
-
-        if (auth()->user()->disabledInSystemNotifications()->isNotEmpty()) {
-            $notifications->whereRaw('CASE WHEN is_showing = 1 AND type IN ('.
-                implode(',', auth()->user()->disabledInSystemNotifications()->pluck('notification_id')->toArray()).')
-                THEN 0 ELSE is_showing = 1 END');
-        } else {
-            $notifications->where('is_showing', 1);
-        }
-
-        $notifications->select('notifications.*', 'project_objects.address', 'contractors.short_name');
-
-        return view('notifications.index', [
-            'notifications' => $notifications->paginate(20),
-            'notification_types' => NotificationTypes::whereIn('id', auth()->user()->allowedNotifications())->get(),
-            'disabled_in_system' => auth()->user()->disabledInSystemNotifications()->pluck('notification_id')->toArray(),
-            'disabled_in_telegram' => auth()->user()->disabledInTelegramNotifications()->pluck('notification_id')->toArray(),
-        ]);
+        return view('notifications.index');
     }
 
-    public function delete(Request $request)
+    public function loadNotifications(NotificationRequest $request)
     {
-        Notification::findOrFail($request->notify_id)->update(['is_deleted' => 1]);
-
-        return \GuzzleHttp\json_encode(true);
+        return NotificationResource::collection(
+            $this->notificationService->getNotifications(
+                auth()->id(),
+                new NotificationSortData($request->get('sort_selector'),
+                    $request->get('sort_direction', 'asc'))
+            )
+        );
     }
 
-    public function view(Request $request)
+    public function delete(DeleteNotificationRequest $request)
     {
-        Notification::findOrFail($request->notify_id)->update(['is_seen' => 1]);
+        $this->notificationService->delete(
+            $request->get('notify_id')
+        );
 
-        return \GuzzleHttp\json_encode(true);
+        return response()->json(true);
     }
 
-    public function view_all()
+    public function view(ViewNotificationRequest $request)
     {
-        Notification::where('user_id', Auth::user()->id)->update(['is_seen' => 1]);
+        $this->notificationService->view(
+            $request->get('notify_id')
+        );
 
-        return back();
+        return response()->json(true);
+    }
+
+    public function items()
+    {
+        return NotificationItemResource::collection(
+            $this->notificationItemService->getNotificationItems(
+                auth()->id()
+            )
+        );
+    }
+
+    public function settings(NotificationSettingsItemsRequest $request)
+    {
+        $this->notificationItemService->settings(
+            auth()->id(),
+            new NotificationSettingsData(
+                $request->get('items', [])
+            )
+        );
+    }
+
+    public function viewAll()
+    {
+        $this->notificationService
+            ->viewAll(auth()->id());
+
+        return response()->json(true);
     }
 
     public function redirect($encoded_url)
@@ -69,4 +101,5 @@ class NotificationController extends Controller
 
         return redirect($url);
     }
+
 }

@@ -1,7 +1,6 @@
-function init(element) {
-  new Vue(
-    require('./Menu.vue').default
-  ).$mount(element)
-}
+import { createApp } from 'vue'
 
-module.exports.init = init
+createApp(require('./Menu.vue').default)
+  .mount('#menu-component')
+
+

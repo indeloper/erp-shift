@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\User;
 use App\Services\System\NotificationService;
 use Tests\TestCase;

@@ -8,12 +8,16 @@ use App\Models\User;
 
 final class UserRepository implements UserRepositoryInterface
 {
+
     /**
+     * @param int $userId
+     *
      * @return User|null
      */
-    public function getUserById($userId)
+    public function getUserById(int $userId): ?User
     {
         return User::query()
             ->find($userId);
     }
+
 }

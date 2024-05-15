@@ -3,12 +3,9 @@
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\OurVehicleRequests\OurVehicleDeleteRequest;
-use App\Http\Requests\OurVehicleRequests\OurVehicleStoreRequest;
-use App\Http\Requests\OurVehicleRequests\OurVehicleUpdateRequest;
+use App\Http\Requests\OurVehicleRequests\{OurVehicleDeleteRequest, OurVehicleStoreRequest, OurVehicleUpdateRequest};
 use App\Models\FileEntry;
-use App\Models\TechAcc\Vehicles\OurVehicles;
-use App\Models\TechAcc\Vehicles\VehicleCategories;
+use App\Models\TechAcc\Vehicles\{OurVehicles, VehicleCategories};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +17,7 @@ class OurVehiclesController extends Controller
             'data' => [
                 'owners' => OurVehicles::OWNERS,
                 'category' => $vehicle_category,
-                'vehicles' => $vehicle_category->vehicles,
+                'vehicles' => $vehicle_category->vehicles
             ],
         ]);
     }
@@ -37,9 +34,9 @@ class OurVehiclesController extends Controller
         DB::commit();
 
         return response()->json([
-            'result' => 'success',
-            'data' => $vehicle,
-        ]
+                'result' => 'success',
+                'data' => $vehicle,
+            ]
         );
     }
 
@@ -73,10 +70,12 @@ class OurVehiclesController extends Controller
 
     public function get_vehicles(Request $request)
     {
-        if ($request->q != '') {
+        if ($request->q != '')
+        {
             $vehicles = OurVehicles::where('model', 'like', "%{$request->q}%")
                 ->orWhere('mark', 'like', "%{$request->q}%")->get();
-        } else {
+        } else
+        {
             $vehicles = OurVehicles::take(20)->get();
         }
 
@@ -93,7 +92,7 @@ class OurVehiclesController extends Controller
             'data' => [
                 'owners' => OurVehicles::OWNERS,
                 'category' => $vehicle_category,
-                'vehicles' => $vehicle_category->vehicles()->onlyTrashed()->get(),
+                'vehicles' => $vehicle_category->vehicles()->onlyTrashed()->get()
             ],
         ]);
     }

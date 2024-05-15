@@ -10,19 +10,19 @@ use App\Models\Manual\ManualReference;
 use App\Models\MatAcc\MaterialAccountingMaterialFile;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\User;
+use App\Notifications\Material\MaterialDifferenceNotice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class MaterialAccountingService
-{
+class MaterialAccountingService {
+
     protected $operation;
 
-    public function __construct(?MaterialAccountingOperation $operation = null)
+    public function __construct(MaterialAccountingOperation $operation = null)
     {
         $this->operation = $operation;
     }
@@ -39,7 +39,8 @@ class MaterialAccountingService
             } else {
                 return $partResult;
             }
-        } elseif ($this->isWriteOffOperation()) {
+        }
+        elseif ($this->isWriteOffOperation()) {
             $partResult = $this->partSaveWriteOffOperation($request);
 
             if ($partResult['status'] === 'success') {
@@ -47,7 +48,8 @@ class MaterialAccountingService
             } else {
                 return $partResult;
             }
-        } elseif ($this->isTransformationOperation()) {
+        }
+        elseif ($this->isTransformationOperation()) {
             $partResult = $this->partSaveTransformationOperation($request);
 
             if ($partResult['status'] === 'success') {
@@ -55,7 +57,8 @@ class MaterialAccountingService
             } else {
                 return $partResult;
             }
-        } elseif ($this->isMovingOperation()) {
+        }
+        elseif ($this->isMovingOperation()) {
             $partResult = $this->partSaveMovingOperation($request);
 
             if ($partResult['status'] === 'success') {
@@ -74,11 +77,14 @@ class MaterialAccountingService
 
         if ($this->isArrivalOperation()) {
             $result = $this->partSaveArrivalOperation($request);
-        } elseif ($this->isWriteOffOperation()) {
+        }
+        elseif ($this->isWriteOffOperation()) {
             $result = $this->partSaveWriteOffOperation($request);
-        } elseif ($this->isTransformationOperation()) {
+        }
+        elseif ($this->isTransformationOperation()) {
             $result = $this->partSaveTransformationOperation($request);
-        } elseif ($this->isMovingOperation()) {
+        }
+        elseif ($this->isMovingOperation()) {
             $result = $this->partSaveMovingOperation($request);
         }
 
@@ -141,7 +147,7 @@ class MaterialAccountingService
     {
         $this->operation->status = 2;
         $this->operation->actual_date_from = Carbon::now()->format('d.m.Y');
-        $this->operation->actual_date_to = Carbon::now()->format('d.m.Y');
+        $this->operation->actual_date_to= Carbon::now()->format('d.m.Y');
 
         $this->operation->sender_id = Auth::user()->id;
 
@@ -168,7 +174,7 @@ class MaterialAccountingService
     {
         $bad_materials = collect([]);
 
-        if ($request->type == 1) {
+        if($request->type == 1) {
             $this->operation->actual_date_from = Carbon::now()->format('d.m.Y');
             $this->operation->sender_id = Auth::user()->id;
 
@@ -189,7 +195,7 @@ class MaterialAccountingService
             }
         }
 
-        if ($this->operation->actual_date_from && $this->operation->actual_date_to) {
+        if($this->operation->actual_date_from && $this->operation->actual_date_to) {
             $this->operation->status = 2;
             foreach ($this->operation->materials()->whereIn('type', [1, 2])->get()->groupBy('manual_material_id') as $man_mat_id => $material_types) {
 
@@ -209,18 +215,18 @@ class MaterialAccountingService
                 array_push($user_ids, ...$this->operation->responsible_users()->pluck('user_id')->toArray());
 
                 foreach ($user_ids as $user_id) {
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Перейти к операции можно по ссылке: '.PHP_EOL.$this->operation->general_url;
-                    $notification->update([
-                        'name' => "По операции перемещения материалов c объекта {$this->operation->object_from->name_tag} на объект {$this->operation->object_to->name_tag};".
-                            " в периоде выполнения: {$this->operation->planned_date_from} - {$this->operation->planned_date_to}".
-                            ', выявлено расхождение в количестве фактически отправленного и фактически полученного материала.',
-                        'status' => 6,
-                        'user_id' => $user_id,
-                        'target_id' => $this->operation->id,
-                        'type' => 12,
-                    ]);
+                    MaterialDifferenceNotice::send(
+                        $user_id,
+                        [
+                            'name' => "По операции перемещения материалов c объекта {$this->operation->object_from->name_tag} на объект {$this->operation->object_to->name_tag};" .
+                                    " в периоде выполнения: {$this->operation->planned_date_from} - {$this->operation->planned_date_to}" .
+                                    ', выявлено расхождение в количестве фактически отправленного и фактически полученного материала.',
+                            'additional_info' => ' Перейти к операции можно по ссылке: ',
+                            'url' => $this->operation->general_url,
+                            'status' => 6,
+                            'target_id' => $this->operation->id,
+                        ]
+                    );
                 }
             }
         }
@@ -249,7 +255,7 @@ class MaterialAccountingService
             return ['status' => 'error', 'message' => $result];
         }
 
-        MaterialAccountingMaterialFile::whereIn('id', array_merge((array) $request->files_ids, (array) $request->images_ids))
+        MaterialAccountingMaterialFile::whereIn('id', array_merge((array)$request->files_ids, (array)$request->images_ids))
             ->where('operation_material_id', 0)
             ->update(['operation_material_id' => $result['operation_material_id']]);
 
@@ -275,7 +281,7 @@ class MaterialAccountingService
             return ['status' => 'error', 'message' => $result];
         }
 
-        MaterialAccountingMaterialFile::whereIn('id', array_merge((array) $request->files_ids, (array) $request->images_ids))
+        MaterialAccountingMaterialFile::whereIn('id', array_merge((array)$request->files_ids, (array)$request->images_ids))
             ->where('operation_material_id', 0)
             ->update(['operation_material_id' => $result['operation_material_id']]);
 
@@ -296,7 +302,7 @@ class MaterialAccountingService
 
         if (isset($request->type) && $request->type == 8) {
             $result_from = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this->operation, $request->materials, 8, 'transformation_from', $request->comment);
-        } elseif (! isset($request->type)) {
+        } elseif (!isset($request->type)) {
             $result_from = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this->operation, $request->materials_from, 8, 'transformation_from', $request->comment);
         }
 
@@ -306,16 +312,16 @@ class MaterialAccountingService
 
         if (isset($request->type) && $request->type == 9) {
             $result_to = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this->operation, $request->materials, 9, 'transformation_to', $request->comment);
-        } elseif (! isset($request->type)) {
+        } elseif (!isset($request->type)) {
             $result_to = MaterialAccountingOperationMaterials::getModel()->createOperationMaterials($this->operation, $request->materials_to, 9, 'transformation_to', $request->comment);
         }
 
-        if (isset($result_to) && $result_to !== true && ($result_to['status'] ?? null) != true) {
+        if (isset($result_to) && $result_to !== true && ($result_to['status']  ?? null) != true) {
             return ['status' => 'error', 'message' => $result_to];
         }
 
         if (isset($result_to)) {
-            MaterialAccountingMaterialFile::whereIn('id', array_merge((array) $request->files_ids, (array) $request->images_ids))
+            MaterialAccountingMaterialFile::whereIn('id', array_merge((array)$request->files_ids, (array)$request->images_ids))
                 ->where('operation_material_id', 0)
                 ->update(['operation_material_id' => $result_to['operation_material_id']]);
         }
@@ -327,7 +333,7 @@ class MaterialAccountingService
 
     public function partSaveMovingOperation($request)
     {
-        if (! $request->materials or ! count($request->materials)) {
+        if (!$request->materials or !count($request->materials)) {
             return ['status' => 'success'];
         }
 
@@ -350,7 +356,7 @@ class MaterialAccountingService
             return ['status' => 'error', 'message' => $result];
         }
 
-        MaterialAccountingMaterialFile::whereIn('id', array_merge((array) $request->files_ids, (array) $request->images_ids))
+        MaterialAccountingMaterialFile::whereIn('id', array_merge((array)$request->files_ids, (array)$request->images_ids))
             ->where('operation_material_id', 0)
             ->update(['operation_material_id' => $result['operation_material_id']]);
 
@@ -366,23 +372,25 @@ class MaterialAccountingService
 
     public function createPartAcceptTask($materials)
     {
-        //        $this->operation->tasks()->create(
-        //            [
-        //                'name' => 'Согласование частичного закрытия',
-        //                'responsible_user_id' => $this->operation->author_id,
-        //                'status' => 42,
-        //                'expired_at' => $this->addHours(8),
-        //            ]
-        //        );
+//        $this->operation->tasks()->create(
+//            [
+//                'name' => 'Согласование частичного закрытия',
+//                'responsible_user_id' => $this->operation->author_id,
+//                'status' => 42,
+//                'expired_at' => $this->addHours(8),
+//            ]
+//        );
     }
 
     public function compareMaterials()
     {
         if ($this->isArrivalOperation()) {
             return $this->compareMaterialsTypes(1, 2);
-        } elseif ($this->isWriteOffOperation()) {
+        }
+        elseif ($this->isWriteOffOperation()) {
             return $this->compareMaterialsTypes(1, 2);
-        } elseif ($this->isTransformationOperation()) {
+        }
+        elseif ($this->isTransformationOperation()) {
             $result = $this->compareMaterialsTypes(2, 4);
 
             if ($result['status'] == 'success') {
@@ -390,7 +398,8 @@ class MaterialAccountingService
             }
 
             return $result;
-        } elseif ($this->isMovingOperation()) {
+        }
+        elseif ($this->isMovingOperation()) {
             $result = $this->compareMaterialsTypes(1, 5);
 
             if ($result['status'] == 'success') {
@@ -412,26 +421,27 @@ class MaterialAccountingService
 
         foreach ($materials as $fact_material) {
             $materialCompare = $fact_material->sameMaterials()->where('type', $acceptType)->first();
-            if (! $materialCompare) {
+            if (!$materialCompare) {
                 return [
                     'status' => 'error',
                     'message' => 'Отсутствует материал в факте операции! '
-                        .$fact_material->manual->name,
+                        . $fact_material->manual->name
                 ];
             }
 
             if ($fact_material->unit == $materialCompare->unit) {
-            } else {
+            }
+            else {
                 $materialCompare->count = ($materialCompare->manual->convert_to($materialCompare->unit)->value ?? 0) * $materialCompare->count;
             }
 
-            if (! $materialCompare || $materialCompare->count != $fact_material->count) {
+            if (!$materialCompare || $materialCompare->count != $fact_material->count) {
                 return [
                     'status' => 'error',
                     'message' => 'Фактический и итоговый материал отличаются! '
-                        .$fact_material->manual->name
-                        .' итог: '.$fact_material->count.' '.$fact_material->units_name[$fact_material->unit]
-                        .', факт: '.($materialCompare->count ?? 0).' '.$materialCompare->units_name[$materialCompare->unit],
+                        . $fact_material->manual->name
+                        . ' итог: ' . $fact_material->count . ' ' . $fact_material->units_name[$fact_material->unit]
+                        . ', факт: ' . ($materialCompare->count ?? 0) . ' ' . $materialCompare->units_name[$materialCompare->unit]
                 ];
             }
         }
@@ -442,10 +452,10 @@ class MaterialAccountingService
     public function getSearchValues($search, $for_operations = false)
     {
         $response = [];
-        //        $mats = ManualMaterial::where('name', 'like', "%$search%")->take(5)->get();
-        $objects = ProjectObject::where('name', 'like', "%{$search}%")
-            ->orWhere('address', 'like', "%{$search}%")
-            ->orWhere('short_name', 'like', "%{$search}%")->take(5)->get();
+//        $mats = ManualMaterial::where('name', 'like', "%$search%")->take(5)->get();
+        $objects = ProjectObject::where('name', 'like',  "%{$search}%")
+            ->orWhere('address', 'like',  "%{$search}%")
+            ->orWhere('short_name', 'like',  "%{$search}%")->take(5)->get();
         $references = ManualReference::where('name', 'like', "%$search%")->take(5)->get();
 
         $types = (new MaterialAccountingOperation())->type_names;
@@ -455,12 +465,13 @@ class MaterialAccountingService
             $users = User::where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', "%{$search}%")->take(5)->get();
             if ($search !== '') {
                 $types = array_filter($types, function ($type) use ($search) {
-                    return ! (mb_stripos(($type), ($search)) === false);
+                    return !(mb_stripos(($type), ($search)) === false);
                 });
                 $statuses = array_filter($statuses, function ($status) use ($search) {
-                    return ! (mb_stripos($status, $search) === false);
+                    return !(mb_stripos($status, $search) === false);
                 });
             }
+
 
             if (count($types)) {
                 foreach ($types as $key => $type) {
@@ -508,16 +519,12 @@ class MaterialAccountingService
         }
 
         if ($references->count()) {
-            $references = $references->filter(function ($ref) {
-                return $ref->category;
-            });
+            $references = $references->filter(function($ref) {return $ref->category;});
             foreach ($references as $reference) {
                 $attrs = $reference->category->needAttributes();
                 $attr_ids = [];
                 foreach ($attrs as $attr) {
-                    if ($attr['id'] == 'etalon') {
-                        continue;
-                    }
+                    if ($attr['id'] == 'etalon') continue;
                     $mats_id = ManualMaterial::where('manual_reference_id', $reference->id)->get('id')->pluck('id');
                     $par_q = ManualMaterialParameter::whereIn('mat_id', $mats_id)->where('attr_id', $attr['id'])->get();
                     $par_q = $par_q->filter(function ($par) {
@@ -539,16 +546,16 @@ class MaterialAccountingService
             }
         }
 
-        //        if ($mats->count()) {
-        //            foreach ($mats as $mat) {
-        //                $response[] = [
-        //                    'type_name' => 'Материалы',
-        //                    'type_id' => 1,
-        //                    'result_id' => $mat->id,
-        //                    'result_name' => $mat->name,
-        //                ];
-        //            }
-        //        }
+//        if ($mats->count()) {
+//            foreach ($mats as $mat) {
+//                $response[] = [
+//                    'type_name' => 'Материалы',
+//                    'type_id' => 1,
+//                    'result_id' => $mat->id,
+//                    'result_name' => $mat->name,
+//                ];
+//            }
+//        }
 
         return $response;
     }
@@ -572,7 +579,6 @@ class MaterialAccountingService
                     'material_count' => $mat->count,
                 ];
             }
-
             return $result;
         }, []);
 
@@ -600,7 +606,6 @@ class MaterialAccountingService
                         'material_count' => $mat->count,
                     ];
                 }
-
                 return $result;
             }, []);
 
@@ -609,4 +614,5 @@ class MaterialAccountingService
 
         return $result;
     }
+
 }

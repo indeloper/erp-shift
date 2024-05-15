@@ -6,6 +6,7 @@ use App\Models\Permission;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 
+
 class MakePermission extends Command
 {
     /**
@@ -36,7 +37,7 @@ class MakePermission extends Command
     {
         return Validator::make($request, [
             'codename' => 'max:255|unique:permissions',
-            'name' => 'max:255|unique:permissions',
+            'name' => 'max:255|unique:permissions'
         ]);
     }
 
@@ -49,10 +50,10 @@ class MakePermission extends Command
     {
         $request = [
             'codename' => $this->ask('What is codename?'),
-            'name' => $this->ask('What is name (description)?'),
+            'name' => $this->ask('What is name (description)?')
         ];
 
-        if ($this->validate($request)) {
+        if ($this->validate($request)){
             $permission = new Permission();
 
             $permission->codename = $request['codename'];
@@ -61,7 +62,7 @@ class MakePermission extends Command
             $permission->save();
 
             $this->info('permission saved');
-        } else {
+        }else{
             $this->error('Something went wrong!');
         }
     }

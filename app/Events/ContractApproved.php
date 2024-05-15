@@ -4,8 +4,8 @@ namespace App\Events;
 
 use App\Models\Contract\Contract;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\Notification;
 use App\Models\Task;
+use App\Notifications\Operation\ContractControlInOperationsTaskNotice;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -38,7 +38,7 @@ class ContractApproved
 
         foreach ($operations as $operation) {
             $task = Task::create([
-                'name' => 'Контроль договора в операции '.mb_strtolower($operation->type_name),
+                'name' => 'Контроль договора в операции ' . mb_strtolower($operation->type_name),
                 'project_id' => $contract->project_id,
                 'responsible_user_id' => $operation->author_id,
                 'target_id' => $operation->id,
@@ -46,17 +46,16 @@ class ContractApproved
                 'status' => 45,
             ]);
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к задаче можно по ссылке: '.PHP_EOL.$task->task_route();
-            $notification->update([
-                'name' => 'Создана задача: '.$task->name,
-                'task_id' => $task->id,
-                'object_id' => $object_id,
-                'user_id' => $task->responsible_user_id,
-                'type' => 109,
-            ]);
-
+            ContractControlInOperationsTaskNotice::send(
+                $task->responsible_user_id,
+                [
+                    'name' => 'Создана задача: ' . $task->name,
+                    'additional_info' => 'Перейти к задаче можно по ссылке: ',
+                    'url' => $task->task_route(),
+                    'task_id' => $task->id,
+                    'object_id' => $object_id,
+                ]
+            );
         }
 
     }

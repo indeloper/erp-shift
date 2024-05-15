@@ -24,8 +24,8 @@ class NotificationTypes extends Model
     ];
 
     const WDIM_FOR_EVERYONE = [
-        0 => 'not everyone can have this notifications',
-        1 => 'everyone can have this notifications',
+        0 => 'Not everyone can receive these notifications',
+        1 => 'Everyone can receive these notifications',
     ];
 
     protected $fillable = [

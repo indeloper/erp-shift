@@ -2,20 +2,19 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Http\Request;
-use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * The path to the "home" route for your application.
+     * This namespace is applied to your controller routes.
+     *
+     * In addition, it is set as the URL generator's root namespace.
      *
      * @var string
      */
-    public const HOME = '/';
+    protected $namespace = 'App\Http\Controllers';
 
     /**
      * Define your route model bindings, pattern filters, etc.
@@ -24,29 +23,37 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->configureRateLimiting();
-
-        $this->routes(function () {
-            $this->mapApiRoutes();
-
-            $this->mapWebRoutes();
-
-            // Подключаем маршруты для шаблона
-            $this->mapLayoutRoutes();
-            $this->mapProfileRoutes();
-
-            //
-        });
-Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = false) {
+        Route::macro('registerBaseRoutes', function($controller, $attachmentsRoutes = false) {
             Route::get('/', $controller.'@getPageCore')->name('getPageCore');
             Route::apiResource('resource', $controller);
-            if ($attachmentsRoutes) {
+            if($attachmentsRoutes) {
                 Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
                 Route::post('downloadAttachments', $controller.'@downloadAttachments')->name('downloadAttachments');
             }
-        });    }
+        });
 
+        parent::boot();
+    }
 
+    /**
+     * Define the routes for the application.
+     *
+     * @return void
+     */
+    public function map()
+    {
+
+        $this->mapApiRoutes();
+
+        $this->mapWebRoutes();
+
+        // Подключаем маршруты для шаблона
+        $this->mapLayoutRoutes();
+        $this->mapProfileRoutes();
+        $this->mapNotificationsRoutes();
+
+        //
+    }
 
     /**
      * Define the "web" routes for the application.
@@ -57,49 +64,49 @@ Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = f
      */
     protected function mapWebRoutes()
     {
-        Route::middleware('web'))->group(base_path('routes/web.php'));
+        Route::middleware('web')->namespace(($this->namespace))->group(base_path('routes/web.php'));
 
-        Route::middleware(['web', 'activeuser', 'auth'])->group(function () {
+        Route::middleware(['web','activeuser', 'auth'])->namespace($this->namespace)->group(function() {
 
-            Route::prefix('contractors')->as('contractors::')->group(function () {
-                require base_path('routes/modules/contractors.php');
-            });
-
-            Route::prefix('building')->as('building::')->group(function () {
-                Route::prefix('mat_acc')->as('mat_acc::')->group(function () {
-                    Route::prefix('arrival')->as('arrival::')->group(function () {
-                        require base_path('routes/modules/building/material_accounting/arrival.php');
-                    });
-                    Route::prefix('write_off')->as('write_off::')->group(function () {
-                        require base_path('routes/modules/building/material_accounting/write_off.php');
-                    });
-                    Route::prefix('transformation')->as('transformation::')->group(function () {
-                        require base_path('routes/modules/building/material_accounting/transformation.php');
-                    });
-                    Route::prefix('moving')->as('moving::')->group(function () {
-                        require base_path('routes/modules/building/material_accounting/moving.php');
-                    });
-
-                    require base_path('routes/modules/building/material_accounting/main.php');
+                Route::prefix('contractors')->as('contractors::')->namespace('Commerce')->group(function () {
+                    require base_path('routes/modules/contractors.php');
                 });
 
-                Route::prefix('tech_acc')->as('tech_acc::')->group(function () {
-                    require base_path('routes/modules/building/tech_accounting/tech.php');
+                Route::prefix('building')->as('building::')->namespace('Building')->group(function() {
+                    Route::prefix('mat_acc')->as('mat_acc::')->namespace('MaterialAccounting')->group(function() {
+                        Route::prefix('arrival')->as('arrival::')->group(function() {
+                            require base_path('routes/modules/building/material_accounting/arrival.php');
+                        });
+                        Route::prefix('write_off')->as('write_off::')->group(function() {
+                            require base_path('routes/modules/building/material_accounting/write_off.php');
+                        });
+                        Route::prefix('transformation')->as('transformation::')->group(function() {
+                            require base_path('routes/modules/building/material_accounting/transformation.php');
+                        });
+                        Route::prefix('moving')->as('moving::')->group(function() {
+                            require base_path('routes/modules/building/material_accounting/moving.php');
+                        });
+
+                        require base_path('routes/modules/building/material_accounting/main.php');
+                    });
+
+                    Route::prefix('tech_acc')->as('tech_acc::')->namespace('TechAccounting')->group(function() {
+                        require base_path('routes/modules/building/tech_accounting/tech.php');
+                    });
+
+                    Route::prefix('vehicles')->as('vehicles::')->namespace('TechAccounting')->group(function() {
+                        require base_path('routes/modules/building/tech_accounting/vehicles.php');
+                    });
                 });
 
-                Route::prefix('vehicles')->as('vehicles::')->group(function () {
-                    require base_path('routes/modules/building/tech_accounting/vehicles.php');
+                Route::namespace('Commerce')->prefix('projects')->as('projects::')->group(function() {
+                    require base_path('routes/modules/projects.php');
+                });
+
+                Route::namespace('System')->prefix('messages')->as('messages::')->group(function() {
+                    require base_path('routes/modules/messages.php');
                 });
             });
-
-            Route::prefix('projects')->as('projects::')->group(function () {
-                require base_path('routes/modules/projects.php');
-            });
-
-            Route::prefix('messages')->as('messages::')->group(function () {
-                require base_path('routes/modules/messages.php');
-            });
-        });
     }
 
     /**
@@ -113,13 +120,14 @@ Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = f
     {
         Route::prefix('api')
             ->middleware('api')
+            ->namespace($this->namespace)
             ->group(base_path('routes/api.php'));
     }
 
     private function mapLayoutRoutes()
     {
         Route::middleware(['web', 'auth'])
-            )
+            ->namespace(($this->namespace))
             ->prefix('layout')
             ->name('layout::')
             ->group(base_path('routes/layout/layout.php'));
@@ -128,21 +136,17 @@ Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = f
     private function mapProfileRoutes()
     {
         Route::middleware(['web', 'auth'])
-            )
+            ->namespace(($this->namespace))
             ->prefix('profile')
             ->name('profile::')
             ->group(base_path('routes/user/profile.php'));
     }
 
-    /**
-     * Configure the rate limiters for the application.
-     *
-     * @return void
-     */
-    protected function configureRateLimiting()
+    private function mapNotificationsRoutes()
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
-        });
+        Route::middleware(['web', 'auth', 'activeuser'])
+            ->namespace(($this->namespace))
+            ->group(base_path('routes/notifications/notifications.php'));
     }
+
 }

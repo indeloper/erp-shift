@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
+
 class ManualMaterialController extends Controller
 {
     public function card(Request $request, $id)
@@ -34,12 +35,12 @@ class ManualMaterialController extends Controller
             $materials = ManualMaterial::where('category_id', $id)->with([
                 'parameters',
                 'work_relations',
-                'passport',
+                'passport'
             ]);
         }
 
         if ($request->search) {
-            $materials = $materials->where('name', 'like', '%'.$request->search.'%');
+            $materials = $materials->where('name', 'like', '%' . $request->search . '%');
         }
 
         if ($onlyTrashed) {
@@ -57,6 +58,7 @@ class ManualMaterialController extends Controller
         ]));
     }
 
+
     public function store(MaterialsRequest $request, $id)
     {
         DB::beginTransaction();
@@ -73,7 +75,7 @@ class ManualMaterialController extends Controller
                 if ($value) {
                     $material->parameters()->create([
                         'attr_id' => $attr_id,
-                        'value' => $value,
+                        'value' => $value
                     ]);
                 }
             }
@@ -89,7 +91,7 @@ class ManualMaterialController extends Controller
             $file->material_id = $material->id;
 
             $mime = $document->getClientOriginalExtension();
-            $file_name = 'material-'.$material->id.'/passport-'.uniqid().'.'.$mime;
+            $file_name =  'material-' . $material->id . '/passport-' . uniqid() . '.' . $mime;
 
             Storage::disk('material_passport')->put($file_name, File::get($document));
 
@@ -110,6 +112,7 @@ class ManualMaterialController extends Controller
 
         return back();
     }
+
 
     public function update(MaterialsRequest $request, $id)
     {
@@ -126,14 +129,14 @@ class ManualMaterialController extends Controller
         }
 
         if ($request->attrs) {
-            $material->parametersClear()->whereIn('attr_id', array_keys($request->attrs))->forceDelete();
+        $material->parametersClear()->whereIn('attr_id', array_keys($request->attrs))->forceDelete();
 
             foreach ($request->attrs as $attr_id => $value) {
 
                 if ($value) {
                     $material->parameters()->create([
                         'attr_id' => $attr_id,
-                        'value' => $value,
+                        'value' => $value
                     ]);
                 }
             }
@@ -141,8 +144,9 @@ class ManualMaterialController extends Controller
 
         $material->save();
 
+
         if ($request->document) {
-            ! isset($material->passport) ?: $material->passport->delete();
+            !isset($material->passport) ?: $material->passport->delete();
 
             $document = $request->document;
 
@@ -153,7 +157,7 @@ class ManualMaterialController extends Controller
             $file->material_id = $material->id;
 
             $mime = $document->getClientOriginalExtension();
-            $file_name = 'material-'.$material->id.'/passport-'.uniqid().'.'.$mime;
+            $file_name =  'material-' . $material->id . '/passport-' . uniqid() . '.' . $mime;
 
             Storage::disk('material_passport')->put($file_name, File::get($document));
 
@@ -175,6 +179,7 @@ class ManualMaterialController extends Controller
         return back();
     }
 
+
     public function clone(MaterialsRequest $request, $id)
     {
         DB::beginTransaction();
@@ -185,27 +190,27 @@ class ManualMaterialController extends Controller
         $material->category_id = $id;
         $material->save();
 
-        if ($request->attrs) {
+        if ($request->attrs){
             foreach ($request->attrs as $attr_id => $value) {
                 if ($value) {
                     $material->parameters()->create([
                         'attr_id' => $attr_id,
-                        'value' => $value,
+                        'value' => $value
                     ]);
                 }
             }
         }
 
-        if (! $request->document) {
+        if (!$request->document) {
             $old_passport = ManualMaterialPassport::where('material_id', $request->id)->first();
 
             if ($old_passport) {
                 $new_passport = $old_passport->replicate();
                 $new_passport->material_id = $material->id;
 
-                $file = storage_path('app/public/docs/material_passport/'.$old_passport->file_name);
+                $file = storage_path('app/public/docs/material_passport/' . $old_passport->file_name);
                 $mime = explode('/', mime_content_type($file));
-                $file_name = 'material-'.$material->id.'/passport-'.uniqid().'.'.$mime[1];
+                $file_name =  'material-' . $material->id . '/passport-' . uniqid() . '.' . $mime[1];
                 Storage::disk('material_passport')->copy($old_passport->file_name, $file_name);
 
                 $new_passport->file_name = $file_name;
@@ -221,7 +226,7 @@ class ManualMaterialController extends Controller
             $file->material_id = $material->id;
 
             $mime = $document->getClientOriginalExtension();
-            $file_name = 'material-'.$material->id.'/passport-'.uniqid().'.'.$mime;
+            $file_name =  'material-' . $material->id . '/passport-' . uniqid() . '.' . $mime;
 
             Storage::disk('material_passport')->put($file_name, File::get($document));
 
@@ -243,9 +248,10 @@ class ManualMaterialController extends Controller
         return back();
     }
 
+
     public function delete(Request $request)
     {
-        abort_if(! Auth::user()->can('materials_remove'), 403);
+        abort_if(!Auth::user()->can('materials_remove'), 403);
 
         DB::beginTransaction();
 
@@ -267,7 +273,7 @@ class ManualMaterialController extends Controller
 
     public function restore(Request $request)
     {
-        abort_if(! Auth::user()->can('materials_remove'), 403);
+        abort_if(!Auth::user()->can('materials_remove'), 403);
 
         DB::beginTransaction();
 
@@ -283,6 +289,7 @@ class ManualMaterialController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
+
     public function select_attr_value(Request $request)
     {
         $className = $request->className ?? 'ManualMaterialParameter';
@@ -290,7 +297,7 @@ class ManualMaterialController extends Controller
 
         if ($request->reference_name or $request->reference_id) {
             if ($request->reference_id) {
-                $mat_ids = ManualMaterial::where('manual_reference_id', $request->reference_id)->get()->pluck('id');
+                $mat_ids = ManualMaterial::where('manual_reference_id',  $request->reference_id)->get()->pluck('id');
             } else {
                 $mat_ids = ManualMaterial::where('name', 'like', "$request->reference_name%")->get()->pluck('id');
             }
@@ -303,12 +310,12 @@ class ManualMaterialController extends Controller
             $unique_values = array_unique($params->pluck('value')->toArray());
 
             $unique_values = array_map(
-                function ($val) use ($request) {
-                    return [
-                        'attr_id' => $request->attr_id,
-                        'value' => $val,
-                    ];
-                }, $unique_values);
+                function($val) use($request) {
+                return [
+                    'attr_id' => $request->attr_id,
+                    'value' => $val
+                ];
+            }, $unique_values);
 
         } else {
             $unique_values = array_unique($params->pluck('value')->toArray());
@@ -317,13 +324,14 @@ class ManualMaterialController extends Controller
         return response()->json($unique_values);
     }
 
+
     public function search_by_attributes(Request $request)
     {
         $className = $request->className ?? 'ManualMaterial';
 
         if ($request->has('category_id')) {
             $result = $className::where('category_id', $request->category_id)->with(['parameters',
-            ])->get()->take(30);
+                ])->get()->take(30);
         } else {
             $classNameParameter = class_basename($className::first()->parameters()->first());
 
@@ -332,14 +340,14 @@ class ManualMaterialController extends Controller
                 $step->orWhere(function ($q) use ($request, $key, $value) {
                     $q->where('attr_id', $request->attr_id[$key])->whereIn('value', $value);
                 });
-            }
+            };
 
             $a = array_count_values($step->get()->pluck('mat_id')->toArray());
             arsort($a);
 
             foreach ($a as $step) {
                 if (count($request->attr_id) > $step) {
-                    if (($key = array_search($step, $a)) !== false) {
+                    if(($key = array_search($step, $a)) !== FALSE){
                         unset($a[$key]);
                     }
                 }
@@ -384,7 +392,7 @@ class ManualMaterialController extends Controller
         $references = ManualReference::where('category_id', $request->category_id);
 
         if ($request->q) {
-            $references = $references->where('name', 'like', '%'.$request->q.'%');
+            $references = $references->where('name', 'like', '%' . $request->q . '%');
         }
 
         $references = $references->take(20)->get();

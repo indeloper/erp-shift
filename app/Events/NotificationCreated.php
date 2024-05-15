@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;

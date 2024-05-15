@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Events\NotificationCreated;
 use App\Models\Comment;
 use App\Models\FileEntry;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\Task;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\OurTechnicTicket;

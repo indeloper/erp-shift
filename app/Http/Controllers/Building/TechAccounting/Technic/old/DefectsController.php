@@ -3,23 +3,22 @@
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DefectRequests\DefectAcceptRequest;
-use App\Http\Requests\DefectRequests\DefectDeclineRequest;
-use App\Http\Requests\DefectRequests\DefectRepairEndRequest;
-use App\Http\Requests\DefectRequests\DefectResponsibleUserAssignmentRequest;
-use App\Http\Requests\DefectRequests\DefectStoreRequest;
+use App\Http\Requests\DefectRequests\{DefectAcceptRequest,
+    DefectDeclineRequest,
+    DefectRepairEndRequest,
+    DefectResponsibleUserAssignmentRequest,
+    DefectStoreRequest};
 use App\Models\FileEntry;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\TechAcc\OurTechnic;
 use App\Services\AuthorizeService;
-use App\Traits\AdditionalFunctions;
-use App\Traits\NotificationGenerator;
+use App\Traits\{AdditionalFunctions, NotificationGenerator};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DefectsController extends Controller
 {
-    use AdditionalFunctions, NotificationGenerator;
+    use NotificationGenerator, AdditionalFunctions;
 
     public function index(Request $request)
     {
@@ -61,7 +60,7 @@ class DefectsController extends Controller
                     ->whereResponsibleUserId(auth()->id())
                     ->with('responsible_user')
                     ->get(),
-            ],
+            ]
         ]);
     }
 
@@ -75,7 +74,7 @@ class DefectsController extends Controller
         $defect->comments()->create([
             'comment' => "@user({$defect->author->id}) удалил заявку на неисправность.",
             'author_id' => auth()->id(),
-            'system' => 1,
+            'system' => 1
         ]);
 
         return response()->json(true);
@@ -85,17 +84,15 @@ class DefectsController extends Controller
     {
         DB::beginTransaction();
 
-        if ($defects->responsible_user_id) {
-            return redirect($defects->card_route());
-        }
+        if($defects->responsible_user_id) return redirect($defects->card_route());
 
         $defects->update(['responsible_user_id' => $request->user_id, 'status' => Defects::DIAGNOSTICS]);
         $defects->solveActiveTasks();
         $defects->refresh();
         $defects->comments()->create([
-            'comment' => '@user('.(auth()->id() ?? $defects->responsible_user->id).') назначен исполнителем на заявку.',
+            'comment' => "@user(" . (auth()->id() ?? $defects->responsible_user->id) . ") назначен исполнителем на заявку.",
             'author_id' => auth()->id(),
-            'system' => 1,
+            'system' => 1
         ]);
 
         $this->generateDefectResponsibleUserStoreNotification($defects);
@@ -116,18 +113,16 @@ class DefectsController extends Controller
 
     public function decline(DefectDeclineRequest $request, Defects $defects)
     {
-        if ($defects->isNotInDiagnostics()) {
-            return;
-        }
+        if ($defects->isNotInDiagnostics()) return;
 
         DB::beginTransaction();
 
         $defects->update(['status' => $defects::DECLINED]);
         $defects->solveActiveTasks();
         $defects->comments()->create([
-            'comment' => '@user('.(auth()->id() ?? $defects->responsible_user->id).") отклонил заявку на дефект. Комментарий: {$request->comment}",
+            'comment' => "@user(" . (auth()->id() ?? $defects->responsible_user->id) . ") отклонил заявку на дефект. Комментарий: {$request->comment}",
             'author_id' => auth()->id(),
-            'system' => 1,
+            'system' => 1
         ]);
 
         $this->generateDefectDeclineNotification($defects);
@@ -139,18 +134,16 @@ class DefectsController extends Controller
 
     public function accept(DefectAcceptRequest $request, Defects $defects)
     {
-        if ($defects->isNotInDiagnostics()) {
-            return;
-        }
+        if ($defects->isNotInDiagnostics()) return;
 
         DB::beginTransaction();
 
         $defects->update(array_merge($request->all(), ['status' => $defects::IN_WORK]));
         $defects->solveActiveTasks();
         $defects->comments()->create([
-            'comment' => '@user('.(auth()->id() ?? $defects->responsible_user->id).") подтвердил заявку на дефект. Период ремонта: с {$defects->repair_start} по {$defects->repair_end} Комментарий: {$request->comment}",
+            'comment' => "@user(" . (auth()->id() ?? $defects->responsible_user->id) . ") подтвердил заявку на дефект. Период ремонта: с {$defects->repair_start} по {$defects->repair_end} Комментарий: {$request->comment}",
             'author_id' => auth()->id(),
-            'system' => 1,
+            'system' => 1
         ]);
 
         $this->generateDefectAcceptNotification($defects);
@@ -159,7 +152,7 @@ class DefectsController extends Controller
             'name' => 'Контроль выполнения заявки на неисправность',
             'responsible_user_id' => $defects->responsible_user_id,
             'status' => 35,
-            'expired_at' => $defects->repair_end_date,
+            'expired_at' => $defects->repair_end_date
         ]);
 
         $this->generateDefectRepairControlTaskNotification($task);
@@ -176,9 +169,9 @@ class DefectsController extends Controller
         $defects->update($request->all());
         $defects->updateActiveRepairControlTask(['expired_at' => $request->repair_end_date]);
         $defects->comments()->create([
-            'comment' => '@user('.(auth()->id() ?? $defects->responsible_user->id).") изменил сроки ремонта по заявке на дефект. Новый период: с {$defects->repair_start} по {$defects->repair_end}. Комментарий: {$request->comment}",
+            'comment' => "@user(" . (auth()->id() ?? $defects->responsible_user->id) . ") изменил сроки ремонта по заявке на дефект. Новый период: с {$defects->repair_start} по {$defects->repair_end}. Комментарий: {$request->comment}",
             'author_id' => auth()->id(),
-            'system' => 1,
+            'system' => 1
         ]);
         $this->generateDefectRepairDatesUpdateNotification($defects);
 
@@ -194,9 +187,9 @@ class DefectsController extends Controller
         $defects->update(array_merge($request->all(), ['status' => $defects::CLOSED]));
         $defects->defectable->update($request->merge(['object_id' => $request->start_location_id])->all());
         $defects->comments()->create([
-            'comment' => '@user('.(auth()->id() ?? $defects->responsible_user->id).") завершил ремонт по заявке на дефект. Комментарий: {$request->comment}",
+            'comment' => "@user(" . (auth()->id() ?? $defects->responsible_user->id) . ") завершил ремонт по заявке на дефект. Комментарий: {$request->comment}",
             'author_id' => auth()->id(),
-            'system' => 1,
+            'system' => 1
         ]);
         $defects->solveActiveTasks();
         $this->generateDefectRepairEndNotification($defects);

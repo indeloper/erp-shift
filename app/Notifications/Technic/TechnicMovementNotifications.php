@@ -4,17 +4,15 @@ namespace App\Notifications\Technic;
 
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;
 use App\Models\User;
+use App\Notifications\Equipment\EquipmentMovementNotice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use morphos\Russian\Cases;
 use morphos\Russian\RussianLanguage;
-
 use function morphos\Russian\pluralize;
 
 class TechnicMovementNotifications
@@ -46,7 +44,8 @@ class TechnicMovementNotifications
             ."\n"."\n"
             .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
             ."\n"
-            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name;
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
 
         $this->notifyUsers($notificationRecipientsIds, $notificationText);
     }
@@ -82,7 +81,8 @@ class TechnicMovementNotifications
             ."\n"."\n"
             .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
             ."\n"
-            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name;
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
 
         $this->notifyUsers($notificationRecipientsIds, $notificationText);
     }
@@ -113,7 +113,8 @@ class TechnicMovementNotifications
             ."\n"."\n"
             .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
             ."\n"
-            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name;
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
 
         $this->notifyUsers($notificationRecipientsIds, $notificationText);
     }
@@ -144,7 +145,8 @@ class TechnicMovementNotifications
             ."\n"."\n"
             .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
             ."\n"
-            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name;
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
 
         $this->notifyUsers($notificationRecipientsIds, $notificationText);
     }
@@ -174,24 +176,27 @@ class TechnicMovementNotifications
             ."<a href='{$responsibleUrl}'>{$responsibleFIO}</a>"
             .' на завтра '
             .'</u> '
-            .' ('.Carbon::create($entity->movement_start_datetime)->format('d.m.Y в H:i').')'
+            . ' ('. Carbon::create($entity->movement_start_datetime)->format('d.m.Y в H:i') .')'
             .'</i>'
             ."\n"."\n"
             .'<b>С объекта: </b>'.ProjectObject::find($entity->object_id)->short_name
             ."\n"
-            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name;
+            .'<b>На объект: </b>'.ProjectObject::find($entity->previous_object_id)->short_name
+        ;
 
         $this->notifyUsers($notificationRecipientsIds, $notificationText);
     }
 
+
     public function notifyUsers($notificationRecipientsIds, $notificationText)
     {
-        foreach ($notificationRecipientsIds as $id) {
-            Notification::create([
-                'name' => $notificationText,
-                'user_id' => $id,
-                'type' => 0,
-            ]);
+        foreach($notificationRecipientsIds as $id) {
+            EquipmentMovementNotice::send(
+                $id,
+                [
+                    'name' => $notificationText,
+                ]
+            );
         }
     }
 
@@ -200,7 +205,6 @@ class TechnicMovementNotifications
         $nameTmp = pluralize(1, $this->getCategoryName($categoryId), false, $case);
         $arr = explode(' ', $nameTmp);
         unset($arr[0]);
-
         return mb_strtolower(implode(' ', $arr));
     }
 
@@ -211,61 +215,63 @@ class TechnicMovementNotifications
         $notificationText =
             '<b>Перемещение техники</b>'
             ."\n"
-            .'<i>Вы назначены ответственным за перемещение</i>'
+            ."<i>Вы назначены ответственным за перемещение</i>"
             ."\n"."\n"
-            .'<b>Техника:</b> '.$this->getCategoryName($dataObj->technic_category_id)
+            . "<b>Техника:</b> " . $this->getCategoryName($dataObj->technic_category_id)
             ."\n"
-            .'<b>Объект назначения:</b> '.ProjectObject::find($dataObj->object_id)->short_name
+            ."<b>Объект назначения:</b> ". ProjectObject::find($dataObj->object_id)->short_name
             ."\n"
-            .'<b>Дата:</b> '.Carbon::create($dataObj->order_start_date)->format('d.m.Y')
-            ."\n"."\n";
+            ."<b>Дата:</b> ". Carbon::create($dataObj->order_start_date)->format('d.m.Y')
+            ."\n"."\n"
+        ;
 
-        if ($dataObj->previous_object_id) {
+        if($dataObj->previous_object_id) {
             $notificationText = $notificationText.
-            '<b>Объект отправки:</b> '.ProjectObject::find($dataObj->previous_object_id)->short_name;
+            "<b>Объект отправки:</b> ". ProjectObject::find($dataObj->previous_object_id)->short_name;
         }
 
-        if ($dataObj->previous_object_id) {
+        if($dataObj->previous_object_id) {
             $notificationText = $notificationText.
             "\n";
         }
 
-        if ($dataObj->order_comment) {
+        if($dataObj->order_comment) {
             $notificationText = $notificationText.
-            '<b>Комментарий:</b> '.$dataObj->order_comment;
+            "<b>Комментарий:</b> ". $dataObj->order_comment;
         }
 
         $objectPMs = $this->getobjectPMs($dataObj->object_id);
 
-        if ($objectPMs->count()) {
+        if($objectPMs->count()) {
 
-            if ($dataObj->previous_object_id || $dataObj->order_comment) {
+            if($dataObj->previous_object_id || $dataObj->order_comment) {
                 $notificationText = $notificationText.
                 "\n"."\n";
             }
 
             $notificationText = $notificationText
-            .'<b>РП:</b> ';
+            ."<b>РП:</b> ";
 
-            $i = 1;
-            foreach ($objectPMs as $manager) {
+            $i=1;
+            foreach($objectPMs as $manager) {
                 $notificationText = $notificationText.
                 "<a href='{$manager->getExternalUserUrl()}'>{$manager->format('L f. p.', 'именительный')}</a>";
 
-                if ($i < $objectPMs->count()) {
+                if($i < $objectPMs->count()) {
                     $notificationText = $notificationText.
-                    ', ';
+                    ", ";
                 }
 
                 $i++;
             }
         }
 
-        Notification::create([
-            'name' => $notificationText,
-            'user_id' => $dataObj->responsible_id,
-            'type' => 0,
-        ]);
+        EquipmentMovementNotice::send(
+            $dataObj->responsible_id,
+            [
+                'name' => $notificationText,
+            ]
+        );
     }
 
     // public function getDataObj($newData, $dbData)
@@ -290,11 +296,10 @@ class TechnicMovementNotifications
         $categoryName = TechnicCategory::find($id)->name;
 
         foreach (self::nameAttrs as $elem) {
-            if (
+            if(
                 str_starts_with(mb_strtolower($categoryName), mb_strtolower($elem['starts']))
-                && Str::contains(mb_strtolower($categoryName), mb_strtolower($elem['contains']))) {
-                return $elem['result'];
-            }
+                && str_contains(mb_strtolower($categoryName), mb_strtolower($elem['contains'])))
+            return $elem['result'];
         }
 
         return $categoryName;
@@ -316,42 +321,42 @@ class TechnicMovementNotifications
         [
             'starts' => 'кранов',
             'contains' => ' вибропогр',
-            'result' => 'крановый вибропогружатель',
+            'result' => 'крановый вибропогружатель'
         ],
         [
             'starts' => 'экскават',
             'contains' => ' вибропогр',
-            'result' => 'экскаваторный вибропогружатель',
+            'result' => 'экскаваторный вибропогружатель'
         ],
         [
             'starts' => 'установ',
             'contains' => ' вдавливания шпунтов',
-            'result' => 'установка вдавливания шпунтовой сваи',
+            'result' => 'установка вдавливания шпунтовой сваи'
         ],
         [
             'starts' => 'гусеничн',
             'contains' => ' кран',
-            'result' => 'гусеничный кран',
+            'result' => 'гусеничный кран'
         ],
         [
             'starts' => 'сваевдавл',
             'contains' => ' устан',
-            'result' => 'сваевдавливающая установка',
+            'result' => 'сваевдавливающая установка'
         ],
         [
             'starts' => 'дизел',
             'contains' => ' электрост',
-            'result' => 'дизельная электростанция',
+            'result' => 'дизельная электростанция'
         ],
         [
             'starts' => 'буров',
             'contains' => ' устан',
-            'result' => 'буровая установка',
+            'result' => 'буровая установка'
         ],
         [
             'starts' => 'автомобил',
             'contains' => ' кран',
-            'result' => 'автомобильный кран',
+            'result' => 'автомобильный кран'
         ],
     ];
 }

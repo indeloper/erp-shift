@@ -9,7 +9,6 @@ use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
-use App\Models\Notification;
 use App\Models\Permission;
 use App\Models\Project;
 use App\Models\ProjectObject;
@@ -19,6 +18,10 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFlowNotice;
+use App\Notifications\Object\ObjectParticipatesInWorkProductionNotice;
+use App\Notifications\Object\ProjectLeaderAppointedToObjectNotice;
+use App\Notifications\Object\ResponsibleAddedToObjectNotice;
 use App\Services\Common\FileSystemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -37,10 +40,9 @@ class ObjectController extends Controller
 
     public function returnPageCore()
     {
-        $basePath = resource_path().'/views/objects';
-        $componentsPath = resource_path().'/views/objects/desktop/components';
+        $basePath = resource_path() . '/views/objects';
+        $componentsPath = resource_path() . '/views/objects/desktop/components';
         $components = (new FileSystemService)->getBladeTemplateFileNamesInDirectory($componentsPath, $basePath);
-
         return view('objects.desktop.index', compact('components'));
     }
 
@@ -54,11 +56,12 @@ class ObjectController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return json_encode([
-            'data' => $objects,
-        ],
+        return json_encode(array(
+            "data" => $objects
+        ),
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
+
 
     public function getMaterialAccountingTypes()
     {
@@ -124,20 +127,20 @@ class ObjectController extends Controller
             ->select('id', 'short_name')
             ->get();
 
-        return json_encode([
+
+        return json_encode(array(
             'contractors' => $contractors,
             'allAvailableResponsibles' => $allAvailableResponsibles,
-            'objectResponsibles' => $objectResponsibles,
-        ],
+            'objectResponsibles' => $objectResponsibles
+        ),
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function store(Request $request)
     {
         $data = json_decode($request->input('data'));
-        if (empty($request->input('data'))) {
+        if (empty($request->input('data')))
             $data = $request;
-        }
 
         $toUpdateArr = $this->getDataToUpdate($data);
 
@@ -149,7 +152,7 @@ class ObjectController extends Controller
             $this->handleCheckedParticipatesInMaterialAccounting($object->id);
         }
 
-        if (! isset($data->is_participates_in_documents_flow) and $data->is_participates_in_documents_flow) {
+        if (!isset($data->is_participates_in_documents_flow) and $data->is_participates_in_documents_flow) {
             $this->handleCheckedParticipatesInDocumentsFlow($object->id);
             $this->notifyResponsibleUsers($object->id);
         }
@@ -163,43 +166,35 @@ class ObjectController extends Controller
             'object' => $object,
         ], 200);
 
+
     }
 
     public function getDataToUpdate($data)
     {
         $toUpdateArr = [];
 
-        if (isset($data->bitrix_id)) {
-            $toUpdateArr['bitrix_id'] = $data->bitrix_id ? $data->bitrix_id : null;
-        }
-        if (isset($data->name)) {
+        if (isset($data->bitrix_id))
+            $toUpdateArr['bitrix_id'] = $data->bitrix_id ? $data->bitrix_id : NULL;
+        if (isset($data->name))
             $toUpdateArr['name'] = $data->name;
-        }
-        if (isset($data->address)) {
+        if (isset($data->address))
             $toUpdateArr['address'] = $data->address;
-        }
-        if (isset($data->cadastral_number)) {
+        if (isset($data->cadastral_number))
             $toUpdateArr['cadastral_number'] = $data->cadastral_number;
-        }
-        if (isset($data->short_name)) {
+        if (isset($data->short_name))
             $toUpdateArr['short_name'] = $data->short_name;
-        }
 
-        if (isset($data->material_accounting_type)) {
+        if (isset($data->material_accounting_type))
             $toUpdateArr['material_accounting_type'] = $data->material_accounting_type;
-        }
 
-        if (isset($data->is_participates_in_material_accounting)) {
+        if (isset($data->is_participates_in_material_accounting))
             $toUpdateArr['is_participates_in_material_accounting'] = $data->is_participates_in_material_accounting;
-        }
 
-        if (isset($data->is_participates_in_documents_flow)) {
+        if (isset($data->is_participates_in_documents_flow))
             $toUpdateArr['is_participates_in_documents_flow'] = $data->is_participates_in_documents_flow;
-        }
 
-        if (isset($data->is_active)) {
+        if (isset($data->is_active))
             $toUpdateArr['is_active'] = $data->is_active;
-        }
 
         return $toUpdateArr;
     }
@@ -216,17 +211,16 @@ class ObjectController extends Controller
 
         foreach ($rolesArray as $roleKey => $roleValue) {
 
-            if (empty($request->$roleKey)) {
+            if (empty($request->$roleKey))
                 continue;
-            }
 
             if ($request->$roleKey) {
                 foreach ($request->$roleKey as $user_id) {
-                    if ($roleKey === 'responsibles_managers') {
-                        if (! ObjectResponsibleUser::where([
+                    if($roleKey === 'responsibles_managers') {
+                        if(!ObjectResponsibleUser::where([
                             'object_id' => $id,
                             'user_id' => $user_id,
-                            'object_responsible_user_role_id' => $roleValue,
+                            'object_responsible_user_role_id' => $roleValue
                         ])->first()) {
                             $this->notifyAboutNewObjectProjectManager($objectId = $id, $projectManagerId = $user_id);
                         }
@@ -235,7 +229,7 @@ class ObjectController extends Controller
                     $newResponsible = ObjectResponsibleUser::firstOrCreate([
                         'object_id' => $id,
                         'user_id' => $user_id,
-                        'object_responsible_user_role_id' => $roleValue,
+                        'object_responsible_user_role_id' => $roleValue
                     ]);
                     $newResponsiblesIds[] = $newResponsible->user_id;
                 }
@@ -257,34 +251,33 @@ class ObjectController extends Controller
                     (new ObjectResponsibleUserRole)->getRoleIdBySlug('TONGUE_PTO_ENGINEER'))
                 ->pluck('user_id')->toArray();
 
+
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
-        foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'Объект:'."\n".$objectName."\n".'участвует в производстве работ.',
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
-        }
+        ObjectParticipatesInWorkProductionNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'Объект:' . "\n" . $objectName . "\n" . 'участвует в производстве работ.',
+            ]
+        );
     }
 
     public function handleCheckedParticipatesInDocumentsFlow($objectId)
     {
         if (ProjectObjectDocument::where([
             ['project_object_id', $objectId],
-            ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id],
-        ])->exists()) {
+            ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
+        ])->exists())
             $this->returnDocumentsFromArchive($objectId);
-        } else {
+        else
             $this->createProjectObjectDocuments($objectId);
-        }
     }
 
     public function returnDocumentsFromArchive($objectId)
     {
         $archivedObjectDocumentsIds = ProjectObjectDocument::where([
             ['project_object_id', $objectId],
-            ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id],
+            ['document_status_id', ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id]
         ])->pluck('id');
 
         foreach ($archivedObjectDocumentsIds as $id) {
@@ -302,7 +295,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'ППР')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -314,7 +307,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -326,7 +319,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -339,7 +332,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'РД')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'РД')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -352,7 +345,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Прочее')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Прочее')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -364,7 +357,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Прочее')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Прочее')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -376,7 +369,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Акт с площадки')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -388,7 +381,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -400,7 +393,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -412,7 +405,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -424,7 +417,7 @@ class ObjectController extends Controller
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'Журнал')->first()->id,
                 'document_status_id' => ProjectObjectDocumentStatusTypeRelation::where([
                     ['document_type_id', ProjectObjectDocumentType::where('name', 'Журнал')->first()->id],
-                    ['default_selection', 1],
+                    ['default_selection', 1]
                 ])->first()->document_status_id,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -448,11 +441,11 @@ class ObjectController extends Controller
 
             $actions = new stdClass;
             $actions->event = 'store';
-            $actions->new_values = (object) $newDocument;
+            $actions->new_values = (object)$newDocument;
 
             ActionLog::create([
                 'logable_id' => $id,
-                'logable_type' => \App\Models\ProjectObjectDocuments\ProjectObjectDocument::class,
+                'logable_type' => 'App\Models\ProjectObjectDocuments\ProjectObjectDocument',
                 'actions' => $actions,
                 'user_id' => Auth::user()->id,
             ]);
@@ -462,9 +455,8 @@ class ObjectController extends Controller
 
     public function notifyResponsibleUsers($objectId)
     {
-        if (! App::environment() != 'production') {
+        if (!App::environment() != 'production')
             return;
-        }
 
         $notificationRecipients =
             ObjectResponsibleUser::query()
@@ -474,13 +466,12 @@ class ObjectController extends Controller
 
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
-        foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'Документооборот на объектах'."\n".$objectName."\n".'Участвует в документообороте',
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
-        }
+        DocumentFlowOnObjectsParticipatesInDocumentFlowNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'Документооборот на объектах' . "\n" . $objectName . "\n" . 'Участвует в документообороте',
+            ]
+        );
     }
 
     public function notifyNewResponsibleUser($objectId, $lastObjectResponsibleId)
@@ -488,18 +479,17 @@ class ObjectController extends Controller
         $notificationRecipients = ObjectResponsibleUser::where([
             ['id', '>', $lastObjectResponsibleId],
             ['object_id', $objectId],
-            ['user_id', '<>', Auth::user()->id],
+            ['user_id', '<>', Auth::user()->id]
         ])->pluck('user_id');
 
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
 
-        foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'Вы добавлены ответственным на объект'."\n".$objectName,
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
-        }
+        ResponsibleAddedToObjectNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'Вы добавлены ответственным на объект' . "\n" . $objectName,
+            ]
+        );
     }
 
     public function notifyAboutNewObjectProjectManager($objectId, $projectManagerId)
@@ -508,13 +498,12 @@ class ObjectController extends Controller
         $objectName = ProjectObject::findOrFail($objectId)->short_name;
         $projectManagerName = User::findOrFail($projectManagerId)->full_name;
 
-        foreach ($notificationRecipients as $userId) {
-            Notification::create([
-                'name' => 'На объект'."\n".$objectName."\n".'назначен руководитель проекта '."\n".$projectManagerName,
-                'user_id' => $userId,
-                'type' => 0,
-            ]);
-        }
+        ProjectLeaderAppointedToObjectNotice::send(
+            $notificationRecipients,
+            [
+                'name' => 'На объект' . "\n" . $objectName . "\n" . 'назначен руководитель проекта ' . "\n" . $projectManagerName,
+            ]
+        );
     }
 
     public function update(Request $request, $id)
@@ -545,9 +534,8 @@ class ObjectController extends Controller
             if ($data->is_participates_in_documents_flow > $oldIsParticipatesInDocumentsFlow) {
                 $this->handleCheckedParticipatesInDocumentsFlow($id);
                 $this->notifyResponsibleUsers($id);
-            } elseif ($data->is_participates_in_documents_flow < $oldIsParticipatesInDocumentsFlow) {
+            } else if ($data->is_participates_in_documents_flow < $oldIsParticipatesInDocumentsFlow)
                 $this->addDocumentsToArchive($id);
-            }
         }
 
         $this->notifyNewResponsibleUser($id, $lastObjectResponsibleId);
@@ -557,7 +545,7 @@ class ObjectController extends Controller
         return response()->json([
             'result' => 'ok',
             'object' => $object,
-            'updated' => $toUpdateArr,
+            'updated' => $toUpdateArr
         ], 200);
     }
 
@@ -570,7 +558,7 @@ class ObjectController extends Controller
         foreach ($objectDocumentsIds as $id) {
             $archivedStatusId = ProjectObjectDocumentStatus::where('name', 'В архиве')->first()->id;
             ProjectObjectDocument::find($id)->update([
-                'document_status_id' => $archivedStatusId,
+                'document_status_id' => $archivedStatusId
             ]);
 
             (new ProjectObjectDocumentsController(['Документ перемещен в архив']))->addComment($id);
@@ -589,7 +577,6 @@ class ObjectController extends Controller
                 'link' => route('projects::card', $project->id),
             ];
         }
-
         return \GuzzleHttp\json_encode($results);
     }
 
@@ -598,22 +585,20 @@ class ObjectController extends Controller
         $objects = ProjectObject::query();
         if ($request->q) {
             $objects = $objects->where(function ($objects) use ($request) {
-                $objects->where('name', 'like', '%'.$request->q.'%')
-                    ->orWhere('address', 'like', '%'.$request->q.'%')
-                    ->orWhere('short_name', 'like', '%'.$request->q.'%');
+                $objects->where('name', 'like', '%' . $request->q . '%')
+                    ->orWhere('address', 'like', '%' . $request->q . '%')
+                    ->orWhere('short_name', 'like', '%' . $request->q . '%');
             });
         }
         $objects = $objects->take(10)->get();
-
         return $objects->map(function ($object) {
-            return ['code' => $object->id.'', 'label' => $object->address];
+            return ['code' => $object->id . '', 'label' => $object->address];
         });
     }
 
     public function getPermissions()
     {
         $permissions = (new ProjectObject())->permissions;
-
         return response()->json($permissions, 200);
     }
 }

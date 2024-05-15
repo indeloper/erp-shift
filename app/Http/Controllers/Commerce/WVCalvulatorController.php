@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Commerce;
 
 use App\Http\Controllers\Controller;
 use App\Models\Manual\ManualMaterial;
+use App\Models\Manual\ManualMaterialCaterogy;
+use App\Models\Manual\ManualMaterialCaterogyAttribute;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualNodeMaterials;
 use App\Models\Manual\ManualNodes;
 use App\Models\Manual\ManualWork;
+use App\Models\Manual\ManualWorkGroup;
 use App\Models\WorkVolume\WorkVolume;
 use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\WorkVolume\WorkVolumeWork;
@@ -40,7 +43,7 @@ class WVCalvulatorController extends Controller
         $new_work_tongue = '';
         $new_work_angle = 0;
 
-        if ($request->project_count >= $request->tongue_count) {
+        if($request->project_count >= $request->tongue_count) {
             $tongue_count = $request->project_count;
         } else {
             $tongue_count = isset($request->is_required_count) ? $request->project_count : $request->tongue_count;
@@ -48,7 +51,7 @@ class WVCalvulatorController extends Controller
 
         $length_tongue = $materials->where('id', $request->tongue_type)->first()->parameters->where('unit', 'м')->first()->value ?? 0;
 
-        if ($request->type_angle) {
+        if($request->type_angle) {
             $length_angle = $materials->where('id', $request->type_angle)->first()->parameters->where('unit', 'м.п')->first()->value;
 
             $new_angle_unit_value = $angle_material->convert_to('т');
@@ -84,10 +87,10 @@ class WVCalvulatorController extends Controller
             'is_tongue' => 1,
             'price_per_one' => $materials->where('id', $request->tongue_type)->first()->buy_cost,
             'result_price' => $result_tongue_count * $materials->where('id', $request->tongue_type)->first()->buy_cost,
-            'unit' => 'т',
+            'unit' => 'т'
         ]);
 
-        if ($request->count_angle and $request->type_angle) {
+        if($request->count_angle and $request->type_angle) {
             $new_work_angle = WorkVolumeMaterial::create([
                 'user_id' => Auth::user()->id,
                 'work_volume_id' => $work_volume_id,
@@ -97,75 +100,33 @@ class WVCalvulatorController extends Controller
                 'is_tongue' => 1,
                 'price_per_one' => $materials->where('id', $request->type_angle)->first()->buy_cost,
                 'result_price' => $request->count_angle * $materials->where('id', $request->type_angle)->first()->buy_cost,
-                'unit' => 'т',
+                'unit' => 'т'
             ]);
         }
 
+
         $manual_material = WorkVolumeMaterial::whereIn('work_volume_materials.id', [$new_work_tongue->id])
             ->with('manual.parameters')
-            ->leftJoin('manual_materials', 'manual_materials.id', '=', 'work_volume_materials.manual_material_id')
-            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
+            ->leftJoin('manual_materials', 'manual_materials.id','=', 'work_volume_materials.manual_material_id')
+            ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
             ->select('work_volume_materials.*', 'manual_material_categories.name', 'manual_material_categories.category_unit', 'manual_materials.category_id')
             ->get();
 
-        $manual_works = ManualWork::whereIn('id', [4, 6, 9, 10, 15, 16, 19, 20, 27, 28])->get();
-
-        $count_work_1 = [];
-
-        foreach ($manual_works as $work) {
-            $count_work_1[$work->id.$work->name] = 0;
-        }
-
-        $count_work_2 = $count_work_1;
-
-        foreach ($manual_material as $material) {
-            foreach ($manual_works as $work) {
-                if ($material->category_unit == $work->unit) {
-                    $count_work_1[$work->id.$work->name] += round($material->count / $new_tongue_unit_value->value, 3);
-                }
-            }
-        }
-
-        foreach ($manual_material as $material) {
-            foreach ($material->parameters as $parameter) {
-                foreach ($manual_works as $work) {
-                    if ($parameter->unit == $work->unit) {
-                        $count_work_2[$work->id.$work->name] += round($material->count, 3);
-                    }
-                }
-            }
-        }
-
-        foreach ($count_work_1 as $key => $value) {
-            if ($value == 0) {
-                unset($count_work_1[$key]);
-            }
-        }
-
-        $work_counts_tongue = array_values(array_merge($count_work_2, $count_work_1));
-
-        if ($request->count_angle and $request->type_angle) {
-            $manual_material = WorkVolumeMaterial::whereIn('work_volume_materials.id', [$new_work_angle->id])
-                ->with('manual.parameters')
-                ->leftJoin('manual_materials', 'manual_materials.id', '=', 'work_volume_materials.manual_material_id')
-                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
-                ->select('work_volume_materials.*', 'manual_material_categories.name', 'manual_material_categories.category_unit', 'manual_materials.category_id')
-                ->get();
 
             $manual_works = ManualWork::whereIn('id', [4, 6, 9, 10, 15, 16, 19, 20, 27, 28])->get();
 
             $count_work_1 = [];
 
             foreach ($manual_works as $work) {
-                $count_work_1[$work->id.$work->name] = 0;
+                $count_work_1[$work->id . $work->name] = 0;
             }
 
             $count_work_2 = $count_work_1;
 
             foreach ($manual_material as $material) {
                 foreach ($manual_works as $work) {
-                    if ($material->category_unit == $work->unit) {
-                        $count_work_1[$work->id.$work->name] += $material->count * $new_angle_unit_value->value;
+                    if($material->category_unit == $work->unit) {
+                        $count_work_1[$work->id . $work->name] += round($material->count / $new_tongue_unit_value->value, 3);
                     }
                 }
             }
@@ -173,8 +134,8 @@ class WVCalvulatorController extends Controller
             foreach ($manual_material as $material) {
                 foreach ($material->parameters as $parameter) {
                     foreach ($manual_works as $work) {
-                        if ($parameter->unit == $work->unit) {
-                            $count_work_2[$work->id.$work->name] += $material->count;
+                        if($parameter->unit == $work->unit) {
+                            $count_work_2[$work->id . $work->name] += round($material->count, 3);
                         }
                     }
                 }
@@ -186,31 +147,79 @@ class WVCalvulatorController extends Controller
                 }
             }
 
+        $work_counts_tongue = array_values(array_merge($count_work_2, $count_work_1));
+
+        if($request->count_angle and $request->type_angle) {
+            $manual_material = WorkVolumeMaterial::whereIn('work_volume_materials.id', [$new_work_angle->id])
+                ->with('manual.parameters')
+                ->leftJoin('manual_materials', 'manual_materials.id','=', 'work_volume_materials.manual_material_id')
+                ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
+                ->select('work_volume_materials.*', 'manual_material_categories.name', 'manual_material_categories.category_unit', 'manual_materials.category_id')
+                ->get();
+
+
+                $manual_works = ManualWork::whereIn('id', [4, 6, 9, 10, 15, 16, 19, 20, 27, 28])->get();
+
+                $count_work_1 = [];
+
+                foreach ($manual_works as $work) {
+                    $count_work_1[$work->id . $work->name] = 0;
+                }
+
+                $count_work_2 = $count_work_1;
+
+                foreach ($manual_material as $material) {
+                    foreach ($manual_works as $work) {
+                        if($material->category_unit == $work->unit) {
+                            $count_work_1[$work->id . $work->name] += $material->count * $new_angle_unit_value->value;
+                        }
+                    }
+                }
+
+
+                foreach ($manual_material as $material) {
+                    foreach ($material->parameters as $parameter) {
+                        foreach ($manual_works as $work) {
+                            if($parameter->unit == $work->unit) {
+                                $count_work_2[$work->id . $work->name] += $material->count;
+                            }
+                        }
+                    }
+                }
+
+                foreach ($count_work_1 as $key => $value) {
+                    if ($value == 0) {
+                        unset($count_work_1[$key]);
+                    }
+                }
+
             $work_counts_angle = array_values(array_merge($count_work_2, $count_work_1));
         }
 
         $new_works = [];
         $used_works = [];
         foreach ($manual_works as $key => $work) {
-            if ($work->id == 10 || $work->id == 16) {
-                if (! $request->is_out) {
+            if($work->id == 10 || $work->id == 16) {
+                if(!$request->is_out) {
                     continue;
                 }
             }
-            if ($request->dive_type == 'static') {
-                if ($work->id == 16 or $work->id == 15) {
+            if($request->dive_type == 'static') {
+                if($work->id == 16 or $work->id == 15) {
                     continue;
                 }
-            } else {
-                if ($work->id == 20 or $work->id == 19) {
+            }
+            else {
+                if($work->id == 20 or $work->id == 19) {
                     continue;
                 }
             }
 
-            if ($work->id == 28 or $work->id == 27) {
-                if ($length_tongue == 12) {
+            if($work->id == 28 or $work->id == 27) {
+                if($length_tongue == 12) {
                     continue;
-                } elseif ($length_tongue > 12) {
+                }
+                else if ($length_tongue > 12) {
                     if ($work->id == 28) {
                         continue;
                     }
@@ -218,9 +227,10 @@ class WVCalvulatorController extends Controller
             }
             if ($work->id == 9 or $work->id == 19 or ($work->id == 20 and $request->is_out) or ($work->id == 10 and $request->is_out)) {
                 if ($request->count_angle and $request->type_angle) {
-                    if ($work->id == 19 or $work->id == 20) {
+                    if($work->id == 19 or $work->id == 20) {
                         $term = 0;
-                    } else {
+                    }
+                    else {
                         $term = $work_counts_angle[$key] / $work->unit_per_days;
                     }
                     $new_works[] = [
@@ -233,20 +243,23 @@ class WVCalvulatorController extends Controller
                         'price_per_one' => $work->price_per_unit,
                         'result_price' => $work_counts_angle[$key] * $work->price_per_unit,
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ];
                 }
 
                 $used_works[] = $work->id;
             }
             if ($work->id == 4 or $work->id == 6 or $work->id == 9 or $work->id == 10 or $work->id == 16 or ($work->id == 20 and $request->is_out) or $work->id == 15 or $work->id == 19 or $work->id == 28 or $work->id == 27) {
-                if ($work->id == 15 or $work->id == 16) {
+                if($work->id == 15 or $work->id == 16) {
                     $term = $tongue_count / 15;
-                } elseif ($work->id == 19 or $work->id == 20) {
+                }
+                elseif($work->id == 19 or $work->id == 20) {
                     $term = $tongue_count / 8;
-                } elseif ($work->id == 27 or $work->id == 28) {
+                }
+                elseif($work->id == 27 or $work->id == 28) {
                     $term = $tongue_count / 8;
-                } else {
+                }
+                else {
                     $term = $work_counts_tongue[$key] / $work->unit_per_days;
                 }
                 $new_works[] = [
@@ -259,8 +272,10 @@ class WVCalvulatorController extends Controller
                     'price_per_one' => $work->price_per_unit,
                     'result_price' => $work_counts_tongue[$key] * $work->price_per_unit,
                     'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ];
+
+
 
                 $used_works[] = $work->id;
             }
@@ -272,19 +287,21 @@ class WVCalvulatorController extends Controller
                 ->where('manual_work_id', $item['manual_work_id'])
                 ->first();
 
-            if ($find_work) {
+            if($find_work) {
                 $new_work = $find_work;
-            } else {
+            }
+            else {
                 $new_work = new WorkVolumeWork();
             }
 
             $new_work->user_id = Auth::user()->id;
             $new_work->work_volume_id = $work_volume_id;
             $new_work->manual_work_id = $item['manual_work_id'];
-            if ($item['manual_work_id'] == 4 or $item['manual_work_id'] == 6) {
+            if($item['manual_work_id'] == 4 or $item['manual_work_id'] == 6) {
                 $new_work->count = 1;
                 $new_work->term = 1;
-            } else {
+            }
+            else {
                 $new_work->count += in_array($item['manual_work_id'], $worksWithCount) ? round($item['count'], 0) : $item['count'];
                 $new_work->term += ceil($item['term']);
 
@@ -312,9 +329,10 @@ class WVCalvulatorController extends Controller
                     }
                 }
 
-                if ($item['manual_work_id'] == 4 or $item['manual_work_id'] == 6) {
+                if($item['manual_work_id'] == 4 or $item['manual_work_id'] == 6) {
 
-                } else {
+                }
+                else {
                     $new_material = new WorkVolumeWorkMaterial();
 
                     $new_material->wv_work_id = $new_work->id;
@@ -334,12 +352,13 @@ class WVCalvulatorController extends Controller
         return redirect()->back();
     }
 
+
     public function get_tongue(Request $request)
     {
         $wv_materials = ManualMaterial::where('manual_materials.category_id', 2);
 
         if ($request->q) {
-            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim($request->q).'%');
+            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%' . trim($request->q) . '%');
         }
 
         $wv_materials = $wv_materials
@@ -351,8 +370,8 @@ class WVCalvulatorController extends Controller
         foreach ($wv_materials as $wv_material) {
             $results[] = [
                 'id' => $wv_material->id,
-                'text' => $wv_material->name.', '.$wv_material->category_unit,
-                'unit' => $wv_material->category_unit,
+                'text' => $wv_material->name . ', ' . $wv_material->category_unit,
+                'unit' => $wv_material->category_unit
             ];
         }
 
@@ -364,7 +383,7 @@ class WVCalvulatorController extends Controller
         $wv_materials = ManualMaterial::where('manual_materials.category_id', 10);
 
         if ($request->q) {
-            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim($request->q).'%');
+            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%' . trim($request->q) . '%');
         }
 
         $wv_materials = $wv_materials
@@ -380,12 +399,13 @@ class WVCalvulatorController extends Controller
             $results[] = [
                 'id' => $wv_material->id,
                 'text' => $wv_material->name,
-                'unit' => $wv_material->category_unit,
+                'unit' => $wv_material->category_unit
             ];
         }
 
         return ['results' => $results];
     }
+
 
     public function calc_tongue_count(Request $request)
     {
@@ -396,7 +416,7 @@ class WVCalvulatorController extends Controller
             ->select('manual_material_parameters.*', 'manual_material_category_attributes.name')
             ->first();
 
-        if (! $parameters) {
+        if (!$parameters) {
             return \GuzzleHttp\json_encode(0);
         }
 
@@ -405,12 +425,13 @@ class WVCalvulatorController extends Controller
         return \GuzzleHttp\json_encode(ceil($result));
     }
 
+
     public function get_pipe(Request $request)
     {
         $wv_materials = ManualMaterial::whereIn('manual_materials.category_id', [7, 8, 9]);
 
         if ($request->q) {
-            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim($request->q).'%');
+            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%' . trim($request->q) . '%');
         }
 
         $wv_materials = $wv_materials
@@ -423,19 +444,20 @@ class WVCalvulatorController extends Controller
             $results[] = [
                 'id' => $wv_material->id,
                 'text' => $wv_material->name,
-                'unit' => $wv_material->category_unit,
+                'unit' => $wv_material->category_unit
             ];
         }
 
         return ['results' => $results];
     }
+
 
     public function get_beam(Request $request)
     {
         $wv_materials = ManualMaterial::where('manual_materials.category_id', 4);
 
         if ($request->q) {
-            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim($request->q).'%');
+            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%' . trim($request->q) . '%');
         }
 
         $wv_materials = $wv_materials
@@ -448,19 +470,20 @@ class WVCalvulatorController extends Controller
             $results[] = [
                 'id' => $wv_material->id,
                 'text' => $wv_material->name,
-                'unit' => $wv_material->category_unit,
+                'unit' => $wv_material->category_unit
             ];
         }
 
         return ['results' => $results];
     }
 
+
     public function get_detail(Request $request)
     {
         $nodes = ManualNodes::where('node_category_id', 6);
 
         if ($request->q) {
-            $nodes = $nodes->where('name', 'like', '%'.trim($request->q).'%');
+            $nodes = $nodes->where('name', 'like', '%' . trim($request->q) . '%');
         }
 
         $nodes = $nodes->get();
@@ -477,12 +500,13 @@ class WVCalvulatorController extends Controller
         return ['results' => $results];
     }
 
+
     public function get_nodes(Request $request)
     {
         $nodes = ManualNodes::whereIn('node_category_id', [5, 7, 8]);
 
         if ($request->q) {
-            $nodes = $nodes->where('name', 'like', '%'.trim($request->q).'%');
+            $nodes = $nodes->where('name', 'like', '%' . trim($request->q) . '%');
         }
 
         $nodes = $nodes->get();
@@ -495,14 +519,14 @@ class WVCalvulatorController extends Controller
                 'text' => $node->name,
                 'unit' => 'шт',
                 'select' => 'nodes[]',
-                'input' => 'nodes_count[]',
+                'input' => 'nodes_count[]'
             ];
         }
 
         $wv_materials = ManualMaterial::whereIn('manual_materials.category_id', [5]);
 
         if ($request->q) {
-            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim($request->q).'%');
+            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%' . trim($request->q) . '%');
         }
 
         $wv_materials = $wv_materials
@@ -517,7 +541,7 @@ class WVCalvulatorController extends Controller
                 'unit' => $wv_material->category_unit,
                 'category_id' => $wv_material->category_id,
                 'select' => 'sheets[]',
-                'input' => 'sheets_count[]',
+                'input' => 'sheets_count[]'
             ];
         }
 
@@ -534,34 +558,36 @@ class WVCalvulatorController extends Controller
 
         $manual_material = WorkVolumeMaterial::whereIn('work_volume_materials.id', $materials_ids)
             ->with('manual.parameters')
-            ->leftJoin('manual_materials', 'manual_materials.id', '=', 'work_volume_materials.manual_material_id')
-            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
+            ->leftJoin('manual_materials', 'manual_materials.id','=', 'work_volume_materials.manual_material_id')
+            ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
             ->select('work_volume_materials.*', 'manual_material_categories.name', 'manual_material_categories.category_unit', 'manual_materials.category_id')
             ->get();
+
 
         $manual_works = ManualWork::whereIn('id', [43, 44, 47, 48, 49, 50])->get();
 
         $count_work_1 = [];
 
         foreach ($manual_works as $work) {
-            $count_work_1[$work->id.$work->name] = 0;
+            $count_work_1[$work->id . $work->name] = 0;
         }
 
         $count_work_2 = $count_work_1;
 
         foreach ($manual_material as $material) {
             foreach ($manual_works as $work) {
-                if ($material->category_unit == $work->unit) {
-                    $count_work_1[$work->id.$work->name] += $material->count;
+                if($material->category_unit == $work->unit) {
+                    $count_work_1[$work->id . $work->name] += $material->count;
                 }
             }
         }
 
+
         foreach ($manual_material as $material) {
             foreach ($material->parameters as $parameter) {
                 foreach ($manual_works as $work) {
-                    if ($parameter->unit == $work->unit) {
-                        $count_work_2[$work->id.$work->name] += $material->count * $parameter->value;
+                    if($parameter->unit == $work->unit) {
+                        $count_work_2[$work->id . $work->name] += $material->count * $parameter->value;
                     }
                 }
             }
@@ -575,9 +601,10 @@ class WVCalvulatorController extends Controller
 
         $work_counts = array_values(array_merge($count_work_2, $count_work_1));
 
+
         foreach ($manual_works as $key => $work) {
-            if (! $request->is_out) {
-                if ($work->id == 48 or $work->id == 50) {
+            if(!$request->is_out) {
+                if($work->id == 48 or $work->id == 50) {
                     continue;
                 }
             }
@@ -591,7 +618,7 @@ class WVCalvulatorController extends Controller
                 'price_per_one' => $work->price_per_unit,
                 'result_price' => $work_counts[$key] * $work->price_per_unit,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
             ];
         }
         $mat_count = 0;
@@ -600,81 +627,99 @@ class WVCalvulatorController extends Controller
                 ->where('manual_work_id', $item['manual_work_id'])
                 ->first();
 
-            if ($find_work) {
+            if($find_work) {
                 $new_work = $find_work;
-            } else {
+            }
+            else {
                 $new_work = new WorkVolumeWork();
             }
 
             $new_work->user_id = Auth::user()->id;
             $new_work->work_volume_id = $work_volume_id;
             $new_work->manual_work_id = $item['manual_work_id'];
-            if ($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44) {
+            if($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44) {
                 $new_work->count = 1;
                 $new_work->term = 1;
-            } else {
-                if ($item['manual_work_id'] == 49) {
-                    if ($type == 1) {
-                        if ($mat_count == 0) {
-                            $new_work->term += ceil(array_sum($request->strapping_beam_count) / 8);
-                        } else {
+            }
+            else {
+                if($item['manual_work_id'] == 49) {
+                    if($type == 1) {
+                        if($mat_count == 0) {
+                            $new_work->term += ceil(array_sum($request->strapping_beam_count)/8);
+                        }
+                        else {
                             $new_work->term = 0;
                             $mat_count += 1;
                         }
-                    } elseif ($type == 2) {
+                    }
+                    elseif($type == 2) {
                         foreach ($request->corner_strut_length as $key => $value) {
-                            if ($value < 12) {
-                                $new_work->term += ceil($request->corner_strut_count[$key] / 2);
-                            } else {
+                            if($value < 12) {
+                                $new_work->term += ceil($request->corner_strut_count[$key]/2);
+                            }
+                            else {
                                 $new_work->term += ceil($request->corner_strut_count[$key]);
                             }
                         }
-                    } elseif ($type == 3) {
-                        if ($mat_count == 0) {
+                    }
+                    elseif($type == 3) {
+                        if($mat_count == 0) {
                             $new_work->term += ceil(array_sum($request->cross_strut_count));
-                        } else {
+                        }
+                        else {
                             $new_work->term = 0;
                             $mat_count += 1;
                         }
-                    } elseif ($type == 4) {
-                        if ($mat_count == 0) {
+                    }
+                    elseif($type == 4) {
+                        if($mat_count == 0) {
                             $new_work->term += ceil(array_sum($request->strut_count));
-                        } else {
+                        }
+                        else {
                             $new_work->term = 0;
                             $mat_count += 1;
                         }
                     }
-                } elseif ($item['manual_work_id'] == 50) {
-                    if ($type == 1) {
-                        if ($mat_count == 0) {
-                            $new_work->term += ceil(array_sum($request->strapping_beam_count) / 20);
-                        } else {
-                            $new_work->term = 0;
-                            $mat_count += 1;
+                }
+                elseif($item['manual_work_id'] == 50) {
+                    if($type == 1) {
+                        if($mat_count == 0) {
+                            $new_work->term += ceil(array_sum($request->strapping_beam_count)/20);
                         }
-                    } elseif ($type == 2) {
-                        if ($mat_count == 0) {
-                            $new_work->term += ceil(array_sum($request->corner_strut_count) / 3);
-                        } else {
-                            $new_work->term = 0;
-                            $mat_count += 1;
-                        }
-                    } elseif ($type == 3) {
-                        if ($mat_count == 0) {
-                            $new_work->term += ceil(array_sum($request->cross_strut_count) / 3);
-                        } else {
-                            $new_work->term = 0;
-                            $mat_count += 1;
-                        }
-                    } elseif ($type == 4) {
-                        if ($mat_count == 0) {
-                            $new_work->term += ceil(array_sum($request->strut_count) / 3);
-                        } else {
+                        else {
                             $new_work->term = 0;
                             $mat_count += 1;
                         }
                     }
-                } else {
+                    elseif($type == 2) {
+                        if($mat_count == 0) {
+                            $new_work->term += ceil(array_sum($request->corner_strut_count)/3);
+                        }
+                        else {
+                            $new_work->term = 0;
+                            $mat_count += 1;
+                        }
+                    }
+                    elseif($type == 3) {
+                        if($mat_count == 0) {
+                            $new_work->term += ceil(array_sum($request->cross_strut_count)/3);
+                        }
+                        else {
+                            $new_work->term = 0;
+                            $mat_count += 1;
+                        }
+                    }
+                    elseif($type == 4) {
+                        if($mat_count == 0) {
+                            $new_work->term += ceil(array_sum($request->strut_count)/3);
+                        }
+                        else {
+                            $new_work->term = 0;
+                            $mat_count += 1;
+                        }
+                    }
+                }
+                else {
                     $new_work->term += ceil($item['term']);
                 }
                 $new_work->count += $item['count'];
@@ -702,6 +747,7 @@ class WVCalvulatorController extends Controller
         }
 
     }
+
 
     public function create_mount_calc(Request $request, $work_volume_id)
     {
@@ -731,9 +777,9 @@ class WVCalvulatorController extends Controller
         $material_ids = [];
         $common_material = 0;
 
-        if ($request->strapping_beam[0] != null) {
+        if($request->strapping_beam[0] != null) {
             foreach ($request->strapping_beam as $key => $item) {
-                if ($item) {
+                if($item) {
                     $common_material = WorkVolumeMaterial::create([
                         'user_id' => Auth::user()->id,
                         'work_volume_id' => $work_volume_id,
@@ -744,7 +790,7 @@ class WVCalvulatorController extends Controller
                         'price_per_one' => $materials->where('id', $item)->first()->buy_cost,
                         'result_price' => $request->strapping_beam_count[$key] * $materials->where('id', $item)->first()->buy_cost,
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ]);
                     $strapping_beam[] = $common_material;
                     $material_ids[] = $common_material->id;
@@ -754,9 +800,9 @@ class WVCalvulatorController extends Controller
             $this->calculate_mount($strapping_beam, 1, $request, $work_volume_id);
         }
 
-        if ($request->corner_strut[0] != null) {
+        if($request->corner_strut[0] != null) {
             foreach ($request->corner_strut as $key => $item) {
-                if ($item) {
+                if($item) {
                     $common_material = WorkVolumeMaterial::create([
                         'user_id' => Auth::user()->id,
                         'work_volume_id' => $work_volume_id,
@@ -767,7 +813,7 @@ class WVCalvulatorController extends Controller
                         'price_per_one' => $materials->where('id', $item)->first()->buy_cost,
                         'result_price' => $request->corner_strut_length[$key] * $materials->where('id', $item)->first()->buy_cost,
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ]);
 
                     $corner_strut[] = $common_material;
@@ -778,9 +824,10 @@ class WVCalvulatorController extends Controller
             $this->calculate_mount($corner_strut, 2, $request, $work_volume_id);
         }
 
-        if ($request->cross_strut[0] != null) {
+
+        if($request->cross_strut[0] != null) {
             foreach ($request->cross_strut as $key => $item) {
-                if ($item) {
+                if($item) {
                     $common_material = WorkVolumeMaterial::create([
                         'user_id' => Auth::user()->id,
                         'work_volume_id' => $work_volume_id,
@@ -791,7 +838,7 @@ class WVCalvulatorController extends Controller
                         'price_per_one' => $materials->where('id', $item)->first()->buy_cost,
                         'result_price' => $request->cross_strut_count[$key] * $materials->where('id', $item)->first()->buy_cost,
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ]);
 
                     $cross_strut[] = $common_material;
@@ -802,9 +849,9 @@ class WVCalvulatorController extends Controller
             $this->calculate_mount($cross_strut, 3, $request, $work_volume_id);
         }
 
-        if ($request->strut[0] != null) {
+        if($request->strut[0] != null) {
             foreach ($request->strut as $key => $item) {
-                if ($item) {
+                if($item) {
                     $common_material = WorkVolumeMaterial::create([
                         'user_id' => Auth::user()->id,
                         'work_volume_id' => $work_volume_id,
@@ -815,7 +862,7 @@ class WVCalvulatorController extends Controller
                         'price_per_one' => $materials->where('id', $item)->first()->buy_cost,
                         'result_price' => $request->strut_count[$key] * $materials->where('id', $item)->first()->buy_cost,
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ]);
 
                     $strut[] = $common_material;
@@ -826,11 +873,12 @@ class WVCalvulatorController extends Controller
             $this->calculate_mount($strut, 4, $request, $work_volume_id);
         }
 
+
         $racks_ids = [];
 
-        if ($request->racks[0] != null and $request->racks_count[0] != null and $request->racks_length[0] != null) {
+        if($request->racks[0] != null and $request->racks_count[0] != null and $request->racks_length[0] != null) {
             foreach ($request->racks as $key => $item) {
-                if ($item) {
+                if($item) {
                     $common_material = WorkVolumeMaterial::create([
                         'user_id' => Auth::user()->id,
                         'work_volume_id' => $work_volume_id,
@@ -841,7 +889,7 @@ class WVCalvulatorController extends Controller
                         'price_per_one' => $materials->where('id', $item)->first()->buy_cost,
                         'result_price' => $request->racks_count[$key] * $materials->where('id', $item)->first()->buy_cost,
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ]);
                     $racks_ids[] = $common_material->id;
                     $racks[] = $common_material;
@@ -850,8 +898,8 @@ class WVCalvulatorController extends Controller
             }
             $manual_material = WorkVolumeMaterial::whereIn('work_volume_materials.id', $racks_ids)
                 ->with('manual.parameters')
-                ->leftJoin('manual_materials', 'manual_materials.id', '=', 'work_volume_materials.manual_material_id')
-                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
+                ->leftJoin('manual_materials', 'manual_materials.id','=', 'work_volume_materials.manual_material_id')
+                ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
                 ->select('work_volume_materials.*', 'manual_material_categories.name', 'manual_material_categories.category_unit', 'manual_materials.category_id')
                 ->get();
 
@@ -860,24 +908,25 @@ class WVCalvulatorController extends Controller
             $count_work_1 = [];
 
             foreach ($manual_works as $work) {
-                $count_work_1[$work->id.$work->name] = 0;
+                $count_work_1[$work->id . $work->name] = 0;
             }
 
             $count_work_2 = $count_work_1;
 
             foreach ($manual_material as $material) {
                 foreach ($manual_works as $work) {
-                    if ($material->category_unit == $work->unit) {
-                        $count_work_1[$work->id.$work->name] += $material->count;
+                    if($material->category_unit == $work->unit) {
+                        $count_work_1[$work->id . $work->name] += $material->count;
                     }
                 }
             }
 
+
             foreach ($manual_material as $material) {
                 foreach ($material->parameters as $parameter) {
                     foreach ($manual_works as $work) {
-                        if ($parameter->unit == $work->unit) {
-                            $count_work_2[$work->id.$work->name] += $material->count * $parameter->value;
+                        if($parameter->unit == $work->unit) {
+                            $count_work_2[$work->id . $work->name] += $material->count * $parameter->value;
                         }
                     }
                 }
@@ -892,8 +941,8 @@ class WVCalvulatorController extends Controller
             $racks_count = array_values(array_merge($count_work_2, $count_work_1));
 
             foreach ($manual_works as $key => $work) {
-                if ($request->is_out) {
-                    if ($work->id == 48 or $work->id == 52) {
+                if($request->is_out) {
+                    if($work->id == 48 or $work->id == 52) {
                         continue;
                     }
                 }
@@ -908,7 +957,7 @@ class WVCalvulatorController extends Controller
                     'price_per_one' => $work->price_per_unit,
                     'result_price' => $racks_count[$key] * $work->price_per_unit,
                     'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ];
             }
             $racks_mat_count = 0;
@@ -917,9 +966,10 @@ class WVCalvulatorController extends Controller
                     ->where('manual_work_id', $item['manual_work_id'])
                     ->first();
 
-                if ($find_work) {
+                if($find_work) {
                     $new_work = $find_work;
-                } else {
+                }
+                else {
                     $new_work = new WorkVolumeWork();
                 }
 
@@ -927,14 +977,16 @@ class WVCalvulatorController extends Controller
                 $new_work->work_volume_id = $work_volume_id;
                 $new_work->manual_work_id = $item['manual_work_id'];
                 $new_work->count += $item['count'];
-                if ($item['manual_work_id'] == 51 or $item['manual_work_id'] == 52) {
-                    if ($racks_mat_count == 0) {
-                        $new_work->term += ceil(array_sum($request->racks_count) / 8);
-                    } else {
+                if($item['manual_work_id'] == 51 or $item['manual_work_id'] == 52) {
+                    if($racks_mat_count == 0) {
+                        $new_work->term += ceil(array_sum($request->racks_count)/8);
+                    }
+                    else {
                         $new_work->term = 0;
                         $racks_mat_count += 1;
                     }
-                } else {
+                }
+                else {
                     $new_work->term += ceil($item['term']);
                 }
                 $new_work->is_tongue = 1;
@@ -959,7 +1011,7 @@ class WVCalvulatorController extends Controller
         }
 
         $material_id_embedds = [];
-        if ($request->embedded_parts[0] != null and $request->embedded_parts_count[0] != null) {
+        if($request->embedded_parts[0] != null and $request->embedded_parts_count[0] != null) {
             foreach ($request->embedded_parts as $key_main => $item) {
                 $manual_materials_id = ManualNodeMaterials::where('node_id', $item)->pluck('manual_material_id')->toArray();
                 $manual_materials_value = ManualNodeMaterials::where('node_id', $item)->pluck('count')->toArray();
@@ -968,7 +1020,7 @@ class WVCalvulatorController extends Controller
                     ->with('parameters')
                     ->get();
 
-                foreach ($manual_materials_id as $key => $id) {
+                foreach($manual_materials_id as $key => $id) {
                     $emb_id = WorkVolumeMaterial::create([
                         'user_id' => Auth::user()->id,
                         'work_volume_id' => $work_volume_id,
@@ -979,7 +1031,7 @@ class WVCalvulatorController extends Controller
                         'price_per_one' => isset($materials->where('id', $id)->first()->buy_cost) ? $materials->where('id', $id)->first()->buy_cost : 0,
                         'result_price' => $manual_materials_value[$key] * $request->embedded_parts_count[$key_main] * isset($materials->where('id', $id)->first()->buy_cost) ? $materials->where('id', $id)->first()->buy_cost : 0,
                         'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
                     ]);
 
                     $material_id_embedds[] = $emb_id->id;
@@ -988,8 +1040,8 @@ class WVCalvulatorController extends Controller
 
             $manual_material = WorkVolumeMaterial::whereIn('work_volume_materials.id', $material_id_embedds)
                 ->with('manual.parameters')
-                ->leftJoin('manual_materials', 'manual_materials.id', '=', 'work_volume_materials.manual_material_id')
-                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
+                ->leftJoin('manual_materials', 'manual_materials.id','=', 'work_volume_materials.manual_material_id')
+                ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
                 ->select('work_volume_materials.*', 'manual_material_categories.name', 'manual_material_categories.category_unit', 'manual_materials.category_id', 'manual_materials.id as manual_id')
                 ->get();
 
@@ -1000,16 +1052,17 @@ class WVCalvulatorController extends Controller
             $material_exist_1 = [];
             $material_exist_2 = [];
 
+
             foreach ($manual_works as $work) {
-                $count_work_1[$work->id.$work->name] = 0;
+                $count_work_1[$work->id . $work->name] = 0;
             }
 
             $count_work_2 = $count_work_1;
 
             foreach ($manual_material as $material) {
                 foreach ($manual_works as $work) {
-                    if ($material->category_unit == $work->unit) {
-                        $count_work_1[$work->id.$work->name] += (float) number_format($material->count, 3);
+                    if($material->category_unit == $work->unit) {
+                        $count_work_1[$work->id . $work->name] += (float) number_format($material->count, 3);
                         $material_exist_1[] = $material->manual_id;
                     }
                 }
@@ -1018,8 +1071,8 @@ class WVCalvulatorController extends Controller
             foreach ($manual_material as $material) {
                 foreach ($material->parameters as $parameter) {
                     foreach ($manual_works as $work) {
-                        if ($parameter->unit == $work->unit) {
-                            $count_work_2[$work->id.$work->name] += (float) number_format($material->count * $parameter->value, 3);
+                        if($parameter->unit == $work->unit) {
+                            $count_work_2[$work->id . $work->name] += (float) number_format($material->count * $parameter->value, 3);
                             $material_exist_2[] = $material->manual_id;
                         }
                     }
@@ -1033,12 +1086,12 @@ class WVCalvulatorController extends Controller
 
             $embedded_parts_count = array_values(array_merge($count_work_2, $count_work_1));
 
-            //            if(!(array_unique($material_exist_1) == array_unique($material_exist_2))) {
-            //                $count_work_2 = array_values($count_work_2);
-            //                foreach ($embedded_parts_count as $key => $value) {
-            //                    $embedded_parts_count[$key] = (float) number_format($count_work_2[$key], 3);
-            //                }
-            //            }
+//            if(!(array_unique($material_exist_1) == array_unique($material_exist_2))) {
+//                $count_work_2 = array_values($count_work_2);
+//                foreach ($embedded_parts_count as $key => $value) {
+//                    $embedded_parts_count[$key] = (float) number_format($count_work_2[$key], 3);
+//                }
+//            }
 
             foreach ($manual_works as $key => $work) {
                 $new_works_embedded_parts[] = [
@@ -1051,7 +1104,7 @@ class WVCalvulatorController extends Controller
                     'price_per_one' => $work->price_per_unit,
                     'result_price' => $embedded_parts_count[$key] * $work->price_per_unit,
                     'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ];
             }
 
@@ -1060,22 +1113,25 @@ class WVCalvulatorController extends Controller
                     ->where('manual_work_id', $item['manual_work_id'])
                     ->first();
 
-                if ($find_work) {
+                if($find_work) {
                     $new_work = $find_work;
-                } else {
+                }
+                else {
                     $new_work = new WorkVolumeWork();
                 }
 
                 $new_work->user_id = Auth::user()->id;
                 $new_work->work_volume_id = $work_volume_id;
                 $new_work->manual_work_id = $item['manual_work_id'];
-                if ($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44) {
+                if($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44) {
                     $new_work->count = 1;
                     $new_work->term = 1;
-                } elseif ($item['manual_work_id'] == 66 or $item['manual_work_id'] == 50) {
+                }
+                else if ($item['manual_work_id'] == 66 or $item['manual_work_id'] == 50) {
                     $new_work->count += $item['count'];
                     $new_work->term += 0;
-                } else {
+                }
+                else {
                     $new_work->count += $item['count'];
                     $new_work->term += ceil($item['term']);
                 }
@@ -1088,7 +1144,8 @@ class WVCalvulatorController extends Controller
 
                 $new_work->save();
 
-                if (! ($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44)) {
+
+                if(!($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44)) {
                     foreach ($material_id_embedds as $id) {
                         $new_material = new WorkVolumeWorkMaterial();
 
@@ -1102,10 +1159,10 @@ class WVCalvulatorController extends Controller
         }
 
         $matedial_nodes_id = [];
-        if (($request->nodes_count[0] and $request->nodes[0]) or ($request->sheets_count[0] and $request->sheets[0])) {
+        if(($request->nodes_count[0] and $request->nodes[0]) or ($request->sheets_count[0] and $request->sheets[0])) {
             if (($request->nodes_count[0] and $request->nodes[0])) {
                 foreach ($request->nodes as $key_main => $item) {
-                    if ($item) {
+                    if($item) {
                         $manual_materials_id = ManualNodeMaterials::where('node_id', $item)->pluck('manual_material_id')->toArray();
                         $manual_materials_value = ManualNodeMaterials::where('node_id', $item)->pluck('count')->toArray();
                         $node = ManualNodes::with('node_materials')->findOrFail($item);
@@ -1113,7 +1170,7 @@ class WVCalvulatorController extends Controller
                             ->with('parameters')
                             ->get();
 
-                        foreach ($manual_materials_id as $key => $id) {
+                        foreach($manual_materials_id as $key => $id) {
                             $node_mat = WorkVolumeMaterial::create([
                                 'user_id' => Auth::user()->id,
                                 'work_volume_id' => $work_volume_id,
@@ -1140,19 +1197,19 @@ class WVCalvulatorController extends Controller
 
                 foreach ($request->sheets as $key => $id) {
                     if ($id) {
-                        $sheets_mat = WorkVolumeMaterial::create([
-                            'user_id' => Auth::user()->id,
-                            'work_volume_id' => $work_volume_id,
-                            'manual_material_id' => $id,
-                            'is_our' => 1,
-                            'count' => round($request->sheets_count[$key], 3),
-                            'is_tongue' => 1,
-                            'price_per_one' => isset($materials->where('id', $id)->first()->buy_cost) ? $materials->where('id', $id)->first()->buy_cost : 0,
-                            'result_price' => $request->sheets_count[$key] * isset($materials->where('id', $id)->first()->buy_cost) ? $materials->where('id', $id)->first()->buy_cost : 0,
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now(),
-                        ]);
-                        $matedial_nodes_id[] = $sheets_mat->id;
+                    $sheets_mat = WorkVolumeMaterial::create([
+                        'user_id' => Auth::user()->id,
+                        'work_volume_id' => $work_volume_id,
+                        'manual_material_id' => $id,
+                        'is_our' => 1,
+                        'count' => round($request->sheets_count[$key], 3),
+                        'is_tongue' => 1,
+                        'price_per_one' => isset($materials->where('id', $id)->first()->buy_cost) ? $materials->where('id', $id)->first()->buy_cost : 0,
+                        'result_price' => $request->sheets_count[$key] * isset($materials->where('id', $id)->first()->buy_cost) ? $materials->where('id', $id)->first()->buy_cost : 0,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+                    $matedial_nodes_id[] = $sheets_mat->id;
 
                     }
                 }
@@ -1161,8 +1218,8 @@ class WVCalvulatorController extends Controller
             $manual_material = WorkVolumeMaterial::whereIn('work_volume_materials.id', $matedial_nodes_id)
                 ->where('is_node', 0)
                 ->with('manual.parameters')
-                ->leftJoin('manual_materials', 'manual_materials.id', '=', 'work_volume_materials.manual_material_id')
-                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
+                ->leftJoin('manual_materials', 'manual_materials.id','=', 'work_volume_materials.manual_material_id')
+                ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
                 ->select('work_volume_materials.*', 'manual_material_categories.name', 'manual_material_categories.category_unit', 'manual_materials.category_id')
                 ->get();
 
@@ -1171,24 +1228,25 @@ class WVCalvulatorController extends Controller
             $count_work_1 = [];
 
             foreach ($manual_works as $work) {
-                $count_work_1[$work->id.$work->name] = 0;
+                $count_work_1[$work->id . $work->name] = 0;
             }
 
             $count_work_2 = $count_work_1;
 
             foreach ($manual_material as $material) {
                 foreach ($manual_works as $work) {
-                    if ($material->category_unit == $work->unit) {
-                        $count_work_1[$work->id.$work->name] += $material->count;
+                    if($material->category_unit == $work->unit) {
+                        $count_work_1[$work->id . $work->name] += $material->count;
                     }
                 }
             }
 
+
             foreach ($manual_material as $material) {
                 foreach ($material->parameters as $parameter) {
                     foreach ($manual_works as $work) {
-                        if ($parameter->unit == $work->unit) {
-                            $count_work_2[$work->id.$work->name] += $material->count * $parameter->value;
+                        if($parameter->unit == $work->unit) {
+                            $count_work_2[$work->id . $work->name] += $material->count * $parameter->value;
                         }
                     }
                 }
@@ -1202,8 +1260,8 @@ class WVCalvulatorController extends Controller
             $nodes_count = array_values(array_merge($count_work_2, $count_work_1));
             foreach ($manual_works as $key => $work) {
 
-                if ($work->id == 48 or $work->id == 50) {
-                    if (! $request->is_out) {
+                if($work->id == 48 or $work->id == 50) {
+                    if(!$request->is_out) {
                         continue;
                     }
                 }
@@ -1218,7 +1276,7 @@ class WVCalvulatorController extends Controller
                     'price_per_one' => $work->price_per_unit,
                     'result_price' => $nodes_count[$key] * $work->price_per_unit,
                     'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ];
             }
 
@@ -1227,22 +1285,25 @@ class WVCalvulatorController extends Controller
                     ->where('manual_work_id', $item['manual_work_id'])
                     ->first();
 
-                if ($find_work) {
+                if($find_work) {
                     $new_work = $find_work;
-                } else {
+                }
+                else {
                     $new_work = new WorkVolumeWork();
                 }
 
                 $new_work->user_id = Auth::user()->id;
                 $new_work->work_volume_id = $work_volume_id;
                 $new_work->manual_work_id = $item['manual_work_id'];
-                if ($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44) {
+                if($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44) {
                     $new_work->count = 1;
                     $new_work->term = 1;
-                } elseif ($item['manual_work_id'] == 49 or $item['manual_work_id'] == 50) {
+                }
+                else if ($item['manual_work_id'] == 49 or $item['manual_work_id'] == 50) {
                     $new_work->count += $item['count'];
                     $new_work->term += 0;
-                } else {
+                }
+                else {
                     $new_work->count += $item['count'];
                     $new_work->term += ceil($item['term']);
                 }
@@ -1256,7 +1317,7 @@ class WVCalvulatorController extends Controller
 
                 $new_work->save();
 
-                if (! ($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44)) {
+                if(!($item['manual_work_id'] == 43 or $item['manual_work_id'] == 44)) {
                     foreach ($matedial_nodes_id as $id) {
                         $new_material = new WorkVolumeWorkMaterial();
 
@@ -1273,6 +1334,7 @@ class WVCalvulatorController extends Controller
 
         return redirect()->back();
     }
+
 
     public function count_weight(Request $request)
     {

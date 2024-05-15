@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DynamicTicketUpdateRequest;
 use App\Http\Requests\TicketStoreRequest;
-use App\Models\Notification;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
+use App\Notifications\Technic\TechnicDispatchConfirmationNotice;
+use App\Notifications\Technic\TechnicReceiptConfirmationNotice;
+use App\Notifications\Technic\TechnicUsageStartTaskNotice;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
@@ -18,7 +20,6 @@ use Illuminate\Support\Facades\DB;
 class OurTechnicTicketController extends Controller
 {
     use TimeCalculator;
-
     /**
      * @var TechnicTicketService
      */
@@ -46,6 +47,7 @@ class OurTechnicTicketController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param TicketStoreRequest $request
      * @return Response
      */
     public function store(TicketStoreRequest $request)
@@ -58,6 +60,8 @@ class OurTechnicTicketController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param DynamicTicketUpdateRequest $request
+     * @param OurTechnicTicket $ourTechnicTicket
      * @return Response
      */
     public function update(DynamicTicketUpdateRequest $request, OurTechnicTicket $ourTechnicTicket)
@@ -71,8 +75,8 @@ class OurTechnicTicketController extends Controller
     }
 
     /**
+     * @param OurTechnicTicket $ourTechnicTicket
      * @return Response
-     *
      * @throws \Exception
      */
     public function destroy(OurTechnicTicket $ourTechnicTicket)
@@ -84,11 +88,12 @@ class OurTechnicTicketController extends Controller
         ]);
     }
 
+
     public function show(OurTechnicTicket $ourTechnicTicket)
     {
         return \response([
             'data' => [
-                'ticket' => $ourTechnicTicket->loadAllMissingRelations(),
+                'ticket' => $ourTechnicTicket->loadAllMissingRelations()
             ],
         ]);
     }
@@ -118,7 +123,7 @@ class OurTechnicTicketController extends Controller
                 'name' => 'Подтверждение перемещения',
                 'responsible_user_id' => $request->user,
                 'expired_at' => $this->addHours(24),
-                'status' => $request->task_status,
+                'status' => $request->task_status
             ]);
 
             $user = User::findOrFail($request->user);
@@ -130,18 +135,20 @@ class OurTechnicTicketController extends Controller
             // here we have many responsible user (every one can send and receive tech)
             $ourTechnicTicket->users()->attach($request->user, ['type' => $request->task_status == 31 ? 2 : 3]);
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = "\n".
-                'Ссылка: '.route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-            $notification->update([
-                'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                'user_id' => $request->user,
-                'created_at' => now(),
-                'target_id' => $ourTechnicTicket->id,
-                'type' => $request->task_status == 31 ? 71 : 72,
-            ]);
-        } elseif ($request->task_status == 36) {
+            /** Отправка в уведомлений */
+            $noticeClass = $request->task_status == 31 ? TechnicDispatchConfirmationNotice::class : TechnicReceiptConfirmationNotice::class;
+            $noticeClass::send(
+                $request->user,
+                [
+                    'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                    'additional_info' => "Ссылка: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'created_at' => now(),
+                    'target_id' => $ourTechnicTicket->id,
+                ]
+            );
+        }
+        elseif ($request->task_status == 36) {
             $user = User::findOrFail($request->user);
             $ourTechnicTicket->comments()->create([
                 'comment' => "Передано право на использование {$user->long_full_name}",
@@ -157,17 +164,17 @@ class OurTechnicTicketController extends Controller
                 $ourTechnicTicket->users()->attach($request->user, ['type' => 4]);
             }
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = "\n".
-                'Ссылка: '.route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-            $notification->update([
-                'name' => "Вас назначили ответсвенным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-                'user_id' => $request->user,
-                'created_at' => now(),
-                'target_id' => $ourTechnicTicket->id,
-                'type' => 69,
-            ]);
+            /** Отправка в уведомлений */
+            TechnicUsageStartTaskNotice::send(
+                $request->user,
+                [
+                    'name' => "Вас назначили ответственным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                    'additional_info' => "\nСсылка: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'created_at' => now(),
+                    'target_id' => $ourTechnicTicket->id,
+                ]
+            );
         }
         DB::commit();
 
