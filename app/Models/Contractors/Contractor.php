@@ -2,9 +2,9 @@
 
 namespace App\Models\Contractors;
 
-use App\Domain\Enum\NotificationType;
-use App\Models\{Notification\Notification,
-    Project,
+use App\Notifications\Contractor\ContractorContactInformationRequiredNotice;
+use App\Notifications\Contractor\UserCreatedContractorWithoutContactsNotice;
+use App\Models\{Project,
     ProjectContractors,
     Task,
     User};
@@ -184,12 +184,10 @@ class Contractor extends Model
     {
         if ($this->notify == 0 and $diff_in_days == 1) {
             // send first notification to creator
-            dispatchNotify(
+            ContractorContactInformationRequiredNotice::send(
                 $this->user_id,
-                'Заполните контакты контрагента ' . $this->short_name,
-                '',
-                NotificationType::CONTRACTOR_CONTACT_INFORMATION_REQUIRED_NOTIFICATION,
                 [
+                    'name' => 'Заполните контакты контрагента ' . $this->short_name,
                     'additional_info' => 'Ссылка на контрагента: ',
                     'url' => route('contractors::card', $this->id),
                     'contractor_id' => $this->id,
@@ -211,12 +209,10 @@ class Contractor extends Model
                 $chief_id = User::where('group_id', 50/*7*/)->first()->id;
             }
 
-            dispatchNotify(
+            UserCreatedContractorWithoutContactsNotice::send(
                 $chief_id,
-                'Пользователь ' . $this->creator->full_name . ' не заполнил(а) контактов контрагента ' . $this->short_name,
-                '',
-                NotificationType::USER_CREATED_CONTRACTOR_WITHOUT_CONTACTS_NOTIFICATION,
                 [
+                    'name' => 'Пользователь ' . $this->creator->full_name . ' не заполнил(а) контактов контрагента ' . $this->short_name,
                     'additional_info' => 'Ссылка на контрагента: ',
                     'url' => route('contractors::card', $this->id),
                     'user_id' => $chief_id,

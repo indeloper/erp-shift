@@ -2,9 +2,8 @@
 
 namespace App\Observers;
 
-use App\Domain\Enum\NotificationType;
-use App\Models\Notification\Notification;
 use App\Models\User;
+use App\Notifications\Task\NewTasksFromDeletedUserNotice;
 
 class UserObserver
 {
@@ -22,12 +21,10 @@ class UserObserver
 
     public function notificationAfterUserRemove($user)
     {
-        dispatchNotify(
+        NewTasksFromDeletedUserNotice::send(
             $user->role_codes,
-            'Пользователь ' . $user->long_full_name . ' был удалён из системы. С новыми задачами можно ознакомиться здесь: ',
-            '',
-            NotificationType::NEW_TASKS_FROM_DELETED_USER_NOTIFICATION,
             [
+                'name' => 'Пользователь ' . $user->long_full_name . ' был удалён из системы. С новыми задачами можно ознакомиться здесь: ',
                 'additional_info' => ', со списком проектов: ',
                 'url' => route('users::card', $user->role_codes),
                 'tasks_url' => route('tasks::index'),
