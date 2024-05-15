@@ -34,9 +34,11 @@ class Defects extends Model
 
     protected $appends = ['status_name', 'repair_start', 'repair_end', 'contractor', 'created_at_formatted', 'class_name', 'author_name', 'responsible_user_name'];
 
-    protected $dates = ['repair_start_date', 'repair_end_date'];
-
-    protected $casts = ['status' => 'integer'];
+    protected $casts = [
+        'repair_start_date' => 'datetime',
+        'repair_end_date' => 'datetime',
+        'status' => 'integer'
+    ];
 
     protected $hidden = ['contractor'];
 

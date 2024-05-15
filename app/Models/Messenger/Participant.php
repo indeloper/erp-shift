@@ -24,18 +24,12 @@ class Participant extends Eloquent
     protected $fillable = ['thread_id', 'user_id', 'last_read', 'starred'];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at', 'last_read'];
-
-    /**
      * attributes that should be cast
      *
      * @var array
      */
     protected $casts = [
+        'last_read' => 'datetime',
         'starred' => 'boolean',
     ];
 
