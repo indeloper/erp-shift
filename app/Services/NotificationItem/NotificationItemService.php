@@ -35,13 +35,11 @@ final class NotificationItemService implements NotificationItemServiceInterface
     }
 
     public function store(
-        string $type,
         string $class,
         string $description,
         bool $status = false
     ): NotificationItem {
         return $this->notificationItemRepository->store(
-            $type,
             $class,
             $description,
             $status

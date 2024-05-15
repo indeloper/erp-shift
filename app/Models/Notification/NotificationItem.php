@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class NotificationItem extends Model
 {
     protected $fillable = [
-        'type',
         'class',
         'description',
         'status',

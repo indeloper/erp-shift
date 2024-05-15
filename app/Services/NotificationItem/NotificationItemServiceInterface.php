@@ -12,7 +12,6 @@ interface NotificationItemServiceInterface
 {
 
     public function store(
-        string $type,
         string $class,
         string $description,
         bool $status = false

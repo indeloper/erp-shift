@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Collection;
 interface NotificationItemRepositoryInterface
 {
     public function store(
-        string $type,
         string $class,
         string $description,
         bool $status = false

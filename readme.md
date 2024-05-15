@@ -28,6 +28,7 @@ Start:
 ### Уведомления
 
 --- 
+команда для создания уведомлений php artisan make:epr-notification имя описание
 
 Предусмотрены 3 канала уведомлений:
 
@@ -46,55 +47,22 @@ Start:
 Добавить класс в App/Notifications/
 Если blade для mail создать blade (resources/views/mail/) и наименованием как у класса, в кебаб кейсе
 Если blade для telegram, создать blade (resources/views/telegram/) и наименованием как у класса, в кебаб кейсе
-Добавить константу в NotificationType и возврат добавленного класса, при вызове добавленной константы.
-Например добавим: <code>OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION</code>
-
-```
-...
-const OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION = 106;
-...
-public static function determinateNotificationClassByType(int $type): string
-    {
-        switch ($type) {
-        ...
-            case self::OPERATIONS_WITHOUT_CERTIFICATES_NOTIFICATION:
-                return OperationsWithoutCertificatesNotice::class;
-        ...
-```
 
 Добавление уведомления в коде:
 
 ```
-dispatchNotify(
-    user_id (id получателя),
-    name    (Содержание уведомления),
-    discription (Можно оставить пустой => '',),
-    type (указывается констанка класса NotificationType, которая возвращает класс уведомления),
-    [] *
-)
+UserTestCreateNotice::send(
+    $user_ids,
+    [
+        'name' => 'test',
+        'additional_info' => 'Ссылка на задачу',
+        'url' => route($task->id)
+    ]
+);
 ```
 
 * Можно передать массив, который по ключам будет пытаться записать в базу в таблицу Notification, если такие поля есть в
   бд. Например:
-
-```
-    dispatchNotify(
-        1,
-        'Заявка на формирование приказов',
-        'Заявка на формирование приказов',
-        NotificationType::LABOR_SAFETY,
-        [
-            'additional_info' => 'Дополнительная информация',
-            'url' => 'Ссылка'
-            'target_id' => $requestRow->id,
-            'status' => 7,
-            'orderRequestId' => $requestRow->id,
-            'orderRequestAuthor' => $orderRequestAuthor,
-            'company' => $company,
-            'projectObject' => $projectObject
-        ]
-    );
-```
 
 <code>additional_info</code> добавляется после основной информации в тексте уведомления
 

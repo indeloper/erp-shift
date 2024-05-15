@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         // Dev commandscls
         Commands\Generators\MakeErpModelCommand::class,
+        Commands\MakeErpNotification::class,
 
         // Other commands
         Commands\MakePermission::class,

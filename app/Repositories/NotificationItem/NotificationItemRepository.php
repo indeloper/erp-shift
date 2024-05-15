@@ -12,16 +12,13 @@ final class NotificationItemRepository
 {
 
     public function store(
-        string $type,
         string $class,
         string $description,
         bool $status = false
     ): NotificationItem {
         return NotificationItem::query()->updateOrCreate([
-            'type' => $type,
-
-        ], [
             'class'       => $class,
+        ], [
             'description' => $description,
             'status'      => $status,
         ]);
