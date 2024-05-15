@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\MatAccArrivalController;
+use App\Http\Controllers\Building\MaterialAccounting\MatAccArrivalController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('can:mat_acc_operation_log')->group(function () {

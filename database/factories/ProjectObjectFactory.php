@@ -18,17 +18,4 @@ class ProjectObjectFactory extends Factory
             'address' => $this->faker->address,
         ];
     }
-
-    /**
-     * Define the model's default state.
-     *
-     * @return array
-     */
-    public function definition()
-    {
-        return [
-            'name' => $this->faker->word,
-            'address' => $this->faker->address,
-        ];
-    }
 }

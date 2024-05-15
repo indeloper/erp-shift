@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ContractorController;
+use App\Http\Controllers\Commerce\ContractorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('can:contractors')->group(function () {

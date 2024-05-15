@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Building\TechAccounting\Technic;
-use App\Http\Controllers\Technic;
 use Illuminate\Support\Facades\Route;
 
 Route::resource('vehicle_categories', Technic\old\VehicleCategoriesController::class);

@@ -148,35 +148,48 @@
 
                     update: function (key, values) {
 
-                        return $.ajax({
-                            url: getUrlWithId("{{route('admin.permission.update', ['id'=>'setId'])}}", key),
-                            method: "PUT",
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            data: {
-                                data: JSON.stringify(values),
-                                options: null
-                            },
-                            success: function (data, textStatus, jqXHR) {
-                                DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
-                            },
-                        })
+                        @php
+
+//                             TODO: // FIX URL !!!
+
+
+    //                        return $.ajax({
+    //                            url: getUrlWithId("{{route('admin.permission.update', ['id'=>'setId'])}}", key),
+    //                            method: "PUT",
+    //                            headers: {
+    //                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //                            },
+    //                            data: {
+    //                                data: JSON.stringify(values),
+    //                                options: null
+    //                            },
+    //                            success: function (data, textStatus, jqXHR) {
+    //                                DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+    //                            },
+    //                        })
+
+                        @endphp
 
                     },
 
                     remove: function (key) {
 
-                        return $.ajax({
-                            url: getUrlWithId("{{route('admin.permission.destroy', ['id'=>'setId'])}}", key),
-                            method: "DELETE",
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function (data, textStatus, jqXHR) {
-                                DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
-                            },
-                        })
+                        @php
+                            //                             TODO: // FIX URL !!!
+
+
+                            //                            return $.ajax({
+                            //                                url: getUrlWithId("{{route('admin.permission.destroy', ['id'=>'setId'])}}", key),
+                            //                                method: "DELETE",
+                            //                                headers: {
+                            //                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            //                                },
+                            //                                success: function (data, textStatus, jqXHR) {
+                            //                                    DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                            //                                },
+                            //                            })
+
+                        @endphp
 
                     },
 

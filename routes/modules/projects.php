@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\ProjectCommercialOfferController;
-use App\Http\Controllers\ProjectContractController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectDashboardController;
-use App\Http\Controllers\ProjectWorkVolumeController;
-use App\Http\Controllers\WVCalvulatorController;
+use App\Http\Controllers\Commerce\ProjectCommercialOfferController;
+use App\Http\Controllers\Commerce\ProjectContractController;
+use App\Http\Controllers\Commerce\ProjectController;
+use App\Http\Controllers\Commerce\ProjectDashboardController;
+use App\Http\Controllers\Commerce\ProjectWorkVolumeController;
+use App\Http\Controllers\Commerce\WVCalvulatorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('can:projects')->group(function () {

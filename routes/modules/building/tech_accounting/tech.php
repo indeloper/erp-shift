@@ -1,9 +1,8 @@
 <?php
 
-use App\Http\Controllers\Building\TechAccounting\Fuel\old\Fuel;
+use App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankController;
+use App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankOperationController;
 use App\Http\Controllers\Building\TechAccounting\Technic;
-use App\Http\Controllers\Fuel;
-use App\Http\Controllers\Technic;
 use Illuminate\Support\Facades\Route;
 
 Route::resource('technic_category', 'Technic\old\TechnicCategoryController');
@@ -57,28 +56,28 @@ Route::post('our_technic_tickets/{our_technic_ticket}/make_ttn', [Technic\old\Ou
 
 // ТОПЛИВО СТАРОЕ
 
-Route::get('fuel_tank_operations/report', [Fuel\Old\FuelTankOperationController::class, 'createReport'])->name('fuel_tank_operation.report');
+Route::get('fuel_tank_operations/report', [FuelTankOperationController::class, 'createReport'])->name('fuel_tank_operation.report');
 
-Route::resource('fuel_tank_operations', Fuel\Old\FuelTankOperationController::class)->except([
+Route::resource('fuel_tank_operations', FuelTankOperationController::class)->except([
     'create',
     'edit',
 ]);
 
-Route::post('fuel_tank_operations_paginated', [Fuel\Old\FuelTankOperationController::class, 'getFuelTankOperationsPaginated'])->name('fuel_tank_operations_paginated');
-Route::post('get_fuel_tank_operations', [Fuel\Old\FuelTankOperationController::class, 'getFuelTanksOperations'])->name('get_fuel_tank_operations');
-Route::post('fuel_tank/{fuel_tank}/change_fuel_level', [Fuel\Old\FuelTankController::class, 'changeFuelLevel'])->name('fuel_tank.change_fuel_level');
-Route::get('fuel_tank_trashed', [Fuel\Old\FuelTankController::class, 'display_trashed'])->name('fuel_tank.display_trashed');
-Route::get('trashed_fuel_tank/{fuel_tank}', [Fuel\Old\FuelTankController::class, 'show_trashed'])->name('fuel_tank.show_trashed');
+Route::post('fuel_tank_operations_paginated', [FuelTankOperationController::class, 'getFuelTankOperationsPaginated'])->name('fuel_tank_operations_paginated');
+Route::post('get_fuel_tank_operations', [FuelTankOperationController::class, 'getFuelTanksOperations'])->name('get_fuel_tank_operations');
+Route::post('fuel_tank/{fuel_tank}/change_fuel_level', [FuelTankController::class, 'changeFuelLevel'])->name('fuel_tank.change_fuel_level');
+Route::get('fuel_tank_trashed', [FuelTankController::class, 'display_trashed'])->name('fuel_tank.display_trashed');
+Route::get('trashed_fuel_tank/{fuel_tank}', [FuelTankController::class, 'show_trashed'])->name('fuel_tank.show_trashed');
 
 Route::resource('fuel_tank', 'Fuel\Old\FuelTankController')->except([
     'create',
     'edit',
 ]);
 
-Route::post('get_fuel_tanks', [Fuel\Old\FuelTankController::class, 'getFuelTanks'])->name('get_fuel_tanks');
-Route::post('get_fuel_tanks_by_object', [Fuel\Old\FuelTankController::class, 'getFuelTanksByObject'])->name('get_fuel_tanks_by_object');
-Route::post('get_fuel_tanks_paginated', [Fuel\Old\FuelTankController::class, 'getFuelTanksPaginated'])->name('get_fuel_tanks_paginated');
-Route::post('get_trashed_fuel_tanks_paginated', [Fuel\Old\FuelTankController::class, 'getTrashedFuelTanksPaginated'])->name('get_trashed_fuel_tanks_paginated');
+Route::post('get_fuel_tanks', [FuelTankController::class, 'getFuelTanks'])->name('get_fuel_tanks');
+Route::post('get_fuel_tanks_by_object', [FuelTankController::class, 'getFuelTanksByObject'])->name('get_fuel_tanks_by_object');
+Route::post('get_fuel_tanks_paginated', [FuelTankController::class, 'getFuelTanksPaginated'])->name('get_fuel_tanks_paginated');
+Route::post('get_trashed_fuel_tanks_paginated', [FuelTankController::class, 'getTrashedFuelTanksPaginated'])->name('get_trashed_fuel_tanks_paginated');
 
 // ТОПЛИВО СТАРОЕ КОНЕЦ
 
@@ -86,19 +85,19 @@ Route::post('get_trashed_fuel_tanks_paginated', [Fuel\Old\FuelTankController::cl
 
 Route::prefix('technic')->name('technic::')->group(function () {
     Route::prefix('ourTechnicList')->name('ourTechnicList::')->group(function () {
-        Route::registerBaseRoutes('OurTechnicController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('Technic\OurTechnicController', $attachmentsRoutes = false);
     });
     Route::prefix('technicCategory')->name('technicCategory::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('TechnicCategoryController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('Technic\TechnicCategoryController', $attachmentsRoutes = false);
     });
     Route::prefix('technicBrand')->name('technicBrand::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('TechnicBrandController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('Technic\TechnicBrandController', $attachmentsRoutes = false);
     });
     Route::prefix('mtechnicBrandModel')->name('technicBrandModel::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('TechnicBrandModelController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('Technic\TechnicBrandModelController', $attachmentsRoutes = false);
     });
     Route::prefix('movements')->name('movements::')->group(function () {
-        Route::registerBaseRoutes('TechnicMovementController', $attachmentsRoutes = true);
+        Route::registerBaseRoutes('Technic\TechnicMovementController', $attachmentsRoutes = true);
     });
 });
 
@@ -109,25 +108,25 @@ Route::prefix('technic')->name('technic::')->group(function () {
 Route::prefix('fuel')->name('fuel::')->group(function () {
 
     Route::prefix('tanks')->name('tanks::')->group(function () {
-        Route::get('validateTankNumberUnique', [Fuel\FuelTankController::class, 'validateTankNumberUnique'])->name('validateTankNumberUnique');
-        Route::post('moveFuelTank', [Fuel\FuelTankController::class, 'moveFuelTank'])->name('moveFuelTank');
-        Route::post('confirmMovingFuelTank', [Fuel\FuelTankController::class, 'confirmMovingFuelTank'])->name('confirmMovingFuelTank');
-        Route::get('getFuelTankConfirmationFormData', [Fuel\FuelTankController::class, 'getFuelTankConfirmationFormData'])->name('getFuelTankConfirmationFormData');
+        Route::get('validateTankNumberUnique', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'validateTankNumberUnique'])->name('validateTankNumberUnique');
+        Route::post('moveFuelTank', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'moveFuelTank'])->name('moveFuelTank');
+        Route::post('confirmMovingFuelTank', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'confirmMovingFuelTank'])->name('confirmMovingFuelTank');
+        Route::get('getFuelTankConfirmationFormData', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'getFuelTankConfirmationFormData'])->name('getFuelTankConfirmationFormData');
 
-        Route::registerBaseRoutes('FuelTankController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('Fuel\FuelTankController', $attachmentsRoutes = false);
     });
 
     Route::prefix('fuelFlow')->name('fuelFlow::')->group(function () {
-        Route::registerBaseRoutes('FuelTankFlowController', $attachmentsRoutes = true);
+        Route::registerBaseRoutes('Fuel\FuelTankFlowController', $attachmentsRoutes = true);
     });
 
     Route::prefix('reports')->name('reports::')->group(function () {
         Route::prefix('fuelTankPeriodReport')->name('fuelTankPeriodReport::')->group(function () {
-            Route::registerBaseRoutes('FuelTankPeriodReportController', $attachmentsRoutes = false);
-            Route::get('getPdf', [Fuel\Reports\FuelTankPeriodReportController::class, 'getPdf'])->name('getPdf');
+            Route::registerBaseRoutes('Fuel\Reports\FuelTankPeriodReportController', $attachmentsRoutes = false);
+            Route::get('getPdf', [App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTankPeriodReportController::class, 'getPdf'])->name('getPdf');
         });
         Route::prefix('tanksMovementReport')->name('tanksMovementReport::')->middleware('can:fuel_tanks_movements_report_access')->group(function () {
-            Route::registerBaseRoutes('FuelTanksMovementsReportController', $attachmentsRoutes = false);
+            Route::registerBaseRoutes('Fuel\Reports\FuelTanksMovementsReportController', $attachmentsRoutes = false);
         });
     });
 });

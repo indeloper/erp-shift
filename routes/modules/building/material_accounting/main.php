@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\MaterialAccountingController;
+use App\Http\Controllers\Building\MaterialAccounting\MaterialAccountingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/operations', [MaterialAccountingController::class, 'operations'])->name('operations')->middleware('can:mat_acc_operation_log');

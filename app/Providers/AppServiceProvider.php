@@ -28,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
             });
         }
 
+        \Illuminate\Pagination\Paginator::useBootstrap();
+
         setlocale(LC_TIME, 'ru_RU.UTF-8');
 
         Carbon::setLocale('ru');
