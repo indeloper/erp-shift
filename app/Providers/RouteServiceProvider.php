@@ -10,15 +10,6 @@ class RouteServiceProvider extends ServiceProvider
     const HOME = '/';
 
     /**
-     * This namespace is applied to your controller routes.
-     *
-     * In addition, it is set as the URL generator's root namespace.
-     *
-     * @var string
-     */
-    protected $namespace = 'App\Http\Controllers';
-
-    /**
      * Define your route model bindings, pattern filters, etc.
      *
      * @return void
@@ -66,16 +57,16 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        Route::middleware('web')->namespace(($this->namespace))->group(base_path('routes/web.php'));
+        Route::middleware('web'))->group(base_path('routes/web.php'));
 
-        Route::middleware(['web', 'activeuser', 'auth'])->namespace($this->namespace)->group(function () {
+        Route::middleware(['web', 'activeuser', 'auth'])->group(function () {
 
-            Route::prefix('contractors')->as('contractors::')->namespace('Commerce')->group(function () {
+            Route::prefix('contractors')->as('contractors::')->group(function () {
                 require base_path('routes/modules/contractors.php');
             });
 
-            Route::prefix('building')->as('building::')->namespace('Building')->group(function () {
-                Route::prefix('mat_acc')->as('mat_acc::')->namespace('MaterialAccounting')->group(function () {
+            Route::prefix('building')->as('building::')->group(function () {
+                Route::prefix('mat_acc')->as('mat_acc::')->group(function () {
                     Route::prefix('arrival')->as('arrival::')->group(function () {
                         require base_path('routes/modules/building/material_accounting/arrival.php');
                     });
@@ -92,20 +83,20 @@ class RouteServiceProvider extends ServiceProvider
                     require base_path('routes/modules/building/material_accounting/main.php');
                 });
 
-                Route::prefix('tech_acc')->as('tech_acc::')->namespace('TechAccounting')->group(function () {
+                Route::prefix('tech_acc')->as('tech_acc::')->group(function () {
                     require base_path('routes/modules/building/tech_accounting/tech.php');
                 });
 
-                Route::prefix('vehicles')->as('vehicles::')->namespace('TechAccounting')->group(function () {
+                Route::prefix('vehicles')->as('vehicles::')->group(function () {
                     require base_path('routes/modules/building/tech_accounting/vehicles.php');
                 });
             });
 
-            Route::namespace('Commerce')->prefix('projects')->as('projects::')->group(function () {
+            Route::prefix('projects')->as('projects::')->group(function () {
                 require base_path('routes/modules/projects.php');
             });
 
-            Route::namespace('System')->prefix('messages')->as('messages::')->group(function () {
+            Route::prefix('messages')->as('messages::')->group(function () {
                 require base_path('routes/modules/messages.php');
             });
         });
@@ -122,14 +113,13 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::prefix('api')
             ->middleware('api')
-            ->namespace($this->namespace)
             ->group(base_path('routes/api.php'));
     }
 
     private function mapLayoutRoutes()
     {
         Route::middleware(['web', 'auth'])
-            ->namespace(($this->namespace))
+            )
             ->prefix('layout')
             ->name('layout::')
             ->group(base_path('routes/layout/layout.php'));
@@ -138,7 +128,7 @@ class RouteServiceProvider extends ServiceProvider
     private function mapProfileRoutes()
     {
         Route::middleware(['web', 'auth'])
-            ->namespace(($this->namespace))
+            )
             ->prefix('profile')
             ->name('profile::')
             ->group(base_path('routes/user/profile.php'));
@@ -147,7 +137,7 @@ class RouteServiceProvider extends ServiceProvider
     private function mapNotificationsRoutes()
     {
         Route::middleware(['web', 'auth', 'activeuser'])
-            ->namespace(($this->namespace))
+            )
             ->group(base_path('routes/notifications/notifications.php'));
     }
 }
