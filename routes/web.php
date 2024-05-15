@@ -13,7 +13,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => ['activeuser', 'auth']], function () {
+Route::middleware('activeuser', 'auth')->group(function () {
 
     Route::get('storage/{file_path?}', 'System\FileController@file')->where('file_path', '.*');
 
@@ -23,7 +23,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::post('contracts_filtered', 'Documents\ContractsController@contractsFiltered')->name('contracts::filtered')->middleware('can:contracts');
     Route::any('contracts/get_contracts', 'Documents\ContractsController@get_contracts')->name('contracts::get_contracts');
 
-    Route::group(['prefix' => 'objects', 'as' => 'objects::',  'namespace' => 'Commerce', 'middleware' => 'can:objects'], function () {
+    Route::prefix('objects')->name('objects::')->namespace('Commerce')->middleware('can:objects')->group(function () {
         Route::get('/', 'ObjectController@returnPageCore')->name('base-template');
 
         Route::get('/index', 'ObjectController@index')->name('index');
@@ -44,7 +44,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
     Route::get('tasks/current-user-tasks-contractors-list', 'Tasks\TasksController@currentUserTasksContractorsList')->name('tasks.current-user-tasks-contractors.list');
     Route::get('tasks/current-user-tasks-split-material-list', 'Tasks\TasksController@currentUserTasksSplitMaterialList')->name('tasks.current-user-tasks-split-material.list');
 
-    Route::group(['prefix' => 'tasks', 'as' => 'tasks::', 'namespace' => 'Tasks'], function () {
+    Route::prefix('tasks')->name('tasks::')->namespace('Tasks')->group(function () {
         Route::get('/', 'TasksController@index')->name('index');
         Route::get('/card/{id}', 'TasksController@card')->name('card');
         Route::get('search_projects', 'TasksController@searchProjects')->name('search_projects');
@@ -81,9 +81,9 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('decline_request', 'TaskCommerceController@declineRequest')->name('decline_request');
     });
 
-    Route::group(['prefix' => 'building', 'as' => 'building::', 'namespace' => 'Building'], function () {
+    Route::prefix('building')->name('building::')->namespace('Building')->group(function () {
 
-        Route::group(['prefix' => 'materials', 'as' => 'materials::', 'middleware' => 'can:manual_materials'], function () {
+        Route::prefix('materials')->name('materials::')->middleware('can:manual_materials')->group(function () {
             Route::get('/', 'ManualMaterialCategoryController@index')->name('index');
 
             Route::post('/store', 'ManualMaterialCategoryController@store')->name('category::store')->middleware('can:manual_materials_edit');
@@ -109,7 +109,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
         });
 
-        Route::group(['prefix' => 'nodes', 'as' => 'nodes::', 'middleware' => 'can:manual_nodes'], function () {
+        Route::prefix('nodes')->name('nodes::')->middleware('can:manual_nodes')->group(function () {
             Route::get('/', 'ManualNodesController@index')->name('index');
 
             Route::post('/store', 'ManualNodesController@category_store')->name('category::store')->middleware('can:manual_nodes_edit');
@@ -130,7 +130,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
             Route::post('/get_all_materials', 'ManualMaterialController@get_all_materials')->name('get_all_materials');*/
         });
 
-        Route::group(['prefix' => 'works', 'as' => 'works::', 'middleware' => 'can:manual_works'], function () {
+        Route::prefix('works')->name('works::')->middleware('can:manual_works')->group(function () {
             Route::get('/', 'ManualWorkController@index')->name('index');
             Route::any('/card/{id}', 'ManualWorkController@card')->name('card');
             Route::get('/edit/{id}', 'ManualWorkController@edit')->name('edit')->middleware('can:manual_works_edit');
@@ -150,7 +150,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'project_documents', 'as' => 'project_documents::', 'namespace' => 'Documents', 'middleware' => 'can:project_documents'], function () {
+    Route::prefix('project_documents')->name('project_documents::')->namespace('Documents')->middleware('can:project_documents')->group(function () {
         Route::get('/', 'ProjectDocumentationController@index')->name('index');
         Route::get('/card/{id}/create', 'ProjectDocumentationController@create')->name('create');
         Route::get('/card/{id}', 'ProjectDocumentationController@card')->name('card');
@@ -159,15 +159,15 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('/update', 'ProjectDocumentationController@update')->name('update');
     });
 
-    Route::group(['prefix' => 'commercial_offers', 'as' => 'commercial_offers::', 'namespace' => 'Documents', 'middleware' => 'can:commercial_offers'], function () {
+    Route::prefix('commercial_offers')->name('commercial_offers::')->namespace('Documents')->middleware('can:commercial_offers')->group(function () {
         Route::any('/', 'CommercialOffersController@index')->name('index');
     });
 
-    Route::group(['prefix' => 'work_volumes', 'as' => 'work_volumes::', 'namespace' => 'Documents', 'middleware' => 'can:work_volumes'], function () {
+    Route::prefix('work_volumes')->name('work_volumes::')->namespace('Documents')->middleware('can:work_volumes')->group(function () {
         Route::any('/', 'WorkVolumesController@index')->name('index');
     });
 
-    Route::group(['prefix' => 'users', 'as' => 'users::', 'namespace' => 'Common'], function () {
+    Route::prefix('users')->name('users::')->namespace('Common')->group(function () {
         Route::get('/', 'UserController@index')->name('index')->middleware('can:users');
         Route::get('/create', 'UserController@create')->name('create')->middleware('can:users_create');
         Route::get('/card/{id}', 'UserController@card')->name('card');
@@ -196,13 +196,13 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::post('/setUserSetting', 'UserController@setSetting')->name('set-user-setting');
     });
 
-    Route::group(['prefix' => 'document_templates', 'as' => 'document_templates::', 'namespace' => 'Documents'], function () {
+    Route::prefix('document_templates')->name('document_templates::')->namespace('Documents')->group(function () {
         Route::get('/', 'DocumentTemplateController@index')->name('index');
         Route::get('/create_offer_template', 'DocumentTemplateController@create_offer_template')->name('create_offer_template');
         Route::post('/create_offer_template/store', 'DocumentTemplateController@create_offer_template_store')->name('create_offer_template::store');
     });
 
-    Route::group(['prefix' => 'support', 'as' => 'support::', 'namespace' => 'System'], function () {
+    Route::prefix('support')->name('support::')->namespace('System')->group(function () {
         Route::get('/', 'SupportController@index')->name('index');
         Route::post('/support_send_mail', 'SupportController@support_send_mail')->name('support_send_mail');
         Route::post('/update_ticket_async', 'SupportController@update_ticket_async')->name('update_ticket_async');
@@ -213,7 +213,7 @@ Route::group(['middleware' => ['activeuser', 'auth']], function () {
         Route::get('report', 'SupportController@report')->name('report');
     });
 
-    Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'System', 'middleware' => ['can:that_noone_can']], function () {
+    Route::prefix('admin')->name('admin.')->namespace('System')->middleware('can:that_noone_can')->group(function () {
         Route::get('notifications', 'AdminController@admin')->name('notifications');
         Route::get('validate-material-accounting-data', 'AdminController@validateMaterialAccountingData')->name('validate-material-accounting_data');
         Route::get('get-material-accounting-data-validation-result', 'AdminController@getMaterialAccountingDataValidationResult')->name('get-material-accounting-data-validation-result');
