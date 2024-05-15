@@ -24,8 +24,7 @@
         "phpoffice/phpword": "v0.18.*",
         "wapmorgan/morphos": "^3.2",
         "ext-curl": "*",
-        "laravel/ui": "^3.0",
-        "fruitcake/laravel-cors": "^2.0"
+        "laravel/ui": "^3.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.5",
