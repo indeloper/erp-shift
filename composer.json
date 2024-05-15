@@ -23,7 +23,7 @@
         "phpoffice/phpword": "v0.18.*",
         "wapmorgan/morphos": "^3.2",
         "ext-curl": "*",
-        "laravel/ui": "^3.3",
+        "laravel/ui": "^4.0",
         "spatie/laravel-ignition": "^1.4"
     },
     "require-dev": {

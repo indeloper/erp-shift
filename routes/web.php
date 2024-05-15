@@ -386,4 +386,4 @@ Route::middleware('activeuser', 'auth')->group(function () {
     require base_path('routes/modules/timesheet/timesheet.php');
 });
 
-Auth::routes();
+Illuminate\Support\Facades\Auth::routes();

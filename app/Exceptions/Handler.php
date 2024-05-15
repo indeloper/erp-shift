@@ -10,7 +10,6 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,6 +43,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
+        dd($exception);
         if (auth()->check() and $this->isDeployedEnvironment()) {
             if ($exception instanceof ValidationException) {
                 $text = $this->reportValidationErrors($exception);

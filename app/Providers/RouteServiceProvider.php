@@ -57,7 +57,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        Route::middleware('web'))->group(base_path('routes/web.php'));
+        Route::middleware('web')->group(base_path('routes/web.php'));
 
         Route::middleware(['web', 'activeuser', 'auth'])->group(function () {
 
@@ -119,7 +119,6 @@ class RouteServiceProvider extends ServiceProvider
     private function mapLayoutRoutes()
     {
         Route::middleware(['web', 'auth'])
-            )
             ->prefix('layout')
             ->name('layout::')
             ->group(base_path('routes/layout/layout.php'));
@@ -128,7 +127,6 @@ class RouteServiceProvider extends ServiceProvider
     private function mapProfileRoutes()
     {
         Route::middleware(['web', 'auth'])
-            )
             ->prefix('profile')
             ->name('profile::')
             ->group(base_path('routes/user/profile.php'));
@@ -137,7 +135,6 @@ class RouteServiceProvider extends ServiceProvider
     private function mapNotificationsRoutes()
     {
         Route::middleware(['web', 'auth', 'activeuser'])
-            )
             ->group(base_path('routes/notifications/notifications.php'));
     }
 }
