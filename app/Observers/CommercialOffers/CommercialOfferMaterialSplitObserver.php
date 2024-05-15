@@ -10,7 +10,6 @@ class CommercialOfferMaterialSplitObserver
      * Handle the commercial offer material split "saving" event.
      *
      * @param  CommercialOfferMaterialSplit  $commercialOfferMaterialSplit
-     * @return void
      */
     public function saving(CommercialOfferMaterialSplit $split): void
     {

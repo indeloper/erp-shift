@@ -12,8 +12,6 @@ class DefectObserver
 
     /**
      * Handle the defects "created" event.
-     *
-     * @return void
      */
     public function created(Defects $defect): void
     {
@@ -41,8 +39,6 @@ class DefectObserver
 
     /**
      * Handle the defects "saved" event.
-     *
-     * @return void
      */
     public function saved(Defects $defect): void
     {
@@ -67,8 +63,6 @@ class DefectObserver
 
     /**
      * Handle the defects "updated" event.
-     *
-     * @return void
      */
     public function updated(Defects $defect): void
     {
@@ -77,8 +71,6 @@ class DefectObserver
 
     /**
      * Handle the defects "deleted" event.
-     *
-     * @return void
      */
     public function deleted(Defects $defect): void
     {
@@ -87,8 +79,6 @@ class DefectObserver
 
     /**
      * Handle the defects "restored" event.
-     *
-     * @return void
      */
     public function restored(Defects $defect): void
     {

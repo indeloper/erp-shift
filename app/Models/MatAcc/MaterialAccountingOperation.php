@@ -147,8 +147,6 @@ class MaterialAccountingOperation extends Model
 
     /**
      * Scope for operations index page
-     *
-     * @return Builder
      */
     public function scopeIndex(Builder $query): Builder
     {
@@ -419,8 +417,6 @@ class MaterialAccountingOperation extends Model
     /**
      * Relation for all tasks that
      * can be created for operation
-     *
-     * @return HasManyThrough
      */
     public function tasks(): HasManyThrough
     {
@@ -430,8 +426,6 @@ class MaterialAccountingOperation extends Model
 
     /**
      * Morph relation to tasks
-     *
-     * @return MorphMany
      */
     public function tasksMorphed(): MorphMany
     {
@@ -446,8 +440,6 @@ class MaterialAccountingOperation extends Model
 
     /**
      * Relation only for unsolved tasks for operation
-     *
-     * @return HasManyThrough
      */
     public function unsolved_tasks(): HasManyThrough
     {
@@ -1155,8 +1147,6 @@ class MaterialAccountingOperation extends Model
      * This function return true if we have
      * draft that updated by user who can
      * create operations of given $type
-     *
-     * @return bool
      */
     public function wasDraftAndUserCanCreateOperationAndNoConflictInOperation($oldStatus, $is_conflict): bool
     {

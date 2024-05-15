@@ -17,8 +17,6 @@ class ActionLog extends Model
 
     /**
      * Relation to logable model
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function logable(): MorphTo
     {

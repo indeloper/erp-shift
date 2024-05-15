@@ -33,8 +33,6 @@ class q3wMaterialTypeController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -101,8 +99,6 @@ class q3wMaterialTypeController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request): JsonResponse
     {
@@ -129,8 +125,6 @@ class q3wMaterialTypeController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function delete(Request $request): JsonResponse
     {

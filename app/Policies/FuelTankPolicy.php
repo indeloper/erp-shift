@@ -24,8 +24,6 @@ class FuelTankPolicy
 
     /**
      * Determine whether the user can update the fuel tank.
-     *
-     * @return mixed
      */
     public function update(User $user, FuelTank $fuelTank): bool
     {

@@ -8,8 +8,6 @@ class VehicleCategoryCharacteristicObserver
 {
     /**
      * Handle the vehicle category characteristics "updated" event.
-     *
-     * @return void
      */
     public function updated(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics): void
     {
@@ -18,8 +16,6 @@ class VehicleCategoryCharacteristicObserver
 
     /**
      * Handle the vehicle category characteristics "deleted" event.
-     *
-     * @return void
      */
     public function deleting(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics): void
     {
@@ -30,8 +26,6 @@ class VehicleCategoryCharacteristicObserver
 
     /**
      * Handle the vehicle category characteristics "restored" event.
-     *
-     * @return void
      */
     public function restored(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics): void
     {

@@ -37,8 +37,6 @@ class q3wMaterialWriteOffOperationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -348,8 +346,6 @@ class q3wMaterialWriteOffOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request): JsonResponse
     {

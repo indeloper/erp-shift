@@ -28,8 +28,6 @@ class VehicleCategories extends Model
     // Relations
     /**
      * Relation for vehicle category author
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function author(): BelongsTo
     {
@@ -38,8 +36,6 @@ class VehicleCategories extends Model
 
     /**
      * Relation for vehicle category author
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function characteristics(): HasMany
     {
@@ -48,8 +44,6 @@ class VehicleCategories extends Model
 
     /**
      * Relation for vehicles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function vehicles(): HasMany
     {
@@ -58,8 +52,6 @@ class VehicleCategories extends Model
 
     /**
      * Relation for trashed vehicles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function trashed_vehicles(): HasMany
     {

@@ -519,9 +519,6 @@ class TechnicTicketService
         ]);
     }
 
-    /**
-     * @return OurTechnicTicket
-     */
     public function updateTicket(OurTechnicTicket $ourTechnicTicket, $request): OurTechnicTicket
     {
         if (($ourTechnicTicket->usage_from_date or $ourTechnicTicket->usage_to_date) and isset($request['getting_to_date'])) {

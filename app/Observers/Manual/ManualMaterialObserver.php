@@ -10,8 +10,6 @@ class ManualMaterialObserver
 {
     /**
      * Handle the manual material "saved" event.
-     *
-     * @return void
      */
     public function saved(ManualMaterial $manualMaterial): void
     {

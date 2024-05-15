@@ -28,8 +28,6 @@ class MessagesController extends Controller
 {
     /**
      * Shows a message threads.
-     *
-     * @return mixed
      */
     public function index(Request $request): View
     {
@@ -54,8 +52,6 @@ class MessagesController extends Controller
 
     /**
      * Shows a message thread.
-     *
-     * @return mixed
      */
     public function thread($id): View
     {
@@ -77,8 +73,6 @@ class MessagesController extends Controller
 
     /**
      * Stores a new message thread.
-     *
-     * @return mixed
      */
     public function thread_store(Request $request): RedirectResponse
     {
@@ -119,8 +113,6 @@ class MessagesController extends Controller
 
     /**
      * Update thread name and participants.
-     *
-     * @return mixed
      */
     public function thread_update(Request $request, $thread_id): RedirectResponse
     {
@@ -206,9 +198,6 @@ class MessagesController extends Controller
 
     /**
      * Send the new message to Pusher in order to notify users.
-     *
-     * @param  Event  $event
-     * @return void
      */
     protected function oooPushIt(Message $message, Event $event = MessageStored::class): void
     {
@@ -337,8 +326,6 @@ class MessagesController extends Controller
 
     /**
      * Update message in thread, for ajax use.
-     *
-     * @return string
      */
     public function update_message(Request $request): JsonResponse
     {
@@ -457,8 +444,6 @@ class MessagesController extends Controller
 
     /**
      * Return message files list, for ajax use.
-     *
-     * @return mixed
      */
     public function message_files(Request $request): JsonResponse
     {
@@ -475,8 +460,6 @@ class MessagesController extends Controller
 
     /**
      * Delete file from message, for ajax use.
-     *
-     * @return bool
      */
     public function message_files_delete(Request $request): JsonResponse
     {
@@ -505,8 +488,6 @@ class MessagesController extends Controller
 
     /**
      * Render related message modal content, for ajax use.
-     *
-     * @return bool
      */
     public function related_messages(Request $request): JsonResponse
     {
@@ -523,8 +504,6 @@ class MessagesController extends Controller
 
     /**
      * Render message, for ajax use.
-     *
-     * @return mixed
      */
     public function message_render(Request $request): JsonResponse
     {
@@ -541,8 +520,6 @@ class MessagesController extends Controller
 
     /**
      * Return message info, for ajax use.
-     *
-     * @return mixed
      */
     public function message_info(Request $request): JsonResponse
     {

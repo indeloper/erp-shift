@@ -13,8 +13,6 @@ class FuelTankOperationPolicy
 
     /**
      * Determine whether the user can view any fuel tank operations.
-     *
-     * @return mixed
      */
     public function viewAny(User $user): bool
     {
@@ -23,8 +21,6 @@ class FuelTankOperationPolicy
 
     /**
      * Determine whether the user can view the fuel tank operation.
-     *
-     * @return mixed
      */
     public function view(User $user, FuelTankOperation $fuelTankOperation): bool
     {
@@ -33,8 +29,6 @@ class FuelTankOperationPolicy
 
     /**
      * Determine whether the user can create fuel tank operations.
-     *
-     * @return mixed
      */
     public function create(User $user): bool
     {
@@ -45,8 +39,6 @@ class FuelTankOperationPolicy
 
     /**
      * Determine whether the user can update the fuel tank operation.
-     *
-     * @return mixed
      */
     public function update(User $user, FuelTankOperation $fuelTankOperation): bool
     {
@@ -57,8 +49,6 @@ class FuelTankOperationPolicy
 
     /**
      * Determine whether the user can delete the fuel tank operation.
-     *
-     * @return mixed
      */
     public function delete(User $user, FuelTankOperation $fuelTankOperation): bool
     {
@@ -69,8 +59,6 @@ class FuelTankOperationPolicy
 
     /**
      * Determine whether the user can restore the fuel tank operation.
-     *
-     * @return mixed
      */
     public function restore(User $user, FuelTankOperation $fuelTankOperation): bool
     {
@@ -79,8 +67,6 @@ class FuelTankOperationPolicy
 
     /**
      * Determine whether the user can permanently delete the fuel tank operation.
-     *
-     * @return mixed
      */
     public function forceDelete(User $user, FuelTankOperation $fuelTankOperation): bool
     {

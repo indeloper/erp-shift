@@ -36,8 +36,6 @@ class CompanyController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request): JsonResponse
     {

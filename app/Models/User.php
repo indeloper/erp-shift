@@ -161,8 +161,6 @@ class User extends Authenticatable
 
     /**
      * Return users for given filter.
-     *
-     * @return Builder
      */
     public function scopeFilter(Builder $query, Request $request): Builder
     {
@@ -238,8 +236,6 @@ class User extends Authenticatable
     /**
      * Function find users with provided $user_ids
      * and some search parameters
-     *
-     * @return Builder
      */
     public function scopeForDefects(Builder $query, ?string $q, array $user_ids = []): Builder
     {
@@ -271,8 +267,6 @@ class User extends Authenticatable
 
     /**
      * Getter for user card route
-     *
-     * @return string
      */
     public function getCardRouteAttribute(): string
     {
@@ -481,8 +475,6 @@ class User extends Authenticatable
 
     /**
      * Relation to user project roles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function projectRoles(): HasMany
     {
@@ -504,8 +496,6 @@ class User extends Authenticatable
      * also takes group of replaced users
      *
      * @params int one or several group_id
-     *
-     * @return bool
      */
     public function isInGroup(...$groups_to_check): bool
     {
@@ -709,8 +699,6 @@ class User extends Authenticatable
     /**
      * Check if user is time responsible user on project
      * or project responsible RP
-     *
-     * @return bool
      */
     public function isProjectTimeResponsibleOrProjectResponsibleRP(int $projectId): bool
     {

@@ -50,8 +50,6 @@ class NotifySender extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
     public function handle(): void
     {
@@ -71,8 +69,6 @@ class NotifySender extends Command
     /**
      * Function check parameters and
      * can stop execution
-     *
-     * @param  bool  $have_errors
      */
     public function checkParameters(string $text, string $place, string $users, bool $have_errors = false)
     {

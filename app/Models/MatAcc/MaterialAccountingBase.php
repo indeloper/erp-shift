@@ -54,8 +54,6 @@ class MaterialAccountingBase extends Model
 
     /**
      * Scope for operations index page
-     *
-     * @return Builder
      */
     public function scopeIndex(Builder $query): Builder
     {
@@ -75,8 +73,6 @@ class MaterialAccountingBase extends Model
     /**
      * This getter return base material name
      * with optional 'Б/У' label
-     *
-     * @return string
      */
     public function getMaterialNameAttribute(): string
     {

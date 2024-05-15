@@ -12,8 +12,6 @@ class CommercialOfferTest extends TestCase
 {
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function it_creates_uploaded_com_offer(): void
     {

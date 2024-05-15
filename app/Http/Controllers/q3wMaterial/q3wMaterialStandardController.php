@@ -47,8 +47,6 @@ class q3wMaterialStandardController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -138,8 +136,6 @@ class q3wMaterialStandardController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return JsonResponse
      */
     public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard): JsonResponse
     {

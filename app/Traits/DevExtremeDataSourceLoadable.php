@@ -157,7 +157,6 @@ trait DevExtremeDataSourceLoadable
     /**
      * Добавляет в запрос условия, генерируемые в loadOptions метода load класса CustomDataStore компонент DevExtreme
      *
-     * @param  object  $loadOption
      * @return Builder|static
      */
     public function dxLoadOptions(object $loadOption, $useHavingInsteadOfWhere = false)

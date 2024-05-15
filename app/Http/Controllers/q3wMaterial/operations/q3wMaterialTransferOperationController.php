@@ -33,8 +33,6 @@ class q3wMaterialTransferOperationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -666,8 +664,6 @@ class q3wMaterialTransferOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -942,8 +938,6 @@ class q3wMaterialTransferOperationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return Response
      */
     public function update(Request $request): Response
     {
@@ -1149,8 +1143,6 @@ class q3wMaterialTransferOperationController extends Controller
      *      5) Отстатки не будут конфликтовать по количеству с ранее созданными заявками (Тут вопрос, нужно обсудить этот функционал) TODO: Реализовать проверку на конфликт заявок
      * Дополнительно информировать:
      *      1) Если длина материала в ед. изм. >= 15 м.п. (Только для м.п., для других единиц измерения это условие не нужно)
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function validateMaterialList(Request $request): JsonResponse
     {

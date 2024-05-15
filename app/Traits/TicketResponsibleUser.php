@@ -20,9 +20,7 @@ trait TicketResponsibleUser
     /**
      * Scope a query to only include users of a given type.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  mixed  $human_type
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOfType(Builder $query, $human_type): Builder
     {

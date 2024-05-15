@@ -338,7 +338,6 @@ class MatAccWriteOffController extends Controller
     /**
      * Operation control task card
      *
-     * @param  int  $id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function control(int $id): View
@@ -376,9 +375,6 @@ class MatAccWriteOffController extends Controller
 
     /**
      * Operation control task solver
-     *
-     * @param  int  $task_id
-     * @return mixed
      */
     public function solve_control(Request $request, int $task_id): RedirectResponse
     {

@@ -37,8 +37,6 @@ class OurTechnicTicketController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
     public function index(Request $request): View
     {
@@ -49,8 +47,6 @@ class OurTechnicTicketController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return Response
      */
     public function store(TicketStoreRequest $request): JsonResponse
     {
@@ -61,8 +57,6 @@ class OurTechnicTicketController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return Response
      */
     public function update(DynamicTicketUpdateRequest $request, OurTechnicTicket $ourTechnicTicket): Response
     {
@@ -75,7 +69,6 @@ class OurTechnicTicketController extends Controller
     }
 
     /**
-     * @return Response
      *
      * @throws \Exception
      */

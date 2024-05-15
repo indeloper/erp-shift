@@ -12,8 +12,6 @@ class CommentObserver
 
     /**
      * Handle the defects "saved" event.
-     *
-     * @return void
      */
     public function saved(Comment $comment): void
     {

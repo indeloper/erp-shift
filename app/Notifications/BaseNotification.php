@@ -29,7 +29,6 @@ class BaseNotification extends Notification
 
     /**
      * @param  int|int[]  $users
-     * @return void
      */
     public static function send($users, array $notificationData): void
     {
@@ -50,7 +49,6 @@ class BaseNotification extends Notification
      * Get the notification's delivery channels.
      *
      * @param  mixed  $notifiable
-     * @return array
      */
     public function via($notifiable): array
     {

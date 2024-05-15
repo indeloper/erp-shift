@@ -84,9 +84,6 @@ class CommercialOffer extends Model
     /**
      * Scope a query commercial offers
      * at documents block.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForDocuments(Builder $query): Builder
     {
@@ -136,7 +133,6 @@ class CommercialOffer extends Model
      *
      * @param  int|string|null  $type  Type of the category review you want to get (null for both, 1 for material, 2 for works)
      * @param  int|null  $reviewable_id  Index of material or work
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function reviews($type = null, ?int $reviewable_id = null): HasMany
     {
@@ -556,9 +552,6 @@ class CommercialOffer extends Model
      * makes a replica of Com_offer
      * also copy all necessary relations
      * and even work_volume
-     *
-     *
-     * @return CommercialOffer
      */
     public function createCopy($project_id, $option = null): CommercialOffer
     {
@@ -847,8 +840,6 @@ class CommercialOffer extends Model
 
     /**
      * Relation to father project
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function project(): BelongsTo
     {

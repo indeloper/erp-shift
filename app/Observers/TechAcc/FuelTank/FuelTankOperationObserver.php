@@ -11,8 +11,6 @@ class FuelTankOperationObserver
 {
     /**
      * Handle the fuel tank operation "creating" event.
-     *
-     * @return void
      */
     public function creating(FuelTankOperation $fuelTankOperation): void
     {
@@ -26,8 +24,6 @@ class FuelTankOperationObserver
 
     /**
      * Handle the fuel tank operation "updating" event.
-     *
-     * @return void
      */
     public function updating(FuelTankOperation $fuelTankOperation): void
     {

@@ -8,8 +8,6 @@ class ManualNodeMaterialsObserver
 {
     /**
      * Handle the manual node materials "saving" event.
-     *
-     * @return void
      */
     public function saving(ManualNodeMaterials $manualNodeMaterials): void
     {

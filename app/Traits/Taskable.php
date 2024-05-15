@@ -9,8 +9,6 @@ trait Taskable
 {
     /**
      * Morph relation to tasks
-     *
-     * @return MorphMany
      */
     public function tasks(): MorphMany
     {
@@ -19,8 +17,6 @@ trait Taskable
 
     /**
      * Morph relation only for active tasks
-     *
-     * @return MorphMany
      */
     public function active_tasks(): MorphMany
     {

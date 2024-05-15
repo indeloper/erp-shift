@@ -23,8 +23,6 @@ class OurVehicleParameters extends Model
 
     /**
      * Relation to category characteristic
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function characteristic(): BelongsTo
     {
@@ -33,8 +31,6 @@ class OurVehicleParameters extends Model
 
     /**
      * Relation to vehicle
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function vehicle(): BelongsTo
     {

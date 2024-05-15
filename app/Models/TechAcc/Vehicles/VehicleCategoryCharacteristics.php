@@ -34,8 +34,6 @@ class VehicleCategoryCharacteristics extends Model
 
     /**
      * Relation for vehicle category
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category(): BelongsTo
     {
@@ -44,8 +42,6 @@ class VehicleCategoryCharacteristics extends Model
 
     /**
      * Relation for vehicle category
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function parameters(): HasMany
     {

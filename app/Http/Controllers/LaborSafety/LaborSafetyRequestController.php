@@ -175,11 +175,6 @@ class LaborSafetyHtml extends Html
 
     /**
      * Parse child nodes.
-     *
-     * @param  \DOMNode  $node
-     * @param  \PhpOffice\PhpWord\Element\AbstractContainer  $element
-     * @param  array  $styles
-     * @param  array  $data
      */
     protected static function parseChildNodes(DOMNode $node, AbstractContainer $element, array $styles, array $data)
     {
@@ -197,8 +192,6 @@ class LaborSafetyHtml extends Html
 
     /**
      * Parse page break
-     *
-     * @param  \PhpOffice\PhpWord\Element\AbstractContainer  $element
      */
     protected static function parsePageBreak(AbstractContainer $element)
     {
@@ -207,8 +200,6 @@ class LaborSafetyHtml extends Html
 
     /**
      * Parse line break
-     *
-     * @param  \PhpOffice\PhpWord\Element\AbstractContainer  $element
      */
     protected static function parseWordBreak(AbstractContainer $element)
     {
@@ -217,11 +208,6 @@ class LaborSafetyHtml extends Html
 
     /**
      * Parse list node
-     *
-     * @param  \DOMNode  $node
-     * @param  \PhpOffice\PhpWord\Element\AbstractContainer  $element
-     * @param  array  &$styles
-     * @param  array  &$data
      */
     protected static function parseList(DOMNode $node, AbstractContainer $element, array &$styles, array &$data)
     {
@@ -263,10 +249,6 @@ class LaborSafetyHtml extends Html
         }
     }
 
-    /**
-     * @param  bool  $isOrderedList
-     * @return array
-     */
     protected static function getListStyle(bool $isOrderedList): array
     {
         if ($isOrderedList) {
@@ -304,11 +286,6 @@ class LaborSafetyHtml extends Html
 
     /**
      * Parse list item node
-     *
-     * @param  \DOMNode  $node
-     * @param  \PhpOffice\PhpWord\Element\AbstractContainer  $element
-     * @param  array  &$styles
-     * @param  array  $data
      */
     protected static function parseListItem(DOMNode $node, AbstractContainer $element, array &$styles, array $data)
     {
@@ -383,8 +360,6 @@ class LaborSafetyRequestController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -484,8 +459,6 @@ class LaborSafetyRequestController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request): JsonResponse
     {

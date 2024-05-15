@@ -15,8 +15,6 @@ class FuelTankController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request): View
     {
@@ -32,7 +30,6 @@ class FuelTankController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  FuelTankStoreRequest  $request
      * @return array
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException

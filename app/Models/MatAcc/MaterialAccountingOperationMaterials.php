@@ -128,8 +128,6 @@ class MaterialAccountingOperationMaterials extends Model
     /**
      * This getter return operation material name
      * with optional 'Б/У' label
-     *
-     * @return string
      */
     public function getMaterialNameAttribute(): string
     {
@@ -261,8 +259,6 @@ class MaterialAccountingOperationMaterials extends Model
     /**
      * Function solve all unsolved tasks
      * for operation material
-     *
-     * @return bool
      */
     public function solveTasksBeforeDeleting(): bool
     {

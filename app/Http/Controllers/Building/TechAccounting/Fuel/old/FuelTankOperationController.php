@@ -26,8 +26,6 @@ class FuelTankOperationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request): View
     {
@@ -55,9 +53,6 @@ class FuelTankOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(StoreFuelTankOperation $request): Response
     {
@@ -80,8 +75,6 @@ class FuelTankOperationController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function show(FuelTankOperation $FuelTankOperation): Response
     {
@@ -110,9 +103,6 @@ class FuelTankOperationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function update(UpdateFuelTankOperation $request, FuelTankOperation $FuelTankOperation): Response
     {

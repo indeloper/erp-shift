@@ -337,8 +337,6 @@ class OurTechnicTicket extends Model
     /**
      * Return all tickets if user have permission
      * and only related if not
-     *
-     * @return Builder
      */
     public function scopePermissionCheck(Builder $query): Builder
     {

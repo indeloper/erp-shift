@@ -12,8 +12,6 @@ class VacationsHistoryObserver
 {
     /**
      * Handle the vacations history "saved" event.
-     *
-     * @return void
      */
     public function saved(VacationsHistory $vacationsHistory): void
     {

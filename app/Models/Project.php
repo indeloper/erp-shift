@@ -74,8 +74,6 @@ class Project extends Model
     /**
      * Return projects that have contracts in status 5 or 6,
      * what equals to Contracts work start
-     *
-     * @return Builder
      */
     public function scopeContractsStarted(Builder $query): Builder
     {
@@ -335,9 +333,6 @@ class Project extends Model
         return "{$this->name} - {$objectName}";
     }
 
-    /**
-     * @return Builder
-     */
     public static function getAllProjects(): Builder
     {
         return Project::select('projects.*', 'contractors.short_name as contractor_name', 'contractors.inn as contractor_inn', 'contractors.id as contractor_id', 'users.last_name', 'users.first_name', 'users.patronymic', 'project_objects.name as project_name', 'project_objects.address as project_address', 'project_objects.short_name as object_short_name', 'tasks.project_id', 'tasks.created_at as task_date')
@@ -380,8 +375,6 @@ class Project extends Model
 
     /**
      * Relation for time responsible user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function timeResponsible(): BelongsTo
     {

@@ -32,8 +32,6 @@ class ProjectObject extends Model
 
     /**
      * Getter for full object location
-     *
-     * @return string
      */
     public function getLocationAttribute(): string
     {
@@ -44,8 +42,6 @@ class ProjectObject extends Model
      * Getter for object name tag
      * Will return short name or location attribute
      * if short name not setted
-     *
-     * @return string
      */
     public function getNameTagAttribute(): string
     {

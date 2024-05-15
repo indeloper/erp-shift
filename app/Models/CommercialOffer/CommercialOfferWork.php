@@ -72,8 +72,6 @@ class CommercialOfferWork extends Model
 
     /**
      * Relation from work to subcontractor file
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function subcontractor_file(): HasOne
     {

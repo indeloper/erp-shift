@@ -24,7 +24,6 @@ class OurTechnicTicketReportController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreOurTechnicTicketReportRequest $request, OurTechnicTicket $ourTechnicTicket)
@@ -50,7 +49,6 @@ class OurTechnicTicketReportController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function update(StoreOurTechnicTicketReportRequest $request, OurTechnicTicket $ourTechnicTicket, OurTechnicTicketReport $ourTechnicTicketReport)

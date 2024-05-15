@@ -34,8 +34,6 @@ class q3wMaterialTransformationOperationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -360,8 +358,6 @@ class q3wMaterialTransformationOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request): JsonResponse
     {

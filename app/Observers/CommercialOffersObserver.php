@@ -12,8 +12,6 @@ class CommercialOffersObserver
 
     /**
      * Handle the commercial_offer "saved" event.
-     *
-     * @return void
      */
     public function saved(CommercialOffer $commercialOffer): void
     {
@@ -28,8 +26,6 @@ class CommercialOffersObserver
      * This function checks all commercial offer branches
      * and make project not important if all
      * branches in status 4 or Agreed With Customer
-     *
-     * @return void
      */
     public function projectImportanceLogic(CommercialOffer $commercialOffer): void
     {

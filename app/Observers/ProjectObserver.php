@@ -12,8 +12,6 @@ class ProjectObserver
 
     /**
      * Handle the project "created" event.
-     *
-     * @return void
      */
     public function created(Project $project): void
     {
@@ -22,8 +20,6 @@ class ProjectObserver
 
     /**
      * Handle the project "updated" event.
-     *
-     * @return void
      */
     public function updated(Project $project): void
     {
@@ -51,8 +47,6 @@ class ProjectObserver
 
     /**
      * Handle the project "deleted" event.
-     *
-     * @return void
      */
     public function deleted(Project $project): void
     {
@@ -61,8 +55,6 @@ class ProjectObserver
 
     /**
      * Handle the project "restored" event.
-     *
-     * @return void
      */
     public function restored(Project $project): void
     {
@@ -71,8 +63,6 @@ class ProjectObserver
 
     /**
      * Handle the project "force deleted" event.
-     *
-     * @return void
      */
     public function forceDeleted(Project $project): void
     {

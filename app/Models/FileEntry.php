@@ -17,8 +17,6 @@ class FileEntry extends Model
 
     /**
      * Getter for tech acc files source link attribute
-     *
-     * @return string|null
      */
     public function getSourceLinkAttribute(): ?string
     {

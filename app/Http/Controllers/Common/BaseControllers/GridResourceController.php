@@ -118,8 +118,6 @@ class GridResourceController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -144,7 +142,6 @@ class GridResourceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show(int $id)
@@ -178,9 +175,6 @@ class GridResourceController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return JsonResponse
      */
     public function destroy(int $id): JsonResponse
     {

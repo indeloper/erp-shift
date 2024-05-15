@@ -16,9 +16,6 @@ class CommercialOfferMaterialSplitTest extends TestCase
     /** @var SplitService */
     private $split_service;
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Model
-     */
     public function createBasicSplit($count = null): Model
     {
         return $this->commercial_offer->mat_splits()->create([

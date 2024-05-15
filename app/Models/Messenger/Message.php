@@ -46,7 +46,6 @@ class Message extends Eloquent
     /**
      * Thread relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */
@@ -58,7 +57,6 @@ class Message extends Eloquent
     /**
      * User relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */
@@ -70,7 +68,6 @@ class Message extends Eloquent
     /**
      * Participants relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
@@ -81,8 +78,6 @@ class Message extends Eloquent
 
     /**
      * Recipients of this message.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function recipients(): HasMany
     {
@@ -91,8 +86,6 @@ class Message extends Eloquent
 
     /**
      * Files of this message.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function files(): HasMany
     {
@@ -101,8 +94,6 @@ class Message extends Eloquent
 
     /**
      * Replies of this message.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function related_messages(): HasMany
     {
@@ -111,9 +102,6 @@ class Message extends Eloquent
 
     /**
      * Returns unread messages given the userId.
-     *
-     * @param  int  $userId
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeUnreadForUser(Builder $query, int $userId): Builder
     {

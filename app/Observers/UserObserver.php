@@ -9,8 +9,6 @@ class UserObserver
 {
     /**
      * Handle the user "stored" event.
-     *
-     * @return void
      */
     public function saved(User $user): void
     {

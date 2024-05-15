@@ -17,7 +17,6 @@ trait Messagable
     /**
      * Message relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
@@ -29,7 +28,6 @@ trait Messagable
     /**
      * Participants relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
@@ -41,7 +39,6 @@ trait Messagable
     /**
      * Thread relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      *
      * @codeCoverageIgnore
      */
@@ -57,8 +54,6 @@ trait Messagable
 
     /**
      * Returns the new messages count for user.
-     *
-     * @return int
      */
     public function newThreadsCount(): int
     {
@@ -67,8 +62,6 @@ trait Messagable
 
     /**
      * Returns the new messages for user.
-     *
-     * @return int
      */
     public function unreadMessages(): int
     {
@@ -77,8 +70,6 @@ trait Messagable
 
     /**
      * Returns the new messages count for user.
-     *
-     * @return int
      */
     public function unreadMessagesCount(): int
     {
@@ -87,8 +78,6 @@ trait Messagable
 
     /**
      * Returns all threads with new messages.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function threadsWithNewMessages(): Collection
     {
@@ -101,8 +90,6 @@ trait Messagable
 
     /**
      * Returns the user's starred threads.
-     *
-     * @return int
      */
     public function starred(): HasManyThrough
     {
@@ -118,8 +105,6 @@ trait Messagable
 
     /**
      * Returns the starred threads. An alias of starred
-     *
-     * @return int
      */
     public function favourites(): int
     {

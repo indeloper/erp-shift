@@ -29,9 +29,6 @@ class TelegramNotificationData
         return $this->keyboard;
     }
 
-    /**
-     * @return $this
-     */
     public function setKeyboard(Keyboard $keyboard): self
     {
         $this->keyboard = $keyboard;

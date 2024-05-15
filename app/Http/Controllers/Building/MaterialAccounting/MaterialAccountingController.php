@@ -1500,8 +1500,6 @@ class MaterialAccountingController extends Controller
     /**
      * This function return operation responsible project
      * manager as JSON
-     *
-     * @return mixed
      */
     public function findResponsibleProjectManager(Request $request, array $users_json = []): JsonResponse
     {

@@ -8,8 +8,6 @@ class MaterialAccountingBaseObserver
 {
     /**
      * Handle the material accounting base "saving" event.
-     *
-     * @return void
      */
     public function saving(MaterialAccountingBase $materialAccountingBase): void
     {

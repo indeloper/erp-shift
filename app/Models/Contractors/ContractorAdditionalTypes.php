@@ -31,8 +31,6 @@ class ContractorAdditionalTypes extends Model
 
     /**
      * Relation for contractor
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function contractor(): BelongsTo
     {
@@ -41,8 +39,6 @@ class ContractorAdditionalTypes extends Model
 
     /**
      * Relation for user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(): BelongsTo
     {

@@ -47,7 +47,6 @@ class Participant extends Eloquent
     /**
      * Thread relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */
@@ -59,7 +58,6 @@ class Participant extends Eloquent
     /**
      * User relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */

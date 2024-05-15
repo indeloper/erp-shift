@@ -57,8 +57,6 @@ class OurVehicles extends Model
 
     /**
      * Collects full name of vehicle
-     *
-     * @return string
      */
     public function getFullNameAttribute(): string
     {
@@ -68,8 +66,6 @@ class OurVehicles extends Model
 
     /**
      * Relation to parent category
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category(): BelongsTo
     {
@@ -78,8 +74,6 @@ class OurVehicles extends Model
 
     /**
      * Relation to author category
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function author(): HasOne
     {
@@ -88,8 +82,6 @@ class OurVehicles extends Model
 
     /**
      * Relation to vehicle parameters
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function parameters(): HasMany
     {

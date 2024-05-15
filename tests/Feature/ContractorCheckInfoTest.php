@@ -22,8 +22,6 @@ class ContractorCheckInfoTest extends TestCase
 
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function testRunCommand(): void
     {

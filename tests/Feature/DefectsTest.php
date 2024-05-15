@@ -46,8 +46,6 @@ class DefectsTest extends TestCase
 
     /**
      * Function find or create necessary user
-     *
-     * @return User
      */
     public function findOrNewUserFromGroupFortySeven(): User
     {

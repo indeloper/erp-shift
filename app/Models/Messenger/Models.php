@@ -33,8 +33,6 @@ class Models
 
     /**
      * Set the model to be used for threads.
-     *
-     * @param  string  $model
      */
     public static function setMessageModel(string $model)
     {
@@ -43,8 +41,6 @@ class Models
 
     /**
      * Set the model to be used for participants.
-     *
-     * @param  string  $model
      */
     public static function setParticipantModel(string $model)
     {
@@ -53,8 +49,6 @@ class Models
 
     /**
      * Set the model to be used for threads.
-     *
-     * @param  string  $model
      */
     public static function setThreadModel(string $model)
     {
@@ -63,8 +57,6 @@ class Models
 
     /**
      * Set the model to be used for users.
-     *
-     * @param  string  $model
      */
     public static function setUserModel(string $model)
     {
@@ -81,9 +73,6 @@ class Models
 
     /**
      * Get a custom table name mapping for the given table.
-     *
-     * @param  string  $table
-     * @return string
      */
     public static function table(string $table): string
     {
@@ -96,9 +85,6 @@ class Models
 
     /**
      * Get the class name mapping for the given model.
-     *
-     * @param  string  $model
-     * @return string
      */
     public static function classname(string $model): string
     {
@@ -111,8 +97,6 @@ class Models
 
     /**
      * Get an instance of the messages model.
-     *
-     * @return \Lexx\ChatMessenger\Models\Message
      */
     public static function message(array $attributes = []): Message
     {
@@ -121,8 +105,6 @@ class Models
 
     /**
      * Get an instance of the participants model.
-     *
-     * @return \Lexx\ChatMessenger\Models\Participant
      */
     public static function participant(array $attributes = []): Participant
     {
@@ -131,8 +113,6 @@ class Models
 
     /**
      * Get an instance of the threads model.
-     *
-     * @return \Lexx\ChatMessenger\Models\Thread
      */
     public static function thread(array $attributes = []): Thread
     {
@@ -141,8 +121,6 @@ class Models
 
     /**
      * Get an instance of the user model.
-     *
-     * @return \Illuminate\Database\Eloquent\Model
      */
     public static function user(array $attributes = []): Model
     {
@@ -151,9 +129,6 @@ class Models
 
     /**
      * Get an instance of the given model.
-     *
-     * @param  string  $model
-     * @return \Illuminate\Database\Eloquent\Model
      */
     protected static function make(string $model, array $attributes = []): Model
     {

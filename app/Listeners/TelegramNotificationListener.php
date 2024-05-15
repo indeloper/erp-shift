@@ -21,9 +21,6 @@ class TelegramNotificationListener
 
     /**
      * Handle the event.
-     *
-     * @param  object  $event
-     * @return void
      */
     public function handle(TelegramNotificationEvent $event): void
     {

@@ -8,8 +8,6 @@ class VehicleCategoryObserver
 {
     /**
      * Handle the vehicle categories "deleted" event.
-     *
-     * @return void
      */
     public function deleting(VehicleCategories $vehicleCategories): void
     {
@@ -21,8 +19,6 @@ class VehicleCategoryObserver
 
     /**
      * Handle the vehicle categories "restored" event.
-     *
-     * @return void
      */
     public function restored(VehicleCategories $vehicleCategories): void
     {

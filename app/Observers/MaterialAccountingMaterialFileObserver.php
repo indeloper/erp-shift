@@ -8,8 +8,6 @@ class MaterialAccountingMaterialFileObserver
 {
     /**
      * Handle the material accounting material file "created" event.
-     *
-     * @return void
      */
     public function created(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
@@ -18,8 +16,6 @@ class MaterialAccountingMaterialFileObserver
 
     /**
      * Handle the material accounting material file "created" event.
-     *
-     * @return void
      */
     public function saved(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
@@ -37,8 +33,6 @@ class MaterialAccountingMaterialFileObserver
 
     /**
      * Handle the material accounting material file "updated" event.
-     *
-     * @return void
      */
     public function updated(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
@@ -47,8 +41,6 @@ class MaterialAccountingMaterialFileObserver
 
     /**
      * Handle the material accounting material file "deleted" event.
-     *
-     * @return void
      */
     public function deleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
@@ -57,8 +49,6 @@ class MaterialAccountingMaterialFileObserver
 
     /**
      * Handle the material accounting material file "restored" event.
-     *
-     * @return void
      */
     public function restored(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
@@ -67,8 +57,6 @@ class MaterialAccountingMaterialFileObserver
 
     /**
      * Handle the material accounting material file "force deleted" event.
-     *
-     * @return void
      */
     public function forceDeleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {

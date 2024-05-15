@@ -37,7 +37,6 @@ class WorkVolumeMaterialComplect extends Model //this is like manual for materia
      * this dummy convert_to mocks this method for Work Volumes
      *
      * @param  mixed  ...$attrs
-     * @return ManualMaterialParameter
      */
     public function convert_to(...$attrs): ManualMaterialParameter
     {

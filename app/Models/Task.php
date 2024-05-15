@@ -191,8 +191,6 @@ class Task extends Model
 
     /**
      * Getter for created_at formatting
-     *
-     * @return string
      */
     public function getCreatedAtFormattedAttribute($date): string
     {

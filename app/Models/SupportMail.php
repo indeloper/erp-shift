@@ -48,8 +48,6 @@ class SupportMail extends Model
 
     /**
      * Basic scope
-     *
-     * @return Builder
      */
     public function scopeBasic(Builder $query, Request $request): Builder
     {

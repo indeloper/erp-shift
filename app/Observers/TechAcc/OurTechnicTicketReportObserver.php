@@ -10,8 +10,6 @@ class OurTechnicTicketReportObserver
 {
     /**
      * Handle the our technic ticket report "created" event.
-     *
-     * @return void
      */
     public function created(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
@@ -26,8 +24,6 @@ class OurTechnicTicketReportObserver
 
     /**
      * Handle the our technic ticket report "updated" event.
-     *
-     * @return void
      */
     public function updating(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
@@ -51,8 +47,6 @@ class OurTechnicTicketReportObserver
 
     /**
      * Handle the our technic ticket report "deleted" event.
-     *
-     * @return void
      */
     public function deleted(OurTechnicTicketReport $ourTechnicTicketReport): void
     {

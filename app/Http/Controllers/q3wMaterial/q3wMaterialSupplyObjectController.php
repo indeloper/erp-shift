@@ -33,8 +33,6 @@ class q3wMaterialSupplyObjectController extends Controller
 
     /**
      * Обновление информации об объекте.
-     *
-     * @param  int  $id
      */
     public function update(Request $request, int $id): JsonResponse
     {
@@ -48,8 +46,6 @@ class q3wMaterialSupplyObjectController extends Controller
 
     /**
      * Удаление объекта.
-     *
-     * @param  int  $id
      */
     public function destroy(int $id): JsonResponse
     {

@@ -174,8 +174,6 @@ class Contractor extends Model
 
     /**
      * Relation for additional contractor types
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function additional_types(): HasMany
     {

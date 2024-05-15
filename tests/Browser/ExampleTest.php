@@ -15,8 +15,6 @@ class ExampleTest extends DuskTestCase
 {
     /**
      * A basic browser test example.
-     *
-     * @return void
      */
     public function login(): void
     {

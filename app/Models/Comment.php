@@ -38,8 +38,6 @@ class Comment extends Model
     /**
      * This getter parse blade directive if comment
      * have it, otherwise return old comment
-     *
-     * @return string
      */
     public function getPrettyCommentAttribute(): string
     {
@@ -52,8 +50,6 @@ class Comment extends Model
 
     /**
      * Getter for created_at formatting
-     *
-     * @return Carbon|null
      */
     public function getCreatedAtFormattedAttribute(): ?Carbon
     {

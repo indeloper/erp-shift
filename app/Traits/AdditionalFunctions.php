@@ -9,9 +9,6 @@ trait AdditionalFunctions
     /**
      * This function checks that all values
      * in given $array are the same as given $value
-     *
-     * @param  array  $array
-     * @return bool
      */
     public function all_values_in_array_are($value, array $array): bool
     {

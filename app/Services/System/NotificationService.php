@@ -69,9 +69,6 @@ class NotificationService
         }
     }
 
-    /**
-     * @return string
-     */
     public function encodeNotificationUrl($notification_id, $url): string
     {
         $tg_url = TgNotificationUrl::create([

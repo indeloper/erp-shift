@@ -74,8 +74,6 @@ class Contract extends Model
 
     /**
      * Morph relation to tasks
-     *
-     * @return MorphMany
      */
     public function tasksMorphed(): MorphMany
     {

@@ -9,8 +9,6 @@ class TaskObserver
 {
     /**
      * Handle the task "stored" event.
-     *
-     * @return void
      */
     public function saved(Task $task): void
     {

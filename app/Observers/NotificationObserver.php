@@ -9,8 +9,6 @@ class NotificationObserver
 {
     /**
      * Handle the vacations history "saved" event.
-     *
-     * @return void
      */
     public function saved(Notification $notification): void
     {

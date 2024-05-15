@@ -11,8 +11,6 @@ class ContractorFile extends Model
 
     /**
      * Relation from file to contractor
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function contractor(): HasOne
     {

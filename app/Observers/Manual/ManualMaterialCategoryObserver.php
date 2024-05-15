@@ -8,8 +8,6 @@ class ManualMaterialCategoryObserver
 {
     /**
      * Handle the manual material category "saved" event.
-     *
-     * @return void
      */
     public function saved(ManualMaterialCategory $manualMaterialCategory): void
     {
