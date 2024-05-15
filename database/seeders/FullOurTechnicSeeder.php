@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\TechAcc\CategoryCharacteristic;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;

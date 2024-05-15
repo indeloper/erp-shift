@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\Menu\MenuItem;
 use Illuminate\Database\Seeder;
 
