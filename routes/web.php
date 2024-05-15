@@ -11,29 +11,7 @@
 |
 */
 
-use App\Models\Task;
-use App\Notifications\UserTestCreateNotice;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/test', function () {
-//    $task_id = 36199;
-//    $task = Task::find($task_id);
-//    TaskClosureNotice::send(
-//        277,
-//        [
-//            'name' => 'Задача «' . $task->name . '» закрыта',
-//            'task_id' => $task->id,
-//        ]
-//    );
-
-
-    UserTestCreateNotice::send(
-        277,
-        [
-            'name' => 'test'
-        ]
-    );
-});
 
 Route::group(['middleware' => ['activeuser', 'auth']], function () {
 
