@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['middleware' => 'can:contractors'], function () {
+Route::middleware('can:contractors')->group(function () {
     Route::get('/', 'ContractorController@index')->name('index');
     Route::get('/card/{id}', 'ContractorController@card')->name('card');
     Route::get('/create', 'ContractorController@create')->name('create')->middleware('can:contractors_create');

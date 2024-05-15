@@ -80,20 +80,20 @@ Route::post('get_trashed_fuel_tanks_paginated', 'Fuel\Old\FuelTankController@get
 
 // Новый раздел учета техники
 
-Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => 'Technic'], function () {
-    Route::group(['prefix' => 'ourTechnicList', 'as' => 'ourTechnicList::'], function () {
+Route::prefix('technic')->name('technic::')->namespace('Technic')->group(function () {
+    Route::prefix('ourTechnicList')->name('ourTechnicList::')->group(function () {
         Route::registerBaseRoutes('OurTechnicController', $attachmentsRoutes = false);
     });
-    Route::group(['prefix' => 'technicCategory', 'as' => 'technicCategory::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
+    Route::prefix('technicCategory')->name('technicCategory::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
         Route::registerBaseRoutes('TechnicCategoryController', $attachmentsRoutes = false);
     });
-    Route::group(['prefix' => 'technicBrand', 'as' => 'technicBrand::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
+    Route::prefix('technicBrand')->name('technicBrand::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
         Route::registerBaseRoutes('TechnicBrandController', $attachmentsRoutes = false);
     });
-    Route::group(['prefix' => 'mtechnicBrandModel', 'as' => 'technicBrandModel::', 'middleware' => 'can:technics_brands_models_categories_read_create_update_delete'], function () {
+    Route::prefix('mtechnicBrandModel')->name('technicBrandModel::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
         Route::registerBaseRoutes('TechnicBrandModelController', $attachmentsRoutes = false);
     });
-    Route::group(['prefix' => 'movements', 'as' => 'movements::'], function () {
+    Route::prefix('movements')->name('movements::')->group(function () {
         Route::registerBaseRoutes('TechnicMovementController', $attachmentsRoutes = true);
     });
 });
@@ -102,11 +102,9 @@ Route::group(['prefix' => 'technic', 'as' => 'technic::',  'namespace' => 'Techn
 
 // Новый раздел учета топлива
 
-Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => 'Fuel'], function () {
+Route::prefix('fuel')->name('fuel::')->namespace('Fuel')->group(function () {
 
-    Route::group(['prefix' => 'tanks', 'as' => 'tanks::',
-        // 'middleware' => 'can:fuel_tanks_access'
-    ], function () {
+    Route::prefix('tanks')->name('tanks::')->group(function () {
         Route::get('validateTankNumberUnique', 'FuelTankController@validateTankNumberUnique')->name('validateTankNumberUnique');
         Route::post('moveFuelTank', 'FuelTankController@moveFuelTank')->name('moveFuelTank');
         Route::post('confirmMovingFuelTank', 'FuelTankController@confirmMovingFuelTank')->name('confirmMovingFuelTank');
@@ -115,19 +113,16 @@ Route::group(['prefix' => 'fuel', 'as' => 'fuel::',  'namespace' => 'Fuel'], fun
         Route::registerBaseRoutes('FuelTankController', $attachmentsRoutes = false);
     });
 
-    Route::group([
-        'prefix' => 'fuelFlow', 'as' => 'fuelFlow::',
-        // 'middleware' => 'can:fuel_tank_flows_access'
-    ], function () {
+    Route::prefix('fuelFlow')->name('fuelFlow::')->group(function () {
         Route::registerBaseRoutes('FuelTankFlowController', $attachmentsRoutes = true);
     });
 
-    Route::group(['prefix' => 'reports', 'as' => 'reports::'], function () {
-        Route::group(['prefix' => 'fuelTankPeriodReport', 'as' => 'fuelTankPeriodReport::', 'namespace' => 'Reports'], function () {
+    Route::prefix('reports')->name('reports::')->group(function () {
+        Route::prefix('fuelTankPeriodReport')->name('fuelTankPeriodReport::')->namespace('Reports')->group(function () {
             Route::registerBaseRoutes('FuelTankPeriodReportController', $attachmentsRoutes = false);
             Route::get('getPdf', 'FuelTankPeriodReportController@getPdf')->name('getPdf');
         });
-        Route::group(['prefix' => 'tanksMovementReport', 'as' => 'tanksMovementReport::', 'namespace' => 'Reports', 'middleware' => 'can:fuel_tanks_movements_report_access'], function () {
+        Route::prefix('tanksMovementReport')->name('tanksMovementReport::')->namespace('Reports')->middleware('can:fuel_tanks_movements_report_access')->group(function () {
             Route::registerBaseRoutes('FuelTanksMovementsReportController', $attachmentsRoutes = false);
         });
     });

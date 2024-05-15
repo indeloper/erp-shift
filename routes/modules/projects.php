@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['middleware' => 'can:projects'], function () {
+Route::middleware('can:projects')->group(function () {
     Route::get('/', 'ProjectController@index')->name('index');
     Route::get('/card/{id}', 'ProjectController@card')->name('card');
     Route::get('/card/{project}/users', 'ProjectController@users')->name('users');
@@ -147,14 +147,14 @@ Route::post('ajax/use_as_main', 'ProjectController@use_as_main')->name('use_as_m
 Route::post('ajax/remove_relation', 'ProjectController@remove_relation')->name('remove_relation');
 
 // contracts
-Route::group(['middleware' => 'can:contracts'], function () {
+Route::middleware('can:contracts')->group(function () {
     Route::get('{project_id}/contracts/{contract_id}/card', 'ProjectContractController@card')->name('contract::card');
     Route::post('{project_id}/contracts/{contract_id}/decline', 'ProjectContractController@decline')->name('contract::decline')->middleware('can:contracts_create');
     Route::post('{project_id}/contracts/{contract_id}/approve', 'ProjectContractController@approve')->name('contract::approve')->middleware('can:contracts_create');
     Route::post('contracts/{contract_id}/update', 'ProjectContractController@update')->name('contract::update')->middleware('can:contracts_create');
     Route::post('{project_id}/contracts', 'ProjectContractController@store')->name('contract::store')->middleware('can:contracts_create');
 
-    Route::group(['middleware' => 'can:contracts_create'], function () {
+    Route::middleware('can:contracts_create')->group(function () {
         Route::post('contracts/delete_thesis', 'ProjectContractController@delete_thesis')->name('contract::delete_thesis');
         Route::post('contracts/delete_file', 'ProjectContractController@delete_file')->name('contract::delete_file');
         Route::post('contracts/update_thesis', 'ProjectContractController@update_thesis')->name('contract::update_thesis');
