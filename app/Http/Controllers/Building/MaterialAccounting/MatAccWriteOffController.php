@@ -100,7 +100,7 @@ class MatAccWriteOffController extends Controller
             'operation' => $operation,
             'units' => MaterialAccountingOperationMaterials::$main_units,
             // operation author can't do anything in controlled operation
-            'edit_restrict' => (Auth::id() == User::where('group_id', 8)->first()->id) ? false : ($operation->status == 8) ? true : false,
+            'edit_restrict' => Auth::id() === User::where('group_id', 8)->first()->id ? false : $operation->status == 8,
         ]);
     }
 

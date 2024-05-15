@@ -37,4 +37,9 @@ class OurTechnicTicketReportPolicy
 
         // return $user->id === $report->ticket->users()->wherePivot('type', 4);
     }
+
+    public function viewAny(User $user)
+    {
+        return true;
+    }
 }

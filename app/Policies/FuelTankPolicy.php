@@ -43,4 +43,9 @@ class FuelTankPolicy
         // rp and mehanic
         return in_array($user->group_id, [15]) || $user->id == $user->main_logist_id;
     }
+
+    public function viewAny(User $user)
+    {
+        return true;
+    }
 }

@@ -27,4 +27,9 @@ class ProjectPolicy
             in_array($user->group_id, [5, 6]) or
             $user->can('projects_responsible_users');
     }
+
+    public function viewAny(User $user)
+    {
+        return true;
+    }
 }

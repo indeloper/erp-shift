@@ -28,4 +28,9 @@ class UserPolicy
     {
         return ($user->id == $me->id) or $me->can('users_edit');
     }
+
+    public function viewAny(User $user)
+    {
+        return true;
+    }
 }

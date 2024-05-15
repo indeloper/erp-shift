@@ -7,14 +7,7 @@
     ),
     'aliases' => 
     array (
-      'Debugbar' => 'Barryvdh\\Debugbar\\Facade',
-    ),
-  ),
-  'beyondcode/laravel-dump-server' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'BeyondCode\\DumpServer\\DumpServerServiceProvider',
+      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
     ),
   ),
   'facade/ignition' => 
@@ -33,18 +26,6 @@
     'providers' => 
     array (
       0 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
-    ),
-  ),
-  'fomvasss/laravel-dadata' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Fomvasss\\Dadata\\DadataServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'DadataSuggest' => 'Fomvasss\\Dadata\\Facades\\DadataSuggest',
-      'DadataClean' => 'Fomvasss\\Dadata\\Facades\\DadataClean',
     ),
   ),
   'intervention/image' => 
