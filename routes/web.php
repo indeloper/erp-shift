@@ -17,9 +17,9 @@ use App\Http\Controllers\Commerce;
 use App\Http\Controllers\Common;
 use App\Http\Controllers\Documents;
 use App\Http\Controllers\FileEntryController;
+use App\Http\Controllers\q3wMaterial;
 use App\Http\Controllers\System;
 use App\Http\Controllers\Tasks;
-use App\Http\Controllers\q3wMaterial;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('activeuser', 'auth')->group(function () {
