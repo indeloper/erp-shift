@@ -45,7 +45,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-//        Passport::routes();
+        //        Passport::routes();
 
         //allow everything for super admin
         Gate::before(function ($user, $ability, $arguments) {
