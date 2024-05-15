@@ -2,8 +2,8 @@
 
 namespace App\Models\Contract;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ContractFiles extends Model
 {

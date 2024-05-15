@@ -2,8 +2,6 @@
 
 namespace App\Models\ProjectObjectDocuments;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Models\ActionLog;
 use App\Models\Comment;
 use App\Models\FileEntry;
@@ -11,6 +9,8 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 

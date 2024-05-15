@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Models\FileEntry;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Documentable
 {

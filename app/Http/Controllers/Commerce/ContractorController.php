@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
 use App\Http\Requests\ContractorRequests\ContractorStoreRequest;
@@ -28,11 +26,13 @@ use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Traits\TimeCalculator;
 use Fomvasss\Dadata\Facades\DadataSuggest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class ContractorController extends Controller
 {

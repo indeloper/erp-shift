@@ -2,11 +2,11 @@
 
 namespace App\Models\TechAcc;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurTechnicTicketReport extends Model

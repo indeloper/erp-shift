@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\System;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class VersionController extends Controller
 {

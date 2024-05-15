@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Building;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\CategoryRequest;
 use App\Models\Manual\ManualMaterialCategory;
@@ -12,8 +10,10 @@ use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualReference;
 use App\Models\Manual\ManualReferenceParameter;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ManualMaterialCategoryController extends Controller
 {

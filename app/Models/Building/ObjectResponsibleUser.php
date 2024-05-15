@@ -2,10 +2,10 @@
 
 namespace App\Models\Building;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\ProjectObject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ObjectResponsibleUser extends Model
 {

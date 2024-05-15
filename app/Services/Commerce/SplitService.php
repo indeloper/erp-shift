@@ -89,7 +89,7 @@ class SplitService
         return $splits->whereIn('type', $this->dummySplit->parent_types)->union($splits->where('parent_id', '!=', null));
     }
 
-    private function thisIsTheFirstSplitOfThisType(CommercialOfferMaterialSplit $old_split, int $type, int $time = null): bool
+    private function thisIsTheFirstSplitOfThisType(CommercialOfferMaterialSplit $old_split, int $type, ?int $time = null): bool
     {
         return $old_split->parent()->where('type', $type)->where('time', $time)->doesntExist() and
                 $old_split->children()->where('type', $type)->where('time', $time)->doesntExist();

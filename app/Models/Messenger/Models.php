@@ -2,11 +2,11 @@
 
 namespace App\Models\Messenger;
 
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Lexx\ChatMessenger\Models\Message;
 use Lexx\ChatMessenger\Models\Participant;
 use Lexx\ChatMessenger\Models\Thread;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 class Models
 {

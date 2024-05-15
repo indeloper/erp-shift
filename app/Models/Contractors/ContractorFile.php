@@ -2,8 +2,8 @@
 
 namespace App\Models\Contractors;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ContractorFile extends Model
 {

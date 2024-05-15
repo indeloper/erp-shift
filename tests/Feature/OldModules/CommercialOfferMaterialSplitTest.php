@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\OldModules;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Manual\ManualMaterial;
 use App\Services\Commerce\SplitService;
+use Illuminate\Database\Eloquent\Model;
 use Tests\TestCase;
 
 class CommercialOfferMaterialSplitTest extends TestCase

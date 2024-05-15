@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Models\Review;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Reviewable
 {

@@ -2,7 +2,6 @@
 
 namespace App\Models\Notification;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use App\Models\CommercialOffer\CommercialOfferRequest;
 use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
@@ -11,6 +10,7 @@ use App\Models\User;
 use App\Models\WorkVolume\WorkVolumeRequest;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Notification extends Model
 {

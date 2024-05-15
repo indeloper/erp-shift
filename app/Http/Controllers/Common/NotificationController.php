@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Common;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use App\Domain\DTO\Notification\NotificationSettingsData;
 use App\Domain\DTO\Notification\NotificationSortData;
 use App\Http\Controllers\Controller;
@@ -17,7 +14,10 @@ use App\Http\Resources\Notification\NotificationResource;
 use App\Services\Notification\NotificationServiceInterface;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
 use App\Services\System\NotificationService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 use function auth;
 

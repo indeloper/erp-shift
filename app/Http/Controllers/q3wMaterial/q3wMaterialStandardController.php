@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMaterialBrand;
@@ -15,6 +14,7 @@ use App\Models\q3wMaterial\q3wStandardProperty;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class q3wMaterialStandardController extends Controller
 {

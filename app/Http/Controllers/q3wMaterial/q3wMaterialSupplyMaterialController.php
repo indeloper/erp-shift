@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialSupplyMaterial;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class q3wMaterialSupplyMaterialController extends Controller

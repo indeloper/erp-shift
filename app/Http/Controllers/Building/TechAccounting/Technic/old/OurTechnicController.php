@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OurTechnicStoreRequest;
 use App\Http\Requests\OurTechnicUpdateRequest;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Services\TechAccounting\TechnicCategoryService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class OurTechnicController extends Controller
 {

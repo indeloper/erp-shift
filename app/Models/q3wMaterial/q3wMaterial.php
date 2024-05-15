@@ -4,9 +4,9 @@
 
 namespace App\Models\q3wMaterial;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wMaterial extends Model

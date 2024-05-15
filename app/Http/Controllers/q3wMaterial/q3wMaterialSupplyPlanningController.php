@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterial;
 use App\Models\q3wMaterial\q3wMaterialBrand;
 use App\Models\q3wMaterial\q3wMaterialBrandsRelation;
 use App\Models\q3wMaterial\q3wMaterialSupplyMaterial;
 use App\Models\q3wMaterial\q3wMaterialSupplyPlanning;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 define('SUPPLY_PLANNING_QUANTITY_DELTA', 0.2);
 

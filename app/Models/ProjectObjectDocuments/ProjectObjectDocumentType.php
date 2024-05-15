@@ -2,8 +2,8 @@
 
 namespace App\Models\ProjectObjectDocuments;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProjectObjectDocumentType extends Model

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Documents;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\Contract\Contract;
 use App\Models\Project;
 use App\Traits\AdditionalFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ContractsController extends Controller
 {

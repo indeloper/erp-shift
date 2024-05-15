@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\TechAccounting\StoreTechnicCategoryRequest;
 use App\Http\Requests\Building\TechAccounting\UpdateTechnicCategoryRequest;
 use App\Models\TechAcc\TechnicCategory;
 use App\Services\TechAccounting\TechnicCategoryService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class TechnicCategoryController extends Controller
 {

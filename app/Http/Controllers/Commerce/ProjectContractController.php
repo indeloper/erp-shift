@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use App\Events\ContractApproved;
 use App\Http\Controllers\Controller;
 use App\Models\CommercialOffer\CommercialOffer;
@@ -27,12 +24,15 @@ use App\Models\Task;
 use App\Models\User;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ProjectContractController extends Controller
 {

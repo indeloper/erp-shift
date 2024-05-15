@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DynamicTicketUpdateRequest;
 use App\Http\Requests\TicketStoreRequest;
@@ -15,9 +13,11 @@ use App\Notifications\Technic\TechnicUsageStartTaskNotice;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class OurTechnicTicketController extends Controller
 {
@@ -69,7 +69,6 @@ class OurTechnicTicketController extends Controller
     }
 
     /**
-     *
      * @throws \Exception
      */
     public function destroy(OurTechnicTicket $ourTechnicTicket): Response

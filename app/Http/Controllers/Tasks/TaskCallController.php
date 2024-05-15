@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequests\TaskCallRequest;
 use App\Models\Contractors\BankDetail;
@@ -15,9 +13,11 @@ use App\Models\ProjectContact;
 use App\Models\Task;
 use App\Notifications\IncomingCallProcessingNotice;
 use App\Traits\TimeCalculator;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class TaskCallController extends Controller
 {

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Building;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\NodeRequest;
 use App\Http\Requests\ManualRequests\TypicalNodesRequest;
@@ -11,8 +9,10 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualNodeCategories;
 use App\Models\Manual\ManualNodeMaterials;
 use App\Models\Manual\ManualNodes;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ManualNodesController extends Controller
 {

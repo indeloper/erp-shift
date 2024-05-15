@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Common\BaseControllers;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
 use App\Models\Permission;
@@ -15,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class GridResourceController extends Controller
 {

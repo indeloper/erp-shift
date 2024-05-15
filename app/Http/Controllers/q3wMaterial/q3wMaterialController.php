@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
@@ -20,6 +19,7 @@ use App\Services\q3wMaterialAccounting\Reports\MaterialTableXLSXReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class q3wMaterialController extends Controller
 {

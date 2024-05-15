@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Building;
 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\WorkRequest;
 use App\Models\Manual\ManualCopiedWorks;
@@ -15,9 +12,12 @@ use App\Models\Manual\ManualMaterialCategoryRelationToWork;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualRelationMaterialWork;
 use App\Models\Manual\ManualWork;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ManualWorkController extends Controller
 {

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\System;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PermissionsController extends Controller

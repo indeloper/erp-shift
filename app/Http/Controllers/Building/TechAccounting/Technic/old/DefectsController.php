@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DefectRequests\DefectAcceptRequest;
 use App\Http\Requests\DefectRequests\DefectDeclineRequest;
@@ -16,8 +14,10 @@ use App\Models\TechAcc\OurTechnic;
 use App\Services\AuthorizeService;
 use App\Traits\AdditionalFunctions;
 use App\Traits\NotificationGenerator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class DefectsController extends Controller
 {

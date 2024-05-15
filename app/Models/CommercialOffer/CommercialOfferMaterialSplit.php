@@ -2,11 +2,6 @@
 
 namespace App\Models\CommercialOffer;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorFile;
 use App\Models\Manual\ManualMaterialParameter;
@@ -15,6 +10,11 @@ use App\Services\Commerce\SplitService;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 
 class CommercialOfferMaterialSplit extends Model

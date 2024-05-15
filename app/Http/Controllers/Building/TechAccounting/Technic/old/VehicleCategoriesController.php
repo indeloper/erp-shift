@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VehicleCategoryRequests\VehicleCategoryDestroyRequest;
 use App\Http\Requests\VehicleCategoryRequests\VehicleCategoryStoreRequest;
 use App\Http\Requests\VehicleCategoryRequests\VehicleCategoryUpdateRequest;
 use App\Models\TechAcc\Vehicles\VehicleCategories;
 use App\Services\AuthorizeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class VehicleCategoriesController extends Controller
 {

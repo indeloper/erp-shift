@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\System;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class BitrixWebhookController extends Controller

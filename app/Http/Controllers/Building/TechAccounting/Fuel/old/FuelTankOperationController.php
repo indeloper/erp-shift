@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Old;
 
-use Illuminate\Http\Response;
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\FuelTank\UpdateFuelTankOperation;
 use App\Http\Requests\Building\TechAccounting\FuelTank\StoreFuelTankOperation;
@@ -13,7 +10,10 @@ use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class FuelTankOperationController extends Controller
 {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\System;
 
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FileController extends Controller
 {

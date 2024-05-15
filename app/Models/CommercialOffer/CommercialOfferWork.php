@@ -2,13 +2,13 @@
 
 namespace App\Models\CommercialOffer;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorFile;
 use App\Models\WorkVolume\WorkVolumeWork;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CommercialOfferWork extends Model
 {

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
@@ -23,9 +21,11 @@ use App\Notifications\Labor\LaborCancelNotification;
 use App\Notifications\Labor\LaborSafetyNotification;
 use App\Notifications\Labor\LaborSignedNotification;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use PhpOffice\PhpWord\ComplexType\ProofState;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Row;

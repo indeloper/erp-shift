@@ -2,8 +2,6 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Comment;
 use App\Models\Contractors\Contractor;
 use App\Models\FileEntry;
@@ -11,6 +9,8 @@ use App\Models\TechAcc\OurTechnic;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Logable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTankFlow extends Model

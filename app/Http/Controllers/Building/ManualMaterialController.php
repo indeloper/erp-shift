@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Building;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\MaterialsRequest;
 use App\Models\FileEntry;
@@ -11,11 +9,13 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialPassport;
 use App\Models\Manual\ManualReference;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ManualMaterialController extends Controller
 {

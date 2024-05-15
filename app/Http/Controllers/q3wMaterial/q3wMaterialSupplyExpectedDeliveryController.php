@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialSupplyExpectedDeliveries;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 define('SUPPLY_PLANNING_QUANTITY_DELTA', 0.2);

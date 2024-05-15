@@ -2,9 +2,9 @@
 
 namespace App\Models\WorkVolume;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Manual\ManualMaterialParameter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 class WorkVolumeWorkMaterial extends Model

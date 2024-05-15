@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\System;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Employees\Employee;
@@ -13,6 +12,7 @@ use App\Models\User;
 use App\Notifications\Employee\EmployeeTerminationNotice;
 use App\Notifications\Employee\NewEmployeeArrivalNotice;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use function morphos\Russian\pluralize;

@@ -2,9 +2,6 @@
 
 namespace App\Models\Contractors;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Project;
 use App\Models\ProjectContractors;
 use App\Models\Task;
@@ -16,6 +13,9 @@ use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\SmartSearchable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contractor extends Model

@@ -4,8 +4,8 @@
 
 namespace App\Models\q3wMaterial\operations;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wOperationRouteStageType extends Model

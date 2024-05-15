@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ContractorRequests\ContractorContactRequest;
 use App\Http\Requests\ProjectRequest\ProjectRequest;
@@ -44,10 +41,13 @@ use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
 use App\Traits\TimeCalculator;
 use App\Traits\UserSearchByGroup;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class ProjectController extends Controller
 {

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialType;
 use http\Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class q3wMaterialTypeController extends Controller
 {
