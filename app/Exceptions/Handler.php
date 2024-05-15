@@ -86,7 +86,7 @@ class Handler extends ExceptionHandler
             if ($exception instanceof ModelNotFoundException and $exception->getModel() === MaterialAccountingOperation::class) {
                 $operations = MaterialAccountingOperation::find($exception->getIds());
                 if ($operations->isNotEmpty()) {
-                    return redirect()->action('\App\Http\Controllers\Building\MaterialAccounting\MaterialAccountingController@redirector', ['operation_id' => $operations->first()->id]);
+                    return redirect()->action([\App\Http\Controllers\Building\MaterialAccounting\MaterialAccountingController::class, 'redirector'], ['operation_id' => $operations->first()->id]);
                 }
             }
         }
