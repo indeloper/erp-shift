@@ -17,8 +17,8 @@ class CommercialOfferFactory extends Factory
     {
         return [
             'project_id' => Project::inRandomOrder()->first()->id ?? Project::factory()->create()->id,
-            'name' => $this->faker->word,
-            'file_name' => $this->faker->word,
+            'name' => $this->faker->word(),
+            'file_name' => $this->faker->word(),
             'user_id' => User::inRandomOrder()->first()->id ?? User::factory()->create()->id,
             'status' => 1, // in work
             'is_tongue' => rand(0, 1),

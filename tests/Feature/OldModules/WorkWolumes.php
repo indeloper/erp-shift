@@ -29,7 +29,7 @@ class WorkWolumes extends TestCase
             'add_tongue' => 1,
             'work_volume_tongue_id' => 'new',
             'option_tongue' => $name,
-            'tongue_description' => $this->faker->sentence,
+            'tongue_description' => $this->faker->sentence(),
         ];
         $response = $this->actingAs($user)->post(route('projects::work_volume_request::store', $project->id), $data);
 
@@ -53,7 +53,7 @@ class WorkWolumes extends TestCase
             'add_pile' => 1,
             'work_volume_pile_id' => 'new',
             'option_pile' => $name,
-            'pile_description' => $this->faker->sentence,
+            'pile_description' => $this->faker->sentence(),
         ];
         $response = $this->actingAs($user)->post(route('projects::work_volume_request::store', $project->id), $data);
 
@@ -78,11 +78,11 @@ class WorkWolumes extends TestCase
             'add_pile' => 1,
             'work_volume_pile_id' => 'new',
             'option_pile' => $name,
-            'pile_description' => $this->faker->sentence,
+            'pile_description' => $this->faker->sentence(),
             'add_tongue' => 1,
             'work_volume_tongue_id' => 'new',
             'option_tongue' => $name,
-            'tongue_description' => $this->faker->sentence,
+            'tongue_description' => $this->faker->sentence(),
         ];
         $response = $this->actingAs($user)->post(route('projects::work_volume_request::store', $project->id), $data);
 

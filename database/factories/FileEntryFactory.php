@@ -17,8 +17,8 @@ class FileEntryFactory extends Factory
         return [
             'filename' => $this->faker->words(4, true),
             'size' => $this->faker->randomNumber(4),
-            'mime' => $this->faker->mimeType,
-            'original_filename' => $this->faker->word.$this->faker->fileExtension,
+            'mime' => $this->faker->mimeType(),
+            'original_filename' => $this->faker->word().$this->faker->fileExtension(),
             'user_id' => User::first()->id,
         ];
     }

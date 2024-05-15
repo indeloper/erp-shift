@@ -157,7 +157,7 @@ class DefectsTest extends TestCase
         $data = [
             'defectable_id' => OurTechnic::factory()->create()->id,
             'defectable_type' => 1,
-            'description' => $this->faker->paragraph,
+            'description' => $this->faker->paragraph(),
         ];
         $response = $this->actingAs($user)->post(route('building::tech_acc::defects.store'), $data);
 
@@ -297,7 +297,7 @@ class DefectsTest extends TestCase
         $data = [
             'defectable_id' => OurTechnic::factory()->create()->id,
             'defectable_type' => 1,
-            'description' => $this->faker->paragraph.$this->faker->paragraph.$this->faker->paragraph,
+            'description' => $this->faker->paragraph().$this->faker->paragraph().$this->faker->paragraph(),
         ];
         $response = $this->actingAs($user)->post(route('building::tech_acc::defects.store'), $data);
 
@@ -315,7 +315,7 @@ class DefectsTest extends TestCase
         $data = [
             'defectable_id' => OurTechnic::factory()->create()->id,
             'defectable_type' => 3,
-            'description' => $this->faker->paragraph,
+            'description' => $this->faker->paragraph(),
         ];
         $response = $this->actingAs($user)->post(route('building::tech_acc::defects.store'), $data);
 
@@ -554,7 +554,7 @@ class DefectsTest extends TestCase
         $old_notifications_count = Notification::count();
 
         // When we make put request with data
-        $data = ['comment' => $this->faker->paragraph];
+        $data = ['comment' => $this->faker->paragraph()];
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.decline', $defect->refresh()->id), $data);
 
         // Then ...
@@ -607,7 +607,7 @@ class DefectsTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -674,7 +674,7 @@ class DefectsTest extends TestCase
 
         // When we make put request without data
         $data = [
-            'comment' => $this->faker->word,
+            'comment' => $this->faker->word(),
             'repair_start_date' => '14.12.2019',
             'repair_end_date' => '10.12.2019',
         ];
@@ -736,7 +736,7 @@ class DefectsTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -803,7 +803,7 @@ class DefectsTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? ProjectObject::factory()->create()->id,
         ];
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.end_repair', $defect->id), $data);

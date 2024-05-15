@@ -18,7 +18,7 @@ class OurVehicleParametersFactory extends Factory
         return [
             'characteristic_id' => VehicleCategoryCharacteristics::inRandomOrder()->first()->id ?? VehicleCategoryCharacteristics::factory()->create()->id,
             'vehicle_id' => OurVehicles::inRandomOrder()->first()->id ?? OurVehicles::factory()->create()->id,
-            'value' => $this->faker->word,
+            'value' => $this->faker->word(),
         ];
     }
 }

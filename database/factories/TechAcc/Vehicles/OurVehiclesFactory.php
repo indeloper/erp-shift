@@ -21,8 +21,8 @@ class OurVehiclesFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id ?? User::factory()->create()->id,
             'number' => $this->faker->randomNumber(9),
             'trailer_number' => rand(0, 1) ? $this->faker->randomNumber(9) : '',
-            'mark' => $this->faker->word,
-            'model' => $this->faker->word,
+            'mark' => $this->faker->word(),
+            'model' => $this->faker->word(),
             'owner' => OurVehicles::OWNERS[rand(1, 5)],
         ];
     }

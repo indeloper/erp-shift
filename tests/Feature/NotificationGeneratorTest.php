@@ -227,7 +227,7 @@ class NotificationGeneratorTest extends TestCase
         // Given defect with responsible user
         $this->DEFECT->update([
             'responsible_user_id' => $this->DEFECT->user_id,
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => Carbon::createFromFormat('d.m.Y', '10.12.2019'),
             'repair_end_date' => Carbon::createFromFormat('d.m.Y', '11.12.2019'),
             'status' => Defects::IN_WORK,
@@ -263,7 +263,7 @@ class NotificationGeneratorTest extends TestCase
         $this->deleteOurTechnicsTickets();
         $this->DEFECT->update([
             'responsible_user_id' => $this->DEFECT->user_id,
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => Carbon::createFromFormat('d.m.Y', '10.12.2019'),
             'repair_end_date' => Carbon::createFromFormat('d.m.Y', '11.12.2019'),
             'status' => Defects::IN_WORK,
@@ -414,7 +414,7 @@ class NotificationGeneratorTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -454,7 +454,7 @@ class NotificationGeneratorTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -524,7 +524,7 @@ class NotificationGeneratorTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -549,7 +549,7 @@ class NotificationGeneratorTest extends TestCase
         // Given new defect with responsible user
         $this->DEFECT->update([
             'responsible_user_id' => $this->DEFECT->user_id,
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => Carbon::createFromFormat('d.m.Y', '10.12.2019'),
             'repair_end_date' => Carbon::createFromFormat('d.m.Y', '11.12.2019'),
             'status' => Defects::IN_WORK,
@@ -558,7 +558,7 @@ class NotificationGeneratorTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? ProjectObject::factory()->create()->id,
         ];
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.end_repair', $defect->refresh()->id), $data);

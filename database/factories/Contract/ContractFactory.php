@@ -23,7 +23,7 @@ class ContractFactory extends Factory
                     return Project::factory()->create()->id;
                 }
             },
-            'name' => $this->faker->colorName,
+            'name' => $this->faker->colorName(),
             'user_id' => function () use ($passedAttributes) {
                 if (! in_array('user_id', $passedAttributes)) {
                     return User::factory()->create()->id;

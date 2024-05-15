@@ -14,8 +14,8 @@ class ProjectObjectFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word,
-            'address' => $this->faker->address,
+            'name' => $this->faker->word(),
+            'address' => $this->faker->address(),
         ];
     }
 }
