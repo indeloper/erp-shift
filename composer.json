@@ -25,7 +25,8 @@
         "ext-json": "*",
         "phpoffice/phpword": "v0.18.*",
         "wapmorgan/morphos": "^3.2",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "laravel/ui": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
