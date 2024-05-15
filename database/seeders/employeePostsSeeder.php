@@ -15,7 +15,7 @@ class employeePostsSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $posts = json_decode('{"data": [
 {

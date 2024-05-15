@@ -12,7 +12,7 @@ class FileEntryFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'filename' => $this->faker->words(4, true),

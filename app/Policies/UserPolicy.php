@@ -24,12 +24,12 @@ class UserPolicy
         return ($user->id == $me->id) or $me->can('users');
     }
 
-    public function update(User $me, User $user)
+    public function update(User $me, User $user): bool
     {
         return ($user->id == $me->id) or $me->can('users_edit');
     }
 
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }

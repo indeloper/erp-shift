@@ -38,7 +38,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_see_technics_index_page()
+    public function user_can_see_technics_index_page(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -50,7 +50,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //index
-    public function it_gets_data_about_all_technic_created()
+    public function it_gets_data_about_all_technic_created(): void
     {
         $category = TechnicCategory::factory()->create();
         $category_characteristics = CategoryCharacteristic::factory()->count(2)->create();
@@ -91,7 +91,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //store
-    public function user_can_create_technic()
+    public function user_can_create_technic(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -104,7 +104,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //store
-    public function it_accepts_category_name_as_attribute()
+    public function it_accepts_category_name_as_attribute(): void
     {
         $this->actingAs($this->ivan);
 
@@ -117,7 +117,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //store
-    public function user_can_create_technic_with_characteristics()
+    public function user_can_create_technic_with_characteristics(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -147,7 +147,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //store
-    public function user_can_also_attach_files()
+    public function user_can_also_attach_files(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -170,7 +170,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //store
-    public function server_send_stored_model_in_response()
+    public function server_send_stored_model_in_response(): void
     {
         $this->actingAs($this->ivan);
 
@@ -190,7 +190,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //destroy
-    public function user_can_destroy_technic()
+    public function user_can_destroy_technic(): void
     {
         $this->actingAs($this->ivan);
         $our_technic = OurTechnic::factory()->create();
@@ -203,7 +203,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //destroy
-    public function getter_does_not_return_soft_deleted_models()
+    public function getter_does_not_return_soft_deleted_models(): void
     {
         $this->actingAs($this->ivan);
         $our_technic = OurTechnic::factory()->count(10)->create();
@@ -218,7 +218,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //update
-    public function user_can_update_technic_with_characteristics_and_documents()
+    public function user_can_update_technic_with_characteristics_and_documents(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -268,7 +268,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //destroy document
-    public function user_can_delete_technic_document()
+    public function user_can_delete_technic_document(): void
     {
         $technic = OurTechnic::factory()->create();
 
@@ -290,7 +290,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //store request
-    public function it_requires_model_for_technic()
+    public function it_requires_model_for_technic(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -301,7 +301,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */ //store
-    public function it_validates_characteristics()
+    public function it_validates_characteristics(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -325,7 +325,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */
-    public function it_parse_date_correctly()
+    public function it_parse_date_correctly(): void
     {
         $this->actingAs($this->ivan);
         $category = TechnicCategory::factory()->create();
@@ -345,7 +345,7 @@ class OurTechnicRequestsTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_all_technics_found_by_name()
+    public function it_returns_all_technics_found_by_name(): void
     {
         $technics = OurTechnic::factory()->count(10)->create();
         $technics->merge(OurTechnic::factory()->count(5)->create(['brand' => 'My_new_brand']));

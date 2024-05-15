@@ -12,7 +12,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('commercial_offer_material_splits', function (Blueprint $table) {
             $table->string('unit', 20)->default('шт');
@@ -34,7 +34,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('commercial_offer_material_splits', function (Blueprint $table) {
             $table->dropColumn('unit');

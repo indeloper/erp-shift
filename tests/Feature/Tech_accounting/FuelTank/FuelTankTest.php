@@ -24,7 +24,7 @@ class FuelTankTest extends TestCase
         $this->actingAs($this->response_user);
     }
 
-    public function testStoreFuelTank()
+    public function testStoreFuelTank(): void
     {
         $countFuelTanks = FuelTank::count();
 
@@ -34,7 +34,7 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-    public function testUpdateFuelTank()
+    public function testUpdateFuelTank(): void
     {
         $fuelTank = FuelTank::factory()->create();
 
@@ -53,7 +53,7 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-    public function testDestroyFuelTank()
+    public function testDestroyFuelTank(): void
     {
         $fuelTank = FuelTank::factory()->create();
         $countFuelTanks = FuelTank::count();
@@ -66,7 +66,7 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-    public function testUpdateFuelTankLevel()
+    public function testUpdateFuelTankLevel(): void
     {
         $fuelTank = FuelTank::factory()->create();
 
@@ -84,7 +84,7 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-    public function testSomeOneWhoCantStoreFuelTank()
+    public function testSomeOneWhoCantStoreFuelTank(): void
     {
         $countFuelTanks = FuelTank::count();
         $user = User::whereNotIn('group_id', [27, 13, 19, 47])->where('id', '!=', 1)->active()->inRandomOrder()->first();
@@ -95,7 +95,7 @@ class FuelTankTest extends TestCase
         $this->assertEquals(403, $response->status());
     }
 
-    public function testSomeOneWhoCantUpdateFuelTank()
+    public function testSomeOneWhoCantUpdateFuelTank(): void
     {
         $user = User::active()->whereNotIn('group_id', [27, 13, 19, 47])
             ->where('id', '!=', 1)
@@ -112,7 +112,7 @@ class FuelTankTest extends TestCase
         $this->assertEquals(403, $response->status());
     }
 
-    public function testSomeOneWhoCantDestroyFuelTank()
+    public function testSomeOneWhoCantDestroyFuelTank(): void
     {
         $fuelTank = FuelTank::factory()->create();
 
@@ -129,7 +129,7 @@ class FuelTankTest extends TestCase
         $this->assertEquals(403, $response->status());
     }
 
-    public function testIndexFuelTank()
+    public function testIndexFuelTank(): void
     {
         $response = $this->get(route('building::tech_acc::fuel_tank.index'));
 
@@ -138,7 +138,7 @@ class FuelTankTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_tanks_on_getter()
+    public function it_returns_tanks_on_getter(): void
     {
         $this->actingAs(User::active()->first());
         $countFuelTanks = FuelTank::count();
@@ -155,7 +155,7 @@ class FuelTankTest extends TestCase
         $this->assertCount($countFuelTankAssert, $response->json());
     }
 
-    public function testFilterFuelTankFuelLevel()
+    public function testFilterFuelTankFuelLevel(): void
     {
         FuelTank::factory()->count(10)->create();
 

@@ -25,7 +25,7 @@ class TelegramNotificationListener
      * @param  object  $event
      * @return void
      */
-    public function handle(TelegramNotificationEvent $event)
+    public function handle(TelegramNotificationEvent $event): void
     {
         $notificationData = $event->telegramNotificationData->getNotificationData();
         $notificationType = $notificationData->getClass();

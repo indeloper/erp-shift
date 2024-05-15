@@ -2,6 +2,9 @@
 
 namespace App\Models\TechAcc\Vehicles;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
 use App\Traits\Documentable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -68,7 +71,7 @@ class OurVehicles extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(VehicleCategories::class, 'category_id', 'id');
     }
@@ -78,7 +81,7 @@ class OurVehicles extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function author()
+    public function author(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
@@ -88,7 +91,7 @@ class OurVehicles extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function parameters()
+    public function parameters(): HasMany
     {
         return $this->hasMany(OurVehicleParameters::class, 'vehicle_id', 'id');
     }

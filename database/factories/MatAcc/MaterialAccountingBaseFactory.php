@@ -13,7 +13,7 @@ class MaterialAccountingBaseFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'object_id' => ProjectObject::factory()->create()->id,

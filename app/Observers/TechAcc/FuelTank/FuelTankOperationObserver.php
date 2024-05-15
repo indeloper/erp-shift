@@ -65,7 +65,7 @@ class FuelTankOperationObserver
         ProcessFuelTankOperation::dispatchSync($fuelTankOperation, -$fuelTankOperation->value_diff);
     }
 
-    public function deleted(FuelTankOperation $fuelTankOperation)
+    public function deleted(FuelTankOperation $fuelTankOperation): void
     {
         FuelTankService::createHistory($fuelTankOperation);
     }

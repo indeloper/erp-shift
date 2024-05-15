@@ -46,7 +46,7 @@ class NotificationCreated implements ShouldBroadcast
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
         return new Channel(config('app.env').'.App.User.'.$this->target_user);
     }

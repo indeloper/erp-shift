@@ -35,7 +35,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_category()
+    public function we_can_create_vehicle_category(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -45,7 +45,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_category_characteristic()
+    public function we_can_create_vehicle_category_characteristic(): void
     {
         // Given fresh vehicle category characteristic
         $vehicleCategoryCharacteristic = VehicleCategoryCharacteristics::factory()->create();
@@ -55,7 +55,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function standard_vehicle_category_characteristic_must_show()
+    public function standard_vehicle_category_characteristic_must_show(): void
     {
         // Given fresh vehicle category characteristic
         // ('show' => 1 imitate database save (default value of this field is 1))
@@ -66,7 +66,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function standard_vehicle_category_characteristic_must_have_vehicle_category_relation()
+    public function standard_vehicle_category_characteristic_must_have_vehicle_category_relation(): void
     {
         // Given fresh vehicle category characteristic
         // ('show' => 1 imitate database save (default value of this field is 1))
@@ -77,7 +77,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_category_have_author_relation()
+    public function vehicle_category_have_author_relation(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -87,7 +87,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_category_can_have_characteristics_relation()
+    public function vehicle_category_can_have_characteristics_relation(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -97,7 +97,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_category_can_have_characteristics_relation_second_test()
+    public function vehicle_category_can_have_characteristics_relation_second_test(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -111,7 +111,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function if_we_remove_vehicle_category_characteristic_then_vehicle_category_relation_collection_count_should_decrease()
+    public function if_we_remove_vehicle_category_characteristic_then_vehicle_category_relation_collection_count_should_decrease(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -132,7 +132,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_create_vehicle_category_by_post_without_permissions()
+    public function we_cant_create_vehicle_category_by_post_without_permissions(): void
     {
         // Given user
         $user = User::whereNotIn('group_id', self::GROUPS_WITH_PERMISSIONS)->first();
@@ -155,7 +155,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_category_by_post()
+    public function we_can_create_vehicle_category_by_post(): void
     {
         // Given user
         $user = $this->user;
@@ -193,7 +193,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_category_by_post_without_description()
+    public function we_can_create_vehicle_category_by_post_without_description(): void
     {
         // Given user
         $user = $this->user;
@@ -231,7 +231,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_create_vehicle_category_by_post_without_name()
+    public function we_cant_create_vehicle_category_by_post_without_name(): void
     {
         // Given user
         $user = $this->user;
@@ -258,7 +258,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_category_by_post_without_characteristics()
+    public function we_can_create_vehicle_category_by_post_without_characteristics(): void
     {
         // Given user
         $user = $this->user;
@@ -276,7 +276,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_create_vehicle_category_by_post_without_characteristic_name_and_show_option()
+    public function we_cant_create_vehicle_category_by_post_without_characteristic_name_and_show_option(): void
     {
         // Given user
         $user = $this->user;
@@ -304,7 +304,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_create_vehicle_category_by_post_with_characteristics_lenght_more_than_ten()
+    public function we_cant_create_vehicle_category_by_post_with_characteristics_lenght_more_than_ten(): void
     {
         // Given user
         $user = $this->user;
@@ -381,7 +381,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_delete_the_vehicle_category()
+    public function we_can_delete_the_vehicle_category(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -394,7 +394,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_without_permission_cant_delete_the_vehicle_category()
+    public function anyone_without_permission_cant_delete_the_vehicle_category(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -410,7 +410,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_with_permission_can_delete_the_vehicle_category()
+    public function anyone_with_permission_can_delete_the_vehicle_category(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -427,7 +427,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_without_permission_cant_go_to_edit_page()
+    public function anyone_without_permission_cant_go_to_edit_page(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -443,7 +443,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_with_permission_can_go_to_edit_page()
+    public function anyone_with_permission_can_go_to_edit_page(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -459,7 +459,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_without_permission_cant_go_to_create_page()
+    public function anyone_without_permission_cant_go_to_create_page(): void
     {
         // Given user
         $user = User::whereNotIn('group_id', self::GROUPS_WITH_PERMISSIONS)->first();
@@ -472,7 +472,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_with_permission_can_go_to_create_page()
+    public function anyone_with_permission_can_go_to_create_page(): void
     {
         /// Given user
         $user = $this->user;
@@ -485,7 +485,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_add_more_characteristics_for_vehicle_category_by_post()
+    public function we_can_add_more_characteristics_for_vehicle_category_by_post(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -525,7 +525,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_update_characteristic_in_vehicle_category_by_post()
+    public function we_can_update_characteristic_in_vehicle_category_by_post(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -564,7 +564,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_update_characteristic_in_vehicle_category_by_post_without_description()
+    public function we_can_update_characteristic_in_vehicle_category_by_post_without_description(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -604,7 +604,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_delete_characteristic_in_vehicle_category_by_post()
+    public function we_can_delete_characteristic_in_vehicle_category_by_post(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -639,7 +639,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_update_vehicle_category_by_post_without_name_but_can_without_characteristics()
+    public function we_cant_update_vehicle_category_by_post_without_name_but_can_without_characteristics(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -665,7 +665,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function any_authorized_user_can_go_to_index_page()
+    public function any_authorized_user_can_go_to_index_page(): void
     {
         // Given user
         $user = User::inRandomOrder()->first();
@@ -678,7 +678,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_category_must_have_vehicles_relation()
+    public function vehicle_category_must_have_vehicles_relation(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -693,7 +693,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_category_characteristic_have_parameters_relation()
+    public function vehicle_category_characteristic_have_parameters_relation(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -710,7 +710,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function category_characteristic_delete_influence()
+    public function category_characteristic_delete_influence(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -746,7 +746,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function category_characteristic_update_influence()
+    public function category_characteristic_update_influence(): void
     {
         // Given fresh vehicle category
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -786,7 +786,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function category_deleting_influence_on_everything()
+    public function category_deleting_influence_on_everything(): void
     {
         // Given fresh vehicle category with characteristic
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -815,7 +815,7 @@ class VehicleCategoriesTest extends TestCase
     }
 
     /** @test */
-    public function category_characteristic_deleting_influence()
+    public function category_characteristic_deleting_influence(): void
     {
         // Given fresh vehicle category with characteristic
         $vehicleCategory = VehicleCategories::factory()->create();

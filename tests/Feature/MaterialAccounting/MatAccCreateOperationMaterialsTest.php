@@ -15,7 +15,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function testAcceptAriivalOperationMaterialsOnPeriod()
+    public function testAcceptAriivalOperationMaterialsOnPeriod(): void
     {
         $basesCount = MaterialAccountingBase::count();
 
@@ -52,7 +52,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
         $this->assertEquals($basesCount + 6, $updatedBasesCount);
     }
 
-    public function testAcceptWriteOffOperationMaterialsOnPeriod()
+    public function testAcceptWriteOffOperationMaterialsOnPeriod(): void
     {
         $basesCount = MaterialAccountingBase::count();
 
@@ -97,7 +97,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
         $this->assertEquals($basesCount + 6, $updatedBasesCount);
     }
 
-    public function testAcceptMovingOperationMaterialsOnPeriod()
+    public function testAcceptMovingOperationMaterialsOnPeriod(): void
     {
         $basesCount = MaterialAccountingBase::count();
 
@@ -154,7 +154,7 @@ class MatAccCreateOperationMaterialsTest extends TestCase
         $this->assertEquals($basesCount + 6 + 6, $updatedBasesCount);
     }
 
-    public function testAcceptTransformationOperationMaterialsOnPeriod()
+    public function testAcceptTransformationOperationMaterialsOnPeriod(): void
     {
         $basesCount = MaterialAccountingBase::count();
 

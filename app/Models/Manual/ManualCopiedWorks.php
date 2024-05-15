@@ -2,6 +2,7 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -11,12 +12,12 @@ class ManualCopiedWorks extends Model
 
     protected $fillable = ['id', 'parent_work_id', 'child_work_id'];
 
-    public function child_work()
+    public function child_work(): HasOne
     {
         return $this->hasOne(ManualWork::class, 'id', 'child_work_id');
     }
 
-    public function parent_work()
+    public function parent_work(): HasOne
     {
         return $this->hasOne(ManualWork::class, 'id', 'parent_work_id');
     }

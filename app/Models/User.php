@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Menu\MenuItem;
 use App\Models\Notification\Notification;
@@ -356,7 +360,7 @@ class User extends Authenticatable
         return $this->all_permissions_cache;
     }
 
-    public function user_permissions()
+    public function user_permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class, 'user_permissions', 'user_id', 'permission_id');
     }
@@ -430,7 +434,7 @@ class User extends Authenticatable
         return $this->can('update_project_importance');
     }
 
-    public function technic_tickets()
+    public function technic_tickets(): BelongsToMany
     {
         return $this->belongsToMany(OurTechnicTicket::class, 'our_technic_ticket_user', 'user_id', 'tic_id')
             ->groupBy('id')
@@ -439,32 +443,32 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class)->orderBy('id');
     }
 
-    public function tasks()
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'responsible_user_id', 'id')->where('is_solved', 0);
     }
 
-    public function allTasks()
+    public function allTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'responsible_user_id', 'id');
     }
 
-    public function notifications()
+    public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class, 'user_id', 'id');
     }
 
-    public function timeResponsibleProjects()
+    public function timeResponsibleProjects(): HasMany
     {
         return $this->hasMany(Project::class, 'time_responsible_user_id', 'id');
     }
 
-    public function last_vacation()
+    public function last_vacation(): HasOne
     {
         if ($this->in_vacation) {
             return $this->hasOne(VacationsHistory::class, 'vacation_user_id', 'id')
@@ -480,7 +484,7 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function projectRoles()
+    public function projectRoles(): HasMany
     {
         return $this->hasMany(ProjectResponsibleUser::class, 'user_id', 'id');
     }
@@ -570,14 +574,14 @@ class User extends Authenticatable
         return true;
     }
 
-    public function replaced_users()
+    public function replaced_users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'vacations_histories', 'support_user_id', 'vacation_user_id')
             ->wherePivot('is_actual', 1)
             ->wherePivot('change_authority', 1);
     }
 
-    public function replacing_users()
+    public function replacing_users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'vacations_histories', 'vacation_user_id', 'support_user_id')
             ->wherePivot('is_actual', 1)
@@ -622,12 +626,12 @@ class User extends Authenticatable
         return NotificationTypes::getModel()->alwaysAllowedNotifications();
     }
 
-    public function relatedNotifications()
+    public function relatedNotifications(): HasMany
     {
         return $this->hasMany(NotificationsForUsers::class, 'user_id', 'id');
     }
 
-    public function disabledNotifications()
+    public function disabledNotifications(): HasMany
     {
         return $this->hasMany(UserDisabledNotifications::class, 'user_id', 'id');
     }
@@ -792,7 +796,7 @@ class User extends Authenticatable
             : asset('/users/card').'/'.$this->id ?? null;
     }
 
-    public function menuItems()
+    public function menuItems(): BelongsToMany
     {
         return $this->belongsToMany(MenuItem::class, 'favorite_menu_item_user');
     }

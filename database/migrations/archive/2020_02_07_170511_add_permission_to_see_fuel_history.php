@@ -13,7 +13,7 @@ return new class extends Migration
         'Просмотр истории изменения операции по топливу',
     ];
 
-    public function up()
+    public function up(): void
     {
         $insert = [];
 
@@ -53,7 +53,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
 

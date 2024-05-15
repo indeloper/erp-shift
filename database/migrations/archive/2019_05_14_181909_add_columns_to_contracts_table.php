@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('contracts', function (Blueprint $table) {
             $table->string('garant_file_name')->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('contracts', function (Blueprint $table) {
             $table->dropColumn('garant_file_name');

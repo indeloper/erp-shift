@@ -13,7 +13,7 @@ class TechnicalFaultReportRepairPeriodChangeNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о изменении периода ремонта по заявке на неисправность';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

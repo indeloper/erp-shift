@@ -2,6 +2,9 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use App\Models\Messenger\Message;
 use App\Models\Messenger\Models;
 use App\Models\Messenger\Participant;
@@ -17,7 +20,7 @@ trait Messagable
      *
      * @codeCoverageIgnore
      */
-    public function messages()
+    public function messages(): HasMany
     {
         return $this->hasMany(Models::classname(Message::class));
     }
@@ -29,7 +32,7 @@ trait Messagable
      *
      * @codeCoverageIgnore
      */
-    public function participants()
+    public function participants(): HasMany
     {
         return $this->hasMany(Models::classname(Participant::class));
     }
@@ -41,7 +44,7 @@ trait Messagable
      *
      * @codeCoverageIgnore
      */
-    public function threads()
+    public function threads(): BelongsToMany
     {
         return $this->belongsToMany(
             (Thread::class),
@@ -100,7 +103,7 @@ trait Messagable
      *
      * @return int
      */
-    public function starred()
+    public function starred(): HasManyThrough
     {
         return $this->hasManyThrough(
             Models::table('threads'),

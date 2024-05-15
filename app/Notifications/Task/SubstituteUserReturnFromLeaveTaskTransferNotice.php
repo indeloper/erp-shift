@@ -13,7 +13,7 @@ class SubstituteUserReturnFromLeaveTaskTransferNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о выходе замещаемого пользователя из отпуска и передаче задач обратно';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

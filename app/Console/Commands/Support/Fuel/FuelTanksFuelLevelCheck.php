@@ -47,7 +47,7 @@ class FuelTanksFuelLevelCheck extends Command
         $this->addOption('dateFrom', null, InputOption::VALUE_REQUIRED, 'Начальная дата, с которой ведется расчет');
     }
 
-    public function handle()
+    public function handle(): void
     {
         $dateFrom = Carbon::parse($this->option('dateFrom'));
         foreach (FuelTank::all() as $tank) {

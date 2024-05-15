@@ -39,7 +39,7 @@ class DefectExpireCommand extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $expiring_defects = Defects::soonExpire()->get();
 

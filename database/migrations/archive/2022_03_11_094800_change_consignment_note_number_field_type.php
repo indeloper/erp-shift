@@ -12,7 +12,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('q3w_material_operations', function (Blueprint $table) {
             $table->string('consignment_note_number')->default('0')->comment('Номер ТТН')->change();
@@ -24,7 +24,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::statement("ALTER TABLE q3w_material_operations CHANGE consignment_note_number consignment_note_number INT UNSIGNED DEFAULT 0 NOT NULL COMMENT 'Номер ТТН'");
     }

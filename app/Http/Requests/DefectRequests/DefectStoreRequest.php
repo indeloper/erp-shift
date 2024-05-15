@@ -11,7 +11,7 @@ class DefectStoreRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return boolval(auth()->user()->hasPermission('tech_acc_defects_create') or auth()->user()->isProjectManager());
     }
@@ -28,7 +28,7 @@ class DefectStoreRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'user_id' => ['required', 'exists:users,id'],

@@ -13,7 +13,7 @@ class ResponsibleAddedToObjectNotice extends BaseNotification
 
     const DESCRIPTION = 'Добавлен ответственный на объект';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

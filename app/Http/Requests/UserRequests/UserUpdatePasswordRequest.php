@@ -11,7 +11,7 @@ class UserUpdatePasswordRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -23,7 +23,7 @@ class UserUpdatePasswordRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'password.required' => 'Поле пароль обязательно для заполнения',
@@ -34,7 +34,7 @@ class UserUpdatePasswordRequest extends FormRequest
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'password' => 'required|min:7|regex:/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])/',

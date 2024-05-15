@@ -13,7 +13,7 @@ class ChiefMechanicMissingForEquipmentDefectTrackingNotice extends BaseNotificat
 
     const DESCRIPTION = 'В системе отсутсвует сотрудник на позиции Главного Механика, без него учёт дефектов техники не будет работать';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

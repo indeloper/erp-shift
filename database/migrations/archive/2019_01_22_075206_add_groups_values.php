@@ -9,7 +9,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('groups')->insert([
             ['id' => 1, 'name' => 'Бухгалтер', 'department_id' => '2'],
@@ -55,7 +55,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
 
     }

@@ -13,7 +13,7 @@ class SupportTicketApproximateDueDateChangeNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о изменении срока приблизительного исполнения заявки в техническую поддержку';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

@@ -77,7 +77,7 @@ class MatAccPartCloseAcceptionTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_task_for_rp_on_part_close()
+    public function it_creates_task_for_rp_on_part_close(): void
     {
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 1]);
         $this->setUpWorkOperationWithOnePartSave($operation);

@@ -13,7 +13,7 @@ class LaborCancelNotification extends BaseNotification
 
     const DESCRIPTION = 'Заявка на формирование приказов отменена';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->markdown('notifications.mail.default-notification', [

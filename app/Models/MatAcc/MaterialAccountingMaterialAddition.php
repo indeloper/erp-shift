@@ -2,6 +2,7 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,7 +15,7 @@ class MaterialAccountingMaterialAddition extends Model
         'description',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

@@ -2,6 +2,8 @@
 
 namespace App\Models\CommercialOffer;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorFile;
 use App\Models\WorkVolume\WorkVolumeWork;
@@ -33,7 +35,7 @@ class CommercialOfferWork extends Model
      * we can't change work-material relations, manuals etc.
      * */
 
-    public function work_volume_parent()
+    public function work_volume_parent(): BelongsTo
     {
         return $this->belongsTo(WorkVolumeWork::class, 'work_volume_work_id', 'id');
     }
@@ -73,12 +75,12 @@ class CommercialOfferWork extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function subcontractor_file()
+    public function subcontractor_file(): HasOne
     {
         return $this->hasOne(ContractorFile::class, 'id', 'subcontractor_file_id');
     }
 
-    public function commercial_offer()
+    public function commercial_offer(): BelongsTo
     {
         return $this->belongsTo(CommercialOffer::class);
     }

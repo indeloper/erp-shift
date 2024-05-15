@@ -11,7 +11,7 @@ class TaskCallRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -30,7 +30,7 @@ class TaskCallRequest extends FormRequest
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'contractor_full_name' => ($this->contractor_full_name != null ? 'required' : 'nullable').'|max:200|unique:contractors,full_name,'.($this->contractor_id ? $this->contractor_id : ''),

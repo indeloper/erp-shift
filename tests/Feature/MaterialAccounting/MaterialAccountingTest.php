@@ -22,7 +22,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_material_can_be_new()
+    public function operation_material_can_be_new(): void
     {
         // Given operation material
         $operationMaterial = MaterialAccountingOperationMaterials::factory()->create();
@@ -32,7 +32,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_material_can_be_used()
+    public function operation_material_can_be_used(): void
     {
         // Given used operation material
         $operationMaterial = MaterialAccountingOperationMaterials::factory()->create(['used' => 1]);
@@ -42,7 +42,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_material_name_getter_should_know_about_material_usage()
+    public function operation_material_name_getter_should_know_about_material_usage(): void
     {
         // Given used operation material
         $usedOperationMaterial = MaterialAccountingOperationMaterials::factory()->create(['used' => 1]);
@@ -56,7 +56,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_material_can_be_new()
+    public function base_material_can_be_new(): void
     {
         // Given base material
         $baseMaterial = MaterialAccountingBase::factory()->create();
@@ -66,7 +66,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_material_can_be_used()
+    public function base_material_can_be_used(): void
     {
         // Given used base material
         $baseMaterial = MaterialAccountingBase::factory()->create(['used' => 1]);
@@ -76,7 +76,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_material_name_getter_should_know_about_material_usage()
+    public function base_material_name_getter_should_know_about_material_usage(): void
     {
         // Given used base material
         $usedBaseMaterial = MaterialAccountingBase::factory()->create(['used' => 1]);
@@ -90,7 +90,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_nothing()
+    public function operation_index_scope_can_return_nothing(): void
     {
         // Given absence
         // Whew we use index() scope
@@ -101,7 +101,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_operations_with_new_materials()
+    public function operation_index_scope_can_return_operations_with_new_materials(): void
     {
         // Given material accounting operation
         $operation = MaterialAccountingOperation::factory()->create();
@@ -123,7 +123,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_operations_with_used_materials()
+    public function operation_index_scope_can_return_operations_with_used_materials(): void
     {
         // Given material accounting operation
         $operation = MaterialAccountingOperation::factory()->create();
@@ -145,7 +145,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_operations_with_new_and_used_materials()
+    public function operation_index_scope_can_return_operations_with_new_and_used_materials(): void
     {
         // Given material accounting operation
         $operation = MaterialAccountingOperation::factory()->create();
@@ -174,7 +174,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_nothing()
+    public function base_index_scope_can_return_nothing(): void
     {
         // Given absence
         // Whew we use index() scope
@@ -185,7 +185,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_bases_with_new_materials()
+    public function base_index_scope_can_return_bases_with_new_materials(): void
     {
         // Given new material accounting base
         $base = MaterialAccountingBase::factory()->create(['used' => 0, 'count' => 1]);
@@ -202,7 +202,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_bases_with_used_materials()
+    public function base_index_scope_can_return_bases_with_used_materials(): void
     {
         // Given used material accounting base
         $base = MaterialAccountingBase::factory()->create(['used' => 1, 'count' => 1]);
@@ -219,7 +219,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_bases_with_new_and_used_materials()
+    public function base_index_scope_can_return_bases_with_new_and_used_materials(): void
     {
         // Given manual material
         $manualMaterial = ManualMaterial::factory()->create();
@@ -245,7 +245,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_can_not_move_material_to_used_state()
+    public function user_without_permission_can_not_move_material_to_used_state(): void
     {
         // Given user without permissions
         $user = User::factory()->create();
@@ -258,7 +258,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function foremans_can_move_material_to_used_state()
+    public function foremans_can_move_material_to_used_state(): void
     {
         // Given foreman
         $foremans = [14, 23, 31];
@@ -272,7 +272,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function RPs_can_move_material_to_used_state()
+    public function RPs_can_move_material_to_used_state(): void
     {
         // Given RP
         $RPs = [13, 19, 27];
@@ -286,7 +286,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_used_more_materials_than_it_was_on_base()
+    public function user_can_not_move_to_used_more_materials_than_it_was_on_base(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -306,7 +306,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_used_zero_materials()
+    public function user_can_not_move_to_used_zero_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -326,7 +326,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_used_materials_that_was_not_exist()
+    public function user_can_not_move_to_used_materials_that_was_not_exist(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -346,7 +346,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_all_base_materials()
+    public function user_can_move_to_used_materials_all_base_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -375,7 +375,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_part_of_base_materials()
+    public function user_can_move_to_used_materials_part_of_base_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -404,7 +404,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_part_of_base_materials_one_more_time()
+    public function user_can_move_to_used_materials_part_of_base_materials_one_more_time(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -433,7 +433,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_all_base_materials_and_them_can_be_grouped_with_used_materials()
+    public function user_can_move_to_used_materials_all_base_materials_and_them_can_be_grouped_with_used_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -464,7 +464,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_part_of_base_materials_and_them_can_be_grouped_with_used_materials()
+    public function user_can_move_to_used_materials_part_of_base_materials_and_them_can_be_grouped_with_used_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -495,7 +495,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_can_not_move_material_to_new_state()
+    public function user_without_permission_can_not_move_material_to_new_state(): void
     {
         // Given user without permissions
         $user = User::factory()->create();
@@ -508,7 +508,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function foremans_can_not_move_material_to_new_state()
+    public function foremans_can_not_move_material_to_new_state(): void
     {
         // Given foreman
         $foremans = [14, 23, 31];
@@ -522,7 +522,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function RPs_can_move_material_to_new_state()
+    public function RPs_can_move_material_to_new_state(): void
     {
         // Given RP
         $RPs = [13, 19, 27];
@@ -536,7 +536,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_more_materials_than_it_was_on_base()
+    public function user_can_not_move_to_new_more_materials_than_it_was_on_base(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -556,7 +556,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_zero_materials()
+    public function user_can_not_move_to_new_zero_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -576,7 +576,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_materials_that_was_not_exist()
+    public function user_can_not_move_to_new_materials_that_was_not_exist(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -596,7 +596,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_materials_that_was_not_used()
+    public function user_can_not_move_to_new_materials_that_was_not_used(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -616,7 +616,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_all_base_materials()
+    public function user_can_move_to_new_materials_all_base_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -645,7 +645,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_part_of_base_materials()
+    public function user_can_move_to_new_materials_part_of_base_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -674,7 +674,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_all_base_materials_and_then_can_be_grouped_with_new_materials()
+    public function user_can_move_to_new_materials_all_base_materials_and_then_can_be_grouped_with_new_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -705,7 +705,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_part_of_base_materials_and_then_can_be_grouped_with_new_materials()
+    public function user_can_move_to_new_materials_part_of_base_materials_and_then_can_be_grouped_with_new_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -736,7 +736,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_part_of_base_materials_one_more_time()
+    public function user_can_move_to_new_materials_part_of_base_materials_one_more_time(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
@@ -765,7 +765,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_cannot_create_arrival_with_used_materials()
+    public function user_without_permission_cannot_create_arrival_with_used_materials(): void
     {
         // Given user without permission
         $groupWithoutPermission = Group::whereNotIn('id', [13, 14, 19, 23, 27, 31])->inRandomOrder()->first()->id;
@@ -789,7 +789,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permission_can_create_arrival_with_used_materials()
+    public function user_with_permission_can_create_arrival_with_used_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -813,7 +813,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_with_used_materials()
+    public function we_can_create_arrival_with_used_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
@@ -865,7 +865,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_with_new_and_used_material()
+    public function we_can_create_arrival_with_new_and_used_material(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
@@ -928,7 +928,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_part_send_with_same_materials()
+    public function we_can_create_arrival_part_send_with_same_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
@@ -1022,7 +1022,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_part_send_and_move_materials_to_used()
+    public function we_can_create_arrival_part_send_and_move_materials_to_used(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
@@ -1116,7 +1116,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_part_send_and_move_materials_to_new()
+    public function we_can_create_arrival_part_send_and_move_materials_to_new(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
@@ -1210,7 +1210,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_cannot_create_transformation_with_used_materials()
+    public function user_without_permission_cannot_create_transformation_with_used_materials(): void
     {
         // Given user without permission
         $groupWithoutPermission = Group::whereNotIn('id', [13, 14, 19, 23, 27, 31])->inRandomOrder()->first()->id;
@@ -1236,7 +1236,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permission_can_create_transformation_with_used_materials()
+    public function user_with_permission_can_create_transformation_with_used_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
@@ -1262,7 +1262,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_1()
+    public function we_can_create_transformation_1(): void
     {
         // From used material to used material
         // Given user with permission
@@ -1320,7 +1320,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_2()
+    public function we_can_create_transformation_2(): void
     {
         // From used materials to used materials
         // Given user with permission
@@ -1392,7 +1392,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_3()
+    public function we_can_create_transformation_3(): void
     {
         // From new material to new material
         // Given user with permission
@@ -1450,7 +1450,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_4()
+    public function we_can_create_transformation_4(): void
     {
         // From new materials to new materials
         // Given user with permission
@@ -1522,7 +1522,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_5()
+    public function we_can_create_transformation_5(): void
     {
         // From used material to new material
         // Given user with permission
@@ -1580,7 +1580,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_6()
+    public function we_can_create_transformation_6(): void
     {
         // From used materials to new materials
         // Given user with permission
@@ -1652,7 +1652,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_7()
+    public function we_can_create_transformation_7(): void
     {
         // From new material to used material
         // Given user with permission
@@ -1710,7 +1710,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_8()
+    public function we_can_create_transformation_8(): void
     {
         // From new materials to used materials
         // Given user with permission
@@ -1782,7 +1782,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function it_can_filter_bases_by_reference()
+    public function it_can_filter_bases_by_reference(): void
     {
         $newBase = MaterialAccountingBase::factory()->count(5)->create(['used' => 0]);
 
@@ -1840,7 +1840,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function it_test_getter()
+    public function it_test_getter(): void
     {
         $reference = ManualReference::first();
         $this->actingAs(User::find(1));
@@ -1854,7 +1854,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function it_offers_conflict_solution()
+    public function it_offers_conflict_solution(): void
     {
         $material = ManualMaterial::first();
         $object = ProjectObject::first();
@@ -1908,7 +1908,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function it_offers_conflict_solution_for_new_mat()
+    public function it_offers_conflict_solution_for_new_mat(): void
     {
         $material = ManualMaterial::first();
         $object = ProjectObject::first();

@@ -2,6 +2,7 @@
 
 namespace App\Models\Messenger;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -50,7 +51,7 @@ class Participant extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function thread()
+    public function thread(): BelongsTo
     {
         return $this->belongsTo(Models::classname(Thread::class), 'thread_id', 'id');
     }
@@ -62,7 +63,7 @@ class Participant extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(Models::user(), 'user_id');
     }

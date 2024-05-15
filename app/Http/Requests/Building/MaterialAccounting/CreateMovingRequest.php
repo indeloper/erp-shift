@@ -12,7 +12,7 @@ class CreateMovingRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -22,7 +22,7 @@ class CreateMovingRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $userCanCreateOnlyDrafts = boolval(! auth()->user()->hasPermission('mat_acc_moving_create') and auth()->user()->hasPermission('mat_acc_moving_draft_create') and $this->responsible_RP != 'old_operation');
 

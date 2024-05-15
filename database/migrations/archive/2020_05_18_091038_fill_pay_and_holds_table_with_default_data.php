@@ -59,7 +59,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! PayAndHold::where('name', self::DATA_FROM_OLD_SYSTEM[0]['name'])->exists()) {
             foreach (self::DATA_FROM_OLD_SYSTEM as $data) {
@@ -73,7 +73,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         //
     }

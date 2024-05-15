@@ -2,6 +2,9 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Comment;
 use App\Models\Manual\ManualMaterial;
 use App\Models\ProjectObject;
@@ -80,22 +83,22 @@ class MaterialAccountingBase extends Model
         return $this->material->name.($this->used ? ' Б/У' : '');
     }
 
-    public function comments()
+    public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'object_id', 'id');
     }
 
-    public function operations()
+    public function operations(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingOperation::class, 'object_id_to', 'object_id_from');
     }
 
-    public function material()
+    public function material(): BelongsTo
     {
         return $this->belongsTo(ManualMaterial::class, 'manual_material_id', 'id')
             ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
@@ -123,7 +126,7 @@ class MaterialAccountingBase extends Model
      *
      * to get same material (but different comment) bases use siblings accessor
      */
-    public function historyBases()
+    public function historyBases(): HasMany
     {
         return $this->hasMany(MaterialAccountingBase::class, 'ancestor_base_id', 'ancestor_base_id');
     }

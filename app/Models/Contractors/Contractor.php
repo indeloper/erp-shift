@@ -2,6 +2,9 @@
 
 namespace App\Models\Contractors;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Project;
 use App\Models\ProjectContractors;
 use App\Models\Task;
@@ -126,32 +129,32 @@ class Contractor extends Model
         return ContractorType::find($this->main_type)->name ?? 'Не указан';
     }
 
-    public function file()
+    public function file(): HasMany
     {
         return $this->hasMany(ContractorFile::class, 'contractor_id', 'id');
     }
 
-    public function phones()
+    public function phones(): HasMany
     {
         return $this->hasMany(ContractorPhone::class, 'contractor_id', 'id');
     }
 
-    public function contacts()
+    public function contacts(): HasMany
     {
         return $this->hasMany(ContractorContact::class, 'contractor_id', 'id');
     }
 
-    public function creator()
+    public function creator(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
-    public function projects()
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
     }
 
-    public function additions_projects()
+    public function additions_projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class, 'project_contractors')
             ->select('projects.*', 'contractors.short_name as contractor_name', 'contractors.inn as contractor_inn', 'contractors.id as contractor_id', 'users.last_name', 'users.first_name', 'users.patronymic', 'project_objects.name as project_name', 'project_objects.address as project_address', 'tasks.project_id', 'tasks.created_at as task_date')
@@ -164,7 +167,7 @@ class Contractor extends Model
             })->with('author');
     }
 
-    public function project_relations()
+    public function project_relations(): HasMany
     {
         return $this->hasMany(ProjectContractors::class, 'contractor_id', 'id');
     }
@@ -174,7 +177,7 @@ class Contractor extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function additional_types()
+    public function additional_types(): HasMany
     {
         return $this->hasMany(ContractorAdditionalTypes::class, 'contractor_id', 'id');
     }

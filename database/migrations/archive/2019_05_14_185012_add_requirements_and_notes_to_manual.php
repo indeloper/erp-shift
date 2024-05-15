@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('commercial_offer_manual_notes')->insert([
             ['id' => 1, 'name' => 'Коммерческое предложение является предварительным. После получения полного пакета рабочей документации со штампом «в производство работ», геологических изысканий, расчета шпунтового ограждения и системы крепления, осмотра строительной площадки может быть пересмотрено.', 'need_value' => 0],
@@ -60,7 +60,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('manual', function (Blueprint $table) {
             //

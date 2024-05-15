@@ -2,6 +2,7 @@
 
 namespace App\Models\WorkVolume;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Manual\ManualMaterialParameter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class WorkVolumeWorkMaterial extends Model
         return $name;
     }
 
-    public function work()
+    public function work(): BelongsTo
     {
         return $this->belongsTo(WorkVolumeWork::class, 'wv_work_id', 'id');
     }

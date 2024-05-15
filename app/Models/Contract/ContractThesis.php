@@ -2,6 +2,7 @@
 
 namespace App\Models\Contract;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class ContractThesis extends Model
@@ -12,19 +13,19 @@ class ContractThesis extends Model
         3 => 'Согласован',
     ];
 
-    public function get_verifiers()
+    public function get_verifiers(): HasMany
     {
         return $this->hasMany(ContractThesisVerifier::class, 'thesis_id', 'id');
     }
 
-    public function verifiers()
+    public function verifiers(): HasMany
     {
         return $this->hasMany(ContractThesisVerifier::class, 'thesis_id', 'id')
             ->leftJoin('users', 'users.id', 'contract_thesis_verifiers.user_id')
             ->select('contract_thesis_verifiers.*', 'users.last_name', 'users.first_name', 'users.patronymic');
     }
 
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(ContractThesisFile::class, 'thesis_id', 'id');
     }

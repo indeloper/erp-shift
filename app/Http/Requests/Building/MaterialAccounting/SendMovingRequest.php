@@ -11,12 +11,12 @@ class SendMovingRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'count_files.min' => 'Необходимо прикрепить к операции как минимум два изображения',
@@ -28,7 +28,7 @@ class SendMovingRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'count_files' => 'sometimes|numeric|min:2',

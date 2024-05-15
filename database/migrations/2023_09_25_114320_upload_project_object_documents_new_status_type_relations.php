@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $this->uploadData();
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::table('project_object_document_status_type_relations')
             ->where('document_status_id', ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id)

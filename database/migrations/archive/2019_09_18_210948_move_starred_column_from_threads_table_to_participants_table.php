@@ -12,7 +12,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (Schema::hasColumn(Models::table('threads'), 'starred')) {
             Schema::table(Models::table('threads'), function (Blueprint $table) {
@@ -33,7 +33,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (! Schema::hasColumn(Models::table('threads'), 'starred')) {
             Schema::table(Models::table('threads'), function (Blueprint $table) {

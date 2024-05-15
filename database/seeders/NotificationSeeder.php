@@ -12,7 +12,7 @@ class NotificationSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $notificationPath = app_path('Notifications');
         $files = File::files($notificationPath);

@@ -13,7 +13,7 @@ class TaskCompletionDeadlineApproachingNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о скором завершении времени на выполнение задачи';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

@@ -13,7 +13,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $old_splits = CommercialOfferMaterialSplit::get();
         foreach ($old_splits as $split) {
@@ -35,7 +35,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $old_splits = CommercialOfferMaterialSplit::get();
         foreach ($old_splits as $split) {

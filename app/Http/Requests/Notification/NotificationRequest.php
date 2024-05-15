@@ -12,7 +12,7 @@ class NotificationRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return auth()->check();
     }
@@ -22,7 +22,7 @@ class NotificationRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'sort_selector' => ['sometimes', 'in:'.implode(',', NotificationSortType::sorts())],

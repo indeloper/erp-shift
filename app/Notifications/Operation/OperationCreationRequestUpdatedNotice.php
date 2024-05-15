@@ -13,7 +13,7 @@ class OperationCreationRequestUpdatedNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об обновлении запроса на создание операции';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

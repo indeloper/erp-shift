@@ -38,7 +38,7 @@ class fixOperationOn23Jan extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $part_127 = MaterialAccountingOperationMaterials::create([
             'operation_id' => 238,

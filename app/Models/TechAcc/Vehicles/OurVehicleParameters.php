@@ -2,6 +2,7 @@
 
 namespace App\Models\TechAcc\Vehicles;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,7 +26,7 @@ class OurVehicleParameters extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function characteristic()
+    public function characteristic(): BelongsTo
     {
         return $this->belongsTo(VehicleCategoryCharacteristics::class, 'characteristic_id', 'id');
     }
@@ -35,7 +36,7 @@ class OurVehicleParameters extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function vehicle()
+    public function vehicle(): BelongsTo
     {
         return $this->belongsTo(OurVehicles::class, 'vehicle_id', 'id');
     }

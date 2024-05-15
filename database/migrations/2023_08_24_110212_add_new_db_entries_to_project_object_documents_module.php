@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('project_object_document_status_type_relations')->insert([
             'document_status_id' => 2,
@@ -29,7 +29,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::table('project_object_document_status_type_relations')->where([
             'document_status_id' => 2,

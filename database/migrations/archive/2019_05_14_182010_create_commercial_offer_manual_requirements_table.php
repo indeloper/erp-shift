@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('commercial_offer_manual_requirements', function (Blueprint $table) {
             $table->increments('id');
@@ -46,7 +46,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('commercial_offer_manual_requirements');
     }

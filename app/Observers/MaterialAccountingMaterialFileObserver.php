@@ -11,7 +11,7 @@ class MaterialAccountingMaterialFileObserver
      *
      * @return void
      */
-    public function created(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function created(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
@@ -40,7 +40,7 @@ class MaterialAccountingMaterialFileObserver
      *
      * @return void
      */
-    public function updated(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function updated(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
@@ -50,7 +50,7 @@ class MaterialAccountingMaterialFileObserver
      *
      * @return void
      */
-    public function deleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function deleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
@@ -60,7 +60,7 @@ class MaterialAccountingMaterialFileObserver
      *
      * @return void
      */
-    public function restored(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function restored(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
@@ -70,7 +70,7 @@ class MaterialAccountingMaterialFileObserver
      *
      * @return void
      */
-    public function forceDeleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function forceDeleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }

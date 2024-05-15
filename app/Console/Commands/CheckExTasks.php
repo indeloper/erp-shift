@@ -41,7 +41,7 @@ class CheckExTasks extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $tasks = Task::whereNotIn('status', [40, 41])->where('is_solved', 0)->with('project.object')->get();
 

@@ -2,11 +2,12 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Models\FileEntry;
 
 trait Documentable
 {
-    public function documents()
+    public function documents(): MorphMany
     {
         return $this->morphMany(FileEntry::class, 'documentable');
     }

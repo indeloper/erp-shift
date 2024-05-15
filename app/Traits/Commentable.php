@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Models\Comment;
 
 trait Commentable
@@ -13,7 +14,7 @@ trait Commentable
         ], $this->appends);
     }
 
-    public function comments()
+    public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable')->latest();
     }

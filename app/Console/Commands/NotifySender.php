@@ -53,7 +53,7 @@ class NotifySender extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $places = self::PLACES;
         $user_types = self::USERS;

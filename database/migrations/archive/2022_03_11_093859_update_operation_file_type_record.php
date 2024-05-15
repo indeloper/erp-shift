@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $operationFileType = q3wOperationFileType::where('string_identifier', 'like', 'consignment-note-photo')->first();
         $operationFileType->name = 'Фото ТТН/ТН';
@@ -22,7 +22,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $operationFileType = q3wOperationFileType::where('string_identifier', 'like', 'consignment-note-photo')->first();
         $operationFileType->name = 'ТТН';

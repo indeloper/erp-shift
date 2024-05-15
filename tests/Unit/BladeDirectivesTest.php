@@ -10,7 +10,7 @@ use Tests\TestCase;
 class BladeDirectivesTest extends TestCase
 {
     /** @test */
-    public function user_directive_returns_hyperlink()
+    public function user_directive_returns_hyperlink(): void
     {
         // Given user
         $user = User::factory()->create();
@@ -26,7 +26,7 @@ class BladeDirectivesTest extends TestCase
     }
 
     /** @test */
-    public function user_directive_returns_404_if_receive_nonexistent_user()
+    public function user_directive_returns_404_if_receive_nonexistent_user(): void
     {
         // Then exception should be thrown
         $this->expectException(ModelNotFoundException::class);

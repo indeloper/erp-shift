@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('material_accounting_operations', function (Blueprint $table) {
             $table->unsignedInteger('responsible_RP')->nullable()->after('supplier_id');
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('material_accounting_operations', function (Blueprint $table) {
             $table->dropColumn('responsible_RP');

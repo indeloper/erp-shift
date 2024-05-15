@@ -2,6 +2,9 @@
 
 namespace App\Models\WorkVolume;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,32 +52,32 @@ class WorkVolume extends Model
         return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
     }
 
-    public function tasks()
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'target_id', 'id')->whereIn('status', Task::WV_STATUS);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function made_task()
+    public function made_task(): HasOne
     {
         return $this->hasOne(Task::class, 'target_id', 'id')->whereIn('status', [3, 4]);
     }
 
-    public function requests()
+    public function requests(): HasMany
     {
         return $this->hasMany(WorkVolumeRequest::class, 'work_volume_id', 'id');
     }
 
-    public function raw_works()
+    public function raw_works(): HasMany
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id');
     }
 
-    public function works()
+    public function works(): HasMany
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id')
             ->leftJoin('manual_works', 'manual_works.id', '=', 'work_volume_works.manual_work_id')
@@ -82,12 +85,12 @@ class WorkVolume extends Model
             ->orderBy('order');
     }
 
-    public function worksWithoutManualInfo()
+    public function worksWithoutManualInfo(): HasMany
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id');
     }
 
-    public function works_offer()
+    public function works_offer(): HasMany
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id')
 //            ->where('work_volume_works.is_tongue', $this->type ? 0 : 1)
@@ -98,7 +101,7 @@ class WorkVolume extends Model
             ->orderBy('order');
     }
 
-    public function works_offer_double()
+    public function works_offer_double(): HasMany
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id')
             //->where('work_volume_works.is_tongue', $this->type ? 0 : 1)
@@ -109,24 +112,24 @@ class WorkVolume extends Model
             ->orderBy('order');
     }
 
-    public function works_tongue()
+    public function works_tongue(): HasMany
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id')->where('is_tongue', 1)
             ->orderBy('order');
     }
 
-    public function works_pile()
+    public function works_pile(): HasMany
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id')->where('is_tongue', 0)
             ->orderBy('order');
     }
 
-    public function get_requests()
+    public function get_requests(): HasMany
     {
         return $this->hasMany(WorkVolumeRequest::class, 'work_volume_id', 'id');
     }
 
-    public function materials()
+    public function materials(): HasMany
     {
         return $this->hasMany(WorkVolumeMaterial::class, 'work_volume_id', 'id');
     }

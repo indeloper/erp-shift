@@ -11,7 +11,7 @@ class VehicleCategoryCharacteristicObserver
      *
      * @return void
      */
-    public function updated(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics)
+    public function updated(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics): void
     {
         $vehicleCategoryCharacteristics->parameters()->update(['value' => '']);
     }
@@ -33,7 +33,7 @@ class VehicleCategoryCharacteristicObserver
      *
      * @return void
      */
-    public function restored(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics)
+    public function restored(VehicleCategoryCharacteristics $vehicleCategoryCharacteristics): void
     {
         //
     }

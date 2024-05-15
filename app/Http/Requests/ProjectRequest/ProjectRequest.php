@@ -11,7 +11,7 @@ class ProjectRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -23,7 +23,7 @@ class ProjectRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'contractor_ids.*.exist' => 'Контрагент не найден',
@@ -39,7 +39,7 @@ class ProjectRequest extends FormRequest
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'contractor_ids.*' => stristr(request()->pathInfo, 'update') ? 'nullable' : 'exists:contractors,id',

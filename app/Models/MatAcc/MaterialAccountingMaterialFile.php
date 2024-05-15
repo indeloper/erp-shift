@@ -2,6 +2,7 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,7 +40,7 @@ class MaterialAccountingMaterialFile extends Model
         return $this->file_name;
     }
 
-    public function operationMaterial()
+    public function operationMaterial(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingOperationMaterials::class, 'operation_material_id', 'id');
     }

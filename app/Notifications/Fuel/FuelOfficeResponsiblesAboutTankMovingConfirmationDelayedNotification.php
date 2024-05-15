@@ -13,7 +13,7 @@ class FuelOfficeResponsiblesAboutTankMovingConfirmationDelayedNotification exten
 
     const DESCRIPTION = 'Уведомление для ответственных в офисе о задержке подтверждения перемещения топливного бака';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

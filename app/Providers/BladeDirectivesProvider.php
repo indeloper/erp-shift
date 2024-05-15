@@ -13,7 +13,7 @@ class BladeDirectivesProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }
@@ -23,7 +23,7 @@ class BladeDirectivesProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Blade::directive('user', function ($userId) {
             $user = User::findOrFail($userId);

@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $child_contracts = Contract::where('type', 7)->get();
         foreach ($child_contracts as $child) {
@@ -24,7 +24,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         //nothing to do here, what's done is done
     }

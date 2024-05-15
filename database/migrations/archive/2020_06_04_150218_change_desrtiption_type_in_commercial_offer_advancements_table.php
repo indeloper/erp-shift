@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('commercial_offer_advancements', function (Blueprint $table) {
             $table->text('description')->change();
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('commercial_offer_advancements', function (Blueprint $table) {
             $table->string('description')->change();

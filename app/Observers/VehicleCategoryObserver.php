@@ -24,7 +24,7 @@ class VehicleCategoryObserver
      *
      * @return void
      */
-    public function restored(VehicleCategories $vehicleCategories)
+    public function restored(VehicleCategories $vehicleCategories): void
     {
         //
     }

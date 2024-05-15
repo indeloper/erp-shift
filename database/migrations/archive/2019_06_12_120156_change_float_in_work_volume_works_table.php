@@ -9,7 +9,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::statement('ALTER TABLE work_volume_works CHANGE COLUMN count count DOUBLE(10, 3) NULL DEFAULT NULL ;');
     }
@@ -19,7 +19,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::statement('ALTER TABLE work_volume_works CHANGE COLUMN count count DOUBLE(10, 2) NULL DEFAULT NULL ;');
     }

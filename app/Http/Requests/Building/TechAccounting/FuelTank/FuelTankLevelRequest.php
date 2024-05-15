@@ -11,7 +11,7 @@ class FuelTankLevelRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -21,7 +21,7 @@ class FuelTankLevelRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'fuel_level' => 'required|numeric|min:0|max:10000000000',

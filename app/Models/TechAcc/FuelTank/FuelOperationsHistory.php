@@ -2,6 +2,7 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
@@ -76,7 +77,7 @@ class FuelOperationsHistory extends Model
         return $casted_data;
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

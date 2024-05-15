@@ -2,6 +2,9 @@
 
 namespace App\Models\TechAcc;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\User;
@@ -94,12 +97,12 @@ class OurTechnic extends Model
     //     return trim($this->brand . ' ' . $this->model);
     // }
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(TechnicCategory::class, 'technic_category_id', 'id');
     }
 
-    public function category_characteristics()
+    public function category_characteristics(): BelongsToMany
     {
         return $this->belongsToMany(CategoryCharacteristic::class, 'category_characteristic_technic', 'technic_id')
             ->withPivot('value')
@@ -113,12 +116,12 @@ class OurTechnic extends Model
     //     }
     // }
 
-    public function start_location()
+    public function start_location(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'start_location_id', 'id');
     }
 
-    public function tickets()
+    public function tickets(): HasMany
     {
         return $this->hasMany(OurTechnicTicket::class);
     }

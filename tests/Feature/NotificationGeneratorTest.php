@@ -55,7 +55,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_create_notification_test()
+    public function defect_create_notification_test(): void
     {
         // Given defect
         $defect = $this->DEFECT;
@@ -83,7 +83,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_create_notification_second_test()
+    public function defect_create_notification_second_test(): void
     {
         // Given defect without tickets
         $defect = $this->DEFECT;
@@ -112,7 +112,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_assignment_notification_test()
+    public function defect_responsible_user_assignment_notification_test(): void
     {
         // Given defect
         $defect = $this->DEFECT;
@@ -134,7 +134,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_decline_notification_test_without_resp_user()
+    public function defect_decline_notification_test_without_resp_user(): void
     {
         // Given defect
         $defect = $this->DEFECT->refresh();
@@ -162,7 +162,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_decline_notification_second_test_without_resp_user()
+    public function defect_decline_notification_second_test_without_resp_user(): void
     {
         // Given defect without tickets
         $defect = $this->DEFECT;
@@ -191,7 +191,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_decline_notification_test_with_resp_user()
+    public function defect_decline_notification_test_with_resp_user(): void
     {
         // Given responsible user
         $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
@@ -222,7 +222,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_accept_notification_test()
+    public function defect_accept_notification_test(): void
     {
         // Given defect with responsible user
         $this->DEFECT->update([
@@ -257,7 +257,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_accept_notification_second_test()
+    public function defect_accept_notification_second_test(): void
     {
         // Given defect with responsible user, but without tickets
         $this->deleteOurTechnicsTickets();
@@ -293,7 +293,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_no_principle_mechanic_notification_second_test()
+    public function defect_no_principle_mechanic_notification_second_test(): void
     {
         // When we call generateDefectAcceptNotification() method
         $this->trait_instance->generateNoPrincipleMechanicNotification();
@@ -309,7 +309,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_store_notification_test()
+    public function defect_responsible_user_store_notification_test(): void
     {
         // Given responsible user
         $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
@@ -340,7 +340,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_store_notification_second_test()
+    public function defect_responsible_user_store_notification_second_test(): void
     {
         // Given responsible user
         $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
@@ -372,7 +372,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_control_task_notification()
+    public function defect_control_task_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
@@ -404,7 +404,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_repair_dates_update_notification()
+    public function defect_repair_dates_update_notification(): void
     {
         // Given user
         $responsible_user = $this->PRINCIPAL_MECHANIC;
@@ -442,7 +442,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_repair_dates_update_notification_second()
+    public function defect_repair_dates_update_notification_second(): void
     {
         // Given user
         $responsible_user = $this->PRINCIPAL_MECHANIC;
@@ -482,7 +482,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_expire_notification_second()
+    public function defect_expire_notification_second(): void
     {
         // Given user
         $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
@@ -515,7 +515,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function repair_control_task_notification()
+    public function repair_control_task_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
@@ -542,7 +542,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_repair_end_notification()
+    public function defect_repair_end_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
@@ -584,7 +584,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_destroy_notification()
+    public function defect_destroy_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
@@ -616,7 +616,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function our_technic_ticket_close_notification()
+    public function our_technic_ticket_close_notification(): void
     {
         // Given technic ticket
         $ticket = OurTechnicTicket::factory()->create();
@@ -640,7 +640,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function our_technic_ticket_use_extension_notifications()
+    public function our_technic_ticket_use_extension_notifications(): void
     {
         // Given ticket
         $ourTechnicTicket = OurTechnicTicket::factory()->create();
@@ -663,7 +663,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_today_notification()
+    public function generate_birthday_today_notification(): void
     {
         Notification::query()->delete();
         User::query()->delete();
@@ -688,7 +688,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_today_notification_do_nothing_if_no_users_passed()
+    public function generate_birthday_today_notification_do_nothing_if_no_users_passed(): void
     {
         Notification::query()->delete();
         User::query()->delete();
@@ -706,7 +706,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_next_week_notification()
+    public function generate_birthday_next_week_notification(): void
     {
         Notification::query()->delete();
         User::query()->delete();
@@ -732,7 +732,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_next_week_notification_do_nothing_if_no_users_passed()
+    public function generate_birthday_next_week_notification_do_nothing_if_no_users_passed(): void
     {
         Notification::query()->delete();
         User::query()->delete();

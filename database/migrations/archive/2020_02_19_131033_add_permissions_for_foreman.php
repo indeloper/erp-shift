@@ -11,7 +11,7 @@ return new class extends Migration
         'tech_acc_defects_see',
     ];
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -40,7 +40,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
         $permissionTwo = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[1])->first()->id;

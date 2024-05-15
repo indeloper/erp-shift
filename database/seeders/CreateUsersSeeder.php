@@ -12,7 +12,7 @@ class CreateUsersSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         User::factory()->create(['department_id' => '1', 'group_id' => '3']);
         User::factory()->create(['department_id' => '10', 'group_id' => '5']);

@@ -40,7 +40,7 @@ class MakeUser extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $request = [
             'email' => $this->ask('What is email?'),

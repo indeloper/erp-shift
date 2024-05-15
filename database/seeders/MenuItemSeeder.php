@@ -12,7 +12,7 @@ class MenuItemSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $tasks = MenuItem::factory()->create([
             'title' => 'Задачи',

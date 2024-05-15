@@ -15,7 +15,7 @@ class DefectObserver
      *
      * @return void
      */
-    public function created(Defects $defect)
+    public function created(Defects $defect): void
     {
         if (! $principal_mechanic = Group::find(47)->getUsers()->first()) {
             $this->generateNoPrincipleMechanicNotification();
@@ -70,7 +70,7 @@ class DefectObserver
      *
      * @return void
      */
-    public function updated(Defects $defect)
+    public function updated(Defects $defect): void
     {
         //
     }
@@ -80,7 +80,7 @@ class DefectObserver
      *
      * @return void
      */
-    public function deleted(Defects $defect)
+    public function deleted(Defects $defect): void
     {
         //
     }
@@ -90,7 +90,7 @@ class DefectObserver
      *
      * @return void
      */
-    public function restored(Defects $defect)
+    public function restored(Defects $defect): void
     {
         //
     }

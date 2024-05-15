@@ -41,7 +41,7 @@ class SetProjectResponsibleUser extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
 
         $role_id = $this->argument('role_id');

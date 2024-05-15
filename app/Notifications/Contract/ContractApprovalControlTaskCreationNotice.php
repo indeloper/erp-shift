@@ -13,7 +13,7 @@ class ContractApprovalControlTaskCreationNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о создании задачи Контроль согласования договора';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

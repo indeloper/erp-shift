@@ -13,7 +13,7 @@ class TechnicExtentionApprovedNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об одобрении продления использования техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

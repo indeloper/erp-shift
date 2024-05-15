@@ -13,7 +13,7 @@ class ContractorChangesVerificationTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о создании задачи на проверку изменений в контрагентах';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

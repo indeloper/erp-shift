@@ -44,7 +44,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_relates_to_a_category()
+    public function it_relates_to_a_category(): void
     {
         $technic_category = TechnicCategory::factory()->create();
 
@@ -54,7 +54,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_can_have_a_characteristic()
+    public function it_can_have_a_characteristic(): void
     {
         $category = TechnicCategory::factory()->create();
         $category_characteristics = CategoryCharacteristic::factory()->count(2)->create();
@@ -75,7 +75,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_can_have_multiple_characteristics()
+    public function it_can_have_multiple_characteristics(): void
     {
         $category = TechnicCategory::factory()->create();
         $category_characteristics = CategoryCharacteristic::factory()->count(2)->create();
@@ -101,7 +101,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_start_location_object()
+    public function it_can_get_start_location_object(): void
     {
         $object = ProjectObject::factory()->create();
         $technic = OurTechnic::factory()->create(['start_location_id' => $object->id]);
@@ -110,7 +110,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_can_have_documents()
+    public function it_can_have_documents(): void
     {
         $technic = OurTechnic::factory()->create();
 
@@ -128,7 +128,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_can_have_defects()
+    public function it_can_have_defects(): void
     {
         // Given technic
         $technic = OurTechnic::factory()->create();
@@ -143,7 +143,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_has_tickets()
+    public function it_has_tickets(): void
     {
         $technic = OurTechnic::factory()->create();
         OurTechnicTicket::factory()->create(['our_technic_id' => $technic]);
@@ -152,7 +152,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_is_vacated_when_it_has_tickets()
+    public function it_is_vacated_when_it_has_tickets(): void
     {
         $technic = OurTechnic::factory()->create();
         OurTechnicTicket::factory()->create(['our_technic_id' => $technic]);
@@ -168,7 +168,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_can_return_only_free_technic()
+    public function it_can_return_only_free_technic(): void
     {
         // Get rid out of other technics
         OurTechnic::query()->delete();
@@ -183,7 +183,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function it_shows_date_of_release()
+    public function it_shows_date_of_release(): void
     {
         $tech_in_use = OurTechnic::factory()->create();
         $ticket = OurTechnicTicket::factory()->create(['our_technic_id' => $tech_in_use]);
@@ -199,7 +199,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function if_tech_have_defect_date_more_that_ticket_usage_date_then_release_date_attr_shows_date_of_defect_release_not_usage()
+    public function if_tech_have_defect_date_more_that_ticket_usage_date_then_release_date_attr_shows_date_of_defect_release_not_usage(): void
     {
         // Given technic
         $tech = OurTechnic::factory()->create();
@@ -217,7 +217,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function if_tech_have_defect_date_less_that_ticket_usage_date_then_release_date_attr_shows_date_of_usage_release_not_defect()
+    public function if_tech_have_defect_date_less_that_ticket_usage_date_then_release_date_attr_shows_date_of_usage_release_not_defect(): void
     {
         // Given technic
         $tech = OurTechnic::factory()->create();
@@ -235,7 +235,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function if_tech_dont_have_defect_date_but_have_usage_then_release_date_attr_shows_date_of_usage_release()
+    public function if_tech_dont_have_defect_date_but_have_usage_then_release_date_attr_shows_date_of_usage_release(): void
     {
         // Given technic
         $tech = OurTechnic::factory()->create();
@@ -250,7 +250,7 @@ class OurTechnicTest extends TestCase
     }
 
     /** @test */
-    public function if_tech_dont_have_usage_date_but_have_defect_then_release_date_attr_shows_date_of_defect_release()
+    public function if_tech_dont_have_usage_date_but_have_defect_then_release_date_attr_shows_date_of_defect_release(): void
     {
         // Given technic
         $tech = OurTechnic::factory()->create();

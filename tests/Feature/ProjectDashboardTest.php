@@ -13,7 +13,7 @@ class ProjectDashboardTest extends TestCase
      *
      * @return void
      */
-    public function testSeeDashboardStats()
+    public function testSeeDashboardStats(): void
     {
         $project = Project::find(291);
 

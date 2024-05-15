@@ -8,7 +8,7 @@ use Tests\TestCase;
 class MatAccGlobalSearchTest extends TestCase
 {
     /** @test */
-    public function it_can_return_complex_data_for_request()
+    public function it_can_return_complex_data_for_request(): void
     {
         $this->actingAs(User::first());
         $payload = [

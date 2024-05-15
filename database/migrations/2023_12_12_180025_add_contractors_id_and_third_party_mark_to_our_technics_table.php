@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('our_technics', function (Blueprint $table) {
             $table->boolean('third_party_mark')->default(false)->after('company_id')->comment('Техника стороннего контрагента');
@@ -26,7 +26,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('our_technics', function (Blueprint $table) {
             $table->dropColumn('third_party_mark');

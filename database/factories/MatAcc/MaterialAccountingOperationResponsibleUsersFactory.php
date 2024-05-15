@@ -13,7 +13,7 @@ class MaterialAccountingOperationResponsibleUsersFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $passedAttributes = func_get_arg(1);
 

@@ -13,7 +13,7 @@ class RequestProcessedByLogisticianNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об обработке логистом заявки';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

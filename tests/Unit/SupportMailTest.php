@@ -10,7 +10,7 @@ use Tests\TestCase;
 class SupportMailTest extends TestCase
 {
     /** @test */
-    public function main_scope_order_support_mails_in_right_way()
+    public function main_scope_order_support_mails_in_right_way(): void
     {
         // Given user
         $user = User::factory()->create();
@@ -32,7 +32,7 @@ class SupportMailTest extends TestCase
     }
 
     /** @test */
-    public function main_scope_work_with_request()
+    public function main_scope_work_with_request(): void
     {
         // Given user
         $user = User::factory()->create();

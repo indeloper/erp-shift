@@ -13,7 +13,7 @@ class UserOverdueTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о просроченной задаче пользователя';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

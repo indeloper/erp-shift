@@ -14,7 +14,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('q3w_material_supply_planning', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
@@ -82,7 +82,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('q3w_material_supply_materials');
         Schema::dropIfExists('q3w_material_supply_expected_deliveries');

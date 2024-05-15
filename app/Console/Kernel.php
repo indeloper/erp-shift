@@ -66,7 +66,7 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $schedule): void
     {
 
         //        $schedule->command('check:ex-task')->everyTenMinutes();
@@ -99,7 +99,7 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function commands()
+    protected function commands(): void
     {
         // $this->load(__DIR__.'/Commands');
         // require base_path('routes/console.php');

@@ -2,6 +2,8 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Comment;
 use App\Models\Contractors\Contractor;
 use App\Models\FileEntry;
@@ -19,22 +21,22 @@ class FuelTankFlow extends Model
 
     protected $guarded = ['id'];
 
-    public function comments()
+    public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function attachments()
+    public function attachments(): MorphMany
     {
         return $this->morphMany(FileEntry::class, 'documentable');
     }
 
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class);
     }
 
-    public function ourTechnic()
+    public function ourTechnic(): BelongsTo
     {
         return $this->belongsTo(OurTechnic::class);
     }

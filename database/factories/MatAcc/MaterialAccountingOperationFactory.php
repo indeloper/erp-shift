@@ -14,7 +14,7 @@ class MaterialAccountingOperationFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $rps = Group::with('users')->find([27, 13, 19])->pluck('users')->flatten();
         $responsible_user = $rps->random();

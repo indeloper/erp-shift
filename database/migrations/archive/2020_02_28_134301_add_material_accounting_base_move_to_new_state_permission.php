@@ -9,7 +9,7 @@ return new class extends Migration
 
     const PERMISSION_NAME = 'Перевод материала с базы в состояние нового';
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -52,7 +52,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionId = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 

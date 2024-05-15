@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('material_accounting_operation_materials', function (Blueprint $table) {
             $table->timestamp('fact_date')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('material_accounting_operation_materials', function (Blueprint $table) {
             $table->dropColumn('fact_date');

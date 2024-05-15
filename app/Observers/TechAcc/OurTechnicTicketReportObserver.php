@@ -13,7 +13,7 @@ class OurTechnicTicketReportObserver
      *
      * @return void
      */
-    public function created(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function created(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $ourTechnicTicketReport->ticket->comments()->create([
             'comment' => 'Добавлен отчет об использовании на '.$ourTechnicTicketReport->date_carbon.
@@ -54,7 +54,7 @@ class OurTechnicTicketReportObserver
      *
      * @return void
      */
-    public function deleted(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function deleted(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $ourTechnicTicketReport->ticket->comments()->create([
             'comment' => 'Удален отчет об использовании на '.Carbon::parse($ourTechnicTicketReport->date)->format('d.m.Y'),

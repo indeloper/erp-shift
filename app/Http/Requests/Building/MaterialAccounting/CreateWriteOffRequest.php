@@ -12,12 +12,12 @@ class CreateWriteOffRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'count_files.min' => 'Необходимо прикрепить к операции как минимум один документ',
@@ -29,7 +29,7 @@ class CreateWriteOffRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $userCanCreateOnlyDrafts = boolval(! auth()->user()->hasPermission('mat_acc_write_off_create') and auth()->user()->hasPermission('mat_acc_write_off_draft_create') and $this->responsible_RP != 'old_operation');
 

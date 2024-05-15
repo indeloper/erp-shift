@@ -39,7 +39,7 @@ class AutoConfirmTicket implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         if ($this->ticket->status == 1) {
             $request = [

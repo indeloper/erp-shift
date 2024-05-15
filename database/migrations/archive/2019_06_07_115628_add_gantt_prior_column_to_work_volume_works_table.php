@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('work_volume_works', function (Blueprint $table) {
             $table->unsignedInteger('gantt_prior')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('work_volume_works', function (Blueprint $table) {
             $table->dropColumn('gantt_prior');

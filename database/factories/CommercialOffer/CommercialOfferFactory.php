@@ -13,7 +13,7 @@ class CommercialOfferFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'project_id' => Project::inRandomOrder()->first()->id ?? Project::factory()->create()->id,

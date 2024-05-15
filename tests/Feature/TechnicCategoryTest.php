@@ -26,7 +26,7 @@ class TechnicCategoryTest extends TestCase
     }
 
     /** @test */
-    public function it_can_add_category_characteristic()
+    public function it_can_add_category_characteristic(): void
     {
         $characteristic = CategoryCharacteristic::factory()->create();
 
@@ -36,7 +36,7 @@ class TechnicCategoryTest extends TestCase
     }
 
     /** @test */
-    public function it_can_add_multiple_category_characteristics()
+    public function it_can_add_multiple_category_characteristics(): void
     {
         $characteristics = CategoryCharacteristic::factory()->count(2)->create();
 
@@ -46,7 +46,7 @@ class TechnicCategoryTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_only_its_technics()
+    public function it_returns_only_its_technics(): void
     {
         $technics = OurTechnic::factory()->count(4)->create(['technic_category_id' => $this->technic->id]);
 

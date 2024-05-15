@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('manual_material_category_attributes', function (Blueprint $table) {
             $table->boolean('is_display')->default(1);
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('manual_material_category_attributes', function (Blueprint $table) {
             $table->dropColumn('is_display');

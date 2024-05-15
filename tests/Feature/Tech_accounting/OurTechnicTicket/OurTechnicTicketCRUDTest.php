@@ -30,7 +30,7 @@ class OurTechnicTicketCRUDTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_gives_type_one_if_no_transfer_dates_was_provided()
+    public function it_gives_type_one_if_no_transfer_dates_was_provided(): void
     {
         $request = $this->validFields([
             'sending_from_date' => '',

@@ -12,7 +12,7 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Blueprint::macro('authorAndEditor', function () {
             $this->unsignedInteger('author_id')->comment('Идентификатор пользователя-автора записи');

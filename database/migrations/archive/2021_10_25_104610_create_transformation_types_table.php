@@ -12,7 +12,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('q3w_material_transformation_types', function (Blueprint $table) {
             $table->increments('id')->comment('Уникальный идентификатор');
@@ -42,7 +42,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('q3w_material_operations', function (Blueprint $table) {
             $table->dropForeign(['transformation_type_id']);

@@ -19,7 +19,7 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_exist()
+    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_exist(): void
     {
         // Given no contracts
         Contract::query()->delete();
@@ -32,7 +32,7 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_KC_date_exist()
+    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_KC_date_exist(): void
     {
         // Given contracts without date of KC
         $contracts = Contract::factory()->count(3)->create();
@@ -45,7 +45,7 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_proper_KC_date_exist()
+    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_proper_KC_date_exist(): void
     {
         // Set test date
         $newNow = now()->day(15);
@@ -61,7 +61,7 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_contracts_with_proper_KC_date()
+    public function scope_ten_days_before_date_of_KC_can_return_contracts_with_proper_KC_date(): void
     {
         // Set test date
         $newNow = now()->day(15);
@@ -78,7 +78,7 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function contract_can_have_operations_relation()
+    public function contract_can_have_operations_relation(): void
     {
         // Given some project
         $project = ProjectObject::factory()->create();

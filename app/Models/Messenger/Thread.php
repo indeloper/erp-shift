@@ -2,6 +2,8 @@
 
 namespace App\Models\Messenger;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
@@ -52,7 +54,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function messages()
+    public function messages(): HasMany
     {
         return $this->hasMany(Models::classname(Message::class), 'thread_id', 'id');
     }
@@ -74,7 +76,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function participants()
+    public function participants(): HasMany
     {
         return $this->hasMany(Models::classname(Participant::class), 'thread_id', 'id');
     }
@@ -86,7 +88,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function participantsWithTrashed()
+    public function participantsWithTrashed(): HasMany
     {
         return $this->hasMany(Participant::class, 'thread_id', 'id')
             ->withTrashed();
@@ -99,7 +101,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, Models::table('participants'), 'thread_id', 'user_id')
             ->where('deleted_at', null);
@@ -112,7 +114,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function usersWithThrashed()
+    public function usersWithThrashed(): BelongsToMany
     {
         return $this->belongsToMany(User::class, Models::table('participants'), 'thread_id', 'user_id');
     }

@@ -12,7 +12,7 @@ class WorkVolumeReqRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -36,7 +36,7 @@ class WorkVolumeReqRequest extends FormRequest
         $this->merge(['duplicate_pile' => $duplicate_pile, 'duplicate_tongue' => $duplicate_tongue]);
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'duplicate_tongue.not_in' => 'Шпунтовой объем работ с таким наименованием уже существует.',
@@ -49,7 +49,7 @@ class WorkVolumeReqRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'tongue_description' => ['required_with:add_tongue', 'required_without:pile_description', 'max:65530'],

@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('favorite_menu_item_user', function (Blueprint $table) {
             $table->unsignedBigInteger(
@@ -41,7 +41,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('favorite_menu_item_user');
     }

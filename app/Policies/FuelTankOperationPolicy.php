@@ -16,7 +16,7 @@ class FuelTankOperationPolicy
      *
      * @return mixed
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }
@@ -26,7 +26,7 @@ class FuelTankOperationPolicy
      *
      * @return mixed
      */
-    public function view(User $user, FuelTankOperation $fuelTankOperation)
+    public function view(User $user, FuelTankOperation $fuelTankOperation): bool
     {
         return true;
     }
@@ -36,7 +36,7 @@ class FuelTankOperationPolicy
      *
      * @return mixed
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         $user_groups = array_merge(Group::FOREMEN, Group::PROJECT_MANAGERS, [47]);
 
@@ -48,7 +48,7 @@ class FuelTankOperationPolicy
      *
      * @return mixed
      */
-    public function update(User $user, FuelTankOperation $fuelTankOperation)
+    public function update(User $user, FuelTankOperation $fuelTankOperation): bool
     {
         $user_groups = array_merge(Group::FOREMEN, Group::PROJECT_MANAGERS, [47]);
 
@@ -60,7 +60,7 @@ class FuelTankOperationPolicy
      *
      * @return mixed
      */
-    public function delete(User $user, FuelTankOperation $fuelTankOperation)
+    public function delete(User $user, FuelTankOperation $fuelTankOperation): bool
     {
         $user_groups = array_merge(Group::PROJECT_MANAGERS, [47]);
 
@@ -72,7 +72,7 @@ class FuelTankOperationPolicy
      *
      * @return mixed
      */
-    public function restore(User $user, FuelTankOperation $fuelTankOperation)
+    public function restore(User $user, FuelTankOperation $fuelTankOperation): bool
     {
         //
     }
@@ -82,7 +82,7 @@ class FuelTankOperationPolicy
      *
      * @return mixed
      */
-    public function forceDelete(User $user, FuelTankOperation $fuelTankOperation)
+    public function forceDelete(User $user, FuelTankOperation $fuelTankOperation): bool
     {
         //
     }

@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_flows', function (Blueprint $table) {
             $table->string('document')->nullable()->after('volume')->comment('Реквизиты документа');
@@ -28,7 +28,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_flows', function (Blueprint $table) {
             $table->dropColumn('document');

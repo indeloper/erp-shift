@@ -4,6 +4,7 @@
 
 namespace App\Models\q3wMaterial;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ class q3wMaterialType extends Model
 
     protected $guarded = ['id'];
 
-    public function measureUnits()
+    public function measureUnits(): BelongsTo
     {
         return $this->belongsTo(q3wMeasureUnit::class, 'measure_unit', 'id');
     }

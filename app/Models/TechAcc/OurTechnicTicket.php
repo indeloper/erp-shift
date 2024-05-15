@@ -2,6 +2,9 @@
 
 namespace App\Models\TechAcc;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Vehicles\OurVehicles;
 use App\Models\User;
@@ -109,7 +112,7 @@ class OurTechnicTicket extends Model
         });
     }
 
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'our_technic_ticket_user', 'tic_id')
             ->withPivot(['type', 'deactivated_at'])
@@ -127,27 +130,27 @@ class OurTechnicTicket extends Model
         return $this->users()->ofType($human_type)->first() ?? new User();
     }
 
-    public function reports()
+    public function reports(): HasMany
     {
         return $this->hasMany(OurTechnicTicketReport::class)->orderByRaw("STR_TO_DATE(date,'%d.%m.%Y') desc");
     }
 
-    public function our_technic()
+    public function our_technic(): BelongsTo
     {
         return $this->belongsTo(OurTechnic::class);
     }
 
-    public function getting_object()
+    public function getting_object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'getting_object_id');
     }
 
-    public function sending_object()
+    public function sending_object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'sending_object_id');
     }
 
-    public function vehicles()
+    public function vehicles(): BelongsToMany
     {
         return $this->belongsToMany(OurVehicles::class, 'our_technic_ticket_our_vehicle', 'our_technic_ticket_id', 'our_vehicle_id');
     }

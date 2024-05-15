@@ -11,7 +11,7 @@ class MaterialsRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -23,7 +23,7 @@ class MaterialsRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'id' => 'sometimes|required|numeric|'.(($this->className == 'ManualReference') ? 'exists:manual_references,id' : 'exists:manual_materials,id'),

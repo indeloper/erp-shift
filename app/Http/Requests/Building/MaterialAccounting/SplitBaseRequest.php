@@ -21,7 +21,7 @@ class SplitBaseRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -42,7 +42,7 @@ class SplitBaseRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'comment_id' => 'required|exists:material_accounting_bases,id',

@@ -2,11 +2,12 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Models\Review;
 
 trait Reviewable
 {
-    public function reviews()
+    public function reviews(): MorphMany
     {
         return $this->morphMany(Review::class, 'reviewable');
     }

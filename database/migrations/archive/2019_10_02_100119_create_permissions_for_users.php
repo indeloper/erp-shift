@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('permissions', function (Blueprint $table) {
             $table->unsignedInteger('category');
@@ -242,7 +242,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::table('permissions')->where('codename', 'dashbord')->delete();
         DB::table('permissions')->where('codename', 'tasks')->delete();

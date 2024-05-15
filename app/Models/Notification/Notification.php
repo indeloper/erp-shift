@@ -2,6 +2,7 @@
 
 namespace App\Models\Notification;
 
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use App\Models\CommercialOffer\CommercialOfferRequest;
 use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
@@ -55,7 +56,7 @@ class Notification extends Model
         '9' => 'Ссылка на список задач пользователя',
     ];
 
-    public function task()
+    public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
     }
@@ -70,12 +71,12 @@ class Notification extends Model
         return $this->belongsTo(Contractor::class, 'contractor_id', 'id');
     }
 
-    public function wv_request()
+    public function wv_request(): BelongsTo
     {
         return $this->belongsTo(WorkVolumeRequest::class, 'target_id', 'id');
     }
 
-    public function co_request()
+    public function co_request(): BelongsTo
     {
         return $this->belongsTo(CommercialOfferRequest::class, 'target_id', 'id');
     }
@@ -90,12 +91,12 @@ class Notification extends Model
         return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function notificationable()
+    public function notificationable(): MorphTo
     {
         return $this->morphTo();
     }

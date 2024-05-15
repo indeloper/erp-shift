@@ -11,7 +11,7 @@ class VehicleCategoryUpdateRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return boolval(auth()->user()->hasPermission('tech_acc_vehicle_category_edit'));
     }
@@ -28,7 +28,7 @@ class VehicleCategoryUpdateRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'user_id' => ['required', 'exists:users,id'],

@@ -2,6 +2,7 @@
 
 namespace App\Models\Contractors;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\ProjectContact;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,14 +15,14 @@ class ContractorContact extends Model
         'first_name', 'last_name', 'patronymic', 'position', 'email', 'phone_number', 'note', 'contractor_id',
     ];
 
-    public function projects()
+    public function projects(): HasMany
     {
         return $this->hasMany(ProjectContact::class, 'contact_id', 'id')
             ->leftjoin('projects', 'projects.id', '=', 'project_contacts.project_id')
             ->select('project_contacts.*', 'projects.name');
     }
 
-    public function phones()
+    public function phones(): HasMany
     {
         return $this->hasMany(ContractorContactPhone::class, 'contact_id', 'id');
     }

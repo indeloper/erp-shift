@@ -38,7 +38,7 @@ class GenerateEmails extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         DB::beginTransaction();
         $users_without_email = User::query()

@@ -34,7 +34,7 @@ class MakeTestCall extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $request = [
             'random_contact' => $this->confirm('Is contact phone number? [y|N]'),

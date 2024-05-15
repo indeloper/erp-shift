@@ -13,7 +13,7 @@ class ResponsibleSelectedForProjectDirectionProjectLeaderNotice extends BaseNoti
 
     const DESCRIPTION = 'По проекту, по направлению сваи/шпунт был выбран отв РП';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

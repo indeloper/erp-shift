@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('support_mails', function (Blueprint $table) {
             $table->text('gitlab_link')->nullable()->after('estimate');
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('support_mails', function (Blueprint $table) {
             $table->dropColumn('gitlab_link');

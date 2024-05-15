@@ -15,7 +15,7 @@ class ProjectObjectTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_fuel_tank()
+    public function it_can_get_fuel_tank(): void
     {
         $object = ProjectObject::first();
         $tank = FuelTank::factory()->create(['object_id' => $object->id]);
@@ -24,7 +24,7 @@ class ProjectObjectTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_last_ten_operations()
+    public function it_returns_last_ten_operations(): void
     {
         $object = ProjectObject::first();
         $tank1 = FuelTank::factory()->create(['object_id' => $object->id]);
@@ -36,7 +36,7 @@ class ProjectObjectTest extends TestCase
     }
 
     /** @test */
-    public function name_tag_getter_can_return_location_if_object_does_not_have_short_name()
+    public function name_tag_getter_can_return_location_if_object_does_not_have_short_name(): void
     {
         // Given object without short name
         $object = ProjectObject::factory()->create(['short_name' => null]);
@@ -49,7 +49,7 @@ class ProjectObjectTest extends TestCase
     }
 
     /** @test */
-    public function name_tag_getter_can_return_short_name_if_object_have_short_name()
+    public function name_tag_getter_can_return_short_name_if_object_have_short_name(): void
     {
         // Given object without short name
         $object = ProjectObject::factory()->create(['short_name' => 'TIMELESS']);

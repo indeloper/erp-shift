@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
@@ -50,12 +52,12 @@ class ProjectObject extends Model
         return $this->short_name ?? $this->location;
     }
 
-    public function resp_users()
+    public function resp_users(): HasMany
     {
         return $this->hasMany(ObjectResponsibleUser::class, 'object_id', 'id');
     }
 
-    public function material_accounting_type()
+    public function material_accounting_type(): HasOne
     {
         return $this->hasOne(q3wProjectObjectMaterialAccountingType::class, 'id', 'material_accounting_type');
     }
@@ -75,17 +77,17 @@ class ProjectObject extends Model
         return $this->fuel_tanks->pluck('operations')->flatten()->sortByDesc('id')->take(10);
     }
 
-    public function fuel_tanks()
+    public function fuel_tanks(): HasMany
     {
         return $this->hasMany(FuelTank::class, 'object_id');
     }
 
-    public function projects()
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'object_id');
     }
 
-    public function documents()
+    public function documents(): HasMany
     {
         return $this->hasMany(ProjectObjectDocument::class, 'project_object_id');
     }

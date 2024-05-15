@@ -38,7 +38,7 @@ class TelegramApiRequest implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $ch = curl_init($this->url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);

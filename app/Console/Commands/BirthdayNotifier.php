@@ -39,7 +39,7 @@ class BirthdayNotifier extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $whoHaveBirthdayToday = User::whoHaveBirthdayToday()->get();
         $whoHaveBirthdayNextWeek = User::whoHaveBirthdayNextWeek()->get();

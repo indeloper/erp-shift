@@ -13,7 +13,7 @@ class LaborSignedNotification extends BaseNotification
 
     const DESCRIPTION = 'Документы по заявке на формирование приказов подписаны';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->markdown('notifications.mail.default-notification', [

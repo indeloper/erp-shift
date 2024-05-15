@@ -2,6 +2,8 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Contractors\Contractor;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
@@ -68,32 +70,32 @@ class FuelTankOperation extends Model
         });
     }
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function our_technic()
+    public function our_technic(): BelongsTo
     {
         return $this->belongsTo(OurTechnic::class)->withTrashed();
     }
 
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class);
     }
 
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class);
     }
 
-    public function fuel_tank()
+    public function fuel_tank(): BelongsTo
     {
         return $this->belongsTo(FuelTank::class);
     }
 
-    public function history()
+    public function history(): HasMany
     {
         return $this->hasMany(FuelOperationsHistory::class, 'fuel_operation_id');
     }

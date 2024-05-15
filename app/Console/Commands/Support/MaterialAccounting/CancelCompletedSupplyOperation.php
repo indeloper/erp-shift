@@ -39,7 +39,7 @@ class CancelCompletedSupplyOperation extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $supplyOperationId = (int) $this->ask('Please, enter supply operation id');
 

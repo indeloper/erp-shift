@@ -13,7 +13,7 @@ class CustomerApprovalOfOfferSheetPilingTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о создании задачи Согласование КП с заказчиком (шпунтовое направление)';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

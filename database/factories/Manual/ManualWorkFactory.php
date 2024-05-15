@@ -11,7 +11,7 @@ class ManualWorkFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $units = ['шт', 'т', 'м.п', 'м2', 'м3'];
         $nds = [0, 10, 20];

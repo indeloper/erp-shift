@@ -12,7 +12,7 @@ class VehicleCategoryCharacteristicsFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'category_id' => VehicleCategories::inRandomOrder()->first()->id ?? VehicleCategories::factory()->create()->id,

@@ -12,7 +12,7 @@ trait Taskable
      *
      * @return MorphMany
      */
-    public function tasks()
+    public function tasks(): MorphMany
     {
         return $this->morphMany(Task::class, 'taskable');
     }

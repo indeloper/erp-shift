@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_operations', function (Blueprint $table) {
             $table->float('result_value', 13, 3)->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_operations', function (Blueprint $table) {
             $table->dropColumn('result_value');

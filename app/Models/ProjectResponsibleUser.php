@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Vacation\ProjectResponsibleUserRedirectHistory;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -91,7 +92,7 @@ class ProjectResponsibleUser extends Model
         return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

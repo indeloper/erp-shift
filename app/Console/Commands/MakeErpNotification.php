@@ -19,7 +19,7 @@ class MakeErpNotification extends Command
 
     protected $notificationDescription;
 
-    public function handle()
+    public function handle(): void
     {
         $name = $this->argument('name');
         $description = $this->argument('description');

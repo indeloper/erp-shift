@@ -14,7 +14,7 @@ return new class extends Migration
         'Просмотр раздела Учет Топлива',
     ];
 
-    public function up()
+    public function up(): void
     {
         $insert = [];
         foreach (self::PERMISSION_CODENAMES as $key => $codename) {
@@ -54,7 +54,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
         $permissionTwo = DB::table('permissions')->where('codename', 'tech_acc_our_technic_tickets_see')->first()->id;

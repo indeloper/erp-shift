@@ -13,7 +13,7 @@ class ProjectLeaderAppointedToObjectNotice extends BaseNotification
 
     const DESCRIPTION = 'На объект назначен руководитель проекта';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

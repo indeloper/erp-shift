@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $fileTypes = [['Файл', 'custom']];
 
@@ -28,7 +28,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $customFileType = q3wOperationFileType::where('string_identifier', 'custom')->first();
         q3wOperationFile::where('upload_file_type', '=', $customFileType->id)->forceDelete();

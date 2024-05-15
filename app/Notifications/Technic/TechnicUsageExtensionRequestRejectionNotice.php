@@ -13,7 +13,7 @@ class TechnicUsageExtensionRequestRejectionNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об отклонении запроса на продление использования техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

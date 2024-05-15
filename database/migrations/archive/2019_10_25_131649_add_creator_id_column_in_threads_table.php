@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('threads', function (Blueprint $table) {
             $table->unsignedInteger('creator_id')->nullable()->after('subject');
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('threads', function (Blueprint $table) {
             $table->dropColumn('creator_id');

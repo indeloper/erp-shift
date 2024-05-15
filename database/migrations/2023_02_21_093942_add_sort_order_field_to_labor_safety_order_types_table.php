@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('labor_safety_order_types', function (Blueprint $table) {
             $table->integer('sort_order')->unsigned()->after('name')->index();
@@ -36,7 +36,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('labor_safety_order_types', function (Blueprint $table) {
             $table->dropColumn('sort_order');

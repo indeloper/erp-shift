@@ -2,6 +2,7 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -35,7 +36,7 @@ class ManualReferenceParameter extends Model
         return $this->manual_reference_id;
     }
 
-    public function attribute()
+    public function attribute(): BelongsTo
     {
         return $this->belongsTo(ManualMaterialCategoryAttribute::class, 'attr_id', 'id');
     }

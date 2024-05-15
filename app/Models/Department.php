@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
@@ -30,12 +31,12 @@ class Department extends Model
         16 => 'ПТО',
     ];
 
-    public function users()
+    public function users(): HasMany
     {
         return $this->hasMany(User::class)->where('status', 1)->where('is_deleted', 0)->where('id', '!=', 1);
     }
 
-    public function groups()
+    public function groups(): HasMany
     {
         return $this->hasMany(Group::class);
     }

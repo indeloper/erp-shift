@@ -18,7 +18,7 @@ class MatAccPartToBaseTest extends TestCase
      *
      * @return void
      */
-    public function testAcceptArrivalOperationMaterialsOnPeriod()
+    public function testAcceptArrivalOperationMaterialsOnPeriod(): void
     {
         $basesCount = MaterialAccountingBase::count();
 

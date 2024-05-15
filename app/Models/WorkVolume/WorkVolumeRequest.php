@@ -2,6 +2,8 @@
 
 namespace App\Models\WorkVolume;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\FileEntry;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -34,18 +36,18 @@ class WorkVolumeRequest extends Model
         2 => 'Отрицательный',
     ];
 
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(WorkVolumeRequestFile::class, 'request_id', 'id');
     }
 
-    public function user()
+    public function user(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
     // this function find WV for WV Request
-    public function wv()
+    public function wv(): HasOne
     {
         return $this->hasOne(WorkVolume::class, 'id', 'work_volume_id');
     }

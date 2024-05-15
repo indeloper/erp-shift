@@ -14,7 +14,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = false) {
             Route::get('/', $controller.'@getPageCore')->name('getPageCore');

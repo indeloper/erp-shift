@@ -2,6 +2,8 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\Documentable;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +20,7 @@ class ManualMaterialCategory extends Model
 
     protected $appends = ['unit_show'];
 
-    public function attributes()
+    public function attributes(): HasMany
     {
         return $this->hasMany(ManualMaterialCategoryAttribute::class, 'category_id', 'id')
             ->when((! Auth::user() || Auth::user()->id != 1), function ($query) {
@@ -38,22 +40,22 @@ class ManualMaterialCategory extends Model
         21 => 'м3',
     ];
 
-    public function attributesAll()
+    public function attributesAll(): HasMany
     {
         return $this->hasMany(ManualMaterialCategoryAttribute::class, 'category_id', 'id');
     }
 
-    public function materials()
+    public function materials(): HasMany
     {
         return $this->hasMany(ManualMaterial::class, 'category_id', 'id');
     }
 
-    public function references()
+    public function references(): HasMany
     {
         return $this->hasMany(ManualReference::class, 'category_id', 'id');
     }
 
-    public function related_works()
+    public function related_works(): BelongsToMany
     {
         return $this->belongsToMany(ManualWork::class, 'manual_material_category_relation_to_works', 'manual_material_category_id', 'work_id');
     }

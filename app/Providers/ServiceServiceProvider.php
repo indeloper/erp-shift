@@ -23,7 +23,7 @@ class ServiceServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->bind(
             NotificationItemServiceInterface::class,

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,13 +30,13 @@ class SupportMail extends Model
     ];
 
     // this relation return all ticket files
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(SupportMailFile::class, 'support_mail_id', 'id');
     }
 
     // this relation return ticket sender
-    public function sender()
+    public function sender(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }

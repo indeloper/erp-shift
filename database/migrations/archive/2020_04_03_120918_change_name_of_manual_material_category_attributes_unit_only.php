@@ -19,7 +19,7 @@ return new class extends Migration
         'Удельная площадь' => 'Площадь 1 ',
     ];
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -38,7 +38,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         // no way
     }

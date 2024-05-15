@@ -11,7 +11,7 @@ class ProjectDocumentUpdate extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -23,7 +23,7 @@ class ProjectDocumentUpdate extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'document.file' => 'Необходимо загрузить файл',
@@ -31,7 +31,7 @@ class ProjectDocumentUpdate extends FormRequest
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'document' => 'required|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,dwg,dwl,dwl2,dxf,mpp,gif,bmp,txt,rtf,pptx',

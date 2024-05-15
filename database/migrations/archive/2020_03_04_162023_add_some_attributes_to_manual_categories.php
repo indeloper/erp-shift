@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $category = ManualMaterialCategory::find(3);
         $category->load('materials.parameters', 'attributes');
@@ -34,7 +34,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $category = ManualMaterialCategory::find(3);
         $category->load('materials.parameters', 'attributes');

@@ -2,6 +2,7 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Events\MaterialAccountingOperationResponsibleUsersEvents;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,12 +38,12 @@ class MaterialAccountingOperationResponsibleUsers extends Model
 
     }
 
-    public function operation()
+    public function operation(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingOperation::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

@@ -2,6 +2,8 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,7 +15,7 @@ class ManualReference extends Model
 
     protected $fillable = ['name', 'description', 'category_id'];
 
-    public function parameters()
+    public function parameters(): HasMany
     {
         return $this->hasMany(ManualReferenceParameter::class, 'manual_reference_id', 'id')
             ->leftJoin('manual_material_category_attributes', 'manual_material_category_attributes.id', '=', 'attr_id')
@@ -21,22 +23,22 @@ class ManualReference extends Model
             ->withTrashed();
     }
 
-    public function parametersClear()
+    public function parametersClear(): HasMany
     {
         return $this->hasMany(ManualReferenceParameter::class, 'manual_reference_id', 'id')->withTrashed();
     }
 
-    public function parametersClearNotDeleted()
+    public function parametersClearNotDeleted(): HasMany
     {
         return $this->hasMany(ManualReferenceParameter::class, 'manual_reference_id', 'id');
     }
 
-    public function category()
+    public function category(): HasOne
     {
         return $this->hasOne(ManualMaterialCategory::class, 'id', 'category_id');
     }
 
-    public function materials()
+    public function materials(): HasMany
     {
         return $this->hasMany(ManualMaterial::class, 'manual_reference_id', 'id');
     }

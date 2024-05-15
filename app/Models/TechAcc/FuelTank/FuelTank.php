@@ -2,6 +2,8 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Company\Company;
 use App\Models\ProjectObject;
 use App\Models\User;
@@ -43,17 +45,17 @@ class FuelTank extends Model
     //     });
     // }
 
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class);
     }
 
-    public function responsible()
+    public function responsible(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
@@ -63,12 +65,12 @@ class FuelTank extends Model
         return "Топливная емкость $this->tank_number";
     }
 
-    public function operations()
+    public function operations(): HasMany
     {
         return $this->hasMany(FuelTankOperation::class);
     }
 
-    public function trashed_operations()
+    public function trashed_operations(): HasMany
     {
         return $this->hasMany(FuelTankOperation::class)->onlyTrashed();
     }

@@ -12,7 +12,7 @@ class FuelTankFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         if (! ProjectObject::count()) {
             ProjectObject::factory()->create();

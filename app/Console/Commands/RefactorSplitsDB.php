@@ -37,7 +37,7 @@ class RefactorSplitsDB extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
         DB::beginTransaction();
 

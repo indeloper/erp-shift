@@ -2,6 +2,10 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Comment;
 use App\Models\Manual\ManualMaterial;
 use App\Models\Task;
@@ -143,18 +147,18 @@ class MaterialAccountingOperationMaterials extends Model
         }
     }
 
-    public function base()
+    public function base(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingBase::class, 'base_id', 'id');
     }
 
-    public function comments()
+    public function comments(): HasManyThrough
     {
         return $this->hasManyThrough(Comment::class, MaterialAccountingBase::class, 'id', 'commentable_id', 'base_id', 'id')
             ->where('commentable_type', MaterialAccountingBase::class);
     }
 
-    public function manual()
+    public function manual(): BelongsTo
     {
         return $this->belongsTo(ManualMaterial::class, 'manual_material_id', 'id')
             ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
@@ -176,12 +180,12 @@ class MaterialAccountingOperationMaterials extends Model
         return $converted;
     }
 
-    public function materialAddition()
+    public function materialAddition(): HasOne
     {
         return $this->hasOne(MaterialAccountingMaterialAddition::class, 'operation_material_id', 'id');
     }
 
-    public function operation()
+    public function operation(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingOperation::class, 'operation_id', 'id');
     }
@@ -209,12 +213,12 @@ class MaterialAccountingOperationMaterials extends Model
         return $sib_q;
     }
 
-    public function delete_task()
+    public function delete_task(): HasOne
     {
         return $this->hasOne(Task::class, 'target_id', 'id')->where('status', 22);
     }
 
-    public function materialFiles()
+    public function materialFiles(): HasMany
     {
         return $this->hasMany(MaterialAccountingMaterialFile::class, 'operation_material_id', 'id');
     }
@@ -249,7 +253,7 @@ class MaterialAccountingOperationMaterials extends Model
         return round($this->count, 3);
     }
 
-    public function updated_material()
+    public function updated_material(): HasOne
     {
         return $this->hasOne(MaterialAccountingOperationMaterials::class, 'updated_material_id', 'id');
     }

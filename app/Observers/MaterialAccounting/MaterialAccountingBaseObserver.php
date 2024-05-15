@@ -18,7 +18,7 @@ class MaterialAccountingBaseObserver
         }
     }
 
-    public function created(MaterialAccountingBase $base)
+    public function created(MaterialAccountingBase $base): void
     {
         if ($base->ancestor_base_id == null) {
             $base->ancestor_base_id = $base->id;

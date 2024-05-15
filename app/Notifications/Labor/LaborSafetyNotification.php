@@ -13,7 +13,7 @@ class LaborSafetyNotification extends BaseNotification
 
     const DESCRIPTION = 'Заявка на формирование приказов';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

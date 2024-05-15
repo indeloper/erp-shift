@@ -39,7 +39,7 @@ class CheckDelayedTasks extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $tasks_to_revive = Task::where('revive_at', '<', Carbon::now())->get();
 

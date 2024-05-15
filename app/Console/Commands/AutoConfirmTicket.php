@@ -37,7 +37,7 @@ class AutoConfirmTicket extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $expired_time = Carbon::now()->subMinutes(20);
 

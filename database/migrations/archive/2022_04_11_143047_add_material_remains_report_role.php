@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $taskReportXLSXExportPermission = new Permission();
         $taskReportXLSXExportPermission->name = 'Материальный учет: Доступ к отчету Остатки материалов"';
@@ -24,7 +24,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         //
     }

@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('project_objects', function (Blueprint $table) {
             $table->boolean('is_participates_in_documents_flow')->comment('Участвует в документообороте');
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('project_objects', function (Blueprint $table) {
             $table->dropColumn('is_participates_in_documents_flow');

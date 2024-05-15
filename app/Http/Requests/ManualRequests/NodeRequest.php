@@ -11,7 +11,7 @@ class NodeRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -41,7 +41,7 @@ class NodeRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'node_id' => 'sometimes|required|numeric|exists:manual_nodes,id',

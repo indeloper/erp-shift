@@ -14,7 +14,7 @@ class WorkWolumes extends TestCase
     use DatabaseTransactions, WithFaker;
 
     /** @test */
-    public function when_we_store_work_volume_with_tongue_name_that_already_exist_request_should_return_errors()
+    public function when_we_store_work_volume_with_tongue_name_that_already_exist_request_should_return_errors(): void
     {
         // Given user
         $user = User::inRandomOrder()->first() ?? User::factory()->create();
@@ -38,7 +38,7 @@ class WorkWolumes extends TestCase
     }
 
     /** @test */
-    public function when_we_store_work_volume_with_pile_name_that_already_exist_request_should_return_errors()
+    public function when_we_store_work_volume_with_pile_name_that_already_exist_request_should_return_errors(): void
     {
         // Given user
         $user = User::inRandomOrder()->first() ?? User::factory()->create();
@@ -62,7 +62,7 @@ class WorkWolumes extends TestCase
     }
 
     /** @test */
-    public function when_we_store_work_volume_with_both_names_already_exist_request_should_return_errors()
+    public function when_we_store_work_volume_with_both_names_already_exist_request_should_return_errors(): void
     {
         // Given user
         $user = User::inRandomOrder()->first() ?? User::factory()->create();

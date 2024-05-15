@@ -13,7 +13,7 @@ class TechnicalFaultReportAssigneeNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о назначении исполнителя заявки на неисправность техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

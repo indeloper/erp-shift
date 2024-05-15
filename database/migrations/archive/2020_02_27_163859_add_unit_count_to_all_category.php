@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $categories = ManualMaterialCategory::find([3, 4, 5, 6, 7, 8, 9, 11, 16]);
 
@@ -45,7 +45,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $categories = ManualMaterialCategory::find([3, 4, 5, 6, 7, 8, 9, 11, 16]);
 

@@ -13,7 +13,7 @@ class NewTasksFromDeletedUserNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о новых задачах от удаленного пользователя';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

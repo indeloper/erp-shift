@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\Documentable;
 use App\Traits\RussianShortDates;
 use Carbon\Carbon;
@@ -58,12 +60,12 @@ class Comment extends Model
         return $this->created_at->format(self::DATE_FORMAT);
     }
 
-    public function commentable()
+    public function commentable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
     }

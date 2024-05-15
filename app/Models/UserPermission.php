@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class UserPermission extends Model
@@ -13,7 +14,7 @@ class UserPermission extends Model
      */
     protected $fillable = ['user_id', 'permission_id'];
 
-    public function permissions()
+    public function permissions(): HasMany
     {
         return $this->hasMany(\App\Models\Permission::class);
     }

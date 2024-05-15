@@ -13,7 +13,7 @@ class AppointmentOfResponsibleForOfferSheetPilingTaskNotice extends BaseNotifica
 
     const DESCRIPTION = 'Уведомление о создании задачи Назначение ответственного за КП (шпунтовое направление)';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

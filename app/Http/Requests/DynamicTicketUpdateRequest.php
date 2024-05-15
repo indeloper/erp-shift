@@ -43,7 +43,7 @@ class DynamicTicketUpdateRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize(TechnicTicketService $service)
+    public function authorize(TechnicTicketService $service): bool
     {
         $ticket = $this->route('our_technic_ticket');
         $curr_type = $service->ticket_status_responsible_user_map[$ticket->status];
@@ -56,7 +56,7 @@ class DynamicTicketUpdateRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $ticket = $this->route('our_technic_ticket');
 

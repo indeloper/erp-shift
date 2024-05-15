@@ -13,7 +13,7 @@ class ContractorDeletionControlTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о задаче Контроль удаления контрагента';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

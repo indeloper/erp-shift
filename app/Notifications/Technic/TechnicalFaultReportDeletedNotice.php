@@ -13,7 +13,7 @@ class TechnicalFaultReportDeletedNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об удалении заявки на неисправность';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

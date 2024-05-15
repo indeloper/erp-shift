@@ -38,7 +38,7 @@ class CreateUsageReportTask extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $grouped_tickets = OurTechnicTicket::where('status', 7)->get()->groupBy(function ($item) {
             return $item->users()->ofType('usage_resp_user_id')->activeResp()->first()->id ?? '-1';

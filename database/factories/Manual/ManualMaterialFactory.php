@@ -12,7 +12,7 @@ class ManualMaterialFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $names = ['Камень', 'Кирпич', 'Арматура', 'Шпунт', 'Свая', 'Крепёж', 'Электрод', 'Гайка', 'Болт', 'Гайка', 'Проволока'];
 

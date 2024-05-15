@@ -11,7 +11,7 @@ class ContractorFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'full_name' => $this->faker->company(),

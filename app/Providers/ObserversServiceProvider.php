@@ -61,7 +61,7 @@ class ObserversServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }
@@ -71,7 +71,7 @@ class ObserversServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Task::observe(TaskObserver::class);
         Notification::observe(NotificationObserver::class);

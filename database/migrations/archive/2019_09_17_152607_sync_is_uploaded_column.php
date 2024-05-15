@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
         $com_offers = \App\Models\CommercialOffer\CommercialOffer::whereDoesntHave('gantts')->get();
@@ -29,7 +29,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         \App\Models\CommercialOffer\CommercialOffer::query()->update(['is_uploaded' => 0]);
     }

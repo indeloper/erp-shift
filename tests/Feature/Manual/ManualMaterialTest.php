@@ -14,7 +14,7 @@ class ManualMaterialTest extends TestCase
     use WithFaker;
 
     /** @test */
-    public function it_replaces_comma_with_dot_only_in_numbers()
+    public function it_replaces_comma_with_dot_only_in_numbers(): void
     {
         $this->actingAs(User::find(19));
 
@@ -45,7 +45,7 @@ class ManualMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_replaces_comme_even_when_stored_in_code()
+    public function it_replaces_comme_even_when_stored_in_code(): void
     {
         $param = ManualMaterialParameter::factory()->create(['value' => '123,4']);
 

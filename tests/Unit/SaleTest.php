@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class SaleTest extends TestCase
 {
-    public function test_true()
+    public function test_true(): void
     {
         $this->assertTrue(true);
     }

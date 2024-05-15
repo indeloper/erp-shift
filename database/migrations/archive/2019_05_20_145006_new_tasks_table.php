@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
             $table->dropColumn(['questionnaire_token', 'is_sent', 'sent_to', 'com_offer_id', 'com_offer_added', 'status_result_call']);
@@ -25,7 +25,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
             $table->dropColumn('target_id');

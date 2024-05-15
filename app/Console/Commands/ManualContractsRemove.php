@@ -36,7 +36,7 @@ class ManualContractsRemove extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $ids_list = $this->argument('ids');
         // make array from argument, remove empty values

@@ -11,7 +11,7 @@ class WorkRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -23,7 +23,7 @@ class WorkRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'name.required' => 'Поле обязательно для заполнения',
@@ -47,7 +47,7 @@ class WorkRequest extends FormRequest
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'work_id' => 'sometimes|required|numeric|exists:manual_works,id',

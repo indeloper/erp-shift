@@ -4,6 +4,7 @@
 
 namespace App\Models\q3wMaterial\operations;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ class q3wOperationRouteStage extends Model
 
     protected $guarded = ['id'];
 
-    public function routeStageTypes()
+    public function routeStageTypes(): BelongsTo
     {
         return $this->belongsTo(q3wOperationRouteStage::class, 'id', 'operation_route_stage_type_id');
     }

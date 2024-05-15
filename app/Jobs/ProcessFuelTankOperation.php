@@ -40,7 +40,7 @@ class ProcessFuelTankOperation
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $fuelTankOperation = $this->fuelTankOperation;
         $value_diff = $this->customValueDiff;

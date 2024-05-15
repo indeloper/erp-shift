@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('commercial_offers', function (Blueprint $table) {
             $table->boolean('is_signed')->default(0)->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('commercial_offers', function (Blueprint $table) {
             $table->dropColumn('is_signed');

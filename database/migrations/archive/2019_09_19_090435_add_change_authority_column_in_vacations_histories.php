@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('vacations_histories', function (Blueprint $table) {
             $table->boolean('change_authority')->default(0)->after('is_actual');
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('vacations_histories', function (Blueprint $table) {
             $table->dropColumn('change_authority');

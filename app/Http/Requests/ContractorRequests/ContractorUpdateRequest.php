@@ -11,7 +11,7 @@ class ContractorUpdateRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -23,7 +23,7 @@ class ContractorUpdateRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'full_name.required' => 'Поле полное наименование обязательно для заполнения',
@@ -81,7 +81,7 @@ class ContractorUpdateRequest extends FormRequest
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'full_name' => 'required|string|unique:contractors,full_name,'.($this ? $this->id : ''),

@@ -9,7 +9,7 @@ return new class extends Migration
 
     const PERMISSION_NAME = 'Снятие бригады с объекта';
 
-    public function up()
+    public function up(): void
     {
         $insert = [];
 
@@ -82,7 +82,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permission = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 

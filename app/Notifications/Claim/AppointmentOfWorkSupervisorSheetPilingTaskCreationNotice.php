@@ -14,7 +14,7 @@ class AppointmentOfWorkSupervisorSheetPilingTaskCreationNotice extends BaseNotif
     const DESCRIPTION = 'Уведомление о создании задачи Назначение ответственного за ОР (шпунтовое направление)';
 
     /** ОР - Объём работ */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

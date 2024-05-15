@@ -13,7 +13,7 @@ class TaskTransferNotificationToNewResponsibleNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о передаче задачи новому ответственному лицу';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

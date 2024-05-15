@@ -12,7 +12,7 @@ class materialsSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         //Шпунт 1
         if ('Шпунт' == 'Шпунт') {

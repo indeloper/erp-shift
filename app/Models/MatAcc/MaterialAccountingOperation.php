@@ -2,6 +2,9 @@
 
 namespace App\Models\MatAcc;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
@@ -337,52 +340,52 @@ class MaterialAccountingOperation extends Model
         return $this->status == 4;
     }
 
-    public function object_from()
+    public function object_from(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'object_id_from', 'id');
     }
 
-    public function object_to()
+    public function object_to(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'object_id_to', 'id');
     }
 
-    public function supplier()
+    public function supplier(): BelongsTo
     {
         return $this->belongsTo(Contractor::class, 'supplier_id', 'id');
     }
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id', 'id');
     }
 
-    public function responsible_user()
+    public function responsible_user(): HasOne
     {
         return $this->hasOne(MaterialAccountingOperationResponsibleUsers::class, 'operation_id', 'id');
     }
 
-    public function responsible_users()
+    public function responsible_users(): HasMany
     {
         return $this->hasMany(MaterialAccountingOperationResponsibleUsers::class, 'operation_id', 'id');
     }
 
-    public function sender()
+    public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id', 'id');
     }
 
-    public function recipient()
+    public function recipient(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recipient_id', 'id');
     }
 
-    public function responsible_project_manager()
+    public function responsible_project_manager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_RP', 'id');
     }
 
-    public function allMaterials()
+    public function allMaterials(): HasMany
     {
         return $this->hasMany(MaterialAccountingOperationMaterials::class, 'operation_id', 'id');
     }
@@ -407,7 +410,7 @@ class MaterialAccountingOperation extends Model
         return $this->allMaterials()->where('type', 8);
     }
 
-    public function delete_tasks()
+    public function delete_tasks(): HasManyThrough
     {
         return $this->hasManyThrough(Task::class, MaterialAccountingOperationMaterials::class, 'operation_id', 'target_id', 'id', 'id')
             ->where('status', 22);
@@ -419,7 +422,7 @@ class MaterialAccountingOperation extends Model
      *
      * @return HasManyThrough
      */
-    public function tasks()
+    public function tasks(): HasManyThrough
     {
         return $this->hasManyThrough(Task::class, MaterialAccountingOperationMaterials::class, 'operation_id', 'target_id', 'id', 'id')
             ->whereIn('status', self::TASK_STATUSES);
@@ -430,12 +433,12 @@ class MaterialAccountingOperation extends Model
      *
      * @return MorphMany
      */
-    public function tasksMorphed()
+    public function tasksMorphed(): MorphMany
     {
         return $this->morphMany(Task::class, 'taskable');
     }
 
-    public function contractTask()
+    public function contractTask(): HasOne
     {
         return $this->hasOne(Task::class, 'target_id', 'id')
             ->where('status', 45);
@@ -451,28 +454,28 @@ class MaterialAccountingOperation extends Model
         return $this->tasks()->where('is_solved', 0);
     }
 
-    public function materialAddition()
+    public function materialAddition(): HasOne
     {
         return $this->hasOne(MaterialAccountingMaterialAddition::class, 'operation_id', 'id');
     }
 
-    public function materialFiles()
+    public function materialFiles(): HasMany
     {
         return $this->hasMany(MaterialAccountingMaterialFile::class, 'operation_id', 'id');
     }
 
-    public function images_author()
+    public function images_author(): HasMany
     {
         return $this->hasMany(MaterialAccountingOperationFile::class, 'operation_id', 'id')->where('type', 2)->where('author_type', 1);
     }
 
-    public function all_images_author()
+    public function all_images_author(): HasMany
     {
         return $this->hasMany(MaterialAccountingOperationFile::class, 'operation_id', 'id')->where('type', 2);
 
     }
 
-    public function images_sender()
+    public function images_sender(): HasMany
     {
         return $this->hasMany(MaterialAccountingMaterialFile::class, 'operation_id', 'id')
             ->where('type', 2)
@@ -481,7 +484,7 @@ class MaterialAccountingOperation extends Model
             });
     }
 
-    public function documents_sender()
+    public function documents_sender(): HasMany
     {
         return $this->hasMany(MaterialAccountingMaterialFile::class, 'operation_id', 'id')
             ->where('type', 1)
@@ -490,7 +493,7 @@ class MaterialAccountingOperation extends Model
             });
     }
 
-    public function images_recipient()
+    public function images_recipient(): HasMany
     {
         return $this->hasMany(MaterialAccountingMaterialFile::class, 'operation_id', 'id')
             ->where('type', 2)
@@ -499,18 +502,18 @@ class MaterialAccountingOperation extends Model
             });
     }
 
-    public function documents_author()
+    public function documents_author(): HasMany
     {
         return $this->hasMany(MaterialAccountingOperationFile::class, 'operation_id', 'id')->where('type', 1)->where('author_type', 1);
     }
 
-    public function all_documents_author()
+    public function all_documents_author(): HasMany
     {
         return $this->hasMany(MaterialAccountingOperationFile::class, 'operation_id', 'id')->where('type', 1);
 
     }
 
-    public function documents_recipient()
+    public function documents_recipient(): HasMany
     {
         return $this->hasMany(MaterialAccountingMaterialFile::class, 'operation_id', 'id')
             ->where('type', 1)
@@ -519,7 +522,7 @@ class MaterialAccountingOperation extends Model
             });
     }
 
-    public function child()
+    public function child(): HasOne
     {
         return $this->hasOne(MaterialAccountingOperation::class, 'parent_id', 'id');
     }
@@ -562,7 +565,7 @@ class MaterialAccountingOperation extends Model
         return $mats;
     }
 
-    public function parent()
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingOperation::class, 'parent_id', 'id');
     }
@@ -572,7 +575,7 @@ class MaterialAccountingOperation extends Model
         return $this->parent()->with('grandParent')->with('parentMats')->select('id', 'parent_id');
     }
 
-    public function contract()
+    public function contract(): BelongsTo
     {
         return $this->belongsTo(Contract::class, 'contract_id', 'id');
     }

@@ -10,7 +10,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('permissions')->where('codename', 'technics_movement_crud')
             ->update(['name' => 'Техника: перемещение - создание, редактирование, удаление']);
@@ -24,7 +24,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         //
     }

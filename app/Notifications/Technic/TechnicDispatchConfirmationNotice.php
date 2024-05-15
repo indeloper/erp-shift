@@ -13,7 +13,7 @@ class TechnicDispatchConfirmationNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о подтверждении отправки техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

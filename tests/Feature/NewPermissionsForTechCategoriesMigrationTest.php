@@ -29,7 +29,7 @@ class NewPermissionsForTechCategoriesMigrationTest extends TestCase
     }
 
     /** @test */
-    public function it_asserts_true()
+    public function it_asserts_true(): void
     {
         $this->assertTrue(true);
     }

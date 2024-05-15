@@ -25,7 +25,7 @@ class OurTechnicTicketReportPolicy
         return true;
     }
 
-    public function update(User $user, OurTechnicTicketReport $report)
+    public function update(User $user, OurTechnicTicketReport $report): bool
     {
         return true;
         // return true;
@@ -38,7 +38,7 @@ class OurTechnicTicketReportPolicy
         // return $user->id === $report->ticket->users()->wherePivot('type', 4);
     }
 
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }

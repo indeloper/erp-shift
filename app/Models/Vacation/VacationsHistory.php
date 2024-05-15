@@ -2,6 +2,7 @@
 
 namespace App\Models\Vacation;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,12 +26,12 @@ class VacationsHistory extends Model
         return User::find($this->vacation_user_id)->in_vacation;
     }
 
-    public function vacation_user()
+    public function vacation_user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'vacation_user_id', 'id');
     }
 
-    public function support_user()
+    public function support_user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'support_user_id', 'id');
     }

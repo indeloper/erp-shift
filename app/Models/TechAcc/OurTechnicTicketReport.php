@@ -2,6 +2,7 @@
 
 namespace App\Models\TechAcc;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,12 +24,12 @@ class OurTechnicTicketReport extends Model
     //        'date' => 'date:d.m.Y',
     //    ];
 
-    public function ticket()
+    public function ticket(): BelongsTo
     {
         return $this->belongsTo(OurTechnicTicket::class, 'our_technic_ticket_id', 'id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

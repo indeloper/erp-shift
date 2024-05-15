@@ -2,6 +2,8 @@
 
 namespace App\Models\TechAcc;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\FileEntry;
 use App\Models\ProjectObject;
 use App\Traits\AuthorAndEditorUserFields;
@@ -22,12 +24,12 @@ class TechnicMovement extends Model
     //     return $this->morphMany(Comment::class, 'commentable');
     // }
 
-    public function attachments()
+    public function attachments(): MorphMany
     {
         return $this->morphMany(FileEntry::class, 'documentable');
     }
 
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class);
     }

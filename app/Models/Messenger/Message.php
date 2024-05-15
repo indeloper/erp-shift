@@ -2,6 +2,8 @@
 
 namespace App\Models\Messenger;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -48,7 +50,7 @@ class Message extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function thread()
+    public function thread(): BelongsTo
     {
         return $this->belongsTo(Models::classname(Thread::class), 'thread_id', 'id');
     }
@@ -60,7 +62,7 @@ class Message extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(Models::user(), 'user_id');
     }
@@ -72,7 +74,7 @@ class Message extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function participants()
+    public function participants(): HasMany
     {
         return $this->hasMany(Models::classname(Participant::class), 'thread_id', 'thread_id');
     }
@@ -92,7 +94,7 @@ class Message extends Eloquent
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(MessageFile::class, 'message_id', 'id');
     }
@@ -102,7 +104,7 @@ class Message extends Eloquent
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function related_messages()
+    public function related_messages(): HasMany
     {
         return $this->hasMany(MessageForwards::class, 'message_id', 'id');
     }

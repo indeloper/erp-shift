@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_transfer_histories', function (Blueprint $table) {
             $table->bigInteger('parent_fuel_level_id')->nullable()->unsigned()->after('fuel_level')->comment('Id записи о предыдущем остатке топлива');
@@ -24,7 +24,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_transfer_histories', function (Blueprint $table) {
             $table->dropForeign(['parent_fuel_level_id']);

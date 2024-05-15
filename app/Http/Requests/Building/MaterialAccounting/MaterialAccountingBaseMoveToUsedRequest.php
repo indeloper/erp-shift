@@ -13,7 +13,7 @@ class MaterialAccountingBaseMoveToUsedRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return boolval(auth()->user()->hasPermission('mat_acc_base_move_to_used'));
     }
@@ -36,7 +36,7 @@ class MaterialAccountingBaseMoveToUsedRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'base_id' => ['required', 'exists:material_accounting_bases,id'],

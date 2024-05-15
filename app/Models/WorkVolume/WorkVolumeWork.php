@@ -2,6 +2,10 @@
 
 namespace App\Models\WorkVolume;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Contractors\ContractorFile;
 use App\Models\Manual\ManualWork;
 use App\Traits\Reviewable;
@@ -44,17 +48,17 @@ class WorkVolumeWork extends Model
         return collect($materials);
     }
 
-    public function relations()
+    public function relations(): HasMany
     {
         return $this->hasMany(WorkVolumeWorkMaterial::class, 'wv_work_id', 'id');
     }
 
-    public function manual()
+    public function manual(): BelongsTo
     {
         return $this->belongsTo(ManualWork::class, 'manual_work_id', 'id')->withTrashed();
     }
 
-    public function complects_relations()
+    public function complects_relations(): HasMany
     {
         return $this->hasMany(WVWorkMaterialComplect::class, 'wv_work_id', 'id');
     }
@@ -64,7 +68,7 @@ class WorkVolumeWork extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function subcontractor_file()
+    public function subcontractor_file(): HasOne
     {
         return $this->hasOne(ContractorFile::class, 'id', 'subcontractor_file_id');
     }

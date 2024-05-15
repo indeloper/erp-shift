@@ -14,7 +14,7 @@ class OurTechnicTicketFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         if (! ProjectObject::count()) {
             ProjectObject::factory()->count(6)->create();

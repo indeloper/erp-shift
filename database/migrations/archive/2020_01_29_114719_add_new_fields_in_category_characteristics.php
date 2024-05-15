@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('category_characteristics', function (Blueprint $table) {
             $table->boolean('required')->default(0)->after('is_hidden');
@@ -23,7 +23,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('category_characteristics', function (Blueprint $table) {
             $table->dropColumn('required');

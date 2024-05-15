@@ -22,7 +22,7 @@ class MatAccPartMaterialTest extends TestCase
     ];
 
     /** @test */
-    public function it_decrease_fact_when_delete_part_close()
+    public function it_decrease_fact_when_delete_part_close(): void
     {
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 1]);
         $mats = [
@@ -57,7 +57,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_decrease_fact_when_delete_part_close_on_transformation()
+    public function it_decrease_fact_when_delete_part_close_on_transformation(): void
     {
         //1.2.4.5.6.7.8.9
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 3]);
@@ -94,7 +94,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_change_fact_when_update_part_close()
+    public function it_change_fact_when_update_part_close(): void
     {
         $this->actingAs(User::first());
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 1]);
@@ -139,7 +139,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_change_fact_when_update_part_close_on_transformation()
+    public function it_change_fact_when_update_part_close_on_transformation(): void
     {
         $this->actingAs(User::first());
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 4]);
@@ -183,7 +183,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_change_fact_when_update_part_close_on_moving()
+    public function it_change_fact_when_update_part_close_on_moving(): void
     {
         $this->actingAs(User::first());
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 4]);

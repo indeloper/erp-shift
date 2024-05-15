@@ -19,7 +19,7 @@ class employeesSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $employees = json_decode('{"data": [
 {

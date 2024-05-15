@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
         $new_role = ['name' => 'Главный инженер (свайное направление)',
@@ -32,7 +32,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Group::query()->where([
             'name' => 'Главный инженер (свайное направление)',

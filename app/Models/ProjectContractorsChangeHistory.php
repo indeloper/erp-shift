@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class ProjectContractorsChangeHistory extends Model
@@ -19,7 +20,7 @@ class ProjectContractorsChangeHistory extends Model
         'has new_contractor_id and old_contractor_id' => 'change',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

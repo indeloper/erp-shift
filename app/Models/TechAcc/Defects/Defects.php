@@ -2,6 +2,8 @@
 
 namespace App\Models\TechAcc\Defects;
 
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
@@ -370,7 +372,7 @@ class Defects extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
@@ -380,7 +382,7 @@ class Defects extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function defectable()
+    public function defectable(): MorphTo
     {
         return $this->morphTo();
     }
@@ -410,7 +412,7 @@ class Defects extends Model
      *
      * @return mixed
      */
-    public function responsible_user()
+    public function responsible_user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id', 'id');
     }

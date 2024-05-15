@@ -12,7 +12,7 @@ class TimestampTechniqueUsageNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о задаче "Отметка времени использования техники"';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

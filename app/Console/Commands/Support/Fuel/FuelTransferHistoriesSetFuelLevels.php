@@ -40,7 +40,7 @@ class FuelTransferHistoriesSetFuelLevels extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $choosedId = (int) $this->ask('Укажите id топливной емкости или оставьте пустым для обновления по всем емкостям');
         $choosedEventDate = $this->ask('Укажите дату с которой будет выполнен пересчет остатков или оставьте пустым для обновления по всем операциям');
