@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Request;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -30,36 +33,29 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = false) {
+        $this->configureRateLimiting();
+
+        $this->routes(function () {
+            $this->mapApiRoutes();
+
+            $this->mapWebRoutes();
+
+            // Подключаем маршруты для шаблона
+            $this->mapLayoutRoutes();
+            $this->mapProfileRoutes();
+
+            //
+        });
+Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = false) {
             Route::get('/', $controller.'@getPageCore')->name('getPageCore');
             Route::apiResource('resource', $controller);
             if ($attachmentsRoutes) {
                 Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
                 Route::post('downloadAttachments', $controller.'@downloadAttachments')->name('downloadAttachments');
             }
-        });
+        });    }
 
-        parent::boot();
-    }
 
-    /**
-     * Define the routes for the application.
-     *
-     * @return void
-     */
-    public function map()
-    {
-
-        $this->mapApiRoutes();
-
-        $this->mapWebRoutes();
-
-        // Подключаем маршруты для шаблона
-        $this->mapLayoutRoutes();
-        $this->mapProfileRoutes();
-
-        //
-    }
 
     /**
      * Define the "web" routes for the application.
@@ -146,5 +142,17 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('profile')
             ->name('profile::')
             ->group(base_path('routes/user/profile.php'));
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     *
+     * @return void
+     */
+    protected function configureRateLimiting()
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+        });
     }
 }
