@@ -72,7 +72,7 @@ class StandardEntityResourceController extends Controller
 
     public function isMobile($baseBladePath)
     {
-        return is_dir($baseBladePath.'/mobile') && SystemService::determineClientDeviceType($_SERVER['HTTP_USER_AGENT']) === 'mobile';
+        return is_dir($baseBladePath.'/mobile') && SystemService::determineClientDeviceType($_SERVER['HTTP_USER_AGENT'] ?? null) === 'mobile';
     }
 
     public function getComponentsPath()
