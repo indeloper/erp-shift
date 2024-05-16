@@ -1,5 +1,6 @@
 class skDataGrid extends DevExpress.ui.dxDataGrid {
     static popupOpeningText = "Загрузка карточки документа"
+    static popupSavingDataText = "Сохранение данных"
     static loadErrorMessageText = "При загрузке данных произошла ошибка"
     static addRowCommandCaption = "Добавить"
     static popupFormSaveButtonCaption = "Сохранить"
@@ -32,14 +33,14 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
 
     static defaultComponentOptions = {
         showAppendButtonInCommandColumnHeader: true, //Создает кнопку «Добавить» в заголовке командного столбца
-        editRowOnDoubleClick: true, //Переводит DataGrid в состояние редактирования при двойном клике
+        startEditingOnDoubleClick: true, //Переводит DataGrid в состояние редактирования при двойном клике
     };
 
     /** TODO: разобраться и перенести _defaultParentOptions в метод DevExpress.ui.skDataGrid.defaultOptions({})
      *
      *Настройки по умолчанию для компонента
      */
-    static _defaultOptions = {
+    static _skDefaultOptions = {
         activeStateEnabled: true,
         allowColumnReordering: true,
         allowColumnResizing: true,
@@ -55,7 +56,7 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
              * Настройки для skDataGrid
              */
             mode: "skPopup",
-            initialInsertionData: {name: 'test'}
+            initialInsertionData: {}
         },
         filterRow: {
             visible: true,
@@ -90,7 +91,7 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
         },
         syncLookupFilterValues: false,
         toolbar: {
-            visible: true,
+            visible: false,
             items: [{}]
         },
 
@@ -110,32 +111,26 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
 
         this._userOptions = userOptions;
 
-        this._replaceObjectClassNameRecursively(this._$element[0], 'dx-datagrid-container', 'dx-datagrid');
-
         //Templates section
         this._addAppendButtonToCommandColumnHeader();
 
         //EventSection
         this._rowDoubleClick();
         this._editingStart();
+        this._initFilterRowEditors();
+        this._initCalculateColumnExpressions();
+
 
         this.endUpdate();
         console.log('skDataGrid', this);
     }
 
-    /**В поведении компонента наблюдаются проблемы со стилями из-за того, что для dxDataGrid при наследовании несколько
-     * другим способом генерируются базовый класс от имени компонента, в отличие от других компонент DevExpress.
-     * Пришлось делать замену классов, что бы сохранить стили*/
-    _replaceObjectClassNameRecursively(element, oldClass, newClass) {
-        if (element) {
-            element.classList.replace(oldClass, newClass);
-
-            let children = element.children;
-
-            for (let i = 0; i < children.length; i++) {
-                this._replaceObjectClassNameRecursively(children[i], oldClass, newClass);
+    _initCalculateColumnExpressions(){
+        this.option().columns.forEach((column) => {
+            if (column.tableName && !column.calulateFilterExpression) {
+                column.calculateFilterExpression = this._calculateColumnFilterExpressionWithTableName;
             }
-        }
+        })
     }
 
     /**Метод вызывается в родительском конструкторе для получения опций компонента по умолчанию.
@@ -144,9 +139,9 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
 
     //TODO: заменить jquery метод $.extend на нативный
     _getDefaultOptions() {
-        let inheritedOptions = super._getDefaultOptions();
-        let defaultOptions = {...skDataGrid._defaultOptions}
-        let skDataGridOptions = {...skDataGrid.defaultComponentOptions};
+        const inheritedOptions = super._getDefaultOptions();
+        const defaultOptions = {...skDataGrid._skDefaultOptions}
+        const skDataGridOptions = {...skDataGrid.defaultComponentOptions};
 
         console.log('inheritedOptions', inheritedOptions);
         console.log('defaultOptions', defaultOptions);
@@ -173,7 +168,7 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
     }
 
     _rowDoubleClick() {
-        if (!this.option('editRowOnDoubleClick')) {
+        if (!this.option('startEditingOnDoubleClick') || !this.option("editing.allowUpdating")) {
             return
         }
 
@@ -186,6 +181,75 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
                 this._userOptions.onRowDblClick(e);
             }
         });
+    }
+
+    _initFilterRowEditors() {
+        this.option('onEditorPreparing', function (e) {
+            if (e.parentType === `filterRow` && e.lookup && e.useTagBoxRowFilter)
+                this._createFilterRowTagBoxFilterControlForLookupColumns(e)
+
+            if (this._userOptions.onEditorPreparing) {
+                this._userOptions.onEditorPreparing(e);
+            }
+        });
+    }
+
+    _calculateColumnFilterExpressionWithTableName(filterValue, selectedFilterOperation){
+        let fullDataFieldName = `${this.tableName}.${this.dataField}`;
+        if (selectedFilterOperation === "between" && $.isArray(filterValue)) {
+            return [
+                [fullDataFieldName, ">=", filterValue[0]],
+                "and", [fullDataFieldName, "<=", filterValue[1]]
+            ]
+        }
+        return [fullDataFieldName, selectedFilterOperation, filterValue];
+    }
+
+    _createFilterRowTagBoxFilterControlForLookupColumns(onEditorPreparingEventArguments) {
+        onEditorPreparingEventArguments.editorName = `dxTagBox`;
+        onEditorPreparingEventArguments.editorOptions.showSelectionControls = true;
+        onEditorPreparingEventArguments.editorOptions.dataSource = onEditorPreparingEventArguments.lookup.dataSource;
+        onEditorPreparingEventArguments.editorOptions.displayExpr = onEditorPreparingEventArguments.lookup.displayExpr;
+        onEditorPreparingEventArguments.editorOptions.valueExpr = onEditorPreparingEventArguments.lookup.valueExpr;
+        onEditorPreparingEventArguments.editorOptions.applyValueMode = `useButtons`;
+        onEditorPreparingEventArguments.editorOptions.value = onEditorPreparingEventArguments.value || [];
+        onEditorPreparingEventArguments.editorOptions.dataFieldName = onEditorPreparingEventArguments.dataField;
+        onEditorPreparingEventArguments.editorOptions.onValueChanged = () => {
+            function calculateFilterExpression() {
+                let filterExpression = [];
+                onEditorPreparingEventArguments.element.find(`.dx-datagrid-filter-row`).find(`.dx-tagbox`).each((index, item) => {
+                    let tagBoxFilterExpression = [];
+                    let tagBox = $(item).dxTagBox(`instance`);
+                    tagBox.option(`value`).forEach(function(value) {
+                        let dataFieldName = tagBox.option().dataFieldName
+                        if(onEditorPreparingEventArguments.tableName) {
+                            dataFieldName = onEditorPreparingEventArguments.tableName + '.' + tagBox.option().dataFieldName
+                        }
+                        tagBoxFilterExpression.push([dataFieldName, `=`, Number(value)]);
+                        tagBoxFilterExpression.push(`or`);
+                    }, onEditorPreparingEventArguments);
+                    tagBoxFilterExpression.pop();
+                    if (tagBoxFilterExpression.length) {
+                        filterExpression.push(tagBoxFilterExpression);
+                        filterExpression.push(`and`);
+                    }
+                })
+                filterExpression.pop();
+                return filterExpression;
+            }
+
+            let calculatedFilterExpression = calculateFilterExpression();
+
+            if (calculatedFilterExpression.length) {
+                if (calculatedFilterExpression.length === 1)
+                    onEditorPreparingEventArguments.component.filter(calculatedFilterExpression[0]);
+
+                if (calculatedFilterExpression.length > 1)
+                    onEditorPreparingEventArguments.component.filter(calculatedFilterExpression);
+            } else {
+                onEditorPreparingEventArguments.component.clearFilter(`dataSource`)
+            }
+        }
     }
 
     _editingStart() {
@@ -209,6 +273,9 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
                 text: skDataGrid.addRowCommandCaption,
                 icon: "fas fa-plus",
                 onClick: (e) => {
+                    /* TODO: Devexpress не определяет, что editing.mode = skPopup и сбрасывает его на "row",
+                    **  из-за этого приходится писать этот велосипед. Соответственно встроенная функция dxDataGrid.addRow()
+                    **  работает некорректно. Нужно разобраться, как научить компонент принимать этот аргумент*/
                     if (options.component.option('editing.mode') === 'skPopup') {
                         options.component._initEditingForm(options.component, skDataGrid.editStates.INSERT);
                     } else {
@@ -290,27 +357,41 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
                         onClick: (e) => {
                             const formInstance = e.element.closest('.dx-form').dxForm('instance');
 
-                            formInstance.option('dataGridInstance').beginCustomLoading('Сохранение данных');
+                            if (!formInstance.validate().isValid) {
+                                return;
+                            }
+
+                            formInstance.option('dataGridInstance').beginCustomLoading(skDataGrid.popupSavingDataText);
 
                             console.log('editingState', formInstance.option('editingState'));
 
+                            const store = formInstance.option('dataGridInstance').getDataSource().store();
+
                             switch (formInstance.option('editingState').name) {
                                 case 'insert':
-                                    DevExpress.ui.notify({
-                                        message: "Insert is not implemented"
-                                    }, 'warning')
+                                    store.insert(
+                                        formInstance.option('formData')
+                                    ).done((data, key) => {
+                                        if (!(store instanceof DevExpress.data.ArrayStore)) {
+                                            store.push([{type: "insert", data: data.data}]);
+                                        }
+                                        formInstance.option('dataGridInstance').endCustomLoading();
+                                    }).always(() => {
+                                        formInstance.option('dataGridInstance').endCustomLoading();
+                                    })
                                     break;
                                 case 'update':
-                                    const store = formInstance.option('dataGridInstance').getDataSource().store();
                                     store.update(
                                         formInstance.option('formData').id,
                                         formInstance.option('formData')
-                                    ).done(function (data, key) {
+                                    ).done((data, key) => {
                                         if (!(store instanceof DevExpress.data.ArrayStore)) {
                                             store.push([{type: "update", data: data.data, key: key}]);
                                         }
-                                        formInstance.option('dataGridInstance').endCustomLoading('Сохранение данных');
+                                    }).always(() => {
+                                        formInstance.option('dataGridInstance').endCustomLoading();
                                     })
+
                                     break;
                                 case 'duplicate':
                                     DevExpress.ui.notify({
@@ -349,9 +430,3 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
 }
 
 DevExpress.registerComponent("skDataGrid", skDataGrid);
-
-// dxDataGrid.defaultOptions
-// // // DevExpress
-// DevExpress.ui.skDataGrid.defaultOptions({
-
-//});
