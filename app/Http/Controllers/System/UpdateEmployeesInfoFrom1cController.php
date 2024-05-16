@@ -9,12 +9,12 @@ use App\Models\Employees\Employee;
 use App\Models\Employees\Employees1cPost;
 use App\Models\Employees\Employees1cPostInflection;
 use App\Models\Employees\Employees1cSubdivision;
-use App\Models\Notification;
 use App\Models\User;
+use App\Notifications\Employee\EmployeeTerminationNotice;
+use App\Notifications\Employee\NewEmployeeArrivalNotice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use function morphos\Russian\pluralize;
-
 
 class UpdateEmployeesInfoFrom1cController extends Controller
 {
@@ -223,11 +223,12 @@ class UpdateEmployeesInfoFrom1cController extends Controller
             }
 
             foreach ($notificationRecipients as $recipient) {
-                Notification::create([
-                    'name' => $newEmployeesNotificationMessageText,
-                    'user_id' => $recipient->id,
-                    'type' => 0,
-                ]);
+                NewEmployeeArrivalNotice::send(
+                    $recipient->id,
+                    [
+                        'name' => $newEmployeesNotificationMessageText,
+                    ]
+                );
             }
         }
 
@@ -238,11 +239,12 @@ class UpdateEmployeesInfoFrom1cController extends Controller
                 $dismissedEmployeesNotificationMessageText .= "\n<a href='{$userCardUrl}'>{$dismissedEmployee->fullName}</a> ({$dismissedEmployee->birthday} г.р) — {$dismissedEmployee->postName}, {$dismissedEmployee->companyName}";
             }
             foreach ($notificationRecipients as $recipient) {
-                Notification::create([
-                    'name' => $dismissedEmployeesNotificationMessageText,
-                    'user_id' => $recipient->id,
-                    'type' => 0,
-                ]);
+                EmployeeTerminationNotice::send(
+                    $recipient->id,
+                    [
+                        'name' => $dismissedEmployeesNotificationMessageText,
+                    ]
+                );
             }
         }
     }

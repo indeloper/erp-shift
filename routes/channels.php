@@ -11,6 +11,8 @@
 |
 */
 
-Broadcast::channel(config('app.env') . '.App.User.{userId}', function ($user) {
+use Illuminate\Support\Facades\Broadcast;
+
+Broadcast::channel(config('app.env').'.App.User.{userId}', function ($user) {
     return $user->id === auth()->id();
 });

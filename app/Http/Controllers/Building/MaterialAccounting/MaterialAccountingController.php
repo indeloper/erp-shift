@@ -3,43 +3,34 @@
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\AttachContractRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToNewRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToUsedRequest;
+use App\Http\Requests\Building\MaterialAccounting\OperationReportRequest;
 use App\Http\Requests\Building\MaterialAccounting\SplitBaseRequest;
+use App\Notifications\Task\PartialClosureOperationDeletionRequestNotice;
+use App\Notifications\Task\PartialClosureOperationEditRequestNotice;
+use App\Models\{Comment, FileEntry, Group, Manual\ManualMaterialParameter, ProjectObject, Task, User};
 use App\Models\Contractors\Contractor;
-use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterial;
+use App\Models\Manual\ManualMaterialCategory;
+use App\Models\MatAcc\{MaterialAccountingBase,
+    MaterialAccountingMaterialAddition,
+    MaterialAccountingMaterialFile,
+    MaterialAccountingOperation,
+    MaterialAccountingOperationFile,
+    MaterialAccountingOperationMaterials};
 use App\Services\MaterialAccounting\MaterialAccountingBadMaterilas;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use App\Services\MaterialAccounting\Reports\BasesReportExport;
-use Carbon\CarbonPeriod;
-use App\Models\{Comment,
-    Group,
-    Manual\ManualMaterialParameter,
-    Manual\ManualReference,
-    Notification,
-    Task,
-    User,
-    ProjectObject,
-    FileEntry};
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\MatAcc\{
-    MaterialAccountingOperation,
-    MaterialAccountingOperationFile,
-    MaterialAccountingBase,
-    MaterialAccountingMaterialFile,
-    MaterialAccountingOperationMaterials,
-    MaterialAccountingMaterialAddition};
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Building\MaterialAccounting\OperationReportRequest;
-use Illuminate\Support\Facades\{Artisan, Auth, DB, File, Session, Storage};
-use Carbon\Carbon;
-use Log;
-
-
 use App\Services\MaterialAccounting\Reports\ObjectActionReportExport;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\{Artisan, Auth, DB, File, Storage};
+use Log;
 
 class MaterialAccountingController extends Controller
 {
@@ -742,18 +733,18 @@ class MaterialAccountingController extends Controller
             'final_note' => $request->description,
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $updation_task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $updation_task->name . '» ',
-            'task_id' => $updation_task->id,
-            'user_id' => $updation_task->responsible_user_id,
-            'contractor_id' => null,
-            'project_id' => null,
-            'object_id' => null,
-            'type' => 9
-        ]);
+        PartialClosureOperationEditRequestNotice::send(
+            $updation_task->responsible_user_id,
+            [
+                'name' => 'Новая задача «' . $updation_task->name . '» ',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $updation_task->task_route(),
+                'task_id' => $updation_task->id,
+                'contractor_id' => null,
+                'project_id' => null,
+                'object_id' => null,
+            ]
+        );
 
         return ['status' => 'success'];
     }
@@ -803,21 +794,20 @@ class MaterialAccountingController extends Controller
             'status' => 22
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $deletion_task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $deletion_task->name . '» ',
-            'task_id' => $deletion_task->id,
-            'user_id' => $deletion_task->responsible_user_id,
-            'contractor_id' => null,
-            'project_id' => null,
-            'object_id' => null,
-            'type' => 10
-        ]);
+        PartialClosureOperationDeletionRequestNotice::send(
+            $deletion_task->responsible_user_id,
+            [
+                'name' => 'Новая задача «' . $deletion_task->name . '» ',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $deletion_task->task_route(),
+                'task_id' => $deletion_task->id,
+                'contractor_id' => null,
+                'project_id' => null,
+                'object_id' => null,
+            ]
+        );
 
         return \GuzzleHttp\json_encode($operation->url);
-
     }
 
     public function update_part_task($task_id)

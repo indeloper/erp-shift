@@ -44,12 +44,12 @@ class ForceMigrationSync extends Command
     public function handle()
     {
         // DON'T PUSH UNCOMMENTED  lifehack for Windows users, uncomment and put the same migrations directly (
-//        $migrations = array_filter(explode('|',  '| 2019_05_17_161837_change_count_column_places_in_work_volume_materials_table
-//'), function($item) {
-//            return strpos($item, '_');
-//        });
+        //        $migrations = array_filter(explode('|',  '| 2019_05_17_161837_change_count_column_places_in_work_volume_materials_table
+        //'), function($item) {
+        //            return strpos($item, '_');
+        //        });
 
-        $migrations = array_filter(explode('|', $this->argument('raw_migrations')), function($item) {
+        $migrations = array_filter(explode('|', $this->argument('raw_migrations')), function ($item) {
             return strpos($item, '_');
         });
 
@@ -60,14 +60,14 @@ class ForceMigrationSync extends Command
         foreach ($migrations as $migration) {
             $migrated = DB::table('migrations')->where('migration', trim($migration))->first();
 
-            if (!$migrated) {
+            if (! $migrated) {
                 DB::table('migrations')->insert([
                     'migration' => trim($migration),
                     'batch' => $batch,
                 ]);
             }
 
-            $this->info($migration . 'was forcibly synced');
+            $this->info($migration.'was forcibly synced');
         }
 
         DB::commit();

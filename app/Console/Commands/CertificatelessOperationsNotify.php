@@ -2,11 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Contract\Contract;
 use App\Traits\NotificationGenerator;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class CertificatelessOperationsNotify extends Command
 {

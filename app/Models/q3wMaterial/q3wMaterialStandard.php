@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models\q3wMaterial;
 
 use App\Traits\DevExtremeDataSourceLoadable;
@@ -7,13 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wMaterialStandard extends Model
 {
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    protected $guarded = ['id'];
 
-    protected $guarded = array('id');
-
-    public function materialType() {
-        return $this->belongsTo(q3wMaterialType::class,'material_type','id');
+    public function materialType()
+    {
+        return $this->belongsTo(q3wMaterialType::class, 'material_type', 'id');
     }
-
 }

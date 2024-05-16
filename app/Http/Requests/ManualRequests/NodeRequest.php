@@ -50,7 +50,7 @@ class NodeRequest extends FormRequest
             'count' => 'array|required',
             'node_category_id' => 'string|required|exists:manual_node_categories,id',
             'node_name' => 'string|required|max:150',
-            'node_description' => 'string|nullable|max:200'
+            'node_description' => 'string|nullable|max:200',
         ];
     }
 }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Building;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManualRequests\CategoryRequest;
-use App\Models\FileEntry;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
@@ -21,12 +20,12 @@ class ManualMaterialCategoryController extends Controller
         $categories = ManualMaterialCategory::with('attributes', 'documents');
 
         if ($request->search) {
-            $categories = $categories->where('id', 'like', '%' . $request->search . '%')
-                ->orWhere('name', 'like', '%' . $request->search . '%');
+            $categories = $categories->where('id', 'like', '%'.$request->search.'%')
+                ->orWhere('name', 'like', '%'.$request->search.'%');
         }
 
         return view('building.materials.index')->with([
-            'categories' => $categories->get()
+            'categories' => $categories->get(),
         ]);
     }
 
@@ -53,7 +52,6 @@ class ManualMaterialCategoryController extends Controller
         return back();
     }
 
-
     public function update(CategoryRequest $request)
     {
         DB::beginTransaction();
@@ -74,9 +72,9 @@ class ManualMaterialCategoryController extends Controller
 
         $ids_to_remove = array_diff($old_attrs, $saved_attrs_id);
 
-        if (!empty($ids_to_remove)) {
+        if (! empty($ids_to_remove)) {
             $category->attributes()->whereIn('id', $ids_to_remove)->delete();
-//            ManualMaterialParameter::whereIn('attr_id', $ids_to_remove)->delete();
+            //            ManualMaterialParameter::whereIn('attr_id', $ids_to_remove)->delete();
         }
 
         $new_attrs = [];
@@ -88,7 +86,7 @@ class ManualMaterialCategoryController extends Controller
             }
         }
 
-        if (!empty($new_attrs)) {
+        if (! empty($new_attrs)) {
             $mat_ids = ManualMaterialCategory::where('id', $category->id)->with('materials')->first()->materials->pluck('id')->toArray();
 
             foreach ($new_attrs as $attr) {
@@ -160,7 +158,7 @@ class ManualMaterialCategoryController extends Controller
     {
         $category = ManualMaterialCategory::find($request->category_id);
 
-        return response()->json(['attrs' => $category->needAttributes(), 'unit_show' => MaterialAccountingOperationMaterials::flipUnit($category->unit_show) . '']);
+        return response()->json(['attrs' => $category->needAttributes(), 'unit_show' => MaterialAccountingOperationMaterials::flipUnit($category->unit_show).'']);
     }
 
     public function getNeedAttributesValues(Request $request)
@@ -169,7 +167,7 @@ class ManualMaterialCategoryController extends Controller
             $references = ManualReference::where('category_id', $request->category_id)->take(50);
 
             if ($request->q) {
-                $references->where('name', 'like', '%' . trim($request->q) . '%');
+                $references->where('name', 'like', '%'.trim($request->q).'%');
             }
 
             return $references->get(['id', 'name']);
@@ -179,7 +177,7 @@ class ManualMaterialCategoryController extends Controller
             $parameters = ManualReferenceParameter::where('attr_id', $request->attribute_id);
 
             if ($request->q) {
-                $parameters->where('value', 'like', '%' . trim($request->q) . '%');
+                $parameters->where('value', 'like', '%'.trim($request->q).'%');
             }
 
             $parameters = $parameters->get('value')->unique();

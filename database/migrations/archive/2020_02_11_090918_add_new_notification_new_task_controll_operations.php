@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddNewNotificationNewTaskControllOperations extends Migration
@@ -21,14 +19,14 @@ class AddNewNotificationNewTaskControllOperations extends Migration
             'id' => self::NOTIFICATION_TYPE,
             'group' => 2,
             'name' => 'Уведомление о задаче контроль операции',
-            'for_everyone' => 0 // for groups
+            'for_everyone' => 0, // for groups
         ];
 
         DB::table('notification_types')->insert($new_type);
 
         $notification_groups = [
             [
-                'notification_id'  => self::NOTIFICATION_TYPE,
+                'notification_id' => self::NOTIFICATION_TYPE,
                 'group_id' => 6,
             ],
         ];

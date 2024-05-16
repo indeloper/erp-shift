@@ -2,9 +2,8 @@
 
 namespace App\Models\MatAcc;
 
-use Illuminate\Database\Eloquent\Model;
-
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class MaterialAccountingMaterialAddition extends Model
 {
@@ -12,7 +11,7 @@ class MaterialAccountingMaterialAddition extends Model
         'operation_id',
         'operation_material_id',
         'user_id',
-        'description'
+        'description',
     ];
 
     public function user()

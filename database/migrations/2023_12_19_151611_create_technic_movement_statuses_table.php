@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTechnicMovementStatusesTable extends Migration
 {
@@ -36,42 +36,44 @@ class CreateTechnicMovementStatusesTable extends Migration
      */
     public function down()
     {
-        
+
         Schema::dropIfExists('technic_movement_statuses');
     }
 
-    public function getNewEntrises() {
+    public function getNewEntrises()
+    {
         $newEntries = self::NEW_ENTRIES;
-        foreach($newEntries as $key=>$newEntry) {
+        foreach ($newEntries as $key => $newEntry) {
             $newEntries[$key]['created_at'] = now();
             $newEntries[$key]['updated_at'] = now();
         }
+
         return $newEntries;
     }
 
     const NEW_ENTRIES = [
         [
-            'name' => 'Заявка создана', 
+            'name' => 'Заявка создана',
             'slug' => 'created',
             'sortOrder' => 1,
         ],
         [
-            'name' => 'Перевозчик найден', 
+            'name' => 'Перевозчик найден',
             'slug' => 'carrierFound',
             'sortOrder' => 2,
         ],
         [
-            'name' => 'В процессе перевозки', 
+            'name' => 'В процессе перевозки',
             'slug' => 'inProgress',
             'sortOrder' => 3,
         ],
         [
-            'name' => 'Исполнена', 
+            'name' => 'Исполнена',
             'slug' => 'completed',
             'sortOrder' => 4,
         ],
         [
-            'name' => 'Отменена', 
+            'name' => 'Отменена',
             'slug' => 'cancelled',
             'sortOrder' => 5,
         ],

@@ -2,8 +2,6 @@
 
 namespace App\Traits;
 
-use App\Models\TechAcc\OurTechnicTicket;
-
 trait TicketResponsibleUser
 {
     public $ticket_responsible_types = [
@@ -27,6 +25,7 @@ trait TicketResponsibleUser
     public function scopeOfType($query, $human_type)
     {
         $type = array_search($human_type, $this->ticket_responsible_types);
+
         return $query->where('type', $type);
     }
 

@@ -2,44 +2,47 @@
 
 namespace App\Models;
 
-use App\Traits\Logable;
-use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
-use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Traits\DevExtremeDataSourceLoadable;
-use App\Traits\SmartSearchable;
-use Illuminate\Database\Eloquent\Model;
-
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
+use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
+use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Traits\DefaultSortable;
+use App\Traits\DevExtremeDataSourceLoadable;
+use App\Traits\Logable;
+use App\Traits\SmartSearchable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Traits\DefaultSortable;
 
 class ProjectObject extends Model
 {
-    use DevExtremeDataSourceLoadable, Logable, SmartSearchable, DefaultSortable;
+    use DefaultSortable, DevExtremeDataSourceLoadable, Logable, SmartSearchable;
+    use HasFactory;
 
     protected $guarded = ['id'];
 
     public $defaultSortOrder = [
-        'short_name' => 'asc'
+        'short_name' => 'asc',
     ];
 
     protected $appends = ['location', 'name_tag'];
 
     /**
      * Getter for full object location
+     *
      * @return string
      */
     public function getLocationAttribute()
     {
-        return $this->name .', ' . $this->address;
+        return $this->name.', '.$this->address;
     }
 
     /**
      * Getter for object name tag
      * Will return short name or location attribute
      * if short name not setted
+     *
      * @return string
      */
     public function getNameTagAttribute()
@@ -95,7 +98,7 @@ class ProjectObject extends Model
             ->addSelect([
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PROJECT_MANAGER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_project_manager_full_names`"),
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_pto_engineer_full_names`"),
-                DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_foreman_full_names`")
+                DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_FOREMAN' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_foreman_full_names`"),
             ])
             ->groupBy(['project_objects.id', 'project_objects.short_name']);
     }
@@ -103,9 +106,9 @@ class ProjectObject extends Model
     public function getPermissionsAttribute()
     {
         $permissionsArray = [];
-        $permissions = Permission::where("category", 4)->get();
+        $permissions = Permission::where('category', 4)->get();
 
-        foreach ($permissions as $permission){
+        foreach ($permissions as $permission) {
             $permissionsArray[$permission->codename] = Auth::user()->can($permission->codename);
         }
 

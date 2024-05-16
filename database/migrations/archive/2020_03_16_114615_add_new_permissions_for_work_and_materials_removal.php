@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewPermissionsForWorkAndMaterialsRemoval extends Migration
 {
@@ -30,7 +30,7 @@ class AddNewPermissionsForWorkAndMaterialsRemoval extends Migration
                 'category' => $key % 2 === 0 ? 5 : 6,
                 'name' => self::PERMISSION_NAMES[$key],
                 'codename' => $codename,
-                'created_at' => now()
+                'created_at' => now(),
             ];
         }
 
@@ -45,22 +45,22 @@ class AddNewPermissionsForWorkAndMaterialsRemoval extends Migration
             [
                 'user_id' => 65,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'user_id' => 65,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'user_id' => 65,
                 'permission_id' => $permissionThree,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'user_id' => 65,
                 'permission_id' => $permissionFour,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

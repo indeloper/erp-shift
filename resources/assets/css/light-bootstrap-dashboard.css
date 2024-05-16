@@ -53,9 +53,9 @@
 }
 
 .modal.show .modal-dialog {
-    -webkit-transform: translate(0, 30%);
-    -o-transform: translate(0, 30%);
-    transform: translate(0, 30%);
+    /*-webkit-transform: translate(0, 30%);*/
+    /*-o-transform: translate(0, 30%);*/
+    /*transform: translate(0, 30%);*/
 }
 
 .modal.modal-mini .modal-dialog {
@@ -1762,7 +1762,7 @@ input:focus {
 }
 
 .modal-dialog {
-    padding-top: 60px;
+    /*padding-top: 60px;*/
 }
 
 .modal-footer {

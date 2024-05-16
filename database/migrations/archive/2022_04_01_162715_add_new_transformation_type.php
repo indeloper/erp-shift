@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\q3wMaterial\q3wMaterialTransformationType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddNewTransformationType extends Migration
@@ -15,8 +13,8 @@ class AddNewTransformationType extends Migration
     public function up()
     {
         $transformationType = new q3wMaterialTransformationType();
-        $transformationType -> value = "Изготовление клиновидного";
-        $transformationType -> save();
+        $transformationType->value = 'Изготовление клиновидного';
+        $transformationType->save();
     }
 
     /**

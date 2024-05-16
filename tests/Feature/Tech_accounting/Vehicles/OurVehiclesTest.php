@@ -3,12 +3,10 @@
 namespace Tests\Feature\Tech_accounting\Vehicles;
 
 use App\Models\FileEntry;
-use App\Models\TechAcc\Vehicles\{
-    OurVehicleParameters,
-    OurVehicles,
-    VehicleCategories,
-    VehicleCategoryCharacteristics
-};
+use App\Models\TechAcc\Vehicles\OurVehicleParameters;
+use App\Models\TechAcc\Vehicles\OurVehicles;
+use App\Models\TechAcc\Vehicles\VehicleCategories;
+use App\Models\TechAcc\Vehicles\VehicleCategoryCharacteristics;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -20,24 +18,30 @@ class OurVehiclesTest extends TestCase
     use DatabaseTransactions, WithFaker;
 
     protected $user;
+
     protected $vehicle_category;
 
     const NUMBER = '012345678';
+
     const TRAILER_NUMBER = '876543210';
+
     const MARK = 'LADA';
+
     const MODEL = 'NINE';
+
     const OWNER = 1;
+
     const GROUPS_WITH_PERMISSIONS = [15, 17, 47];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->user = User::whereIn('group_id', self::GROUPS_WITH_PERMISSIONS)->first();
         // create category
-        $this->vehicle_category = VehicleCategories::first() ?? factory(VehicleCategories::class)->create();
+        $this->vehicle_category = VehicleCategories::first() ?? VehicleCategories::factory()->create();
         // add characteristic
-        factory(VehicleCategoryCharacteristics::class)->create(['category_id' => $this->vehicle_category->id]);
+        VehicleCategoryCharacteristics::factory()->create(['category_id' => $this->vehicle_category->id]);
         // refresh
         $this->vehicle_category->refresh();
     }
@@ -46,7 +50,7 @@ class OurVehiclesTest extends TestCase
     public function we_can_create_vehicle()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
 
         // Then this vehicle should be exemplar of OurVehicles class
         $this->assertTrue(get_class($vehicle) == OurVehicles::class);
@@ -56,7 +60,7 @@ class OurVehiclesTest extends TestCase
     public function vehicle_must_have_author_relation()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
 
         // Then this author relation should be exemplar of User class
         $this->assertTrue(get_class($vehicle->author) == User::class);
@@ -66,7 +70,7 @@ class OurVehiclesTest extends TestCase
     public function vehicle_must_have_category_relation()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
 
         // Then this author relation should be exemplar of User class
         $this->assertTrue(get_class($vehicle->category) == VehicleCategories::class);
@@ -76,8 +80,8 @@ class OurVehiclesTest extends TestCase
     public function vehicle_must_have_parameters_relation()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
-        factory(OurVehicleParameters::class)->create(['vehicle_id' => $vehicle->id]);
+        $vehicle = OurVehicles::factory()->create();
+        OurVehicleParameters::factory()->create(['vehicle_id' => $vehicle->id]);
 
         // Then this author relation should be exemplar of Collection class
         $this->assertTrue(get_class($vehicle->parameters) == Collection::class);
@@ -89,9 +93,9 @@ class OurVehiclesTest extends TestCase
     public function vehicle_must_have_parameters_relation_delete_testing()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
-        factory(OurVehicleParameters::class)->create(['vehicle_id' => $vehicle->id]);
-        $willDelete = factory(OurVehicleParameters::class)->create(['vehicle_id' => $vehicle->id]);
+        $vehicle = OurVehicles::factory()->create();
+        OurVehicleParameters::factory()->create(['vehicle_id' => $vehicle->id]);
+        $willDelete = OurVehicleParameters::factory()->create(['vehicle_id' => $vehicle->id]);
 
         // Then collection count should be equal to 1
         $this->assertCount(2, $vehicle->parameters);
@@ -108,7 +112,7 @@ class OurVehiclesTest extends TestCase
     public function we_can_create_vehicle_parameter()
     {
         // Given fresh vehicle category characteristic
-        $vehicleParameter = factory(OurVehicleParameters::class)->create();
+        $vehicleParameter = OurVehicleParameters::factory()->create();
 
         // Then this characteristic should be exemplar of VehicleCategoryCharacteristics class
         $this->assertTrue(get_class($vehicleParameter) == OurVehicleParameters::class);
@@ -118,7 +122,7 @@ class OurVehiclesTest extends TestCase
     public function vehicle_parameter_must_have_vehicle_relation()
     {
         // Given fresh vehicle category characteristic
-        $vehicleParameter = factory(OurVehicleParameters::class)->create();
+        $vehicleParameter = OurVehicleParameters::factory()->create();
 
         // Then this characteristic should be exemplar of VehicleCategoryCharacteristics class
         $this->assertTrue(get_class($vehicleParameter->vehicle) == OurVehicles::class);
@@ -128,7 +132,7 @@ class OurVehiclesTest extends TestCase
     public function vehicle_parameter_must_have_vehicle_category_characteristic_relation()
     {
         // Given fresh vehicle category characteristic
-        $vehicleParameter = factory(OurVehicleParameters::class)->create();
+        $vehicleParameter = OurVehicleParameters::factory()->create();
 
         // Then this characteristic should be exemplar of VehicleCategoryCharacteristics class
         $this->assertTrue(get_class($vehicleParameter->characteristic) == VehicleCategoryCharacteristics::class);
@@ -223,9 +227,9 @@ class OurVehiclesTest extends TestCase
             'parameters' => [
                 [
                     'characteristic_id' => $this->vehicle_category->characteristics->first()->id,
-                    'value' => 'SMTH'
-                ]
-            ]
+                    'value' => 'SMTH',
+                ],
+            ],
         ];
         $response = $this->actingAs($user)->post(route('building::vehicles::vehicle_categories.our_vehicles.store', $this->vehicle_category->id), $request);
 
@@ -288,7 +292,7 @@ class OurVehiclesTest extends TestCase
     public function it_can_have_documents()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
 
         // Given random file
         $file = FileEntry::create([
@@ -310,7 +314,7 @@ class OurVehiclesTest extends TestCase
     public function we_can_delete_the_vehicle()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
 
         $vehicle->delete();
         $vehicle->fresh();
@@ -323,7 +327,7 @@ class OurVehiclesTest extends TestCase
     public function anyone_without_permission_cant_delete_the_vehicle()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
 
         /// Given user
         $user = User::whereNotIn('group_id', self::GROUPS_WITH_PERMISSIONS)->first();
@@ -338,7 +342,7 @@ class OurVehiclesTest extends TestCase
     public function anyone_with_permission_can_delete_the_vehicle()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
         /// Given user
         $user = $this->user;
 
@@ -355,7 +359,7 @@ class OurVehiclesTest extends TestCase
     public function anyone_without_permission_cant_update_the_vehicle()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
 
         /// Given user
         $user = User::whereNotIn('group_id', self::GROUPS_WITH_PERMISSIONS)->first();
@@ -373,7 +377,7 @@ class OurVehiclesTest extends TestCase
     public function we_can_update_vehicle_by_post()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
         // Given user
         $user = $this->user;
 
@@ -408,8 +412,8 @@ class OurVehiclesTest extends TestCase
     public function we_can_update_vehicle_by_post_include_parameters()
     {
         // Given fresh vehicle with parameter
-        $vehicle = factory(OurVehicles::class)->create();
-        $parameter = factory(OurVehicleParameters::class)->create(['vehicle_id' => $vehicle->id, 'characteristic_id' => $vehicle->category->characteristics->first()->id]);
+        $vehicle = OurVehicles::factory()->create();
+        $parameter = OurVehicleParameters::factory()->create(['vehicle_id' => $vehicle->id, 'characteristic_id' => $vehicle->category->characteristics->first()->id]);
         // Given user
         $user = $this->user;
 
@@ -424,9 +428,9 @@ class OurVehiclesTest extends TestCase
                 [
                     'id' => $parameter->id,
                     'characteristic_id' => $parameter->characteristic_id,
-                    'value' => ''
-                ]
-            ]
+                    'value' => '',
+                ],
+            ],
         ];
 
         // When we make put request with data
@@ -462,7 +466,7 @@ class OurVehiclesTest extends TestCase
     public function we_can_update_vehicle_by_post_without_parameters_id()
     {
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create();
+        $vehicle = OurVehicles::factory()->create();
         // Given user
         $user = $this->user;
 
@@ -476,9 +480,9 @@ class OurVehiclesTest extends TestCase
             'parameters' => [
                 [
                     'id' => '',
-                    'value' => ''
-                ]
-            ]
+                    'value' => '',
+                ],
+            ],
         ];
 
         // When we make put request with data
@@ -492,11 +496,11 @@ class OurVehiclesTest extends TestCase
     public function vehicle_deleting_influence()
     {
         // Given fresh vehicle category with characteristic
-        $vehicleCategory = factory(VehicleCategories::class)->create();
-        $characteristic = factory(VehicleCategoryCharacteristics::class)->create(['show' => 1, 'category_id' => $vehicleCategory->id]);
+        $vehicleCategory = VehicleCategories::factory()->create();
+        $characteristic = VehicleCategoryCharacteristics::factory()->create(['show' => 1, 'category_id' => $vehicleCategory->id]);
         // Given fresh vehicle with parameter
-        $vehicle = factory(OurVehicles::class)->create(['category_id' => $vehicleCategory->id]);
-        $parameter = factory(OurVehicleParameters::class)->create(['vehicle_id' => $vehicle->id, 'characteristic_id' => $characteristic->id]);
+        $vehicle = OurVehicles::factory()->create(['category_id' => $vehicleCategory->id]);
+        $parameter = OurVehicleParameters::factory()->create(['vehicle_id' => $vehicle->id, 'characteristic_id' => $characteristic->id]);
 
         // When we delete vehicle
         $vehicle->delete();
@@ -510,18 +514,18 @@ class OurVehiclesTest extends TestCase
         // Then vehicle should be deleted
         $this->assertTrue($vehicle->trashed());
         // Vehicle parameters should be deleted - UPD NOW NOT
-//        $this->assertTrue($parameter->trashed());
+        //        $this->assertTrue($parameter->trashed());
     }
 
     /** @test */
     public function it_collect_full_name_as_text()
     {
-        $vehicleCategory = factory(VehicleCategories::class)->create([
-            'name' => 'Fastest car EVER'
+        $vehicleCategory = VehicleCategories::factory()->create([
+            'name' => 'Fastest car EVER',
         ]);
 
         // Given fresh vehicle
-        $vehicle = factory(OurVehicles::class)->create([
+        $vehicle = OurVehicles::factory()->create([
             'number' => self::NUMBER,
             'trailer_number' => self::TRAILER_NUMBER,
             'mark' => self::MARK,

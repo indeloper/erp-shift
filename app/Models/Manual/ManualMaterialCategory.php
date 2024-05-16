@@ -2,15 +2,17 @@
 
 namespace App\Models\Manual;
 
-use App\Traits\Reviewable;
 use App\Traits\Documentable;
+use App\Traits\Reviewable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class ManualMaterialCategory extends Model
 {
-    use Reviewable, SoftDeletes, Documentable;
+    use Documentable, Reviewable, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = ['name', 'description', 'category_unit', 'formula'];
 
@@ -19,7 +21,7 @@ class ManualMaterialCategory extends Model
     public function attributes()
     {
         return $this->hasMany(ManualMaterialCategoryAttribute::class, 'category_id', 'id')
-            ->when((!Auth::user() || Auth::user()->id != 1), function ($query) {
+            ->when((! Auth::user() || Auth::user()->id != 1), function ($query) {
                 return $query->where('is_display', 1);
             });
     }
@@ -76,8 +78,8 @@ class ManualMaterialCategory extends Model
 
             $needAttributes = [];
             foreach ($parsedArrayIds as $key => $item) {
-                if ((int)$item) {
-                    $needAttributes[] = (int)$item;
+                if ((int) $item) {
+                    $needAttributes[] = (int) $item;
                 }
             }
             $attrs = $this->attributesAll()->whereIn('name', ['Длина', 'Ширина'])->whereIn('id', $needAttributes)->get();

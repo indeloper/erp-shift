@@ -3,15 +3,15 @@
 namespace App\Services\Fuel;
 
 use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
-class FuelFlowCrudService {
-
+class FuelFlowCrudService
+{
     protected $methodName;
+
     protected $serviceData;
 
     public function __construct($methodName, $serviceData)
@@ -23,13 +23,13 @@ class FuelFlowCrudService {
 
     public function handle()
     {
-        if($this->methodName === 'stored') {
+        if ($this->methodName === 'stored') {
             $this->stored();
         }
-        if($this->methodName === 'deleted') {
+        if ($this->methodName === 'deleted') {
             $this->deleted();
         }
-        if($this->methodName === 'updated') {
+        if ($this->methodName === 'updated') {
             $this->updated();
         }
     }
@@ -64,7 +64,7 @@ class FuelFlowCrudService {
         return FuelTankTransferHistory::query()
             ->where([
                 ['fuel_tank_id', $this->serviceData['entity']->fuel_tank_id],
-                ['event_date', '<=', Carbon::create($this->serviceData['data']['event_date'])]
+                ['event_date', '<=', Carbon::create($this->serviceData['data']['event_date'])],
             ])
             ->orderByDesc('event_date')
             ->orderByDesc('id')
@@ -76,11 +76,10 @@ class FuelFlowCrudService {
         $volume =
             $callingMethod === 'stored' ?
                 $this->serviceData['data']['volume']
-                : $this->serviceData['entity']->volume
-        ;
+                : $this->serviceData['entity']->volume;
 
-        if(FuelTankFlowType::find($this->serviceData['entity']->fuel_tank_flow_type_id)->slug === 'outcome') {
-            return (-1 * $volume);
+        if (FuelTankFlowType::find($this->serviceData['entity']->fuel_tank_flow_type_id)->slug === 'outcome') {
+            return -1 * $volume;
         }
 
         return $volume;
@@ -97,31 +96,31 @@ class FuelFlowCrudService {
             'responsible_id' => $this->serviceData['entity']->responsible_id,
             'fuel_tank_flow_id' => $this->serviceData['entity']->id,
             'fuel_level' => $previousTransferHistory ? ($previousTransferHistory->fuel_level + $fuelLevelDiff) : 0,
-            'event_date' => $this->serviceData['data']['event_date']
+            'event_date' => $this->serviceData['data']['event_date'],
         ]);
     }
 
     public function getSubsequentTransferHistories($callingMethod)
     {
-        if($callingMethod === 'stored') {
+        if ($callingMethod === 'stored') {
             return FuelTankTransferHistory::query()
                 ->where([
                     ['fuel_tank_id', $this->serviceData['entity']->fuel_tank_id],
-                    ['event_date', '>', $this->serviceData['data']['event_date']]
+                    ['event_date', '>', $this->serviceData['data']['event_date']],
                 ])
                 ->get();
         }
 
-        if($callingMethod === 'deleted') {
+        if ($callingMethod === 'deleted') {
             return FuelTankTransferHistory::query()
                 ->where([
                     ['fuel_tank_id', $this->serviceData['entity']->fuel_tank_id],
                     ['event_date', $this->serviceData['entity']->event_date],
-                    ['fuel_tank_flow_id', '>', $this->serviceData['entity']->id]
+                    ['fuel_tank_flow_id', '>', $this->serviceData['entity']->id],
                 ])
                 ->orWhere([
                     ['fuel_tank_id', $this->serviceData['entity']->fuel_tank_id],
-                    ['event_date', '>', $this->serviceData['entity']->event_date]
+                    ['event_date', '>', $this->serviceData['entity']->event_date],
                 ])
                 ->get();
         }
@@ -129,7 +128,7 @@ class FuelFlowCrudService {
 
     public function updateSubsequentTransferHistories($subsequentTransferHistories, $fuelLevelDiff)
     {
-        $subsequentTransferHistories->each(function($history) use($fuelLevelDiff) {
+        $subsequentTransferHistories->each(function ($history) use ($fuelLevelDiff) {
             $history->increment('fuel_level', $fuelLevelDiff);
         });
     }

@@ -35,7 +35,7 @@ class ContractTest extends TestCase
     public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_KC_date_exist()
     {
         // Given contracts without date of KC
-        $contracts = factory(Contract::class, 3)->create();
+        $contracts = Contract::factory()->count(3)->create();
 
         // When we use tenDaysBeforeDateOfKC scope
         $result = Contract::tenDaysBeforeDateOfKC()->get();
@@ -51,7 +51,7 @@ class ContractTest extends TestCase
         $newNow = now()->day(15);
         Carbon::setTestNow($newNow);
         // Given contracts with date of KC
-        $contracts = factory(Contract::class, 3)->create(['ks_date' => now()->day(10)->format('d'), 'type' => 1]);
+        $contracts = Contract::factory()->count(3)->create(['ks_date' => now()->day(10)->format('d'), 'type' => 1]);
 
         // When we use tenDaysBeforeDateOfKC scope
         $result = Contract::tenDaysBeforeDateOfKC()->get();
@@ -67,7 +67,7 @@ class ContractTest extends TestCase
         $newNow = now()->day(15);
         Carbon::setTestNow($newNow);
         // Given contracts with date of KC
-        $contracts = factory(Contract::class, 3)->create(['ks_date' => now()->addDays(10)->format('d'), 'type' => 1]);
+        $contracts = Contract::factory()->count(3)->create(['ks_date' => now()->addDays(10)->format('d'), 'type' => 1]);
 
         // When we use tenDaysBeforeDateOfKC scope
         $result = Contract::tenDaysBeforeDateOfKC()->get();
@@ -81,11 +81,11 @@ class ContractTest extends TestCase
     public function contract_can_have_operations_relation()
     {
         // Given some project
-        $project = factory(ProjectObject::class)->create();
+        $project = ProjectObject::factory()->create();
         // Given contracts for project with ks date
-        $contract = factory(Contract::class)->create(['project_id' => $project->id, 'type' => 1, 'ks_date' => now()->addDays(10)->format('d')]);
+        $contract = Contract::factory()->create(['project_id' => $project->id, 'type' => 1, 'ks_date' => now()->addDays(10)->format('d')]);
         // Given operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id]);
 
         // Then contract should have operations relation
         $operations = $contract->refresh()->operations;

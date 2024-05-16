@@ -2,34 +2,28 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
-use App\Http\Requests\ProjectRequest\ProjectStatRequest;
-use App\Models\Building\ObjectResponsibleUser;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
+use App\Models\Employees\Employee;
+use App\Models\Employees\Employees1cPost;
 use App\Models\LaborSafety\LaborSafetyOrderType;
 use App\Models\LaborSafety\LaborSafetyOrderWorker;
 use App\Models\LaborSafety\LaborSafetyRequest;
-use App\Models\LaborSafety\LaborSafetyRequestOrder;
 use App\Models\LaborSafety\LaborSafetyRequestStatus;
 use App\Models\LaborSafety\LaborSafetyRequestWorker;
 use App\Models\LaborSafety\LaborSafetyWorkerType;
-use App\Models\Notification;
-use App\Models\Employees\Employee;
-use App\Models\Employees\Employees1cPost;
 use App\Models\Permission;
 use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\User;
-use App\Models\UserPermission;
-use App\Telegram\TelegramServices;
+use App\Notifications\Labor\LaborCancelNotification;
+use App\Notifications\Labor\LaborSafetyNotification;
+use App\Notifications\Labor\LaborSignedNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use morphos\English\NounPluralization;
-use morphos\Russian\NounDeclension;
 use PhpOffice\PhpWord\ComplexType\ProofState;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Row;
@@ -38,7 +32,6 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\NumberFormat;
 use PhpOffice\PhpWord\Style\Language;
-use function morphos\Russian\inflectName;
 
 class LaborSafetyHtml extends Html
 {
@@ -155,7 +148,7 @@ class LaborSafetyHtml extends Html
             // Arguments are passed by reference
             $arguments = array();
             $args = array();
-            list($method, $args[0], $args[1], $args[2], $args[3], $args[4], $args[5]) = $nodes[$node->nodeName];
+            [$method, $args[0], $args[1], $args[2], $args[3], $args[4], $args[5]] = $nodes[$node->nodeName];
             for ($i = 0; $i <= 5; $i++) {
                 if ($args[$i] !== null) {
                     $arguments[$keys[$i]] = &$args[$i];
@@ -1290,41 +1283,56 @@ class LaborSafetyRequestController extends Controller
 
     private function sendRequestNotification($requestRow)
     {
-        $notification = '';
-        $userIds = [];
-
         switch ($requestRow->request_status_id) {
             case 1:
                 $userIds = (new Permission)->getUsersIdsByCodename('labor_safety_generate_documents_access');
                 $userIds = array_diff($userIds, array($requestRow->author_user_id));
 
-                $message = (new TelegramServices)->getMessageParams(
-                    [
-                        'template' => 'laborSafetyNewOrderRequestNotificationTemplate',
-                        'orderRequest' => $requestRow
-                    ]);
+                $orderRequestAuthor = User::find($requestRow->author_user_id);
+
+                $company = Company::find($requestRow->company_id);
+                $projectObject = ProjectObject::find($requestRow->project_object_id);
+
+                foreach ($userIds as $userId) {
+                    LaborSafetyNotification::send(
+                        $userId,
+                        [
+                            'name' => 'Заявка на формирование приказов',
+                            'target_id' => $requestRow->id,
+                            'status' => 7,
+                            'orderRequestId' => $requestRow->id,
+                            'orderRequestAuthor' => $orderRequestAuthor,
+                            'company' => $company,
+                            'projectObject' => $projectObject
+                        ]
+                    );
+                }
+
                 break;
             case 3:
-                $userIds = [$requestRow->author_id];
                 $message = "Заявка на формирование приказов #$requestRow->id отменена. Для уточнения информации обратитесь в отдел по Охране Труда.";
+                LaborCancelNotification::send(
+                    $requestRow->author_id,
+                    [
+                        'name' => $message,
+                        'target_id' => $requestRow->id,
+                        'status' => 7
+                    ]
+                );
+
                 break;
             case 4:
-                $userIds = [$requestRow->author_id];
                 $message = "Документы по заявке на формирование приказов #$requestRow->id подписаны.";
-                break;
-        }
+                LaborSignedNotification::send(
+                    $requestRow->author_id,
+                    [
+                        'name' => $message,
+                        'target_id' => $requestRow->id,
+                        'status' => 7
+                    ]
+                );
 
-        foreach ($userIds as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->update([
-                'name' => $message['message']['text'],
-                'target_id' => $requestRow->id,
-                'user_id' => $userId,
-                'created_at' => now(),
-                'type' => 7,
-                'status' => 7
-            ]);
+                break;
         }
     }
 

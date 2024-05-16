@@ -17,19 +17,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Cloud Filesystem Disk
-    |--------------------------------------------------------------------------
-    |
-    | Many applications store files both locally and in the cloud. For this
-    | reason, you may specify a default "cloud" driver here. This driver
-    | will be bound as the Cloud disk implementation in the container.
-    |
-    */
-
-    'cloud' => env('FILESYSTEM_CLOUD', 's3'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -37,7 +24,7 @@ return [
     | may even configure multiple disks of the same driver. Defaults have
     | been setup for each driver as an example of the required options.
     |
-    | Supported Drivers: "local", "ftp", "sftp", "s3", "rackspace"
+    | Supported Drivers: "local", "ftp", "sftp", "s3"
     |
     */
 
@@ -203,10 +190,10 @@ return [
         ],
 
         'message_files' => [
-        'driver' => 'local',
-        'root' => storage_path('app/public/docs/message_files'),
-        'url' => env('APP_URL').'/message_files',
-        'visibility' => 'private',
+            'driver' => 'local',
+            'root' => storage_path('app/public/docs/message_files'),
+            'url' => env('APP_URL').'/message_files',
+            'visibility' => 'private',
         ],
 
         's3' => [
@@ -216,6 +203,8 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
         ],
 
         'project_object_documents' => [
@@ -238,7 +227,7 @@ return [
             'url' => env('APP_URL').'storage/docs/fuel_flow/',
             'visibility' => 'private',
         ],
-        
+
         'zip_archives' => [
             'driver' => 'local',
             'root' => storage_path('app/public/docs/zip_archives'),
@@ -253,6 +242,21 @@ return [
             'visibility' => 'private',
         ],
 
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Symbolic Links
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the symbolic links that will be created when the
+    | `storage:link` Artisan command is executed. The array keys should be
+    | the locations of the links and the values should be their targets.
+    |
+    */
+
+    'links' => [
+        public_path('storage') => storage_path('app/public'),
     ],
 
 ];

@@ -9,7 +9,7 @@ class ContractRequest extends Model
     public $request_status = [
         1 => 'Не просмотрен',
         2 => 'Положительный',
-        3 => 'Отрицательный'
+        3 => 'Отрицательный',
     ];
 
     protected $fillable = ['name', 'user_id', 'contract_id', 'project_id', 'description', 'status', 'result_comment'];

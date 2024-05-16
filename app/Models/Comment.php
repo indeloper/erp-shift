@@ -5,12 +5,14 @@ namespace App\Models;
 use App\Traits\Documentable;
 use App\Traits\RussianShortDates;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 
 class Comment extends Model
 {
     use Documentable;
+    use HasFactory;
     use RussianShortDates;
 
     protected $guarded = ['id'];
@@ -22,7 +24,7 @@ class Comment extends Model
     {
         parent::__construct($attributes);
 
-        static::deleted(function($comment) {
+        static::deleted(function ($comment) {
             $comment->documents()->delete();
         });
     }
@@ -34,6 +36,7 @@ class Comment extends Model
     /**
      * This getter parse blade directive if comment
      * have it, otherwise return old comment
+     *
      * @return string
      */
     public function getPrettyCommentAttribute()
@@ -47,6 +50,7 @@ class Comment extends Model
 
     /**
      * Getter for created_at formatting
+     *
      * @return Carbon|null
      */
     public function getCreatedAtFormattedAttribute()

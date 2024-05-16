@@ -1,11 +1,10 @@
 <?php
 namespace App\Services\TechAccounting;
 
-
-use App\Models\Notification;
 use App\Models\Task;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
+use App\Notifications\TimestampTechniqueUsageNotice;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
@@ -42,15 +41,17 @@ class TechnicTicketReportService
                 'status' => 36,
             ]);
             $task->update(['created_at' => $date]);
-            $notification = new Notification([
-                'name' => 'Была создана задача ' . '"Ответка времени использования техники за ' . $date->clone()->isoFormat('DD.MM.YYYY') . '"',
-                'user_id' => $task->responsible_user_id,
-                'created_at' => now(),
-                'type' => 110,
-                'task_id' => $task->id,
-            ]);
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->save();
+
+            TimestampTechniqueUsageNotice::send(
+                $task->responsible_user_id,
+                [
+                    'name' => 'Была создана задача ' . '"Ответка времени использования техники за ' . $date->clone()->isoFormat('DD.MM.YYYY') . '"',
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
+                    'created_at' => now(),
+                    'task_id' => $task->id,
+                ]
+            );
         }
     }
 

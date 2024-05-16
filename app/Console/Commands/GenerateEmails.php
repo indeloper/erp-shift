@@ -47,15 +47,15 @@ class GenerateEmails extends Command
             ->get();
 
         foreach ($users_without_email as $user) {
-            $email = Str::random(10) . '@sk-resta.ru';
+            $email = Str::random(10).'@sk-resta.ru';
             while (User::where('email', $email)->exists()) {
-                $email = Str::random(10) . '@sk-resta.ru';
+                $email = Str::random(10).'@sk-resta.ru';
             }
 
             $user->email = $email;
             $user->save();
         }
         DB::commit();
-        $this->info($users_without_email->count() . ' emails where generated');
+        $this->info($users_without_email->count().' emails where generated');
     }
 }

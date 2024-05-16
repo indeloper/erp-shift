@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\q3wMaterial;
 
 use App\Traits\DevExtremeDataSourceLoadable;
@@ -8,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wMaterialTransformationType extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 }

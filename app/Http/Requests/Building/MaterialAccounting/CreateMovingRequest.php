@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Building\MaterialAccounting;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-
-use \Carbon\Carbon;
 
 class CreateMovingRequest extends FormRequest
 {
@@ -41,7 +40,7 @@ class CreateMovingRequest extends FormRequest
             'object_id_to' => 'required|exists:project_objects,id',
             'contract_id' => 'nullable', // required_unless:object_id,76,192
 
-            'planned_date_from' => 'required|after_or_equal:' . $afterThisDate,
+            'planned_date_from' => 'required|after_or_equal:'.$afterThisDate,
             'planned_date_to' => 'required|after_or_equal:planned_date_from',
 
             // 'comment' => 'required|string|max:250',

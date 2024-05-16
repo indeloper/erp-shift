@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateFileEntriesTable extends Migration
 {
@@ -15,12 +15,12 @@ class CreateFileEntriesTable extends Migration
     {
         Schema::create('file_entries', function (Blueprint $table) {
             $table->increments('id');
-             $table->string('filename');
-             $table->integer('size');
-             $table->string('mime');
-             $table->string('original_filename');
-             $table->unsignedInteger('user_id');
-             $table->timestamps();
+            $table->string('filename');
+            $table->integer('size');
+            $table->string('mime');
+            $table->string('original_filename');
+            $table->unsignedInteger('user_id');
+            $table->timestamps();
         });
     }
 

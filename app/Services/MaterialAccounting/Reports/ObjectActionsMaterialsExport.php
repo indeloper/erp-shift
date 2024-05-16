@@ -2,45 +2,37 @@
 
 namespace App\Services\MaterialAccounting\Reports;
 
-use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 use App\Models\MatAcc\MaterialAccountingBase;
-
-use App\Models\ProjectObject;
-
-use Maatwebsite\Excel\Facades\Excel;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
-Use \Maatwebsite\Excel\Sheet;
-use \Maatwebsite\Excel\Writer;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-use Illuminate\Support\Facades\DB;
-
-use Carbon\Carbon;
-
-class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents, WithTitle{
-
+class ObjectActionsMaterialsExport implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings, WithTitle
+{
     use Exportable;
 
     /**
      * @var MaterialAccountingOperationMaterials[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
     public $materials_to;
+
     /**
      * @var MaterialAccountingOperationMaterials[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
     public $materials_from;
+
     /**
      * @var MaterialAccountingOperationMaterials[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
     public $materials_planned;
 
-    public function __construct($object, $operations, $materials_planned, $materials_to, $materials_to_uniq, $materials_from,  $balance = false)
+    public function __construct($object, $operations, $materials_planned, $materials_to, $materials_to_uniq, $materials_from, $balance = false)
     {
         $this->object = $object;
         if ($balance) {
@@ -64,14 +56,14 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
 
     public function title(): string
     {
-        return $this->balance ? 'Остаток' :'Материалы';
+        return $this->balance ? 'Остаток' : 'Материалы';
     }
 
     public function headings(): array
     {
         return [
             [
-                $this->object->short_name ?? $this->object->address
+                $this->object->short_name ?? $this->object->address,
             ],
             [
                 'Марка поз.',
@@ -118,14 +110,14 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
                 'тн.',
                 '',
                 '',
-            ]
+            ],
         ];
     }
 
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $firstColumn = 'A1:N1';
                 $event->sheet->getDelegate()->mergeCells($firstColumn);
 
@@ -135,7 +127,7 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
                     ->getStartColor()
                     ->setARGB('ffbb04');
 
-                $event->sheet->horizontalAlign($firstColumn , \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign($firstColumn, \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
                 $columnA = 'A2:A4';
                 $event->sheet->getDelegate()->mergeCells($columnA);
@@ -143,15 +135,14 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
                 $columnB = 'B2:B4';
                 $event->sheet->getDelegate()->mergeCells($columnB);
 
-                $columnC= 'C2:C4';
+                $columnC = 'C2:C4';
                 $event->sheet->getDelegate()->mergeCells($columnC);
 
-                $columnM= 'M2:M4';
+                $columnM = 'M2:M4';
                 $event->sheet->getDelegate()->mergeCells($columnM);
 
-                $columnN= 'N2:N4';
+                $columnN = 'N2:N4';
                 $event->sheet->getDelegate()->mergeCells($columnN);
-
 
                 $rowEF2 = 'D2:L2';
                 $event->sheet->getDelegate()->mergeCells($rowEF2);
@@ -174,16 +165,16 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
                     ->getStartColor()
                     ->setARGB('bdd7ee');
 
-                $event->sheet->getStyle('C6:C' . ($this->getMaterialsName()->count() + 4))
+                $event->sheet->getStyle('C6:C'.($this->getMaterialsName()->count() + 4))
                     ->getFill()
                     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                     ->getStartColor()
                     ->setARGB('bfbfbf');
 
-                $event->sheet->horizontalAlign('A:N' , \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->verticalAlign('A:N' , \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $event->sheet->horizontalAlign('A:N', \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $event->sheet->verticalAlign('A:N', \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
 
-            }
+            },
         ];
     }
 
@@ -194,7 +185,7 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
         // $materialNames = $this->getMaterialsName();
         $all_materials_planned = $this->materials_planned; // type 3, 6, 7
         $all_materials_to = $this->materials_to; // type 9
-        $all_materials_from = $this->materials_from;// type 8
+        $all_materials_from = $this->materials_from; // type 8
         $materials_to_uniq = $this->materials_to_uniq;
         foreach ($materials_to_uniq as $item) {
             unset($new_count_weith);
@@ -211,7 +202,6 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
             $push[2] = $item->manual->name;
             // fork for balance
 
-
             if ($this->balance && $balance_mat) {
                 $push[3] = 0;
                 $push[4] = 0;
@@ -221,8 +211,7 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
                     $push[4] += (isset($material) && $material->unit == 'м.п') ? round($material->count, 3) : round(($material->material->convert_from($material->unit)->where('unit', 'м.п')->first()->value ?? 0) * ($material->count), 3);
                     $push[5] += (isset($material) && $material->unit == 'т') ? round($material->count, 3) : round(($material->material->convert_from($material->unit)->where('unit', 'т')->first()->value ?? 0) * $material->count, 3);
                 }
-            }
-            else {
+            } else {
                 $push[3] = '';
                 $push[4] = '';
                 $push[5] = '';
@@ -246,15 +235,14 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
                     $push[10] += $material->units_name[$material->unit] == 'м.п' ? round($material->count, 3) : round(($material->manual->convert_from($material->units_name[$material->unit])->where('unit', 'м.п')->first()->value ?? 0) * ($material->count), 3);
                     $push[11] += $material->units_name[$material->unit] == 'т' ? round($material->count, 3) : round(($material->manual->convert_from($material->units_name[$material->unit])->where('unit', 'т')->first()->value ?? 0) * $material->count, 3);
                 }
-            }
-            else {
+            } else {
                 $push[9] = '';
                 $push[10] = '';
                 $push[11] = '';
             }
 
-            if (!$this->balance) {
-                if ($planned_mat){
+            if (! $this->balance) {
+                if ($planned_mat) {
                     $push[3] = 0;
                     $push[4] = 0;
                     $push[5] = 0;
@@ -263,8 +251,7 @@ class ObjectActionsMaterialsExport implements FromCollection, WithHeadings, Shou
                         $push[4] += $material->units_name[$material->unit] == 'м.п' ? round($material->count, 3) : round(($material->manual->convert_from($material->units_name[$material->unit])->where('unit', 'м.п')->first()->value ?? 0) * ($material->count), 3);
                         $push[5] += $material->units_name[$material->unit] == 'т' ? round($material->count, 3) : round(($material->manual->convert_from($material->units_name[$material->unit])->where('unit', 'т')->first()->value ?? 0) * $material->count, 3);
                     }
-                }
-                else {
+                } else {
                     $push[3] = '';
                     $push[4] = '';
                     $push[5] = '';

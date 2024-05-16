@@ -2,11 +2,13 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualMaterial extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = ['name', 'description', 'category_id', 'passport_file', 'buy_cost', 'use_cost', 'manual_reference_id'];
@@ -37,7 +39,7 @@ class ManualMaterial extends Model
     public function parameters()
     {
         return $this->hasMany(ManualMaterialParameter::class, 'mat_id', 'id')
-            ->leftJoin('manual_material_category_attributes', 'manual_material_category_attributes.id','=', 'attr_id')
+            ->leftJoin('manual_material_category_attributes', 'manual_material_category_attributes.id', '=', 'attr_id')
             ->select('manual_material_parameters.*', 'manual_material_category_attributes.name', 'manual_material_category_attributes.unit', 'manual_material_category_attributes.is_preset');
     }
 
@@ -56,12 +58,10 @@ class ManualMaterial extends Model
         return $this->hasOne(ManualMaterialCategory::class, 'id', 'category_id');
     }
 
-
     public function related_works()
     {
         return $this->belongsToMany(ManualWork::class, 'manual_relation_material_works', 'manual_material_id', 'manual_work_id')->distinct();
     }
-
 
     public function work_relations()
     {
@@ -77,16 +77,16 @@ class ManualMaterial extends Model
 
     public function convertation_parameters()
     {
-        return $this->parameters()->whereHas('attribute', function($attr) {
+        return $this->parameters()->whereHas('attribute', function ($attr) {
             $attr->where('is_preset', 1);
-        })->where('manual_material_parameters.value', '!=',  'null')
-            ->where('manual_material_parameters.deleted_at', NULL)
+        })->where('manual_material_parameters.value', '!=', 'null')
+            ->where('manual_material_parameters.deleted_at', null)
             ->orderBy('manual_material_parameters.id', 'desc');
     }
 
     public function convert_to($unit)
     {
-        return $this->convertation_parameters()->whereHas('attribute', function($attr) use ($unit) {
+        return $this->convertation_parameters()->whereHas('attribute', function ($attr) use ($unit) {
             $attr->where('unit', $unit);
         })->first();
     }
@@ -121,7 +121,7 @@ class ManualMaterial extends Model
                     $param->value /= $this->convert_to($unit)->value;
                 }
 
-                $category_unit_param = (object)['value' => (1 / $currentUnit->value), 'unit' => $this->category_unit];
+                $category_unit_param = (object) ['value' => (1 / $currentUnit->value), 'unit' => $this->category_unit];
 
                 $convert_params->push($category_unit_param);
             }
@@ -146,7 +146,7 @@ class ManualMaterial extends Model
     public function getCatFormulaName()
     {
         if ($this->category_id == 2) {
-            $parameter = $this->parameters()->whereHas('attribute', function($q) {
+            $parameter = $this->parameters()->whereHas('attribute', function ($q) {
                 $q->where('name', 'like', '%клиновидный%');
                 $q->orWhere('name', 'like', '%трубошпунт%');
             })->first();
@@ -187,23 +187,23 @@ class ManualMaterial extends Model
             $length = $this->parameters()->where('attr_id', $attr_2->id ?? 0)->first()->value ?? 0;
             $width = $this->parameters()->where('attr_id', $attr_3->id ?? 0)->first()->value ?? 0;
 
-
             $this->name = $reference->name;
 
             if ($this->category_id == 5 && $length && $width) {
-                $this->name .= 'x' . $length . 'x' . $width;
+                $this->name .= 'x'.$length.'x'.$width;
                 $this->save();
 
                 return;
             }
 
             if ($length) {
-                $this->name .= ' ' . $length .  ' метров';
+                $this->name .= ' '.$length.' метров';
             }
 
             $this->save();
         }
     }
+
     // key -> attr_id, value -> value
     public function createNewRelations($collection_parameters)
     {
@@ -219,29 +219,28 @@ class ManualMaterial extends Model
         }
     }
 
-
     public function count_preset_attrs($reference)
     {
         $category_unit = $reference->category->category_unit;
-        $attr_1 = $reference->category->attributesAll()->where('name', 'like', '%' . 'Длина 1 ' . $category_unit . '%')->first();
+        $attr_1 = $reference->category->attributesAll()->where('name', 'like', '%'.'Длина 1 '.$category_unit.'%')->first();
         $attr_2 = $reference->category->attributesAll()->where('name', 'Длина')->first();
-        $attr_3 = $reference->category->attributesAll()->where('name', 'like', '%' . 'Масса 1 ' . $category_unit . '%')->first();
+        $attr_3 = $reference->category->attributesAll()->where('name', 'like', '%'.'Масса 1 '.$category_unit.'%')->first();
 
         $attr_4 = $reference->category->attributesAll()
             ->where('is_preset', 0)
-            ->where(function($query) {
-            $query->where('name', 'like', '%' . 'Вес 1 м.п.' . '%');
-            $query->orWhere('name', 'like', '%' . 'Масса 1 м.п.' . '%');
-        })->first();
+            ->where(function ($query) {
+                $query->where('name', 'like', '%'.'Вес 1 м.п.'.'%');
+                $query->orWhere('name', 'like', '%'.'Масса 1 м.п.'.'%');
+            })->first();
 
-        $attr_5 = $reference->category->attributesAll()->where('name', 'like', '%' . 'Площадь 1 ' . $category_unit . '%')->first();
-        $attr_6 = $reference->category->attributesAll()->where('name', 'like', '%' . 'Ширина' . '%')->first();
-        $attr_7 = $reference->category->attributesAll()->where('name', 'like', '%' . 'Количество в 1 ' . $category_unit . '%')->first();
+        $attr_5 = $reference->category->attributesAll()->where('name', 'like', '%'.'Площадь 1 '.$category_unit.'%')->first();
+        $attr_6 = $reference->category->attributesAll()->where('name', 'like', '%'.'Ширина'.'%')->first();
+        $attr_7 = $reference->category->attributesAll()->where('name', 'like', '%'.'Количество в 1 '.$category_unit.'%')->first();
 
         // only for list gk
         $attr_8 = $reference->category->attributesAll()
             ->where('is_preset', 0)
-            ->where('name', 'like', '%' . 'Масса 1 м2' . '%')->first();
+            ->where('name', 'like', '%'.'Масса 1 м2'.'%')->first();
 
         $length = $this->parameters()->where('attr_id', $attr_2->id ?? 0)->first()->value ?? 0;
         $length_per_weight = $this->parameters()->where('attr_id', $attr_4->id ?? 0)->first()->value ?? 0;
@@ -264,9 +263,9 @@ class ManualMaterial extends Model
         if ($attr_3 && $length) {
             $this->parameters()->updateOrCreate(
                 ['attr_id' => $attr_3->id],
-                ['value' => (float) str_replace(',', '.', ((float)$length * (float)$length_per_weight) / 1000)]
+                ['value' => (float) str_replace(',', '.', ((float) $length * (float) $length_per_weight) / 1000)]
             );
-        } elseif ($attr_3 && !$length) {
+        } elseif ($attr_3 && ! $length) {
             $unitWeight = $reference->parameters()->where('attr_id', $attr_3->id ?? 0)->first()->value ?? 0;
 
             $this->parameters()->updateOrCreate(
@@ -285,7 +284,7 @@ class ManualMaterial extends Model
             );
         }
 
-        if ($attr_7 && $length && $length_per_weight && !$attr_8) {
+        if ($attr_7 && $length && $length_per_weight && ! $attr_8) {
             $unit_count = 1 / (($length * $length_per_weight) / 1000);
 
             $this->parameters()->updateOrCreate(
@@ -309,49 +308,48 @@ class ManualMaterial extends Model
             if ($weight_one_list) {
                 $this->parameters()->updateOrCreate(
                     ['attr_id' => $attr_7->id],
-                    ['value' =>  1 / $weight_one_list]
+                    ['value' => 1 / $weight_one_list]
                 );
             }
         }
     }
 
-
     public function createMaterial($attributes, $category_id)
     {
-        $etalon_id = array_filter($attributes, function($item) {
+        $etalon_id = array_filter($attributes, function ($item) {
             if ($item['id'] == 'etalon') {
                 return true;
             }
         })[0]['value'];
-        $attributes = array_filter($attributes, function($item) {
+        $attributes = array_filter($attributes, function ($item) {
             if ($item['id'] != 'etalon') {
                 return true;
             }
         });
         $reference = ManualReference::find($etalon_id);
 
-        if (!$reference) {
+        if (! $reference) {
             throw new \Exception('Создайте эталон!', 415);
         }
         $reference->load(['parameters.attribute']);
         $reference_attrs = $reference->parameters()->whereHas('attribute', function ($q) use ($category_id) {
-           $q->whereIn('name', self::ATTRS_TO_SEARCH[$category_id]);
+            $q->whereIn('name', self::ATTRS_TO_SEARCH[$category_id]);
         })->get()->toArray();
 
         $material = ManualMaterial::where('category_id', $category_id);
         $collection_parameters = array_merge($attributes, $reference_attrs);
         foreach ($attributes as $attr_key => $item) {
-            if (!is_null($item['value'])) {
+            if (! is_null($item['value'])) {
                 if ($item['name'] == 'Длина') {
-                    $item['value'] = str_replace(',','.', $item['value']);
-                    $attributes[$attr_key]['value'] = str_replace(',','.', $item['value']);
+                    $item['value'] = str_replace(',', '.', $item['value']);
+                    $attributes[$attr_key]['value'] = str_replace(',', '.', $item['value']);
                 }
-                $material->whereHas('parameters', function($q) use ($item) {
+                $material->whereHas('parameters', function ($q) use ($item) {
                     $q->where('attr_id', $item['id']);
                     $q->where('value', $item['value']);
                 });
             } else {
-                $material->whereDoesntHave('parameters', function($q) use ($item) {
+                $material->whereDoesntHave('parameters', function ($q) use ($item) {
                     $q->where('attr_id', $item['id']);
                 });
             }
@@ -359,7 +357,7 @@ class ManualMaterial extends Model
         $material->where('manual_reference_id', $reference->id);
         $material = $material->first();
 
-        if (!$material) {
+        if (! $material) {
 
             $new_material = new ManualMaterial();
             $new_material->category_id = $category_id;
@@ -367,7 +365,7 @@ class ManualMaterial extends Model
 
             $reference->load('parameters', 'category.attributesAll');
 
-            foreach($reference->parameters as $parameter) {
+            foreach ($reference->parameters as $parameter) {
 
                 $new_material->parameters()->create([
                     'attr_id' => $parameter->attr_id,

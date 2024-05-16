@@ -11,6 +11,6 @@ class NotificationsForGroups extends Model
 
     protected $fillable = [
         'notification_id',
-        'group_id'
+        'group_id',
     ];
 }

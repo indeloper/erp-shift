@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddPermissionForPrincipalEngineer extends Migration
 {
@@ -21,7 +19,6 @@ class AddPermissionForPrincipalEngineer extends Migration
     {
         DB::beginTransaction();
 
-
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
         $permissionTwo = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[1])->first()->id;
 
@@ -29,12 +26,12 @@ class AddPermissionForPrincipalEngineer extends Migration
             [
                 'group_id' => 8,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 8,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

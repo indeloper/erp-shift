@@ -1,10 +1,8 @@
 <?php
 
 use App\Models\Group;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewRoleToGroupTen extends Migration
 {
@@ -38,7 +36,7 @@ class AddNewRoleToGroupTen extends Migration
     {
         Group::query()->where([
             'name' => 'Главный инженер (свайное направление)',
-            'department_id' => 10
+            'department_id' => 10,
         ])->delete();
     }
 }

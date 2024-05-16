@@ -3,44 +3,39 @@
 namespace App\Http\Controllers\Commerce;
 
 use App\Events\ContractApproved;
-use App\Events\NotificationCreated;
+use App\Http\Controllers\Controller;
 use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\Contract\Contract;
+use App\Models\Contract\ContractCommercialOfferRelation;
 use App\Models\Contract\ContractFiles;
 use App\Models\Contract\ContractKeyDates;
 use App\Models\Contract\ContractKeyDatesPreselectedNames;
-use App\Models\Contractors\Contractor;
-use App\Models\Group;
-use App\Models\Notification;
-use App\Models\Project;
-use App\Models\User;
-use App\Models\FileEntry;
-use App\Models\ProjectResponsibleUser;
-use App\Models\Task;
-use App\Traits\TimeCalculator;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
-
-use App\Models\ProjectDocument;
-use App\Models\Contract\Contract;
 use App\Models\Contract\ContractRequest;
 use App\Models\Contract\ContractRequestFile;
 use App\Models\Contract\ContractThesis;
-use App\Models\Contract\ContractThesisFile;
 use App\Models\Contract\ContractThesisVerifier;
-use App\Models\Contract\ContractCommercialOfferRelation;
-
+use App\Models\Contractors\Contractor;
+use App\Models\FileEntry;
+use App\Models\Group;
+use App\Models\Project;
+use App\Models\ProjectDocument;
+use App\Models\ProjectResponsibleUser;
+use App\Models\Task;
+use App\Models\User;
+use App\Traits\TimeCalculator;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
 use PDF;
 
 class ProjectContractController extends Controller
 {
     use TimeCalculator;
+    protected $prepareNotifications = [];
 
     public function card($project_id, $contract_id)
     {
@@ -143,6 +138,7 @@ class ProjectContractController extends Controller
 
     public function decline(Request $request)
     {
+        $this->prepareNotifications = [];
         $contract = Contract::with('get_requests.files', 'files')->findOrFail($request->contract_id);
         DB::beginTransaction();
 
@@ -184,18 +180,16 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
+            $this->prepareNotifications['App\Notifications\Contract\ContractFormationTaskCreationNotice'] = [
+                'user_ids' => $task->responsible_user_id,
                 'name' => 'Новая задача «' . $task->name . '»',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
                 'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                 'project_id' => $task->project_id ? $task->project_id : null,
                 'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                'type' => 39
-            ]);
+            ];
         }
         $solve_tasks = Task::where('target_id', $contract->id)->where('is_solved', 0)->whereIn('status', [8, 9, 10, 13, 11])->get();
         Task::where('target_id', $contract->id)->where('is_solved', 1)->whereIn('status', [8, 9, 10, 13, 11])->where('revive_at', '<>', null)->update(['revive_at' => null]);
@@ -213,6 +207,7 @@ class ProjectContractController extends Controller
 
         DB::commit();
 
+        $this->sendNotifications();
 
         $redirect_path = strpos(url()->previous(), 'tasks') ? route('tasks::index') : route('projects::contract::card', [$new_contr_vers->project_id, $new_contr_vers->id]);
 
@@ -222,6 +217,7 @@ class ProjectContractController extends Controller
 
     public function store(Request $request, $project_id)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         if ($project_id === '0') {
@@ -273,12 +269,14 @@ class ProjectContractController extends Controller
         $old_task = $tasks->first();
         $tasks->update(['is_solved' => 1]);
         if($old_task){
-            Notification::create(['name' => 'Задача «' . $old_task->name . '» закрыта', 'task_id' => $old_task->id, 'user_id' => $old_task->responsible_user_id,
+            $this->prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+                'user_ids' => $old_task->responsible_user_id,
+                'name' => 'Задача «' . $old_task->name . '» закрыта',
+                'task_id' => $old_task->id,
                 'contractor_id' => $old_task->project_id ? Project::find($old_task->project_id)->contractor_id : null,
                 'project_id' => $old_task->project_id ? $old_task->project_id : null,
                 'object_id' => $old_task->project_id ? Project::find($old_task->project_id)->object_id : null,
-                'type' => 3
-            ]);
+            ];
         }
 
         foreach ($contract->responsible_user_ids as $user_id) {
@@ -295,20 +293,20 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
+            $this->prepareNotifications['App\Notifications\Contract\ContractFormationTaskCreationNotice'] = [
+                'user_ids' => $task->responsible_user_id,
                 'name' => 'Новая задача «' . $task->name . '»',
-                'user_id' => $task->responsible_user_id,
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
                 'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                 'project_id' => $task->project_id ? $task->project_id : null,
                 'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                'type' => 39
-            ]);
+            ];
         }
         DB::commit();
+
+        $this->sendNotifications();
 
         return back();
     }
@@ -350,6 +348,7 @@ class ProjectContractController extends Controller
 
     public function add_thesis(Request $request, $contract_id)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $thesis = new ContractThesis();
@@ -389,22 +388,22 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
+                $this->prepareNotifications['App\Notifications\Contract\ContractApprovalTaskCreationNotice'] = [
+                    'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «' . $task->name . '»',
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
                     'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
                     'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 40
-                ]);
+                ];
             }
         }
 
         DB::commit();
+
+        $this->sendNotifications();
 
         return redirect()->back();
     }
@@ -413,6 +412,7 @@ class ProjectContractController extends Controller
     public function add_files(Request $request)
     {   //this is about garant file and contract file (last steps of the contract) (approvement)
         //and attach files for the contract at the beginning
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $contract = Contract::find($request->contract_id);
@@ -470,18 +470,16 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
+                $this->prepareNotifications['App\Notifications\Contract\ContractSignatureControlTaskRecreationNotice'] = [
+                    'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «' . $task->name . '»',
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
                     'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
                     'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 42
-                ]);
+                ];
             }
         }
         $contract->ks_date = $request->ks_date;
@@ -492,6 +490,8 @@ class ProjectContractController extends Controller
         }
 
         DB::commit();
+
+        $this->sendNotifications();
 
         $redirect_path = strpos(url()->previous(), 'tasks') ? route('tasks::index') : url()->previous();
 
@@ -514,6 +514,7 @@ class ProjectContractController extends Controller
 
     public function update_thesis(Request $request)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $thesis = ContractThesis::findOrFail($request->thesis_id);
@@ -556,22 +557,22 @@ class ProjectContractController extends Controller
 
                 $task->save();
 
-                $notification = new Notification();
-                $notification->save();
-                $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                $notification->update([
+                $this->prepareNotifications['App\Notifications\Contract\ContractApprovalTaskCreationNotice'] = [
+                    'user_ids' => $task->responsible_user_id,
                     'name' => 'Новая задача «' . $task->name . '»',
+                    'additional_info' => ' Ссылка на задачу: ',
+                    'url' => $task->task_route(),
                     'task_id' => $task->id,
-                    'user_id' => $task->responsible_user_id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
                     'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                    'type' => 40
-                ]);
+                ];
             }
         }
 
         DB::commit();
+
+        $this->sendNotifications();
 
         return redirect()->back();
     }
@@ -684,6 +685,7 @@ class ProjectContractController extends Controller
 
     public function approve(Request $request, $project_id, $contract_id)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $contract = Contract::where('id', $request->contract_id)->first();
@@ -705,18 +707,16 @@ class ProjectContractController extends Controller
 
             $task->save();
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-            $notification->update([
+            $this->prepareNotifications['App\Notifications\Contract\ContractSignatureControlTaskCreationNotice'] = [
+                'user_ids' => $task->responsible_user_id,
                 'name' => 'Новая задача «' . $task->name . '»',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
                 'task_id' => $task->id,
-                'user_id' => $task->responsible_user_id,
                 'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                 'project_id' => $task->project_id ? $task->project_id : null,
                 'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                'type' => 41
-            ]);
+            ];
         }
         $solve_task = Task::where('project_id', $contract->project_id)->where('status', 11)->where('is_solved', 0)->where('target_id', $contract->id)->get();
 
@@ -732,6 +732,8 @@ class ProjectContractController extends Controller
 
         DB::commit();
 
+        $this->sendNotifications();
+
         $redirect_path = strpos(url()->previous(), 'tasks') ? route('tasks::index') : route('projects::card', $contract->project_id);
 
         return redirect($redirect_path);
@@ -740,6 +742,7 @@ class ProjectContractController extends Controller
 
     public function send_contract(Request $request, $contract_id)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $contract = Contract::findOrFail($request->contract_id);
@@ -761,37 +764,36 @@ class ProjectContractController extends Controller
 
         $task->save();
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
+        $this->prepareNotifications['App\Notifications\Contract\ContractApprovalControlTaskCreationNotice'] = [
+            'user_ids' => $task->responsible_user_id,
             'name' => 'Новая задача «' . $task->name . '»',
+            'additional_info' => ' Ссылка на задачу: ',
+            'url' => $task->task_route(),
             'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
             'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
             'project_id' => $task->project_id ? $task->project_id : null,
             'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-            'type' => 51
-        ]);
+        ];
 
         $solve_task = Task::where('project_id', $contract->project_id)->where('status', 7)->where('is_solved', 0)->where('target_id', $contract->id)->get();
 
         if($solve_task->count()) {
             if ($solve_task[0]->responsible_user_id != 6) {
-                Notification::create([
+                $this->prepareNotifications['TaskClosureNotice'] = [
+                    'user_ids' => $solve_task[0]->responsible_user_id,
                     'name' => 'Задача «' . $solve_task[0]->name . '» закрыта',
                     'task_id' => $solve_task[0]->id,
-                    'user_id' => $solve_task[0]->responsible_user_id,
                     'contractor_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->contractor_id : null,
                     'project_id' => $solve_task[0]->project_id ? $solve_task[0]->project_id : null,
                     'object_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->object_id : null,
-                    'type' => 3
-                ]);
+                ];
             }
         }
         Task::where('project_id', $contract->project_id)->where('status', 7)->where('is_solved', 0)->where('target_id', $contract->id)->update(['is_solved' => 1]);
 
         DB::commit();
+
+        $this->sendNotifications();
 
         return \GuzzleHttp\json_encode(true);
     }
@@ -954,6 +956,7 @@ class ProjectContractController extends Controller
 
     public function contract_delete_request(Request $request)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         // check remove task existence
@@ -977,20 +980,20 @@ class ProjectContractController extends Controller
             'status' => 20
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
+        $this->prepareNotifications['App\Notifications\Contract\ContractDeletionControlTaskCreationNotice'] = [
+            'user_ids' => $task->responsible_user_id,
             'name' => 'Новая задача «' . $task->name . '. ' . $task->description . '»',
+            'additional_info' => ' Ссылка на задачу: ',
+            'url' => $task->task_route(),
             'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
             'contractor_id' => $task->contractor_id,
             'project_id' => $contract->project->id,
             'object_id' => $contract->project->object_id,
-            'type' => 43
-        ]);
+        ];
 
         DB::commit();
+
+        $this->sendNotifications();
 
         return back();
     }
@@ -1110,4 +1113,20 @@ class ProjectContractController extends Controller
         return redirect()->back();
     }
 
+    protected function sendNotifications(): void
+    {
+        foreach ($this->prepareNotifications as $class => $arguments) {
+            try {
+                $user_id = $arguments['user_ids'];
+                $class::send(
+                    $user_id,
+                    $arguments
+                );
+            } catch (\Throwable $throwable) {
+                $controllerName = get_class($this);
+                $message = "В контроллере $controllerName, не удалось отправить уведомление $class, возникла ошибка: ";
+                Log::error($message . $throwable->getMessage());
+            }
+        }
+    }
 }

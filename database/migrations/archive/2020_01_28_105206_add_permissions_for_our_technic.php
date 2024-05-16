@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddPermissionsForOurTechnic extends Migration
 {
@@ -26,9 +24,9 @@ class AddPermissionsForOurTechnic extends Migration
         foreach (self::PERMISSION_CODENAMES as $key => $codename) {
             $insert[] = [
                 'category' => 13,
-                "name" => self::PERMISSION_NAMES[$key],
-                "codename" => $codename,
-                'created_at' => now()
+                'name' => self::PERMISSION_NAMES[$key],
+                'codename' => $codename,
+                'created_at' => now(),
             ];
         }
 
@@ -44,17 +42,17 @@ class AddPermissionsForOurTechnic extends Migration
             [
                 'group_id' => 47,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionThree,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

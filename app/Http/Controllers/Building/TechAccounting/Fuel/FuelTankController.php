@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use App\Actions\Fuel\FuelActions;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Comment;
 use App\Models\Company\Company;
@@ -18,6 +16,8 @@ use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
+use App\Notifications\Fuel\NewFuelTankResponsibleNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -108,7 +108,7 @@ class FuelTankController extends StandardEntityResourceController
                 'event_date' => $data['event_date'] ?? now()
             ]);
         }
-        
+
         if(!empty($data['externalOperations'])) {
             $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations'], $tank->id);
         }
@@ -129,7 +129,7 @@ class FuelTankController extends StandardEntityResourceController
                 'tank_moving_confirmation' => null
             ]);
         }
-        
+
         if (empty($data['responsible_id'])) {
             $data['awaiting_confirmation'] = false;
         } else {
@@ -262,9 +262,20 @@ class FuelTankController extends StandardEntityResourceController
         return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
+    /**
+     * @param FuelTank $tank
+     *
+     * @return void
+     */
     public function notifyNewTankResponsible($tank)
     {
-        (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
+        NewFuelTankResponsibleNotification::send(
+            $tank->responsible_id,
+            [
+                'name' => (new FuelNotifications)->renderNewFuelTankResponsible($tank)->render(),
+                'tank_id' => $tank->id
+            ]
+        );
     }
 
     public function handleFuelOperations($operations, $deletedOperations, $newFuelTankId = null)
@@ -356,7 +367,7 @@ class FuelTankController extends StandardEntityResourceController
                 ->where('tank_moving_confirmation', true);
             })
             ->selectRaw('
-                fuel_tanks.*, 
+                fuel_tanks.*,
                 MAX(event_date) as lastMovementConfirmationDate
             ')
             ->groupBy('fuel_tanks.id')

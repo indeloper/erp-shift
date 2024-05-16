@@ -1,14 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewBirthdayNotifications extends Migration
 {
     const NOTIFICATIONS = [
-        88 =>'Уведомление о дне рождения сотрудника за неделю',
+        88 => 'Уведомление о дне рождения сотрудника за неделю',
         89 => 'Уведомление о дне рождения сотрудника в день рождения',
     ];
+
     /**
      * Run the migrations.
      *
@@ -24,7 +25,7 @@ class AddNewBirthdayNotifications extends Migration
                 'id' => $id,
                 'group' => 9,
                 'name' => $name,
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ];
         }
 

@@ -2,7 +2,6 @@
 
 namespace App\Models\Messenger;
 
-use App\Models\Messenger\Message;
 use Illuminate\Database\Eloquent\Model;
 
 class MessageForwards extends Model
@@ -25,5 +24,4 @@ class MessageForwards extends Model
     {
         return $this->belongsTo(Message::class, 'forwarded_message_id', 'id');
     }
-
 }

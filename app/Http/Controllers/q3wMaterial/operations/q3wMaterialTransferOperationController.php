@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Http\Controllers\Controller;
 use App\Models\Building\ObjectResponsibleUser;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;
@@ -16,11 +16,10 @@ use App\Models\q3wMaterial\q3wMaterialSnapshot;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
+use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Building\ObjectResponsibleUserRole;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -1405,7 +1404,7 @@ class q3wMaterialTransferOperationController extends Controller
     }
 
     public function sendTransferNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId) {
-        
+
         $responsibilityUsers = (new ObjectResponsibleUser)->getResponsibilityUsers($projectObjectId, $role='TONGUE_PROJECT_MANAGER');
 
         foreach ($responsibilityUsers as $responsibilityUser) {
@@ -1419,18 +1418,18 @@ class q3wMaterialTransferOperationController extends Controller
 
         $notificationText = 'Операция #' . $operation->id . ' от ' . $operation->created_at->format('d.m.Y') . PHP_EOL . PHP_EOL . $sourceProjectObject->short_name . ' ➡️ ' . $destinationProjectObject->short_name . PHP_EOL . PHP_EOL . $notificationText;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = PHP_EOL . route('materials.operations.transfer.view') . '?operationId=' . $operation->id;
-        $notification->update([
-            'name' => $notificationText,
-            'target_id' => $operation->id,
-            'user_id' => $notifiedUserId,
-            'object_id' => $projectObjectId,
-            'created_at' => now(),
-            'type' => 7,
-            'status' => 7
-        ]);
+        TaskPostponedAndClosedNotice::send(
+            $notifiedUserId,
+            [
+                'name' => $notificationText,
+                'additional_info' => 'Ссылка на операцию:',
+                'url' => route('materials.operations.transfer.view') . '?operationId=' . $operation->id,
+                'target_id' => $operation->id,
+                'object_id' => $projectObjectId,
+                'created_at' => now(),
+                'status' => 7
+            ]
+        );
     }
 
     public function completed(Request $request)

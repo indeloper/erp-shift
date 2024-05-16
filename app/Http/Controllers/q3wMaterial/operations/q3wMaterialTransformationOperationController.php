@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Http\Controllers\Controller;
 use App\Models\Building\ObjectResponsibleUser;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;
@@ -18,11 +18,10 @@ use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Models\User;
+use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Building\ObjectResponsibleUserRole;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -536,18 +535,18 @@ class q3wMaterialTransformationOperationController extends Controller
             PHP_EOL .
             $notificationText;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = PHP_EOL . $operation->url;
-        $notification->update([
-            'name' => $notificationText,
-            'target_id' => $operation->id,
-            'user_id' => $notifiedUserId,
-            'object_id' => $projectObjectId,
-            'created_at' => now(),
-            'type' => 7,
-            'status' => 7
-        ]);
+        TaskPostponedAndClosedNotice::send(
+            $notifiedUserId,
+            [
+                'name' => $notificationText,
+                'additional_info' => 'Ссылка на операцию:',
+                'url' => $operation->url,
+                'target_id' => $operation->id,
+                'object_id' => $projectObjectId,
+                'created_at' => now(),
+                'status' => 7
+            ]
+        );
     }
 
     public function move(q3wMaterialOperation $operation)

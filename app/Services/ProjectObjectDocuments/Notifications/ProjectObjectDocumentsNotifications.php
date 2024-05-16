@@ -5,14 +5,13 @@ namespace App\Services\ProjectObjectDocuments\Notifications;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentsStatusType;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNotice;
 use Illuminate\Support\Facades\DB;
-use Telegram\Bot\Laravel\Facades\Telegram;
 
 class ProjectObjectDocumentsNotifications {
 
@@ -73,14 +72,12 @@ class ProjectObjectDocumentsNotifications {
     {
         foreach($this->notificationsToSendArr as $notification)
         {
-            foreach($notification['notificationRecipients'] as $userId)
-            {
-                Notification::create([
+            DocumentFlowOnObjectsNotice::send(
+                $notification['notificationRecipients']->toArray(),
+                [
                     'name' => $notification['notificationText'],
-                    'user_id' => $userId,
-                    'type' => 0,
-                ]);
-            }
+                ]
+            );
         }
     }
 

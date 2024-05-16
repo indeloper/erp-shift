@@ -1,13 +1,10 @@
 <?php
 
 use App\Models\Manual\ManualMaterial;
-use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\Models\Manual\ManualMaterialCategory;
-
+use App\Models\Manual\ManualReference;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class FillOutManualReferenceCategory2 extends Migration
 {
@@ -27,14 +24,14 @@ class FillOutManualReferenceCategory2 extends Migration
 
         foreach ($category_2->materials as $material) {
             $type = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Трубошпунт' . '%');
+                $q->where('name', 'like', '%'.'Трубошпунт'.'%');
             })->first();
 
             $mark = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Марка' . '%');
+                $q->where('name', 'like', '%'.'Марка'.'%');
             })->first();
 
-            if (!isset($type->value) || $type->value != 'Да') {
+            if (! isset($type->value) || $type->value != 'Да') {
                 $marks->push(['attr_id' => $mark->attr_id, 'value' => $mark->value]);
             } elseif (isset($type->value) && $type->value == 'Да') {
                 $markOther->push(['attr_id' => $mark->attr_id, 'value' => $mark->value]);
@@ -58,53 +55,10 @@ class FillOutManualReferenceCategory2 extends Migration
 
         // create ManualReference with parameters based on exist materials
         foreach ($marks->unique() as $index => $item) {
-            dump($index . ' in ' . $marks->unique()->count());
+            dump($index.' in '.$marks->unique()->count());
 
             $newReference = ManualReference::create([
-                'name' => 'Шпунт ' . $item['value'],
-                'category_id' => $category_2->id,
-            ]);
-
-            $material = ManualMaterial::with('parameters')
-                ->whereHas('parameters', function ($q) use ($item) {
-                    $q->where('value', $item['value']);
-                })
-            ->first();
-
-            $parameters = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('is_preset', 0);
-            })->get();
-
-            foreach ($parameters as $parameter) {
-                if (in_array($parameter->name,
-                    [
-                        'Момент инерции',
-                        'Упругий момент сопротивления',
-                        'Статический момент',
-                        'Пластический момент сопротивления',
-                        'Площадь сечения',
-                        'Высота h',
-                        'Вес 1 м.п.',
-                        'Толщина боковых стенок s',
-                        'Толщина полки t',
-                        'Ширина профиля по центрам замков b',
-                        'Марка',
-                    ]))
-                {
-                    $newReference->parameters()->create([
-                        'attr_id' => $parameter->attr_id,
-                        'value' => $parameter->value,
-                    ]);
-                }
-            }
-        }
-
-        // create ManualReference with parameters based on exist materials
-        foreach ($markOther->unique() as $index => $item) {
-            dump($index . ' in ' . $marks->unique()->count());
-
-            $newReference = ManualReference::create([
-                'name' => 'Трубошпунт ' . $item['value'],
+                'name' => 'Шпунт '.$item['value'],
                 'category_id' => $category_2->id,
             ]);
 
@@ -132,19 +86,60 @@ class FillOutManualReferenceCategory2 extends Migration
                         'Толщина полки t',
                         'Ширина профиля по центрам замков b',
                         'Марка',
-                    ]))
-                {
+                    ])) {
                     $newReference->parameters()->create([
                         'attr_id' => $parameter->attr_id,
                         'value' => $parameter->value,
-                    ]);
-                } {
-                    $newReference->parameters()->create([
-                        'attr_id' => $parameter->attr_id,
-                        'value' => $parameter->value,
-                        'is_display' => 0,
                     ]);
                 }
+            }
+        }
+
+        // create ManualReference with parameters based on exist materials
+        foreach ($markOther->unique() as $index => $item) {
+            dump($index.' in '.$marks->unique()->count());
+
+            $newReference = ManualReference::create([
+                'name' => 'Трубошпунт '.$item['value'],
+                'category_id' => $category_2->id,
+            ]);
+
+            $material = ManualMaterial::with('parameters')
+                ->whereHas('parameters', function ($q) use ($item) {
+                    $q->where('value', $item['value']);
+                })
+                ->first();
+
+            $parameters = $material->parameters()->whereHas('attribute', function ($q) {
+                $q->where('is_preset', 0);
+            })->get();
+
+            foreach ($parameters as $parameter) {
+                if (in_array($parameter->name,
+                    [
+                        'Момент инерции',
+                        'Упругий момент сопротивления',
+                        'Статический момент',
+                        'Пластический момент сопротивления',
+                        'Площадь сечения',
+                        'Высота h',
+                        'Вес 1 м.п.',
+                        'Толщина боковых стенок s',
+                        'Толщина полки t',
+                        'Ширина профиля по центрам замков b',
+                        'Марка',
+                    ])) {
+                    $newReference->parameters()->create([
+                        'attr_id' => $parameter->attr_id,
+                        'value' => $parameter->value,
+                    ]);
+                }
+                $newReference->parameters()->create([
+                    'attr_id' => $parameter->attr_id,
+                    'value' => $parameter->value,
+                    'is_display' => 0,
+                ]);
+
             }
         }
 
@@ -164,7 +159,6 @@ class FillOutManualReferenceCategory2 extends Migration
             $manualReference->parameters()->delete();
             $manualReference->delete();
         }
-
 
     }
 }

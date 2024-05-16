@@ -20,7 +20,7 @@ class AddTimeResponsibleDepositionNotification extends Migration
             'id' => self::NOTIFICATION_TYPE,
             'group' => 10,
             'name' => 'Уведомление о снятии с позиции ответственного за учёт рабочего времени на проекте',
-            'for_everyone' => 1
+            'for_everyone' => 1,
         ];
 
         DB::table('notification_types')->insert($new_types);

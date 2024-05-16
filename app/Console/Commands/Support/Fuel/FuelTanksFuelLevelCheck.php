@@ -6,7 +6,6 @@ use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
-use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -58,13 +57,13 @@ class FuelTanksFuelLevelCheck extends Command
             $calculatedTankFuelLevel = (int)$transferHistoryFuelLevelDateFrom + (int)$fuelOperationsVolumesSum;
             $periodReportTankFuelLevel = $this->getPeriodReportTankFuelLevel($tank);
             $tankFuelLevel = $tank->fuel_level;
-            $isOk = 
-                $calculatedTankFuelLevel === $periodReportTankFuelLevel 
+            $isOk =
+                $calculatedTankFuelLevel === $periodReportTankFuelLevel
                 && $calculatedTankFuelLevel === $tankFuelLevel
                 ? true : false;
 
+
             if(!$isOk) {
-                
                 $data = [
                     'tank' => $tank,
                     'dateFrom' => $dateFrom,
@@ -74,12 +73,12 @@ class FuelTanksFuelLevelCheck extends Command
 
                 (new FuelNotifications)->notifyAdminsAboutFuelBalanceMissmatches($data);
 
-            
+
                 // echo PHP_EOL."
                 //         id: $tank->id
                 //         num: $tank->tank_number
-                //         calculatedTankFuelLevel: $calculatedTankFuelLevel 
-                //         periodReportTankFuelLevel: $periodReportTankFuelLevel 
+                //         calculatedTankFuelLevel: $calculatedTankFuelLevel
+                //         periodReportTankFuelLevel: $periodReportTankFuelLevel
                 //         tankFuelLevel: $tankFuelLevel
                 //         isOk: $isOk
                 //         transferHistoryFuelLevelDateFrom: $transferHistoryFuelLevelDateFrom

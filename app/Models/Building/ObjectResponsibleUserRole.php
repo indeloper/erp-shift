@@ -8,9 +8,8 @@ class ObjectResponsibleUserRole extends Model
 {
     protected $guarded = [];
 
-
-    public function getRoleIdBySlug($slug){
+    public function getRoleIdBySlug($slug)
+    {
         return $this->where('slug', $slug)->firstOrFail()->id;
     }
-    
 }

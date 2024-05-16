@@ -2,10 +2,7 @@
 
 namespace App\Http\ViewComposers;
 
-use App\Models\Notification;
-
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 
 class MatAccComposer
 {
@@ -15,7 +12,7 @@ class MatAccComposer
     {
         $this->max = 1;
 
-//        dd(request()->route());
+        //        dd(request()->route());
     }
 
     public function compose(View $view)
@@ -24,7 +21,7 @@ class MatAccComposer
 
         $curr = $view->operation;
         //Check if current view is not in excludedViews array
-        if (!in_array($view->getName(), $excludedViews) and $view->operation) {
+        if (! in_array($view->getName(), $excludedViews) and $view->operation) {
             if ($view->operation->parent()->count() != 0) {
                 $history = $view->operation->replicate();
 

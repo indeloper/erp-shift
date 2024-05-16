@@ -3,31 +3,31 @@
 namespace App\Models\MatAcc;
 
 use App\Models\Comment;
-use App\Models\Manual\ManualMaterialParameter;
-use App\Traits\Commentable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\ProjectObject;
 use App\Models\Manual\ManualMaterial;
-
-use \Carbon\Carbon;
+use App\Models\ProjectObject;
+use App\Traits\Commentable;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 /**
- * @property integer id
- * @property integer object_id
- * @property integer manual_material_id
+ * @property int id
+ * @property int object_id
+ * @property int manual_material_id
  * @property string date
  * @property string count
  * @property string unit
- * @property integer used
- * @property integer ancestor_base_id
+ * @property int used
+ * @property int ancestor_base_id
  *
  * Also there is MaterialAccountingBaseObserver. ancestor_base_id is set there.
  */
 class MaterialAccountingBase extends Model
 {
     use Commentable;
+    use HasFactory;
 
     protected $fillable = [
         'object_id',
@@ -36,7 +36,7 @@ class MaterialAccountingBase extends Model
         'count',
         'unit',
         'used',
-        'ancestor_base_id'
+        'ancestor_base_id',
     ];
 
     protected $appends = ['round_count', 'convert_params', 'material_name'];
@@ -51,7 +51,7 @@ class MaterialAccountingBase extends Model
 
     /**
      * Scope for operations index page
-     * @param Builder $query
+     *
      * @return Builder
      */
     public function scopeIndex(Builder $query)
@@ -72,11 +72,12 @@ class MaterialAccountingBase extends Model
     /**
      * This getter return base material name
      * with optional 'Б/У' label
+     *
      * @return string
      */
     public function getMaterialNameAttribute()
     {
-        return $this->material->name . ($this->used ? ' Б/У' : '');
+        return $this->material->name.($this->used ? ' Б/У' : '');
     }
 
     public function comments()
@@ -97,7 +98,7 @@ class MaterialAccountingBase extends Model
     public function material()
     {
         return $this->belongsTo(ManualMaterial::class, 'manual_material_id', 'id')
-            ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
+            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
             ->select('manual_materials.*', 'manual_material_categories.id as cat_id', 'manual_material_categories.category_unit')
             ->withTrashed();
     }
@@ -131,10 +132,10 @@ class MaterialAccountingBase extends Model
     {
         $comments_inline = $this->comments()->get()->implode('comment', ', ');
         if (strlen($comments_inline) == 0) {
-            $comments_inline = "Примечания отсутствуют";
+            $comments_inline = 'Примечания отсутствуют';
         }
         if (mb_strlen($comments_inline) > 26) {
-            $comments_inline = trim(mb_substr($comments_inline, 0, 23)) . '...';
+            $comments_inline = trim(mb_substr($comments_inline, 0, 23)).'...';
         }
 
         return $comments_inline;
@@ -143,7 +144,8 @@ class MaterialAccountingBase extends Model
     public function getCommentNameAttribute()
     {
         $comments = $this->getCommentsInline();
-        return $this->material_name . " ($comments)";
+
+        return $this->material_name." ($comments)";
     }
 
     public function getCommentNameCountAttribute()
@@ -151,7 +153,7 @@ class MaterialAccountingBase extends Model
         return "$this->comment_name $this->round_count $this->unit";
     }
 
-    function backdating($materials, Carbon $back_date, $object_id)
+    public function backdating($materials, Carbon $back_date, $object_id)
     {
         for ($date = $back_date; $date->lte(Carbon::today()); $date->addDay()) {
             $dates[] = $date->format('d.m.Y');
@@ -183,10 +185,10 @@ class MaterialAccountingBase extends Model
         $unordered_units = [[
             'count' => $this->round_count,
             'unit' => $this->unit,
-            ],
+        ],
         ];
         foreach ($this->convert_params as $param) {
-            $unordered_units []= [
+            $unordered_units[] = [
                 'count' => number_format(round(($param->value * $this->count), 3), 3),
                 'unit' => $param->unit,
             ];
@@ -202,12 +204,12 @@ class MaterialAccountingBase extends Model
 
         $ordered_units = [];
         foreach ($unit_order as $unit) {
-            $param = array_values(array_filter($unordered_units, function($uno_param) use ($unit) {
+            $param = array_values(array_filter($unordered_units, function ($uno_param) use ($unit) {
                 return $uno_param['unit'] == $unit;
             }));
 
             if (count($param)) {
-                $ordered_units []= $param[0];
+                $ordered_units[] = $param[0];
             }
         }
 
@@ -227,9 +229,6 @@ class MaterialAccountingBase extends Model
     /**
      * Function make used material bases from new
      * and new from used material bases
-     * @param string $state
-     * @param Request $request
-     * @return void
      */
     public function moveTo(string $state, Request $request): void
     {
@@ -251,7 +250,7 @@ class MaterialAccountingBase extends Model
             }
 
             foreach ($this->comments as $comment) {
-                if (!$existedBase->comments()->where('comment', $comment->comment)->exists()) {
+                if (! $existedBase->comments()->where('comment', $comment->comment)->exists()) {
                     $new_comment = $comment->replicate();
                     $new_comment->commentable_id = $existedBase->id;
                     $new_comment->save();

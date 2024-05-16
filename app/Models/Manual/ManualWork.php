@@ -3,11 +3,13 @@
 namespace App\Models\Manual;
 
 use App\Traits\Reviewable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualWork extends Model
 {
+    use HasFactory;
     use Reviewable, SoftDeletes;
 
     protected $fillable = ['work_group_id', 'name', 'description', 'price_per_unit', 'unit', 'unit_per_days', 'nds', 'show_material', 'is_copied'];
@@ -31,7 +33,7 @@ class ManualWork extends Model
     // WDIM == What Does It Mean
     public $WDIM_is_copied = [
         0 => false, // original work
-        1 => true   // copy
+        1 => true,   // copy
     ];
 
     public function material_relations()

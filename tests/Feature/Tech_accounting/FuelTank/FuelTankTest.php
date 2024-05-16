@@ -2,17 +2,14 @@
 
 namespace Tests\Feature\Tech_accounting\FuelTank;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\Group;
-use App\Models\User;
 use App\Models\ProjectObject;
-
+use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class FuelTankTest extends TestCase
 {
@@ -23,30 +20,28 @@ class FuelTankTest extends TestCase
         parent::setUp();
 
         $this->rps = Group::with('users')->find([27, 13, 19, 47])->pluck('users')->flatten();
-        $this->response_user =  $this->rps->random();
+        $this->response_user = $this->rps->random();
         $this->actingAs($this->response_user);
     }
-
 
     public function testStoreFuelTank()
     {
         $countFuelTanks = FuelTank::count();
 
-        $response = $this->post(route('building::tech_acc::fuel_tank.store'), factory(FuelTank::class)->make()->toArray());
+        $response = $this->post(route('building::tech_acc::fuel_tank.store'), FuelTank::factory()->make()->toArray());
 
         $this->assertEquals($countFuelTanks + 1, FuelTank::count());
         $this->assertEquals(200, $response->status());
     }
 
-
     public function testUpdateFuelTank()
     {
-        $fuelTank = factory(FuelTank::class)->create();
+        $fuelTank = FuelTank::factory()->create();
 
-        $updatedFuelTank = factory(FuelTank::class)
+        $updatedFuelTank = FuelTank::factory()
             ->make([
-                'object_id' => factory(ProjectObject::class)->create()->id,
-                'explotation_start' => Carbon::parse($fuelTank->explotation_start)->addHour()
+                'object_id' => ProjectObject::factory()->create()->id,
+                'explotation_start' => Carbon::parse($fuelTank->explotation_start)->addHour(),
             ]);
 
         $response = $this->put(route('building::tech_acc::fuel_tank.update', $fuelTank->id), $updatedFuelTank->toArray());
@@ -58,10 +53,9 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-
     public function testDestroyFuelTank()
     {
-        $fuelTank = factory(FuelTank::class)->create();
+        $fuelTank = FuelTank::factory()->create();
         $countFuelTanks = FuelTank::count();
 
         $this->actingAs(User::where('group_id', 15)->active()->inRandomOrder()->first());
@@ -74,7 +68,7 @@ class FuelTankTest extends TestCase
 
     public function testUpdateFuelTankLevel()
     {
-        $fuelTank = factory(FuelTank::class)->create();
+        $fuelTank = FuelTank::factory()->create();
 
         $response = $this->post(route('building::tech_acc::fuel_tank.change_fuel_level', $fuelTank->id), [
             'fuel_level' => $fuelTank->fuel_level - 100,
@@ -90,18 +84,16 @@ class FuelTankTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-
     public function testSomeOneWhoCantStoreFuelTank()
     {
         $countFuelTanks = FuelTank::count();
         $user = User::whereNotIn('group_id', [27, 13, 19, 47])->where('id', '!=', 1)->active()->inRandomOrder()->first();
         $this->actingAs($user);
 
-        $response = $this->post(route('building::tech_acc::fuel_tank.store'), factory(FuelTank::class)->make()->toArray());
+        $response = $this->post(route('building::tech_acc::fuel_tank.store'), FuelTank::factory()->make()->toArray());
 
         $this->assertEquals(403, $response->status());
     }
-
 
     public function testSomeOneWhoCantUpdateFuelTank()
     {
@@ -112,18 +104,17 @@ class FuelTankTest extends TestCase
 
         $this->actingAs($user);
 
-        $fuelTank = factory(FuelTank::class)->create();
-        $updatedFuelTank = factory(FuelTank::class)->make();
+        $fuelTank = FuelTank::factory()->create();
+        $updatedFuelTank = FuelTank::factory()->make();
 
         $response = $this->put(route('building::tech_acc::fuel_tank.update', $fuelTank->id), $updatedFuelTank->toArray());
 
         $this->assertEquals(403, $response->status());
     }
 
-
     public function testSomeOneWhoCantDestroyFuelTank()
     {
-        $fuelTank = factory(FuelTank::class)->create();
+        $fuelTank = FuelTank::factory()->create();
 
         $user = User::whereNotIn('group_id', [15])
             ->active()
@@ -151,7 +142,7 @@ class FuelTankTest extends TestCase
     {
         $this->actingAs(User::active()->first());
         $countFuelTanks = FuelTank::count();
-        factory(FuelTank::class, 3)->create();
+        FuelTank::factory()->count(3)->create();
 
         $response = $this->post(route('building::tech_acc::get_fuel_tanks'))->assertStatus(200);
 
@@ -166,7 +157,7 @@ class FuelTankTest extends TestCase
 
     public function testFilterFuelTankFuelLevel()
     {
-        factory(FuelTank::class, 10)->create();
+        FuelTank::factory()->count(10)->create();
 
         $data = ['url' => '/smth?fuel_level_from=10&page=1&fuel_level_to=50000&tank_number=12'];
         $response = $this->post(route('building::tech_acc::get_fuel_tanks_paginated', $data))->assertStatus(200);

@@ -1,9 +1,9 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class AddSoftDeletesInManual extends Migration
 {
@@ -53,7 +53,7 @@ class AddSoftDeletesInManual extends Migration
         Schema::table('manual_works', function (Blueprint $table) {
             $table->softDeletes();
         });
-        
+
         DB::commit();
     }
 

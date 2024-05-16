@@ -2,13 +2,15 @@
 
 namespace App\Models\TechAcc;
 
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
-use App\Models\User;
 
 class OurTechnicTicketReport extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = ['our_technic_ticket_id', 'hours', 'user_id', 'comment', 'date'];
@@ -17,9 +19,9 @@ class OurTechnicTicketReport extends Model
 
     protected $appends = ['date_carbon'];
 
-//    protected $casts = [
-//        'date' => 'date:d.m.Y',
-//    ];
+    //    protected $casts = [
+    //        'date' => 'date:d.m.Y',
+    //    ];
 
     public function ticket()
     {

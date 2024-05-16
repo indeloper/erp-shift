@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\System;
 
+use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\FileEntry;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +20,7 @@ class CommentController extends Controller
         $comment = $this->system_service->storeComment($attributes);
 
         DB::commit();
+
         return response(['data' => compact('comment')]);
     }
 
@@ -39,7 +40,6 @@ class CommentController extends Controller
             $comment->documents()->saveMany($documents);
             $comment->refresh();
         }
-
 
         DB::commit();
 

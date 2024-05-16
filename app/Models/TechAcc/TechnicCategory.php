@@ -2,20 +2,21 @@
 
 namespace App\Models\TechAcc;
 
+use App\Traits\DefaultSortable;
+use App\Traits\DevExtremeDataSourceLoadable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\DevExtremeDataSourceLoadable;
-use Illuminate\Database\Eloquent\Builder;
-use App\Traits\DefaultSortable;
 
 class TechnicCategory extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable, DefaultSortable;
+    use DefaultSortable, DevExtremeDataSourceLoadable, SoftDeletes;
+    use HasFactory;
 
     protected $guarded = ['id'];
 
     public $defaultSortOrder = [
-        'name' => 'asc'
+        'name' => 'asc',
     ];
 
     // protected $fillable = ['name', 'description', 'characteristic_id'];

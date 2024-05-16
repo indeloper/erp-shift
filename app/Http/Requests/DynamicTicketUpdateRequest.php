@@ -38,11 +38,9 @@ class DynamicTicketUpdateRequest extends FormRequest
         ],
     ];
 
-
     /**
      * Determine if the user is authorized to make this request.
      *
-     * @param TechnicTicketService $service
      * @return bool
      */
     public function authorize(TechnicTicketService $service)
@@ -61,6 +59,7 @@ class DynamicTicketUpdateRequest extends FormRequest
     public function rules()
     {
         $ticket = $this->route('our_technic_ticket');
+
         return $this->ticket_status_rules_map[$ticket->status];
     }
 }

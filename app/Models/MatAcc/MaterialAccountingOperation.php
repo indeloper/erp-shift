@@ -5,32 +5,32 @@ namespace App\Models\MatAcc;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
 use App\Models\Group;
-use App\Models\MatAcc\MaterialAccountingBase;
-use App\Models\Notification;
-use App\Models\Task;
-use App\Traits\NotificationGenerator;
-use Illuminate\Database\Eloquent\Builder;
-
-use Carbon\CarbonPeriod;
-use App\Traits\Taskable;
-use Illuminate\Database\Eloquent\Model;
-
-use App\Models\ProjectObject;
-use App\Models\User;
 use App\Models\Manual\ManualMaterial;
-use App\Models\Building\ObjectResponsibleUser;
-
+use App\Models\ProjectObject;
+use App\Models\Task;
+use App\Models\User;
+use App\Notifications\Operation\OperationCancelledNotice;
+use App\Notifications\Operation\OperationCompletionNotice;
+use App\Notifications\Operation\OperationConfirmedNotice;
+use App\Notifications\Operation\OperationCreationRequestUpdatedNotice;
+use App\Notifications\Operation\OperationDraftApprovalNotice;
+use App\Notifications\Operation\OperationDraftDeclinedNotice;
+use App\Notifications\Operation\OperationStatusConflictNotice;
+use App\Notifications\Operation\PartialOperationClosureNotice;
+use App\Notifications\Operation\WriteOffOperationRejectionNotice;
+use App\Services\MaterialAccounting\MaterialAccountingService;
+use App\Traits\NotificationGenerator;
+use App\Traits\Taskable;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-
-use App\Services\MaterialAccounting\MaterialAccountingService;
-
-
-use \Carbon\Carbon;
 
 class MaterialAccountingOperation extends Model
 {
@@ -762,13 +762,13 @@ class MaterialAccountingOperation extends Model
             $controlTask->save();
 
             if ($status_result == 'decline') {
-                //notify operation creator
-                $notify = Notification::create([
-                    'name' => 'Ваша операция списания была отклонена',
-                    'task_id' => $controlTask->id,
-                    'user_id' => $this->author->id,
-                    'type' => 13
-                ]);
+                WriteOffOperationRejectionNotice::send(
+                    $this->author->id,
+                    [
+                        'name' => 'Ваша операция списания была отклонена',
+                        'task_id' => $controlTask->id,
+                    ]
+                );
             }
 
             $controlTask->solve_n_notify();
@@ -787,16 +787,16 @@ class MaterialAccountingOperation extends Model
 
     public function generateOperationDraftDeclineNotification()
     {
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftDeclinedNotificationText(),
-            'user_id' => $this->author->id,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 58
-        ]);
+        OperationDraftDeclinedNotice::send(
+            $this->author->id,
+            [
+                'name' => $this->generateOperationDraftDeclinedNotificationText(),
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftDeclinedNotificationText()
@@ -819,16 +819,16 @@ class MaterialAccountingOperation extends Model
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach (array_unique($user_ids) as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationDeclinedNotificationText(),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 55
-            ]);
+            OperationCancelledNotice::send(
+                $user,
+                [
+                    'name' => $this->generateOperationDeclinedNotificationText(),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -861,16 +861,16 @@ class MaterialAccountingOperation extends Model
 
     public function generateDraftAcceptNotification($oldAuthor)
     {
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftAcceptNotificationText(),
-            'user_id' => $oldAuthor,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 57
-        ]);
+        OperationDraftApprovalNotice::send(
+            $oldAuthor,
+            [
+                'name' => $this->generateOperationDraftAcceptNotificationText(),
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => PHP_EOL . $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftAcceptNotificationText()
@@ -892,28 +892,28 @@ class MaterialAccountingOperation extends Model
         if ($this->isMovingOperation())
             return $this->generateMovingPartSendNotifications($partSendType);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-            'user_id' => $this->author_id,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 59
-        ]);
-
-        if ($this->isWriteOffOperation()) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
+        PartialOperationClosureNotice::send(
+            $this->author_id,
+            [
                 'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-                'user_id' => Group::find(6)->getUsers()->first()->id,
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
                 'target_id' => $this->id,
                 'status' => 7,
-                'type' => 59
-            ]);
+            ]
+        );
+
+        if ($this->isWriteOffOperation()) {
+            PartialOperationClosureNotice::send(
+                Group::find(6)->getUsers()->first()->id,
+                [
+                    'name' => $this->generateOperationPartSaveNotificationText($partSendType),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -922,16 +922,16 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author_id, $this->responsible_users()->where('type', $partSendType == 8 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationPartSaveNotificationText($partSendType),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 59
-            ]);
+            PartialOperationClosureNotice::send(
+                $user,
+                [
+                    'name' => $this->generateOperationPartSaveNotificationText($partSendType),
+                    'additional_info' => '. Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -957,16 +957,16 @@ class MaterialAccountingOperation extends Model
         $users = $this->type == 2 ? [$this->author->id, Group::find(6)->getUsers()->first()->id] : [$this->author->id];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationEndNotificationText($sendType),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 60
-            ]);
+            OperationCompletionNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationEndNotificationText($sendType),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -975,16 +975,16 @@ class MaterialAccountingOperation extends Model
         $users = [$this->author->id, $this->responsible_users()->where('type', $sendType == 1 ? 1 : 2)->first()->user_id ?? 1];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationEndNotificationText($sendType),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 60
-            ]);
+            OperationCompletionNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationEndNotificationText($sendType),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1011,16 +1011,16 @@ class MaterialAccountingOperation extends Model
         $users = $this->type == 2 ? [$this->responsible_user->user_id, Group::find(6)->getUsers()->first()->id] : [$this->responsible_user->user_id];
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationAcceptNotificationText(),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 61
-            ]);
+            OperationConfirmedNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationAcceptNotificationText(),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1029,16 +1029,16 @@ class MaterialAccountingOperation extends Model
         $users = $this->responsible_users()->whereIn('type', [1, 2])->pluck('user_id')->toArray();
 
         foreach ($users as $userId) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationAcceptNotificationText(),
-                'user_id' => $userId,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 61
-            ]);
+            OperationConfirmedNotice::send(
+                $userId,
+                [
+                    'name' => $this->generateOperationAcceptNotificationText(),
+                    'additional_info' => 'Перейти к операции можно по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1065,16 +1065,16 @@ class MaterialAccountingOperation extends Model
         $user_ids = $this->updateUserIdsArray($user_ids);
 
         foreach ($user_ids as $user) {
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = '. Для подробностей перейдите по ссылке: ' . PHP_EOL . $this->general_url;
-            $notification->update([
-                'name' => $this->generateOperationConflictNotificationText(),
-                'user_id' => $user,
-                'target_id' => $this->id,
-                'status' => 7,
-                'type' => 62
-            ]);
+            OperationStatusConflictNotice::send(
+                $user,
+                [
+                    'name' => $this->generateOperationConflictNotificationText(),
+                    'additional_info' => 'Для подробностей перейдите по ссылке: ',
+                    'url' => $this->general_url,
+                    'target_id' => $this->id,
+                    'status' => 7,
+                ]
+            );
         }
     }
 
@@ -1097,17 +1097,16 @@ class MaterialAccountingOperation extends Model
     {
         if ($this->status != 5) return;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = '. Перейти к операции можно по ссылке: ' . PHP_EOL . $this->general_url;
-        $notification->update([
-            'name' => $this->generateOperationDraftUpdateNotificationText(),
-            'user_id' => $this->responsible_RP,
-            'target_id' => $this->id,
-            'status' => 7,
-            'type' => 64
-        ]);
-
+        OperationCreationRequestUpdatedNotice::send(
+            $this->responsible_RP,
+            [
+                'name' => $this->generateOperationDraftUpdateNotificationText(),
+                'additional_info' => 'Перейти к операции можно по ссылке: ',
+                'url' => $this->general_url,
+                'target_id' => $this->id,
+                'status' => 7,
+            ]
+        );
     }
 
     public function generateOperationDraftUpdateNotificationText()

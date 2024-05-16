@@ -2,8 +2,8 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\DefaultSortable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTankFlowType extends Model
@@ -13,7 +13,6 @@ class FuelTankFlowType extends Model
     protected $guarded = ['id'];
 
     public $defaultSortOrder = [
-        'id' => 'asc'
+        'id' => 'asc',
     ];
-
 }

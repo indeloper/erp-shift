@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\OurTechnicStoreRequest;
 use App\Http\Requests\OurTechnicUpdateRequest;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Services\TechAccounting\TechnicCategoryService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class OurTechnicController extends Controller
 {
-
     protected $service;
 
     public function __construct()
@@ -35,9 +34,9 @@ class OurTechnicController extends Controller
         $technic = $this->service->createOurTechnicWithAttributes($request->all());
 
         return response()->json([
-                'result' => 'success',
-                'data' => $technic,
-            ]
+            'result' => 'success',
+            'data' => $technic,
+        ]
         );
     }
 
@@ -46,12 +45,11 @@ class OurTechnicController extends Controller
         $technic = $this->service->updateOurTechnicWithAttributes($ourTechnic, $request->all());
 
         return response()->json([
-                'result' => 'success',
-                'data' => $technic,
-            ]
+            'result' => 'success',
+            'data' => $technic,
+        ]
         );
     }
-
 
     public function destroy($category_id, OurTechnic $ourTechnic)
     {
@@ -76,12 +74,10 @@ class OurTechnicController extends Controller
         if ($request->relations) {
             $ourTechnicQuery->with($request->relations);
         }
-        if ($request->q)
-        {
+        if ($request->q) {
             $technics = $ourTechnicQuery->where('model', 'like', "%$request->q%")
                 ->orWhere('brand', 'like', "%$request->q%")->get();
-        } else
-        {
+        } else {
             $technics = $ourTechnicQuery->get();
         }
 
@@ -106,9 +102,11 @@ class OurTechnicController extends Controller
         return response([
             'data' => $technics->get()->map(function ($technic) {
                 $technic['defectable_type'] = 1;
+
                 return $technic;
             })->toBase()->merge($fuelTanks->get()->map(function ($fuelTank) {
                 $fuelTank['defectable_type'] = 2;
+
                 return $fuelTank;
             })),
         ]);
@@ -128,7 +126,7 @@ class OurTechnicController extends Controller
 
         return response([
             'ourTechnics' => $ourTechnics,
-            'ourTechnicCount' => $ourTechnicCount
+            'ourTechnicCount' => $ourTechnicCount,
         ]);
     }
 
@@ -146,7 +144,7 @@ class OurTechnicController extends Controller
 
         return response([
             'ourTechnics' => $ourTechnics,
-            'ourTechnicCount' => $ourTechnicCount
+            'ourTechnicCount' => $ourTechnicCount,
         ]);
     }
 

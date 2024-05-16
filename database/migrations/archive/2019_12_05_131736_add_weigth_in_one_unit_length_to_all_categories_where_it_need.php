@@ -1,11 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
-
 use App\Models\Manual\ManualMaterialCategory;
-
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 class AddWeigthInOneUnitLengthToAllCategoriesWhereItNeed extends Migration
@@ -32,7 +28,7 @@ class AddWeigthInOneUnitLengthToAllCategoriesWhereItNeed extends Migration
         foreach ($category->materials as $material) {
             $material->parameters()->create([
                 'attr_id' => $new_attribute->id,
-                'value' => (1 / $material->convert_to('м.п')->value) * 1000
+                'value' => (1 / $material->convert_to('м.п')->value) * 1000,
             ]);
         }
 

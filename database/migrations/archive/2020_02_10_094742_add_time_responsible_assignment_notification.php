@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddTimeResponsibleAssignmentNotification extends Migration
 {
@@ -20,7 +20,7 @@ class AddTimeResponsibleAssignmentNotification extends Migration
             'id' => self::NOTIFICATION_TYPE,
             'group' => 10,
             'name' => 'Уведомление о назначении на позицию ответственного за учёт рабочего времени на проекте',
-            'for_everyone' => 1
+            'for_everyone' => 1,
         ];
 
         DB::table('notification_types')->insert($new_types);

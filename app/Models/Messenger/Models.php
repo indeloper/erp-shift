@@ -2,9 +2,6 @@
 
 namespace App\Models\Messenger;
 
-use App\Models\Messenger\Message;
-use App\Models\Messenger\Participant;
-use App\Models\Messenger\Thread;
 use App\Models\User;
 
 class Models
@@ -33,7 +30,7 @@ class Models
     /**
      * Set the model to be used for threads.
      *
-     * @param string $model
+     * @param  string  $model
      */
     public static function setMessageModel($model)
     {
@@ -43,7 +40,7 @@ class Models
     /**
      * Set the model to be used for participants.
      *
-     * @param  string $model
+     * @param  string  $model
      */
     public static function setParticipantModel($model)
     {
@@ -53,7 +50,7 @@ class Models
     /**
      * Set the model to be used for threads.
      *
-     * @param  string $model
+     * @param  string  $model
      */
     public static function setThreadModel($model)
     {
@@ -72,8 +69,6 @@ class Models
 
     /**
      * Set custom table names.
-     *
-     * @param  array $map
      */
     public static function setTables(array $map)
     {
@@ -83,7 +78,7 @@ class Models
     /**
      * Get a custom table name mapping for the given table.
      *
-     * @param  string $table
+     * @param  string  $table
      * @return string
      */
     public static function table($table)
@@ -98,7 +93,7 @@ class Models
     /**
      * Get the class name mapping for the given model.
      *
-     * @param  string $model
+     * @param  string  $model
      * @return string
      */
     public static function classname($model)
@@ -113,7 +108,6 @@ class Models
     /**
      * Get an instance of the messages model.
      *
-     * @param  array $attributes
      * @return \Lexx\ChatMessenger\Models\Message
      */
     public static function message(array $attributes = [])
@@ -124,7 +118,6 @@ class Models
     /**
      * Get an instance of the participants model.
      *
-     * @param  array $attributes
      * @return \Lexx\ChatMessenger\Models\Participant
      */
     public static function participant(array $attributes = [])
@@ -135,7 +128,6 @@ class Models
     /**
      * Get an instance of the threads model.
      *
-     * @param  array $attributes
      * @return \Lexx\ChatMessenger\Models\Thread
      */
     public static function thread(array $attributes = [])
@@ -146,7 +138,6 @@ class Models
     /**
      * Get an instance of the user model.
      *
-     * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model
      */
     public static function user(array $attributes = [])
@@ -157,8 +148,7 @@ class Models
     /**
      * Get an instance of the given model.
      *
-     * @param  string $model
-     * @param  array $attributes
+     * @param  string  $model
      * @return \Illuminate\Database\Eloquent\Model
      */
     protected static function make($model, array $attributes = [])

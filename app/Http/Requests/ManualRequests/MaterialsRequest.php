@@ -3,7 +3,6 @@
 namespace App\Http\Requests\ManualRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class MaterialsRequest extends FormRequest
 {
@@ -27,7 +26,7 @@ class MaterialsRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'sometimes|required|numeric|' . (($this->className == 'ManualReference') ? 'exists:manual_references,id' : 'exists:manual_materials,id'),
+            'id' => 'sometimes|required|numeric|'.(($this->className == 'ManualReference') ? 'exists:manual_references,id' : 'exists:manual_materials,id'),
             'name' => 'required|max:255',
             'description' => 'nullable|max:250',
             'use_cost' => ($this->className == 'ManualReference') ? 'nullable' : 'required|min:1|max:20',

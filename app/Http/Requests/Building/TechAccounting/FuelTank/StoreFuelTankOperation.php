@@ -20,7 +20,7 @@ class StoreFuelTankOperation extends FormRequest
 
     public function withValidator($validator)
     {
-        if (!$this->requestHasTwoVideos()) {
+        if (! $this->requestHasTwoVideos()) {
             $validator->errors()->add('videos', 'Необходимо прикрепить как минимум 2 видео');
             throw new ValidationException($validator);
         }
@@ -53,6 +53,7 @@ class StoreFuelTankOperation extends FormRequest
 
             return $videos_count >= 2;
         }
+
         return false;
     }
 }

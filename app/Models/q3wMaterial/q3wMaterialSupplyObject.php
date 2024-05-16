@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wMaterialSupplyObject extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 }

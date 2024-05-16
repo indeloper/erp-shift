@@ -13,7 +13,6 @@ class ProjectObserver
     /**
      * Handle the project "created" event.
      *
-     * @param  Project  $project
      * @return void
      */
     public function created(Project $project)
@@ -24,7 +23,6 @@ class ProjectObserver
     /**
      * Handle the project "updated" event.
      *
-     * @param  Project  $project
      * @return void
      */
     public function updated(Project $project)
@@ -54,7 +52,6 @@ class ProjectObserver
     /**
      * Handle the project "deleted" event.
      *
-     * @param  Project  $project
      * @return void
      */
     public function deleted(Project $project)
@@ -65,7 +62,6 @@ class ProjectObserver
     /**
      * Handle the project "restored" event.
      *
-     * @param  Project  $project
      * @return void
      */
     public function restored(Project $project)
@@ -76,7 +72,6 @@ class ProjectObserver
     /**
      * Handle the project "force deleted" event.
      *
-     * @param  Project  $project
      * @return void
      */
     public function forceDeleted(Project $project)

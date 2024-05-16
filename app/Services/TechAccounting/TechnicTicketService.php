@@ -3,21 +3,24 @@ namespace App\Services\TechAccounting;
 
 use App\Models\FileEntry;
 use App\Models\Group;
-use App\Models\Notification;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
+use App\Notifications\Technic\RequestProcessingRequiredNotice;
+use App\Notifications\Technic\TechnicDispatchConfirmationNotice;
+use App\Notifications\Technic\TechnicReceiptConfirmationNotice;
+use App\Notifications\Technic\TechnicUsageStartTaskNotice;
 use App\Services\SystemService;
 use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TechnicTicketService
 {
     use NotificationGenerator;
+    protected $prepareNotifications = [];
 
     /**
      * @var TechnicTicketStatusCalculatorService
@@ -68,6 +71,7 @@ class TechnicTicketService
 
     public function createNewTicket($attributes)
     {
+        $this->prepareNotifications = [];
         DB::beginTransaction();
 
         $new_ticket = new OurTechnicTicket($attributes);
@@ -98,20 +102,20 @@ class TechnicTicketService
                 'status' => 28
             ]);
 
-            $notification = new Notification([
+            $this->prepareNotifications['App\Notifications\Technic\TechnicRequestApprovalNotice'] = [
+                'user_ids' => $responsible_rp_id,
                 'name' => "Была создана заявка на {$new_ticket->our_technic->brand} {$new_ticket->our_technic->model}",
-                'user_id' => $responsible_rp_id,
+                'additional_info' => "\nНеобходимо принять решение по заявке ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $new_ticket->id]),
                 'created_at' => now(),
                 'target_id' => $new_ticket->id,
-                'type' => 68,
-            ]);
-            $notification->additional_info = "\n" .
-                "Необходимо принять решение по заявке " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $new_ticket->id]);
-            $notification->save();
-
+            ];
         }
 
         DB::commit();
+
+        $this->sendNotifications();
+
         $new_ticket->refresh();
         $new_ticket->loadMissing(['users', 'our_technic', 'sending_object', 'getting_object', 'comments.files']);
         return $new_ticket;
@@ -369,17 +373,16 @@ class TechnicTicketService
                 'status' => $this->responsible_user_task_status_map[$user_type]
             ]);
 
-            $notification = new Notification();
-            $notification->save();
-            $notification->additional_info = "\n" .
-                "Необходимо подтвердить начало использования: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-            $notification->update([
-                'name' => "Техника: {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model} - готова к использованию",
-                'user_id' => $usage_responsible_user->id,
-                'created_at' => now(),
-                'target_id' => $ourTechnicTicket->id,
-                'type' => 69,
-            ]);
+            TechnicUsageStartTaskNotice::send(
+                $usage_responsible_user->id,
+                [
+                    'name' => "Техника: {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model} - готова к использованию",
+                    'additional_info' => "\nНеобходимо подтвердить начало использования: ",
+                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'created_at' => now(),
+                    'target_id' => $ourTechnicTicket->id,
+                ]
+            );
         }
     }
 
@@ -397,17 +400,16 @@ class TechnicTicketService
             'status' => 30
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = "\n" .
-            "Ссылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-        $notification->update([
-            'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-            'user_id' => $logist_id,
-            'created_at' => now(),
-            'target_id' => $ourTechnicTicket->id,
-            'type' => 70,
-        ]);
+        RequestProcessingRequiredNotice::send(
+            $logist_id,
+            [
+                'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                'additional_info' => "Ссылка: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'created_at' => now(),
+                'target_id' => $ourTechnicTicket->id,
+            ]
+        );
     }
 
     /**
@@ -426,17 +428,16 @@ class TechnicTicketService
             'status' => 31
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = "\n" .
-            "Ссылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-        $notification->update([
-            'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-            'user_id' => $sending_responsible_user->id,
-            'created_at' => now(),
-            'target_id' => $ourTechnicTicket->id,
-            'type' => 71,
-        ]);
+        TechnicDispatchConfirmationNotice::send(
+            $sending_responsible_user->id,
+            [
+                'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                'additional_info' => "Ссылка: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'created_at' => now(),
+                'target_id' => $ourTechnicTicket->id,
+            ]
+        );
 
         $getting_responsible_user = $ourTechnicTicket->users()->ofType('recipient_user_id')->first();
 
@@ -447,17 +448,16 @@ class TechnicTicketService
             'status' => 32
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = "\n" .
-            "Ссылка: " . route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]);
-        $notification->update([
-            'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
-            'user_id' => $getting_responsible_user->id,
-            'created_at' => now(),
-            'target_id' => $ourTechnicTicket->id,
-            'type' => 72,
-        ]);
+        TechnicReceiptConfirmationNotice::send(
+            $getting_responsible_user->id,
+            [
+                'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
+                'additional_info' => "Ссылка: ",
+                'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                'created_at' => now(),
+                'target_id' => $ourTechnicTicket->id,
+            ]
+        );
     }
 
     /**
@@ -585,5 +585,22 @@ class TechnicTicketService
         $ourTechnicTicket->save();
 
         return $ourTechnicTicket;
+    }
+
+    protected function sendNotifications(): void
+    {
+        foreach ($this->prepareNotifications as $class => $arguments) {
+            try {
+                $user_id = $arguments['user_ids'];
+                $class::send(
+                    $user_id,
+                    $arguments
+                );
+            } catch (\Throwable $throwable) {
+                $controllerName = get_class($this);
+                $message = "В контроллере $controllerName, не удалось отправить уведомление $class, возникла ошибка: ";
+                Log::error($message . $throwable->getMessage());
+            }
+        }
     }
 }

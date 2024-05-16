@@ -13,11 +13,11 @@ final class MenuService implements MenuServiceInterface
     private $repository;
 
     public function __construct(
-        MenuRepositoryInterface  $menuRepository
-    )
-    {
+        MenuRepositoryInterface $menuRepository
+    ) {
         $this->repository = $menuRepository;
     }
+
     public function getMenuItems()
     {
         return $this->determinateGates(
@@ -26,8 +26,7 @@ final class MenuService implements MenuServiceInterface
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Collection $menuItems
-     *
+     * @param  \Illuminate\Database\Eloquent\Collection  $menuItems
      * @return \Illuminate\Support\Collection
      */
     private function determinateGates($menuItems)
@@ -37,7 +36,7 @@ final class MenuService implements MenuServiceInterface
                 $item->children = $this->determinateGates($item->children);
             }
 
-            if ($item->is_su && !Auth::user()->is_su) {
+            if ($item->is_su && ! Auth::user()->is_su) {
                 return null;
             }
 
@@ -45,7 +44,7 @@ final class MenuService implements MenuServiceInterface
                 return $item;
             }
 
-            if (!Gate::any($item->gates)) {
+            if (! Gate::any($item->gates)) {
                 return null;
             }
 
@@ -54,5 +53,4 @@ final class MenuService implements MenuServiceInterface
             return $item !== null;
         });
     }
-
 }

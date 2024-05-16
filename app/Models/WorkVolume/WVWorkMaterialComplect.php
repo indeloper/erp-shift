@@ -10,7 +10,7 @@ class WVWorkMaterialComplect extends Model
     protected $fillable = [
         'complect_name',
         'work_volume_id',
-        'wv_work_id'
+        'wv_work_id',
     ];
 
     public function complects()

@@ -1,4 +1,6 @@
-<?php namespace App\Traits;
+<?php
+
+namespace App\Traits;
 
 use App\Models\Task;
 use Carbon\Carbon;
@@ -8,11 +10,11 @@ trait TimeCalculator
     /**
      * This function calculate new time
      * for tasks considering working time
-     * @param int $addHours
-     * @param Carbon $testDate = null
+     *
+     * @param  Carbon  $testDate  = null
      * @return Carbon $date
      */
-    public function addHours(int $addHours, Carbon $testDate = null)
+    public function addHours(int $addHours, ?Carbon $testDate = null)
     {
         $date = $testDate ? $testDate->second(0)->micro(0) : now()->second(0)->micro(0);
         $workHoursSum = Task::UPPER_WORK_HOUR_LIMIT - Task::LOWER_WORK_HOUR_LIMIT;
@@ -40,8 +42,6 @@ trait TimeCalculator
 
     /**
      * Function check date validity
-     * @param $date
-     * @return bool
      */
     public function isNotValidDate($date): bool
     {
@@ -51,8 +51,6 @@ trait TimeCalculator
     /**
      * Function check that date in
      * time period 8-19
-     * @param $date
-     * @return bool
      */
     public function inWorkingHours($date): bool
     {
@@ -62,8 +60,6 @@ trait TimeCalculator
     /**
      * Function check that date
      * more than 19:00
-     * @param $date
-     * @return bool
      */
     public function isLastHourWithMinutes($date): bool
     {
@@ -73,8 +69,6 @@ trait TimeCalculator
     /**
      * Function return true
      * if date hour 19 or bigger
-     * @param $date
-     * @return bool
      */
     public function isMoreOrEqualToUpperWorkingHours($date): bool
     {
@@ -84,20 +78,15 @@ trait TimeCalculator
     /**
      * Function return true
      * if date hour less than 8
-     * @param $date
-     * @return bool
      */
     public function isLessThanLowerWorkingHours($date): bool
     {
         return $date->hour < Task::LOWER_WORK_HOUR_LIMIT;
     }
 
-
     /**
      * Function move date from
      * weekends
-     * @param $date
-     * @return void
      */
     public function moveFromWeekends($date): void
     {
@@ -112,11 +101,11 @@ trait TimeCalculator
      * This function calculate new time
      * for tasks considering working time,
      * but use days as addition
-     * @param int $addDays
-     * @param Carbon $testDate = null
+     *
+     * @param  Carbon  $testDate  = null
      * @return Carbon $date
      */
-    public function addDays(int $addDays, Carbon $testDate = null)
+    public function addDays(int $addDays, ?Carbon $testDate = null)
     {
 
         $date = $testDate ? $testDate->second(0)->micro(0) : now()->second(0)->micro(0);
@@ -142,8 +131,6 @@ trait TimeCalculator
     /**
      * Function move date from
      * weekends to closest working day
-     * @param $date
-     * @return void
      */
     public function moveFromWeekendsToClosestWorkingDay($date): void
     {

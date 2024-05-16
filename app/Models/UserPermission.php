@@ -11,11 +11,10 @@ class UserPermission extends Model
      *
      * @var array
      */
-     
     protected $fillable = ['user_id', 'permission_id'];
 
     public function permissions()
     {
-        return $this->hasMany('\App\Models\Permission');
+        return $this->hasMany(\App\Models\Permission::class);
     }
 }

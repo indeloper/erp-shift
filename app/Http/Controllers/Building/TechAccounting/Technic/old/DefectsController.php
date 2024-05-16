@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
-use App\Services\AuthorizeService;
-use App\Traits\{NotificationGenerator, AdditionalFunctions};
+use App\Http\Controllers\Controller;
+use App\Http\Requests\DefectRequests\{DefectAcceptRequest,
+    DefectDeclineRequest,
+    DefectRepairEndRequest,
+    DefectResponsibleUserAssignmentRequest,
+    DefectStoreRequest};
 use App\Models\FileEntry;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\TechAcc\OurTechnic;
-use App\Http\Requests\DefectRequests\{DefectAcceptRequest,
-    DefectRepairEndRequest,
-    DefectResponsibleUserAssignmentRequest,
-    DefectStoreRequest,
-    DefectDeclineRequest};
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
+use App\Services\AuthorizeService;
+use App\Traits\{AdditionalFunctions, NotificationGenerator};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DefectsController extends Controller
 {

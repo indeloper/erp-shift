@@ -3,16 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\Contractors\Contractor;
-use App\Models\Group;
-use App\Models\Notification;
 use App\Models\Task;
-use App\Models\TaskChangingField;
 use App\Models\User;
+use App\Notifications\Task\ContractorChangesVerificationTaskNotice;
 use Carbon\Carbon;
 use Fomvasss\Dadata\Facades\DadataSuggest;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Expr\BinaryOp\Greater;
 
 class CheckContractorsInfo extends Command
 {
@@ -140,19 +136,17 @@ class CheckContractorsInfo extends Command
             $task->changing_fields()->create($field);
         }
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-
-        $notification->update([
-            'name' => 'Новая задача «' . $task->name . '»',
-            'task_id' => $task->id,
-            'contractor_id' => $task->contractor_id,
-            'user_id' => $task->responsible_user_id,
-            'project_id' => 0,
-            'object_id' => 0,
-            'type' => 94,
-        ]);
-
+        ContractorChangesVerificationTaskNotice::send(
+            $task->responsible_user_id,
+            [
+                'name' => 'Новая задача «' . $task->name . '»',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
+                'task_id' => $task->id,
+                'contractor_id' => $task->contractor_id,
+                'project_id' => 0,
+                'object_id' => 0,
+            ]
+        );
     }
 }

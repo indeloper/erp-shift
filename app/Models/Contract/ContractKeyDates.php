@@ -19,9 +19,9 @@ class ContractKeyDates extends Model
         'note',
     ];
 
-    protected $dates = [
-        'date_from',
-        'date_to',
+    protected $casts = [
+        'date_from' => 'datetime',
+        'date_to' => 'datetime',
     ];
 
     public function related_key_dates()

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\SetWebhookTelegramCommand;
 use App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -16,6 +17,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         // Dev commandscls
         Commands\Generators\MakeErpModelCommand::class,
+        Commands\MakeErpNotification::class,
 
         // Other commands
         Commands\MakePermission::class,
@@ -54,7 +56,9 @@ class Kernel extends ConsoleKernel
         Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class,
         Commands\Support\Fuel\FuelTransferHistoriesSetFuelLevels::class,
         Commands\Support\Fuel\FuelTanksFuelLevelCheck::class,
-        Commands\Support\MaterialAccounting\CancelCompletedSupplyOperation::class
+        Commands\Support\MaterialAccounting\CancelCompletedSupplyOperation::class,
+
+        SetWebhookTelegramCommand::class
     ];
 
     /**

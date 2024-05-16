@@ -19,7 +19,7 @@ class SendMovingRequest extends FormRequest
     public function messages()
     {
         return [
-            'count_files.min' => 'Необходимо прикрепить к операции как минимум два изображения'
+            'count_files.min' => 'Необходимо прикрепить к операции как минимум два изображения',
         ];
     }
 

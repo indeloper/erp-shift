@@ -7,14 +7,7 @@
     ),
     'aliases' => 
     array (
-      'Debugbar' => 'Barryvdh\\Debugbar\\Facade',
-    ),
-  ),
-  'beyondcode/laravel-dump-server' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'BeyondCode\\DumpServer\\DumpServerServiceProvider',
+      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
     ),
   ),
   'facade/ignition' => 
@@ -28,23 +21,11 @@
       'Flare' => 'Facade\\Ignition\\Facades\\Flare',
     ),
   ),
-  'fideloper/proxy' => 
+  'fruitcake/laravel-cors' => 
   array (
     'providers' => 
     array (
-      0 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
-    ),
-  ),
-  'fomvasss/laravel-dadata' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Fomvasss\\Dadata\\DadataServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'DadataSuggest' => 'Fomvasss\\Dadata\\Facades\\DadataSuggest',
-      'DadataClean' => 'Fomvasss\\Dadata\\Facades\\DadataClean',
+      0 => 'Fruitcake\\Cors\\CorsServiceProvider',
     ),
   ),
   'intervention/image' => 
@@ -58,6 +39,17 @@
       'Image' => 'Intervention\\Image\\Facades\\Image',
     ),
   ),
+  'irazasyed/telegram-bot-sdk' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Telegram\\Bot\\Laravel\\TelegramServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Telegram' => 'Telegram\\Bot\\Laravel\\Facades\\Telegram',
+    ),
+  ),
   'laravel/dusk' => 
   array (
     'providers' => 
@@ -65,18 +57,18 @@
       0 => 'Laravel\\Dusk\\DuskServiceProvider',
     ),
   ),
-  'laravel/passport' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Passport\\PassportServiceProvider',
-    ),
-  ),
   'laravel/tinker' => 
   array (
     'providers' => 
     array (
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
+    ),
+  ),
+  'laravel/ui' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Ui\\UiServiceProvider',
     ),
   ),
   'lexxyungcarter/chatmessenger' => 

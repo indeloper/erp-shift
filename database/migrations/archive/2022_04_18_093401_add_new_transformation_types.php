@@ -1,9 +1,8 @@
 <?php
 
 use App\Models\q3wMaterial\q3wMaterialTransformationType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewTransformationTypes extends Migration
 {
@@ -61,7 +60,7 @@ class AddNewTransformationTypes extends Migration
      */
     public function down()
     {
-        Schema::table('q3w_material_transformation_types', function($table) {
+        Schema::table('q3w_material_transformation_types', function ($table) {
             $table->dropColumn('codename');
         });
 

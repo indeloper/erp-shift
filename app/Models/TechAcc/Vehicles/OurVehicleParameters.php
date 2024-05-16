@@ -2,11 +2,13 @@
 
 namespace App\Models\TechAcc\Vehicles;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurVehicleParameters extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
@@ -20,6 +22,7 @@ class OurVehicleParameters extends Model
 
     /**
      * Relation to category characteristic
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function characteristic()
@@ -29,6 +32,7 @@ class OurVehicleParameters extends Model
 
     /**
      * Relation to vehicle
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function vehicle()

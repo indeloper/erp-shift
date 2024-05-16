@@ -16,7 +16,6 @@ class TechnicBrandController extends StandardEntityResourceController
         $this->routeNameFixedPart = 'building::tech_acc::technic::technicBrand::';
         $this->baseBladePath = resource_path().'/views/tech_accounting/technic/technicBrand';
         $this->isMobile = $this->isMobile($this->baseBladePath);
-        $this->components = $this->getModuleComponents(); 
+        $this->components = $this->getModuleComponents();
     }
-
 }

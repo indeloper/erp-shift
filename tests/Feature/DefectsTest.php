@@ -2,26 +2,28 @@
 
 namespace Tests\Feature;
 
-use App\Models\{Comment,
-    FileEntry,
-    Group,
-    Notification,
-    ProjectObject,
-    Task,
-    TechAcc\Defects\Defects,
-    TechAcc\FuelTank\FuelTank,
-    TechAcc\OurTechnic,
-    User};
-
-use Tests\TestCase;
+use App\Models\Comment;
+use App\Models\FileEntry;
+use App\Models\Group;
+use App\Models\Notification;
+use App\Models\ProjectObject;
+use App\Models\Task;
+use App\Models\TechAcc\Defects\Defects;
+use App\Models\TechAcc\FuelTank\FuelTank;
+use App\Models\TechAcc\OurTechnic;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
+use Tests\TestCase;
+
 class DefectsTest extends TestCase
 {
     use DatabaseTransactions;
 
     protected $user_that_can;
+
     protected $user_that_cannot;
+
     protected $principle;
 
     const GROUPS_WITH_PERMISSION = [
@@ -29,33 +31,34 @@ class DefectsTest extends TestCase
         31, 46, 47, 48,
     ];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->user_that_can =
             User::whereIn('group_id', self::GROUPS_WITH_PERMISSION)->where('is_deleted', 0)->first() ??
-            factory(User::class)->create(['group_id' => 47]);
+            User::factory()->create(['group_id' => 47]);
         $this->user_that_cannot = User::whereNotIn('group_id', self::GROUPS_WITH_PERMISSION)->where('is_deleted', 0)->first();
-        $this->principle = User::whereGroupId(47)->where('is_deleted', 0)->first() ?? factory(User::class)->create(['group_id' => 47]);
+        $this->principle = User::whereGroupId(47)->where('is_deleted', 0)->first() ?? User::factory()->create(['group_id' => 47]);
 
         Defects::query()->delete();
     }
 
     /**
      * Function find or create necessary user
+     *
      * @return User
      */
     public function findOrNewUserFromGroupFortySeven()
     {
-        return Group::find(47)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 47, 'department_id' => 13]);
+        return Group::find(47)->getUsers()->first() ?? User::factory()->create(['group_id' => 47, 'department_id' => 13]);
     }
 
     /** @test */
     public function we_can_create_defect()
     {
         // When we create fresh defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then this defect should be exemplar of Defects class
         $this->assertTrue(get_class($defect) == Defects::class);
@@ -65,7 +68,7 @@ class DefectsTest extends TestCase
     public function we_can_delete_defect()
     {
         // Given fresh defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // When we delete defect
         $defect->delete();
@@ -79,7 +82,7 @@ class DefectsTest extends TestCase
     public function defect_must_have_author_relation()
     {
         // Given fresh vehicle
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then author relation should be exemplar of User class
         $this->assertTrue(get_class($defect->author) == User::class);
@@ -89,7 +92,7 @@ class DefectsTest extends TestCase
     public function defect_must_have_defectable_relation()
     {
         // Given fresh vehicle
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then defectable relation should be exemplar of OurTechnic class
         $this->assertTrue(get_class($defect->defectable) == OurTechnic::class);
@@ -99,7 +102,7 @@ class DefectsTest extends TestCase
     public function defect_must_have_one_comment_after_creation()
     {
         // Given fresh vehicle
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then comment relation should have length equal to 1
         $this->assertCount(1, $defect->refresh()->comments);
@@ -152,9 +155,9 @@ class DefectsTest extends TestCase
 
         // When we make post request with data
         $data = [
-            'defectable_id' => factory(OurTechnic::class)->create()->id,
+            'defectable_id' => OurTechnic::factory()->create()->id,
             'defectable_type' => 1,
-            'description' => $this->faker->paragraph
+            'description' => $this->faker->paragraph,
         ];
         $response = $this->actingAs($user)->post(route('building::tech_acc::defects.store'), $data);
 
@@ -189,7 +192,7 @@ class DefectsTest extends TestCase
     public function defect_can_have_documents()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Given random file
         $file = FileEntry::create([
@@ -211,7 +214,7 @@ class DefectsTest extends TestCase
     public function defect_can_have_photos()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Given photo and dummy file
         $file1 = FileEntry::create([
@@ -242,7 +245,7 @@ class DefectsTest extends TestCase
     public function defect_can_have_videos()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Given video and dummy file
         $file1 = FileEntry::create([
@@ -292,9 +295,9 @@ class DefectsTest extends TestCase
 
         // When we make post request with data
         $data = [
-            'defectable_id' => factory(OurTechnic::class)->create()->id,
+            'defectable_id' => OurTechnic::factory()->create()->id,
             'defectable_type' => 1,
-            'description' => $this->faker->paragraph . $this->faker->paragraph . $this->faker->paragraph,
+            'description' => $this->faker->paragraph.$this->faker->paragraph.$this->faker->paragraph,
         ];
         $response = $this->actingAs($user)->post(route('building::tech_acc::defects.store'), $data);
 
@@ -310,7 +313,7 @@ class DefectsTest extends TestCase
 
         // When we make post request with data
         $data = [
-            'defectable_id' => factory(OurTechnic::class)->create()->id,
+            'defectable_id' => OurTechnic::factory()->create()->id,
             'defectable_type' => 3,
             'description' => $this->faker->paragraph,
         ];
@@ -324,7 +327,7 @@ class DefectsTest extends TestCase
     public function defect_must_have_status()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then defect should have status equal to 1
         $this->assertEquals(1, $defect->status);
@@ -334,7 +337,7 @@ class DefectsTest extends TestCase
     public function defect_must_have_status_name()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then defect should have status_name equal to 'Новая заявка"
         $this->assertEquals('Новая заявка', $defect->status_name);
@@ -344,7 +347,7 @@ class DefectsTest extends TestCase
     public function defect_can_have_responsible_user_relation()
     {
         // Given defect
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
 
         // Then defect responsible_user relation should be exemplar of User class
         $this->assertEquals(User::class, get_class($defect->responsible_user));
@@ -354,7 +357,7 @@ class DefectsTest extends TestCase
     public function standard_defect_dont_have_responsible_user_relation()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then defect responsible_user relation should return null
         $this->assertEquals(null, $defect->responsible_user);
@@ -364,7 +367,7 @@ class DefectsTest extends TestCase
     public function standard_defect_dont_have_repair_dates()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         // Then defect repair dates property should return null
         $this->assertEquals(null, $defect->repair_start_date);
@@ -375,7 +378,7 @@ class DefectsTest extends TestCase
     public function defect_repair_dates_must_be_carbon_objects()
     {
         // Given defect
-        $defect = factory(Defects::class)->create(['repair_start_date' => now(), 'repair_end_date' => now()->addDays(2)]);
+        $defect = Defects::factory()->create(['repair_start_date' => now(), 'repair_end_date' => now()->addDays(2)]);
 
         // Then defect repair dates property should return null
         $this->assertEquals(Carbon::class, get_class($defect->repair_start_date));
@@ -386,7 +389,7 @@ class DefectsTest extends TestCase
     public function defect_notificationable_relation()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
         // Given notification
         $notification = Notification::create(['name' => 'test', 'user_id' => 1]);
         // Add notification in relation
@@ -405,9 +408,9 @@ class DefectsTest extends TestCase
     public function defect_taskable_relation()
     {
         // Given task
-        $task = factory(Task::class)->create();
+        $task = Task::factory()->create();
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
 
         $old_count = $defect->tasks->count();
 
@@ -428,7 +431,7 @@ class DefectsTest extends TestCase
     public function defect_comments_relation()
     {
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
         // Given comment
         $comment = Comment::create([
             'comment' => 'plain comment',
@@ -450,7 +453,7 @@ class DefectsTest extends TestCase
     public function user_from_group_47_must_have_permission()
     {
         // Given user
-        $user = Group::find(47)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 47, 'department_id' => 11]);
+        $user = Group::find(47)->getUsers()->first() ?? User::factory()->create(['group_id' => 47, 'department_id' => 11]);
 
         // Then user must have permission
         $this->assertTrue(boolval($user->hasPermission('tech_acc_defects_responsible_user_assignment')));
@@ -473,7 +476,7 @@ class DefectsTest extends TestCase
         $this->findOrNewUserFromGroupFortySeven();
 
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
         // Given defect responsible user create task
         $task = $defect->tasks()->first();
 
@@ -492,13 +495,13 @@ class DefectsTest extends TestCase
         $user = $this->findOrNewUserFromGroupFortySeven();
 
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
         // Given defect responsible user create task
         $task = $defect->tasks()->first();
 
         // When we make post request with data
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.select_responsible', $defect->id), [
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         $defect->refresh();
@@ -529,7 +532,7 @@ class DefectsTest extends TestCase
         $user = $this->findOrNewUserFromGroupFortySeven();
 
         // Given defect
-        $defect = factory(Defects::class)->create();
+        $defect = Defects::factory()->create();
         // Given defect responsible user create task
         $task = $defect->tasks()->first();
 
@@ -546,7 +549,7 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
         // Given notifications count
         $old_notifications_count = Notification::count();
 
@@ -582,7 +585,7 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
 
         // When we make put request without data
         $data = ['comment' => ''];
@@ -598,7 +601,7 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
         // Given notifications count
         $old_notifications_count = Notification::count();
 
@@ -645,7 +648,7 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
 
         // When we make put request without data
         $data = [
@@ -667,7 +670,7 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
 
         // When we make put request without data
         $data = [
@@ -686,12 +689,12 @@ class DefectsTest extends TestCase
     {
         $user = $this->user_that_can;
         // Given defect
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
 
         // When we add comment to defect
         $defect->comments()->create([
             'comment' => 'bla-bla',
-            'author_id' => $user->id
+            'author_id' => $user->id,
         ]);
 
         // Then ...
@@ -713,7 +716,7 @@ class DefectsTest extends TestCase
         // Given notifications count
         $notification_count = Notification::count();
         // Given comment
-        $comment = factory(Comment::class)->create();
+        $comment = Comment::factory()->create();
         // Given new notifications count
         $new_notification_count = Notification::count();
 
@@ -727,7 +730,7 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 3]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 3]);
         // Given notifications count
         $old_notifications_count = Notification::count();
 
@@ -770,13 +773,13 @@ class DefectsTest extends TestCase
         Defects::query()->delete();
         // Given four defects
         // One that will expire soon
-        $defect1 = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()]);
+        $defect1 = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()]);
         // Second with normal dates
-        $defect2 = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(1)]);
+        $defect2 = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 3, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(1)]);
         // Third is closed
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 4, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(2)]);
+        $defect3 = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 4, 'repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(2)]);
         // Fourth is in diagnosis
-        $defect4 = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect4 = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
 
         // When we make a query with scope
         $result = Defects::soonExpire()->get();
@@ -794,14 +797,14 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 3]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 3]);
         // Given notifications count
         $old_notifications_count = Notification::count();
 
         // When we make put request with data
         $data = [
             'comment' => $this->faker->paragraph,
-            'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? factory(ProjectObject::class)->create()->id,
+            'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? ProjectObject::factory()->create()->id,
         ];
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.end_repair', $defect->id), $data);
 
@@ -832,7 +835,7 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 3]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 3]);
         // Given notifications count
         $old_notifications_count = Notification::count();
 
@@ -850,10 +853,10 @@ class DefectsTest extends TestCase
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
         // Given defect
-        $defect = factory(Defects::class)->create(['user_id' => $user->id]);
+        $defect = Defects::factory()->create(['user_id' => $user->id]);
 
         // When non author make this delete request
-        $non_author = factory(User::class)->create();
+        $non_author = User::factory()->create();
         $response = $this->actingAs($non_author)->delete(route('building::tech_acc::defects.destroy', $defect->id));
 
         // Then this user must have 403
@@ -866,7 +869,7 @@ class DefectsTest extends TestCase
         // Given user
         $author = $this->findOrNewUserFromGroupFortySeven();
         // Given defect
-        $defect = factory(Defects::class)->create(['user_id' => $author->id, 'status' => Defects::IN_WORK]);
+        $defect = Defects::factory()->create(['user_id' => $author->id, 'status' => Defects::IN_WORK]);
 
         // When non author make this delete request
         $response = $this->actingAs($author)->delete(route('building::tech_acc::defects.destroy', $defect->id));
@@ -881,7 +884,7 @@ class DefectsTest extends TestCase
         // Given user
         $author = $this->findOrNewUserFromGroupFortySeven();
         // Given defect
-        $defect = factory(Defects::class)->create(['user_id' => $author->id, 'status' => Defects::NEW]);
+        $defect = Defects::factory()->create(['user_id' => $author->id, 'status' => Defects::NEW]);
         // Given old notifications count
         $old_notifications_count = Notification::count();
 
@@ -932,7 +935,7 @@ class DefectsTest extends TestCase
     public function defect_filter_work_without_any_filters()
     {
         // Given three defects
-        $defects = factory(Defects::class, 3)->create();
+        $defects = Defects::factory()->count(3)->create();
         // Given user
         $user = $this->principle;
 
@@ -954,13 +957,13 @@ class DefectsTest extends TestCase
     public function defect_filter_can_return_all_defects()
     {
         // Given three defects
-        $defects = factory(Defects::class, 2)->create();
-        $defect = factory(Defects::class)->create(['status' => Defects::CLOSED]);
+        $defects = Defects::factory()->count(2)->create();
+        $defect = Defects::factory()->create(['status' => Defects::CLOSED]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with show_all
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?show_active=true']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?show_active=true']))->json();
 
         // Then ...
         // This array must contains three defects
@@ -971,14 +974,14 @@ class DefectsTest extends TestCase
     public function defect_filter_status()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['status' => Defects::DIAGNOSTICS]);
-        $defect2 = factory(Defects::class)->create(['status' => Defects::NEW]);
-        $defect3 = factory(Defects::class)->create(['status' => Defects::CLOSED]);
+        $defect1 = Defects::factory()->create(['status' => Defects::DIAGNOSTICS]);
+        $defect2 = Defects::factory()->create(['status' => Defects::NEW]);
+        $defect3 = Defects::factory()->create(['status' => Defects::CLOSED]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?status=диагно']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?status=диагно']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -991,14 +994,14 @@ class DefectsTest extends TestCase
     public function defect_filter_author()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['user_id' => 1]);
-        $defect2 = factory(Defects::class)->create(['user_id' => 1]);
-        $defect3 = factory(Defects::class)->create(['user_id' => 2]);
+        $defect1 = Defects::factory()->create(['user_id' => 1]);
+        $defect2 = Defects::factory()->create(['user_id' => 1]);
+        $defect3 = Defects::factory()->create(['user_id' => 2]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?user_id=1']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?user_id=1']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1015,15 +1018,15 @@ class DefectsTest extends TestCase
         $user1 = $results->first()->id;
         $user2 = $results->last()->id;
         // Given four defects
-        $defect1 = factory(Defects::class)->create(['user_id' => $user1]);
-        $defect2 = factory(Defects::class)->create(['user_id' => $user1]);
-        $defect3 = factory(Defects::class)->create(['user_id' => $user2]);
-        $defect4 = factory(Defects::class)->create(['user_id' => 2]);
+        $defect1 = Defects::factory()->create(['user_id' => $user1]);
+        $defect2 = Defects::factory()->create(['user_id' => $user1]);
+        $defect3 = Defects::factory()->create(['user_id' => $user2]);
+        $defect4 = Defects::factory()->create(['user_id' => 2]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?user_id%5B0%5D={$user1}&user_id%5B1%5D={$user2}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?user_id%5B0%5D={$user1}&user_id%5B1%5D={$user2}"]))->json();
 
         // Then ...
         // This array must contains three defects
@@ -1036,14 +1039,14 @@ class DefectsTest extends TestCase
     public function defect_filter_responsible_user()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['responsible_user_id' => 1]);
-        $defect2 = factory(Defects::class)->create(['responsible_user_id' => 1]);
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => 2]);
+        $defect1 = Defects::factory()->create(['responsible_user_id' => 1]);
+        $defect2 = Defects::factory()->create(['responsible_user_id' => 1]);
+        $defect3 = Defects::factory()->create(['responsible_user_id' => 2]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?responsible_user_id=2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?responsible_user_id=2']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1056,14 +1059,14 @@ class DefectsTest extends TestCase
     public function defect_filter_responsible_users()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['responsible_user_id' => 1]);
-        $defect2 = factory(Defects::class)->create(['responsible_user_id' => 3]);
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => 2]);
+        $defect1 = Defects::factory()->create(['responsible_user_id' => 1]);
+        $defect2 = Defects::factory()->create(['responsible_user_id' => 3]);
+        $defect3 = Defects::factory()->create(['responsible_user_id' => 2]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?responsible_user_id%5B0%5D=1&responsible_user_id%5B1%5D=2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?responsible_user_id%5B0%5D=1&responsible_user_id%5B1%5D=2']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1076,14 +1079,14 @@ class DefectsTest extends TestCase
     public function defect_filter_responsible_user_one_more_time()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create();
-        $defect2 = factory(Defects::class)->create();
-        $defect3 = factory(Defects::class)->create();
+        $defect1 = Defects::factory()->create();
+        $defect2 = Defects::factory()->create();
+        $defect3 = Defects::factory()->create();
         // Given user
         $user = $this->principle;
 
         // When we make get request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?responsible_user_id%5B0%5D=2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?responsible_user_id%5B0%5D=2']))->json();
 
         // Then ...
         // This array must contains nothing
@@ -1094,15 +1097,15 @@ class DefectsTest extends TestCase
     public function defect_filter_repair_start_date()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['repair_start_date' => now()->subDay()]);
-        $defect2 = factory(Defects::class)->create(['repair_start_date' => now()->subDays(2)]);
-        $defect3 = factory(Defects::class)->create(['repair_start_date' => $time = now()]);
+        $defect1 = Defects::factory()->create(['repair_start_date' => now()->subDay()]);
+        $defect2 = Defects::factory()->create(['repair_start_date' => now()->subDays(2)]);
+        $defect3 = Defects::factory()->create(['repair_start_date' => $time = now()]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with date
         $date = now()->subDay()->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_start_date={$date}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_start_date={$date}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1115,15 +1118,15 @@ class DefectsTest extends TestCase
     public function defect_filter_repair_end_date()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['repair_end_date' => now()->subDay()]);
-        $defect2 = factory(Defects::class)->create(['repair_end_date' => now()->subDays(2)]);
-        $defect3 = factory(Defects::class)->create(['repair_end_date' => $time = now()]);
+        $defect1 = Defects::factory()->create(['repair_end_date' => now()->subDay()]);
+        $defect2 = Defects::factory()->create(['repair_end_date' => now()->subDays(2)]);
+        $defect3 = Defects::factory()->create(['repair_end_date' => $time = now()]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with date
         $date = now()->subDay()->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_end_date={$date}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_end_date={$date}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1136,16 +1139,16 @@ class DefectsTest extends TestCase
     public function defect_filter_repair_dates_together()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(10)]);
-        $defect2 = factory(Defects::class)->create(['repair_start_date' => now()->subDays(2), 'repair_end_date' => now()->addDays(8)]);
-        $defect3 = factory(Defects::class)->create(['repair_start_date' => now(), 'repair_end_date' => now()->addDays(7)]);
+        $defect1 = Defects::factory()->create(['repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(10)]);
+        $defect2 = Defects::factory()->create(['repair_start_date' => now()->subDays(2), 'repair_end_date' => now()->addDays(8)]);
+        $defect3 = Defects::factory()->create(['repair_start_date' => now(), 'repair_end_date' => now()->addDays(7)]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with dates
         $date1 = now()->subDays(2)->format('d.m.Y');
         $date2 = now()->addDays(8)->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_start_date={$date1}&repair_end_date={$date2}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_start_date={$date1}&repair_end_date={$date2}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1158,16 +1161,16 @@ class DefectsTest extends TestCase
     public function defect_filter_repair_dates_together_reverse()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(10)]);
-        $defect2 = factory(Defects::class)->create(['repair_start_date' => now()->subDays(2), 'repair_end_date' => now()->addDays(8)]);
-        $defect3 = factory(Defects::class)->create(['repair_start_date' => now(), 'repair_end_date' => now()->addDays(7)]);
+        $defect1 = Defects::factory()->create(['repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(10)]);
+        $defect2 = Defects::factory()->create(['repair_start_date' => now()->subDays(2), 'repair_end_date' => now()->addDays(8)]);
+        $defect3 = Defects::factory()->create(['repair_start_date' => now(), 'repair_end_date' => now()->addDays(7)]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with dates
         $date1 = now()->subDays(2)->format('d.m.Y');
         $date2 = now()->addDays(8)->format('d.m.Y');
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?repair_end_date={$date2}&repair_start_date={$date1}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?repair_end_date={$date2}&repair_start_date={$date1}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1176,24 +1179,23 @@ class DefectsTest extends TestCase
         $this->assertEquals([$defect2->id, $defect3->id], [$response['data']['defects'][0]['id'], $response['data']['defects'][1]['id']]);
     }
 
-
     /** @test */
     public function defect_filter_brand()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['brand' => 'brand1']);
-        $technic2 = factory(OurTechnic::class)->create(['brand' => 'brand2']);
-        $technic3 = factory(OurTechnic::class)->create(['brand' => 'brand3']);
+        $technic1 = OurTechnic::factory()->create(['brand' => 'brand1']);
+        $technic2 = OurTechnic::factory()->create(['brand' => 'brand2']);
+        $technic3 = OurTechnic::factory()->create(['brand' => 'brand3']);
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with brand
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?brand=brand3"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?brand=brand3']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1206,13 +1208,13 @@ class DefectsTest extends TestCase
     public function defect_filter_brand_second()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['brand' => 'brand1']);
-        $technic2 = factory(OurTechnic::class)->create(['brand' => 'brand2']);
-        $technic3 = factory(OurTechnic::class)->create(['brand' => 'brand3']);
+        $technic1 = OurTechnic::factory()->create(['brand' => 'brand1']);
+        $technic2 = OurTechnic::factory()->create(['brand' => 'brand2']);
+        $technic3 = OurTechnic::factory()->create(['brand' => 'brand3']);
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
@@ -1233,20 +1235,20 @@ class DefectsTest extends TestCase
     public function defect_filter_model()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['model' => 'model1']);
-        $technic2 = factory(OurTechnic::class)->create(['model' => 'model2']);
-        $technic3 = factory(OurTechnic::class)->create(['model' => 'model3']);
+        $technic1 = OurTechnic::factory()->create(['model' => 'model1']);
+        $technic2 = OurTechnic::factory()->create(['model' => 'model2']);
+        $technic3 = OurTechnic::factory()->create(['model' => 'model3']);
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with model
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?model=model1"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?model=model1']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1259,20 +1261,20 @@ class DefectsTest extends TestCase
     public function defect_filter_owner()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['owner' => 'ООО «СТРОЙМАСТЕР»']);
-        $technic2 = factory(OurTechnic::class)->create(['owner' => 'ООО «ГОРОД»']);
-        $technic3 = factory(OurTechnic::class)->create(['owner' => 'ООО «ГОРОД»']);
+        $technic1 = OurTechnic::factory()->create(['owner' => 'ООО «СТРОЙМАСТЕР»']);
+        $technic2 = OurTechnic::factory()->create(['owner' => 'ООО «ГОРОД»']);
+        $technic3 = OurTechnic::factory()->create(['owner' => 'ООО «ГОРОД»']);
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with owner
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?owner=ООО%20«СТРОЙМАСТЕР»"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?owner=ООО%20«СТРОЙМАСТЕР»']))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1285,20 +1287,20 @@ class DefectsTest extends TestCase
     public function defect_filter_inventory_number()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['inventory_number' => '159987']);
-        $technic2 = factory(OurTechnic::class)->create(['inventory_number' => '156987']);
-        $technic3 = factory(OurTechnic::class)->create(['inventory_number' => '777777']);
+        $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987']);
+        $technic2 = OurTechnic::factory()->create(['inventory_number' => '156987']);
+        $technic3 = OurTechnic::factory()->create(['inventory_number' => '777777']);
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with inventory_number
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?inventory_number=98"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?inventory_number=98']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1314,20 +1316,20 @@ class DefectsTest extends TestCase
     public function defect_filter_inventory_number_array()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['inventory_number' => '159987']);
-        $technic2 = factory(OurTechnic::class)->create(['inventory_number' => '15986']);
-        $technic3 = factory(OurTechnic::class)->create(['inventory_number' => '777777']);
+        $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987']);
+        $technic2 = OurTechnic::factory()->create(['inventory_number' => '15986']);
+        $technic3 = OurTechnic::factory()->create(['inventory_number' => '777777']);
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with inventory_number
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?inventory_number%5B0%5D=986&inventory_number%5B1%5D=77"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?inventory_number%5B0%5D=986&inventory_number%5B1%5D=77']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1343,20 +1345,20 @@ class DefectsTest extends TestCase
     public function defect_filter_inventory_number_and_owner()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
-        $technic2 = factory(OurTechnic::class)->create(['inventory_number' => '156987', 'owner' => 'ООО «ГОРОД»']);
-        $technic3 = factory(OurTechnic::class)->create(['inventory_number' => '777777', 'owner' => 'ООО «ГОРОД»']);
+        $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
+        $technic2 = OurTechnic::factory()->create(['inventory_number' => '156987', 'owner' => 'ООО «ГОРОД»']);
+        $technic3 = OurTechnic::factory()->create(['inventory_number' => '777777', 'owner' => 'ООО «ГОРОД»']);
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with inventory number and owner
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?owner=РО&inventory_number=98"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?owner=РО&inventory_number=98']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1372,20 +1374,20 @@ class DefectsTest extends TestCase
     public function defect_filter_inventory_number_and_owner_wrong_query()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
-        $technic2 = factory(OurTechnic::class)->create(['inventory_number' => '156987', 'owner' => 'ООО «ГОРОД»']);
-        $technic3 = factory(OurTechnic::class)->create(['inventory_number' => '777777', 'owner' => 'ООО «ГОРОД»']);
+        $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
+        $technic2 = OurTechnic::factory()->create(['inventory_number' => '156987', 'owner' => 'ООО «ГОРОД»']);
+        $technic3 = OurTechnic::factory()->create(['inventory_number' => '777777', 'owner' => 'ООО «ГОРОД»']);
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with inventory number and owner
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?owner=ПРОСТОЧТОБЫНЕНАШЛО&inventory_number=98"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?owner=ПРОСТОЧТОБЫНЕНАШЛО&inventory_number=98']))->json();
 
         // Then ...
         // This array must contains nothing
@@ -1396,20 +1398,20 @@ class DefectsTest extends TestCase
     public function defect_filter_defectable_work_with_technic()
     {
         // Given three technics
-        $technic1 = factory(OurTechnic::class)->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
-        $technic2 = factory(OurTechnic::class)->create(['inventory_number' => '156987', 'owner' => 'ООО «ГОРОД»']);
-        $technic3 = factory(OurTechnic::class)->create(['inventory_number' => '777777', 'owner' => 'ООО «ГОРОД»']);
+        $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
+        $technic2 = OurTechnic::factory()->create(['inventory_number' => '156987', 'owner' => 'ООО «ГОРОД»']);
+        $technic3 = OurTechnic::factory()->create(['inventory_number' => '777777', 'owner' => 'ООО «ГОРОД»']);
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $technic2->id]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $technic3->id]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $technic2->id]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $technic3->id]);
 
         // Given user
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?defectable={$technic1->id}%7C1"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?defectable={$technic1->id}%7C1"]))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1425,18 +1427,18 @@ class DefectsTest extends TestCase
     public function defect_filter_defectable_work_with_fuel_tank()
     {
         // Given three fuelTanks
-        $fuelTank1 = factory(FuelTank::class)->create();
-        $fuelTank2 = factory(FuelTank::class)->create();
-        $fuelTank3 = factory(FuelTank::class)->create();
+        $fuelTank1 = FuelTank::factory()->create();
+        $fuelTank2 = FuelTank::factory()->create();
+        $fuelTank3 = FuelTank::factory()->create();
         // Given user
         $user = $this->user_that_cannot;
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $fuelTank1->id, 'defectable_type' => FuelTank::class, 'user_id' => $user->id]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $fuelTank1->id, 'defectable_type' => FuelTank::class, 'user_id' => $user->id]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?defectable={$fuelTank1->id}%7C2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?defectable={$fuelTank1->id}%7C2"]))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1452,19 +1454,19 @@ class DefectsTest extends TestCase
     public function defect_filter_defectable_work_with_array()
     {
         // Given two fuelTanks and one Techinc
-        $technic1 = factory(OurTechnic::class)->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
-        $fuelTank2 = factory(FuelTank::class)->create();
-        $fuelTank3 = factory(FuelTank::class)->create();
+        $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
+        $fuelTank2 = FuelTank::factory()->create();
+        $fuelTank3 = FuelTank::factory()->create();
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $technic1->id, 'defectable_type' => OurTechnic::class]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $technic1->id, 'defectable_type' => OurTechnic::class]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?defectable%5B0%5D={$technic1->id}%7C1&defectable%5B1%5D={$fuelTank2->id}%7C2"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?defectable%5B0%5D={$technic1->id}%7C1&defectable%5B1%5D={$fuelTank2->id}%7C2"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1480,14 +1482,14 @@ class DefectsTest extends TestCase
     public function defect_status_filter_works_with_statuses_array()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['status' => Defects::DIAGNOSTICS]);
-        $defect2 = factory(Defects::class)->create(['status' => Defects::NEW]);
-        $defect3 = factory(Defects::class)->create(['status' => Defects::CLOSED]);
+        $defect1 = Defects::factory()->create(['status' => Defects::DIAGNOSTICS]);
+        $defect2 = Defects::factory()->create(['status' => Defects::NEW]);
+        $defect3 = Defects::factory()->create(['status' => Defects::CLOSED]);
         // Given user
         $user = $this->principle;
 
         // When we make post request with status
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . '?status%5B0%5D=Новая%20заявка&status%5B1%5D=Диагностика']))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?status%5B0%5D=Новая%20заявка&status%5B1%5D=Диагностика']))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1500,19 +1502,19 @@ class DefectsTest extends TestCase
     public function defect_filter_tank_number()
     {
         // Given three fuelTanks
-        $fuelTank1 = factory(FuelTank::class)->create();
-        $fuelTank2 = factory(FuelTank::class)->create();
-        $fuelTank3 = factory(FuelTank::class)->create();
+        $fuelTank1 = FuelTank::factory()->create();
+        $fuelTank2 = FuelTank::factory()->create();
+        $fuelTank3 = FuelTank::factory()->create();
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $fuelTank1->id, 'defectable_type' => FuelTank::class]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $fuelTank1->id, 'defectable_type' => FuelTank::class]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?tank_number={$fuelTank1->tank_number}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?tank_number={$fuelTank1->tank_number}"]))->json();
 
         // Then ...
         // This array must contains one defect
@@ -1528,19 +1530,19 @@ class DefectsTest extends TestCase
     public function defect_filter_tank_number_array()
     {
         // Given three fuelTanks
-        $fuelTank1 = factory(FuelTank::class)->create();
-        $fuelTank2 = factory(FuelTank::class)->create();
-        $fuelTank3 = factory(FuelTank::class)->create();
+        $fuelTank1 = FuelTank::factory()->create();
+        $fuelTank2 = FuelTank::factory()->create();
+        $fuelTank3 = FuelTank::factory()->create();
 
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['defectable_id' => $fuelTank1->id, 'defectable_type' => FuelTank::class]);
-        $defect2 = factory(Defects::class)->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
-        $defect3 = factory(Defects::class)->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
+        $defect1 = Defects::factory()->create(['defectable_id' => $fuelTank1->id, 'defectable_type' => FuelTank::class]);
+        $defect2 = Defects::factory()->create(['defectable_id' => $fuelTank2->id, 'defectable_type' => FuelTank::class]);
+        $defect3 = Defects::factory()->create(['defectable_id' => $fuelTank3->id, 'defectable_type' => FuelTank::class]);
         // Given user
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?tank_number%5B0%5D={$fuelTank1->tank_number}&tank_number%5B1%5D={$fuelTank2->tank_number}"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index')."?tank_number%5B0%5D={$fuelTank1->tank_number}&tank_number%5B1%5D={$fuelTank2->tank_number}"]))->json();
 
         // Then ...
         // This array must contains two defects
@@ -1556,14 +1558,14 @@ class DefectsTest extends TestCase
     public function defect_filter_work_only_with_filters()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create();
-        $defect2 = factory(Defects::class)->create();
-        $defect3 = factory(Defects::class)->create();
+        $defect1 = Defects::factory()->create();
+        $defect2 = Defects::factory()->create();
+        $defect3 = Defects::factory()->create();
         // Given user
         $user = $this->principle;
 
         // When we make get request with defectable
-        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index') . "?anything=nothing"]))->json();
+        $response = $this->actingAs($user)->post(route('building::tech_acc::defects.paginated', ['url' => route('building::tech_acc::defects.index').'?anything=nothing']))->json();
 
         // Then this array must contains three defects
         $this->assertCount(3, $response['data']['defects']);
@@ -1573,9 +1575,9 @@ class DefectsTest extends TestCase
     public function defects_author_getter_return_authors_without_any_params()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['user_id' => $this->user_that_can->id]);
-        $defect2 = factory(Defects::class)->create(['user_id' => $this->user_that_cannot->id]);
-        $defect3 = factory(Defects::class)->create(['user_id' => $this->user_that_can->id]);
+        $defect1 = Defects::factory()->create(['user_id' => $this->user_that_can->id]);
+        $defect2 = Defects::factory()->create(['user_id' => $this->user_that_cannot->id]);
+        $defect3 = Defects::factory()->create(['user_id' => $this->user_that_can->id]);
 
         // When we make get request
         $response = $this->actingAs($this->user_that_can)->get(route('users::get_authors_for_defects'))->json();
@@ -1591,9 +1593,9 @@ class DefectsTest extends TestCase
     public function defects_author_getter_return_authors_by_name()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['user_id' => $this->user_that_can->id]);
-        $defect2 = factory(Defects::class)->create(['user_id' => $this->user_that_cannot->id]);
-        $defect3 = factory(Defects::class)->create(['user_id' => $this->user_that_can->id]);
+        $defect1 = Defects::factory()->create(['user_id' => $this->user_that_can->id]);
+        $defect2 = Defects::factory()->create(['user_id' => $this->user_that_cannot->id]);
+        $defect3 = Defects::factory()->create(['user_id' => $this->user_that_can->id]);
 
         // When we make get request
         $response = $this->actingAs($this->user_that_can)->get(route('users::get_authors_for_defects', ['q' => $this->user_that_can->first_name]))->json();
@@ -1609,9 +1611,9 @@ class DefectsTest extends TestCase
     public function defects_author_getter_can_return_for_all_defects()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
-        $defect2 = factory(Defects::class)->create(['user_id' => $this->user_that_cannot->id]);
-        $defect3 = factory(Defects::class)->create(['user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
+        $defect1 = Defects::factory()->create(['user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
+        $defect2 = Defects::factory()->create(['user_id' => $this->user_that_cannot->id]);
+        $defect3 = Defects::factory()->create(['user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
 
         // When we make get request
         $response = $this->actingAs($this->user_that_can)->get(route('users::get_authors_for_defects', ['show_active' => false]))->json();
@@ -1627,9 +1629,9 @@ class DefectsTest extends TestCase
     public function defects_responsible_user_getter_return_responsible_users_without_any_params()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id]);
-        $defect2 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_cannot->id]);
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id]);
+        $defect1 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
+        $defect2 = Defects::factory()->create(['responsible_user_id' => $this->user_that_cannot->id]);
+        $defect3 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
 
         // When we make get request
         $response = $this->actingAs($this->user_that_can)->get(route('users::get_responsible_users_for_defects'))->json();
@@ -1645,9 +1647,9 @@ class DefectsTest extends TestCase
     public function defects_responsible_user_getter_return_responsible_users_by_name()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id]);
-        $defect2 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_cannot->id]);
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id]);
+        $defect1 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
+        $defect2 = Defects::factory()->create(['responsible_user_id' => $this->user_that_cannot->id]);
+        $defect3 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
 
         // When we make get request
         $response = $this->actingAs($this->user_that_can)->get(route('users::get_responsible_users_for_defects', ['q' => $this->user_that_can->first_name]))->json();
@@ -1663,9 +1665,9 @@ class DefectsTest extends TestCase
     public function defects_responsible_user_getter_can_return_responsible_users_for_all_defects()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
-        $defect2 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_cannot->id]);
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id, 'status' => Defects::DECLINED]);
+        $defect1 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
+        $defect2 = Defects::factory()->create(['responsible_user_id' => $this->user_that_cannot->id]);
+        $defect3 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id, 'status' => Defects::DECLINED]);
 
         // When we make get request
         $response = $this->actingAs($this->user_that_can)->get(route('users::get_responsible_users_for_defects', ['show_active' => false]))->json();
@@ -1681,9 +1683,9 @@ class DefectsTest extends TestCase
     public function defects_responsible_user_getter_can_return_responsible_users_for_all_defects_which_have_responsible_users()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create(['status' => Defects::CLOSED]);
-        $defect2 = factory(Defects::class)->create();
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_can->id, 'status' => Defects::DECLINED]);
+        $defect1 = Defects::factory()->create(['status' => Defects::CLOSED]);
+        $defect2 = Defects::factory()->create();
+        $defect3 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id, 'status' => Defects::DECLINED]);
 
         // When we make get request
         $response = $this->actingAs($this->user_that_can)->get(route('users::get_responsible_users_for_defects', ['show_active' => false]))->json();
@@ -1699,9 +1701,9 @@ class DefectsTest extends TestCase
     public function users_who_have_permissions_can_see_all_defects()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create();
-        $defect2 = factory(Defects::class)->create();
-        $defect3 = factory(Defects::class)->create();
+        $defect1 = Defects::factory()->create();
+        $defect2 = Defects::factory()->create();
+        $defect3 = Defects::factory()->create();
 
         // When we use Defect::filter()
         // as principle
@@ -1718,9 +1720,9 @@ class DefectsTest extends TestCase
     public function users_who_dont_have_permissions_can_see_only_related_defects()
     {
         // Given three defects
-        $defect1 = factory(Defects::class)->create();
-        $defect2 = factory(Defects::class)->create();
-        $defect3 = factory(Defects::class)->create();
+        $defect1 = Defects::factory()->create();
+        $defect2 = Defects::factory()->create();
+        $defect3 = Defects::factory()->create();
 
         // When we use Defect::filter()
         // as user that cannot
@@ -1737,9 +1739,9 @@ class DefectsTest extends TestCase
     {
         // Given three defects
         // In one defect user is author, in another user is responsible
-        $defect1 = factory(Defects::class)->create(['user_id' => $this->user_that_cannot]);
-        $defect2 = factory(Defects::class)->create();
-        $defect3 = factory(Defects::class)->create(['responsible_user_id' => $this->user_that_cannot]);
+        $defect1 = Defects::factory()->create(['user_id' => $this->user_that_cannot]);
+        $defect2 = Defects::factory()->create();
+        $defect3 = Defects::factory()->create(['responsible_user_id' => $this->user_that_cannot]);
 
         // When we use Defect::filter()
         // as user that cannot

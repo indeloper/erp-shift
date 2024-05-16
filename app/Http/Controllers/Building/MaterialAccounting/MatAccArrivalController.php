@@ -3,28 +3,20 @@
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
 use App\Events\OperationClosed;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Building\MaterialAccounting\CreateArrivalRequest;
 use App\Http\Requests\Building\MaterialAccounting\SendArrivalRequest;
+use App\Models\MatAcc\MaterialAccountingBase;
+use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
 use App\Models\ProjectObject;
 use App\Models\User;
 use App\Services\MaterialAccounting\MaterialAccountingService;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
-use Illuminate\Support\Facades\Auth;
-
-use App\Http\Requests\Building\MaterialAccounting\CreateArrivalRequest;
-
-use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
-use App\Models\MatAcc\MaterialAccountingBase;
-use App\Models\Manual\ManualMaterial;
-use App\Models\MatAcc\MaterialAccountingMaterialAddition;
-use App\Models\MatAcc\MaterialAccountingMaterialFile;
-
-use Illuminate\Support\Facades\DB;
-
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MatAccArrivalController extends Controller
 {
@@ -49,7 +41,7 @@ class MatAccArrivalController extends Controller
         $operation->load(['object_from', 'object_to', 'supplier', 'author', 'sender', 'recipient', 'responsible_user', 'responsible_user.user', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient', 'materialsPartTo.manual', 'materialsPartTo.materialFiles', 'materialsPartTo.materialAddition.user']);
 
         return view('building.material_accounting.arrival.work', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
 
@@ -60,7 +52,7 @@ class MatAccArrivalController extends Controller
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'responsible_user', 'responsible_user.user', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient', 'materialsPartTo.materialFiles', 'materialsPartTo.materialAddition.user']);
 
         return view('building.material_accounting.arrival.confirm', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
 
@@ -70,7 +62,7 @@ class MatAccArrivalController extends Controller
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient', 'materialsPartTo.materialFiles', 'materialsPartTo.materialAddition.user']);
 
         return view('building.material_accounting.arrival.complete', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
 
@@ -97,19 +89,18 @@ class MatAccArrivalController extends Controller
             'operation' => $operation,
             'units' => MaterialAccountingOperationMaterials::$main_units,
             // operation author can't do anything in controlled operation
-            'edit_restrict' => (Auth::id() == 7) ? false : ($operation->status == 8) ? true : false,
+            'edit_restrict' => Auth::id() === 7 ? false : $operation->status === 8,
         ]);
     }
-
 
     public function store(CreateArrivalRequest $request)
     {
         if ($request->without_confirm == true && Auth::user()->id == 1) {
             MaterialAccountingBase::getModel()->backdating($request->materials, Carbon::parse($request->planned_date_to), $request->object_id);
         } else {
-            if (!Auth::user()->can('mat_acc_arrival_create') && !$request->is_draft) {
+            if (! Auth::user()->can('mat_acc_arrival_create') && ! $request->is_draft) {
                 return response()->json(['message' => 'У вас нет прав для создания операции поступления!']);
-            } elseif ($request->is_draft && !(Auth::user()->can('mat_acc_arrival_draft_create'))) {
+            } elseif ($request->is_draft && ! (Auth::user()->can('mat_acc_arrival_draft_create'))) {
                 return response()->json(['message' => 'У вас нет прав для создания черновика операции поступления!']);
             }
 
@@ -158,7 +149,7 @@ class MatAccArrivalController extends Controller
         $operation = MaterialAccountingOperation::where('type', 1)->whereIn('status', [1, 5])->findOrFail($operation_id);
         $operation->checkClosed();
 
-        if ((!$operation->isAuthor() and ($operation->status != 1 and $operation->status != 5)) or ($operation->status != 5 and !Auth::user()->can('mat_acc_arrival_create'))) {
+        if ((! $operation->isAuthor() and ($operation->status != 1 and $operation->status != 5)) or ($operation->status != 5 and ! Auth::user()->can('mat_acc_arrival_create'))) {
             return response()->json(['message' => 'У вас нет прав для создания операции поступления!']);
         }
 

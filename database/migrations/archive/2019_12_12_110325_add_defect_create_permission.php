@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddDefectCreatePermission extends Migration
 {
@@ -18,9 +16,9 @@ class AddDefectCreatePermission extends Migration
             // defects
             [
                 'category' => 15,
-                "name" => 'Создание заявки о неисправности технического устройства',
-                "codename" => 'tech_acc_defects_create',
-                'created_at' => now()
+                'name' => 'Создание заявки о неисправности технического устройства',
+                'codename' => 'tech_acc_defects_create',
+                'created_at' => now(),
             ],
         ]);
 
@@ -30,47 +28,47 @@ class AddDefectCreatePermission extends Migration
             [
                 'group_id' => 13,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 14,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 23,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 31,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 46,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 48,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }

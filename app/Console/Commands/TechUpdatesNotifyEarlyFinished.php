@@ -2,14 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Notification;
 use App\Models\User;
-
-use App\Events\NotificationCreated;
-
+use App\Notifications\TechnicalMaintence\TechnicalMaintenanceCompletionNotice;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Console\Command;
 
 class TechUpdatesNotifyEarlyFinished extends Command
 {
@@ -44,18 +40,15 @@ class TechUpdatesNotifyEarlyFinished extends Command
      */
     public function handle()
     {
-        $notifications = [];
         $message = 'Техническая поддержка. Работы были закончены досрочно. Сервис снова доступен.';
-        DB::beginTransaction();
-        foreach (User::all() as $user) {
-            $notification = Notification::create([
-                'name' => $message,
-                'user_id' => $user->id,
-                'created_at' => Carbon::now(),
-                'type' => 15
-            ]);
-        }
+        $usersIds = User::all()->pluck('id')->toArray();
 
-        DB::commit();
+        TechnicalMaintenanceCompletionNotice::send(
+            $usersIds,
+            [
+                'name' => $message,
+                'created_at' => Carbon::now(),
+            ]
+        );
     }
 }

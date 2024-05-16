@@ -37,7 +37,7 @@ class CategoryRequest extends FormRequest
             'attrs.*.to' => 'nullable',
             'attrs.*.step' => 'nullable',
             'attrs.*.value' => 'nullable|max:30',
-            'attrs.*.is_required' => 'required'
+            'attrs.*.is_required' => 'required',
         ];
     }
 

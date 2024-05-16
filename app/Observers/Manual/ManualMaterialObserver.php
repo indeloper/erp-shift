@@ -6,16 +6,13 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualReference;
 use Illuminate\Support\Facades\DB;
 
-
 class ManualMaterialObserver
 {
     /**
      * Handle the manual material "saved" event.
      *
-     * @param  \App\Models\Manual\ManualMaterial  $manualMaterial
      * @return void
      */
-
     public function saved(ManualMaterial $manualMaterial)
     {
         if ($manualMaterial->isDirty('manual_reference_id')) {
@@ -31,7 +28,7 @@ class ManualMaterialObserver
             }
 
             $manualMaterial->count_preset_attrs($reference);
-//            $manualMaterial->makeMaterialName($reference);
+            //            $manualMaterial->makeMaterialName($reference);
 
             DB::commit();
         }

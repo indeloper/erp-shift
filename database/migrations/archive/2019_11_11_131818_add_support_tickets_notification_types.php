@@ -1,10 +1,7 @@
 <?php
 
-use App\Models\Notifications\NotificationTypes;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddSupportTicketsNotificationTypes extends Migration
 {
@@ -23,13 +20,13 @@ class AddSupportTicketsNotificationTypes extends Migration
                 'id' => 53,
                 'group' => 3,
                 'name' => 'Уведомление о изменении срока приблизительного исполнения заявки в техническую поддержку',
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ],
             [
                 'id' => 54,
                 'group' => 3,
                 'name' => 'Уведомление о изменении статуса заявки в техническую поддержку',
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ],
         ]);
 

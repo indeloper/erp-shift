@@ -1,13 +1,10 @@
 <?php
 
-
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class FillOutManualReferenceCategory6 extends Migration
 {
@@ -26,11 +23,11 @@ class FillOutManualReferenceCategory6 extends Migration
 
         foreach ($category->materials as $material) {
             $height = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'высота h' . '%');
+                $q->where('name', 'like', '%'.'высота h'.'%');
             })->first();
 
             $type = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'серия' . '%');
+                $q->where('name', 'like', '%'.'серия'.'%');
             })->first();
 
             if (isset($height->value) && isset($type->value)) {
@@ -61,10 +58,10 @@ class FillOutManualReferenceCategory6 extends Migration
 
         // create ManualReference with parameters based on exist materials
         foreach ($params->unique() as $index => $item) {
-            dump( $index . ' in ' . $params->unique()->count());
+            dump($index.' in '.$params->unique()->count());
 
             $newReference = ManualReference::create([
-                'name' => 'Швеллер ' . mb_substr($item[0]['value'], 0, -1) . $item[1]['value'] ,
+                'name' => 'Швеллер '.mb_substr($item[0]['value'], 0, -1).$item[1]['value'],
                 'category_id' => $category->id,
             ]);
 
@@ -95,8 +92,7 @@ class FillOutManualReferenceCategory6 extends Migration
                         'Толщина стенки s',
                         'Ширина полки b',
                         'Серия',
-                    ]))
-                {
+                    ])) {
                     $newReference->parameters()->create([
                         'attr_id' => $parameter->attr_id,
                         'value' => $parameter->value,

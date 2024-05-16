@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\LaborSafety\LaborSafetyWorkerType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddNewWorkerType1 extends Migration
@@ -15,12 +13,12 @@ class AddNewWorkerType1 extends Migration
     public function up()
     {
         $laborSafetyWorkerTypesArray = [
-            'Замещающий геодезиста'
+            'Замещающий геодезиста',
         ];
 
         foreach ($laborSafetyWorkerTypesArray as $laborSafetyWorkerTypesElement) {
             $laborSafetyWorkerTypes = new LaborSafetyWorkerType([
-                'name' => $laborSafetyWorkerTypesElement
+                'name' => $laborSafetyWorkerTypesElement,
             ]);
             $laborSafetyWorkerTypes->save();
         }

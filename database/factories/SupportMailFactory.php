@@ -1,17 +1,25 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\Models\SupportMail;
 use App\Models\User;
-use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(SupportMail::class, function (Faker $faker) {
-    return [
-        'title' => $faker->word,
-        'description' => $faker->sentence,
-        'user_id' => factory(User::class)->create()->id,
-        'page_path' => $faker->url,
-        'status' => 'new',
-    ];
-});
+class SupportMailFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'title' => $this->faker->word,
+            'description' => $this->faker->sentence,
+            'user_id' => User::factory()->create()->id,
+            'page_path' => $this->faker->url,
+            'status' => 'new',
+        ];
+    }
+}

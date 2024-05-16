@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\StandardEntityResourceController;
-use App\Jobs\WorkFlowSupport\Technic\TechnicMovementsSetStatus;
 use App\Models\Contractors\Contractor;
 use App\Models\Permission;
 use App\Models\ProjectObject;
@@ -17,6 +15,7 @@ use App\Notifications\Technic\TechnicMovementNotifications;
 use App\Services\Common\FilesUploadService;
 use App\Services\WorkFlowSupport\TechnicMovementsDispatcher;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TechnicMovementController extends StandardEntityResourceController
@@ -31,7 +30,7 @@ class TechnicMovementController extends StandardEntityResourceController
         $this->baseBladePath = resource_path() . '/views/tech_accounting/technic/technicMovements';
         $this->storage_name = 'technic_movements';
         $this->isMobile = $this->isMobile($this->baseBladePath);
-        $this->components = $this->getModuleComponents(); 
+        $this->components = $this->getModuleComponents();
         $this->modulePermissionsGroups = [13];
         $this->ignoreDataKeys[] = 'finish_result';
         $this->ignoreDataKeys[] = 'object';
@@ -41,8 +40,8 @@ class TechnicMovementController extends StandardEntityResourceController
     {
         $options = json_decode($request['data']);
 
-        $user = User::find(Auth::user()->id); 
-        
+        $user = User::find(Auth::user()->id);
+
         $entities = $this->baseModel
             ->dxLoadOptions($options)
             // ->when(!$user->hasPermission('technics_movement_create_update') && !$user->hasPermission('technics_movement_read'), function($query) use($user) {
@@ -57,7 +56,7 @@ class TechnicMovementController extends StandardEntityResourceController
             ->when($this->isMobile, function ($query) {
                 return $query
                     ->whereNotIn(
-                        'technic_movement_status_id', 
+                        'technic_movement_status_id',
                         TechnicMovementStatus::whereIn('slug', ['completed', 'cancelled'])->pluck('id')->toArray()
                     )
                     ->with('object');
@@ -81,7 +80,7 @@ class TechnicMovementController extends StandardEntityResourceController
     }
 
     public function afterStore($entity, $data, $dataToStore)
-    {        
+    {
         if(!empty($data['newAttachments']))
             (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
 
@@ -101,13 +100,13 @@ class TechnicMovementController extends StandardEntityResourceController
         }
 
         if(!empty($data['movement_start_datetime'])) {
-            $data['movement_start_datetime'] = Carbon::parse($data['movement_start_datetime'])->setTimezone('Europe/Moscow'); 
+            $data['movement_start_datetime'] = Carbon::parse($data['movement_start_datetime'])->setTimezone('Europe/Moscow');
         }
 
         $data['technic_movement_status_id'] = $this->getMovementStatusId($data, $entity);
-        
+
         new TechnicMovementsDispatcher($data, $entity);
-        
+
         return [
             'data' => $data,
         ];
@@ -163,19 +162,19 @@ class TechnicMovementController extends StandardEntityResourceController
         $this->additionalResources->technicCategories = TechnicCategory::all();
         $this->additionalResources->technicMovementStatuses = TechnicMovementStatus::all();
         $this->additionalResources->technicsList = OurTechnic::all();
-        $this->additionalResources->technicResponsiblesByTypes = 
+        $this->additionalResources->technicResponsiblesByTypes =
             [
                 'oversize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))->get(),
                 'standartSize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))->get()
             ];
-        $this->additionalResources->technicResponsiblesAllTypes = 
+        $this->additionalResources->technicResponsiblesAllTypes =
             User::query()
                 ->whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))
                 ->orWhereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))
             ->get();
         $this->additionalResources->technicCategoryNameAttrs = TechnicMovementNotifications::nameAttrs;
         $this->additionalResources->technicCarriers = Contractor::byTypeSlug('technic_carrier');
-        $this->additionalResources->projectObjects = 
+        $this->additionalResources->projectObjects =
             ProjectObject::query()
                 ->where('is_participates_in_material_accounting', 1)
                 ->whereNotNull('short_name')

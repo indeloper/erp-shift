@@ -2,18 +2,26 @@
 
 namespace App\Models\Contract;
 
-use App\Models\{Project, ProjectResponsibleUser, Task};
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\Project;
+use App\Models\ProjectResponsibleUser;
+use App\Models\Task;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\{Builder, Collection, Model};
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Support\Facades\{Auth, DB};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Contract extends Model
 {
+    use HasFactory;
+
     public $contract_status = [
         1 => 'В работе',
         2 => 'На согласовании',
@@ -46,7 +54,7 @@ class Contract extends Model
     /**
      * Scope for contracts that have 'КС' date in the interval of ten days,
      * only for first type
-     * @param Builder $query
+     *
      * @return Builder|\Illuminate\Database\Query\Builder
      */
     public function scopeTenDaysBeforeDateOfKC(Builder $query)
@@ -55,13 +63,14 @@ class Contract extends Model
         $query->whereType(1)->whereNotNull('ks_date');
 
         // Only ten days interval
-        $query->where('ks_date', 'like', '%' . now()->addDays(10)->format('d'));
+        $query->where('ks_date', 'like', '%'.now()->addDays(10)->format('d'));
 
         return $query;
     }
 
     /**
      * Morph relation to tasks
+     *
      * @return MorphMany
      */
     public function tasksMorphed()
@@ -71,8 +80,6 @@ class Contract extends Model
 
     /**
      * Base scope
-     * @param Builder $query
-     * @return Builder
      */
     public function scopeBase(Builder $query): Builder
     {
@@ -88,10 +95,6 @@ class Contract extends Model
 
     /**
      * Return contracts for given filter.
-     *
-     * @param Builder $query
-     * @param Request $request
-     * @return Builder
      */
     public function scopeFilter(Builder $query, Request $request): Builder
     {
@@ -109,18 +112,18 @@ class Contract extends Model
                 $from = Carbon::createFromFormat('d.m.Y', $dates[0])->toDateString();
                 $to = Carbon::createFromFormat('d.m.Y', $dates[1])->toDateString();
                 $query->whereDate($iter, '>=', $from)->whereDate($iter, '<=', $to);
-            } else if (in_array($iter, ['contracts.foreign_id', 'contractors.short_name', 'contracts.status', 'projects.entity'])) {
+            } elseif (in_array($iter, ['contracts.foreign_id', 'contractors.short_name', 'contracts.status', 'projects.entity'])) {
                 foreach ((array) $values[$key] as $value) {
-                    $query->where(function($sub_q) use ($iter, $value) {
+                    $query->where(function ($sub_q) use ($iter, $value) {
                         $sub_q->where($iter, 'like', "%$value%");
-                            if ($iter == 'contractors.short_name') {
-                                $sub_q->orWhereHas('subcontractor', function($subc_query) use ($iter, $value) {
-                                    $subc_query->where($iter, 'like', "%{$value}%");
-                                });
-                            }
+                        if ($iter == 'contractors.short_name') {
+                            $sub_q->orWhereHas('subcontractor', function ($subc_query) use ($iter, $value) {
+                                $subc_query->where($iter, 'like', "%{$value}%");
+                            });
+                        }
                     });
                 }
-            } else if ($iter === 'search' && $searches = explode('•', $values[$key])) {
+            } elseif ($iter === 'search' && $searches = explode('•', $values[$key])) {
                 foreach ($searches as $search) {
                     $query->where(function ($firstQuery) use ($search) {
                         $firstQuery->where('contracts.contract_id', 'like', "%{$search}%")
@@ -129,7 +132,7 @@ class Contract extends Model
                             ->orWhere('project_objects.address', 'like', "%{$search}%")
                             ->orWhere('projects.name', 'like', "%{$search}%")
                             ->orWhere('contracts.name', 'like', "%{$search}%")
-                            ->orWhereHas('subcontractor', function($subc_query) use ($search){
+                            ->orWhereHas('subcontractor', function ($subc_query) use ($search) {
                                 $subc_query->where('short_name', 'like', "%{$search}%");
                             })
                             ->orWhere(function ($q) use ($search) {
@@ -162,7 +165,7 @@ class Contract extends Model
 
     public function tasks()
     {
-        return $this->hasMany( Task::class, 'target_id', 'id')->whereIn('status', Task::CONTR_STATUS);
+        return $this->hasMany(Task::class, 'target_id', 'id')->whereIn('status', Task::CONTR_STATUS);
     }
 
     public function subcontractor()
@@ -181,7 +184,7 @@ class Contract extends Model
 
     public function commercial_offers()
     {
-        return $this->belongsToMany(CommercialOffer::class, 'contract_commercial_offer_relations', 'contract_id' ,'commercial_offer_id');
+        return $this->belongsToMany(CommercialOffer::class, 'contract_commercial_offer_relations', 'contract_id', 'commercial_offer_id');
     }
 
     public function getCreatedAtAttribute($date)
@@ -196,12 +199,12 @@ class Contract extends Model
 
     public function getKsDateAndNotifyDateTextAttribute()
     {
-        if (!$this->ks_date) {
+        if (! $this->ks_date) {
             return '-';
         }
         $date = Carbon::now();
         if ($date->day > $this->ks_date) {
-            $date->month ++;
+            $date->month++;
             $date->day = $this->ks_date;
         }
 
@@ -213,32 +216,32 @@ class Contract extends Model
 
     public function unsolved_tasks()
     {
-        return $this->hasMany( Task::class, 'target_id', 'id')->where(function($q) {
+        return $this->hasMany(Task::class, 'target_id', 'id')->where(function ($q) {
             $q->orWhere('is_solved', 0)->orWhere('revive_at', '<>', null);
         })->whereIn('status', Task::CONTR_STATUS)->get();
     }
 
     public function operations()
     {
-        return $this->hasMany( MaterialAccountingOperation::class, 'contract_id', 'id');
+        return $this->hasMany(MaterialAccountingOperation::class, 'contract_id', 'id');
     }
 
     public function get_prev_task()
     {
-        if($this->status == 1) {
+        if ($this->status == 1) {
             $prev_contract = Contract::whereContractId($this->contract_id)->whereVersion($this->version - 1)->get()->last();
-            if($prev_contract){
+            if ($prev_contract) {
                 $prev_task = $prev_contract->tasks()->latest()->take(2); //TODO: replace this with number of responsible users
             } else {
                 return new Task();
             }
-        } elseif($this->status == 2) {
+        } elseif ($this->status == 2) {
             $prev_task = $this->tasks()->where('status', 7)->latest()->take(2);
-        } elseif($this->status == 4) {
+        } elseif ($this->status == 4) {
             $prev_task = $this->tasks()->where('status', 11)->latest()->take(2);
-        } elseif($this->status == 5) {
+        } elseif ($this->status == 5) {
             $prev_task = $this->tasks()->where('status', 9)->latest()->take(2);
-        } elseif($this->status == 6) {
+        } elseif ($this->status == 6) {
             $prev_task = $this->tasks()->where('status', 10)->latest()->take(2);
         } elseif ($this->status == 3) {
             $prev_task = $this->tasks()->latest()->take(2);
@@ -251,16 +254,13 @@ class Contract extends Model
             $prev_task = $user_prev;
         }
 
-
         return $prev_task ? $prev_task->get()->first() : new Task();
     }
-
 
     public function get_requests()
     {
         return $this->hasMany(ContractRequest::class, 'contract_id', 'id');
     }
-
 
     public function theses_check()
     {
@@ -270,12 +270,10 @@ class Contract extends Model
             ->select('contract_theses.*', 'contract_thesis_verifiers.user_id as verifier_id', 'contract_thesis_verifiers.thesis_id', 'contract_thesis_verifiers.status as verifier_status');
     }
 
-
     public function theses()
     {
         return $this->hasMany(ContractThesis::class, 'contract_id', 'id');
     }
-
 
     public function works()
     {
@@ -283,34 +281,30 @@ class Contract extends Model
             ->leftJoin('work_volumes', 'work_volumes.id', 'commercial_offers.work_volume_id')
             ->leftJoin('work_volume_works', 'work_volume_works.work_volume_id', 'work_volumes.id')
             ->leftJoin('manual_works', 'work_volume_works.manual_work_id', 'manual_works.id')
-            ->select('commercial_offers.id', 'work_volume_works.result_price','work_volume_works.subcontractor_id', 'work_volume_works.count', 'work_volume_works.term', 'manual_works.name', 'manual_works.unit', 'manual_works.price_per_unit');
+            ->select('commercial_offers.id', 'work_volume_works.result_price', 'work_volume_works.subcontractor_id', 'work_volume_works.count', 'work_volume_works.term', 'manual_works.name', 'manual_works.unit', 'manual_works.price_per_unit');
     }
-
 
     public function files()
     {
         return $this->hasMany(ContractFiles::class, 'contract_id', 'id');
     }
 
-
     public function extra_contracts()
     {
         return $this->hasMany(Contract::class, 'main_contract_id');
     }
-
 
     public function main_contract()
     {
         return $this->hasOne(Contract::class, 'id', 'main_contract_id');
     }
 
-
     public function GetNameForHumansAttribute()
     {
         if ($this->type == 7) {
-            return  $this->name . ' к договору № ' . $this->internal_id .' '. ($this->foreign_id ? ' ('.$this->foreign_id .')-': '') . 'V'. $this->version;
+            return $this->name.' к договору № '.$this->internal_id.' '.($this->foreign_id ? ' ('.$this->foreign_id.')-' : '').'V'.$this->version;
         } else {
-            return  $this->name . ' № ' . $this->internal_id .' '. ($this->foreign_id ? ' ('.$this->foreign_id .')-': '') . 'V'. $this->version;
+            return $this->name.' № '.$this->internal_id.' '.($this->foreign_id ? ' ('.$this->foreign_id.')-' : '').'V'.$this->version;
         }
     }
 
@@ -375,7 +369,7 @@ class Contract extends Model
     public function decline()
     {
         if ($this->whereNotIn('status', [5, 6])) {
-            $this->tasks->each(function($task) {
+            $this->tasks->each(function ($task) {
                 $task->solve_n_notify();
             });
 

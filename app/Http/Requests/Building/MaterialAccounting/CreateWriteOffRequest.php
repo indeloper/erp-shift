@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Building\MaterialAccounting;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-
-use \Carbon\Carbon;
 
 class CreateWriteOffRequest extends FormRequest
 {
@@ -21,7 +20,7 @@ class CreateWriteOffRequest extends FormRequest
     public function messages()
     {
         return [
-            'count_files.min' => 'Необходимо прикрепить к операции как минимум один документ'
+            'count_files.min' => 'Необходимо прикрепить к операции как минимум один документ',
         ];
     }
 
@@ -45,14 +44,13 @@ class CreateWriteOffRequest extends FormRequest
             'responsible_user_id' => 'required|exists:users,id',
             'object_id' => 'required|exists:project_objects,id',
 
-            'planned_date_to' => 'required|after_or_equal:' . $afterThisDate,
+            'planned_date_to' => 'required|after_or_equal:'.$afterThisDate,
 
             'reason' => 'required|string|max:250',
 
             'count_files' => 'required|numeric|min:1',
 
             'comment' => 'required|string|max:250',
-
 
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:manual_materials,id',

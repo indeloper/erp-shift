@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddJobCategoryUpdatePermission extends Migration
 {
@@ -15,9 +15,9 @@ class AddJobCategoryUpdatePermission extends Migration
 
         $insert[] = [
             'category' => 18,
-            "name" => self::PERMISSION_NAME,
-            "codename" => self::PERMISSION_CODENAME,
-            'created_at' => now()
+            'name' => self::PERMISSION_NAME,
+            'codename' => self::PERMISSION_CODENAME,
+            'created_at' => now(),
         ];
 
         DB::beginTransaction();
@@ -30,32 +30,32 @@ class AddJobCategoryUpdatePermission extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 8,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 13,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 

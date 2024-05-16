@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddDefectCreatePermissionForPrincipalEngineer extends Migration
 {
@@ -20,7 +18,7 @@ class AddDefectCreatePermissionForPrincipalEngineer extends Migration
             [
                 'group_id' => 8,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }

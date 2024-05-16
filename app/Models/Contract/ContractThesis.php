@@ -4,20 +4,19 @@ namespace App\Models\Contract;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Illuminate\Support\Facades\Auth;
-
 class ContractThesis extends Model
 {
     public $statuses = [
         1 => 'Не просмотрен',
         2 => 'Отклонен',
-        3 => 'Согласован'
+        3 => 'Согласован',
     ];
 
     public function get_verifiers()
     {
         return $this->hasMany(ContractThesisVerifier::class, 'thesis_id', 'id');
     }
+
     public function verifiers()
     {
         return $this->hasMany(ContractThesisVerifier::class, 'thesis_id', 'id')

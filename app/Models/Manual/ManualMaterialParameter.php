@@ -2,11 +2,13 @@
 
 namespace App\Models\Manual;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualMaterialParameter extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = ['attr_id', 'mat_id', 'value'];
@@ -15,21 +17,20 @@ class ManualMaterialParameter extends Model
     {
         parent::boot();
 
-        static::saving(function($parameter) {
-            $comma_replaced = str_replace(',','.', $parameter->value);
+        static::saving(function ($parameter) {
+            $comma_replaced = str_replace(',', '.', $parameter->value);
             if (is_numeric($comma_replaced)) {
-                $parameter->value = (float)$comma_replaced;
+                $parameter->value = (float) $comma_replaced;
             }
         });
 
-        static::creating(function($parameter) {
-            $comma_replaced = str_replace(',','.', $parameter->value);
+        static::creating(function ($parameter) {
+            $comma_replaced = str_replace(',', '.', $parameter->value);
             if (is_numeric($comma_replaced)) {
-                $parameter->value = (float)$comma_replaced;
+                $parameter->value = (float) $comma_replaced;
             }
         });
     }
-
 
     public static function getMaterialsFromValues($values, $category)
     {

@@ -2,27 +2,35 @@
 
 namespace App\Models;
 
-use App\Models\Menu\MenuItem;
-use App\Models\HumanResources\{Appointment, Brigade, JobCategory, ReportGroup, Timecard};
+use App\Models\HumanResources\{Appointment,
+    Brigade,
+    JobCategory,
+    ReportGroup,
+    Timecard};
 use App\Models\MatAcc\MaterialAccountingOperation;
-use Exception;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use morphos\Russian\FirstNamesInflection;
-use morphos\Russian\LastNamesInflection;
-use morphos\Russian\MiddleNamesInflection;
-use App\Models\Notifications\{NotificationsForUsers, NotificationTypes, UserDisabledNotifications};
+use App\Models\Menu\MenuItem;
+use App\Models\Notification\Notification;
+use App\Models\Notifications\{NotificationsForUsers,
+    NotificationTypes,
+    UserDisabledNotifications};
 use App\Models\TechAcc\OurTechnicTicket;
-use App\Models\Vacation\{
-    ProjectResponsibleUserRedirectHistory,
-    VacationsHistory
-};
-use App\Traits\{DevExtremeDataSourceLoadable, Appointmentable, DefaultSortable, Logable, Messagable, Reviewable, TicketResponsibleUser};
+use App\Models\Vacation\{ProjectResponsibleUserRedirectHistory,
+    VacationsHistory};
+use App\Traits\{Appointmentable,
+    DefaultSortable,
+    DevExtremeDataSourceLoadable,
+    Logable,
+    Messagable,
+    Reviewable,
+    TicketResponsibleUser};
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+
 use function morphos\Russian\inflectName;
 
 class User extends Authenticatable

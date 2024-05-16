@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -15,10 +13,10 @@ class RenameTechnicMovementCrudPermissions extends Migration
     public function up()
     {
         DB::table('permissions')->where('codename', 'technics_movement_crud')
-            ->update(['name'=>'Техника: перемещение - создание, редактирование, удаление']);
+            ->update(['name' => 'Техника: перемещение - создание, редактирование, удаление']);
 
         DB::table('permissions')->where('codename', 'technics_movement_read')
-            ->update(['name'=>'Техника: перемещение - просмотр всех записей']);        
+            ->update(['name' => 'Техника: перемещение - просмотр всех записей']);
     }
 
     /**

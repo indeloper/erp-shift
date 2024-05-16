@@ -4,11 +4,14 @@ namespace App\Models;
 
 use App\Models\Vacation\ProjectResponsibleUserRedirectHistory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class ProjectResponsibleUser extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['project_id', 'user_id', 'role'];
 
     public static function moveResponsibleUser($roles, $old_user_id, $new_user_id, $vacation_id, $reason = 'Отпуск пользователя')
@@ -26,7 +29,7 @@ class ProjectResponsibleUser extends Model
                     'new_user_id' => $new_user_id,
                     'role' => $role->role,
                     'reason' => $reason,
-                    'created_at' => Carbon::now()
+                    'created_at' => Carbon::now(),
                 ];
                 $role->update(['user_id' => $new_user_id]);
             }
@@ -39,7 +42,7 @@ class ProjectResponsibleUser extends Model
                     'new_user_id' => $new_user_id,
                     'role' => $role->role,
                     'reason' => $reason,
-                    'created_at' => Carbon::now()
+                    'created_at' => Carbon::now(),
                 ];
                 $role->update(['user_id' => $new_user_id]);
             }
@@ -66,7 +69,7 @@ class ProjectResponsibleUser extends Model
                 'new_user_id' => $new_user_id,
                 'role' => $role->role,
                 'reason' => 'Выход из отпуска',
-                'created_at' => Carbon::now()
+                'created_at' => Carbon::now(),
             ];
             $role->update(['user_id' => $new_user_id]);
         }

@@ -7,12 +7,12 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 
 /**
- * @property integer comment_id
+ * @property int comment_id
  * @property string unit
  * @property string mode
  * @property float count
  * @property array comments
- * @property integer mat_to_unite
+ * @property int mat_to_unite
  */
 class SplitBaseRequest extends FormRequest
 {
@@ -29,13 +29,14 @@ class SplitBaseRequest extends FormRequest
     public function withValidator($validator)
     {
         $base = MaterialAccountingBase::find($this->get('comment_id'));
-        $converted_count = ($base->count * $base->material->getConvertValueFromTo($base->unit, $this->get('unit'))) . '';
+        $converted_count = ($base->count * $base->material->getConvertValueFromTo($base->unit, $this->get('unit'))).'';
 
         if ($converted_count < $this->get('count')) {
             $validator->errors()->add('count', 'На объекте недостаточно материала');
             throw new ValidationException($validator);
         }
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -48,7 +49,7 @@ class SplitBaseRequest extends FormRequest
             'unit' => 'required|string',
             'mode' => 'required|in:split,unite',
             'count' => 'required',
-            'mat_to_unite' => 'sometimes|required|exists:material_accounting_bases,id'
+            'mat_to_unite' => 'sometimes|required|exists:material_accounting_bases,id',
         ];
     }
 }

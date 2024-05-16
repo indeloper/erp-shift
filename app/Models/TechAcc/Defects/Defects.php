@@ -5,15 +5,21 @@ namespace App\Models\TechAcc\Defects;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
-use App\Traits\{Commentable, Documentable, Notificationable, Taskable};
+use App\Traits\Commentable;
+use App\Traits\Documentable;
+use App\Traits\Notificationable;
+use App\Traits\Taskable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+
 class Defects extends Model
 {
-    use SoftDeletes, Documentable, Notificationable, Taskable, Commentable;
+    use Commentable, Documentable, Notificationable, SoftDeletes, Taskable;
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -30,9 +36,11 @@ class Defects extends Model
 
     protected $appends = ['status_name', 'repair_start', 'repair_end', 'contractor', 'created_at_formatted', 'class_name', 'author_name', 'responsible_user_name'];
 
-    protected $dates = ['repair_start_date', 'repair_end_date'];
-
-    protected $casts = ['status' => 'integer'];
+    protected $casts = [
+        'repair_start_date' => 'datetime',
+        'repair_end_date' => 'datetime',
+        'status' => 'integer',
+    ];
 
     protected $hidden = ['contractor'];
 
@@ -46,31 +54,38 @@ class Defects extends Model
     ];
 
     const NEW = 1;
+
     const DIAGNOSTICS = 2;
+
     const IN_WORK = 3;
+
     const CLOSED = 4;
+
     const DECLINED = 5;
+
     const DELETED = 6;
 
     const USUALLY_SHOWING = [
         self::NEW,
         self::DIAGNOSTICS,
-        self::IN_WORK
+        self::IN_WORK,
     ];
 
     const USUALLY_HIDING = [
         self::CLOSED,
         self::DECLINED,
-        self::DELETED
+        self::DELETED,
     ];
 
     const DEFECTABLE_TYPE = [
         1 => OurTechnic::class,
-        2 => FuelTank::class
+        2 => FuelTank::class,
     ];
 
     const DATE_FORMAT = 'd.m.Y H:i:s';
+
     const ADDITIONAL_DATE_FORMAT = 'd.m.Y H:i';
+
     const REPAIR_DATE_FORMAT = 'd.m.Y';
 
     const FILTERS = [
@@ -116,9 +131,7 @@ class Defects extends Model
     /**
      * Return defects that in IN_WORK status and will expire soon.
      *
-     * @param Builder $query
-     * @param int $userId
-     *
+     * @param  int  $userId
      * @return Builder
      */
     public function scopeSoonExpire(Builder $query)
@@ -132,8 +145,6 @@ class Defects extends Model
     /**
      * Return defects for given filter.
      *
-     * @param Builder $query
-     * @param Request $request
      * @return Builder
      */
     public function scopeFilter(Builder $query, Request $request)
@@ -148,7 +159,7 @@ class Defects extends Model
             if (in_array($filter, self::DATE_FILTERS)) {
                 $date = Carbon::createFromFormat('d.m.Y', $values[$key])->toDateString();
                 $query->whereDate($filter, $filter == 'repair_start_date' ? '>=' : '<=', $date);
-            } else if (in_array($filter, self::TECHNIC_FILTERS)) {
+            } elseif (in_array($filter, self::TECHNIC_FILTERS)) {
                 $query->whereHasMorph(
                     'defectable',
                     OurTechnic::class,
@@ -156,12 +167,12 @@ class Defects extends Model
                         $q->where(function ($qq) use ($filter, $key, $values) {
                             $filter_values = (array) $values[$key];
                             foreach ($filter_values as $value) {
-                                $qq->orWhere($filter, 'like', '%' . $value . '%');
+                                $qq->orWhere($filter, 'like', '%'.$value.'%');
                             }
                         });
                     }
                 );
-            } else if (in_array($filter, self::FUEL_TANK_FILTERS)) {
+            } elseif (in_array($filter, self::FUEL_TANK_FILTERS)) {
                 $query->whereHasMorph(
                     'defectable',
                     FuelTank::class,
@@ -169,12 +180,12 @@ class Defects extends Model
                         $q->where(function ($qq) use ($filter, $key, $values) {
                             $filter_values = (array) $values[$key];
                             foreach ($filter_values as $value) {
-                                $qq->orWhere($filter, 'like', '%' . $value . '%');
+                                $qq->orWhere($filter, 'like', '%'.$value.'%');
                             }
                         });
                     }
                 );
-            } else if ($filter == 'defectable') {
+            } elseif ($filter == 'defectable') {
                 $filter_values = (array) $values[$key];
                 $technic_ids = [];
                 $fuel_ids = [];
@@ -199,7 +210,7 @@ class Defects extends Model
                         }
                     );
                 });
-            } else if ($filter == 'status') {
+            } elseif ($filter == 'status') {
                 $search = array_map('mb_strtolower', (array) $values[$key]);
                 $result = [];
                 foreach ($search as $value) {
@@ -213,22 +224,22 @@ class Defects extends Model
                 }
 
                 $query->whereIn($filter, array_unique($result));
-            } else if (in_array($filter, self::FILTERS)) {
-                $query->whereIn($filter,(array) $values[$key]);
-            } else if ($filter == 'search') {
+            } elseif (in_array($filter, self::FILTERS)) {
+                $query->whereIn($filter, (array) $values[$key]);
+            } elseif ($filter == 'search') {
                 $search = array_map('mb_strtolower', (array) $values[$key]);
-//                $query->whereHasMorph(
-//                    'defectable',
-//                    OurTechnic::class,
-//                    function (Builder $q) use ($filter, $values, $key) {
-//                        $q->where(function ($qq) use ($filter, $key, $values) {
-//                            $filter_values = (array) $values[$key];
-//                            foreach ($filter_values as $value) {
-//                                $qq->orWhere($filter, 'like', '%' . $value . '%');
-//                            }
-//                        });
-//                    }
-//                );
+                //                $query->whereHasMorph(
+                //                    'defectable',
+                //                    OurTechnic::class,
+                //                    function (Builder $q) use ($filter, $values, $key) {
+                //                        $q->where(function ($qq) use ($filter, $key, $values) {
+                //                            $filter_values = (array) $values[$key];
+                //                            foreach ($filter_values as $value) {
+                //                                $qq->orWhere($filter, 'like', '%' . $value . '%');
+                //                            }
+                //                        });
+                //                    }
+                //                );
                 $query->where(function ($que) use ($search) {
                     $que->whereHasMorph(
                         'defectable',
@@ -237,7 +248,7 @@ class Defects extends Model
                             $q->where(function ($q) use ($search) {
                                 foreach (self::TECHNIC_FILTERS as $filter) {
                                     foreach ($search as $value) {
-                                        $q->orWhere($filter, 'like', '%' . $value . '%');
+                                        $q->orWhere($filter, 'like', '%'.$value.'%');
                                     }
                                 }
                             });
@@ -250,14 +261,13 @@ class Defects extends Model
                             $q->where(function ($q) use ($search) {
                                 foreach (self::FUEL_TANK_FILTERS as $filter) {
                                     foreach ($search as $value) {
-                                        $q->orWhere($filter, 'like', '%' . $value . '%');
+                                        $q->orWhere($filter, 'like', '%'.$value.'%');
                                     }
                                 }
                             });
                         }
                     );
                 });
-
 
             }
         }
@@ -269,7 +279,6 @@ class Defects extends Model
      * Return all defects if user have permission
      * and only related if not
      *
-     * @param Builder $query
      * @return Builder
      */
     public function scopePermissionCheck(Builder $query)
@@ -289,7 +298,6 @@ class Defects extends Model
     // Custom getters
     /**
      * Getter for nice status name
-     * @return string
      */
     public function getStatusNameAttribute(): string
     {
@@ -298,15 +306,17 @@ class Defects extends Model
 
     /**
      * Getter for defectable owner name
+     *
      * @return string|null
      */
     public function getContractorAttribute()
     {
-        return $this->defectable ? ($this->defectable->getMorphClass() == OurTechnic::class ? $this->defectable->owner: null) : null;
+        return $this->defectable ? ($this->defectable->getMorphClass() == OurTechnic::class ? $this->defectable->owner : null) : null;
     }
 
     /**
      * Getter for repair_start_date formatting
+     *
      * @return Carbon|null
      */
     public function getRepairStartAttribute()
@@ -316,6 +326,7 @@ class Defects extends Model
 
     /**
      * Getter for repair_end_date formatting
+     *
      * @return Carbon|null
      */
     public function getRepairEndAttribute()
@@ -325,6 +336,7 @@ class Defects extends Model
 
     /**
      * Getter for created_at formatting
+     *
      * @return Carbon|null
      */
     public function getCreatedAtFormattedAttribute()
@@ -334,6 +346,7 @@ class Defects extends Model
 
     /**
      * Getter for author name
+     *
      * @return string|null
      */
     public function getAuthorNameAttribute()
@@ -343,6 +356,7 @@ class Defects extends Model
 
     /**
      * Getter for responsible user name
+     *
      * @return string|null
      */
     public function getResponsibleUserNameAttribute()
@@ -353,6 +367,7 @@ class Defects extends Model
     // Relations
     /**
      * Relation for defect author
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function author()
@@ -362,6 +377,7 @@ class Defects extends Model
 
     /**
      * Relation to defectable model
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function defectable()
@@ -371,6 +387,7 @@ class Defects extends Model
 
     /**
      * Relation for photos
+     *
      * @return mixed
      */
     public function photos()
@@ -380,6 +397,7 @@ class Defects extends Model
 
     /**
      * Relation for videos
+     *
      * @return mixed
      */
     public function videos()
@@ -389,6 +407,7 @@ class Defects extends Model
 
     /**
      * Relation for responsible user
+     *
      * @return mixed
      */
     public function responsible_user()
@@ -400,7 +419,7 @@ class Defects extends Model
     /**
      * Function find defectable model and call
      * model create() method
-     * @param array $request
+     *
      * @return self::create()
      */
     public static function smartCreate(array $request)
@@ -412,6 +431,7 @@ class Defects extends Model
 
     /**
      * Function generate route to defect card
+     *
      * @return string
      */
     public function card_route()
@@ -421,7 +441,6 @@ class Defects extends Model
 
     /**
      * Function return true if defect in diagnostics status
-     * @return bool
      */
     public function isInDiagnostics(): bool
     {
@@ -430,7 +449,6 @@ class Defects extends Model
 
     /**
      * Function return true if defect not in diagnostics status
-     * @return bool
      */
     public function isNotInDiagnostics(): bool
     {
@@ -439,7 +457,6 @@ class Defects extends Model
 
     /**
      * Function return true if defect in new status
-     * @return bool
      */
     public function isNew(): bool
     {
@@ -448,7 +465,6 @@ class Defects extends Model
 
     /**
      * Function return true if defect not in new status
-     * @return bool
      */
     public function isNotNew(): bool
     {
@@ -457,7 +473,6 @@ class Defects extends Model
 
     /**
      * Function return true if defect in deleted status
-     * @return bool
      */
     public function isDeleted(): bool
     {
@@ -466,7 +481,6 @@ class Defects extends Model
 
     /**
      * Function return true if defect not in deleted status
-     * @return bool
      */
     public function isNotDeleted(): bool
     {
@@ -476,7 +490,7 @@ class Defects extends Model
     /**
      * Function update active repair control tasks
      * if we have them
-     * @param array $values
+     *
      * @return mixed
      */
     public function updateActiveRepairControlTask(array $values)
@@ -486,10 +500,13 @@ class Defects extends Model
 
     /**
      * This function solve all active defect tasks
+     *
      * @return mixed
      */
     public function solveActiveTasks()
     {
-        return $this->active_tasks->each(function ($task) { $task->solve_n_notify(); });
+        return $this->active_tasks->each(function ($task) {
+            $task->solve_n_notify();
+        });
     }
 }

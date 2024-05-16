@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Events\NotificationCreated;
 use App\Models\Comment;
 use App\Models\FileEntry;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\Task;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\OurTechnicTicket;
@@ -67,16 +67,16 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     /** @test */
     public function user_can_decline_ticket_and_task_will_be_closed_and_comment_will_be_created()
     {
-        $this->actingAs(User::first());//creating ticket as ivan
+        $this->actingAs(User::first()); //creating ticket as ivan
         $request = $this->validFields(['resp_rp_user_id' => $this->authed_user->id]);
         $ticket = $this->service->createNewTicket($request);
 
-        $this->actingAs($this->authed_user);//accepting ticket as rp
+        $this->actingAs($this->authed_user); //accepting ticket as rp
         $final_note = $this->faker()->sentence;
 
         $this->put(route('building::tech_acc::our_technic_tickets.update', $ticket->id), [
             'acceptance' => 'reject',
-            'final_note' => $final_note
+            'final_note' => $final_note,
         ])->assertSessionDoesntHaveErrors();
 
         $ticket->refresh();
@@ -90,8 +90,8 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_creates_notification_on_ticket_store()
     {
-        $this->actingAs(User::find(1));//rps skips this step
-        $technic = factory(OurTechnic::class)->create();
+        $this->actingAs(User::find(1)); //rps skips this step
+        $technic = OurTechnic::factory()->create();
         $request = $this->validFields(['our_technic_id' => $technic->id]);
 
         $this->expectsEvents(NotificationCreated::class);
@@ -107,8 +107,8 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_attach_vehicles_on_ticket_store()
     {
-        $this->actingAs(User::find(1));//rps skips this step
-        $vehicles = factory(OurVehicles::class)->create();
+        $this->actingAs(User::find(1)); //rps skips this step
+        $vehicles = OurVehicles::factory()->create();
         $request = $this->validFields(['vehicle_ids' => [$vehicles->id]]);
 
         $ticket = $this->service->createNewTicket($request);
@@ -145,7 +145,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         ]);
         $ticket = $this->service->createNewTicket($request);
 
-        $this->actingAs($this->authed_user);//accepting ticket as rp
+        $this->actingAs($this->authed_user); //accepting ticket as rp
         $this->put(route('building::tech_acc::our_technic_tickets.update', $ticket->id), [
             'acceptance' => 'confirm',
         ])->assertStatus(200);
@@ -168,9 +168,9 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
 
         //create ticket with data
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 2])->first();
-        $vehicles = factory(OurVehicles::class, 3)->create();
+        $vehicles = OurVehicles::factory()->count(3)->create();
         $ticket->vehicles()->attach($vehicles);
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 30]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 30]));
 
         $this->put(route('building::tech_acc::our_technic_tickets.update', $ticket->id), [
             'result' => 'confirm',
@@ -192,7 +192,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $this->withoutExceptionHandling();
 
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 2])->first();
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 30]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 30]));
 
         $this->put(route('building::tech_acc::our_technic_tickets.update', $ticket->id), [
             'result' => 'hold',
@@ -209,7 +209,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $this->withoutExceptionHandling();
 
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 2])->first();
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 30]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 30]));
 
         $this->put(route('building::tech_acc::our_technic_tickets.update', $ticket->id), [
             'result' => 'reject',
@@ -223,8 +223,8 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     public function user_can_confirm_sending_and_close_task_but_still_wait_for_receiving()
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31]));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $sender = $ticket->users()->ofType('request_resp_user_id')->first();
         $this->actingAs($sender);
@@ -242,14 +242,13 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $this->assertNotEmpty($ticket->tasks()->where('is_solved', 0)->where('status', 32)->get());
     }
 
-
     /** @test */
     public function when_user_confirm_sending_notification_is_sent()
     {
         $this->withoutExceptionHandling();
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31, 'name' => 'Подтверждение отправки техники']));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31, 'name' => 'Подтверждение отправки техники']));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $sender = $ticket->users()->ofType('request_resp_user_id')->first();
         $this->actingAs($sender);
@@ -270,9 +269,9 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6], [
             'request_resp_user_id' => $moving_resp,
             'recipient_user_id' => $moving_resp,
-            ])->first();
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31]));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        ])->first();
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $sender = $ticket->users()->ofType('request_resp_user_id')->first();
         $this->actingAs($sender);
@@ -293,8 +292,8 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     public function user_can_confirm_recieving_and_close_task_but_still_wait_for_sending()
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31]));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $recipient = $ticket->users()->ofType('recipient_user_id')->first();
         $this->actingAs($recipient);
@@ -322,8 +321,8 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
             'author_user_id' => Auth::id(),
         ])->first();
         //assuming that sending was done already
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31, 'is_solved' => 1]));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31, 'is_solved' => 1]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $recipient = $ticket->users()->ofType('recipient_user_id')->first();
         $this->actingAs($recipient);
@@ -352,8 +351,8 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
             'author_user_id' => Auth::id(),
         ])->first();
         //assuming that sending was done already
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31, 'is_solved' => 1]));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31, 'is_solved' => 1]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $old_location = $ticket->our_technic->start_location;
         $recipient = $ticket->users()->ofType('recipient_user_id')->first();
@@ -380,11 +379,11 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     {
         $this->withoutExceptionHandling();
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31]));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $sender = $ticket->users()->ofType('request_resp_user_id')->first();
-        $files = factory(FileEntry::class, 3)->create();
+        $files = FileEntry::factory()->count(3)->create();
 
         $this->actingAs($sender);
 
@@ -397,7 +396,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $ticket->refresh();
 
         $comment = Comment::latest()->first();
-//        dd(FileEntry::all());
+        //        dd(FileEntry::all());
         $this->assertEquals(6, $ticket->status);
         $this->assertEquals($files->count(), $comment->files()->count());
     }
@@ -413,8 +412,8 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
             'author_user_id' => Auth::id(),
         ])->first();
         //assuming that sending was done already
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 31]));
-        $ticket->tasks()->create(factory(Task::class)->raw(['status' => 32]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 31]));
+        $ticket->tasks()->create(Task::factory()->raw(['status' => 32]));
 
         $recipient = $ticket->users()->ofType('recipient_user_id')->first();
         $this->actingAs($recipient);
@@ -429,7 +428,6 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
         $this->assertNotEmpty($ticket->tasks()->where('is_solved', 1)->where('status', 32)->get());
         $this->assertNotEmpty($ticket->tasks()->where('is_solved', 1)->where('status', 31)->get());
     }
-
 
     /** @test */
     public function rp_can_accept_ticket_and_choose_process_resp_user()
@@ -472,6 +470,6 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
 
         $this->assertNotEmpty($usage_user->tasks, 'There is no task, but has to be one');
 
-        $this->assertEquals('Отметка времени использования техники за ' . Carbon::now()->isoFormat('DD.MM.YYYY'), $usage_user->tasks()->first()->name);
+        $this->assertEquals('Отметка времени использования техники за '.Carbon::now()->isoFormat('DD.MM.YYYY'), $usage_user->tasks()->first()->name);
     }
 }

@@ -2,8 +2,6 @@
 
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\WorkVolume\WorkVolume;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class FillEmptyOptionsInWorkVolumesAndCommercialOffersTables extends Migration

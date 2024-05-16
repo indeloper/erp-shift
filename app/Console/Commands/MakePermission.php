@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Permission;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 
 
 class MakePermission extends Command

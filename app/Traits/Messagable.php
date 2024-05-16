@@ -90,7 +90,7 @@ trait Messagable
     {
         return $this->threads()
             ->where(function (Builder $q) {
-                $q->whereIn(Models::table('threads') . '.id', $this->unreadMessages()->pluck('thread_id'));
+                $q->whereIn(Models::table('threads').'.id', $this->unreadMessages()->pluck('thread_id'));
             })
             ->get();
     }
@@ -130,14 +130,17 @@ trait Messagable
     public function getNameAttribute()
     {
         $this->attributes['full_name'] = $this->full_name;
-        if($this->attributes['first_name'])
+        if ($this->attributes['first_name']) {
             return $this->attributes['first_name'];
+        }
 
-        if($this->username)
+        if ($this->username) {
             return $this->username;
+        }
 
-        if($this->first_name)
+        if ($this->first_name) {
             return $this->first_name;
+        }
 
         // if none is found, just return the email
         return $this->email;

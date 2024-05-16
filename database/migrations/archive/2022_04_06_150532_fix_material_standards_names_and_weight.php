@@ -2,8 +2,6 @@
 
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use App\Models\q3wMaterial\q3wMaterialType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class FixMaterialStandardsNamesAndWeight extends Migration
@@ -31,7 +29,7 @@ class FixMaterialStandardsNamesAndWeight extends Migration
             $materialType = q3wMaterialType::find($materialTypesId);
             $standards = q3wMaterialStandard::where('material_type', $materialTypesId)->get();
             foreach ($standards as $standard) {
-                $standard->name = $materialType->name . ' ' . $standard->name;
+                $standard->name = $materialType->name.' '.$standard->name;
                 $standard->save();
             }
         }
@@ -60,7 +58,7 @@ class FixMaterialStandardsNamesAndWeight extends Migration
             $materialType = q3wMaterialType::find($materialTypesId);
             $standards = q3wMaterialStandard::where('material_type', $materialTypesId)->get();
             foreach ($standards as $standard) {
-                $standard->name = str_replace($materialType->name . ' ', '', $standard->name);
+                $standard->name = str_replace($materialType->name.' ', '', $standard->name);
                 $standard->save();
             }
         }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateGroupPermissionsTable extends Migration
 {
@@ -37,7 +37,7 @@ class CreateGroupPermissionsTable extends Migration
             $table->dropForeign(['group_id']);
             $table->dropForeign(['permission_id']);
         });
-        
+
         Schema::drop('group_permissions');
     }
 }

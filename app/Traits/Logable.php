@@ -21,7 +21,6 @@ trait Logable
     /**
      * Method collect data for actions log
      * and store it to relation.
-     * @param string $event
      */
     public function generateAction(string $event = 'create')
     {
@@ -32,7 +31,6 @@ trait Logable
     /**
      * Method collect model data for actions log
      * and store it to relation.
-     * @param string $event
      */
     public function generatePastAction(string $event = 'create')
     {
@@ -43,8 +41,6 @@ trait Logable
     /**
      * Function parse model changes into array.
      * Special for ActionLog
-     * @param string $event
-     * @return array
      */
     public function collectDataForActionLogs(string $event = 'create'): array
     {
@@ -70,8 +66,6 @@ trait Logable
     /**
      * Function parse model values into array.
      * Special for Appointments, maybe something other
-     * @param string $event
-     * @return array
      */
     public function collectOriginDataForActionLogs(string $event = 'create'): array
     {

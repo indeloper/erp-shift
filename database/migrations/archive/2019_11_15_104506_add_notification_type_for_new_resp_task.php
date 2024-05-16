@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNotificationTypeForNewRespTask extends Migration
 {
@@ -22,19 +20,19 @@ class AddNotificationTypeForNewRespTask extends Migration
                 'id' => 63,
                 'group' => 6,
                 'name' => 'Уведомление о создании задачи Назначение ответственного руководителя проектов',
-                'for_everyone' => 0 // for groups
-            ]
+                'for_everyone' => 0, // for groups
+            ],
         ]);
 
         DB::table('notifications_for_groups')->insert([
             // Commercial Offer Notifications
             [
                 'notification_id' => 63,
-                'group_id' => 14
+                'group_id' => 14,
             ],
             [
                 'notification_id' => 63,
-                'group_id' => 23
+                'group_id' => 23,
             ],
         ]);
 

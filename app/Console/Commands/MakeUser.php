@@ -3,12 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 
 class MakeUser extends Command
 {
-
     protected $signature = 'make:user';
 
     /**
@@ -49,7 +48,7 @@ class MakeUser extends Command
             'is_su' => $this->confirm('Is super user? [y|N]'),
         ];
 
-        if ($this->validate($request)){
+        if ($this->validate($request)) {
             $user = new User();
 
             $user->email = $request['email'];
@@ -59,7 +58,7 @@ class MakeUser extends Command
             $user->save();
 
             $this->info('user saved');
-        }else{
+        } else {
             $this->error('Something went wrong!');
         }
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\DefectRequests;
 
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DefectRepairEndRequest extends FormRequest
@@ -20,7 +19,7 @@ class DefectRepairEndRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'repair_end_date' => now()
+            'repair_end_date' => now(),
         ]);
     }
 
@@ -34,7 +33,7 @@ class DefectRepairEndRequest extends FormRequest
         return [
             'comment' => ['required', 'string', 'max:300'],
             'repair_end_date' => ['required', 'date'],
-            'start_location_id' => ['required', 'exists:project_objects,id']
+            'start_location_id' => ['required', 'exists:project_objects,id'],
         ];
     }
 }

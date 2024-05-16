@@ -15,22 +15,22 @@ class ManualReferenceParameter extends Model
     {
         parent::boot();
 
-        static::saving(function($parameter) {
-            $comma_replaced = str_replace(',','.', $parameter->value);
+        static::saving(function ($parameter) {
+            $comma_replaced = str_replace(',', '.', $parameter->value);
             if (is_numeric($comma_replaced)) {
-                $parameter->value = (float)$comma_replaced;
+                $parameter->value = (float) $comma_replaced;
             }
         });
 
-        static::creating(function($parameter) {
-            $comma_replaced = str_replace(',','.', $parameter->value);
+        static::creating(function ($parameter) {
+            $comma_replaced = str_replace(',', '.', $parameter->value);
             if (is_numeric($comma_replaced)) {
-                $parameter->value = (float)$comma_replaced;
+                $parameter->value = (float) $comma_replaced;
             }
         });
     }
 
-    function getMatIdAttribute()
+    public function getMatIdAttribute()
     {
         return $this->manual_reference_id;
     }

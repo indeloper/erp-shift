@@ -3,10 +3,8 @@
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class FillOutManualReferenceCategory8 extends Migration
 {
@@ -25,11 +23,11 @@ class FillOutManualReferenceCategory8 extends Migration
 
         foreach ($category->materials as $material) {
             $diameter = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'диаметр' . '%');
+                $q->where('name', 'like', '%'.'диаметр'.'%');
             })->first();
 
             $wide = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'толщина' . '%');
+                $q->where('name', 'like', '%'.'толщина'.'%');
             })->first();
 
             if (isset($diameter->value) && isset($wide->value)) {
@@ -49,10 +47,10 @@ class FillOutManualReferenceCategory8 extends Migration
 
         // create ManualReference with parameters based on exist materials
         foreach ($params->unique() as $index => $item) {
-            dump( $index . ' in ' . $params->unique()->count());
+            dump($index.' in '.$params->unique()->count());
 
             $newReference = ManualReference::create([
-                'name' => 'Труба ' . $item[0]['value'] . '*' . $item[1]['value'] ,
+                'name' => 'Труба '.$item[0]['value'].'*'.$item[1]['value'],
                 'category_id' => $category->id,
             ]);
 
@@ -73,8 +71,7 @@ class FillOutManualReferenceCategory8 extends Migration
                         'Диаметр',
                         'Толщина стенки трубы',
                         'Масса 1 м.п.',
-                    ]))
-                {
+                    ])) {
                     $newReference->parameters()->create([
                         'attr_id' => $parameter->attr_id,
                         'value' => $parameter->value,

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\ProjectObjectDocuments;
 
-use App\Events\NotificationCreated;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUser;
@@ -11,7 +9,6 @@ use App\Models\Building\ObjectResponsibleUserRole;
 use App\Models\Comment;
 use App\Models\FileEntry;
 use App\Models\Group;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentsStatusType;
@@ -20,16 +17,15 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusOptions;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatusTypeRelation;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use App\Models\User;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNewStatusNotice;
 use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReport;
 use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReportGrouped;
-
-
 use App\Services\ProjectObjectDocuments\Reports\TestDownload;
 use App\Services\SystemService;
 use Carbon\Carbon;
-use Illuminate\Notifications\Action;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -238,7 +234,7 @@ class ProjectObjectDocumentsController extends Controller
         $id = ProjectObjectDocument::insertGetId(
             [
                 'document_type_id' => $data->document_type_id,
-                'document_status_id' => $data->document_status_id 
+                'document_status_id' => $data->document_status_id
                     ?? ProjectObjectDocumentStatusTypeRelation::query()
                         ->where('document_type_id', $data->document_type_id)
                         ->where('default_selection', 1)
@@ -412,20 +408,12 @@ class ProjectObjectDocumentsController extends Controller
 
         foreach($notificationRecipients as $userId)
         {
-            $notification = Notification::withoutEvents(function() use($objectName, $userId, $document, $statusName) {
-
-                    $notification = Notification::create([
-                        'name' => 'Документооборот на объектах | ' . "\n" . $objectName. ' | ' . "\n" . $document->document_name . ' | '. "\n" . 'Новый статус: ' . $statusName,
-                        'user_id' => $userId,
-                        'type' => 0,
-                    ]);
-
-                    return $notification;
-                }
+            DocumentFlowOnObjectsNewStatusNotice::send(
+                $userId,
+                [
+                    'name' => 'Документооборот на объектах | ' . "\n" . $objectName . ' | ' . "\n" . $document->document_name . ' | ' . "\n" . 'Новый статус: ' . $statusName,
+                ]
             );
-
-            //
-            // event(new NotificationCreated($notification->name, $notification->user_id, $notification->type, $notification->id));
         }
     }
 

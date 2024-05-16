@@ -3,17 +3,11 @@
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
 use App\Http\Controllers\Controller;
-
-use App\Http\Requests\VehicleCategoryRequests\{
+use App\Http\Requests\VehicleCategoryRequests\{VehicleCategoryDestroyRequest,
     VehicleCategoryStoreRequest,
-    VehicleCategoryUpdateRequest,
-    VehicleCategoryDestroyRequest
-};
-
+    VehicleCategoryUpdateRequest};
 use App\Models\TechAcc\Vehicles\VehicleCategories;
-
 use App\Services\AuthorizeService;
-
 use Illuminate\Support\Facades\DB;
 
 class VehicleCategoriesController extends Controller

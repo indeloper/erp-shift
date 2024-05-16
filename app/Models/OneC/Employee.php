@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\OneC;
 
 use App\Models\User;
@@ -9,20 +11,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 
     /**
-     * @param $format
-     * F - Full firstname;
-     * f - Fist letter of firstName;
-     * L - Full lastname;
-     * l - Fist letter of lastname;
-     * P - Full patronymic;
-     * p - Fist letter of patronymic;
-     * @param $declension
-     * @return string
+     * @param  $format
+     *                 F - Full firstname;
+     *                 f - Fist letter of firstName;
+     *                 L - Full lastname;
+     *                 l - Fist letter of lastname;
+     *                 P - Full patronymic;
+     *                 p - Fist letter of patronymic;
      */
     public function format($format = null, $declension = null): string
     {

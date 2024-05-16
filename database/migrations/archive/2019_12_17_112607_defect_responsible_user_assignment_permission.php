@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class DefectResponsibleUserAssignmentPermission extends Migration
 {
@@ -20,9 +18,9 @@ class DefectResponsibleUserAssignmentPermission extends Migration
             // defects
             [
                 'category' => 15,
-                "name" => 'Назначение исполнителя заявки о неисправности технического устройства',
-                "codename" => self::PERMISSION_NAME,
-                'created_at' => now()
+                'name' => 'Назначение исполнителя заявки о неисправности технического устройства',
+                'codename' => self::PERMISSION_NAME,
+                'created_at' => now(),
             ],
         ]);
 
@@ -32,7 +30,7 @@ class DefectResponsibleUserAssignmentPermission extends Migration
             [
                 'group_id' => 47,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }

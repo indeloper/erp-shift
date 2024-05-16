@@ -1,0 +1,7 @@
+<b>Перемещение топливной емкости</b>
+
+<i><a href='{{ $notificationData->getData()['newResponsible']->getExternalUserUrl() }}'>{{ $notificationData->getData()['newResponsible']->format('L f. p.', 'именительный') ?? null }}</a> <u>вовремя не подтвердил</u> перемещение топливной емкости от <a href='{{ $notificationData->getData()['previousResponsible']->getExternalUserUrl() }}'>{{ $notificationData->getData()['previousResponsible']->format('L f. p.', 'родительный') ?? null }}</a></i>
+<b>Номер емкости:</b> {{ $notificationData->getData()['tank']->tank_number }}
+<b>Остаток топлива:</b> {{ $notificationData->getData()['tank']->fuel_level }} л
+<b>С объекта:</b>  {{ App\Models\ProjectObject::find($notificationData->getData()['lastTankTransferHistory']->previous_object_id)->short_name ?? null }} (<a href='{{ $notificationData->getData()['previousResponsible']->getExternalUserUrl() }}'>{$previousResponsibleFIO})</a>)
+<b>На объект:</b>  {{ (App\Models\ProjectObject::find($notificationData->getData()['tank']->object_id)->short_name ?? null ) }} (<a href='{{ $notificationData->getData()['newResponsible']->getExternalUserUrl() }}'>{{ $notificationData->getData()['newResponsible']->format('L f. p.', 'именительный') ?? null }}</a>)

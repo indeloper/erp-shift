@@ -3,32 +3,20 @@
 namespace App\Http\Controllers\Tasks;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\TaskRequests\TaskCreateRequest;
+use App\Notifications\Task\StandardTaskCreationNotice;
+use App\Models\{FileEntry, Group, Notification\Notification, Project, SupportMail, Task, TaskFile, TaskRedirect, User};
+use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\Contract\Contract;
+use App\Models\Contractors\Contractor;
+use App\Models\WorkVolume\WorkVolume;
 use App\Services\Commerce\ProjectDashboardService;
 use App\Services\Tasks\Reports\TasksXLSXReport;
-use Illuminate\Http\Request;
-use App\Http\Requests\TaskRequests\TaskCreateRequest;
-
-use App\Models\{ProjectObject,
-    Task,
-    TaskFile,
-    FileEntry,
-    User,
-    Group,
-    Project,
-    TaskRedirect,
-    Notification,
-    SupportMail};
-use App\Models\Contractors\Contractor;
-use App\Models\Contract\Contract;
-use App\Models\CommercialOffer\CommercialOffer;
-use App\Models\WorkVolume\WorkVolume;
-
-use Telegram\Bot\Laravel\Facades\Telegram;
-
 use Carbon\Carbon;
-use Illuminate\Support\Facades\{DB, Auth, File, Storage};
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\{Auth, DB, File, Storage};
 use ReflectionClass;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TasksController extends Controller
 {
@@ -144,18 +132,6 @@ class TasksController extends Controller
 
         $task->save();
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
-            'name' => $task->name,
-            'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
-            'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-            'project_id' => $task->project_id ? $task->project_id : null,
-            'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-            'type' => 52
-        ]);
 
         if ($request->documents) {
             foreach($request->documents as $document) {
@@ -185,6 +161,18 @@ class TasksController extends Controller
         }
         DB::commit();
 
+        StandardTaskCreationNotice::send(
+            $task->responsible_user_id,
+            [
+                'name' => $task->name,
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
+                'task_id' => $task->id,
+                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                'project_id' => $task->project_id ? $task->project_id : null,
+                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+            ]
+        );
         $task->refresh();
 
         if ($request->from_project) {

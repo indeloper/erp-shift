@@ -1,9 +1,9 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class CreateCompaniesLegalFormsTable extends Migration
 {
@@ -59,11 +59,11 @@ class CreateCompaniesLegalFormsTable extends Migration
                 'name' => 'Федеральное государственное унитарное предприятие',
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         ]);
 
         Schema::table('companies', function (Blueprint $table) {
-            $table->unsignedBigInteger('legal_form_id')->default(1)->after("company_1c_uid");
+            $table->unsignedBigInteger('legal_form_id')->default(1)->after('company_1c_uid');
             $table->foreign('legal_form_id')->references('id')->on('companies_legal_forms');
         });
     }

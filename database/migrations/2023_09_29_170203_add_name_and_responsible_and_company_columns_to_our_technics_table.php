@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddNameAndResponsibleAndCompanyColumnsToOurTechnicsTable extends Migration
 {
@@ -32,7 +32,7 @@ class AddNameAndResponsibleAndCompanyColumnsToOurTechnicsTable extends Migration
     public function down()
     {
         Schema::table('our_technics', function (Blueprint $table) {
-            
+
             $table->dropColumn('name');
             $table->dropForeign(['responsible_id']);
             $table->dropColumn('responsible_id');

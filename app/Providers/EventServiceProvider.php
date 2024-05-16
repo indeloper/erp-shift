@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-use App\Events\NotificationCreated;
-use App\Listeners\NotificationCreatedListener;
-use Illuminate\Support\Facades\Event;
+use App\Events\TelegramNotificationEvent;
+use App\Listeners\TelegramNotificationListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -23,8 +22,12 @@ class EventServiceProvider extends ServiceProvider
         'project.created' => [
             '\App\Events\ProjectEvents@projectCreated',
         ],
-        NotificationCreated::class => [
-            NotificationCreatedListener::class,
+//        NotificationCreated::class => [
+//            NotificationCreatedListener::class,
+//        ]
+
+        TelegramNotificationEvent::class => [
+            TelegramNotificationListener::class
         ]
     ];
 

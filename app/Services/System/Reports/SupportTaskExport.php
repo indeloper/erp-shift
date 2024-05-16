@@ -3,18 +3,15 @@
 namespace App\Services\System\Reports;
 
 use App\Models\SupportMail;
-use Illuminate\Support\Collection;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-
-use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class SupportTaskExport implements FromCollection, WithHeadings, WithTitle, WithEvents
+class SupportTaskExport implements FromCollection, WithEvents, WithHeadings, WithTitle
 {
     use Exportable;
 
@@ -22,7 +19,7 @@ class SupportTaskExport implements FromCollection, WithHeadings, WithTitle, With
 
     public function __construct()
     {
-       $this->tasks = SupportMail::with('sender')->whereIn('status', ['new', 'in_work', 'matching', 'accept', 'decline', 'check', 'development'])->get();
+        $this->tasks = SupportMail::with('sender')->whereIn('status', ['new', 'in_work', 'matching', 'accept', 'decline', 'check', 'development'])->get();
     }
 
     public function title(): string
@@ -45,14 +42,14 @@ class SupportTaskExport implements FromCollection, WithHeadings, WithTitle, With
                 'Дата',
                 'Статус',
                 'Ссылка на Гитлаб',
-            ]
+            ],
         ];
     }
 
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->horizontalAlign('C', \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
                 $event->sheet->horizontalAlign('D', \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
@@ -68,13 +65,10 @@ class SupportTaskExport implements FromCollection, WithHeadings, WithTitle, With
                 $event->sheet->getDelegate()->getColumnDimension('J')->setWidth(20);
                 $event->sheet->getDelegate()->getColumnDimension('K')->setWidth(50);
 
-
                 $event->sheet->getStyle('E')->getAlignment()->setWrapText(true);
-            }
+            },
         ];
     }
-
-
 
     public function collection()
     {
@@ -97,7 +91,6 @@ class SupportTaskExport implements FromCollection, WithHeadings, WithTitle, With
 
             $collection->push($push);
         }
-
 
         return $collection;
     }

@@ -3,28 +3,26 @@
 namespace App\Models\TechAcc\FuelTank;
 
 use App\Models\Company\Company;
-use App\Traits\Defectable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\Logable;
-use App\Traits\DevExtremeDataSourceLoadable;
-
-use Illuminate\Database\Eloquent\Model;
-
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-
 use App\Models\ProjectObject;
 use App\Models\User;
 use App\Traits\DefaultSortable;
+use App\Traits\Defectable;
+use App\Traits\DevExtremeDataSourceLoadable;
+use App\Traits\Logable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTank extends Model
 {
-    use SoftDeletes, Defectable, DevExtremeDataSourceLoadable, Logable, DefaultSortable;
+    use DefaultSortable, Defectable, DevExtremeDataSourceLoadable, Logable, SoftDeletes;
+    use HasFactory;
 
     protected $guarded = ['id'];
 
     public $defaultSortOrder = [
-        'tank_number' => 'asc'
+        'tank_number' => 'asc',
     ];
 
     // protected $with = [
@@ -44,7 +42,6 @@ class FuelTank extends Model
     //         $builder->latest('id');
     //     });
     // }
-
 
     public function object()
     {

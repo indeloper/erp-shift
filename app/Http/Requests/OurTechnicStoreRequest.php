@@ -18,8 +18,11 @@ class OurTechnicStoreRequest extends FormRequest
         return true;
     }
 
-    public function withValidator($validator) {
-        if (! $this->characteristics) return;
+    public function withValidator($validator)
+    {
+        if (! $this->characteristics) {
+            return;
+        }
         foreach ($this->characteristics as $key => $characteristic) {
             if ($this->isEmptyRequiredParameter($characteristic)) {
                 $validator->errors()->add("characteristics.{$key}.required", 'Поле является обязательным');

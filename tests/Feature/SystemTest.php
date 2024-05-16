@@ -20,7 +20,7 @@ class SystemTest extends TestCase
         $this->actingAs($ivan);
 
         $original_filename = $this->faker()->words(3, true);
-        $file = UploadedFile::fake()->image($original_filename . '.jpg');
+        $file = UploadedFile::fake()->image($original_filename.'.jpg');
 
         $response = $this->post(route('file_entry.store'), [
             'file' => $file,
@@ -41,7 +41,7 @@ class SystemTest extends TestCase
 
         $this->actingAs($ivan);
 
-        $file = factory(FileEntry::class)->create();
+        $file = FileEntry::factory()->create();
 
         $this->delete(route('file_entry.destroy', $file->id));
 
@@ -58,7 +58,7 @@ class SystemTest extends TestCase
         $this->actingAs($ivan);
 
         $original_filename = $this->faker()->words(3, true);
-        $file = UploadedFile::fake()->image($original_filename . '.jpg');
+        $file = UploadedFile::fake()->image($original_filename.'.jpg');
 
         $response = $this->post(route('file_entry.store'), [
             'file' => $file,
@@ -79,13 +79,12 @@ class SystemTest extends TestCase
 
         $this->actingAs($ivan);
 
-        $file = factory(FileEntry::class)->create();
+        $file = FileEntry::factory()->create();
 
         $this->delete(route('file_entry.destroy', $file->id));
 
         $this->assertDatabaseMissing('file_entries', ['filename' => $file->filename]);
     }
-
 
     /** @test */
     public function it_can_store_mp4_files_in_technic_storage()

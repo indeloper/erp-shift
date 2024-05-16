@@ -2,11 +2,13 @@
 
 namespace App\Models\TechAcc\Vehicles;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VehicleCategoryCharacteristics extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
@@ -15,7 +17,7 @@ class VehicleCategoryCharacteristics extends Model
         'short_name',
         'unit',
         'show',
-        'required'
+        'required',
     ];
 
     protected $casts = [
@@ -25,11 +27,12 @@ class VehicleCategoryCharacteristics extends Model
 
     const SHOW = [
         0 => 'show off',
-        1 => 'show on'
+        1 => 'show on',
     ];
 
     /**
      * Relation for vehicle category
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()
@@ -39,6 +42,7 @@ class VehicleCategoryCharacteristics extends Model
 
     /**
      * Relation for vehicle category
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function parameters()

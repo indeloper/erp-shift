@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-Use \Maatwebsite\Excel\Sheet;
-use \Maatwebsite\Excel\Writer;
+use Maatwebsite\Excel\Sheet;
+use Maatwebsite\Excel\Writer;
 
 class PHPExcelMacroServiceProvider extends ServiceProvider
 {

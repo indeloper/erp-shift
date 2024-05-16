@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CreateFuelTankFlowTypesTable extends Migration
 {
@@ -23,7 +23,7 @@ class CreateFuelTankFlowTypesTable extends Migration
         });
 
         DB::statement("ALTER TABLE fuel_tank_flow_types COMMENT 'Типы топливных операций'");
-        $this->uploadData(); 
+        $this->uploadData();
     }
 
     /**
@@ -41,15 +41,15 @@ class CreateFuelTankFlowTypesTable extends Migration
         DB::table('fuel_tank_flow_types')->insert([
             [
                 'name' => 'Поступление',
-                'slug' => 'income'
+                'slug' => 'income',
             ],
             [
                 'name' => 'Расход',
-                'slug' => 'outcome'
+                'slug' => 'outcome',
             ],
             [
                 'name' => 'Корректировка',
-                'slug' => 'adjustment'
+                'slug' => 'adjustment',
             ],
         ]);
     }

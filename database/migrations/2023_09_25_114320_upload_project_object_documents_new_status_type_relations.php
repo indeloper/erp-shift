@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -27,12 +25,12 @@ class UploadProjectObjectDocumentsNewStatusTypeRelations extends Migration
     {
         DB::table('project_object_document_status_type_relations')
             ->where('document_status_id', ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id)
-        ->delete();
+            ->delete();
 
         DB::table('project_object_document_statuses')
-        ->where([
-            'name' => 'Хранится на площадке'
-        ])->delete();
+            ->where([
+                'name' => 'Хранится на площадке',
+            ])->delete();
     }
 
     public function uploadData()

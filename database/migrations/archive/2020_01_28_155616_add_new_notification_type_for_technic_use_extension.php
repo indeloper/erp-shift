@@ -1,9 +1,8 @@
 <?php
 
-use App\Models\Group;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewNotificationTypeForTechnicUseExtension extends Migration
 {
@@ -22,20 +21,20 @@ class AddNewNotificationTypeForTechnicUseExtension extends Migration
             'id' => self::NOTIFICATION_TYPE,
             'group' => 10,
             'name' => 'Уведомление об одобрении продления использования техники',
-            'for_everyone' => 0 // for groups and users
+            'for_everyone' => 0, // for groups and users
         ];
 
         DB::table('notification_types')->insert($new_types);
 
         $notification_groups = [
-            'notification_id'  => self::NOTIFICATION_TYPE,
+            'notification_id' => self::NOTIFICATION_TYPE,
             'group_id' => 47,
         ];
 
         DB::table('notifications_for_groups')->insert($notification_groups);
 
         $notification_users = [
-            'notification_id'  => self::NOTIFICATION_TYPE,
+            'notification_id' => self::NOTIFICATION_TYPE,
             'user_id' => User::HARDCODED_PERSONS['router'],
         ];
 

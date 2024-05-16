@@ -3,8 +3,6 @@
 namespace App\Http\Requests\TaskRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Task;
-use App\Models\Project;
 
 class TaskCallRequest extends FormRequest
 {
@@ -13,7 +11,6 @@ class TaskCallRequest extends FormRequest
      *
      * @return bool
      */
-
     public function authorize()
     {
         return true;
@@ -26,8 +23,6 @@ class TaskCallRequest extends FormRequest
      *
      * @return array
      */
-
-
     protected function prepareForValidation()
     {
         if ($this->contractor_phone_number != null) {
@@ -35,20 +30,19 @@ class TaskCallRequest extends FormRequest
         }
     }
 
-
     public function rules()
     {
         return [
-            'contractor_full_name' => ($this->contractor_full_name != null ? 'required' : 'nullable') . '|max:200|unique:contractors,full_name,' . ($this->contractor_id ? $this->contractor_id : ''),
+            'contractor_full_name' => ($this->contractor_full_name != null ? 'required' : 'nullable').'|max:200|unique:contractors,full_name,'.($this->contractor_id ? $this->contractor_id : ''),
             'contractor_short_name' => 'required_with:contractor_full_name|max:100',
-            'contractor_inn' => 'nullable|string|min:10|max:14|unique:contractors,inn,' . ($this->contractor_id ? $this->contractor_id : ''),
-            'contractor_kpp' => 'nullable|string|size:9|unique:contractors,kpp,' . ($this->contractor_id ? $this->contractor_id : ''),
-            'contractor_ogrn' => 'nullable|string|min:12|max:15|unique:contractors,ogrn,' . ($this->contractor_id ? $this->contractor_id : ''),
+            'contractor_inn' => 'nullable|string|min:10|max:14|unique:contractors,inn,'.($this->contractor_id ? $this->contractor_id : ''),
+            'contractor_kpp' => 'nullable|string|size:9|unique:contractors,kpp,'.($this->contractor_id ? $this->contractor_id : ''),
+            'contractor_ogrn' => 'nullable|string|min:12|max:15|unique:contractors,ogrn,'.($this->contractor_id ? $this->contractor_id : ''),
             'contractor_legal_address' => 'nullable|string|max:200',
             'contractor_physical_adress' => 'nullable|string|max:200',
             'contractor_general_manager' => 'nullable|string|max:100',
-            'contractor_phone_number' => 'nullable|string|min:11|max:11|unique:contractors,phone_number,' . ($this->contractor_id ? $this->contractor_id : ''),
-            'contractor_email' => 'nullable|max:50|email|unique:contractors,email,' . ($this->contractor_id ? $this->contractor_id : ''),
+            'contractor_phone_number' => 'nullable|string|min:11|max:11|unique:contractors,phone_number,'.($this->contractor_id ? $this->contractor_id : ''),
+            'contractor_email' => 'nullable|max:50|email|unique:contractors,email,'.($this->contractor_id ? $this->contractor_id : ''),
 
             'contractor_bank_name' => 'nullable|string|max:100',
             'contractor_check_account' => 'nullable|string|size:20',

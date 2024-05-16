@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use phpDocumentor\Reflection\Types\Boolean;
 
 trait DevExtremeDataSourceLoadable
 {
@@ -14,20 +13,18 @@ trait DevExtremeDataSourceLoadable
     protected $conditionOperators = [
         '=' => '=',
         '<>' => '<>',
-        ">" => '>',
+        '>' => '>',
         '>=' => '>=',
-        "<" => '<',
+        '<' => '<',
         '<=' => '<=',
         'startswith' => 'like',
         'endswith' => 'like',
         'contains' => 'like',
-        'notcontains' => 'not like'
+        'notcontains' => 'not like',
     ];
 
     /**
      * Форматирует значение согласно логике оператора сравнения
-     * @param $value
-     * @param $conditionOperator
      */
     protected function formatValue($value, $conditionOperator)
     {
@@ -46,8 +43,6 @@ trait DevExtremeDataSourceLoadable
 
     /**
      * Форматирует наименование поля согласно логике оператора сравнения
-     * @param $fieldName
-     * @param $conditionOperator
      */
     protected function formatField($fieldName, $conditionOperator)
     {
@@ -64,10 +59,6 @@ trait DevExtremeDataSourceLoadable
 
     /**
      * Формирует массив для фильтрации основываясь на поиске
-     * @param $query
-     * @param string $searchOperation
-     * @param string $searchValue
-     * @param $searchExpr
      */
     protected function appendSearchOperation($query, string $searchOperation, string $searchValue, $searchExpr)
     {
@@ -84,7 +75,7 @@ trait DevExtremeDataSourceLoadable
 
             $filter[] = $filterOperation;
 
-            if (!($valuesCounter == $valueKey)){
+            if (! ($valuesCounter == $valueKey)) {
                 $filter[] = 'and';
             }
         }
@@ -99,29 +90,26 @@ trait DevExtremeDataSourceLoadable
      *   С группой условий: "filter":[["id","<>",35],"and",["operation_route_id","=",2]]
      *   Со вложенными условиями: "filter":[["id","<>",35],"and",[["date_start",">=","2020/11/03 00:00:00"],"and",["date_start","<=","2020/11/04 00:00:00"]]]
      *
-     * @param $query
-     * @param $filterArray
-     * @param string $logicalOperator
-     * @param bool $useHaving
      * @return mixed
      */
     protected function appendFilter($query, $filterArray, string $logicalOperator = '', bool $useHaving = false)
     {
         // Условие для проверки валидности элемента, содержащего dataField
-        if(empty($filterArray[0]))
-            return; 
+        if (empty($filterArray[0])) {
+            return;
+        }
 
         $result = $query;
 
-        $isFilterConditionSimple = !is_array($filterArray[0]) && count($filterArray) == 3;
+        $isFilterConditionSimple = ! is_array($filterArray[0]) && count($filterArray) == 3;
 
         if ($isFilterConditionSimple) {
-            $translatedFilterItem = array(
+            $translatedFilterItem = [
                 'fieldName' => $filterArray[0],
                 'operator' => $filterArray[1],
-                'value' => str_replace(' ', '%', $filterArray[2]));
+                'value' => str_replace(' ', '%', $filterArray[2])];
 
-            if ($useHaving){
+            if ($useHaving) {
                 $result->having(
                     $this->formatField($translatedFilterItem['fieldName'], $translatedFilterItem['operator']),
                     $this->conditionOperators[$translatedFilterItem['operator']],
@@ -137,7 +125,7 @@ trait DevExtremeDataSourceLoadable
         } else {
             foreach ($filterArray as $filterItem) {
                 if (is_array($filterItem)) {
-                    if ($useHaving){
+                    if ($useHaving) {
                         $this->appendFilter($query, $filterItem, $logicalOperator, $useHaving);
                     } else {
                         switch ($logicalOperator) {
@@ -169,7 +157,7 @@ trait DevExtremeDataSourceLoadable
     /**
      * Добавляет в запрос условия, генерируемые в loadOptions метода load класса CustomDataStore компонент DevExtreme
      *
-     * @param object $loadOption
+     * @param  object  $loadOption
      * @return Builder|static
      */
     public function dxLoadOptions($loadOption, $useHavingInsteadOfWhere = false)
@@ -194,6 +182,7 @@ trait DevExtremeDataSourceLoadable
             $this->appendFilter($result, $loadOption->filter, '', $useHavingInsteadOfWhere);
 
         }
+
         return $result;
     }
 }

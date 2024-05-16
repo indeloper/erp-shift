@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\q3wMaterial\operations\q3wOperationFileType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class DeleteUnusedOperationFileType extends Migration
@@ -29,9 +27,9 @@ class DeleteUnusedOperationFileType extends Migration
 
         foreach ($fileTypes as $fileTypeElement) {
             $fileType = new q3wOperationFileType();
-            $fileType -> name = $fileTypeElement[0];
-            $fileType -> string_identifier = $fileTypeElement[1];
-            $fileType -> save();
+            $fileType->name = $fileTypeElement[0];
+            $fileType->string_identifier = $fileTypeElement[1];
+            $fileType->save();
         }
     }
 }

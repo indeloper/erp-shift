@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ProjectObjectDocument extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
     protected $guarded = [];
 
     public function projectObject()
     {
-        return $this->belongsTo('App\Models\ProjectObject', 'project_object_id');
+        return $this->belongsTo(\App\Models\ProjectObject::class, 'project_object_id');
     }
 
     public function type()
@@ -56,13 +56,12 @@ class ProjectObjectDocument extends Model
     public function getPermissionsAttribute()
     {
         $permissionsArray = [];
-        $permissions = Permission::where("category", 20)->get();
+        $permissions = Permission::where('category', 20)->get();
 
-        foreach ($permissions as $permission){
+        foreach ($permissions as $permission) {
             $permissionsArray[$permission->codename] = Auth::user()->can($permission->codename);
         }
 
         return $permissionsArray;
     }
-    
 }

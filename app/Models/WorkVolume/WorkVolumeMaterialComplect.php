@@ -2,11 +2,7 @@
 
 namespace App\Models\WorkVolume;
 
-use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialParameter;
-use App\Models\Manual\ManualRelationMaterialWork;
-
-use App\Models\Manual\ManualWork;
 use Illuminate\Database\Eloquent\Model;
 
 class WorkVolumeMaterialComplect extends Model //this is like manual for materials, but for complects
@@ -14,15 +10,13 @@ class WorkVolumeMaterialComplect extends Model //this is like manual for materia
     protected $fillable = [
         'name',
         'wv_material_id',
-        'work_volume_id'
+        'work_volume_id',
     ];
-
 
     public function w_v_instance()
     {
         return $this->morphOne(WorkVolumeMaterial::class, 'manual', 'material_type', 'manual_material_id');
     }
-
 
     public function getParametersAttribute()
     {
@@ -34,17 +28,15 @@ class WorkVolumeMaterialComplect extends Model //this is like manual for materia
         return $this->w_v_instance->parts->first()->manual->category();
     }
 
-
     public function getCategoryIdAttribute()
     {
         return $this->category->id;
     }
 
-
     /**
      * this dummy convert_to mocks this method for Work Volumes
      *
-     * @param mixed ...$attrs
+     * @param  mixed  ...$attrs
      * @return ManualMaterialParameter
      */
     public function convert_to(...$attrs)
@@ -56,7 +48,6 @@ class WorkVolumeMaterialComplect extends Model //this is like manual for materia
     {
         return $this->w_v_instance->parts->pluck('manual.related_works')->flatten();
     }
-
 
     public function getWorkRelationsAttribute()
     {

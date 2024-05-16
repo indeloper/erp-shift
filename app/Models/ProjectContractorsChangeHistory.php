@@ -10,7 +10,7 @@ class ProjectContractorsChangeHistory extends Model
         'project_id',
         'old_contractor_id',
         'new_contractor_id',
-        'user_id'
+        'user_id',
     ];
 
     public $types = [

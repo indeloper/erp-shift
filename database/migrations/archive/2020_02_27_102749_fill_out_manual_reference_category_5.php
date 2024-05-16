@@ -3,10 +3,8 @@
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class FillOutManualReferenceCategory5 extends Migration
 {
@@ -25,7 +23,7 @@ class FillOutManualReferenceCategory5 extends Migration
 
         foreach ($category->materials as $material) {
             $mark = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Толщина' . '%');
+                $q->where('name', 'like', '%'.'Толщина'.'%');
             })->first();
 
             if (isset($mark->value)) {
@@ -44,10 +42,10 @@ class FillOutManualReferenceCategory5 extends Migration
 
         // create ManualReference with parameters based on exist materials
         foreach ($params->unique() as $index => $item) {
-            dump( $index . ' in ' . $params->unique()->count());
+            dump($index.' in '.$params->unique()->count());
 
             $newReference = ManualReference::create([
-                'name' => 'Лист г/к ' . $item['value'],
+                'name' => 'Лист г/к '.$item['value'],
                 'category_id' => $category->id,
             ]);
 
@@ -67,8 +65,7 @@ class FillOutManualReferenceCategory5 extends Migration
                     [
                         'Масса 1 м2',
                         'Толщина',
-                    ]))
-                {
+                    ])) {
                     $newReference->parameters()->create([
                         'attr_id' => $parameter->attr_id,
                         'value' => $parameter->value,

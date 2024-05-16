@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\{Notification, User};
+use App\Notifications\DefaultNotification;
+use App\Models\{User};
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 
 class NotifySender extends Command
 {
@@ -98,18 +100,24 @@ class NotifySender extends Command
      */
     public function generateNotifications(string $text, string $place, string $users)
     {
-        $recipients = ($users == 0 ? User::withoutTelegramChatId() :
-            ($users == 1 ? User::withTelegramChatId() : User::query()))
-            ->pluck('id')->toArray();
+        $recipients = User::query()
+            ->when($users === 0, function (Builder $query) {
+                $query->withoutTelegramChatId();
+            })
+            ->when($users === 1, function (Builder $query) {
+                $query->withTelegramChatId();
+            })
+            ->get();
 
-        foreach ($recipients as $recipient) {
-            // here can be some switches/if's for other variants
-            // right now works only for first variant
-            Notification::create([
-                'name' => $text,
-                'user_id' => $recipient,
-                'type' => 0,
-            ]);
-        }
+        $recipients->each(function (User $user) use ($text) {
+
+            DefaultNotification::send(
+                $user->id,
+                [
+                    'name' => 'Описание уведомления',
+                    'additional_info' => $text
+                ]
+            );
+        });
     }
 }

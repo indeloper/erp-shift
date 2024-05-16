@@ -18,8 +18,11 @@ class OurVehicleStoreRequest extends FormRequest
         return boolval(auth()->user()->hasPermission('tech_acc_our_vehicle_create'));
     }
 
-    public function withValidator($validator) {
-        if (! $this->parameters) return;
+    public function withValidator($validator)
+    {
+        if (! $this->parameters) {
+            return;
+        }
         foreach ($this->parameters as $key => $parameter) {
             if ($this->isEmptyRequiredParameter($parameter)) {
                 $validator->errors()->add("parameters.{$key}.required", 'Поле является обязательным');

@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Contractors\Contractor;
-
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;

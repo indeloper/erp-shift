@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddNewMatAccNotificationInNotificationTypesTable extends Migration
 {
@@ -22,7 +20,7 @@ class AddNewMatAccNotificationInNotificationTypesTable extends Migration
                 'id' => 64,
                 'group' => 2,
                 'name' => 'Уведомление об обновлении запроса на создание операции',
-                'for_everyone' => 0
+                'for_everyone' => 0,
             ],
         ]);
 

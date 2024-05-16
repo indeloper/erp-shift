@@ -2,35 +2,36 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
-use App\Models\Contractors\{ContractorContactPhone, ContractorPhone, ContractorContact, Contractor, BankDetail, ContractorType};
+use App\Http\Requests\ContractorRequests\ContractorContactRequest;
+use App\Http\Requests\ContractorRequests\ContractorStoreRequest;
+use App\Http\Requests\ContractorRequests\ContractorUpdateRequest;
+use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\Contract\Contract;
+use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
+use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
+use App\Models\Contractors\{BankDetail,
+    Contractor,
+    ContractorContact,
+    ContractorContactPhone,
+    ContractorPhone,
+    ContractorType};
+use App\Models\Contractors\CotractorType;
 use App\Models\Group;
-use App\Models\Notification;
-use App\Models\WorkVolume\WorkVolume;
-use App\Traits\TimeCalculator;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Fomvasss\Dadata\Facades\DadataSuggest;
-
 use App\Models\Project;
 use App\Models\ProjectContact;
-use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Task;
 use App\Models\TaskFile;
 use App\Models\TaskRedirect;
 use App\Models\User;
-use App\Models\Contract\Contract;
-use App\Models\Contractors\CotractorType;
-
-use App\Http\Requests\ContractorRequests\ContractorStoreRequest;
-use App\Http\Requests\ContractorRequests\ContractorUpdateRequest;
-use App\Http\Requests\ContractorRequests\ContractorContactRequest;
+use App\Models\WorkVolume\WorkVolume;
+use App\Traits\TimeCalculator;
+use Fomvasss\Dadata\Facades\DadataSuggest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
-
 
 class ContractorController extends Controller
 {
@@ -548,18 +549,18 @@ class ContractorController extends Controller
             'status' => 19
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $task->name . '»',
-            'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
-            'contractor_id' => $task->contractor_id,
-            'type' => 17
-        ]);
-
         DB::commit();
+
+        ContractorDeletionControlTaskNotice::send(
+            $task->responsible_user_id,
+            [
+                'name' => 'Новая задача «' . $task->name . '»',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
+                'task_id' => $task->id,
+                'contractor_id' => $task->contractor_id,
+            ]
+        );
 
         return back();
     }
@@ -599,15 +600,6 @@ class ContractorController extends Controller
             ($request->description ? ', с комментарием: ' . $request->description : '');
         $task->solve_n_notify();
 
-        $notify = Notification::create([
-            'name' => 'Запрашиваемый вами контрагент ' . $contractor->short_name .
-            ' ' . $task->results[$task->status][$task->result] . ($request->description ? ', с комментарием: ' . $request->description : ''),
-            'task_id' => $task->id,
-            'user_id' => $task->user_id,
-            'contractor_id' => $task->contractor_id,
-            'type' => 20
-        ]);
-
         if ($request->status_result == 'accept' ) {
             if (Schema::hasColumn($contractor->getTable(), 'deleted_at')) {
                 foreach($contractor->projects as $project){
@@ -625,6 +617,16 @@ class ContractorController extends Controller
         }
 
         DB::commit();
+
+        ContractorDeletionControlTaskResolutionNotice::send(
+            $task->user_id,
+            [
+                'name' => 'Запрашиваемый вами контрагент ' . $contractor->short_name . ' ' . $task->results[$task->status][$task->result] .
+                    ($request->description ? ', с комментарием: ' . $request->description : ''),
+                'task_id' => $task->id,
+                'contractor_id' => $task->contractor_id,
+            ]
+        );
 
         return redirect()->route('tasks::index');
     }

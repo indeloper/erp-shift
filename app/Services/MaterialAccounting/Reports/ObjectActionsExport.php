@@ -3,23 +3,17 @@
 namespace App\Services\MaterialAccounting\Reports;
 
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\ProjectObject;
-
-use Maatwebsite\Excel\Facades\Excel;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
-Use \Maatwebsite\Excel\Sheet;
-use \Maatwebsite\Excel\Writer;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-use Carbon\Carbon;
-
-class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents, WithTitle {
-
+class ObjectActionsExport implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings, WithTitle
+{
     use Exportable;
 
     public function __construct($object, $operations)
@@ -37,10 +31,10 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
     {
         return [
             [
-                'НАИМЕНОВАНИЕ ОБЪЕКТА'
+                'НАИМЕНОВАНИЕ ОБЪЕКТА',
             ],
             [
-                $this->object->short_name ?? $this->object->address
+                $this->object->short_name ?? $this->object->address,
             ],
             [
                 'Дата',
@@ -53,14 +47,14 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 'Доставка',
                 'Отправка',
                 'Примечание',
-            ]
+            ],
         ];
     }
 
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $firstColumn = 'A1:J1';
                 $event->sheet->getDelegate()->mergeCells($firstColumn);
 
@@ -70,12 +64,12 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                     ->getStartColor()
                     ->setARGB('70ad47');
 
-                $event->sheet->horizontalAlign($firstColumn , \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign($firstColumn, \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
                 $secondColumn = 'A2:J2';
                 $event->sheet->getDelegate()->mergeCells($secondColumn);
 
-                $event->sheet->horizontalAlign($secondColumn , \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign($secondColumn, \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
                 $thirdColumn = 'A3:J3';
 
@@ -86,16 +80,16 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                     ->getStartColor()
                     ->setARGB('ffff00');
 
-                $event->sheet->horizontalAlign('A:J' , \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('A:J', \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
                 foreach ($this->gradient('63be7b', 'ff5f76', $this->collection()->count()) as $index => $color) {
-                    $event->sheet->getStyle('A' . ($index + 4))
+                    $event->sheet->getStyle('A'.($index + 4))
                         ->getFill()
                         ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                         ->getStartColor()
                         ->setARGB($color);
-                };
+                }
 
-            }
+            },
         ];
     }
 
@@ -118,12 +112,12 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
             foreach ($operation->materialsPart as $item) {
                 unset($new_count_weith);
                 $push = [];
-                $push[0] = Carbon::parse($item->fact_date  ?? $item->created_at)->format('d.m.Y');
+                $push[0] = Carbon::parse($item->fact_date ?? $item->created_at)->format('d.m.Y');
                 $push[1] = $this->getOperationName($operation, $item->type);
                 $push[2] = $item->manual->name;
                 $push[3] = '';
 
-                if($item->manual->category_unit == 'шт' && $item->units_name[$item->unit] != 'шт') {
+                if ($item->manual->category_unit == 'шт' && $item->units_name[$item->unit] != 'шт') {
                     $new_count_weith = round($item->manual->getConvertValueFromTo($item->units_name[$item->unit], 'шт') * $item->count, 3);
                     $push[4] = $new_count_weith;
                 } elseif ($item->units_name[$item->unit] == 'шт') {
@@ -146,12 +140,14 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 }
             }
         }
+
         return $collection->sortBy(function ($item, $key) {
             return Carbon::parse($item[0])->diffInDays(Carbon::now()->startOfYear());
         });
     }
 
-    public function gradient($HexFrom, $HexTo, $ColorSteps) {
+    public function gradient($HexFrom, $HexTo, $ColorSteps)
+    {
         if ($ColorSteps == 1) {
             return ['63be7b'];
         }
@@ -168,9 +164,9 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
         $StepRGB['g'] = ($FromRGB['g'] - $ToRGB['g']) / ($ColorSteps - 1);
         $StepRGB['b'] = ($FromRGB['b'] - $ToRGB['b']) / ($ColorSteps - 1);
 
-        $GradientColors = array();
+        $GradientColors = [];
 
-        for($i = 0; $i <= $ColorSteps; $i++) {
+        for ($i = 0; $i <= $ColorSteps; $i++) {
             $RGB['r'] = floor($FromRGB['r'] - ($StepRGB['r'] * $i));
             $RGB['g'] = floor($FromRGB['g'] - ($StepRGB['g'] * $i));
             $RGB['b'] = floor($FromRGB['b'] - ($StepRGB['b'] * $i));
@@ -179,11 +175,11 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
             $HexRGB['g'] = sprintf('%02x', ($RGB['g']));
             $HexRGB['b'] = sprintf('%02x', ($RGB['b']));
 
-            $GradientColors[] = implode(NULL, $HexRGB);
+            $GradientColors[] = implode(null, $HexRGB);
         }
 
-        $GradientColors = array_filter($GradientColors, function($val) {
-            return (strlen($val) == 6 ? true : false );
+        $GradientColors = array_filter($GradientColors, function ($val) {
+            return strlen($val) == 6 ? true : false;
         });
 
         return $GradientColors;
@@ -197,5 +193,4 @@ class ObjectActionsExport implements FromCollection, WithHeadings, ShouldAutoSiz
             return $materialType == 9 ? 'завоз материала' : 'вывоз материала';
         }
     }
-
 }

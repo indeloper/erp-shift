@@ -9,5 +9,4 @@ interface MenuItemFavoriteInterface
     public function toggle($menuItemId, $userId);
 
     public function getFavorites($id);
-
 }

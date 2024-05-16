@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeDocumentNameColumnInFuelTankFlowsTable extends Migration
 {
@@ -17,7 +17,7 @@ class ChangeDocumentNameColumnInFuelTankFlowsTable extends Migration
             $table->dropColumn('document_date');
             $table->date('event_date')->after('id')->comment('Дата время факта события');
         });
-        
+
     }
 
     /**

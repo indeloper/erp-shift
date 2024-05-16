@@ -4,8 +4,9 @@ namespace App\Observers;
 
 use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\Task;
+use App\Notifications\Operation\OperationControlTaskNotice;
 use Carbon\Carbon;
 
 class MaterialAccountingOperationObserver
@@ -26,17 +27,20 @@ class MaterialAccountingOperationObserver
                         'status' => 38,
                     ]);
 
-                    Notification::create([
-                        'name' => 'Создана задача: ' . $task->name,
-                        'task_id' => $task->id,
-                        'user_id' => $task->responsible_user_id,
-                        'type' => 95,
-                    ]);
+                    OperationControlTaskNotice::send(
+                        $task->responsible_user_id,
+                        [
+                            'name' => 'Создана задача: ' . $task->name,
+                            'additional_info' => 'Ссылке на задачу: ',
+                            'url' => $task->task_route(),
+                            'task_id' => $task->id,
+                        ]
+                    );
                 }
             }
         }
 
-
+//TODO обратить внимание на 9 и 10 типы уведомлений, сейчас они заменены - вернуть прежнии типы
         if ($operation->isDirty('is_close') and $operation->is_close == 1) {
             Notification::whereIn('type', [9, 10, 11, 12, 55, 56, 57, 59, 60, 62, 64])->where('target_id', $operation->id)->update(['is_seen' => 1]);
         }

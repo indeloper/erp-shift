@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class DefectExpireCommand extends Command
 {
     use NotificationGenerator;
+
     /**
      * The name and signature of the console command.
      *

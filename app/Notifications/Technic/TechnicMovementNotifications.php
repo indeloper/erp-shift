@@ -4,18 +4,18 @@ namespace App\Notifications\Technic;
 
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\TechnicCategory;
 use App\Models\User;
+use App\Notifications\Equipment\EquipmentMovementNotice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use morphos\Russian\Cases;
 use morphos\Russian\RussianLanguage;
 use function morphos\Russian\pluralize;
-use morphos\Russian\Cases;
 
-class TechnicMovementNotifications 
+class TechnicMovementNotifications
 {
     public function notifyAboutTechnicMovementCreated($data, $entity, $notificationRecipientsIds)
     {
@@ -25,7 +25,7 @@ class TechnicMovementNotifications
 
         $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
 
-        $notificationText = 
+        $notificationText =
             '<b>Перемещение техники</b>'
             ."\n"
             .'<i>'
@@ -57,8 +57,8 @@ class TechnicMovementNotifications
         $responsibleUrl = $responsible->getExternalUserUrl();
 
         $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
-    
-        $notificationText = 
+
+        $notificationText =
             '<b>Перемещение техники</b>'
             ."\n"
             .'<i>'
@@ -95,7 +95,7 @@ class TechnicMovementNotifications
 
         $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
 
-        $notificationText = 
+        $notificationText =
             '<b>Перемещение техники</b>'
             ."\n"
             .'<i>'
@@ -127,7 +127,7 @@ class TechnicMovementNotifications
 
         $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
 
-        $notificationText = 
+        $notificationText =
             '<b>Перемещение техники</b>'
             ."\n"
             .'<i>'
@@ -159,7 +159,7 @@ class TechnicMovementNotifications
 
         $inflectedCategoryName = $this->getInflectedCategoryName($entity->technic_category_id, Cases::RODIT);
 
-        $notificationText = 
+        $notificationText =
             '<b>Перемещение техники</b>'
             ."\n"
             .'<i>'
@@ -191,11 +191,12 @@ class TechnicMovementNotifications
     public function notifyUsers($notificationRecipientsIds, $notificationText)
     {
         foreach($notificationRecipientsIds as $id) {
-            Notification::create([
-                'name' => $notificationText,
-                'user_id' =>$id,
-                'type' => 0,
-            ]);
+            EquipmentMovementNotice::send(
+                $id,
+                [
+                    'name' => $notificationText,
+                ]
+            );
         }
     }
 
@@ -206,17 +207,17 @@ class TechnicMovementNotifications
         unset($arr[0]);
         return mb_strtolower(implode(' ', $arr));
     }
-    
+
     public function notifyNewTechnicMovementResponsibleUser($dataObj)
     {
         // $dataObj = $this->getDataObj($newData, $dbData);
 
-        $notificationText = 
+        $notificationText =
             '<b>Перемещение техники</b>'
             ."\n"
             ."<i>Вы назначены ответственным за перемещение</i>"
             ."\n"."\n"
-            ."<b>Техника:</b> ". $this->getCategoryName($dataObj->technic_category_id) 
+            . "<b>Техника:</b> " . $this->getCategoryName($dataObj->technic_category_id)
             ."\n"
             ."<b>Объект назначения:</b> ". ProjectObject::find($dataObj->object_id)->short_name
             ."\n"
@@ -238,7 +239,7 @@ class TechnicMovementNotifications
             $notificationText = $notificationText.
             "<b>Комментарий:</b> ". $dataObj->order_comment;
         }
-        
+
         $objectPMs = $this->getobjectPMs($dataObj->object_id);
 
         if($objectPMs->count()) {
@@ -255,7 +256,7 @@ class TechnicMovementNotifications
             foreach($objectPMs as $manager) {
                 $notificationText = $notificationText.
                 "<a href='{$manager->getExternalUserUrl()}'>{$manager->format('L f. p.', 'именительный')}</a>";
-                
+
                 if($i < $objectPMs->count()) {
                     $notificationText = $notificationText.
                     ", ";
@@ -265,11 +266,12 @@ class TechnicMovementNotifications
             }
         }
 
-        Notification::create([
-            'name' => $notificationText,
-            'user_id' =>$dataObj->responsible_id,
-            'type' => 0,
-        ]);
+        EquipmentMovementNotice::send(
+            $dataObj->responsible_id,
+            [
+                'name' => $notificationText,
+            ]
+        );
     }
 
     // public function getDataObj($newData, $dbData)
@@ -295,16 +297,16 @@ class TechnicMovementNotifications
 
         foreach (self::nameAttrs as $elem) {
             if(
-                str_starts_with(mb_strtolower($categoryName), mb_strtolower($elem['starts'])) 
+                str_starts_with(mb_strtolower($categoryName), mb_strtolower($elem['starts']))
                 && str_contains(mb_strtolower($categoryName), mb_strtolower($elem['contains'])))
             return $elem['result'];
         }
-        
+
         return $categoryName;
     }
 
     public function getobjectPMs($id)
-    { 
+    {
         $objectPMsIds = ObjectResponsibleUser::where('object_id', $id)
             ->where(
                 'object_responsible_user_role_id',

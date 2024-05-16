@@ -4,14 +4,16 @@ namespace App\Models\WorkVolume;
 
 use App\Models\Task;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 use Illuminate\Support\Facades\Auth;
 
 class WorkVolume extends Model
 {
+    use HasFactory;
     use SoftDeletes;
+
     protected $fillable = ['user_id', 'project_id', 'version', 'status', 'is_save_tongue', 'is_save_pile', 'depth', 'type', 'option'];
 
     public $wv_status = [
@@ -22,11 +24,10 @@ class WorkVolume extends Model
 
     public $wv_type = [
         0 => 'Шпунтовое направление',
-        1 => 'Свайное направление'
+        1 => 'Свайное направление',
     ];
 
     protected $appends = ['type_name', 'status_name'];
-
 
     public function getTypeNameAttribute()
     {
@@ -50,17 +51,17 @@ class WorkVolume extends Model
 
     public function tasks()
     {
-        return $this->hasMany( Task::class, 'target_id', 'id')->whereIn('status', Task::WV_STATUS);
+        return $this->hasMany(Task::class, 'target_id', 'id')->whereIn('status', Task::WV_STATUS);
     }
 
     public function user()
     {
-        return $this->belongsTo( User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function made_task()
     {
-        return $this->hasOne( Task::class, 'target_id', 'id')->whereIn('status', [3, 4]);
+        return $this->hasOne(Task::class, 'target_id', 'id')->whereIn('status', [3, 4]);
     }
 
     public function requests()
@@ -100,7 +101,7 @@ class WorkVolume extends Model
     public function works_offer_double()
     {
         return $this->hasMany(WorkVolumeWork::class, 'work_volume_id', 'id')
-            #->where('work_volume_works.is_tongue', $this->type ? 0 : 1)
+            //->where('work_volume_works.is_tongue', $this->type ? 0 : 1)
             ->leftJoin('contractor_files', 'contractor_files.id', '=', 'work_volume_works.subcontractor_file_id')
             ->leftJoin('contractors', 'contractors.id', '=', 'contractor_files.contractor_id')
             ->leftJoin('manual_works', 'manual_works.id', '=', 'work_volume_works.manual_work_id')
@@ -163,7 +164,7 @@ class WorkVolume extends Model
 
     public function decline()
     {
-        $this->tasks->each(function($task) {
+        $this->tasks->each(function ($task) {
             $task->solve_n_notify();
         });
 

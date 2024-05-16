@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Notifications\Task\TaskClosureNotice;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Notificationable;
 use App\Traits\NotificationGenerator;
@@ -12,7 +14,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 
 class Task extends Model
 {
@@ -322,14 +323,16 @@ class Task extends Model
         $was_solved = $this->solve();
 
         if ($was_solved) {
-            Notification::create(['name' => 'Задача «' . $this->name . '» закрыта',
-                'task_id' => $this->id,
-                'user_id' => $this->responsible_user_id,
-                'contractor_id' => $this->project_id ? Project::find($this->project_id)->contractor_id : null,
-                'project_id' => $this->project_id ? $this->project_id : null,
-                'object_id' => $this->project_id ? Project::find($this->project_id)->object_id : null,
-                'type' => 3
-            ]);
+            TaskClosureNotice::send(
+                $this->responsible_user_id,
+                [
+                    'name' => 'Задача «' . $this->name . '» закрыта',
+                    'task_id' => $this->id,
+                    'contractor_id' => $this->project_id ? Project::find($this->project_id)->contractor_id : null,
+                    'project_id' => $this->project_id ? $this->project_id : null,
+                    'object_id' => $this->project_id ? Project::find($this->project_id)->object_id : null,
+                ]
+            );
         }
     }
 
@@ -420,17 +423,18 @@ class Task extends Model
         return 'Tasks Movin\' Back';
     }
 
-    public function create_notify($name, $type)
+    public function taskClosureNotice($name)
     {
-        Notification::create([
-            'name' => $name,
-            'task_id' => $this->id,
-            'user_id' => $this->responsible_user_id,
-            'contractor_id' => $this->contractor_id ?? null,
-            'project_id' => $this->project_id ?? null,
-            'object_id' => isset($this->project->object->id) ? $this->project->object->id : null,
-            'type' => $type
-        ]);
+        TaskClosureNotice::send(
+            $this->responsible_user_id,
+            [
+                'name' => $name,
+                'task_id' => $this->id,
+                'contractor_id' => $this->contractor_id ?? null,
+                'project_id' => $this->project_id ?? null,
+                'object_id' => isset($this->project->object->id) ? $this->project->object->id : null,
+            ]
+        );
     }
 
 

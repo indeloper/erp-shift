@@ -3,23 +3,19 @@
 namespace Tests\Feature\OldModules;
 
 use App\Models\CommercialOffer\CommercialOffer;
-use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 use App\Models\Manual\ManualMaterial;
 use App\Services\Commerce\SplitService;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CommercialOfferMaterialSplitTest extends TestCase
 {
-    /** @var  CommercialOffer */
+    /** @var CommercialOffer */
     private $commercial_offer;
 
     /** @var SplitService */
     private $split_service;
 
     /**
-     * @param $count
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function createBasicSplit($count = null)
@@ -40,7 +36,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     {
         parent::setUp();
 
-        $this->commercial_offer = factory(CommercialOffer::class)->create();
+        $this->commercial_offer = CommercialOffer::factory()->create();
         $this->split_service = new SplitService();
     }
 

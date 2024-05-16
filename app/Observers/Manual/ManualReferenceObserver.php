@@ -12,12 +12,11 @@ class ManualReferenceObserver
         DB::beginTransaction();
         $params = $ref->parameters()->get();
         foreach ($ref->materials as $material) {
-            foreach ($params as $param)
-            {
+            foreach ($params as $param) {
                 $material->parameters()->where('attr_id', $param->attr_id)->delete();
                 $material->parameters()->create([
                     'attr_id' => $param->attr_id,
-                    'value' => $param->value
+                    'value' => $param->value,
                 ]);
             }
         }

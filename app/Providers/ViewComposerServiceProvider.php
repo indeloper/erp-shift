@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class ViewComposerServiceProvider extends ServiceProvider
 {
@@ -17,13 +17,13 @@ class ViewComposerServiceProvider extends ServiceProvider
         View::composer(
             [
                 'layouts.app',
-                'layouts.messages'
+                'layouts.messages',
             ],
-            'App\Http\ViewComposers\TaskComposer'
+            \App\Http\ViewComposers\TaskComposer::class
         );
 
         View::composer(
-            'building.material_accounting.modules.*', 'App\Http\ViewComposers\MatAccComposer'
+            'building.material_accounting.modules.*', \App\Http\ViewComposers\MatAccComposer::class
         );
 
         View::composer(
@@ -31,9 +31,9 @@ class ViewComposerServiceProvider extends ServiceProvider
                 'building.material_accounting.arrival.*',
                 'building.material_accounting.moving.*',
                 'building.material_accounting.transformation.*',
-                'building.material_accounting.write_off.*'
+                'building.material_accounting.write_off.*',
             ],
-            'App\Http\ViewComposers\ManualMaterialCategoryComposer'
+            \App\Http\ViewComposers\ManualMaterialCategoryComposer::class
         );
     }
 

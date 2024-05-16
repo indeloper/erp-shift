@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\q3wMaterial\operations;
 
 use App\Traits\DevExtremeDataSourceLoadable;
@@ -9,13 +11,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class q3wOperationComment extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 
     public function operation(): HasOne
     {
         return $this->hasOne(q3wMaterialOperation::class, 'id', 'material_operation_id');
     }
 }
-

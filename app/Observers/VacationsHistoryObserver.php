@@ -2,10 +2,11 @@
 
 namespace App\Observers;
 
-use App\Events\NotificationCreated;
-use App\Models\Notification;
 use App\Models\User;
 use App\Models\Vacation\VacationsHistory;
+use App\Notifications\Employee\UserLeaveSubstitutionNotice;
+use App\Notifications\Task\NewTasksFromUserOnLeaveNotice;
+use App\Notifications\Task\SubstituteUserReturnFromLeaveTaskTransferNotice;
 
 class VacationsHistoryObserver
 {
@@ -28,14 +29,14 @@ class VacationsHistoryObserver
     {
         $vacation_user = User::findOrFail($vacationsHistory->vacation_user_id);
 
-        Notification::create([
-            'name' => 'Сообщаем, что с ' . $vacationsHistory->from_date .
-                ' по ' . $vacationsHistory->by_date .
-                ' вы будете заменять пользователя ' . $vacation_user->long_full_name .
-                ', так как он будет в отпуске',
-            'user_id' => $vacationsHistory->support_user_id,
-            'type' => 46,
-        ]);
+        UserLeaveSubstitutionNotice::send(
+            $vacationsHistory->support_user_id,
+            [
+                'name' => 'Сообщаем, что с ' . $vacationsHistory->from_date . ' по ' . $vacationsHistory->by_date .
+                          ' вы будете заменять пользователя ' . $vacation_user->long_full_name .
+                          ', так как он будет в отпуске',
+            ]
+        );
     }
 
     public function updatedFork(VacationsHistory $vacationsHistory)
@@ -51,24 +52,26 @@ class VacationsHistoryObserver
     {
         $vacation_user = User::findOrFail($vacationsHistory->vacation_user_id);
 
-        Notification::create([
-            'name' => 'Пользователь ' . $vacation_user->long_full_name .
-                ' ушел в отпуск. С новыми задачами можно ознакомиться здесь: на странице задач',
-            'user_id' => $vacationsHistory->support_user_id,
-            'type' => 47,
-        ]);
+        NewTasksFromUserOnLeaveNotice::send(
+            $vacationsHistory->support_user_id,
+            [
+                'name' => 'Пользователь ' . $vacation_user->long_full_name .
+                          ' ушел в отпуск. С новыми задачами можно ознакомиться здесь: на странице задач',
+            ]
+        );
     }
 
     public function notifyAboutVacationEnd(VacationsHistory $vacationsHistory)
     {
         $vacation_user = User::findOrFail($vacationsHistory->vacation_user_id);
 
-        Notification::create([
-            'name' => 'Пользователь ' . $vacation_user->long_full_name .
-                ' вышел из отпуска. Ему вернутся задачи и позиции в проектах',
-            'user_id' => $vacationsHistory->support_user_id,
-            'type' => 48,
-        ]);
+        SubstituteUserReturnFromLeaveTaskTransferNotice::send(
+            $vacationsHistory->support_user_id,
+            [
+                'name' => 'Пользователь ' . $vacation_user->long_full_name .
+                          ' вышел из отпуска. Ему вернутся задачи и позиции в проектах',
+            ]
+        );
     }
 }
 

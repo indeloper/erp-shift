@@ -2,28 +2,28 @@
 
 namespace App\Models;
 
+use App\Events\ProjectEvents;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
+use App\Models\WorkVolume\WorkVolume;
 use App\Traits\Logable;
 use App\Traits\Taskable;
-use App\Models\WorkVolume\WorkVolume;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-use App\Events\ProjectEvents;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    use SoftDeletes, Logable, Taskable;
+    use HasFactory;
+    use Logable, SoftDeletes, Taskable;
 
     protected $fillable = [
         'contractor_id', 'name', 'object_address',
         'description', 'user_id', 'status', 'entity',
-        'is_important', 'time_responsible_user_id'
+        'is_important', 'time_responsible_user_id',
     ];
-
 
     public $project_status = [
         1 => 'Запрос от клиента',
@@ -51,28 +51,27 @@ class Project extends Model
 
     public static $entities = [
         1 => 'ООО «СК ГОРОД»',
-        2 => 'ООО «ГОРОД»'
+        2 => 'ООО «ГОРОД»',
     ];
 
-
-    public static function boot() {
+    public static function boot()
+    {
 
         parent::boot();
 
-        static::created(function($project) {
+        static::created(function ($project) {
             event((new ProjectEvents)->projectCreated($project));
         });
 
-//        static::updated(function($item) { //we might need it in future
-//            Event::fire('item.updated', $item);
-//        });
+        //        static::updated(function($item) { //we might need it in future
+        //            Event::fire('item.updated', $item);
+        //        });
     }
 
     /**
      * Return projects that have contracts in status 5 or 6,
      * what equals to Contracts work start
      *
-     * @param Builder $query
      * @return Builder
      */
     public function scopeContractsStarted(Builder $query)
@@ -137,43 +136,43 @@ class Project extends Model
 
         $statuses = '';
         foreach ($wvs as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Расчёт объемов" . "</br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Расчёт объемов'.'</br>';
         }
 
         foreach ($wvs_complete as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Формирование КП" . "<br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Формирование КП'.'<br>';
         }
 
         foreach ($com_offers as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Формирование КП" . "<br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Формирование КП'.'<br>';
         }
 
         foreach ($com_offers_send as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Согласование КП с заказчиком" . "<br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Согласование КП с заказчиком'.'<br>';
         }
 
         foreach ($contracts ?? $com_offers_complete as $contract) {
-            $statuses .= ($contract->commercial_offers->first()->option != '' ? "<b>" . $contract->commercial_offers->first()->option : "<b>Стандарт") . "</b>: Формирование договоров" . "<br>";
+            $statuses .= ($contract->commercial_offers->first()->option != '' ? '<b>'.$contract->commercial_offers->first()->option : '<b>Стандарт').'</b>: Формирование договоров'.'<br>';
         }
 
-        if (!$contracts->count() && !$contracts_complete->count()) {
+        if (! $contracts->count() && ! $contracts_complete->count()) {
             foreach ($com_offers_complete as $option) {
-                $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Формирование договоров" . "<br>";
+                $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Формирование договоров'.'<br>';
             }
         }
 
         foreach ($this->wvs()->where('type', 0)->groupBy('option')->get() as $item) {
             if ($this->in_not_realized($item->option, 1)) {
-                $statuses .= ($item->option != '' ? "<b>" . $item->option : "<b>Стандарт") . "</b>: Не реализовн" . "<br>";
+                $statuses .= ($item->option != '' ? '<b>'.$item->option : '<b>Стандарт').'</b>: Не реализовн'.'<br>';
             }
         }
 
         foreach ($contracts_complete as $contract) {
-            $statuses .= ($contract->commercial_offers->first()->option != '' ? "<b>" . $contract->commercial_offers->first()->option : "<b>Стандарт") . "</b>: Договор подписан" . "<br>";
+            $statuses .= ($contract->commercial_offers->first()->option != '' ? '<b>'.$contract->commercial_offers->first()->option : '<b>Стандарт').'</b>: Договор подписан'.'<br>';
         }
 
-        if ($this->is_tongue && $statuses == '' && !$this->wvs->where('type', 0)->count()) {
-            $statuses .= "Запрос от клиента";
+        if ($this->is_tongue && $statuses == '' && ! $this->wvs->where('type', 0)->count()) {
+            $statuses .= 'Запрос от клиента';
         }
 
         return $statuses;
@@ -240,44 +239,44 @@ class Project extends Model
 
         $statuses = '';
         foreach ($wvs as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Расчёт объемов" . "<br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Расчёт объемов'.'<br>';
         }
 
         foreach ($wvs_complete as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Формирование КП" . "<br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Формирование КП'.'<br>';
         }
 
         foreach ($com_offers as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Формирование КП" . "<br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Формирование КП'.'<br>';
         }
 
         foreach ($com_offers_send as $option) {
-            $statuses .= ($option ? "<b>" . $option : "<b>Стандарт") . "</b>: Согласование КП с заказчиком" . "<br>";
+            $statuses .= ($option ? '<b>'.$option : '<b>Стандарт').'</b>: Согласование КП с заказчиком'.'<br>';
         }
 
         // dump($contracts, $com_offers_complete);
         foreach ($contracts as $contract) {
-                $statuses .= ($contract->commercial_offers->first()->option != '' ? "<b>" . $contract->commercial_offers->first()->option : "<b>Стандарт") . "</b>: Формирование договоров" . "<br>";
+            $statuses .= ($contract->commercial_offers->first()->option != '' ? '<b>'.$contract->commercial_offers->first()->option : '<b>Стандарт').'</b>: Формирование договоров'.'<br>';
         }
 
-        if (!$contracts->count() && !$contracts_complete->count()) {
+        if (! $contracts->count() && ! $contracts_complete->count()) {
             foreach ($com_offers_complete as $option) {
-                $statuses .= ($option ? "<b>" . $option . '</br>' : "<b>Стандарт") . "</b>: Формирование договоров" . "<br>";
+                $statuses .= ($option ? '<b>'.$option.'</br>' : '<b>Стандарт').'</b>: Формирование договоров'.'<br>';
             }
         }
 
         foreach ($this->wvs()->where('type', 1)->groupBy('option')->get() as $item) {
             if ($this->in_not_realized($item->option, 0)) {
-                $statuses .= ($item->option != '' ? "<b>" . $item->option : "<b>Стандарт") . "</b>: Не реализовн" . "<br>";
+                $statuses .= ($item->option != '' ? '<b>'.$item->option : '<b>Стандарт').'</b>: Не реализовн'.'<br>';
             }
         }
 
         foreach ($contracts_complete as $contract) {
-            $statuses .= ($contract->commercial_offers->first()->option != '' ? "<b>" . $contract->commercial_offers->first()->option : "<b>Стандарт") . "</b>: Договор подписан" . "<br>";
+            $statuses .= ($contract->commercial_offers->first()->option != '' ? '<b>'.$contract->commercial_offers->first()->option : '<b>Стандарт').'</b>: Договор подписан'.'<br>';
         }
 
-        if ($this->is_pile && $statuses == '' && !$this->wvs->where('type', 1)->count()) {
-            $statuses .= "Запрос от клиента";
+        if ($this->is_pile && $statuses == '' && ! $this->wvs->where('type', 1)->count()) {
+            $statuses .= 'Запрос от клиента';
         }
 
         return $statuses;
@@ -285,12 +284,13 @@ class Project extends Model
 
     public function getRpNamesAttribute()
     {
-        $RPs = $this->respUsers()->whereIn('role', [5,6])->get();
+        $RPs = $this->respUsers()->whereIn('role', [5, 6])->get();
         $users = User::find($RPs->pluck('user_id'));
         $rp_names = '';
         foreach ($users as $user) {
-            $rp_names .= $user->full_name . '; ';
+            $rp_names .= $user->full_name.'; ';
         }
+
         return $rp_names ?: 'Пока не назначен';
     }
 
@@ -324,28 +324,28 @@ class Project extends Model
 
     /**
      * Function generate project name with object name tag
-     * @return string
      */
     public function getNameWithObjectAttribute(): string
     {
         $objectName = $this->object ? $this->object->name_tag : '';
+
         return "{$this->name} - {$objectName}";
     }
 
     /**
      * @return Builder
      */
-    static function getAllProjects()
+    public static function getAllProjects()
     {
         return Project::select('projects.*', 'contractors.short_name as contractor_name', 'contractors.inn as contractor_inn', 'contractors.id as contractor_id', 'users.last_name', 'users.first_name', 'users.patronymic', 'project_objects.name as project_name', 'project_objects.address as project_address', 'project_objects.short_name as object_short_name', 'tasks.project_id', 'tasks.created_at as task_date')
             ->leftJoin('users', 'users.id', '=', 'projects.user_id')
             ->leftJoin('contractors', 'contractors.id', '=', 'projects.contractor_id')
             ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
-            ->leftJoin('tasks', function($query) {
-                $query->on('projects.id','=','tasks.project_id')
+            ->leftJoin('tasks', function ($query) {
+                $query->on('projects.id', '=', 'tasks.project_id')
                     ->whereRaw('tasks.id IN (select MAX(a2.id) from tasks as a2 join projects as u2 on u2.id = a2.project_id group by u2.id)');
             })->with('author')
-            ->orderByRaw("CASE WHEN projects.is_important = 1 THEN 1 ELSE 2 END, task_date DESC");
+            ->orderByRaw('CASE WHEN projects.is_important = 1 THEN 1 ELSE 2 END, task_date DESC');
     }
 
     /**
@@ -355,6 +355,7 @@ class Project extends Model
     public function importanceToggler()
     {
         $this->is_important == 0 ? $this->toggleImportance() : $this->disableImportance();
+
         return $this->save();
     }
 
@@ -376,6 +377,7 @@ class Project extends Model
 
     /**
      * Relation for time responsible user
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function timeResponsible()
@@ -388,36 +390,30 @@ class Project extends Model
         return $this->hasMany(WorkVolume::class, 'project_id', 'id');
     }
 
-
     public function author()
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
-
 
     public function wvs()
     {
         return $this->hasMany(WorkVolume::class, 'project_id', 'id');
     }
 
-
     public function com_offers()
     {
         return $this->hasMany(CommercialOffer::class, 'project_id', 'id');
     }
-
 
     public function respUsers()
     {
         return $this->hasMany(ProjectResponsibleUser::class, 'project_id', 'id');
     }
 
-
     public function object()
     {
         return $this->hasOne(ProjectObject::class, 'id', 'object_id');
     }
-
 
     public function last_task()
     {
@@ -434,44 +430,38 @@ class Project extends Model
             ->orderBy('created_at', 'desc');
     }
 
-
     public function all_tasks()
     {
         return $this->hasMany(Task::class, 'project_id', 'id');
     }
-
 
     public function contracts()
     {
         return $this->hasMany(Contract::class, 'project_id');
     }
 
-
     public function ready_contracts()
     {
-        return $this->contracts()->whereIn('status', [5,6]);
+        return $this->contracts()->whereIn('status', [5, 6]);
     }
-
 
     public function contractors()
     {
         return $this->hasMany(ProjectContractors::class, 'project_id', 'id');
     }
 
-
     public function contractor()
     {
         return $this->belongsTo(Contractor::class, 'contractor_id', 'id');
     }
 
-
     public function scopeMaterialFilter(Builder $q, $material_names)
     {
         foreach ($material_names as $name) {
             $q->orWhereHas('work_volumes.materials', function ($query) use ($name) {
-                $query->whereHasMorph('manual', ['App\Models\Manual\ManualMaterial'], function($mat) use ($name) {
-                        $mat->where('name', 'like', '%' . $name . '%');
-                        $mat->where('material_type', 'regular');
+                $query->whereHasMorph('manual', [\App\Models\Manual\ManualMaterial::class], function ($mat) use ($name) {
+                    $mat->where('name', 'like', '%'.$name.'%');
+                    $mat->where('material_type', 'regular');
                 });
             });
         }

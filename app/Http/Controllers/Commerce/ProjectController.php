@@ -2,55 +2,50 @@
 
 namespace App\Http\Controllers\Commerce;
 
-use App\Models\Building\ObjectResponsibleUser;
-use App\Traits\TimeCalculator;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ContractorRequests\ContractorContactRequest;
+use App\Notifications\Claim\SheetPilingCalculationTaskCreationNotice;
+use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\Object\ResponsibleSelectedForProjectDirectionProjectLeaderNotice;
+use App\Notifications\Task\StandardTaskCreationNotice;
+use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
 use App\Http\Requests\ProjectRequest\{
+    ProjectRequest,
     ProjectTimeResponsibleUserRequest,
     SelectResponsibleUserRequest,
     UserProjectAppointRequest,
-    UserProjectDetachRequest,
-    ProjectRequest};
-use App\Events\ContractApproved;
-use App\Events\NotificationCreated;
+    UserProjectDetachRequest};
+use App\Models\Building\ObjectResponsibleUser;
+use App\Models\Building\ObjectResponsibleUserRole;
+use App\Models\CommercialOffer\CommercialOffer;
+use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
+use App\Models\CommercialOffer\CommercialOfferRequest;
 use App\Models\Contract\Contract;
 use App\Models\Contract\ContractRequest;
-use App\Models\Contractors\{Contractor, ContractorContactPhone, ContractorContact};
-use App\Models\Notification;
-use App\Models\ProjectContractors;
-use App\Models\ProjectContractorsChangeHistory;
-use App\Models\WorkVolume\WorkVolumeMaterial;
-use App\Models\WorkVolume\WorkVolumeRequest;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-
-use App\Models\User;
+use App\Models\Contractors\{Contractor, ContractorContact, ContractorContactPhone};
+use App\Models\ExtraDocument;
 use App\Models\Group;
 use App\Models\Project;
-use App\Models\ExtraDocument;
 use App\Models\ProjectContact;
+use App\Models\ProjectContractors;
+use App\Models\ProjectContractorsChangeHistory;
 use App\Models\ProjectDocument;
+use App\Models\ProjectObject;
 use App\Models\ProjectResponsibleUser;
 use App\Models\Task;
 use App\Models\TaskFile;
 use App\Models\TaskRedirect;
-use App\Models\ProjectObject;
+use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
-use App\Models\CommercialOffer\CommercialOffer;
-use App\Models\CommercialOffer\CommercialOfferRequest;
-
-use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
-
-use App\Http\Requests\ContractorRequests\ContractorContactRequest;
-use App\Models\Building\ObjectResponsibleUserRole;
-use App\Models\Department;
-use Illuminate\Support\Facades\Session;
+use App\Models\WorkVolume\WorkVolumeMaterial;
+use App\Models\WorkVolume\WorkVolumeRequest;
+use App\Traits\TimeCalculator;
 use App\Traits\UserSearchByGroup;
-
-use \Carbon\Carbon;
-
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class ProjectController extends Controller
 {
@@ -735,24 +730,26 @@ class ProjectController extends Controller
             $respUser = User::find($request->user);
             $taskSolver = User::find($solved_task->responsible_user_id);
 
-            Notification::create(['name' => "По проекту {$project->name} ({$project->object->address}) по направлению " . ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв.".
-                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}", 'task_id' => $solved_task->id, 'user_id' => $request->user,
-                'contractor_id' => $project->contractor_id,
-                'project_id' => $project->id,
-                'object_id' => $project->object_id]);
+            /** Отправка уведомлений трём пользователям */
+            $users = [$request->user, 6, 7];
+            $name = "По проекту {$project->name} ({$project->object->address}) по направлению " .
+                ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв." .
+                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}";
+            $task_id = $solved_task->id;
+            $contractor_id = $project->contractor_id;
+            $project_id = $project->id;
+            $object_id = $project->object_id;
 
-            Notification::create(['name' => "По проекту {$project->name} ({$project->object->address}) по направлению " . ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв.".
-                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}", 'task_id' => $solved_task->id, 'user_id' => 7,
-                'contractor_id' => $project->contractor_id,
-                'project_id' => $project->id,
-                'object_id' => $project->object_id]);
-
-            Notification::create(['name' => "По проекту {$project->name} ({$project->object->address}) по направлению " . ($request->task24 ? " сваи " : "шпунт") . ", был выбран отв.".
-                " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}", 'task_id' => $solved_task->id, 'user_id' => 6,
-                'contractor_id' => $project->contractor_id,
-                'project_id' => $project->id,
-                'object_id' => $project->object_id]);
-//sorry
+            ResponsibleSelectedForProjectDirectionProjectLeaderNotice::send(
+                $users,
+                [
+                    'name' => $name,
+                    'task_id' => $task_id,
+                    'contractor_id' => $contractor_id,
+                    'project_id' => $project_id,
+                    'object_id' => $object_id
+                ]
+            );
         }
 
         if (!empty($resp_user->getChanges())) {
@@ -767,27 +764,30 @@ class ProjectController extends Controller
 
                 if ($updated_task->responsible_user_id != 6) {
                     // notify old user
-                    Notification::create([
-                        'name' => 'Задача «' . $updated_task->name . '» передана пользователю ' . $new_user->long_full_name,
-                        'task_id' => $updated_task->id,
-                        'user_id' => $updated_task->responsible_user_id,
-                        'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
-                        'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
-                        'object_id' => $updated_task->project_id ? $project->object_id : null,
-                        'type' => 6]);
+                    TaskTransferNotificationToNewResponsibleNotice::send(
+                        $updated_task->responsible_user_id,
+                        [
+                            'name' => 'Задача «' . $updated_task->name . '» передана пользователю ' . $new_user->long_full_name,
+                            'task_id' => $updated_task->id,
+                            'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
+                            'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
+                            'object_id' => $updated_task->project_id ? $project->object_id : null,
+                        ]
+                    );
 
                     // notify new user
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $updated_task->task_route();
-                    $notification->update([
-                        'name' => 'Новая задача «' . $updated_task->name . '»',
-                        'task_id' => $updated_task->id, 'user_id' => $resp_user->user_id,
-                        'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
-                        'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
-                        'object_id' => $updated_task->project_id ? $project->object_id : null,
-                        'type' => 52,
-                    ]);
+                    StandardTaskCreationNotice::send(
+                        $resp_user->user_id,
+                        [
+                            'name' => 'Новая задача «' . $updated_task->name . '»',
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $updated_task->task_route(),
+                            'task_id' => $updated_task->id,
+                            'contractor_id' => $updated_task->project_id ? $project->contractor_id : null,
+                            'project_id' => $updated_task->project_id ? $updated_task->project_id : null,
+                            'object_id' => $updated_task->project_id ? $project->object_id : null,
+                        ]
+                    );
                 }
 
                 // move task to new user
@@ -892,18 +892,18 @@ class ProjectController extends Controller
 
                         $task->save();
 
-                        $notification = new Notification();
-                        $notification->save();
-                        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                        $notification->update([
-                            'name' => 'Новая задача «' . $task->name . '»',
-                            'task_id' => $task->id,
-                            'user_id' => $task->responsible_user_id,
-                            'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                            'project_id' => $task->project_id ? $task->project_id : null,
-                            'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
-                            'type' => 28
-                        ]);
+                        OfferCreationSheetPilingTaskNotice::send(
+                            $task->responsible_user_id,
+                            [
+                                'name' => 'Новая задача «' . $task->name . '»',
+                                'additional_info' => ' Ссылка на задачу: ',
+                                'url' => $task->task_route(),
+                                'task_id' => $task->id,
+                                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
+                                'project_id' => $task->project_id ? $task->project_id : null,
+                                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                            ]
+                        );
 
                         $com_offer_request = new CommercialOfferRequest();
                         $com_offer_request->user_id = 0;
@@ -936,18 +936,18 @@ class ProjectController extends Controller
                         $tongueTask->save();
                     }
 
-                    $notification = new Notification();
-                    $notification->save();
-                    $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-                    $notification->update([
-                        'name' => 'Новая задача «' . $tongueTask->name . '»',
-                        'task_id' => $tongueTask->id,
-                        'user_id' => $tongueTask->responsible_user_id,
-                        'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
-                        'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
-                        'object_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->object_id : null,
-                        'type' => 21
-                    ]);
+                    SheetPilingCalculationTaskCreationNotice::send(
+                        $tongueTask->responsible_user_id,
+                        [
+                            'name' => 'Новая задача «' . $tongueTask->name . '»',
+                            'additional_info' => ' Ссылка на задачу: ',
+                            'url' => $task->task_route(),
+                            'task_id' => $tongueTask->id,
+                            'contractor_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->contractor_id : null,
+                            'project_id' => $tongueTask->project_id ? $tongueTask->project_id : null,
+                            'object_id' => $tongueTask->project_id ? Project::find($tongueTask->project_id)->object_id : null,
+                        ]
+                    );
                 }
             }
         }

@@ -6,20 +6,19 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\User;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class ManualMaterialTest extends TestCase
 {
     use WithFaker;
-
 
     /** @test */
     public function it_replaces_comma_with_dot_only_in_numbers()
     {
         $this->actingAs(User::find(19));
 
-        $attr = factory(ManualMaterialCategoryAttribute::class, 4)->create();
+        $attr = ManualMaterialCategoryAttribute::factory()->count(4)->create();
         $mat_name = $this->faker()->words(3, true);
         $request = [
             'name' => $mat_name,
@@ -44,11 +43,11 @@ class ManualMaterialTest extends TestCase
 
         $this->assertEquals(ManualMaterial::latest()->first()->name, $mat_name);
     }
-    
+
     /** @test */
     public function it_replaces_comme_even_when_stored_in_code()
     {
-        $param = factory(ManualMaterialParameter::class)->create(['value' => '123,4']);
+        $param = ManualMaterialParameter::factory()->create(['value' => '123,4']);
 
         $this->assertEquals(123.4, $param->value);
     }

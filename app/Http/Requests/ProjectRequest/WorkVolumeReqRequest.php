@@ -17,7 +17,7 @@ class WorkVolumeReqRequest extends FormRequest
         return true;
     }
 
-//    protected $redirectRoute = 'request_error';
+    //    protected $redirectRoute = 'request_error';
 
     protected function prepareForValidation()
     {
@@ -60,8 +60,8 @@ class WorkVolumeReqRequest extends FormRequest
             'pile_documents.*' => '',
             'option_tongue' => '',
             'option_pile' => '',
-            'duplicate_tongue' => ['nullable', 'boolean', 'not_in:' . true],
-            'duplicate_pile' => ['nullable', 'boolean', 'not_in:' . true],
+            'duplicate_tongue' => ['nullable', 'boolean', 'not_in:'.true],
+            'duplicate_pile' => ['nullable', 'boolean', 'not_in:'.true],
             // 'work_volume_pile_id',
             // 'work_volume_tongue_id'
         ];

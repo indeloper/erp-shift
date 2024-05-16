@@ -2,24 +2,19 @@
 
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
-use App\Events\NotificationCreated;
-
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\CreateWriteOffRequest;
-
 use App\Http\Requests\Building\MaterialAccounting\SendWriteOffRequest;
-use App\Models\Group;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationFile;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
-use App\Models\MatAcc\MaterialAccountingOperationFile;
-use App\Models\MatAcc\MaterialAccountingMaterialFile;
-use App\Models\Notification;
 use App\Models\ProjectObject;
-use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
-
+use App\Notifications\Operation\OperationApprovalNotice;
+use App\Notifications\Operation\OperationRejectionNotice;
+use App\Notifications\Operation\WriteOffOperationRejectionNotice;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -399,28 +394,31 @@ class MatAccWriteOffController extends Controller
             'is_close' => $request->status_result === 'accept'? 0 : 1,
         ]);
 
+        DB::commit();
+
         if ($request->status_result == 'decline' && $task->status == 21) {
-            //notify operation creator
-            Notification::create([
-                'name' => 'Ваша операция списания была отклонена' .
-                    ($request->description ? ' с комментарием: ' . $request->description : ''),
-                'task_id' => $task->id,
-                'user_id' => $operation->author->id,
-                'type' => 13,
-            ]);
+            WriteOffOperationRejectionNotice::send(
+                $operation->author->id,
+                [
+                    'name' => 'Ваша операция списания была отклонена' . ($request->description ? ' с комментарием: ' . $request->description : ''),
+                    'task_id' => $task->id,
+                ]
+            );
         }
 
         if ($task->status == 38) {
-             Notification::create([
-                'name' => 'Ваша операция была ' . $task->results[$task->status][$task->result] .
-                    ($request->description ? ' с комментарием: ' . $request->description : ''),
-                'task_id' => $task->id,
-                'user_id' => $operation->author->id,
-                'type' => $task->result == 1 ? 92 : 93,
-            ]);
-        }
+            $notificationClass = $task->result == 1 ?
+                OperationApprovalNotice::class :
+                OperationRejectionNotice::class;
 
-        DB::commit();
+            $notificationClass::send(
+                $operation->author->id,
+                [
+                    'name' => 'Ваша операция была ' . $task->results[$task->status][$task->result] . ($request->description ? ' с комментарием: ' . $request->description : ''),
+                    'task_id' => $task->id,
+                ]
+            );
+        }
 
         return redirect()->route('tasks::index');
     }

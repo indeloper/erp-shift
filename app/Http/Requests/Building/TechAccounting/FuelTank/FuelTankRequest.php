@@ -26,7 +26,7 @@ class FuelTankRequest extends FormRequest
         return [
             'tank_number' => 'required|string|max:10',
             'object_id' => 'required|exists:project_objects,id',
-            'explotation_start' => 'required|date'
+            'explotation_start' => 'required|date',
         ];
     }
 }

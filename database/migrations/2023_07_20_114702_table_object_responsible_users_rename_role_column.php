@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class TableObjectResponsibleUsersRenameRoleColumn extends Migration
 {
@@ -15,17 +15,17 @@ class TableObjectResponsibleUsersRenameRoleColumn extends Migration
     public function up()
     {
         Schema::table('object_responsible_users', function (Blueprint $table) {
-            $table->renameColumn('role', 'object_responsible_user_role_id');           
+            $table->renameColumn('role', 'object_responsible_user_role_id');
         });
 
         Schema::table('object_responsible_users', function (Blueprint $table) {
-            $table->bigInteger('object_responsible_user_role_id')->unsigned()->change()->comment("ID роли ответственного");
+            $table->bigInteger('object_responsible_user_role_id')->unsigned()->change()->comment('ID роли ответственного');
             $table->foreign('object_responsible_user_role_id', 'object_responsible_user_role_foreign')->references('id')->on('object_responsible_user_roles')->change();
-           
+
         });
 
         DB::statement("ALTER TABLE object_responsible_users COMMENT 'Ответственные на объектах'");
-        
+
     }
 
     /**
@@ -47,6 +47,4 @@ class TableObjectResponsibleUsersRenameRoleColumn extends Migration
         });
 
     }
-
-   
 }

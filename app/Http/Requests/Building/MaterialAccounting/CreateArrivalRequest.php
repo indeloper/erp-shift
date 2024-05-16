@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Building\MaterialAccounting;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-
-use \Carbon\Carbon;
 
 class CreateArrivalRequest extends FormRequest
 {
@@ -24,6 +23,7 @@ class CreateArrivalRequest extends FormRequest
                 break;
             }
         }
+
         return $return;
     }
 
@@ -49,8 +49,8 @@ class CreateArrivalRequest extends FormRequest
             'object_id' => 'required|exists:project_objects,id',
             'contract_id' => 'nullable', // required_unless:object_id,76,192
 
-            'planned_date_from' => 'required|after_or_equal:' . $afterThisDate,
-            'planned_date_to' => 'required|' . ($this->without_confirm ? '' : 'after_or_equal:planned_date_from'),
+            'planned_date_from' => 'required|after_or_equal:'.$afterThisDate,
+            'planned_date_to' => 'required|'.($this->without_confirm ? '' : 'after_or_equal:planned_date_from'),
 
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:manual_materials,id',

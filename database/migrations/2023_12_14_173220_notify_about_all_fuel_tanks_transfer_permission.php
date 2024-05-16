@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -24,23 +22,25 @@ class NotifyAboutAllFuelTanksTransferPermission extends Migration
      */
     public function down()
     {
-        foreach(self::NEW_ENTRIES as $newEntry) {
+        foreach (self::NEW_ENTRIES as $newEntry) {
             DB::table('permissions')->where('codename', $newEntry['codename'])->delete();
         }
     }
 
-    public function getNewEntrises() { 
+    public function getNewEntrises()
+    {
         $newEntries = self::NEW_ENTRIES;
-        foreach($newEntries as $key=>$newEntry) {
+        foreach ($newEntries as $key => $newEntry) {
             $newEntries[$key]['created_at'] = now();
             $newEntries[$key]['updated_at'] = now();
         }
+
         return $newEntries;
     }
 
     const NEW_ENTRIES = [
         [
-            'name' => 'Топливные емкости: получение уведомлений обо всех перемещениях топливных емкостей', 
+            'name' => 'Топливные емкости: получение уведомлений обо всех перемещениях топливных емкостей',
             'codename' => 'notify_about_all_fuel_tanks_transfer',
             'category' => 17,
         ],

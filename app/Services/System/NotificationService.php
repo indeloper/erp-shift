@@ -4,13 +4,12 @@
 namespace App\Services\System;
 
 
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\Notifications\TgNotificationUrl;
 use App\Telegram\TelegramApi;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Telegram\Bot\Laravel\Facades\Telegram;
 
 class NotificationService
 {

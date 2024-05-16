@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Documents;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
-use PDF;
-use Carbon\Carbon;
-
 use App\Models\Contractors\Contractor;
 use App\Models\Contractors\ContractorContact;
 use App\Models\Project;
 use App\Models\ProjectObject;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use PDF;
 
 class DocumentTemplateController extends Controller
 {
@@ -20,31 +18,29 @@ class DocumentTemplateController extends Controller
         return view('document_templates.index');
     }
 
-
     public function create_offer_template()
     {
         return view('document_templates.form_commercial_doc');
     }
 
-
     public function create_offer_template_store(Request $request)
     {
         $new_request = $request->all();
         // dd($request);
-        if($request->service_count) {
-            foreach($request->service_count as $key => $value) {
+        if ($request->service_count) {
+            foreach ($request->service_count as $key => $value) {
                 $new_request['material_count'][$key] = [$value];
                 $new_request['material_name'][$key] = [''];
             }
         }
-        if($request->service_price) {
-            foreach($request->service_price as $key => $value) {
+        if ($request->service_price) {
+            foreach ($request->service_price as $key => $value) {
                 $new_request['material_price'][$key] = [$value];
             }
         }
 
-        if($request->service_nds) {
-            foreach($request->service_nds as $key => $value) {
+        if ($request->service_nds) {
+            foreach ($request->service_nds as $key => $value) {
                 $new_request['material_nds'][$key] = [$value];
             }
         }

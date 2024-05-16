@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CreateObjectResponsibleUserRolesTable extends Migration
 {
@@ -40,8 +40,7 @@ class CreateObjectResponsibleUserRolesTable extends Migration
         DB::table('object_responsible_user_roles')->insert([
             ['name' => 'Ответственный РП', 'slug' => 'TONGUE_PROJECT_MANAGER'],
             ['name' => 'Ответственный ПТО', 'slug' => 'TONGUE_PTO_ENGINEER'],
-            ['name' => 'Ответственный прораб', 'slug' => 'TONGUE_FOREMAN'],    
+            ['name' => 'Ответственный прораб', 'slug' => 'TONGUE_FOREMAN'],
         ]);
     }
-
 }
