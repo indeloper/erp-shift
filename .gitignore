@@ -32,5 +32,3 @@ package-lock.json
 /public/Nginx_1.21_vhost.conf.bak
 hs_err_pid*.log
 
-docker-compose.yml
-/docker
