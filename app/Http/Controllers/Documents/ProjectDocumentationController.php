@@ -9,11 +9,13 @@ use App\Models\ExtraDocument;
 use App\Models\FileEntry;
 use App\Models\Project;
 use App\Models\ProjectDocument;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ProjectDocumentationController extends Controller
 {
@@ -45,12 +47,12 @@ class ProjectDocumentationController extends Controller
         ]);
     }
 
-    public function create($id)
+    public function create($id): View
     {
         return view('project_documents.create');
     }
 
-    public function store(ProjectDocumentCreate $request, $id)
+    public function store(ProjectDocumentCreate $request, $id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -91,7 +93,7 @@ class ProjectDocumentationController extends Controller
         return redirect()->back()->with('project_document', 'Новый документ добавлен');
     }
 
-    public function update(ProjectDocumentUpdate $request)
+    public function update(ProjectDocumentUpdate $request): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -134,7 +136,7 @@ class ProjectDocumentationController extends Controller
         return redirect()->back()->with('project_document', 'Документ обновлен');
     }
 
-    public function card(Request $request, $id)
+    public function card(Request $request, $id): View
     {
         $project_docs = ProjectDocument::where('project_id', $id)
             ->orderBy('id', 'desc')
@@ -159,7 +161,7 @@ class ProjectDocumentationController extends Controller
         ]);
     }
 
-    public function edit()
+    public function edit(): View
     {
         return view('project_documents.edit');
     }

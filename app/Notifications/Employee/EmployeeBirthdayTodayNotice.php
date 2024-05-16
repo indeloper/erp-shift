@@ -13,7 +13,7 @@ class EmployeeBirthdayTodayNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о дне рождения сотрудника в день рождения';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

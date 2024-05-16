@@ -39,7 +39,7 @@ class DefectExpireCommandTest extends TestCase
     }
 
     /** @test */
-    public function if_we_run_command_some_actions_should_happens()
+    public function if_we_run_command_some_actions_should_happens(): void
     {
         // When we call notify:send command
         $this->artisan('defects:check');

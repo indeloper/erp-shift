@@ -9,12 +9,14 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualNodeCategories;
 use App\Models\Manual\ManualNodeMaterials;
 use App\Models\Manual\ManualNodes;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ManualNodesController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $node_categories = ManualNodeCategories::query();
 
@@ -62,7 +64,7 @@ class ManualNodesController extends Controller
         return back();
     }
 
-    public function category_delete(Request $request)
+    public function category_delete(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -79,7 +81,7 @@ class ManualNodesController extends Controller
         return response()->json(true);
     }
 
-    public function view_category(Request $request, $id)
+    public function view_category(Request $request, $id): View
     {
         $node_category = ManualNodeCategories::findOrFail($id);
 
@@ -225,7 +227,7 @@ class ManualNodesController extends Controller
         return back();
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         DB::beginTransaction();
 

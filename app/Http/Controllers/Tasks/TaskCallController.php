@@ -13,15 +13,17 @@ use App\Models\ProjectContact;
 use App\Models\Task;
 use App\Notifications\IncomingCallProcessingNotice;
 use App\Traits\TimeCalculator;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class TaskCallController extends Controller
 {
     use TimeCalculator;
 
-    public function new_call(Request $request, $id)
+    public function new_call(Request $request, $id): View
     {
         $call = Task::findOrFail($id);
 
@@ -62,7 +64,7 @@ class TaskCallController extends Controller
         ]);
     }
 
-    public function close_call(TaskCallRequest $request, $id)
+    public function close_call(TaskCallRequest $request, $id): RedirectResponse
     {
         DB::beginTransaction();
 

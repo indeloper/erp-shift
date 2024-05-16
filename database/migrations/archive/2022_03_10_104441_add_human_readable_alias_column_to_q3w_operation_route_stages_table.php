@@ -9,10 +9,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('q3w_operation_route_stages', function (Blueprint $table) {
             $table->string('human_readable_name')->nullable()->comment('Человекочитаемый псевдоним имени маршрута');
@@ -127,10 +125,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('q3w_operation_route_stages', function (Blueprint $table) {
             $table->dropColumn('human_readable_name');

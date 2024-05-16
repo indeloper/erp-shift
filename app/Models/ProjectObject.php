@@ -12,6 +12,8 @@ use App\Traits\Logable;
 use App\Traits\SmartSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -30,10 +32,8 @@ class ProjectObject extends Model
 
     /**
      * Getter for full object location
-     *
-     * @return string
      */
-    public function getLocationAttribute()
+    public function getLocationAttribute(): string
     {
         return $this->name.', '.$this->address;
     }
@@ -42,20 +42,18 @@ class ProjectObject extends Model
      * Getter for object name tag
      * Will return short name or location attribute
      * if short name not setted
-     *
-     * @return string
      */
-    public function getNameTagAttribute()
+    public function getNameTagAttribute(): string
     {
         return $this->short_name ?? $this->location;
     }
 
-    public function resp_users()
+    public function resp_users(): HasMany
     {
         return $this->hasMany(ObjectResponsibleUser::class, 'object_id', 'id');
     }
 
-    public function material_accounting_type()
+    public function material_accounting_type(): HasOne
     {
         return $this->hasOne(q3wProjectObjectMaterialAccountingType::class, 'id', 'material_accounting_type');
     }
@@ -75,17 +73,17 @@ class ProjectObject extends Model
         return $this->fuel_tanks->pluck('operations')->flatten()->sortByDesc('id')->take(10);
     }
 
-    public function fuel_tanks()
+    public function fuel_tanks(): HasMany
     {
         return $this->hasMany(FuelTank::class, 'object_id');
     }
 
-    public function projects()
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'object_id');
     }
 
-    public function documents()
+    public function documents(): HasMany
     {
         return $this->hasMany(ProjectObjectDocument::class, 'project_object_id');
     }

@@ -9,7 +9,7 @@ return new class extends Migration
 
     const PERMISSION_NAME = 'Просмотр всех заявок на технику';
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -28,10 +28,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 

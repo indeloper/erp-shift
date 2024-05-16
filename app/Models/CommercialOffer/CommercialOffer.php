@@ -25,8 +25,13 @@ use App\Services\Commerce\SplitService;
 use App\Traits\Commentable;
 use App\Traits\Reviewable;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -79,11 +84,8 @@ class CommercialOffer extends Model
     /**
      * Scope a query commercial offers
      * at documents block.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForDocuments($query)
+    public function scopeForDocuments(Builder $query): Builder
     {
         return $query->with('project')
             ->leftjoin('users', 'users.id', '=', 'commercial_offers.user_id')
@@ -131,9 +133,8 @@ class CommercialOffer extends Model
      *
      * @param  int|string|null  $type  Type of the category review you want to get (null for both, 1 for material, 2 for works)
      * @param  int|null  $reviewable_id  Index of material or work
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function reviews($type = null, $reviewable_id = null)
+    public function reviews($type = null, ?int $reviewable_id = null): HasMany
     {
         if (is_null($type) and is_null($reviewable_id)) {
             return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->whereIn('reviewable_type', ['MaterialWorkRelation', \App\Models\Manual\ManualWork::class]);
@@ -250,7 +251,7 @@ class CommercialOffer extends Model
      *                    be sure to merge them with your local events_cache <- but
      *                    now with new notification backend we don't need to do this
      */
-    public function to_negotiation()
+    public function to_negotiation(): Collection
     {
         $this->status = 2;
         $project = Project::findOrFail($this->project_id);
@@ -551,11 +552,8 @@ class CommercialOffer extends Model
      * makes a replica of Com_offer
      * also copy all necessary relations
      * and even work_volume
-     *
-     *
-     * @return CommercialOffer
      */
-    public function createCopy($project_id, $option = null)
+    public function createCopy($project_id, $option = null): CommercialOffer
     {
         DB::beginTransaction();
 
@@ -830,22 +828,20 @@ class CommercialOffer extends Model
     }
 
     //relations
-    public function gantts()
+    public function gantts(): HasMany
     {
         return $this->hasMany(ComOfferGantt::class, 'com_offer_id', 'id');
     }
 
-    public function contracts()
+    public function contracts(): BelongsToMany
     {
         return $this->belongsToMany(Contract::class, 'contract_commercial_offer_relations', 'commercial_offer_id', 'contract_id');
     }
 
     /**
      * Relation to father project
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function project()
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
@@ -862,7 +858,7 @@ class CommercialOffer extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany | CommercialOfferMaterialSplit
      */
-    public function mat_splits()
+    public function mat_splits(): HasMany
     {
         return $this->hasMany(CommercialOfferMaterialSplit::class, 'com_offer_id', 'id');
     }
@@ -872,12 +868,12 @@ class CommercialOffer extends Model
         return $this->all_tasks();
     }
 
-    public function all_tasks()
+    public function all_tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'target_id', 'id')->whereIn('status', Task::CO_STATUS);
     }
 
-    public function unsolved_tasks()
+    public function unsolved_tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'target_id', 'id')
             ->whereIn('status', Task::CO_STATUS)
@@ -886,7 +882,7 @@ class CommercialOffer extends Model
             });
     }
 
-    public function get_requests()
+    public function get_requests(): HasMany
     {
         return $this->hasMany(CommercialOfferRequest::class, 'commercial_offer_id', 'id');
     }
@@ -909,7 +905,7 @@ class CommercialOffer extends Model
         }
     }
 
-    public function commercial_offer_works()
+    public function commercial_offer_works(): HasMany
     {
         return $this->hasMany(CommercialOfferWork::class);
     }
@@ -924,34 +920,34 @@ class CommercialOffer extends Model
         return $this->work_volume->worksWithoutManualInfo();
     }
 
-    public function notes()
+    public function notes(): HasMany
     {
         return $this->hasMany(CommercialOfferNote::class, 'commercial_offer_id', 'id')->where('note', '!=', '');
     }
 
-    public function requirements()
+    public function requirements(): HasMany
     {
         return $this->hasMany(CommercialOfferRequirement::class, 'commercial_offer_id', 'id')->where('requirement', '!=', '');
     }
 
-    public function work_volume()
+    public function work_volume(): BelongsTo
     {
         return $this->belongsTo(WorkVolume::class, 'work_volume_id', 'id');
     }
 
-    public function advancements()
+    public function advancements(): HasMany
     {
         return $this->hasMany(CommercialOfferAdvancement::class, 'commercial_offer_id', 'id')->where('description', '!=', '');
     }
 
-    public function signer()
+    public function signer(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'signer_user_id')
             ->leftJoin('groups', 'groups.id', '=', 'users.group_id')
             ->select('users.*', 'groups.name as group_name');
     }
 
-    public function siblings()
+    public function siblings(): HasMany
     {
         return $this->hasMany(CommercialOffer::class, 'project_id', 'project_id')->where('is_tongue', $this->is_tongue);
     }

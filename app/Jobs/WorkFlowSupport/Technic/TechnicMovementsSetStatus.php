@@ -34,10 +34,8 @@ class TechnicMovementsSetStatus implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $technicMovement = TechnicMovement::find($this->technicMovementId);
         $movementStartDatetimeLocal = Carbon::parse($this->movementStartDatetime)->setTimezone('Europe/Moscow');

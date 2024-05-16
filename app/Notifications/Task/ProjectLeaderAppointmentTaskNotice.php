@@ -13,7 +13,7 @@ class ProjectLeaderAppointmentTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о создании задачи Назначение ответственного руководителя проектов';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

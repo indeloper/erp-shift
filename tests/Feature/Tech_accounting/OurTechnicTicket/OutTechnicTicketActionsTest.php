@@ -31,7 +31,7 @@ class OutTechnicTicketActionsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_close_ticket()
+    public function it_can_close_ticket(): void
     {
         $fakeComment = $this->faker->text(100);
 
@@ -44,7 +44,7 @@ class OutTechnicTicketActionsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_request_ticket_extension()
+    public function it_can_request_ticket_extension(): void
     {
         $fakeComment = $this->faker->text(100);
 
@@ -58,7 +58,7 @@ class OutTechnicTicketActionsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_agree_ticket_extension()
+    public function it_agree_ticket_extension(): void
     {
         $fakeComment = $this->faker->text(100);
         $new_date = Carbon::now()->addDays(6);
@@ -94,7 +94,7 @@ class OutTechnicTicketActionsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_disagree_ticket_extension()
+    public function it_disagree_ticket_extension(): void
     {
         $fakeComment = $this->faker->text(100);
         $new_date = Carbon::now()->addDays(4);

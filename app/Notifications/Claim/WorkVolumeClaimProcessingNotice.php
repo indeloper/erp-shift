@@ -14,7 +14,7 @@ class WorkVolumeClaimProcessingNotice extends BaseNotification
     const DESCRIPTION = 'Уведомление об обработке заявки на ОР';
 
     /** ОР - Объём работ */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

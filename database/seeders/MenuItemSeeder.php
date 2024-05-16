@@ -9,10 +9,8 @@ class MenuItemSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $tasks = MenuItem::factory()->create([
             'title' => 'Задачи',

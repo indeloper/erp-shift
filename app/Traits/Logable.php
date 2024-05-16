@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\ActionLog;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Logable
 {
@@ -13,7 +14,7 @@ trait Logable
      * 2. new values - values, given to model
      * 3. old values - values, that model had before
      */
-    public function logs()
+    public function logs(): MorphMany
     {
         return $this->morphMany(ActionLog::class, 'logable');
     }

@@ -20,7 +20,7 @@ class BirthdayNotifierCommandTest extends TestCase
     }
 
     /** @test */
-    public function when_we_call_command_some_notifications_should_generate_today_birthday()
+    public function when_we_call_command_some_notifications_should_generate_today_birthday(): void
     {
         // Given three users with birthdays
         $user1 = User::factory()->create(['birthday' => now()->subYear()->format('d.m.Y')]);
@@ -39,7 +39,7 @@ class BirthdayNotifierCommandTest extends TestCase
     }
 
     /** @test */
-    public function when_we_call_command_some_notifications_should_generate_next_week_birthday()
+    public function when_we_call_command_some_notifications_should_generate_next_week_birthday(): void
     {
         // Given three users with birthdays
         $user1 = User::factory()->create(['birthday' => now()->subYear()->addWeek()->format('d.m.Y')]);
@@ -58,7 +58,7 @@ class BirthdayNotifierCommandTest extends TestCase
     }
 
     /** @test */
-    public function when_we_call_command_some_notifications_should_generate_mixed()
+    public function when_we_call_command_some_notifications_should_generate_mixed(): void
     {
         // Given three users with birthdays
         $user1 = User::factory()->create(['birthday' => now()->subYear()->format('d.m.Y')]);

@@ -13,7 +13,7 @@ class EmployeeTerminationNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об уволенных сотрудниках';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

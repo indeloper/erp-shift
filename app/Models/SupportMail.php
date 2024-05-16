@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Request;
 
 class SupportMail extends Model
@@ -28,13 +30,13 @@ class SupportMail extends Model
     ];
 
     // this relation return all ticket files
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(SupportMailFile::class, 'support_mail_id', 'id');
     }
 
     // this relation return ticket sender
-    public function sender()
+    public function sender(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
@@ -46,10 +48,8 @@ class SupportMail extends Model
 
     /**
      * Basic scope
-     *
-     * @return Builder
      */
-    public function scopeBasic(Builder $query, Request $request)
+    public function scopeBasic(Builder $query, Request $request): Builder
     {
         $query->orderByRaw("(CASE WHEN status IN ('new', 'in_work', 'matching', 'accept', 'development', 'check') THEN id END) DESC")
             ->orderByRaw("CASE WHEN status = 'decline' THEN 1 ELSE 2 END ASC")

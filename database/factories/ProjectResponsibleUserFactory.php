@@ -10,10 +10,8 @@ class ProjectResponsibleUserFactory extends Factory
 {
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $passedAttributes = func_get_arg(1);
 

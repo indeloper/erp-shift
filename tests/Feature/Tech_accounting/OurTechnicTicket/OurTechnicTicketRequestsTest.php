@@ -28,7 +28,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function rp_can_accept_ticket_and_task_will_be_closed_and_new_task_will_be_created()
+    public function rp_can_accept_ticket_and_task_will_be_closed_and_new_task_will_be_created(): void
     {
         $this->actingAs(User::first());
         $request = $this->validFields(['resp_rp_user_id' => $this->authed_user->id]);
@@ -49,7 +49,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function when_rp_create_usage_ticket_it_goes_to_using_directly()
+    public function when_rp_create_usage_ticket_it_goes_to_using_directly(): void
     {
         $request = $this->validFields([
             'sending_from_date' => '',
@@ -65,7 +65,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function user_can_decline_ticket_and_task_will_be_closed_and_comment_will_be_created()
+    public function user_can_decline_ticket_and_task_will_be_closed_and_comment_will_be_created(): void
     {
         $this->actingAs(User::first()); //creating ticket as ivan
         $request = $this->validFields(['resp_rp_user_id' => $this->authed_user->id]);
@@ -88,7 +88,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_notification_on_ticket_store()
+    public function it_creates_notification_on_ticket_store(): void
     {
         $this->actingAs(User::find(1)); //rps skips this step
         $technic = OurTechnic::factory()->create();
@@ -105,7 +105,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_attach_vehicles_on_ticket_store()
+    public function it_attach_vehicles_on_ticket_store(): void
     {
         $this->actingAs(User::find(1)); //rps skips this step
         $vehicles = OurVehicles::factory()->create();
@@ -118,7 +118,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_gets_all_additional_information_with_show()
+    public function it_gets_all_additional_information_with_show(): void
     {
         $tickets = $this->seedTicketsWithUsers(3);
         $second_ticket = $tickets[1];
@@ -133,7 +133,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_task_for_logist_when_ticket_was_accepted()
+    public function it_creates_task_for_logist_when_ticket_was_accepted(): void
     {
         $this->actingAs(User::first());
 
@@ -161,7 +161,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function logist_can_accept_ticket()
+    public function logist_can_accept_ticket(): void
     {
         $this->actingAs($this->logist);
         $this->withoutExceptionHandling();
@@ -186,7 +186,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function logist_can_hold_ticket()
+    public function logist_can_hold_ticket(): void
     {
         $this->actingAs($this->logist);
         $this->withoutExceptionHandling();
@@ -203,7 +203,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function logist_can_reject_ticket()
+    public function logist_can_reject_ticket(): void
     {
         $this->actingAs($this->logist);
         $this->withoutExceptionHandling();
@@ -220,7 +220,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function user_can_confirm_sending_and_close_task_but_still_wait_for_receiving()
+    public function user_can_confirm_sending_and_close_task_but_still_wait_for_receiving(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
         $ticket->tasks()->create(Task::factory()->raw(['status' => 31]));
@@ -243,7 +243,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function when_user_confirm_sending_notification_is_sent()
+    public function when_user_confirm_sending_notification_is_sent(): void
     {
         $this->withoutExceptionHandling();
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
@@ -263,7 +263,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function user_can_confirm_sending_and_close_task_but_still_wait_for_receiving_even_it_is_one_person()
+    public function user_can_confirm_sending_and_close_task_but_still_wait_for_receiving_even_it_is_one_person(): void
     {
         $moving_resp = $this->rps_and_prorabs->random()->id;
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6], [
@@ -289,7 +289,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function user_can_confirm_recieving_and_close_task_but_still_wait_for_sending()
+    public function user_can_confirm_recieving_and_close_task_but_still_wait_for_sending(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
         $ticket->tasks()->create(Task::factory()->raw(['status' => 31]));
@@ -311,7 +311,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function moving_complete_only_when_both_users_confirm()
+    public function moving_complete_only_when_both_users_confirm(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6], [
             'resp_rp_user_id' => $this->rps->first()->id,
@@ -341,7 +341,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function moving_complete_only_when_both_users_confirm_and_technic_will_change_location()
+    public function moving_complete_only_when_both_users_confirm_and_technic_will_change_location(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6], [
             'resp_rp_user_id' => $this->rps->first()->id,
@@ -375,7 +375,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function user_can_confirm_sending_and_comment_will_be_created()
+    public function user_can_confirm_sending_and_comment_will_be_created(): void
     {
         $this->withoutExceptionHandling();
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6])->first();
@@ -402,7 +402,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_be_returned_to_logist()
+    public function it_can_be_returned_to_logist(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 6], [
             'resp_rp_user_id' => $this->rps->first()->id,
@@ -430,7 +430,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function rp_can_accept_ticket_and_choose_process_resp_user()
+    public function rp_can_accept_ticket_and_choose_process_resp_user(): void
     {
         $this->actingAs(User::first());
         $request = $this->validFields(['resp_rp_user_id' => $this->authed_user->id, 'process_resp_user_id' => '']);
@@ -448,7 +448,7 @@ class OurTechnicTicketRequestsTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_task_for_resp_if_today_is_first_day_of_usage()
+    public function it_creates_task_for_resp_if_today_is_first_day_of_usage(): void
     {
         $usage_user = $this->rps->first();
         $this->actingAs($usage_user);

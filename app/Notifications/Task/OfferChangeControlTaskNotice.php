@@ -13,7 +13,7 @@ class OfferChangeControlTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о создании задачи Контроль изменений коммерческого предложения';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

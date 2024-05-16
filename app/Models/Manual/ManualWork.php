@@ -5,6 +5,10 @@ namespace App\Models\Manual;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualWork extends Model
@@ -36,7 +40,7 @@ class ManualWork extends Model
         1 => true,   // copy
     ];
 
-    public function material_relations()
+    public function material_relations(): HasMany
     {
         return $this->hasMany(ManualRelationMaterialWork::class, 'manual_work_id', 'id')
             ->leftJoin('manual_materials', 'manual_materials.id', '=', 'manual_relation_material_works.manual_material_id')
@@ -44,32 +48,32 @@ class ManualWork extends Model
             ->withTrashed();
     }
 
-    public function materialRelationsClear()
+    public function materialRelationsClear(): HasMany
     {
         return $this->hasMany(ManualRelationMaterialWork::class, 'manual_work_id', 'id')->withTrashed();
     }
 
-    public function related_categories()
+    public function related_categories(): BelongsToMany
     {
         return $this->belongsToMany(ManualMaterialCategory::class, 'manual_material_category_relation_to_works', 'work_id', 'manual_material_category_id');
     }
 
-    public function related_materials()
+    public function related_materials(): BelongsToMany
     {
         return $this->belongsToMany(ManualMaterial::class, 'manual_relation_material_works', 'manual_work_id', 'manual_material_id');
     }
 
-    public function childs()
+    public function childs(): HasMany
     {
         return $this->hasMany(ManualCopiedWorks::class, 'parent_work_id', 'id');
     }
 
-    public function parent()
+    public function parent(): HasOne
     {
         return $this->hasOne(ManualCopiedWorks::class, 'child_work_id', 'id');
     }
 
-    public function normal_parent()
+    public function normal_parent(): HasOneThrough
     {
         return $this->hasOneThrough(ManualWork::class, ManualCopiedWorks::class, 'child_work_id', 'id', 'id', 'parent_work_id');
     }

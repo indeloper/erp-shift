@@ -12,6 +12,10 @@ use App\Traits\NotificationGenerator;
 use App\Traits\SmartSearchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
@@ -187,10 +191,8 @@ class Task extends Model
 
     /**
      * Getter for created_at formatting
-     *
-     * @return string
      */
-    public function getCreatedAtFormattedAttribute($date)
+    public function getCreatedAtFormattedAttribute($date): string
     {
         return Carbon::parse($date)->format(self::ADDITIONAL_DATE_FORMAT);
     }
@@ -282,42 +284,42 @@ class Task extends Model
         }
     }
 
-    public function taskable()
+    public function taskable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function responsible_user()
+    public function responsible_user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id', 'id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function redirects()
+    public function redirects(): HasMany
     {
         return $this->hasMany(TaskRedirect::class, 'task_id', 'id');
     }
 
-    public function task_files()
+    public function task_files(): HasMany
     {
         return $this->hasMany(TaskFile::class, 'task_id', 'id');
     }
 
-    public function project()
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class, 'contractor_id', 'id');
     }
@@ -456,7 +458,7 @@ class Task extends Model
         );
     }
 
-    public function prev_task()
+    public function prev_task(): HasOne
     {
         return $this->hasOne(Task::class, 'id', 'prev_task_id')
             ->with('responsible_user', 'author', 'redirects', 'task_files')
@@ -471,12 +473,12 @@ class Task extends Model
             ->orderBy('created_at', 'desc');
     }
 
-    public function operation()
+    public function operation(): HasOne
     {
         return $this->hasOne(MaterialAccountingOperation::class, 'id', 'target_id');
     }
 
-    public function changing_fields()
+    public function changing_fields(): HasMany
     {
         return $this->hasMany(TaskChangingField::class);
     }

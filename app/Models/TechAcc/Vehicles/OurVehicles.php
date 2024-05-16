@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Traits\Documentable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurVehicles extends Model
@@ -54,10 +57,8 @@ class OurVehicles extends Model
 
     /**
      * Collects full name of vehicle
-     *
-     * @return string
      */
-    public function getFullNameAttribute()
+    public function getFullNameAttribute(): string
     {
         return $this->category->name.' '.$this->mark.' '.$this->model.' '.$this->number.' '.$this->trailer_number;
     }
@@ -65,30 +66,24 @@ class OurVehicles extends Model
 
     /**
      * Relation to parent category
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(VehicleCategories::class, 'category_id', 'id');
     }
 
     /**
      * Relation to author category
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function author()
+    public function author(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
     /**
      * Relation to vehicle parameters
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function parameters()
+    public function parameters(): HasMany
     {
         return $this->hasMany(OurVehicleParameters::class, 'vehicle_id', 'id');
     }

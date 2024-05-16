@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class GridResourceController extends Controller
 {
@@ -51,7 +52,7 @@ class GridResourceController extends Controller
         $this->setAdditionalResources();
     }
 
-    public function getPageCore()
+    public function getPageCore(): View
     {
         $bladePath = '1_base.desktop.index';
         if ($this->isMobile) {
@@ -117,10 +118,8 @@ class GridResourceController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = (array) json_decode($request->input('data'));
 
@@ -143,10 +142,9 @@ class GridResourceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
         return $this->baseModel::findOrFail($id);
     }
@@ -177,11 +175,8 @@ class GridResourceController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $entity = $this->baseModel::findOrFail($id);
         DB::beginTransaction();
@@ -316,7 +311,7 @@ class GridResourceController extends Controller
         return $permissionsArray;
     }
 
-    public function uploadFile(Request $request)
+    public function uploadFile(Request $request): JsonResponse
     {
         $uploadedFile = $request->files->all()['files'][0];
         $documentable_id = $request->input('id');
@@ -345,7 +340,7 @@ class GridResourceController extends Controller
 
     }
 
-    public function downloadAttachments(Request $request, FilesUploadService $filesUploadService)
+    public function downloadAttachments(Request $request, FilesUploadService $filesUploadService): JsonResponse
     {
 
         if (! count($request->fliesIds)) {

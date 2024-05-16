@@ -9,10 +9,8 @@ class NotificationObserver
 {
     /**
      * Handle the vacations history "saved" event.
-     *
-     * @return void
      */
-    public function saved(Notification $notification)
+    public function saved(Notification $notification): void
     {
         if ($this->dontHaveName($notification) or $this->isUpdate($notification)) {
             return;

@@ -7,6 +7,8 @@ use App\Models\ProjectObject;
 use App\Traits\AuthorAndEditorUserFields;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TechnicMovement extends Model
@@ -22,12 +24,12 @@ class TechnicMovement extends Model
     //     return $this->morphMany(Comment::class, 'commentable');
     // }
 
-    public function attachments()
+    public function attachments(): MorphMany
     {
         return $this->morphMany(FileEntry::class, 'documentable');
     }
 
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class);
     }

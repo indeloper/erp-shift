@@ -13,7 +13,7 @@ class ContractorContactInformationRequiredNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о том, что необходимо заполнить контактов контрагента';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

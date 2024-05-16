@@ -38,10 +38,8 @@ class ForceMigrationSync extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         // DON'T PUSH UNCOMMENTED  lifehack for Windows users, uncomment and put the same migrations directly (
         //        $migrations = array_filter(explode('|',  '| 2019_05_17_161837_change_count_column_places_in_work_volume_materials_table

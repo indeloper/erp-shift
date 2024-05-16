@@ -15,15 +15,13 @@ class ExampleTest extends DuskTestCase
 {
     /**
      * A basic browser test example.
-     *
-     * @return void
      */
-    public function login()
+    public function login(): void
     {
 
     }
 
-    public function testNewCall()
+    public function testNewCall(): void
     {
         $user = User::factory()->create();
 
@@ -50,7 +48,7 @@ class ExampleTest extends DuskTestCase
         });
     }
 
-    public function testQuestionnaire()
+    public function testQuestionnaire(): void
     {
         $task = Task::orderBy('id', 'desc')->first();
 

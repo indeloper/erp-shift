@@ -35,10 +35,8 @@ class CheckContractorContactsAdding extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         DB::beginTransaction();
 
@@ -59,6 +57,6 @@ class CheckContractorContactsAdding extends Command
 
         DB::commit();
 
-        return $this->info('Contactless contractors checked!');
+        $this->info('Contactless contractors checked!');
     }
 }

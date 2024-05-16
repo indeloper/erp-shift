@@ -4,6 +4,7 @@ namespace App\Http\Controllers\q3wMaterial;
 
 use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialSupplyExpectedDeliveries;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 define('SUPPLY_PLANNING_QUANTITY_DELTA', 0.2);
@@ -41,10 +42,8 @@ class q3wMaterialSupplyExpectedDeliveryController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY);
 
@@ -66,10 +65,8 @@ class q3wMaterialSupplyExpectedDeliveryController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $id = $request->all()['key'];
         $modifiedData = json_decode($request->all()['modifiedData'], JSON_OBJECT_AS_ARRAY);
@@ -85,10 +82,8 @@ class q3wMaterialSupplyExpectedDeliveryController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         $id = $request->all()['key'];
 

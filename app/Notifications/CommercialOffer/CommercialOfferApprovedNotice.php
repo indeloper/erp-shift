@@ -13,7 +13,7 @@ class CommercialOfferApprovedNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление - Коммерческое предложение согласовано';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

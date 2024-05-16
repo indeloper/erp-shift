@@ -13,7 +13,7 @@ class OfferProcessingNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об обработке заявки на КП';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

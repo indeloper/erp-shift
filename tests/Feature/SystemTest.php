@@ -12,7 +12,7 @@ use Tests\TestCase;
 class SystemTest extends TestCase
 {
     /** @test */
-    public function it_can_store_files_in_technic_storage()
+    public function it_can_store_files_in_technic_storage(): void
     {
         Storage::fake('technics');
 
@@ -33,7 +33,7 @@ class SystemTest extends TestCase
     }
 
     /** @test */
-    public function it_can_delete_files_from_technic_storage()
+    public function it_can_delete_files_from_technic_storage(): void
     {
         Storage::fake('technics');
 
@@ -50,7 +50,7 @@ class SystemTest extends TestCase
     }
 
     /** @test */
-    public function it_can_store_files_in_vehicles_storage()
+    public function it_can_store_files_in_vehicles_storage(): void
     {
         Storage::fake('vehicles');
 
@@ -71,7 +71,7 @@ class SystemTest extends TestCase
     }
 
     /** @test */
-    public function it_can_delete_files_from_vehicles_storage()
+    public function it_can_delete_files_from_vehicles_storage(): void
     {
         Storage::fake('vehicles');
 
@@ -87,7 +87,7 @@ class SystemTest extends TestCase
     }
 
     /** @test */
-    public function it_can_store_mp4_files_in_technic_storage()
+    public function it_can_store_mp4_files_in_technic_storage(): void
     {
         Storage::fake('technics');
 
@@ -108,7 +108,7 @@ class SystemTest extends TestCase
     }
 
     /** @test */
-    public function it_triggers_artisan_command()
+    public function it_triggers_artisan_command(): void
     {
         $this->withoutExceptionHandling();
         $this->actingAs(User::find(1));

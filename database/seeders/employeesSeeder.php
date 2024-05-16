@@ -16,10 +16,8 @@ class employeesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $employees = json_decode('{"data": [
 {

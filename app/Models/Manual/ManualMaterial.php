@@ -4,6 +4,10 @@ namespace App\Models\Manual;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualMaterial extends Model
@@ -36,41 +40,41 @@ class ManualMaterial extends Model
         return $this->reference->name ?? ' ';
     }
 
-    public function parameters()
+    public function parameters(): HasMany
     {
         return $this->hasMany(ManualMaterialParameter::class, 'mat_id', 'id')
             ->leftJoin('manual_material_category_attributes', 'manual_material_category_attributes.id', '=', 'attr_id')
             ->select('manual_material_parameters.*', 'manual_material_category_attributes.name', 'manual_material_category_attributes.unit', 'manual_material_category_attributes.is_preset');
     }
 
-    public function reference()
+    public function reference(): BelongsTo
     {
         return $this->belongsTo(ManualReference::class, 'manual_reference_id', 'id');
     }
 
-    public function parametersClear()
+    public function parametersClear(): HasMany
     {
         return $this->hasMany(ManualMaterialParameter::class, 'mat_id', 'id')->withTrashed();
     }
 
-    public function category()
+    public function category(): HasOne
     {
         return $this->hasOne(ManualMaterialCategory::class, 'id', 'category_id');
     }
 
-    public function related_works()
+    public function related_works(): BelongsToMany
     {
         return $this->belongsToMany(ManualWork::class, 'manual_relation_material_works', 'manual_material_id', 'manual_work_id')->distinct();
     }
 
-    public function work_relations()
+    public function work_relations(): HasMany
     {
         return $this->hasMany(ManualRelationMaterialWork::class, 'manual_material_id', 'id')
             ->leftJoin('manual_works', 'manual_works.id', '=', 'manual_relation_material_works.manual_work_id')
             ->select('manual_relation_material_works.*', 'manual_works.name', 'manual_works.unit', 'manual_works.price_per_unit', 'manual_works.nds', 'manual_works.unit_per_days');
     }
 
-    public function passport()
+    public function passport(): HasOne
     {
         return $this->hasOne(ManualMaterialPassport::class, 'material_id', 'id');
     }

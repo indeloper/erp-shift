@@ -16,11 +16,7 @@ class SplitService
         $this->dummySplit = new CommercialOfferMaterialSplit();
     }
 
-    /**
-     * @param  CommercialOfferMaterialSplit  $old_split
-     * @return CommercialOfferMaterialSplit
-     */
-    public function splitMore($old_split, $count, $type, $time = null, $comment = '')
+    public function splitMore(CommercialOfferMaterialSplit $old_split, $count, $type, $time = null, $comment = ''): CommercialOfferMaterialSplit
     {
         $type = $this->convertTypeToNumeric($type);
 
@@ -33,11 +29,7 @@ class SplitService
         }
     }
 
-    /**
-     * @param  CommercialOfferMaterialSplit  $old_split
-     * @return CommercialOfferMaterialSplit
-     */
-    public function makeNewSplitFromParent($old_split, $count, $type, $time = null, $comment = '')
+    public function makeNewSplitFromParent(CommercialOfferMaterialSplit $old_split, $count, $type, $time = null, $comment = ''): CommercialOfferMaterialSplit
     {
         $new_split = $old_split->replicate();
         $new_split->count = $count;
@@ -57,10 +49,7 @@ class SplitService
         return $new_split;
     }
 
-    /**
-     * @return CommercialOfferMaterialSplit
-     */
-    public function mergeRelatedSplitWithOldOne(CommercialOfferMaterialSplit $source_split, $count, $target_split)
+    public function mergeRelatedSplitWithOldOne(CommercialOfferMaterialSplit $source_split, $count, $target_split): CommercialOfferMaterialSplit
     {
         $target_split->count += $count;
 
@@ -100,12 +89,7 @@ class SplitService
         return $splits->whereIn('type', $this->dummySplit->parent_types)->union($splits->where('parent_id', '!=', null));
     }
 
-    /**
-     * @param  int  $type
-     * @param  int  $time
-     * @return bool
-     */
-    private function thisIsTheFirstSplitOfThisType(CommercialOfferMaterialSplit $old_split, $type, $time = null)
+    private function thisIsTheFirstSplitOfThisType(CommercialOfferMaterialSplit $old_split, int $type, ?int $time = null): bool
     {
         return $old_split->parent()->where('type', $type)->where('time', $time)->doesntExist() and
                 $old_split->children()->where('type', $type)->where('time', $time)->doesntExist();

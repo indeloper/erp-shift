@@ -7,16 +7,16 @@ use App\Http\Requests\Building\TechAccounting\FuelTank\FuelTankLevelRequest;
 use App\Http\Requests\Building\TechAccounting\FuelTank\FuelTankRequest;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class FuelTankController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $data = [];
         $paginated = FuelTank::filter($request->toArray())->paginate(15);
@@ -30,7 +30,6 @@ class FuelTankController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  FuelTankStoreRequest  $request
      * @return array
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
@@ -91,7 +90,7 @@ class FuelTankController extends Controller
         ];
     }
 
-    public function getFuelTanks(Request $request)
+    public function getFuelTanks(Request $request): Response
     {
         $fuelTankQuery = FuelTank::query();
 
@@ -104,7 +103,7 @@ class FuelTankController extends Controller
         return response($fuel_tanks);
     }
 
-    public function getFuelTanksByObject(Request $request)
+    public function getFuelTanksByObject(Request $request): Response
     {
         $fuelTankQuery = FuelTank::filter($request->all());
 
@@ -117,7 +116,7 @@ class FuelTankController extends Controller
         return response($fuel_tanks);
     }
 
-    public function getFuelTanksPaginated(Request $request)
+    public function getFuelTanksPaginated(Request $request): Response
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);
@@ -148,7 +147,7 @@ class FuelTankController extends Controller
         return ['status' => 'success'];
     }
 
-    public function display_trashed(Request $request)
+    public function display_trashed(Request $request): View
     {
         $this->authorize('tech_acc_fuel_tanks_trashed');
 
@@ -161,7 +160,7 @@ class FuelTankController extends Controller
         return view('tech_accounting.fuel.old.trashed_capacities', ['data' => $data]);
     }
 
-    public function getTrashedFuelTanksPaginated(Request $request)
+    public function getTrashedFuelTanksPaginated(Request $request): Response
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);

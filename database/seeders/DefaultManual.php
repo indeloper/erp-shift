@@ -13,10 +13,8 @@ class DefaultManual extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         //заполняем работы
         ManualWork::factory()->create(['name' => 'Вибропогружение шпунта', 'work_group_id' => '1']);

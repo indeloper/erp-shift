@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class FileEntry extends Model
 {
@@ -15,10 +17,8 @@ class FileEntry extends Model
 
     /**
      * Getter for tech acc files source link attribute
-     *
-     * @return string|null
      */
-    public function getSourceLinkAttribute()
+    public function getSourceLinkAttribute(): ?string
     {
         if (! $this->documentable_type) {
             return null;
@@ -27,12 +27,12 @@ class FileEntry extends Model
         return asset('storage/docs/tech_accounting/').'/'.$this->filename;
     }
 
-    public function documentable()
+    public function documentable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

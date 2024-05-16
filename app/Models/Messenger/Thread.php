@@ -6,9 +6,13 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Lexx\ChatMessenger\Models\Message;
 
 class Thread extends Eloquent
 {
@@ -52,7 +56,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function messages()
+    public function messages(): HasMany
     {
         return $this->hasMany(Models::classname(Message::class), 'thread_id', 'id');
     }
@@ -62,7 +66,7 @@ class Thread extends Eloquent
      *
      * @return null|\Lexx\ChatMessenger\Models\Message
      */
-    public function getLatestMessageAttribute()
+    public function getLatestMessageAttribute(): ?Message
     {
         return $this->messages()->latest()->first();
     }
@@ -74,7 +78,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function participants()
+    public function participants(): HasMany
     {
         return $this->hasMany(Models::classname(Participant::class), 'thread_id', 'id');
     }
@@ -86,7 +90,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function participantsWithTrashed()
+    public function participantsWithTrashed(): HasMany
     {
         return $this->hasMany(Participant::class, 'thread_id', 'id')
             ->withTrashed();
@@ -99,7 +103,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, Models::table('participants'), 'thread_id', 'user_id')
             ->where('deleted_at', null);
@@ -112,7 +116,7 @@ class Thread extends Eloquent
      *
      * @codeCoverageIgnore
      */
-    public function usersWithThrashed()
+    public function usersWithThrashed(): BelongsToMany
     {
         return $this->belongsToMany(User::class, Models::table('participants'), 'thread_id', 'user_id');
     }
@@ -122,7 +126,7 @@ class Thread extends Eloquent
      *
      * @return Models::user()
      */
-    public function creator()
+    public function creator(): self
     {
         if (! is_null($this->creator_id)) {
             return User::find($this->creator_id);
@@ -150,7 +154,7 @@ class Thread extends Eloquent
      * @param  string  $subject
      * @return \Illuminate\Database\Query\Builder|static
      */
-    public static function getBySubject($subject)
+    public static function getBySubject(string $subject)
     {
         return static::where('subject', 'like', $subject)->get();
     }
@@ -162,7 +166,7 @@ class Thread extends Eloquent
      * @param  null  $userId
      * @return array
      */
-    public function participantsUserIds($userId = null)
+    public function participantsUserIds($userId = null): array
     {
         $users = $this->participants()->select('user_id')->get()->map(function ($participant) {
             return $participant->user_id;
@@ -181,7 +185,7 @@ class Thread extends Eloquent
      * @param  null  $userId
      * @return array
      */
-    public function participantsUserIdsWithTrashed($userId = null)
+    public function participantsUserIdsWithTrashed($userId = null): array
     {
         $users = $this->participants()->withTrashed()->select('user_id')->get()->map(function ($participant) {
             return $participant->user_id;
@@ -200,7 +204,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForUser(Builder $query, $userId)
+    public function scopeForUser(Builder $query, int $userId): Builder
     {
         $participantsTable = Models::table('participants');
         $threadsTable = Models::table('threads');
@@ -217,7 +221,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForUserWithTrashed(Builder $query, $userId)
+    public function scopeForUserWithTrashed(Builder $query, int $userId): Builder
     {
         $participantsTable = Models::table('participants');
         $threadsTable = Models::table('threads');
@@ -233,7 +237,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForUserOnlyTrashed(Builder $query, $userId)
+    public function scopeForUserOnlyTrashed(Builder $query, int $userId): Builder
     {
         $participantsTable = Models::table('participants');
         $threadsTable = Models::table('threads');
@@ -250,7 +254,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForUserWithNewMessages(Builder $query, $userId)
+    public function scopeForUserWithNewMessages(Builder $query, int $userId): Builder
     {
         $participantTable = Models::table('participants');
         $threadsTable = Models::table('threads');
@@ -271,7 +275,7 @@ class Thread extends Eloquent
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeBetween(Builder $query, array $participants)
+    public function scopeBetween(Builder $query, array $participants): Builder
     {
         return $query->whereHas('participants', function (Builder $q) use ($participants) {
             $q->whereIn('user_id', $participants)
@@ -287,7 +291,7 @@ class Thread extends Eloquent
      * @param  array|mixed  $userId
      * @return bool
      */
-    public function addParticipant($userId)
+    public function addParticipant($userId): bool
     {
         $userIds = is_array($userId) ? $userId : (array) func_get_args();
 
@@ -308,7 +312,7 @@ class Thread extends Eloquent
      * @param  array|mixed  $userId
      * @return bool
      */
-    public function removeParticipant($userId)
+    public function removeParticipant($userId): bool
     {
         $userIds = is_array($userId) ? $userId : (array) func_get_args();
 
@@ -321,7 +325,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return void
      */
-    public function markAsRead($userId)
+    public function markAsRead(int $userId): void
     {
         try {
             $participant = $this->getParticipantFromUser($userId);
@@ -338,7 +342,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return bool
      */
-    public function isUnread($userId)
+    public function isUnread(int $userId): bool
     {
         try {
             $participant = $this->getParticipantFromUser($userId);
@@ -371,7 +375,7 @@ class Thread extends Eloquent
      *
      * @return void
      */
-    public function activateAllParticipants()
+    public function activateAllParticipants(): void
     {
         $participants = $this->participants()->withTrashed()->get();
         foreach ($participants as $participant) {
@@ -386,7 +390,7 @@ class Thread extends Eloquent
      * @param  array  $columns
      * @return string
      */
-    public function participantsString($userId = null, $columns = [])
+    public function participantsString(?int $userId = null, array $columns = []): string
     {
         $participantsTable = Models::table('participants');
         $usersTable = Models::table('users');
@@ -417,7 +421,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return bool
      */
-    public function hasParticipant($userId)
+    public function hasParticipant(int $userId): bool
     {
         $participants = $this->participants()->where('user_id', '=', $userId)->where('deleted_at', null);
         if ($participants->count() > 0) {
@@ -433,7 +437,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return bool
      */
-    public function hasTrashedParticipant($userId)
+    public function hasTrashedParticipant(int $userId): bool
     {
         $participants = $this->participants()->where('user_id', '=', $userId)->withTrashed()->whereNotNull('deleted_at');
         if ($participants->count() > 0) {
@@ -449,7 +453,7 @@ class Thread extends Eloquent
      * @param  array  $columns
      * @return string
      */
-    protected function createSelectString($columns)
+    protected function createSelectString(array $columns): string
     {
         $dbDriver = $this->getConnection()->getDriverName();
         $tablePrefix = $this->getConnection()->getTablePrefix();
@@ -479,7 +483,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return \Illuminate\Support\Collection
      */
-    public function userUnreadMessages($userId)
+    public function userUnreadMessages(int $userId): Collection
     {
         $messages = $this->messages()->get();
 
@@ -504,7 +508,7 @@ class Thread extends Eloquent
      * @param  int  $userId
      * @return int
      */
-    public function userUnreadMessagesCount($userId)
+    public function userUnreadMessagesCount(int $userId): int
     {
         return $this->userUnreadMessages($userId)->count();
     }
@@ -514,7 +518,7 @@ class Thread extends Eloquent
      *
      * @return int
      */
-    public function getMaxParticipants()
+    public function getMaxParticipants(): int
     {
         return $this->max_participants;
     }
@@ -524,7 +528,7 @@ class Thread extends Eloquent
      *
      * @return bool
      */
-    public function hasMaxParticipants()
+    public function hasMaxParticipants(): bool
     {
         $participants = $this->participants();
         if ($participants->count() > $this->max_participants) {
@@ -577,7 +581,7 @@ class Thread extends Eloquent
      * @param  null  $userId
      * @return bool
      */
-    public function getIsStarredAttribute($userId = null)
+    public function getIsStarredAttribute($userId = null): bool
     {
         if (! $userId) {
             $userId = Auth::id();

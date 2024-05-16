@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('work_volume_works', function (Blueprint $table) {
             \App\Models\WorkVolume\WorkVolumeWork::query()->update(['subcontractor_id' => null]);
@@ -21,10 +19,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('work_volume_works', function (Blueprint $table) {
             $table->renameColumn('subcontractor_file_id', 'subcontractor_id');

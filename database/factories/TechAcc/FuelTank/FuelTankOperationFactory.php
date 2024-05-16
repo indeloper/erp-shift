@@ -14,10 +14,8 @@ class FuelTankOperationFactory extends Factory
 {
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $users = User::active()->whereIn('group_id', array_merge(Group::PROJECT_MANAGERS, Group::FOREMEN))->inRandomOrder()->first();
         $contractor = Contractor::count() ? Contractor::inRandomOrder()->first() : Contractor::factory()->create();

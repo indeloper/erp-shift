@@ -10,10 +10,8 @@ class OurTechnicTicketReportObserver
 {
     /**
      * Handle the our technic ticket report "created" event.
-     *
-     * @return void
      */
-    public function created(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function created(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $ourTechnicTicketReport->ticket->comments()->create([
             'comment' => 'Добавлен отчет об использовании на '.$ourTechnicTicketReport->date_carbon.
@@ -26,10 +24,8 @@ class OurTechnicTicketReportObserver
 
     /**
      * Handle the our technic ticket report "updated" event.
-     *
-     * @return void
      */
-    public function updating(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function updating(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $comment = 'Изменен отчет об использовании';
 
@@ -51,10 +47,8 @@ class OurTechnicTicketReportObserver
 
     /**
      * Handle the our technic ticket report "deleted" event.
-     *
-     * @return void
      */
-    public function deleted(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function deleted(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $ourTechnicTicketReport->ticket->comments()->create([
             'comment' => 'Удален отчет об использовании на '.Carbon::parse($ourTechnicTicketReport->date)->format('d.m.Y'),

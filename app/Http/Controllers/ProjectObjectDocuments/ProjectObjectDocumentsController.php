@@ -24,11 +24,13 @@ use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReport
 use App\Services\ProjectObjectDocuments\Reports\ProjectObjectDocumentsXLSXReportGrouped;
 use App\Services\SystemService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use ZipArchive;
 
 class ProjectObjectDocumentsController extends Controller
@@ -43,7 +45,7 @@ class ProjectObjectDocumentsController extends Controller
         $this->components = $components;
     }
 
-    public function returnPageCore()
+    public function returnPageCore(): View
     {
         $clientDeviceType = SystemService::determineClientDeviceType($_SERVER['HTTP_USER_AGENT']);
 
@@ -225,10 +227,8 @@ class ProjectObjectDocumentsController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = json_decode($request->input('data'));
 
@@ -265,11 +265,8 @@ class ProjectObjectDocumentsController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $data = json_decode($request->input('data'));
         $toUpdateArr = $this->getDataToUpdate($data);
@@ -295,11 +292,8 @@ class ProjectObjectDocumentsController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $document = ProjectObjectDocument::find($id);
 
@@ -320,7 +314,7 @@ class ProjectObjectDocumentsController extends Controller
         ], 200);
     }
 
-    public function restoreDocument($id)
+    public function restoreDocument($id): JsonResponse
     {
         $document = ProjectObjectDocument::withTrashed()->find($id);
         $document->restore();
@@ -579,7 +573,7 @@ class ProjectObjectDocumentsController extends Controller
         ]);
     }
 
-    public function getTypes()
+    public function getTypes(): JsonResponse
     {
         $types = ProjectObjectDocumentType::with('projectObjectDocumentStatusTypeRelations')->orderBy('sortOrder')->get();
 
@@ -619,7 +613,7 @@ class ProjectObjectDocumentsController extends Controller
         return response()->json($statuses, 200);
     }
 
-    public function getOptionsByTypeAndStatus(Request $request)
+    public function getOptionsByTypeAndStatus(Request $request): JsonResponse
     {
         $optionsCollection = ProjectObjectDocumentStatusOptions::where([
             ['document_type_id', $request->documentTypeId],
@@ -653,7 +647,7 @@ class ProjectObjectDocumentsController extends Controller
             : false;
     }
 
-    public function getProjectObjects(Request $request)
+    public function getProjectObjects(Request $request): JsonResponse
     {
         $isArchived = filter_var($request->query('is-archived', 'false'), FILTER_VALIDATE_BOOLEAN);
         $archivedStatusTypeCondition = $isArchived ? 'project_object_document_statuses.status_type_id = 4' : 'project_object_document_statuses.status_type_id <> 4';
@@ -735,7 +729,7 @@ class ProjectObjectDocumentsController extends Controller
 
     }
 
-    public function getProjectObjectDocumentComments(Request $request)
+    public function getProjectObjectDocumentComments(Request $request): JsonResponse
     {
         if (! $request->input('id')) {
             return response()->json([], 200);
@@ -751,7 +745,7 @@ class ProjectObjectDocumentsController extends Controller
         return response()->json($comments, 200);
     }
 
-    public function getProjectObjectDocumentAttachments(Request $request)
+    public function getProjectObjectDocumentAttachments(Request $request): JsonResponse
     {
         if (! $request->input('id')) {
             return response()->json([], 200);
@@ -775,7 +769,7 @@ class ProjectObjectDocumentsController extends Controller
         return response()->json($groupedAttachments, 200);
     }
 
-    public function uploadFiles(Request $request)
+    public function uploadFiles(Request $request): JsonResponse
     {
         $uploadedFile = $request->files->all()['files'][0];
         $storage_name = 'project_object_documents';
@@ -794,7 +788,7 @@ class ProjectObjectDocumentsController extends Controller
         ], 200);
     }
 
-    public function uploadFile(Request $request)
+    public function uploadFile(Request $request): JsonResponse
     {
         $uploadedFile = $request->files->all()['files'];
 
@@ -820,7 +814,7 @@ class ProjectObjectDocumentsController extends Controller
 
     }
 
-    public function cloneDocument(Request $request)
+    public function cloneDocument(Request $request): JsonResponse
     {
         $document = ProjectObjectDocument::findOrFail($request->id);
 
@@ -939,7 +933,7 @@ class ProjectObjectDocumentsController extends Controller
         }
     }
 
-    public function getProjectObjectDocumentInfoByID(Request $request)
+    public function getProjectObjectDocumentInfoByID(Request $request): JsonResponse
     {
         $response = [[
             'comments' => $this->getProjectObjectDocumentComments($request),
@@ -949,7 +943,7 @@ class ProjectObjectDocumentsController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getDataForLookupsAndFilters()
+    public function getDataForLookupsAndFilters(): JsonResponse
     {
 
         $response = [[
@@ -971,7 +965,7 @@ class ProjectObjectDocumentsController extends Controller
         return response()->json($response, 200);
     }
 
-    public function downloadAttachments(Request $request)
+    public function downloadAttachments(Request $request): JsonResponse
     {
         if (! count($request->fliesIds)) {
             return response()->json('no files recieved', 200);
@@ -998,7 +992,7 @@ class ProjectObjectDocumentsController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getPermissions()
+    public function getPermissions(): JsonResponse
     {
         $permissions = (new ProjectObjectDocument())->permissions;
 

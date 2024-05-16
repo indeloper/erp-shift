@@ -8,12 +8,13 @@ use App\Models\Project;
 use App\Traits\AdditionalFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ContractsController extends Controller
 {
     use AdditionalFunctions;
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $newRequest = $this->createNewRequest($request->toArray());
 

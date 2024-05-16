@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tanks', function (Blueprint $table) {
             $table->unsignedInteger('responsible_id')->nullable()->after('object_id')->comment('ID ответственного');
@@ -24,10 +22,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tanks', function (Blueprint $table) {
             $table->dropForeign(['responsible_id']);

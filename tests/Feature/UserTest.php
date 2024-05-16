@@ -21,7 +21,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_who_have_birthday_today_scope_must_return_users_who_have_birthday_today()
+    public function user_who_have_birthday_today_scope_must_return_users_who_have_birthday_today(): void
     {
         User::query()->delete();
         // Given three users with birthdays
@@ -40,7 +40,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_who_have_birthday_today_scope_can_return_no_one()
+    public function user_who_have_birthday_today_scope_can_return_no_one(): void
     {
         User::query()->delete();
         // Given three users with birthdays
@@ -56,7 +56,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_who_have_birthday_next_week_scope_must_return_users_who_have_birthday_next_week()
+    public function user_who_have_birthday_next_week_scope_must_return_users_who_have_birthday_next_week(): void
     {
         User::query()->delete();
         // Given three users with birthdays
@@ -75,7 +75,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_who_have_birthday_next_week_scope_can_return_no_one()
+    public function user_who_have_birthday_next_week_scope_can_return_no_one(): void
     {
         User::query()->delete();
         // Given three users with birthdays
@@ -91,7 +91,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_can_have_job_category()
+    public function user_can_have_job_category(): void
     {
         // Given user with job category
         $jobCategory = JobCategory::factory()->create();
@@ -106,7 +106,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_can_have_report_group_through_job_category()
+    public function user_can_have_report_group_through_job_category(): void
     {
         // Given report group
         $reportGroup = ReportGroup::factory()->create();
@@ -123,7 +123,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_cannot_change_user_job_category()
+    public function user_without_permission_cannot_change_user_job_category(): void
     {
         // Given user without permission
         $user = User::whereNotIn('group_id', [5, 6, 8])->inRandomOrder()->first();
@@ -137,7 +137,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permission_cannot_change_user_job_category_without_data()
+    public function user_with_permission_cannot_change_user_job_category_without_data(): void
     {
         // Given user without permission
         $user = User::whereIn('group_id', [5, 6, 8])->inRandomOrder()->first();
@@ -151,7 +151,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permission_can_change_user_job_category()
+    public function user_with_permission_can_change_user_job_category(): void
     {
         // Given user without permission
         $user = User::whereIn('group_id', [5, 6, 8])->inRandomOrder()->first();
@@ -178,7 +178,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_without_any_filters()
+    public function user_filter_work_without_any_filters(): void
     {
         // Given no users
         User::query()->delete();
@@ -204,7 +204,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_name()
+    public function user_filter_work_with_name(): void
     {
         // Given no users
         User::query()->delete();
@@ -231,7 +231,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_name_one_more()
+    public function user_filter_work_with_name_one_more(): void
     {
         // Given no users
         User::query()->delete();
@@ -260,7 +260,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_name_array()
+    public function user_filter_work_with_name_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -290,7 +290,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_email()
+    public function user_filter_work_with_email(): void
     {
         // Given no users
         User::query()->delete();
@@ -317,7 +317,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_email_array()
+    public function user_filter_work_with_email_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -346,7 +346,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_department()
+    public function user_filter_work_with_department(): void
     {
         // Given no users
         User::query()->delete();
@@ -373,7 +373,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_department_array()
+    public function user_filter_work_with_department_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -402,7 +402,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_group()
+    public function user_filter_work_with_group(): void
     {
         // Given no users
         User::query()->delete();
@@ -429,7 +429,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_group_array()
+    public function user_filter_work_with_group_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -458,7 +458,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_company()
+    public function user_filter_work_with_company(): void
     {
         // Given no users
         User::query()->delete();
@@ -485,7 +485,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_company_array()
+    public function user_filter_work_with_company_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -514,7 +514,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_job_category()
+    public function user_filter_work_with_job_category(): void
     {
         // Given no users
         User::query()->delete();
@@ -541,7 +541,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_job_category_array()
+    public function user_filter_work_with_job_category_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -570,7 +570,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_person_phone()
+    public function user_filter_work_with_person_phone(): void
     {
         // Given no users
         User::query()->delete();
@@ -597,7 +597,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_person_phone_array()
+    public function user_filter_work_with_person_phone_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -626,7 +626,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_work_phone()
+    public function user_filter_work_with_work_phone(): void
     {
         // Given no users
         User::query()->delete();
@@ -653,7 +653,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_work_phone_array()
+    public function user_filter_work_with_work_phone_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -682,7 +682,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_birthday_from()
+    public function user_filter_work_with_birthday_from(): void
     {
         // Given no users
         User::query()->delete();
@@ -709,7 +709,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_birthday_to()
+    public function user_filter_work_with_birthday_to(): void
     {
         // Given no users
         User::query()->delete();
@@ -736,7 +736,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_birthday_both_dates()
+    public function user_filter_work_with_birthday_both_dates(): void
     {
         // Given no users
         User::query()->delete();
@@ -765,7 +765,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_can_be_appointed_to_project()
+    public function user_can_be_appointed_to_project(): void
     {
         // Given project
         $project = Project::factory()->create();
@@ -781,7 +781,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_can_have_many_appoints_to_projects()
+    public function user_can_have_many_appoints_to_projects(): void
     {
         // Given projects
         $project1 = Project::factory()->create();
@@ -800,7 +800,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_objects()
+    public function user_filter_work_with_objects(): void
     {
         // Given no users
         User::query()->delete();
@@ -831,7 +831,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_objects_array()
+    public function user_filter_work_with_objects_array(): void
     {
         // Given no users
         User::query()->delete();
@@ -865,7 +865,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_filter_work_with_objects_array_and_can_return_nothing()
+    public function user_filter_work_with_objects_array_and_can_return_nothing(): void
     {
         // Given no users
         User::query()->delete();
@@ -894,7 +894,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_can_have_brigade_relation()
+    public function user_can_have_brigade_relation(): void
     {
         // Given no users
         User::query()->delete();
@@ -910,7 +910,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_can_have_brigades_relation()
+    public function user_can_have_brigades_relation(): void
     {
         // Given no users
         User::query()->delete();

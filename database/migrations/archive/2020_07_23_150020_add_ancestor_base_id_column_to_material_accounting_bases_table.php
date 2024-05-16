@@ -9,10 +9,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('material_accounting_bases', function (Blueprint $table) {
             $table->unsignedBigInteger('ancestor_base_id')->nullable();
@@ -40,10 +38,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('material_accounting_bases', function (Blueprint $table) {
             $table->dropColumn('ancestor_base_id');

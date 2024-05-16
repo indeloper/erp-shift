@@ -14,7 +14,7 @@ class WorkRequestProcessingTaskCreationNotice extends BaseNotification
     const DESCRIPTION = 'Уведомление о создании задачи Обработка заявки на ОР';
 
     /** ОР - Объём работ */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

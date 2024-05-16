@@ -46,16 +46,14 @@ class DefectsTest extends TestCase
 
     /**
      * Function find or create necessary user
-     *
-     * @return User
      */
-    public function findOrNewUserFromGroupFortySeven()
+    public function findOrNewUserFromGroupFortySeven(): User
     {
         return Group::find(47)->getUsers()->first() ?? User::factory()->create(['group_id' => 47, 'department_id' => 13]);
     }
 
     /** @test */
-    public function we_can_create_defect()
+    public function we_can_create_defect(): void
     {
         // When we create fresh defect
         $defect = Defects::factory()->create();
@@ -65,7 +63,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function we_can_delete_defect()
+    public function we_can_delete_defect(): void
     {
         // Given fresh defect
         $defect = Defects::factory()->create();
@@ -79,7 +77,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_must_have_author_relation()
+    public function defect_must_have_author_relation(): void
     {
         // Given fresh vehicle
         $defect = Defects::factory()->create();
@@ -89,7 +87,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_must_have_defectable_relation()
+    public function defect_must_have_defectable_relation(): void
     {
         // Given fresh vehicle
         $defect = Defects::factory()->create();
@@ -99,7 +97,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_must_have_one_comment_after_creation()
+    public function defect_must_have_one_comment_after_creation(): void
     {
         // Given fresh vehicle
         $defect = Defects::factory()->create();
@@ -111,7 +109,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function a_user_from_group_with_permissions_must_have_create_permission()
+    public function a_user_from_group_with_permissions_must_have_create_permission(): void
     {
         // Given user from group with permissions
         $user = $this->user_that_can;
@@ -121,7 +119,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function a_user_not_from_group_with_permissions_must_not_have_create_permission()
+    public function a_user_not_from_group_with_permissions_must_not_have_create_permission(): void
     {
         // Given user not from group with permissions
         $user = $this->user_that_cannot;
@@ -131,7 +129,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_cant_make_store_post_request()
+    public function user_without_permission_cant_make_store_post_request(): void
     {
         // Given cannot user
         $user = $this->user_that_cannot;
@@ -144,7 +142,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permission_can_make_store_post_request()
+    public function user_with_permission_can_make_store_post_request(): void
     {
         // pre-create user from group 47
         $this->findOrNewUserFromGroupFortySeven();
@@ -189,7 +187,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_can_have_documents()
+    public function defect_can_have_documents(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -211,7 +209,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_can_have_photos()
+    public function defect_can_have_photos(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -242,7 +240,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_can_have_videos()
+    public function defect_can_have_videos(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -273,7 +271,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function form_request_validation_work_with_empty_data()
+    public function form_request_validation_work_with_empty_data(): void
     {
         // Given can user
         $user = $this->user_that_can;
@@ -288,7 +286,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function form_request_validation_work_with_too_long_description()
+    public function form_request_validation_work_with_too_long_description(): void
     {
         // Given can user
         $user = $this->user_that_can;
@@ -306,7 +304,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function form_request_validation_work_with_wrong_type()
+    public function form_request_validation_work_with_wrong_type(): void
     {
         // Given can user
         $user = $this->user_that_can;
@@ -324,7 +322,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_must_have_status()
+    public function defect_must_have_status(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -334,7 +332,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_must_have_status_name()
+    public function defect_must_have_status_name(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -344,7 +342,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_can_have_responsible_user_relation()
+    public function defect_can_have_responsible_user_relation(): void
     {
         // Given defect
         $defect = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
@@ -354,7 +352,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function standard_defect_dont_have_responsible_user_relation()
+    public function standard_defect_dont_have_responsible_user_relation(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -364,7 +362,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function standard_defect_dont_have_repair_dates()
+    public function standard_defect_dont_have_repair_dates(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -375,7 +373,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_repair_dates_must_be_carbon_objects()
+    public function defect_repair_dates_must_be_carbon_objects(): void
     {
         // Given defect
         $defect = Defects::factory()->create(['repair_start_date' => now(), 'repair_end_date' => now()->addDays(2)]);
@@ -386,7 +384,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_notificationable_relation()
+    public function defect_notificationable_relation(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -405,7 +403,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_taskable_relation()
+    public function defect_taskable_relation(): void
     {
         // Given task
         $task = Task::factory()->create();
@@ -428,7 +426,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_comments_relation()
+    public function defect_comments_relation(): void
     {
         // Given defect
         $defect = Defects::factory()->create();
@@ -450,7 +448,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function user_from_group_47_must_have_permission()
+    public function user_from_group_47_must_have_permission(): void
     {
         // Given user
         $user = Group::find(47)->getUsers()->first() ?? User::factory()->create(['group_id' => 47, 'department_id' => 11]);
@@ -460,7 +458,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function user_not_from_group_47_must_not_have_permission()
+    public function user_not_from_group_47_must_not_have_permission(): void
     {
         // Given user
         $user = User::where('group_id', '!=', 47)->where('id', '!=', 1)->inRandomOrder()->first();
@@ -470,7 +468,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function user_not_from_group_47_cant_make_post_request_for_responsible_user_assignment()
+    public function user_not_from_group_47_cant_make_post_request_for_responsible_user_assignment(): void
     {
         // pre-create user from group 47
         $this->findOrNewUserFromGroupFortySeven();
@@ -489,7 +487,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_assignment()
+    public function defect_responsible_user_assignment(): void
     {
         // pre-create user from group 47
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -526,7 +524,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_assignment_request_work()
+    public function defect_responsible_user_assignment_request_work(): void
     {
         // pre-create user from group 47
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -544,7 +542,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function responsible_user_can_make_decline_put_request()
+    public function responsible_user_can_make_decline_put_request(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -580,7 +578,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_decline_request_work()
+    public function defect_decline_request_work(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -596,7 +594,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function responsible_user_can_make_accept_put_request()
+    public function responsible_user_can_make_accept_put_request(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -643,7 +641,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_accept_request_work()
+    public function defect_accept_request_work(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -665,7 +663,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_accept_request_work_dates()
+    public function defect_accept_request_work_dates(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -685,7 +683,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function after_defect_comment_create_some_notification_should_be_generated()
+    public function after_defect_comment_create_some_notification_should_be_generated(): void
     {
         $user = $this->user_that_can;
         // Given defect
@@ -711,7 +709,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function this_model_hook_works_only_with_defect()
+    public function this_model_hook_works_only_with_defect(): void
     {
         // Given notifications count
         $notification_count = Notification::count();
@@ -725,7 +723,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function responsible_user_can_make_update_repair_dates_put_request()
+    public function responsible_user_can_make_update_repair_dates_put_request(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -765,7 +763,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function soon_expire_scope()
+    public function soon_expire_scope(): void
     {
         // Given user
         $user = $this->user_that_can;
@@ -792,7 +790,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function responsible_user_can_make_repair_end_put_request()
+    public function responsible_user_can_make_repair_end_put_request(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -830,7 +828,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function responsible_user_can_make_repair_end_put_request_work()
+    public function responsible_user_can_make_repair_end_put_request_work(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -848,7 +846,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function not_author_of_defect_cant_delete_defect()
+    public function not_author_of_defect_cant_delete_defect(): void
     {
         // Given user
         $user = $this->findOrNewUserFromGroupFortySeven();
@@ -864,7 +862,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function author_of_defect_cant_delete_defect_if_it_not_new()
+    public function author_of_defect_cant_delete_defect_if_it_not_new(): void
     {
         // Given user
         $author = $this->findOrNewUserFromGroupFortySeven();
@@ -879,7 +877,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function author_of_defect_can_delete_defect_if_it_new()
+    public function author_of_defect_can_delete_defect_if_it_new(): void
     {
         // Given user
         $author = $this->findOrNewUserFromGroupFortySeven();
@@ -911,7 +909,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_work_without_any_filters_and_defects()
+    public function defect_filter_work_without_any_filters_and_defects(): void
     {
         // Given no defects
         // Given user
@@ -932,7 +930,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_work_without_any_filters()
+    public function defect_filter_work_without_any_filters(): void
     {
         // Given three defects
         $defects = Defects::factory()->count(3)->create();
@@ -954,7 +952,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_can_return_all_defects()
+    public function defect_filter_can_return_all_defects(): void
     {
         // Given three defects
         $defects = Defects::factory()->count(2)->create();
@@ -971,7 +969,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_status()
+    public function defect_filter_status(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['status' => Defects::DIAGNOSTICS]);
@@ -991,7 +989,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_author()
+    public function defect_filter_author(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['user_id' => 1]);
@@ -1011,7 +1009,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_authors()
+    public function defect_filter_authors(): void
     {
         // Given two users
         $results = User::inRandomOrder()->get();
@@ -1036,7 +1034,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_responsible_user()
+    public function defect_filter_responsible_user(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['responsible_user_id' => 1]);
@@ -1056,7 +1054,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_responsible_users()
+    public function defect_filter_responsible_users(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['responsible_user_id' => 1]);
@@ -1076,7 +1074,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_responsible_user_one_more_time()
+    public function defect_filter_responsible_user_one_more_time(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create();
@@ -1094,7 +1092,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_repair_start_date()
+    public function defect_filter_repair_start_date(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['repair_start_date' => now()->subDay()]);
@@ -1115,7 +1113,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_repair_end_date()
+    public function defect_filter_repair_end_date(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['repair_end_date' => now()->subDay()]);
@@ -1136,7 +1134,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_repair_dates_together()
+    public function defect_filter_repair_dates_together(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(10)]);
@@ -1158,7 +1156,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_repair_dates_together_reverse()
+    public function defect_filter_repair_dates_together_reverse(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['repair_start_date' => now()->subDay(), 'repair_end_date' => now()->addDays(10)]);
@@ -1180,7 +1178,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_brand()
+    public function defect_filter_brand(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['brand' => 'brand1']);
@@ -1205,7 +1203,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_brand_second()
+    public function defect_filter_brand_second(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['brand' => 'brand1']);
@@ -1232,7 +1230,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_model()
+    public function defect_filter_model(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['model' => 'model1']);
@@ -1258,7 +1256,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_owner()
+    public function defect_filter_owner(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['owner' => 'ООО «СТРОЙМАСТЕР»']);
@@ -1284,7 +1282,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_inventory_number()
+    public function defect_filter_inventory_number(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987']);
@@ -1313,7 +1311,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_inventory_number_array()
+    public function defect_filter_inventory_number_array(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987']);
@@ -1342,7 +1340,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_inventory_number_and_owner()
+    public function defect_filter_inventory_number_and_owner(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
@@ -1371,7 +1369,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_inventory_number_and_owner_wrong_query()
+    public function defect_filter_inventory_number_and_owner_wrong_query(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
@@ -1395,7 +1393,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_defectable_work_with_technic()
+    public function defect_filter_defectable_work_with_technic(): void
     {
         // Given three technics
         $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
@@ -1424,7 +1422,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_defectable_work_with_fuel_tank()
+    public function defect_filter_defectable_work_with_fuel_tank(): void
     {
         // Given three fuelTanks
         $fuelTank1 = FuelTank::factory()->create();
@@ -1451,7 +1449,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_defectable_work_with_array()
+    public function defect_filter_defectable_work_with_array(): void
     {
         // Given two fuelTanks and one Techinc
         $technic1 = OurTechnic::factory()->create(['inventory_number' => '159987', 'owner' => 'ООО «СТРОЙМАСТЕР»']);
@@ -1479,7 +1477,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_status_filter_works_with_statuses_array()
+    public function defect_status_filter_works_with_statuses_array(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['status' => Defects::DIAGNOSTICS]);
@@ -1499,7 +1497,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_tank_number()
+    public function defect_filter_tank_number(): void
     {
         // Given three fuelTanks
         $fuelTank1 = FuelTank::factory()->create();
@@ -1527,7 +1525,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_tank_number_array()
+    public function defect_filter_tank_number_array(): void
     {
         // Given three fuelTanks
         $fuelTank1 = FuelTank::factory()->create();
@@ -1555,7 +1553,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defect_filter_work_only_with_filters()
+    public function defect_filter_work_only_with_filters(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create();
@@ -1572,7 +1570,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defects_author_getter_return_authors_without_any_params()
+    public function defects_author_getter_return_authors_without_any_params(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['user_id' => $this->user_that_can->id]);
@@ -1590,7 +1588,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defects_author_getter_return_authors_by_name()
+    public function defects_author_getter_return_authors_by_name(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['user_id' => $this->user_that_can->id]);
@@ -1608,7 +1606,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defects_author_getter_can_return_for_all_defects()
+    public function defects_author_getter_can_return_for_all_defects(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
@@ -1626,7 +1624,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defects_responsible_user_getter_return_responsible_users_without_any_params()
+    public function defects_responsible_user_getter_return_responsible_users_without_any_params(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
@@ -1644,7 +1642,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defects_responsible_user_getter_return_responsible_users_by_name()
+    public function defects_responsible_user_getter_return_responsible_users_by_name(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id]);
@@ -1662,7 +1660,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defects_responsible_user_getter_can_return_responsible_users_for_all_defects()
+    public function defects_responsible_user_getter_can_return_responsible_users_for_all_defects(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['responsible_user_id' => $this->user_that_can->id, 'status' => Defects::CLOSED]);
@@ -1680,7 +1678,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function defects_responsible_user_getter_can_return_responsible_users_for_all_defects_which_have_responsible_users()
+    public function defects_responsible_user_getter_can_return_responsible_users_for_all_defects_which_have_responsible_users(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create(['status' => Defects::CLOSED]);
@@ -1698,7 +1696,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function users_who_have_permissions_can_see_all_defects()
+    public function users_who_have_permissions_can_see_all_defects(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create();
@@ -1717,7 +1715,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function users_who_dont_have_permissions_can_see_only_related_defects()
+    public function users_who_dont_have_permissions_can_see_only_related_defects(): void
     {
         // Given three defects
         $defect1 = Defects::factory()->create();
@@ -1735,7 +1733,7 @@ class DefectsTest extends TestCase
     }
 
     /** @test */
-    public function users_who_dont_have_permissions_can_see_only_related_defects_second_time()
+    public function users_who_dont_have_permissions_can_see_only_related_defects_second_time(): void
     {
         // Given three defects
         // In one defect user is author, in another user is responsible

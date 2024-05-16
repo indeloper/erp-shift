@@ -42,10 +42,8 @@ class MakePermission extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $request = [
             'codename' => $this->ask('What is codename?'),

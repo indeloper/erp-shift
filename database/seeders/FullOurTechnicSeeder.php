@@ -11,10 +11,8 @@ class FullOurTechnicSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $category = TechnicCategory::factory()->create();
         $category_characteristics = CategoryCharacteristic::factory()->count(2)->create();

@@ -8,10 +8,8 @@ class VehicleCategoryObserver
 {
     /**
      * Handle the vehicle categories "deleted" event.
-     *
-     * @return void
      */
-    public function deleting(VehicleCategories $vehicleCategories)
+    public function deleting(VehicleCategories $vehicleCategories): void
     {
         //        $vehicleCategories->characteristics()->get()->each(function ($item) { $item->delete(); });
         $vehicleCategories->vehicles()->get()->each(function ($item) {
@@ -21,10 +19,8 @@ class VehicleCategoryObserver
 
     /**
      * Handle the vehicle categories "restored" event.
-     *
-     * @return void
      */
-    public function restored(VehicleCategories $vehicleCategories)
+    public function restored(VehicleCategories $vehicleCategories): void
     {
         //
     }

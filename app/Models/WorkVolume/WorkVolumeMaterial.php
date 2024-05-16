@@ -5,6 +5,10 @@ namespace App\Models\WorkVolume;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Manual\ManualMaterialParameter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 
 class WorkVolumeMaterial extends Model
@@ -25,7 +29,7 @@ class WorkVolumeMaterial extends Model
         return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
     }
 
-    public function manual()
+    public function manual(): MorphTo
     {
         return $this->morphTo(null, 'material_type', 'manual_material_id', 'id')->withDefault(function ($manual) {
             $manual->id = $this->manual_material_id;
@@ -88,17 +92,17 @@ class WorkVolumeMaterial extends Model
         return $name;
     }
 
-    public function complect()
+    public function complect(): BelongsTo
     {
         return $this->belongsTo(WorkVolumeMaterial::class, 'complect_id', 'id');
     }
 
-    public function works()
+    public function works(): BelongsToMany
     {
         return $this->belongsToMany(WorkVolumeWork::class, 'work_volume_work_materials', 'wv_material_id', 'wv_work_id');
     }
 
-    public function parts()
+    public function parts(): HasMany
     {
         return $this->hasMany(WorkVolumeMaterial::class, 'complect_id', 'id');
     }
@@ -120,7 +124,7 @@ class WorkVolumeMaterial extends Model
         $this->delete();
     }
 
-    public function get_first_relation_work()
+    public function get_first_relation_work(): HasMany
     {
         return $this->hasMany(WorkVolumeWorkMaterial::class, 'wv_material_id', 'id');
     }

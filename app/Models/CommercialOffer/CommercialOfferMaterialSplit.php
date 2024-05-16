@@ -10,6 +10,11 @@ use App\Services\Commerce\SplitService;
 use App\Traits\Reviewable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 
 class CommercialOfferMaterialSplit extends Model
@@ -47,7 +52,7 @@ class CommercialOfferMaterialSplit extends Model
         5,
     ];
 
-    public function manual()
+    public function manual(): MorphTo
     {
         return $this->morphTo(null, 'material_type', 'man_mat_id', 'id')->withDefault(function ($manual) {
             $manual->id = $this->manual_material_id;
@@ -65,7 +70,7 @@ class CommercialOfferMaterialSplit extends Model
         return CommercialOffer::where('id', $this->com_offer_id)->first()->work_volume_id;
     }
 
-    public function WV_material()
+    public function WV_material(): BelongsTo
     {
         return $this->belongsTo(WorkVolumeMaterial::class, 'man_mat_id', 'manual_material_id');
     }
@@ -78,7 +83,7 @@ class CommercialOfferMaterialSplit extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany | CommercialOfferMaterialSplit
      */
-    public function children()
+    public function children(): HasMany
     {
         return $this->hasMany(CommercialOfferMaterialSplit::class, 'parent_id')->with('children');
     }
@@ -86,23 +91,23 @@ class CommercialOfferMaterialSplit extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne | CommercialOfferMaterialSplit
      */
-    public function parent()
+    public function parent(): HasOne
     {
         return $this->hasOne(CommercialOfferMaterialSplit::class, 'id', 'parent_id')->with('parent')->withDefault($this->attributesToArray());
 
     }
 
-    public function buyback()
+    public function buyback(): HasOne
     {
         return $this->hasOne(CommercialOfferMaterialSplit::class, 'parent_id')->where('type', 2);
     }
 
-    public function security()
+    public function security(): HasOne
     {
         return $this->hasOne(CommercialOfferMaterialSplit::class, 'parent_id')->where('type', 4);
     }
 
-    public function contractor()
+    public function contractor(): HasOneThrough
     {
         return $this->hasOneThrough(Contractor::class, ContractorFile::class, 'id', 'id', 'subcontractor_file_id', 'contractor_id');
     }
@@ -145,7 +150,7 @@ class CommercialOfferMaterialSplit extends Model
         return $name;
     }
 
-    public function subcontractor_file()
+    public function subcontractor_file(): HasOne
     {
         return $this->hasOne(ContractorFile::class, 'id', 'subcontractor_file_id');
     }

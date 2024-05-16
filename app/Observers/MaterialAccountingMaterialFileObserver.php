@@ -8,20 +8,16 @@ class MaterialAccountingMaterialFileObserver
 {
     /**
      * Handle the material accounting material file "created" event.
-     *
-     * @return void
      */
-    public function created(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function created(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
 
     /**
      * Handle the material accounting material file "created" event.
-     *
-     * @return void
      */
-    public function saved(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function saved(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         $operationMaterial = $materialAccountingMaterialFile->operationMaterial;
         if ($operationMaterial) {
@@ -37,40 +33,32 @@ class MaterialAccountingMaterialFileObserver
 
     /**
      * Handle the material accounting material file "updated" event.
-     *
-     * @return void
      */
-    public function updated(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function updated(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
 
     /**
      * Handle the material accounting material file "deleted" event.
-     *
-     * @return void
      */
-    public function deleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function deleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
 
     /**
      * Handle the material accounting material file "restored" event.
-     *
-     * @return void
      */
-    public function restored(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function restored(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }
 
     /**
      * Handle the material accounting material file "force deleted" event.
-     *
-     * @return void
      */
-    public function forceDeleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile)
+    public function forceDeleted(MaterialAccountingMaterialFile $materialAccountingMaterialFile): void
     {
         //
     }

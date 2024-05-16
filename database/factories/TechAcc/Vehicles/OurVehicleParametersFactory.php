@@ -10,10 +10,8 @@ class OurVehicleParametersFactory extends Factory
 {
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'characteristic_id' => VehicleCategoryCharacteristics::inRandomOrder()->first()->id ?? VehicleCategoryCharacteristics::factory()->create()->id,

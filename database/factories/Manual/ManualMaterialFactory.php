@@ -9,10 +9,8 @@ class ManualMaterialFactory extends Factory
 {
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $names = ['Камень', 'Кирпич', 'Арматура', 'Шпунт', 'Свая', 'Крепёж', 'Электрод', 'Гайка', 'Болт', 'Гайка', 'Проволока'];
 

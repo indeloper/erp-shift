@@ -7,17 +7,20 @@ use App\Models\Messenger\Models;
 use App\Models\Messenger\Participant;
 use App\Models\Messenger\Thread;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 trait Messagable
 {
     /**
      * Message relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
-    public function messages()
+    public function messages(): HasMany
     {
         return $this->hasMany(Models::classname(Message::class));
     }
@@ -25,11 +28,10 @@ trait Messagable
     /**
      * Participants relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
-    public function participants()
+    public function participants(): HasMany
     {
         return $this->hasMany(Models::classname(Participant::class));
     }
@@ -37,11 +39,10 @@ trait Messagable
     /**
      * Thread relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      *
      * @codeCoverageIgnore
      */
-    public function threads()
+    public function threads(): BelongsToMany
     {
         return $this->belongsToMany(
             (Thread::class),
@@ -53,40 +54,32 @@ trait Messagable
 
     /**
      * Returns the new messages count for user.
-     *
-     * @return int
      */
-    public function newThreadsCount()
+    public function newThreadsCount(): int
     {
         return $this->threadsWithNewMessages()->count();
     }
 
     /**
      * Returns the new messages for user.
-     *
-     * @return int
      */
-    public function unreadMessages()
+    public function unreadMessages(): Collection
     {
         return \App\Models\Messenger\Message::unreadForUser($this->getKey())->get();
     }
 
     /**
      * Returns the new messages count for user.
-     *
-     * @return int
      */
-    public function unreadMessagesCount()
+    public function unreadMessagesCount(): int
     {
         return count($this->unreadMessages());
     }
 
     /**
      * Returns all threads with new messages.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function threadsWithNewMessages()
+    public function threadsWithNewMessages(): Collection
     {
         return $this->threads()
             ->where(function (Builder $q) {
@@ -97,10 +90,8 @@ trait Messagable
 
     /**
      * Returns the user's starred threads.
-     *
-     * @return int
      */
-    public function starred()
+    public function starred(): HasManyThrough
     {
         return $this->hasManyThrough(
             Models::table('threads'),
@@ -114,10 +105,8 @@ trait Messagable
 
     /**
      * Returns the starred threads. An alias of starred
-     *
-     * @return int
      */
-    public function favourites()
+    public function favourites(): int
     {
         return $this->starred();
     }
@@ -127,7 +116,7 @@ trait Messagable
      *
      * @return string $name
      */
-    public function getNameAttribute()
+    public function getNameAttribute(): string
     {
         $this->attributes['full_name'] = $this->full_name;
         if ($this->attributes['first_name']) {

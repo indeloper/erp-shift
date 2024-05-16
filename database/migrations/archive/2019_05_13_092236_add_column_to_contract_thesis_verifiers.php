@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('contract_thesis_verifiers', function (Blueprint $table) {
             $table->unsignedInteger('thesis_id');
@@ -21,10 +19,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('contract_thesis_verifiers', function (Blueprint $table) {
             $table->dropColumn('thesis_id');

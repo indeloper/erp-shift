@@ -14,6 +14,7 @@ use App\Models\q3wMaterial\q3wStandardProperty;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class q3wMaterialStandardController extends Controller
 {
@@ -22,7 +23,7 @@ class q3wMaterialStandardController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('materials.material-standard')->with([
             'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
@@ -46,10 +47,8 @@ class q3wMaterialStandardController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -137,10 +136,8 @@ class q3wMaterialStandardController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return JsonResponse
      */
-    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
+    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard): JsonResponse
     {
         DB::beginTransaction();
 

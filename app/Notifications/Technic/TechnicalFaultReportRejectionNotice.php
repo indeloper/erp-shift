@@ -13,7 +13,7 @@ class TechnicalFaultReportRejectionNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об отклонении заявки на неисправность техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

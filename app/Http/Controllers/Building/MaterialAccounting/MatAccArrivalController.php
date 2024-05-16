@@ -14,13 +14,15 @@ use App\Models\ProjectObject;
 use App\Models\User;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class MatAccArrivalController extends Controller
 {
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $from_resp = User::find($request->resp);
         $from_obj = ProjectObject::find($request->obj);
@@ -34,7 +36,7 @@ class MatAccArrivalController extends Controller
         ]);
     }
 
-    public function work($operation_id)
+    public function work($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 1)->where('status', 1)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -45,7 +47,7 @@ class MatAccArrivalController extends Controller
         ]);
     }
 
-    public function confirm($operation_id)
+    public function confirm($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 1)->where('status', 2)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -56,7 +58,7 @@ class MatAccArrivalController extends Controller
         ]);
     }
 
-    public function complete($operation_id)
+    public function complete($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 1)->whereIn('status', [3, 7])->findOrFail($operation_id);
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient', 'materialsPartTo.materialFiles', 'materialsPartTo.materialAddition.user']);
@@ -66,7 +68,7 @@ class MatAccArrivalController extends Controller
         ]);
     }
 
-    public function edit($operation_id)
+    public function edit($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 1)->where('status', 1)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -79,7 +81,7 @@ class MatAccArrivalController extends Controller
         ]);
     }
 
-    public function draft($operation_id)
+    public function draft($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 1)->whereIn('status', [5, 8])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -93,7 +95,7 @@ class MatAccArrivalController extends Controller
         ]);
     }
 
-    public function store(CreateArrivalRequest $request)
+    public function store(CreateArrivalRequest $request): JsonResponse
     {
         if ($request->without_confirm == true && Auth::user()->id == 1) {
             MaterialAccountingBase::getModel()->backdating($request->materials, Carbon::parse($request->planned_date_to), $request->object_id);
@@ -144,7 +146,7 @@ class MatAccArrivalController extends Controller
         return response()->json(true);
     }
 
-    public function update(CreateArrivalRequest $request, $operation_id)
+    public function update(CreateArrivalRequest $request, $operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::where('type', 1)->whereIn('status', [1, 5])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -215,7 +217,7 @@ class MatAccArrivalController extends Controller
         return response()->json(true);
     }
 
-    public function send(SendArrivalRequest $request, $operation_id)
+    public function send(SendArrivalRequest $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -229,7 +231,7 @@ class MatAccArrivalController extends Controller
         return response()->json($result);
     }
 
-    public function part_send(SendArrivalRequest $request, $operation_id)
+    public function part_send(SendArrivalRequest $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -246,7 +248,7 @@ class MatAccArrivalController extends Controller
         return response()->json($result);
     }
 
-    public function accept(Request $request, $operation_id)
+    public function accept(Request $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 

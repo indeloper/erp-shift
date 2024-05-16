@@ -14,10 +14,8 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         if (config('app.env') != 'production') {
             DB::listen(function ($query) {
@@ -66,10 +64,8 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         setlocale(LC_TIME, 'ru_RU.UTF-8');
         Carbon::setLocale('ru');

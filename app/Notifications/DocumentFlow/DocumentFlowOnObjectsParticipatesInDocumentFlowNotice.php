@@ -13,7 +13,7 @@ class DocumentFlowOnObjectsParticipatesInDocumentFlowNotice extends BaseNotifica
 
     const DESCRIPTION = 'Документооборот на объектах Участвует в документообороте';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

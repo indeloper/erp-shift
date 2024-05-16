@@ -12,6 +12,9 @@ use App\Traits\Taskable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
@@ -71,10 +74,8 @@ class Project extends Model
     /**
      * Return projects that have contracts in status 5 or 6,
      * what equals to Contracts work start
-     *
-     * @return Builder
      */
-    public function scopeContractsStarted(Builder $query)
+    public function scopeContractsStarted(Builder $query): Builder
     {
         return $query->has('ready_contracts');
     }
@@ -332,10 +333,7 @@ class Project extends Model
         return "{$this->name} - {$objectName}";
     }
 
-    /**
-     * @return Builder
-     */
-    public static function getAllProjects()
+    public static function getAllProjects(): Builder
     {
         return Project::select('projects.*', 'contractors.short_name as contractor_name', 'contractors.inn as contractor_inn', 'contractors.id as contractor_id', 'users.last_name', 'users.first_name', 'users.patronymic', 'project_objects.name as project_name', 'project_objects.address as project_address', 'project_objects.short_name as object_short_name', 'tasks.project_id', 'tasks.created_at as task_date')
             ->leftJoin('users', 'users.id', '=', 'projects.user_id')
@@ -377,45 +375,43 @@ class Project extends Model
 
     /**
      * Relation for time responsible user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function timeResponsible()
+    public function timeResponsible(): BelongsTo
     {
         return $this->belongsTo(User::class, 'time_responsible_user_id', 'id');
     }
 
-    public function work_volumes()
+    public function work_volumes(): HasMany
     {
         return $this->hasMany(WorkVolume::class, 'project_id', 'id');
     }
 
-    public function author()
+    public function author(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
-    public function wvs()
+    public function wvs(): HasMany
     {
         return $this->hasMany(WorkVolume::class, 'project_id', 'id');
     }
 
-    public function com_offers()
+    public function com_offers(): HasMany
     {
         return $this->hasMany(CommercialOffer::class, 'project_id', 'id');
     }
 
-    public function respUsers()
+    public function respUsers(): HasMany
     {
         return $this->hasMany(ProjectResponsibleUser::class, 'project_id', 'id');
     }
 
-    public function object()
+    public function object(): HasOne
     {
         return $this->hasOne(ProjectObject::class, 'id', 'object_id');
     }
 
-    public function last_task()
+    public function last_task(): HasOne
     {
         return $this->hasOne(Task::class, 'project_id', 'id')
             ->with('responsible_user', 'author', 'redirects', 'task_files')
@@ -430,12 +426,12 @@ class Project extends Model
             ->orderBy('created_at', 'desc');
     }
 
-    public function all_tasks()
+    public function all_tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'project_id', 'id');
     }
 
-    public function contracts()
+    public function contracts(): HasMany
     {
         return $this->hasMany(Contract::class, 'project_id');
     }
@@ -445,12 +441,12 @@ class Project extends Model
         return $this->contracts()->whereIn('status', [5, 6]);
     }
 
-    public function contractors()
+    public function contractors(): HasMany
     {
         return $this->hasMany(ProjectContractors::class, 'project_id', 'id');
     }
 
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class, 'contractor_id', 'id');
     }

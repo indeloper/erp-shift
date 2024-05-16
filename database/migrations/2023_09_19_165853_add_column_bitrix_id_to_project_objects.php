@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('project_objects', function (Blueprint $table) {
             $table->bigInteger('bitrixId')->nullable()->after('id')->comment('Id в Битрикс');
@@ -20,10 +18,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('project_objects', function (Blueprint $table) {
             $table->dropColumn('bitrixId');

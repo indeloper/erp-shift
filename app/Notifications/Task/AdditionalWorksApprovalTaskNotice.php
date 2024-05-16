@@ -13,7 +13,7 @@ class AdditionalWorksApprovalTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о задаче Согласование дополнительных работ';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

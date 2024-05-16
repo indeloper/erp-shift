@@ -47,7 +47,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle()
+    public function we_can_create_vehicle(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -57,7 +57,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_must_have_author_relation()
+    public function vehicle_must_have_author_relation(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -67,7 +67,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_must_have_category_relation()
+    public function vehicle_must_have_category_relation(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -77,7 +77,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_must_have_parameters_relation()
+    public function vehicle_must_have_parameters_relation(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -90,7 +90,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_must_have_parameters_relation_delete_testing()
+    public function vehicle_must_have_parameters_relation_delete_testing(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -109,7 +109,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_parameter()
+    public function we_can_create_vehicle_parameter(): void
     {
         // Given fresh vehicle category characteristic
         $vehicleParameter = OurVehicleParameters::factory()->create();
@@ -119,7 +119,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_parameter_must_have_vehicle_relation()
+    public function vehicle_parameter_must_have_vehicle_relation(): void
     {
         // Given fresh vehicle category characteristic
         $vehicleParameter = OurVehicleParameters::factory()->create();
@@ -129,7 +129,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_parameter_must_have_vehicle_category_characteristic_relation()
+    public function vehicle_parameter_must_have_vehicle_category_characteristic_relation(): void
     {
         // Given fresh vehicle category characteristic
         $vehicleParameter = OurVehicleParameters::factory()->create();
@@ -139,7 +139,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function a_user_from_group_with_permissions_must_have_create_permission()
+    public function a_user_from_group_with_permissions_must_have_create_permission(): void
     {
         // Given user from group with permissions
         $user = $this->user;
@@ -149,7 +149,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function a_user_not_from_group_with_permissions_must_not_have_create_permission()
+    public function a_user_not_from_group_with_permissions_must_not_have_create_permission(): void
     {
         // Given user from group with permissions
         $user = User::whereNotIn('group_id', self::GROUPS_WITH_PERMISSIONS)->first();
@@ -159,7 +159,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_create_vehicle_by_post_without_permissions()
+    public function we_cant_create_vehicle_by_post_without_permissions(): void
     {
         // Given user
         $user = User::whereNotIn('group_id', self::GROUPS_WITH_PERMISSIONS)->first();
@@ -174,7 +174,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_by_post_with_permissions()
+    public function we_can_create_vehicle_by_post_with_permissions(): void
     {
         // Given user
         $user = $this->user;
@@ -211,7 +211,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_vehicle_by_post_include_parameters_with_permissions()
+    public function we_can_create_vehicle_by_post_include_parameters_with_permissions(): void
     {
         // Given user
         $user = $this->user;
@@ -264,7 +264,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_create_vehicle_category_without_number_mark_model_category_id_and_owner_by_post_with_permissions()
+    public function we_cant_create_vehicle_category_without_number_mark_model_category_id_and_owner_by_post_with_permissions(): void
     {
         // Given user
         $user = $this->user;
@@ -289,7 +289,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function it_can_have_documents()
+    public function it_can_have_documents(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -311,7 +311,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_delete_the_vehicle()
+    public function we_can_delete_the_vehicle(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -324,7 +324,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_without_permission_cant_delete_the_vehicle()
+    public function anyone_without_permission_cant_delete_the_vehicle(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -339,7 +339,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_with_permission_can_delete_the_vehicle()
+    public function anyone_with_permission_can_delete_the_vehicle(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -356,7 +356,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function anyone_without_permission_cant_update_the_vehicle()
+    public function anyone_without_permission_cant_update_the_vehicle(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -374,7 +374,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_update_vehicle_by_post()
+    public function we_can_update_vehicle_by_post(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -409,7 +409,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_update_vehicle_by_post_include_parameters()
+    public function we_can_update_vehicle_by_post_include_parameters(): void
     {
         // Given fresh vehicle with parameter
         $vehicle = OurVehicles::factory()->create();
@@ -463,7 +463,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function we_can_update_vehicle_by_post_without_parameters_id()
+    public function we_can_update_vehicle_by_post_without_parameters_id(): void
     {
         // Given fresh vehicle
         $vehicle = OurVehicles::factory()->create();
@@ -493,7 +493,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function vehicle_deleting_influence()
+    public function vehicle_deleting_influence(): void
     {
         // Given fresh vehicle category with characteristic
         $vehicleCategory = VehicleCategories::factory()->create();
@@ -518,7 +518,7 @@ class OurVehiclesTest extends TestCase
     }
 
     /** @test */
-    public function it_collect_full_name_as_text()
+    public function it_collect_full_name_as_text(): void
     {
         $vehicleCategory = VehicleCategories::factory()->create([
             'name' => 'Fastest car EVER',

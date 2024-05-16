@@ -8,6 +8,7 @@ use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelOperationsHistory extends Model
@@ -76,7 +77,7 @@ class FuelOperationsHistory extends Model
         return $casted_data;
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

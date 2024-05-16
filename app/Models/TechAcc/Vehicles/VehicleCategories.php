@@ -5,6 +5,8 @@ namespace App\Models\TechAcc\Vehicles;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VehicleCategories extends Model
@@ -26,40 +28,32 @@ class VehicleCategories extends Model
     // Relations
     /**
      * Relation for vehicle category author
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     /**
      * Relation for vehicle category author
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function characteristics()
+    public function characteristics(): HasMany
     {
         return $this->hasMany(VehicleCategoryCharacteristics::class, 'category_id', 'id');
     }
 
     /**
      * Relation for vehicles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function vehicles()
+    public function vehicles(): HasMany
     {
         return $this->hasMany(OurVehicles::class, 'category_id', 'id');
     }
 
     /**
      * Relation for trashed vehicles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function trashed_vehicles()
+    public function trashed_vehicles(): HasMany
     {
         return $this->hasMany(OurVehicles::class, 'category_id', 'id')->onlyTrashed();
     }

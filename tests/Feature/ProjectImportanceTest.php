@@ -19,7 +19,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_standard_project_is_not_important()
+    public function a_standard_project_is_not_important(): void
     {
         // Given a fresh standard project
         $project = Project::factory()->create();
@@ -29,7 +29,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_project_can_be_important_after_creating()
+    public function a_project_can_be_important_after_creating(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);
@@ -39,7 +39,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_standard_project_become_important_after_importance_toggling()
+    public function a_standard_project_become_important_after_importance_toggling(): void
     {
         // Given a fresh standard project
         $project = Project::factory()->create();
@@ -52,7 +52,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_important_project_become_not_important_after_importance_toggling()
+    public function a_important_project_become_not_important_after_importance_toggling(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);
@@ -65,7 +65,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_important_projects_comes_first_not_important_after()
+    public function a_important_projects_comes_first_not_important_after(): void
     {
         // Given a fresh unimportant project
         $project1 = Project::factory()->create();
@@ -82,7 +82,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_important_projects_comes_first_not_important_after_one_more_time()
+    public function a_important_projects_comes_first_not_important_after_one_more_time(): void
     {
         // Given a fresh unimportant project
         $project1 = Project::factory()->create();
@@ -103,7 +103,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_important_project_become_not_important_after_one_and_only_CO_branch_move_to_agreed_with_customer_status()
+    public function a_important_project_become_not_important_after_one_and_only_CO_branch_move_to_agreed_with_customer_status(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);
@@ -121,7 +121,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_important_project_become_not_important_after_first_CO_in_three_branches_move_to_agreed_with_customer_status()
+    public function a_important_project_become_not_important_after_first_CO_in_three_branches_move_to_agreed_with_customer_status(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);
@@ -143,7 +143,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function a_important_project_become_not_important_after_CO_in_three_branches_move_to_agreed_with_customer_status()
+    public function a_important_project_become_not_important_after_CO_in_three_branches_move_to_agreed_with_customer_status(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);
@@ -166,7 +166,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function project_importance_dont_change_after_one_CO_in_three_branches_is_not_agreed_and_others_are_in_agreed_with_customer_status()
+    public function project_importance_dont_change_after_one_CO_in_three_branches_is_not_agreed_and_others_are_in_agreed_with_customer_status(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);
@@ -188,7 +188,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function project_importance_influence_on_his_CO_in_nice_statuses()
+    public function project_importance_influence_on_his_CO_in_nice_statuses(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);
@@ -200,7 +200,7 @@ class ProjectImportanceTest extends TestCase
     }
 
     /** @test */
-    public function project_importance_not_influence_on_his_CO_not_in_nice_statuses()
+    public function project_importance_not_influence_on_his_CO_not_in_nice_statuses(): void
     {
         // Given a fresh important project
         $project = Project::factory()->create(['is_important' => 1]);

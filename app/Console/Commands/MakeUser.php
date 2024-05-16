@@ -37,10 +37,8 @@ class MakeUser extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $request = [
             'email' => $this->ask('What is email?'),

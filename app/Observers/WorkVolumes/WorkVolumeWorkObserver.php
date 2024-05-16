@@ -8,10 +8,8 @@ class WorkVolumeWorkObserver
 {
     /**
      * Handle the work volume work "saving" event.
-     *
-     * @return void
      */
-    public function saving(WorkVolumeWork $workVolumeWork)
+    public function saving(WorkVolumeWork $workVolumeWork): void
     {
         if (! $workVolumeWork->unit) {
             $workVolumeWork->unit = $workVolumeWork->manual->unit;

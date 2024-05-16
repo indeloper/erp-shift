@@ -26,7 +26,7 @@ class NotifySenderCommandTest extends TestCase
     }
 
     /** @test */
-    public function withTelegramChatId_scope_must_return_users_who_have_telegram_chat_id()
+    public function withTelegramChatId_scope_must_return_users_who_have_telegram_chat_id(): void
     {
         // Given three users, two have chat_id
         $user1 = $this->user1;
@@ -42,7 +42,7 @@ class NotifySenderCommandTest extends TestCase
     }
 
     /** @test */
-    public function withoutTelegramChatId_scope_must_return_users_who_dont_have_telegram_chat_id()
+    public function withoutTelegramChatId_scope_must_return_users_who_dont_have_telegram_chat_id(): void
     {
         // Given three users, two have chat_id
         $user1 = $this->user1;
@@ -58,7 +58,7 @@ class NotifySenderCommandTest extends TestCase
     }
 
     /** @test */
-    public function if_we_run_command_without_parameters_we_must_have_some_output_other_way()
+    public function if_we_run_command_without_parameters_we_must_have_some_output_other_way(): void
     {
         // When we call notify:send command
         $this->artisan('notify:send')

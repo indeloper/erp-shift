@@ -13,7 +13,7 @@ class UserCreatedContractorWithoutContactsNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о том, что пользователь создал контрагента без контактов';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

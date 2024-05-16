@@ -24,12 +24,15 @@ use App\Models\Task;
 use App\Models\User;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ProjectContractController extends Controller
 {
@@ -37,7 +40,7 @@ class ProjectContractController extends Controller
 
     protected $prepareNotifications = [];
 
-    public function card($project_id, $contract_id)
+    public function card($project_id, $contract_id): View
     {
         $contract = Contract::where('contracts.id', $contract_id)
             ->with('theses.verifiers', 'files', 'theses_check.verifiers', 'key_dates', 'commercial_offers', 'operations.materialsPartTo')
@@ -93,7 +96,7 @@ class ProjectContractController extends Controller
         ]);
     }
 
-    public function edit($project_id, $contract_id)
+    public function edit($project_id, $contract_id): View
     {
         $contract = Contract::where('contracts.id', $contract_id)
             ->leftJoin('commercial_offers', 'commercial_offers.id', 'contracts.commercial_offer_id')
@@ -133,7 +136,7 @@ class ProjectContractController extends Controller
         ]);
     }
 
-    public function decline(Request $request)
+    public function decline(Request $request): RedirectResponse
     {
         $this->prepareNotifications = [];
         $contract = Contract::with('get_requests.files', 'files')->findOrFail($request->contract_id);
@@ -308,7 +311,7 @@ class ProjectContractController extends Controller
         return back();
     }
 
-    public function update(Request $request, $contract_id)
+    public function update(Request $request, $contract_id): RedirectResponse
     {
         DB::beginTransaction();
         $contract = Contract::findOrFail($contract_id);
@@ -340,7 +343,7 @@ class ProjectContractController extends Controller
         return redirect()->back();
     }
 
-    public function add_thesis(Request $request, $contract_id)
+    public function add_thesis(Request $request, $contract_id): RedirectResponse
     {
         $this->prepareNotifications = [];
         DB::beginTransaction();
@@ -402,7 +405,7 @@ class ProjectContractController extends Controller
         return redirect()->back();
     }
 
-    public function add_files(Request $request)
+    public function add_files(Request $request): RedirectResponse
     {   //this is about garant file and contract file (last steps of the contract) (approvement)
         //and attach files for the contract at the beginning
         $this->prepareNotifications = [];
@@ -503,7 +506,7 @@ class ProjectContractController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function update_thesis(Request $request)
+    public function update_thesis(Request $request): RedirectResponse
     {
         $this->prepareNotifications = [];
         DB::beginTransaction();
@@ -568,7 +571,7 @@ class ProjectContractController extends Controller
         return redirect()->back();
     }
 
-    public function agree_thesis($thesis_id)
+    public function agree_thesis($thesis_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -671,7 +674,7 @@ class ProjectContractController extends Controller
         return back();
     }
 
-    public function approve(Request $request, $project_id, $contract_id)
+    public function approve(Request $request, $project_id, $contract_id): RedirectResponse
     {
         $this->prepareNotifications = [];
         DB::beginTransaction();
@@ -1016,7 +1019,7 @@ class ProjectContractController extends Controller
         return request('key_id') and ! request('parent_key_id') || request('key_id') != request('parent_key_id');
     }
 
-    public function updateExistingKeyDate()
+    public function updateExistingKeyDate(): JsonResponse
     {
         $keyDate = ContractKeyDates::findOrFail(request('key_id'));
         $keyDate->update([
@@ -1034,7 +1037,7 @@ class ProjectContractController extends Controller
         return response()->json($keyDate);
     }
 
-    public function createNewContractKeyDate($contract_id)
+    public function createNewContractKeyDate($contract_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1067,7 +1070,7 @@ class ProjectContractController extends Controller
         ContractKeyDatesPreselectedNames::create(['value' => $value]);
     }
 
-    public function remove_key_date()
+    public function remove_key_date(): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1080,7 +1083,7 @@ class ProjectContractController extends Controller
         return response()->json(true);
     }
 
-    public function attach_com_offers(Request $request, $contract_id)
+    public function attach_com_offers(Request $request, $contract_id): RedirectResponse
     {
         ContractCommercialOfferRelation::where('contract_id', $request->$contract_id)->delete();
 

@@ -36,10 +36,8 @@ class CheckOverdueMaterialAccountingOperation extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $notificationStartPeriodDate = Carbon::createFromTime(7, 30, 00);
         $notificationEndPeriodDate = Carbon::createFromTime(20, 00, 00);

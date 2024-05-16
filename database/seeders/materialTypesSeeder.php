@@ -9,10 +9,8 @@ class materialTypesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         DB::table('q3w_material_types')->insert([
             'id' => 1,

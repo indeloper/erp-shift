@@ -4,6 +4,7 @@ namespace App\Models\Contractors;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContractorAdditionalTypes extends Model
@@ -30,20 +31,16 @@ class ContractorAdditionalTypes extends Model
 
     /**
      * Relation for contractor
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class, 'contractor_id', 'id');
     }
 
     /**
      * Relation for user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

@@ -35,7 +35,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permissions_sees_nothing_but_index()
+    public function user_without_permissions_sees_nothing_but_index(): void
     {
         $category = TechnicCategory::factory()->create();
         $this->actingAs($this->ivan);
@@ -51,7 +51,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permissions_can_see_technic_category_pages()
+    public function user_with_permissions_can_see_technic_category_pages(): void
     {
         $category = TechnicCategory::factory()->create();
 
@@ -66,7 +66,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_see_edit_technic_category_page()
+    public function user_can_see_edit_technic_category_page(): void
     {
         $technic = TechnicCategory::factory()->create();
 
@@ -76,7 +76,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_create_technic_without_characteristics()
+    public function user_can_create_technic_without_characteristics(): void
     {
         $category_name = $this->faker()->words(3, true);
 
@@ -89,7 +89,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_submit_form_and_technic_would_be_created_with_characteristics()
+    public function user_can_submit_form_and_technic_would_be_created_with_characteristics(): void
     {
         $category_name = $this->faker()->words(3, true);
         $characteristic_name = $this->faker()->words(3, true);
@@ -115,7 +115,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function it_checks_that_all_attributes_are_present_and_forbid_to_store_model()
+    public function it_checks_that_all_attributes_are_present_and_forbid_to_store_model(): void
     {
         $this->postJson(route('building::tech_acc::technic_category.store'), [
             'characteristics' => [
@@ -136,7 +136,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_delete_technic_category()
+    public function user_can_delete_technic_category(): void
     {
         $technic = TechnicCategory::factory()->count(2)->create();
 
@@ -148,7 +148,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function after_deleting_a_category_technics_also_have_to_be_deleted()
+    public function after_deleting_a_category_technics_also_have_to_be_deleted(): void
     {
         $technic_category = TechnicCategory::factory()->create();
 
@@ -162,7 +162,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_edit_attributes_of_a_category()
+    public function user_can_edit_attributes_of_a_category(): void
     {
         $old_category = TechnicCategory::factory()->create();
         $characteristic = CategoryCharacteristic::factory()->create();
@@ -193,7 +193,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_add_characteristics_to_a_category_by_update()
+    public function user_can_add_characteristics_to_a_category_by_update(): void
     {
         $old_category = TechnicCategory::factory()->create();
         $characteristic = CategoryCharacteristic::factory()->create();
@@ -235,7 +235,7 @@ class TechnicCategoryRequestsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_delete_one_characteristic_from_a_category_by_update()
+    public function user_can_delete_one_characteristic_from_a_category_by_update(): void
     {
         $technic = TechnicCategory::factory()->create();
         $characteristic = CategoryCharacteristic::factory()->count(2)->create();

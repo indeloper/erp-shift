@@ -15,6 +15,8 @@ use App\Notifications\Task\AdditionalWorksApprovalTaskNotice;
 use App\Services\System\Reports\SupportTaskExport;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -22,12 +24,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\View\View;
 
 class SupportController extends Controller
 {
     use TimeCalculator;
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $support_tickets = SupportMail::basic($request);
 
@@ -179,7 +182,7 @@ class SupportController extends Controller
         return $ticket;
     }
 
-    public function task_agreed(Request $request, $task_id)
+    public function task_agreed(Request $request, $task_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -361,7 +364,7 @@ class SupportController extends Controller
         return $report->export();
     }
 
-    public function updateLink(Request $request)
+    public function updateLink(Request $request): JsonResponse
     {
         abort_if(auth()->id() != 1, Response::HTTP_FORBIDDEN);
         DB::beginTransaction();

@@ -21,7 +21,7 @@ class CategoryCharacteristicTest extends TestCase
     }
 
     /** @test */
-    public function this_can_have_own_set_of_technic_category()
+    public function this_can_have_own_set_of_technic_category(): void
     {
         $firstCharacteristic = CategoryCharacteristic::factory()->create();
         $secondCharacteristic = CategoryCharacteristic::factory()->create();

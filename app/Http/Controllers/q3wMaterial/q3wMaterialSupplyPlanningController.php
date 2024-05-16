@@ -8,8 +8,10 @@ use App\Models\q3wMaterial\q3wMaterialBrand;
 use App\Models\q3wMaterial\q3wMaterialBrandsRelation;
 use App\Models\q3wMaterial\q3wMaterialSupplyMaterial;
 use App\Models\q3wMaterial\q3wMaterialSupplyPlanning;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 define('SUPPLY_PLANNING_QUANTITY_DELTA', 0.2);
 
@@ -20,7 +22,7 @@ class q3wMaterialSupplyPlanningController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('materials.material-supply-planning');
     }
@@ -33,7 +35,7 @@ class q3wMaterialSupplyPlanningController extends Controller
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException If the user is not authorized to access the material supply planning.
      */
-    public function getMaterialsForSupplyPlanning($planningObjectId)
+    public function getMaterialsForSupplyPlanning(int $planningObjectId): JsonResponse
     {
         $this->authorize('material_supply_planning_access');
 
@@ -216,10 +218,8 @@ class q3wMaterialSupplyPlanningController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = json_decode($request->all()['data']);
 
@@ -268,10 +268,8 @@ class q3wMaterialSupplyPlanningController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $id = $request->all()['key']['id'];
         $modifiedData = json_decode($request->all()['modifiedData']);
@@ -318,10 +316,8 @@ class q3wMaterialSupplyPlanningController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         $id = $request->all()['key']['id'];
 

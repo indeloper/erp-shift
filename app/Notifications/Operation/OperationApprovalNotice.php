@@ -13,7 +13,7 @@ class OperationApprovalNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о согласовании операции';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

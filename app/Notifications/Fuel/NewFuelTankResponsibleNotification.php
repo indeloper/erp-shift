@@ -15,7 +15,7 @@ class NewFuelTankResponsibleNotification extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о новом ответственном за топливную емкость';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

@@ -6,6 +6,7 @@ use App\Models\Notifications\NotificationsForPermissions;
 use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Permission extends Model
 {
@@ -48,7 +49,7 @@ class Permission extends Model
         return $this->id;
     }
 
-    public function relatedNotifications()
+    public function relatedNotifications(): HasMany
     {
         return $this->hasMany(NotificationsForPermissions::class, 'permission', 'codename');
     }

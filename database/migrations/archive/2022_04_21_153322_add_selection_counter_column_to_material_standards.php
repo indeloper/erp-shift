@@ -11,10 +11,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('q3w_material_standards', function (Blueprint $table) {
             $table->bigInteger('selection_counter')->unsigned()->default(0)->comment('Cчетчик выборы эталона для ранжирования по поулярности');
@@ -35,10 +33,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('q3w_material_standards', function (Blueprint $table) {
             $table->dropColumn('selection_counter');

@@ -9,17 +9,15 @@ class UserObserver
 {
     /**
      * Handle the user "stored" event.
-     *
-     * @return void
      */
-    public function saved(User $user)
+    public function saved(User $user): void
     {
         if ($this->isDeleted($user)) {
-            return $this->notificationAfterUserRemove($user);
+            $this->notificationAfterUserRemove($user);
         }
     }
 
-    public function notificationAfterUserRemove($user)
+    public function notificationAfterUserRemove($user): void
     {
         NewTasksFromDeletedUserNotice::send(
             $user->role_codes,

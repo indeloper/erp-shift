@@ -32,10 +32,8 @@ class SetTelegramWebhook extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $operationType = $this->choice('Что требуется сделать?', [1 => 'Установить webhook', 2 => 'Удалить webhook']);
 

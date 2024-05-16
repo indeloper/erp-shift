@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('commercial_offer_material_splits', function (Blueprint $table) {
             $table->string('price_per_one')->nullable();
@@ -23,10 +21,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('commercial_offer_material_splits', function (Blueprint $table) {
             $table->dropColumn('price_per_one');

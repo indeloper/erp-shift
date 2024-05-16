@@ -3,6 +3,7 @@
 namespace App\Models\Messenger;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MessageFile extends Model
 {
@@ -30,7 +31,7 @@ class MessageFile extends Model
 
     protected $appends = ['url'];
 
-    public function message()
+    public function message(): BelongsTo
     {
         return $this->belongsTo(Message::class);
     }

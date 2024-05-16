@@ -13,6 +13,8 @@ use App\Models\WorkVolume\WorkVolumeMaterial;
 use App\Models\WorkVolume\WorkVolumeWork;
 use App\Models\WorkVolume\WorkVolumeWorkMaterial;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -703,7 +705,7 @@ class WVCalvulatorController extends Controller
 
     }
 
-    public function create_mount_calc(Request $request, $work_volume_id)
+    public function create_mount_calc(Request $request, $work_volume_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -1274,7 +1276,7 @@ class WVCalvulatorController extends Controller
         return redirect()->back();
     }
 
-    public function count_weight(Request $request)
+    public function count_weight(Request $request): JsonResponse
     {
         $material_value = 0;
 

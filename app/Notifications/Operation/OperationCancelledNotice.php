@@ -13,7 +13,7 @@ class OperationCancelledNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об отмене операции';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

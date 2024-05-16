@@ -13,7 +13,7 @@ class TechnicalFaultControlTaskNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о задаче Контроль неисправности техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

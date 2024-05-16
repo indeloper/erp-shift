@@ -37,10 +37,8 @@ class ProcessFuelTankOperation
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $fuelTankOperation = $this->fuelTankOperation;
         $value_diff = $this->customValueDiff;
@@ -51,7 +49,7 @@ class ProcessFuelTankOperation
         $sync_fuel_level = 0;
         $future_operations = $fuelTankOperation->future_history;
         if ($future_operations->count()) {
-            ProcessFuelTankOperation::dispatchNow($future_operations->first(), $value_diff);
+            ProcessFuelTankOperation::dispatchSync($future_operations->first(), $value_diff);
             $sync_fuel_level = $future_operations->sum('value_diff');
             $future_operations->first()->save();
         }

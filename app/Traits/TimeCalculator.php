@@ -14,7 +14,7 @@ trait TimeCalculator
      * @param  Carbon  $testDate  = null
      * @return Carbon $date
      */
-    public function addHours(int $addHours, ?Carbon $testDate = null)
+    public function addHours(int $addHours, ?Carbon $testDate = null): Carbon
     {
         $date = $testDate ? $testDate->second(0)->micro(0) : now()->second(0)->micro(0);
         $workHoursSum = Task::UPPER_WORK_HOUR_LIMIT - Task::LOWER_WORK_HOUR_LIMIT;
@@ -105,7 +105,7 @@ trait TimeCalculator
      * @param  Carbon  $testDate  = null
      * @return Carbon $date
      */
-    public function addDays(int $addDays, ?Carbon $testDate = null)
+    public function addDays(int $addDays, ?Carbon $testDate = null): Carbon
     {
 
         $date = $testDate ? $testDate->second(0)->micro(0) : now()->second(0)->micro(0);

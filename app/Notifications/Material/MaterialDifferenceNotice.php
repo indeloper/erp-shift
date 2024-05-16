@@ -13,7 +13,7 @@ class MaterialDifferenceNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о расхождении отправленного и полученного материала';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

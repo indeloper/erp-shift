@@ -11,10 +11,8 @@ class OurTechnicTicketReportFactory extends Factory
 {
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $rps = Group::with('users')->find([27, 13, 14])->pluck('users')->flatten();
         $rps_and_prorabs = Group::with('users')->find([27, 13, 19, 31, 14, 23])->pluck('users')->flatten();

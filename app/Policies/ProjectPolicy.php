@@ -28,7 +28,7 @@ class ProjectPolicy
             $user->can('projects_responsible_users');
     }
 
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }

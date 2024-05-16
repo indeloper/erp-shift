@@ -19,7 +19,7 @@ return new class extends Migration
         'Удаление категорий работ',
     ];
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -69,10 +69,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
         $permissionTwo = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[1])->first()->id;

@@ -35,10 +35,8 @@ class TechUpdatesNotifyEarlyFinished extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $message = 'Техническая поддержка. Работы были закончены досрочно. Сервис снова доступен.';
         $usersIds = User::all()->pluck('id')->toArray();

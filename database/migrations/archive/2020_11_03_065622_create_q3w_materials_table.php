@@ -9,10 +9,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('q3w_materials', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
@@ -57,10 +55,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasColumn('project_objects', 'material_accounting_type')) {
             Schema::table('project_objects', function ($table) {

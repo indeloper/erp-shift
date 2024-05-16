@@ -15,10 +15,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (env('APP_ENV') == 'production') {
             return;
@@ -387,10 +385,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('timesheet'); // Timesheet
         Schema::dropIfExists('timesheet_employees_summary_hours'); //TimesheetEmployeesSummaryHour

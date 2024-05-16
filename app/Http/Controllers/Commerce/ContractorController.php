@@ -26,17 +26,19 @@ use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
 use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Traits\TimeCalculator;
 use Fomvasss\Dadata\Facades\DadataSuggest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class ContractorController extends Controller
 {
     use TimeCalculator;
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $contractors = Contractor::query()->orderBy('id', 'desc');
 
@@ -60,7 +62,7 @@ class ContractorController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(): View
     {
         // $contractorTypes = Contractor::CONTRACTOR_TYPES;
         // $contractorTypes = ContractorType::pluck('name')->toArray();
@@ -73,7 +75,7 @@ class ContractorController extends Controller
         return view('contractors.create', compact('contractorTypes'));
     }
 
-    public function store(ContractorStoreRequest $request)
+    public function store(ContractorStoreRequest $request): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -173,7 +175,7 @@ class ContractorController extends Controller
         }
     }
 
-    public function card(Request $request, $id)
+    public function card(Request $request, $id): View
     {
         $projects = Project::getAllProjects()->with(['contracts' => function ($q) {
             $q->withCount('get_requests');
@@ -269,7 +271,7 @@ class ContractorController extends Controller
         ]);
     }
 
-    public function edit($id)
+    public function edit($id): View
     {
         $contractor = Contractor::findOrFail($id);
         // $contractorTypes = Contractor::CONTRACTOR_TYPES;
@@ -289,7 +291,7 @@ class ContractorController extends Controller
         ]);
     }
 
-    public function update(ContractorUpdateRequest $request, $id)
+    public function update(ContractorUpdateRequest $request, $id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -345,7 +347,7 @@ class ContractorController extends Controller
         return redirect()->route('contractors::card', $id);
     }
 
-    public function add_contact(ContractorContactRequest $request, $id)
+    public function add_contact(ContractorContactRequest $request, $id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -383,7 +385,7 @@ class ContractorController extends Controller
         return redirect()->back()->with('contacts', 'Новый контакт добавлен');
     }
 
-    public function edit_contact(ContractorContactRequest $request)
+    public function edit_contact(ContractorContactRequest $request): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -464,7 +466,7 @@ class ContractorController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function tasks($id)
+    public function tasks($id): View
     {
         $contractor = Contractor::findOrFail($id);
 
@@ -557,7 +559,7 @@ class ContractorController extends Controller
         return back();
     }
 
-    public function remove_task($id)
+    public function remove_task($id): View
     {
 
         $task = Task::where('tasks.id', $id)
@@ -661,7 +663,7 @@ class ContractorController extends Controller
         });
     }
 
-    public function solveTaskCheckContractor(Request $request, $task_id)
+    public function solveTaskCheckContractor(Request $request, $task_id): RedirectResponse
     {
         $task = Task::findOrFail($task_id);
         $task->load('changing_fields', 'contractor');

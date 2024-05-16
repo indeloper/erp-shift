@@ -7,20 +7,16 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('permissions')->insert($this->getNewEntrises());
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         foreach (self::NEW_ENTRIES as $newEntry) {
             DB::table('permissions')->where('codename', $newEntry['codename'])->delete();

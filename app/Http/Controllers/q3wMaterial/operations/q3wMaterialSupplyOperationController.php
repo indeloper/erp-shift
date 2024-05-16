@@ -19,6 +19,7 @@ use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class q3wMaterialSupplyOperationController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
@@ -56,7 +57,7 @@ class q3wMaterialSupplyOperationController extends Controller
         ]);
     }
 
-    public function validateMaterialList(Request $request)
+    public function validateMaterialList(Request $request): JsonResponse
     {
         $errors = [];
 
@@ -147,10 +148,8 @@ class q3wMaterialSupplyOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
         $requestData = json_decode($request['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
@@ -293,7 +292,7 @@ class q3wMaterialSupplyOperationController extends Controller
         ], 200);
     }
 
-    public function completed(Request $request)
+    public function completed(Request $request): View
     {
         $operation = q3wMaterialOperation::leftJoin('project_objects', 'project_objects.id', '=', 'q3w_material_operations.destination_project_object_id')
             ->leftJoin('users', 'users.id', '=', 'q3w_material_operations.destination_responsible_user_id')

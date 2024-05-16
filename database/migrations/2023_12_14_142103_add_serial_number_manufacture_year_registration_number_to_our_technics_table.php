@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('our_technics', function (Blueprint $table) {
             $table->integer('manufacture_year')->nullable()->after('technic_brand_model_id')->comment('Год выпуска');
@@ -22,10 +20,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('our_technics', function (Blueprint $table) {
             $table->dropColumn('manufacture_year');

@@ -29,16 +29,19 @@ use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use App\Services\Commerce\SplitService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class TaskCommerceController extends Controller
 {
     use TimeCalculator;
 
-    public function common_task(Request $request, $id)
+    public function common_task(Request $request, $id): View
     {
         $task = Task::where('tasks.id', $id)
             ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
@@ -1112,7 +1115,7 @@ class TaskCommerceController extends Controller
         }
     }
 
-    public function postpone(Request $request, $task_id)
+    public function postpone(Request $request, $task_id): RedirectResponse
     {
         DB::beginTransaction();
         $task = Task::find($task_id);
@@ -1139,7 +1142,7 @@ class TaskCommerceController extends Controller
         return redirect(route('tasks::index'));
     }
 
-    public function declineRequest(Request $request)
+    public function declineRequest(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1156,7 +1159,7 @@ class TaskCommerceController extends Controller
         return response()->json(true);
     }
 
-    public function slimTask($id)
+    public function slimTask($id): View
     {
         $task = Task::findOrFail($id);
         $task->load('contractor', 'project', 'changing_fields');

@@ -36,10 +36,8 @@ class BirthdayNotifier extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $whoHaveBirthdayToday = User::whoHaveBirthdayToday()->get();
         $whoHaveBirthdayNextWeek = User::whoHaveBirthdayNextWeek()->get();

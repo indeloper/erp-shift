@@ -21,7 +21,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_stores_valid_request()
+    public function it_stores_valid_request(): void
     {
         $test_request = FuelTankOperation::factory()->raw();
         $test_request['file_ids'] = FileEntry::factory()->count(2)->create(['mime' => 'video'])->pluck('id');
@@ -32,7 +32,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_destroys_operation_by_id()
+    public function it_destroys_operation_by_id(): void
     {
         $operation = FuelTankOperation::factory()->create();
 
@@ -42,7 +42,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_updates_operation_with_valid_request()
+    public function it_updates_operation_with_valid_request(): void
     {
         $operation = FuelTankOperation::factory()->create();
         $test_request = FuelTankOperation::factory()->raw();
@@ -54,7 +54,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_updates_operation_with_files()
+    public function it_updates_operation_with_files(): void
     {
         $operation = FuelTankOperation::factory()->create();
 
@@ -71,7 +71,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_also_attaches_files_with_valid_request()
+    public function it_also_attaches_files_with_valid_request(): void
     {
         $test_request = FuelTankOperation::factory()->raw();
         $test_request['file_ids'] = FileEntry::factory()->count(3)->create()->pluck('id');
@@ -83,7 +83,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_validates_request_by_type()
+    public function it_validates_request_by_type(): void
     {
         $this->withExceptionHandling();
 
@@ -105,7 +105,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function user_from_another_group_cant_store_operation()
+    public function user_from_another_group_cant_store_operation(): void
     {
         $this->withExceptionHandling();
         $this->actingAs(User::active()->take(2)->get()->last());
@@ -117,7 +117,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_deletes_operation_on_method()
+    public function it_deletes_operation_on_method(): void
     {
         $operation = FuelTankOperation::factory()->create();
         $this->delete(route('building::tech_acc::fuel_tank_operations.destroy', $operation->id))->assertStatus(200);
@@ -126,7 +126,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_forbid_to_delete_for_users_without_permission()
+    public function it_forbid_to_delete_for_users_without_permission(): void
     {
         $this->actingAs(User::whereIn('group_id', Group::FOREMEN)->inRandomOrder()->first());
 
@@ -137,7 +137,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_returns_full_data_on_show_method()
+    public function it_returns_full_data_on_show_method(): void
     {
         $operation = FuelTankOperation::factory()->income()->create();
 
@@ -148,7 +148,7 @@ class FuelTankOperationRequest extends TestCase
     }
 
     /** @test */
-    public function it_paginate_results_for_index()
+    public function it_paginate_results_for_index(): void
     {
         $all_operations = FuelTankOperation::factory()->count(11)->create();
 

@@ -85,19 +85,19 @@ Route::post('get_trashed_fuel_tanks_paginated', [FuelTankController::class, 'get
 
 Route::prefix('technic')->name('technic::')->group(function () {
     Route::prefix('ourTechnicList')->name('ourTechnicList::')->group(function () {
-        Route::registerBaseRoutes('Technic\OurTechnicController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\OurTechnicController', $attachmentsRoutes = false);
     });
     Route::prefix('technicCategory')->name('technicCategory::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('Technic\TechnicCategoryController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicCategoryController', $attachmentsRoutes = false);
     });
     Route::prefix('technicBrand')->name('technicBrand::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('Technic\TechnicBrandController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicBrandController', $attachmentsRoutes = false);
     });
     Route::prefix('mtechnicBrandModel')->name('technicBrandModel::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('Technic\TechnicBrandModelController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicBrandModelController', $attachmentsRoutes = false);
     });
     Route::prefix('movements')->name('movements::')->group(function () {
-        Route::registerBaseRoutes('Technic\TechnicMovementController', $attachmentsRoutes = true);
+        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicMovementController', $attachmentsRoutes = true);
     });
 });
 
@@ -113,20 +113,20 @@ Route::prefix('fuel')->name('fuel::')->group(function () {
         Route::post('confirmMovingFuelTank', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'confirmMovingFuelTank'])->name('confirmMovingFuelTank');
         Route::get('getFuelTankConfirmationFormData', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'getFuelTankConfirmationFormData'])->name('getFuelTankConfirmationFormData');
 
-        Route::registerBaseRoutes('Fuel\FuelTankController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController', $attachmentsRoutes = false);
     });
 
     Route::prefix('fuelFlow')->name('fuelFlow::')->group(function () {
-        Route::registerBaseRoutes('Fuel\FuelTankFlowController', $attachmentsRoutes = true);
+        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankFlowController', $attachmentsRoutes = true);
     });
 
     Route::prefix('reports')->name('reports::')->group(function () {
         Route::prefix('fuelTankPeriodReport')->name('fuelTankPeriodReport::')->group(function () {
-            Route::registerBaseRoutes('Fuel\Reports\FuelTankPeriodReportController', $attachmentsRoutes = false);
+            Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTankPeriodReportController', $attachmentsRoutes = false);
             Route::get('getPdf', [App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTankPeriodReportController::class, 'getPdf'])->name('getPdf');
         });
         Route::prefix('tanksMovementReport')->name('tanksMovementReport::')->middleware('can:fuel_tanks_movements_report_access')->group(function () {
-            Route::registerBaseRoutes('Fuel\Reports\FuelTanksMovementsReportController', $attachmentsRoutes = false);
+            Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTanksMovementsReportController', $attachmentsRoutes = false);
         });
     });
 });

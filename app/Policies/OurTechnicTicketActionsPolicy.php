@@ -36,7 +36,7 @@ class OurTechnicTicketActionsPolicy
         return ($user->id == $ticket->users()->wherePivot('type', 1)->first()->id or $user->isProjectManager()) && in_array($ticket->status, [5, 6, 7]);
     }
 
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }

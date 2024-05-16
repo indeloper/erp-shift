@@ -13,7 +13,7 @@ class NewProjectCreationNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о создании нового проекта';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

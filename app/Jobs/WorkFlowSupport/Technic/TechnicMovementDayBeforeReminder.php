@@ -29,10 +29,8 @@ class TechnicMovementDayBeforeReminder implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $technicMovement = TechnicMovement::find($this->data['entity']->id);
         $movementStartDatetimeLocal = Carbon::parse($this->data['updateData']['movement_start_datetime'])->setTimezone('Europe/Moscow');

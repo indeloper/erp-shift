@@ -14,7 +14,7 @@ class SheetPilingCalculationTaskCreationNotice extends BaseNotification
     const DESCRIPTION = 'Уведомление о создании задачи Расчёт ОР (шпунтовое направление)';
 
     /** ОР - Объём работ */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

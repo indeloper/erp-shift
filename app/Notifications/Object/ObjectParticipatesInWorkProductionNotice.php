@@ -13,7 +13,7 @@ class ObjectParticipatesInWorkProductionNotice extends BaseNotification
 
     const DESCRIPTION = 'Объект участвует в производстве работ';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

@@ -41,10 +41,13 @@ use App\Notifications\Task\TaskTransferNotificationToNewResponsibleNotice;
 use App\Traits\TimeCalculator;
 use App\Traits\UserSearchByGroup;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
@@ -94,7 +97,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         if ($request->contractor_id) {
             $contractor = Contractor::findOrFail($request->contractor_id);
@@ -159,7 +162,7 @@ class ProjectController extends Controller
         return redirect()->route('projects::card', $project->id);
     }
 
-    public function users(Project $project)
+    public function users(Project $project): View
     {
         $projectTimeResp = $project->timeResponsible->id ?? -1;
         $isTimeResponsible = auth()->id() == $projectTimeResp;
@@ -174,7 +177,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function card(Request $request, $id)
+    public function card(Request $request, $id): View
     {
         $project = Project::with('contractors.contractor')->findOrFail($id);
 
@@ -423,7 +426,7 @@ class ProjectController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function select_contacts(Request $request, $id)
+    public function select_contacts(Request $request, $id): RedirectResponse
     {
         $project = Project::findOrFail($id);
 
@@ -954,7 +957,7 @@ class ProjectController extends Controller
         }
     }
 
-    public function delete_resp_user(Request $request)
+    public function delete_resp_user(Request $request): JsonResponse
     {
         $project = Project::findOrFail($request->project_id);
 
@@ -984,7 +987,7 @@ class ProjectController extends Controller
         return response()->json(! $user_tasks_count ? true : false);
     }
 
-    public function edit($id)
+    public function edit($id): View
     {
         $project = Project::findOrFail($id);
 
@@ -996,7 +999,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function add_contact(ContractorContactRequest $request, $id)
+    public function add_contact(ContractorContactRequest $request, $id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -1042,7 +1045,7 @@ class ProjectController extends Controller
         return redirect()->back()->with('contacts', 'Новый контакт добавлен');
     }
 
-    public function update(ProjectRequest $request, $id)
+    public function update(ProjectRequest $request, $id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -1083,7 +1086,7 @@ class ProjectController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function tasks(Request $request, $id)
+    public function tasks(Request $request, $id): View
     {
         $project = Project::findOrFail($id);
         $com_offers = CommercialOffer::where('project_id', $id);
@@ -1166,7 +1169,7 @@ class ProjectController extends Controller
         return ['results' => $results];
     }
 
-    public function use_as_main(Request $request)
+    public function use_as_main(Request $request): JsonResponse
     {
         DB::beginTransaction();
         // find relation
@@ -1183,7 +1186,7 @@ class ProjectController extends Controller
         return response()->json(true);
     }
 
-    public function remove_relation(Request $request)
+    public function remove_relation(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1255,7 +1258,7 @@ class ProjectController extends Controller
         return $html;
     }
 
-    public function store_temp_contact(Request $request)
+    public function store_temp_contact(Request $request): JsonResponse
     {
         if (count($request->all()) > 4) {
             // manually added person
@@ -1321,7 +1324,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function updateContacts(iterable $contractor_contact_ids, iterable $project_contacts_ids, int $contractor_id, int $project_id)
+    public function updateContacts(iterable $contractor_contact_ids, iterable $project_contacts_ids, int $contractor_id, int $project_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1335,7 +1338,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function close_project(Request $request, $project_id)
+    public function close_project(Request $request, $project_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -1389,7 +1392,7 @@ class ProjectController extends Controller
         return \GuzzleHttp\json_encode(['results' => $results]);
     }
 
-    public function importance_toggler()
+    public function importance_toggler(): JsonResponse
     {
         DB::beginTransaction();
 

@@ -11,10 +11,8 @@ class OurTechnicTicketFactory extends Factory
 {
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         if (! ProjectObject::count()) {
             ProjectObject::factory()->count(6)->create();

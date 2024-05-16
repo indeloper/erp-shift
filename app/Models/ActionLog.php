@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasAuthor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ActionLog extends Model
@@ -16,10 +17,8 @@ class ActionLog extends Model
 
     /**
      * Relation to logable model
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function logable()
+    public function logable(): MorphTo
     {
         return $this->morphTo();
     }

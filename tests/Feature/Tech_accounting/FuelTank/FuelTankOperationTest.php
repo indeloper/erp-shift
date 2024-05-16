@@ -19,7 +19,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_can_have_object()
+    public function it_can_have_object(): void
     {
         $object = ProjectObject::first();
         $operation = FuelTankOperation::factory()->create(['object_id' => $object->id]);
@@ -28,7 +28,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_related_tank()
+    public function it_returns_related_tank(): void
     {
         $tanks = FuelTank::factory()->count(20)->create();
         $fuel_operation = FuelTankOperation::factory()->create(['fuel_tank_id' => $tanks[4]->id]);
@@ -37,7 +37,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_calculate_result_value_correctly()
+    public function it_calculate_result_value_correctly(): void
     {
         $this->actingAs(User::first());
 
@@ -54,7 +54,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_recalc_tank_fuel_level_on_update()
+    public function it_recalc_tank_fuel_level_on_update(): void
     {
         $this->actingAs(User::first());
         $tank = FuelTank::factory()->create(['fuel_level' => 1000]);
@@ -72,7 +72,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_recalc_tank_fuel_level_on_tank_update()
+    public function it_recalc_tank_fuel_level_on_tank_update(): void
     {
         $this->actingAs(User::first());
         $tanks = FuelTank::factory()->count(2)->create(['fuel_level' => 1000]);
@@ -92,7 +92,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_recalc_tank_fuel_level_on_complicated_update()
+    public function it_recalc_tank_fuel_level_on_complicated_update(): void
     {
         $this->actingAs(User::first());
         $tanks = FuelTank::factory()->count(2)->create(['fuel_level' => 1000]);
@@ -113,7 +113,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_rollback_tank_fuel_level_on_deleting()
+    public function it_rollback_tank_fuel_level_on_deleting(): void
     {
         $this->actingAs(User::first());
         $tank = FuelTank::factory()->create(['fuel_level' => 1000]);
@@ -130,7 +130,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_recalc_all_values_on_restore()
+    public function it_recalc_all_values_on_restore(): void
     {
         $this->actingAs(User::first());
         $tank = FuelTank::factory()->create(['fuel_level' => 1000]);
@@ -155,7 +155,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_return_future_operations()
+    public function it_return_future_operations(): void
     {
         $tank = FuelTank::factory()->create(['fuel_level' => 1000]);
 
@@ -170,7 +170,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_recalc_future_operations()
+    public function it_recalc_future_operations(): void
     {
         $tank = FuelTank::factory()->create(['fuel_level' => 1000]);
 
@@ -190,7 +190,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_forbids_to_create_big_value_outgo()
+    public function it_forbids_to_create_big_value_outgo(): void
     {
         $this->actingAs(User::first());
         $tank = FuelTank::factory()->create(['fuel_level' => 100]);
@@ -215,7 +215,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_forbids_to_change_date_when_it_leads_to_conflict()
+    public function it_forbids_to_change_date_when_it_leads_to_conflict(): void
     {
         $this->actingAs(User::first());
         $tank = FuelTank::factory()->create(['fuel_level' => 100]);
@@ -235,7 +235,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_allow_to_change_date_if_everything_is_ok()
+    public function it_allow_to_change_date_if_everything_is_ok(): void
     {
         $this->actingAs(User::first());
         $tank = FuelTank::factory()->create(['fuel_level' => 100]);
@@ -255,7 +255,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_recalc_future_operations_after_adding_to_the_past()
+    public function it_recalc_future_operations_after_adding_to_the_past(): void
     {
         $tank = FuelTank::factory()->create(['fuel_level' => 0]);
 
@@ -270,7 +270,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function stored_result_value_must_calc_historical_fuel_level()
+    public function stored_result_value_must_calc_historical_fuel_level(): void
     {
         $tank = FuelTank::factory()->create(['fuel_level' => 0]);
 
@@ -303,7 +303,7 @@ class FuelTankOperationTest extends TestCase
     }
 
     /** @test */
-    public function it_recalc_manual_update_correctly()
+    public function it_recalc_manual_update_correctly(): void
     {
         $tank = FuelTank::factory()->create(['fuel_level' => 1000]);
 

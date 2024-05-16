@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_movements', function (Blueprint $table) {
             $table->unsignedInteger('previous_object_id')->nullable()->after('object_id')->comment('ID предыдущего объекта');
@@ -21,10 +19,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_movements', function (Blueprint $table) {
             $table->dropForeign(['previous_object_id']);

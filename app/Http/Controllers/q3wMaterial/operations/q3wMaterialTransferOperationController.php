@@ -19,6 +19,7 @@ use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -32,10 +33,8 @@ class q3wMaterialTransferOperationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         //
     }
@@ -45,7 +44,7 @@ class q3wMaterialTransferOperationController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $transferOperationInitiator = 'none';
 
@@ -665,10 +664,8 @@ class q3wMaterialTransferOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
         $requestData = json_decode($request['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
@@ -807,7 +804,7 @@ class q3wMaterialTransferOperationController extends Controller
      *
      * @return Application|Factory|Response|View
      */
-    public function show(Request $request)
+    public function show(Request $request): View
     {
         $operation = q3wMaterialOperation::findOrFail($request->operationId);
         $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
@@ -941,10 +938,8 @@ class q3wMaterialTransferOperationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return Response
      */
-    public function update(Request $request)
+    public function update(Request $request): Response
     {
         $requestData = json_decode($request['data']);
 
@@ -1148,10 +1143,8 @@ class q3wMaterialTransferOperationController extends Controller
      *      5) Отстатки не будут конфликтовать по количеству с ранее созданными заявками (Тут вопрос, нужно обсудить этот функционал) TODO: Реализовать проверку на конфликт заявок
      * Дополнительно информировать:
      *      1) Если длина материала в ед. изм. >= 15 м.п. (Только для м.п., для других единиц измерения это условие не нужно)
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function validateMaterialList(Request $request)
+    public function validateMaterialList(Request $request): JsonResponse
     {
         $errors = [];
 
@@ -1429,7 +1422,7 @@ class q3wMaterialTransferOperationController extends Controller
         );
     }
 
-    public function completed(Request $request)
+    public function completed(Request $request): View
     {
         $operation = q3wMaterialOperation::leftJoin('project_objects as source_project_objects', 'source_project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
             ->leftJoin('project_objects as destination_project_objects', 'destination_project_objects.id', '=', 'q3w_material_operations.destination_project_object_id')

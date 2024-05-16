@@ -23,6 +23,7 @@ use App\Models\UserPermission;
 use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -36,10 +37,8 @@ class q3wMaterialWriteOffOperationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         //
     }
@@ -49,7 +48,7 @@ class q3wMaterialWriteOffOperationController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create(Request $request)
+    public function create(Request $request): View
     {
 
         if (isset($request->project_object)) {
@@ -146,7 +145,7 @@ class q3wMaterialWriteOffOperationController extends Controller
         ]);
     }
 
-    public function validateMaterialList(Request $request)
+    public function validateMaterialList(Request $request): JsonResponse
     {
         $errors = [];
 
@@ -347,10 +346,8 @@ class q3wMaterialWriteOffOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
         $requestData = json_decode($request['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
@@ -468,7 +465,7 @@ class q3wMaterialWriteOffOperationController extends Controller
         ], 200);
     }
 
-    public function view(Request $request)
+    public function view(Request $request): View
     {
         if (isset($request->operationId)) {
             $operation = q3wMaterialOperation::findOrFail($request->operationId);
@@ -797,7 +794,7 @@ class q3wMaterialWriteOffOperationController extends Controller
         }
     }
 
-    public function completed(Request $request)
+    public function completed(Request $request): View
     {
         $operation = q3wMaterialOperation::leftJoin('project_objects as source_project_objects', 'source_project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
             ->leftJoin('users as source_users', 'source_users.id', '=', 'q3w_material_operations.source_responsible_user_id')

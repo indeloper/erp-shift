@@ -13,7 +13,7 @@ class TaskCompletionDeadlineNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о завершении времени на выполнение задачи';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

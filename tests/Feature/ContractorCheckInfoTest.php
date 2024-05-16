@@ -22,17 +22,15 @@ class ContractorCheckInfoTest extends TestCase
 
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
-    public function testRunCommand()
+    public function testRunCommand(): void
     {
         $this->artisan('check:contractors')
 //            ->expectsOutput('0 errors')
             ->assertExitCode(0);
     }
 
-    public function testCreateTask()
+    public function testCreateTask(): void
     {
         $countUserTasks = Auth::user()->tasks()->count();
         $countUserNotifications = Auth::user()->notifications()->count();
@@ -53,7 +51,7 @@ class ContractorCheckInfoTest extends TestCase
         $this->assertEquals($countUserNotifications + 1, $updatedCountUserNotifications);
     }
 
-    public function testCreateTaskNotification()
+    public function testCreateTaskNotification(): void
     {
         $contractor = Contractor::factory()->create();
         $changingFields = [];

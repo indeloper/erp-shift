@@ -13,7 +13,7 @@ class TechnicalFaultReportConfirmedNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о подтверждении заявки на неисправность техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

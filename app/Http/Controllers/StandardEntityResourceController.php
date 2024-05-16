@@ -9,9 +9,11 @@ use App\Services\Common\FilesUploadService;
 use App\Services\Common\FileSystemService;
 use App\Services\SystemService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class StandardEntityResourceController extends Controller
 {
@@ -49,7 +51,7 @@ class StandardEntityResourceController extends Controller
         $this->setAdditionalResources();
     }
 
-    public function getPageCore()
+    public function getPageCore(): View
     {
         $bladePath = '1_base.desktop.index';
         if ($this->isMobile) {
@@ -139,10 +141,9 @@ class StandardEntityResourceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
 
         $entity = $this->baseModel::find($id);
@@ -170,10 +171,9 @@ class StandardEntityResourceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $data = (array) json_decode($request->input('data'));
         $entity = $this->baseModel::findOrFail($id);
@@ -195,10 +195,9 @@ class StandardEntityResourceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $entity = $this->baseModel::findOrFail($id);
         DB::beginTransaction();
@@ -332,7 +331,7 @@ class StandardEntityResourceController extends Controller
         return $permissionsArray;
     }
 
-    public function uploadFile(Request $request)
+    public function uploadFile(Request $request): JsonResponse
     {
         $uploadedFile = $request->files->all()['files'][0];
         $documentable_id = $request->input('id');
@@ -361,7 +360,7 @@ class StandardEntityResourceController extends Controller
 
     }
 
-    public function downloadAttachments(Request $request, FilesUploadService $filesUploadService)
+    public function downloadAttachments(Request $request, FilesUploadService $filesUploadService): JsonResponse
     {
 
         if (! count($request->fliesIds)) {

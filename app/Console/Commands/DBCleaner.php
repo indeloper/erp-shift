@@ -68,10 +68,8 @@ class DBCleaner extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $tables = DB::select('SHOW TABLES');
         $tables = array_map('current', $tables);

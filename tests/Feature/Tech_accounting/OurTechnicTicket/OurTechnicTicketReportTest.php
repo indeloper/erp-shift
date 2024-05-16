@@ -85,7 +85,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_doesnt_close_task_when_last_report_for_today_has_been_closed()
+    public function it_doesnt_close_task_when_last_report_for_today_has_been_closed(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
 
@@ -108,7 +108,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_do_not_close_task_when_there_are_still_reports_to_make()
+    public function it_do_not_close_task_when_there_are_still_reports_to_make(): void
     {
         $ticket = $this->seedTicketsWithUsers(2, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
 
@@ -131,7 +131,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_closes_task_on_last_report_in_the_past()
+    public function it_closes_task_on_last_report_in_the_past(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(4)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $date = Carbon::now()->subDays(4);
@@ -158,7 +158,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_groups_tickets_by_usage_user()
+    public function it_groups_tickets_by_usage_user(): void
     {
         $this->seedTicketsWithUsers(3, ['status' => 7], ['usage_resp_user_id' => '']);
         $this->seedTicketsWithUsers(3, ['status' => 7], ['usage_resp_user_id' => $this->rps_and_prorabs[1]->id]);
@@ -171,7 +171,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function new_usage_resp_get_report_task_not_old_one()
+    public function new_usage_resp_get_report_task_not_old_one(): void
     {
         $Mark = $this->prorabs->random(); //actually he is not Mark
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
@@ -195,7 +195,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_properly_set_old_resp_as_active()
+    public function it_can_properly_set_old_resp_as_active(): void
     {
         $Mark = $this->prorabs->random(); //actually he is not Mark
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], [
@@ -229,7 +229,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_new_task_and_closes_old_automatically()
+    public function it_creates_new_task_and_closes_old_automatically(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(1)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $date = Carbon::now()->subDays(1);
@@ -255,7 +255,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_new_task_for_old_dates()
+    public function it_creates_new_task_for_old_dates(): void
     {
         //set usage_resp created_at to sub 3 days in seeder
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)], ['usage_resp_user_id' => $this->response_user->id])->first();
@@ -268,7 +268,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_new_task_for_compicated_cases()
+    public function it_creates_new_task_for_compicated_cases(): void
     {
 
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)], ['usage_resp_user_id' => $this->response_user->id])->first();

@@ -9,17 +9,15 @@ class UserUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     protected $redirectRoute = 'request_error';
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'first_name.required' => 'Поле имя обязательно для заполнения',
@@ -60,17 +58,15 @@ class UserUpdateRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    protected function prepareForValidation()
+    protected function prepareForValidation(): array
     {
         if ($this->has('person_phone')) {
             $this->merge(['person_phone' => preg_replace('~[\D]~', '', $this->person_phone)]);
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'first_name' => 'required|string|max:50',

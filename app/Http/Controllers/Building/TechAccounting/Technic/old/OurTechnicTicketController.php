@@ -13,9 +13,11 @@ use App\Notifications\Technic\TechnicUsageStartTaskNotice;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\TimeCalculator;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class OurTechnicTicketController extends Controller
 {
@@ -35,10 +37,8 @@ class OurTechnicTicketController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $data = $this->our_ticket_service->collectShortTicketsData($request->all());
 
@@ -47,10 +47,8 @@ class OurTechnicTicketController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return Response
      */
-    public function store(TicketStoreRequest $request)
+    public function store(TicketStoreRequest $request): JsonResponse
     {
         $new_ticket = $this->our_ticket_service->createNewTicket($request->all());
 
@@ -59,10 +57,8 @@ class OurTechnicTicketController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return Response
      */
-    public function update(DynamicTicketUpdateRequest $request, OurTechnicTicket $ourTechnicTicket)
+    public function update(DynamicTicketUpdateRequest $request, OurTechnicTicket $ourTechnicTicket): Response
     {
         $updated_ticket = $this->our_ticket_service->updateTicketStatus($ourTechnicTicket, $request->all());
 
@@ -73,11 +69,9 @@ class OurTechnicTicketController extends Controller
     }
 
     /**
-     * @return Response
-     *
      * @throws \Exception
      */
-    public function destroy(OurTechnicTicket $ourTechnicTicket)
+    public function destroy(OurTechnicTicket $ourTechnicTicket): Response
     {
         $ourTechnicTicket->close()->delete();
 
@@ -111,7 +105,7 @@ class OurTechnicTicketController extends Controller
         ];
     }
 
-    public function reassignment(OurTechnicTicket $ourTechnicTicket, Request $request)
+    public function reassignment(OurTechnicTicket $ourTechnicTicket, Request $request): JsonResponse
     {
         DB::beginTransaction();
 

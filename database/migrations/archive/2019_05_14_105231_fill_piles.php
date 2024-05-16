@@ -10,10 +10,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $moldings = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
         $section = [30, 35, 40];
@@ -103,10 +101,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         //
     }

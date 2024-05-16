@@ -13,6 +13,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,10 +74,8 @@ class Contract extends Model
 
     /**
      * Morph relation to tasks
-     *
-     * @return MorphMany
      */
-    public function tasksMorphed()
+    public function tasksMorphed(): MorphMany
     {
         return $this->morphMany(Task::class, 'taskable');
     }
@@ -163,12 +165,12 @@ class Contract extends Model
         return $query;
     }
 
-    public function tasks()
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'target_id', 'id')->whereIn('status', Task::CONTR_STATUS);
     }
 
-    public function subcontractor()
+    public function subcontractor(): HasOne
     {
         return $this->hasOne(Contractor::class, 'id', 'subcontractor_id');
     }
@@ -182,7 +184,7 @@ class Contract extends Model
         }
     }
 
-    public function commercial_offers()
+    public function commercial_offers(): BelongsToMany
     {
         return $this->belongsToMany(CommercialOffer::class, 'contract_commercial_offer_relations', 'contract_id', 'commercial_offer_id');
     }
@@ -214,14 +216,14 @@ class Contract extends Model
         return "{$date->isoFormat('DD.MM')} ({$notify_date->isoFormat('D.MM')})";
     }
 
-    public function unsolved_tasks()
+    public function unsolved_tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'target_id', 'id')->where(function ($q) {
             $q->orWhere('is_solved', 0)->orWhere('revive_at', '<>', null);
         })->whereIn('status', Task::CONTR_STATUS)->get();
     }
 
-    public function operations()
+    public function operations(): HasMany
     {
         return $this->hasMany(MaterialAccountingOperation::class, 'contract_id', 'id');
     }
@@ -257,12 +259,12 @@ class Contract extends Model
         return $prev_task ? $prev_task->get()->first() : new Task();
     }
 
-    public function get_requests()
+    public function get_requests(): HasMany
     {
         return $this->hasMany(ContractRequest::class, 'contract_id', 'id');
     }
 
-    public function theses_check()
+    public function theses_check(): HasMany
     {
         return $this->hasMany(ContractThesis::class, 'contract_id', 'id')
             ->leftJoin('contract_thesis_verifiers', 'contract_thesis_verifiers.thesis_id', 'contract_theses.id')
@@ -270,12 +272,12 @@ class Contract extends Model
             ->select('contract_theses.*', 'contract_thesis_verifiers.user_id as verifier_id', 'contract_thesis_verifiers.thesis_id', 'contract_thesis_verifiers.status as verifier_status');
     }
 
-    public function theses()
+    public function theses(): HasMany
     {
         return $this->hasMany(ContractThesis::class, 'contract_id', 'id');
     }
 
-    public function works()
+    public function works(): HasMany
     {
         return $this->hasMany(CommercialOffer::class, 'id', 'commercial_offer_id')
             ->leftJoin('work_volumes', 'work_volumes.id', 'commercial_offers.work_volume_id')
@@ -284,17 +286,17 @@ class Contract extends Model
             ->select('commercial_offers.id', 'work_volume_works.result_price', 'work_volume_works.subcontractor_id', 'work_volume_works.count', 'work_volume_works.term', 'manual_works.name', 'manual_works.unit', 'manual_works.price_per_unit');
     }
 
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(ContractFiles::class, 'contract_id', 'id');
     }
 
-    public function extra_contracts()
+    public function extra_contracts(): HasMany
     {
         return $this->hasMany(Contract::class, 'main_contract_id');
     }
 
-    public function main_contract()
+    public function main_contract(): HasOne
     {
         return $this->hasOne(Contract::class, 'id', 'main_contract_id');
     }
@@ -317,12 +319,12 @@ class Contract extends Model
         }
     }
 
-    public function responsible_user_ids()
+    public function responsible_user_ids(): HasMany
     {
         return $this->hasMany(ProjectResponsibleUser::class, 'project_id', 'project_id')->where('role', 7)->select('user_id');
     }
 
-    public function project()
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
@@ -356,7 +358,7 @@ class Contract extends Model
         DB::commit();
     }
 
-    public function key_dates()
+    public function key_dates(): HasMany
     {
         return $this->hasMany(ContractKeyDates::class)->whereNull('key_date_id');
     }

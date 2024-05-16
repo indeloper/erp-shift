@@ -9,10 +9,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('object_responsible_users', function (Blueprint $table) {
             $table->renameColumn('role', 'object_responsible_user_role_id');
@@ -30,10 +28,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('object_responsible_users', function (Blueprint $table) {
             $table->dropForeign('object_responsible_user_role_foreign');

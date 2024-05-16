@@ -10,12 +10,14 @@ use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualReference;
 use App\Models\Manual\ManualReferenceParameter;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ManualMaterialCategoryController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $categories = ManualMaterialCategory::with('attributes', 'documents');
 
@@ -154,7 +156,7 @@ class ManualMaterialCategoryController extends Controller
         return \GuzzleHttp\json_encode($test + 1);
     }
 
-    public function getNeedAttributes(Request $request)
+    public function getNeedAttributes(Request $request): JsonResponse
     {
         $category = ManualMaterialCategory::find($request->category_id);
 

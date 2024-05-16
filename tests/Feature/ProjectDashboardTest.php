@@ -10,10 +10,8 @@ class ProjectDashboardTest extends TestCase
 {
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
-    public function testSeeDashboardStats()
+    public function testSeeDashboardStats(): void
     {
         $project = Project::find(291);
 

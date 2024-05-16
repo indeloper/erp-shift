@@ -22,10 +22,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasColumn('users', 'inn')) {
             Schema::table('users', function (Blueprint $table) {
@@ -526,10 +524,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permission = Permission::where('codename', 'labor_safety_order_creation')->first();
         if (isset($permission)) {

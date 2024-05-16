@@ -4,6 +4,7 @@ namespace App\Models\Manual;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualMaterialParameter extends Model
@@ -43,7 +44,7 @@ class ManualMaterialParameter extends Model
         return $materials;
     }
 
-    public function attribute()
+    public function attribute(): BelongsTo
     {
         return $this->belongsTo(ManualMaterialCategoryAttribute::class, 'attr_id', 'id');
     }

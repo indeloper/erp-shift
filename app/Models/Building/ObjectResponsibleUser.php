@@ -5,6 +5,7 @@ namespace App\Models\Building;
 use App\Models\ProjectObject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ObjectResponsibleUser extends Model
 {
@@ -16,12 +17,12 @@ class ObjectResponsibleUser extends Model
         // 3 => 'Ответственный за персонал' // coming soon
     ];
 
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'object_id', 'id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

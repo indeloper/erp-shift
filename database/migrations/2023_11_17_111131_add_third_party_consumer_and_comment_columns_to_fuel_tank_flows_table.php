@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_flows', function (Blueprint $table) {
             $table->string('third_party_consumer')->nullable()->after('our_technic_id')->comment('Сторонний потребитель топлива');
@@ -21,10 +19,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_flows', function (Blueprint $table) {
             $table->dropColumn('third_party_consumer');

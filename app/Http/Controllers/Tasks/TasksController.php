@@ -21,11 +21,13 @@ use App\Notifications\Task\StandardTaskCreationNotice;
 use App\Services\Commerce\ProjectDashboardService;
 use App\Services\Tasks\Reports\TasksXLSXReport;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use ReflectionClass;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -318,7 +320,7 @@ class TasksController extends Controller
         return ['results' => $results];
     }
 
-    public function card($id)
+    public function card($id): View
     {
         $task = Task::where('tasks.id', $id)
             ->leftJoin('users', 'users.id', '=', 'tasks.user_id')
@@ -370,7 +372,7 @@ class TasksController extends Controller
         ]);
     }
 
-    public function solve(Request $request, $id)
+    public function solve(Request $request, $id): RedirectResponse
     {
         $task = Task::findOrFail($id);
 
@@ -435,7 +437,7 @@ class TasksController extends Controller
         return redirect()->route('tasks::index');
     }
 
-    public function redirect()
+    public function redirect(): RedirectResponse
     {
         if (! (Auth::user()->can('tasks') || Auth::user()->can('dashbord'))) {
             return redirect()->route('notifications::index');
@@ -444,7 +446,7 @@ class TasksController extends Controller
         return redirect()->route('tasks::index');
     }
 
-    public function error()
+    public function error(): View
     {
         if (session()->has('errors')) {
             return view('errors.custom_error');
@@ -499,7 +501,7 @@ class TasksController extends Controller
         return $proj_stats;
     }
 
-    public function showTasksReportFilterForm(Request $request)
+    public function showTasksReportFilterForm(Request $request): View
     {
         return view('tasks.filter-tasks-report');
     }

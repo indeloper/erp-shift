@@ -13,7 +13,7 @@ class PartialClosureOperationDeletionRequestNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о задаче Запрос на удаление операции частичного закрытия';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

@@ -18,7 +18,7 @@ class CommentTest extends TestCase
     }
 
     /** @test */
-    public function it_can_associate_ticket()
+    public function it_can_associate_ticket(): void
     {
         $ticket = OurTechnicTicket::factory()->create();
 
@@ -33,7 +33,7 @@ class CommentTest extends TestCase
     }
 
     /** @test */
-    public function it_can_associate_defects()
+    public function it_can_associate_defects(): void
     {
         $defect = Defects::factory()->create();
 
@@ -48,7 +48,7 @@ class CommentTest extends TestCase
     }
 
     /** @test */
-    public function it_can_attach_files()
+    public function it_can_attach_files(): void
     {
         $files = FileEntry::factory()->count(5)->create();
 
@@ -61,7 +61,7 @@ class CommentTest extends TestCase
     }
 
     /** @test */
-    public function it_deletes_files_with_comment()
+    public function it_deletes_files_with_comment(): void
     {
         $comment = Comment::factory()->create();
         $files = FileEntry::factory()->count(6)->create();
@@ -73,7 +73,7 @@ class CommentTest extends TestCase
     }
 
     /** @test */
-    public function it_can_update_comment()
+    public function it_can_update_comment(): void
     {
         $comment = Comment::factory()->create();
         $files = FileEntry::factory()->count(5)->create();

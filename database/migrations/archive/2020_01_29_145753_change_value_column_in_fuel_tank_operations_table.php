@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_operations', function (Blueprint $table) {
             $table->integer('value')->change();
@@ -20,10 +18,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_operations', function (Blueprint $table) {
             $table->float('value', 8, 3)->change();

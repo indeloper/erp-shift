@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('work_volume_materials', function (Blueprint $table) {
             $table->float('security_price_one', 15, 2)->nullable();
@@ -21,10 +19,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('work_volume_materials', function (Blueprint $table) {
             $table->dropColumn('security_price_one');

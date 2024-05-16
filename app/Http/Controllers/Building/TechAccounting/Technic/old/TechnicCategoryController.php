@@ -8,11 +8,12 @@ use App\Http\Requests\Building\TechAccounting\UpdateTechnicCategoryRequest;
 use App\Models\TechAcc\TechnicCategory;
 use App\Services\TechAccounting\TechnicCategoryService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class TechnicCategoryController extends Controller
 {
     //resource methods
-    public function index()
+    public function index(): View
     {
         $technic_categories = TechnicCategory::with('category_characteristics')
             ->withCount('technics')
@@ -24,7 +25,7 @@ class TechnicCategoryController extends Controller
         ]);
     }
 
-    public function show($category_id)
+    public function show($category_id): View
     {
         $category = TechnicCategory::with('category_characteristics')->findOrFail($category_id);
 
@@ -96,7 +97,7 @@ class TechnicCategoryController extends Controller
         ]);
     }
 
-    public function display_trashed()
+    public function display_trashed(): View
     {
         $technic_categories = TechnicCategory::onlyTrashed()->with('category_characteristics')
             ->withCount('trashed_technics')
@@ -107,7 +108,7 @@ class TechnicCategoryController extends Controller
         ]);
     }
 
-    public function show_trashed($category_id)
+    public function show_trashed($category_id): View
     {
         $category = TechnicCategory::onlyTrashed()->with('category_characteristics')->findOrFail($category_id);
 

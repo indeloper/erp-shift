@@ -16,13 +16,15 @@ use App\Models\ProjectObject;
 use App\Models\User;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class MatAccMovingController extends Controller
 {
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $from_resp = User::find($request->from_resp);
         $from_obj = ProjectObject::find($request->from_obj);
@@ -38,7 +40,7 @@ class MatAccMovingController extends Controller
         ]);
     }
 
-    public function work($operation_id)
+    public function work($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 4)->where('status', 1)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -50,7 +52,7 @@ class MatAccMovingController extends Controller
         ]);
     }
 
-    public function confirm($operation_id)
+    public function confirm($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 4)->where('status', 2)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -68,7 +70,7 @@ class MatAccMovingController extends Controller
         ]);
     }
 
-    public function complete($operation_id)
+    public function complete($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 4)->whereIn('status', [3, 7])->findOrFail($operation_id);
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender.operationMaterial', 'documents_sender', 'images_recipient.operationMaterial', 'documents_recipient']);
@@ -78,7 +80,7 @@ class MatAccMovingController extends Controller
         ]);
     }
 
-    public function conflict($operation_id)
+    public function conflict($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 4)->where('status', 4)->findOrFail($operation_id);
         $operation->checkClosed();
@@ -89,7 +91,7 @@ class MatAccMovingController extends Controller
         ]);
     }
 
-    public function edit($operation_id)
+    public function edit($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 4)->whereIn('status', [1, 4])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -102,7 +104,7 @@ class MatAccMovingController extends Controller
         ]);
     }
 
-    public function draft($operation_id)
+    public function draft($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', 4)->whereIn('status', [5, 8])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -116,7 +118,7 @@ class MatAccMovingController extends Controller
         ]);
     }
 
-    public function make_ttn(Request $request)
+    public function make_ttn(Request $request): View
     {
         $ttn = new MaterialAccountingTtn();
 
@@ -175,7 +177,7 @@ class MatAccMovingController extends Controller
         return view('building.material_accounting.ttn', $data);
     }
 
-    public function store(CreateMovingRequest $request)
+    public function store(CreateMovingRequest $request): JsonResponse
     {
         if (! Auth::user()->can('mat_acc_moving_create') && ! $request->is_draft) {
             return response()->json(['message' => 'У вас нет прав для создания операции перемещения!']);
@@ -254,7 +256,7 @@ class MatAccMovingController extends Controller
         return response()->json(true);
     }
 
-    public function update(CreateMovingRequest $request, $operation_id)
+    public function update(CreateMovingRequest $request, $operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::where('type', 4)->whereIn('status', [1, 4, 5])->findOrFail($operation_id);
         $operation->checkClosed();
@@ -367,7 +369,7 @@ class MatAccMovingController extends Controller
         return response()->json(true);
     }
 
-    public function send(Request $request, $operation_id)
+    public function send(Request $request, $operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::where('type', 4)->where('status', 1)->with('materials.manual')->findOrFail($operation_id);
         $operation->checkClosed();
@@ -381,7 +383,7 @@ class MatAccMovingController extends Controller
         return response()->json($result);
     }
 
-    public function part_send(SendMovingRequest $request, $operation_id)
+    public function part_send(SendMovingRequest $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 
@@ -398,7 +400,7 @@ class MatAccMovingController extends Controller
         return response()->json($result);
     }
 
-    public function accept(Request $request, $operation_id)
+    public function accept(Request $request, $operation_id): JsonResponse
     {
         DB::beginTransaction();
 

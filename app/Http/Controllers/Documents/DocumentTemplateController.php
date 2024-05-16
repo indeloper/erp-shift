@@ -9,16 +9,17 @@ use App\Models\Project;
 use App\Models\ProjectObject;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use PDF;
 
 class DocumentTemplateController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         return view('document_templates.index');
     }
 
-    public function create_offer_template()
+    public function create_offer_template(): View
     {
         return view('document_templates.form_commercial_doc');
     }

@@ -12,13 +12,16 @@ use App\Models\Manual\ManualMaterialCategoryRelationToWork;
 use App\Models\Manual\ManualMaterialParameter;
 use App\Models\Manual\ManualRelationMaterialWork;
 use App\Models\Manual\ManualWork;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ManualWorkController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $onlyTrashed = $request->deleted ?? false;
 
@@ -38,7 +41,7 @@ class ManualWorkController extends Controller
         ]);
     }
 
-    public function store(WorkRequest $request)
+    public function store(WorkRequest $request): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -74,7 +77,7 @@ class ManualWorkController extends Controller
         return redirect()->back();
     }
 
-    public function update(WorkRequest $request)
+    public function update(WorkRequest $request): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -96,7 +99,7 @@ class ManualWorkController extends Controller
         return redirect()->back();
     }
 
-    public function type(Request $request, $id)
+    public function type(Request $request, $id): View
     {
         $onlyTrashed = $request->deleted ?? false;
 
@@ -159,7 +162,7 @@ class ManualWorkController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-    public function card(Request $request, $id)
+    public function card(Request $request, $id): View
     {
         $work = ManualWork::findOrFail($id)->load('parent.parent_work');
 
@@ -181,7 +184,7 @@ class ManualWorkController extends Controller
         ]);
     }
 
-    public function get_materials(Request $request)
+    public function get_materials(Request $request): JsonResponse
     {
         $material = ManualMaterial::where('id', $request->mat_id)
             ->with('parameters')->with('work_relations')
@@ -190,14 +193,14 @@ class ManualWorkController extends Controller
         return response()->json($material);
     }
 
-    public function get_attributes(Request $request)
+    public function get_attributes(Request $request): JsonResponse
     {
         $attrs = ManualMaterialCategoryAttribute::where('category_id', $request->id)->get();
 
         return response()->json($attrs);
     }
 
-    public function get_values(Request $request)
+    public function get_values(Request $request): JsonResponse
     {
         if ($request->edit == 1) {
             $values = ManualMaterialParameter::where('attr_id', $request->id)->get();
@@ -210,7 +213,7 @@ class ManualWorkController extends Controller
         return response()->json($unique_values);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request, $id): View
     {
         $work = ManualWork::findOrFail($id);
 
@@ -286,7 +289,7 @@ class ManualWorkController extends Controller
         DB::commit();
     }
 
-    public function search_by_attributes(Request $request)
+    public function search_by_attributes(Request $request): JsonResponse
     {
         $step = ManualMaterialParameter::query();
 
@@ -319,7 +322,7 @@ class ManualWorkController extends Controller
         return response()->json($result);
     }
 
-    public function get_all_materials(Request $request)
+    public function get_all_materials(Request $request): JsonResponse
     {
         $work = ManualWork::findOrFail($request->id);
 

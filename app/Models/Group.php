@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Notifications\NotificationsForGroups;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Group extends Model
 {
@@ -42,7 +44,7 @@ class Group extends Model
         return $working_users;
     }
 
-    public function users()
+    public function users(): HasMany
     {
         return $this->hasMany(User::class)
             ->where('status', 1)
@@ -50,12 +52,12 @@ class Group extends Model
             ->where('id', '!=', 1);
     }
 
-    public function group_permissions()
+    public function group_permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class, 'group_permissions', 'group_id', 'permission_id');
     }
 
-    public function relatedNotifications()
+    public function relatedNotifications(): HasMany
     {
         return $this->hasMany(NotificationsForGroups::class, 'group_id', 'id');
     }

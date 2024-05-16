@@ -9,20 +9,16 @@ trait Taskable
 {
     /**
      * Morph relation to tasks
-     *
-     * @return MorphMany
      */
-    public function tasks()
+    public function tasks(): MorphMany
     {
         return $this->morphMany(Task::class, 'taskable');
     }
 
     /**
      * Morph relation only for active tasks
-     *
-     * @return MorphMany
      */
-    public function active_tasks()
+    public function active_tasks(): MorphMany
     {
         return $this->tasks()->where('is_solved', 0);
     }

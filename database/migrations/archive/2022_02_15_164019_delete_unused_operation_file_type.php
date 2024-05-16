@@ -7,10 +7,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $operationFileType = q3wOperationFileType::where('string_identifier', 'like', 'materials-photo');
         $operationFileType->forceDelete();
@@ -18,10 +16,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $fileTypes = [['Фото материалов', 'materials-photo']];
 

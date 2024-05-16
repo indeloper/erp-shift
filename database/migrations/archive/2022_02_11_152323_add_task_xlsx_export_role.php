@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $taskReportXLSXExportPermission = new Permission();
         $taskReportXLSXExportPermission->name = 'Коммерческий блок: Доступ к отчету по задачам и КП';
@@ -22,10 +20,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $taskReportXLSXExportPermission = Permission::where('codename', 'commercial_block_task_report_xlsx_export_access')->first();
 

@@ -13,7 +13,7 @@ class ContractDeletionRequestResolutionNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о решении задачи Запрос на удаление договора';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

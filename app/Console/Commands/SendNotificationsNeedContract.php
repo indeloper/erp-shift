@@ -35,10 +35,8 @@ class SendNotificationsNeedContract extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $operations = MaterialAccountingOperation::query()
             ->whereNotIn('object_id_to', [76, 192])

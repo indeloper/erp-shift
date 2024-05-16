@@ -8,10 +8,8 @@ class TaskCallRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -20,17 +18,15 @@ class TaskCallRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    protected function prepareForValidation()
+    protected function prepareForValidation(): array
     {
         if ($this->contractor_phone_number != null) {
             $this->merge(['contractor_phone_number' => preg_replace('~[\D]~', '', $this->contractor_phone_number)]);
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'contractor_full_name' => ($this->contractor_full_name != null ? 'required' : 'nullable').'|max:200|unique:contractors,full_name,'.($this->contractor_id ? $this->contractor_id : ''),

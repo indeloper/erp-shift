@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\System;
 
 use App\Events\MessageDeleted;
-use App\Events\MessageStored;
 use App\Events\MessageUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
@@ -14,21 +13,22 @@ use App\Models\Messenger\Participant;
 use App\Models\Messenger\Thread;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class MessagesController extends Controller
 {
     /**
      * Shows a message threads.
-     *
-     * @return mixed
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         // All threads that user is participating in
         $threads = Thread::forUser(Auth::id());
@@ -51,10 +51,8 @@ class MessagesController extends Controller
 
     /**
      * Shows a message thread.
-     *
-     * @return mixed
      */
-    public function thread($id)
+    public function thread($id): View
     {
         $thread = Thread::findOrFail($id);
 
@@ -74,10 +72,8 @@ class MessagesController extends Controller
 
     /**
      * Stores a new message thread.
-     *
-     * @return mixed
      */
-    public function thread_store(Request $request)
+    public function thread_store(Request $request): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -116,10 +112,8 @@ class MessagesController extends Controller
 
     /**
      * Update thread name and participants.
-     *
-     * @return mixed
      */
-    public function thread_update(Request $request, $thread_id)
+    public function thread_update(Request $request, $thread_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -203,11 +197,8 @@ class MessagesController extends Controller
 
     /**
      * Send the new message to Pusher in order to notify users.
-     *
-     * @param  Event  $event
-     * @return void
      */
-    protected function oooPushIt(Message $message, $event = MessageStored::class)
+    protected function oooPushIt(Message $message, Event $event): void
     {
         $thread = $message->thread;
         $sender = $message->user;
@@ -258,7 +249,7 @@ class MessagesController extends Controller
      * @param  $id
      * @return true
      */
-    public function leave_thread(Request $request)
+    public function leave_thread(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -284,7 +275,7 @@ class MessagesController extends Controller
      * @param  $id
      * @return true
      */
-    public function creator_leave(Request $request, $thread_id)
+    public function creator_leave(Request $request, $thread_id): RedirectResponse
     {
         DB::beginTransaction();
 
@@ -311,7 +302,7 @@ class MessagesController extends Controller
      *
      * @return true
      */
-    public function join_thread(Request $request)
+    public function join_thread(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -334,10 +325,8 @@ class MessagesController extends Controller
 
     /**
      * Update message in thread, for ajax use.
-     *
-     * @return string
      */
-    public function update_message(Request $request)
+    public function update_message(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -370,7 +359,7 @@ class MessagesController extends Controller
      *
      * @return message id
      */
-    public function delete_message(Request $request)
+    public function delete_message(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -454,10 +443,8 @@ class MessagesController extends Controller
 
     /**
      * Return message files list, for ajax use.
-     *
-     * @return mixed
      */
-    public function message_files(Request $request)
+    public function message_files(Request $request): JsonResponse
     {
         $message = Message::findOrFail($request->message_id);
 
@@ -472,10 +459,8 @@ class MessagesController extends Controller
 
     /**
      * Delete file from message, for ajax use.
-     *
-     * @return bool
      */
-    public function message_files_delete(Request $request)
+    public function message_files_delete(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -502,10 +487,8 @@ class MessagesController extends Controller
 
     /**
      * Render related message modal content, for ajax use.
-     *
-     * @return bool
      */
-    public function related_messages(Request $request)
+    public function related_messages(Request $request): JsonResponse
     {
         $message = Message::findOrFail($request->message_id);
 
@@ -520,10 +503,8 @@ class MessagesController extends Controller
 
     /**
      * Render message, for ajax use.
-     *
-     * @return mixed
      */
-    public function message_render(Request $request)
+    public function message_render(Request $request): JsonResponse
     {
         $message = Message::findOrFail($request->message_id);
         $html = view('messages.partials.message', ['message' => $message, 'noControl' => true])->render();
@@ -538,10 +519,8 @@ class MessagesController extends Controller
 
     /**
      * Return message info, for ajax use.
-     *
-     * @return mixed
      */
-    public function message_info(Request $request)
+    public function message_info(Request $request): JsonResponse
     {
         $message = Message::findOrFail($request->message_id);
 
@@ -624,7 +603,7 @@ class MessagesController extends Controller
         return ['results' => $results];
     }
 
-    public function load_thread(Request $request)
+    public function load_thread(Request $request): JsonResponse
     {
         $thread = Thread::findOrFail($request->thread_id);
         $thread->markAsRead(Auth::id());
@@ -635,7 +614,7 @@ class MessagesController extends Controller
         ]);
     }
 
-    public function thread_message_count(Request $request)
+    public function thread_message_count(Request $request): JsonResponse
     {
         $message = Message::findOrFail($request->message_id);
 

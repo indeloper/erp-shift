@@ -33,10 +33,8 @@ class ManualContractsRemove extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $ids_list = $this->argument('ids');
         // make array from argument, remove empty values
@@ -57,6 +55,6 @@ class ManualContractsRemove extends Command
             }
         }
 
-        return count($deleted) ? $this->info('Nice, contracts removed!') : $this->info('Nothing removed');
+        count($deleted) ? $this->info('Nice, contracts removed!') : $this->info('Nothing removed');
     }
 }

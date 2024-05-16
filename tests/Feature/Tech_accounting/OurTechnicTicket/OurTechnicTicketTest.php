@@ -19,7 +19,7 @@ use Tests\Feature\Tech_accounting\OurTechnicTicket\OurTechnicTicketTestCase;
 class OurTechnicTicketTest extends OurTechnicTicketTestCase
 {
     /** @test */
-    public function it_can_create_ticket()
+    public function it_can_create_ticket(): void
     {
         $request = $this->validFields(['ticket_resp_user_id' => 1]);
         $this->service->createNewTicket($request);
@@ -29,7 +29,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function new_tickets_go_first()
+    public function new_tickets_go_first(): void
     {
         $old_tickets = OurTechnicTicket::factory()->count(2)->create(['updated_at' => Carbon::now()->subDays(2)]);
         $newer_tickets = OurTechnicTicket::factory()->count(2)->create(['updated_at' => Carbon::now()->subDays(1)]);
@@ -41,7 +41,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_task_to_accept_ticket()
+    public function it_creates_task_to_accept_ticket(): void
     {
         $this->actingAs(User::find(1)); //rp will skip this step and will go directly to usage(transfer)
         $ticket_service = new TechnicTicketService();
@@ -55,7 +55,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_return_users_by_scope()
+    public function it_can_return_users_by_scope(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, [], ['author_user_id' => 6])->first();
 
@@ -65,7 +65,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_show_buttons_only_for_current_responsible()
+    public function it_show_buttons_only_for_current_responsible(): void
     {
         $ticket = $this->seedTicketsWithUsers()->first();
 
@@ -77,7 +77,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_have_vehicles()
+    public function it_can_have_vehicles(): void
     {
         $ticket = OurTechnicTicket::factory()->create();
         $vehicle_collection = OurVehicles::factory()->count(2)->create();
@@ -90,7 +90,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_path_step_by_step()
+    public function it_can_go_through_path_step_by_step(): void
     {
         $controller = new OurTechnicTicketController();
         //2 => 'Ожидает назначения'
@@ -162,7 +162,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_very_long_path_step_by_step()
+    public function it_can_go_through_very_long_path_step_by_step(): void
     {
         $controller = new OurTechnicTicketController();
         //2 => 'Ожидает назначения'
@@ -243,7 +243,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_logist_failure_path()
+    public function it_can_go_through_logist_failure_path(): void
     {
         $controller = new OurTechnicTicketController();
         //0 => 'Создание заявки'
@@ -277,7 +277,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_rp_failure_path()
+    public function it_can_go_through_rp_failure_path(): void
     {
         $controller = new OurTechnicTicketController();
         $this->actingAs($this->prorabs->first());
@@ -299,7 +299,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_fires_seven_notification_after_logist_accepts_ticket()
+    public function it_fires_seven_notification_after_logist_accepts_ticket(): void
     {
         $controller = new OurTechnicTicketController();
 
@@ -325,7 +325,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_fires_five_notification_after_logist_holds_ticket()
+    public function it_fires_five_notification_after_logist_holds_ticket(): void
     {
         $controller = new OurTechnicTicketController();
 
@@ -350,7 +350,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order()
+    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order(): void
     {
         // Given ticket and reports
         $ticket = OurTechnicTicket::factory()->create();
@@ -366,7 +366,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order_one_more_time()
+    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order_one_more_time(): void
     {
         // Given ticket and reports
         $ticket = OurTechnicTicket::factory()->create();
@@ -382,7 +382,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function users_who_have_permissions_can_see_all_tickets()
+    public function users_who_have_permissions_can_see_all_tickets(): void
     {
         // Given tickets
         $ticket1 = OurTechnicTicket::factory()->create();
@@ -402,7 +402,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function users_who_have_permissions_can_see_only_related_tickets()
+    public function users_who_have_permissions_can_see_only_related_tickets(): void
     {
         // Given tickets
         $ticket1 = OurTechnicTicket::factory()->create();
@@ -421,7 +421,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function users_who_have_permissions_can_see_only_related_tickets_one_more_time()
+    public function users_who_have_permissions_can_see_only_related_tickets_one_more_time(): void
     {
         // Given tickets
         $ticket1 = OurTechnicTicket::factory()->create();
@@ -446,7 +446,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_udates_usage_time_correctly()
+    public function it_udates_usage_time_correctly(): void
     {
         $ser = new TechnicTicketService();
         $tic = $this->seedTicketsWithUsers(1, [

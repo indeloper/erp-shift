@@ -21,7 +21,7 @@ if (! function_exists('dispatchNotify')) {
         string $class,
         array $notificationData = []
     ) {
-        NotificationJob::dispatchNow(
+        NotificationJob::dispatchSync(
             new NotificationData(
                 $userId,
                 $class,

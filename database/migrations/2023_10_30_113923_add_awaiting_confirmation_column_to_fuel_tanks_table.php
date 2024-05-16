@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tanks', function (Blueprint $table) {
             $table->boolean('awaiting_confirmation')->nullable()->after('tank_number')->comment('Ожидает подтверждение перемещения и передачи ответственности');
@@ -20,10 +18,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tanks', function (Blueprint $table) {
             $table->dropColumn('awaiting_confirmation');

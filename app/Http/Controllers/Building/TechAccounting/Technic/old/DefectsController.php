@@ -14,14 +14,16 @@ use App\Models\TechAcc\OurTechnic;
 use App\Services\AuthorizeService;
 use App\Traits\AdditionalFunctions;
 use App\Traits\NotificationGenerator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class DefectsController extends Controller
 {
     use AdditionalFunctions, NotificationGenerator;
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $newRequest = $this->createNewRequest($request->toArray());
         $defects = Defects::filter($newRequest)->permissionCheck()->orderBy('updated_at')->paginate(15);
@@ -36,7 +38,7 @@ class DefectsController extends Controller
         ]);
     }
 
-    public function store(DefectStoreRequest $request)
+    public function store(DefectStoreRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -52,7 +54,7 @@ class DefectsController extends Controller
         ]);
     }
 
-    public function show(Defects $defect)
+    public function show(Defects $defect): View
     {
         return view('tech_accounting.defects.card', [
             'data' => [
@@ -65,7 +67,7 @@ class DefectsController extends Controller
         ]);
     }
 
-    public function destroy(Defects $defect)
+    public function destroy(Defects $defect): JsonResponse
     {
         (new AuthorizeService())->authorizeDefectDelete($defect);
 
@@ -114,10 +116,10 @@ class DefectsController extends Controller
         return $request->wantsJson() ? response()->json(true) : redirect($defects->card_route());
     }
 
-    public function decline(DefectDeclineRequest $request, Defects $defects)
+    public function decline(DefectDeclineRequest $request, Defects $defects): JsonResponse
     {
         if ($defects->isNotInDiagnostics()) {
-            return;
+            return response()->json(false);
         }
 
         DB::beginTransaction();
@@ -137,10 +139,10 @@ class DefectsController extends Controller
         return response()->json(true);
     }
 
-    public function accept(DefectAcceptRequest $request, Defects $defects)
+    public function accept(DefectAcceptRequest $request, Defects $defects): JsonResponse
     {
         if ($defects->isNotInDiagnostics()) {
-            return;
+            return response()->json(false);
         }
 
         DB::beginTransaction();
@@ -169,7 +171,7 @@ class DefectsController extends Controller
         return response()->json(true);
     }
 
-    public function update_repair_dates(DefectAcceptRequest $request, Defects $defects)
+    public function update_repair_dates(DefectAcceptRequest $request, Defects $defects): JsonResponse
     {
         DB::beginTransaction();
 
@@ -187,7 +189,7 @@ class DefectsController extends Controller
         return response()->json(true);
     }
 
-    public function end_repair(DefectRepairEndRequest $request, Defects $defects)
+    public function end_repair(DefectRepairEndRequest $request, Defects $defects): JsonResponse
     {
         DB::beginTransaction();
 
@@ -206,7 +208,7 @@ class DefectsController extends Controller
         return response()->json(true);
     }
 
-    public function paginated_defects(Request $request)
+    public function paginated_defects(Request $request): JsonResponse
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);

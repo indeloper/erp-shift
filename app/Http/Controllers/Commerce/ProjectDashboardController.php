@@ -7,10 +7,11 @@ use App\Http\Requests\ProjectRequest\ProjectStatRequest;
 use App\Models\Project;
 use App\Services\Commerce\ProjectDashboardService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ProjectDashboardController extends Controller
 {
-    public function importantProjects(Request $request)
+    public function importantProjects(Request $request): Response
     {
         $projects = Project::where('is_important', 1)->get();
 
@@ -19,7 +20,7 @@ class ProjectDashboardController extends Controller
         ]);
     }
 
-    public function projectStats(ProjectStatRequest $request)
+    public function projectStats(ProjectStatRequest $request): Response
     {
         $project = Project::findOrFail($request->project_id);
 

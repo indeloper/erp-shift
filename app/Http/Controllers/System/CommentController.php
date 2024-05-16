@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\FileEntry;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): Response
     {
         DB::beginTransaction();
         $attributes = $request->all();
@@ -24,7 +25,7 @@ class CommentController extends Controller
         return response(['data' => compact('comment')]);
     }
 
-    public function update(Request $request, Comment $comment)
+    public function update(Request $request, Comment $comment): Response
     {
         DB::beginTransaction();
         //update ticket
@@ -46,7 +47,7 @@ class CommentController extends Controller
         return response(['data' => compact('comment')]);
     }
 
-    public function destroy(Comment $comment)
+    public function destroy(Comment $comment): Response
     {
         $comment->delete();
 

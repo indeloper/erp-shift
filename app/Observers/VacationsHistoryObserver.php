@@ -12,16 +12,14 @@ class VacationsHistoryObserver
 {
     /**
      * Handle the vacations history "saved" event.
-     *
-     * @return void
      */
-    public function saved(VacationsHistory $vacationsHistory)
+    public function saved(VacationsHistory $vacationsHistory): void
     {
         if ($vacationsHistory->wasRecentlyCreated) {
-            return $this->newVacation($vacationsHistory);
+            $this->newVacation($vacationsHistory);
         }
 
-        return $this->updatedFork($vacationsHistory);
+        $this->updatedFork($vacationsHistory);
     }
 
     public function newVacation(VacationsHistory $vacationsHistory)

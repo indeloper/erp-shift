@@ -13,7 +13,7 @@ class EquipmentMovementNotice extends BaseNotification
 
     const DESCRIPTION = 'Перемещение техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

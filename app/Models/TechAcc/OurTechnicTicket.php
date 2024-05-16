@@ -15,6 +15,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurTechnicTicket extends Model
@@ -109,7 +112,7 @@ class OurTechnicTicket extends Model
         });
     }
 
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'our_technic_ticket_user', 'tic_id')
             ->withPivot(['type', 'deactivated_at'])
@@ -127,27 +130,27 @@ class OurTechnicTicket extends Model
         return $this->users()->ofType($human_type)->first() ?? new User();
     }
 
-    public function reports()
+    public function reports(): HasMany
     {
         return $this->hasMany(OurTechnicTicketReport::class)->orderByRaw("STR_TO_DATE(date,'%d.%m.%Y') desc");
     }
 
-    public function our_technic()
+    public function our_technic(): BelongsTo
     {
         return $this->belongsTo(OurTechnic::class);
     }
 
-    public function getting_object()
+    public function getting_object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'getting_object_id');
     }
 
-    public function sending_object()
+    public function sending_object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'sending_object_id');
     }
 
-    public function vehicles()
+    public function vehicles(): BelongsToMany
     {
         return $this->belongsToMany(OurVehicles::class, 'our_technic_ticket_our_vehicle', 'our_technic_ticket_id', 'our_vehicle_id');
     }
@@ -334,10 +337,8 @@ class OurTechnicTicket extends Model
     /**
      * Return all tickets if user have permission
      * and only related if not
-     *
-     * @return Builder
      */
-    public function scopePermissionCheck(Builder $query)
+    public function scopePermissionCheck(Builder $query): Builder
     {
         $check = boolval(auth()->user()->hasPermission('tech_acc_our_technic_tickets_see'));
 

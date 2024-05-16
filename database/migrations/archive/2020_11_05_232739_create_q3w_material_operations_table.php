@@ -12,10 +12,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('q3w_operation_routes', function (Blueprint $table) {
             $table->integerIncrements('id')->comment('Уникальный идентификатор');
@@ -273,10 +271,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('q3w_operation_files');
         Schema::dropIfExists('q3w_operation_file_types');

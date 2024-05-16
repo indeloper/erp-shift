@@ -3,6 +3,8 @@
 namespace App\Models\CommercialOffer;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CommercialOfferRequest extends Model
 {
@@ -12,12 +14,12 @@ class CommercialOfferRequest extends Model
         2 => 'Отрицательный',
     ];
 
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(CommercialOfferRequestFile::class, 'request_id', 'id');
     }
 
-    public function co()
+    public function co(): HasOne
     {
         return $this->hasOne(CommercialOffer::class, 'id', 'commercial_offer_id');
     }

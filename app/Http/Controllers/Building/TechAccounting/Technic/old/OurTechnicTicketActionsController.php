@@ -9,6 +9,8 @@ use App\Notifications\Technic\TechnicUsageExtensionRequestRejectionNotice;
 use App\Services\TechAccounting\TechnicTicketService;
 use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +20,7 @@ class OurTechnicTicketActionsController extends Controller
     use NotificationGenerator;
 
     // 1338
-    public function close(Request $request, OurTechnicTicket $ourTechnicTicket)
+    public function close(Request $request, OurTechnicTicket $ourTechnicTicket): JsonResponse
     {
         $this->authorize('close', $ourTechnicTicket);
 
@@ -41,7 +43,7 @@ class OurTechnicTicketActionsController extends Controller
     }
 
     // 1339
-    public function request_extension(Request $request, OurTechnicTicket $ourTechnicTicket)
+    public function request_extension(Request $request, OurTechnicTicket $ourTechnicTicket): JsonResponse
     {
         $this->authorize('request_extension', $ourTechnicTicket);
 
@@ -75,7 +77,7 @@ class OurTechnicTicketActionsController extends Controller
     }
 
     // 1340, 1341
-    public function agree_extension(Request $request, OurTechnicTicket $ourTechnicTicket)
+    public function agree_extension(Request $request, OurTechnicTicket $ourTechnicTicket): RedirectResponse
     {
         $this->authorize('agree_extension', $ourTechnicTicket);
 

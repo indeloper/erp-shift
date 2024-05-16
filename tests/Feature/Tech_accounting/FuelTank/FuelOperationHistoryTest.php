@@ -11,7 +11,7 @@ use Tests\TestCase;
 class FuelOperationHistoryTest extends TestCase
 {
     /** @test */
-    public function it_stores_curr_and_prev_values_of_a_changed_field()
+    public function it_stores_curr_and_prev_values_of_a_changed_field(): void
     {
         $this->actingAs(User::whereIn('group_id', Group::PROJECT_MANAGERS)->first());
         $operation = FuelTankOperation::factory()->outgo()->create(['value' => 10]);

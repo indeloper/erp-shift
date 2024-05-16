@@ -13,7 +13,7 @@ class WriteOffOperationRejectionNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об отклонении операции списания';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

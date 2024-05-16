@@ -13,7 +13,7 @@ class ContractSignatureControlTaskRecreationNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о создании задачи Контроль подписания договора (повторно)';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

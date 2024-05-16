@@ -8,6 +8,7 @@ use App\Models\Timesheet\TimesheetCard;
 use App\Models\Timesheet\TimesheetPostTariff;
 use App\Services\Common\FileSystemService;
 use App\Services\SystemService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -37,7 +38,7 @@ class PostTariffsController extends StandardEntityResourceController
         return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         DB::beginTransaction();
 

@@ -8,10 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $confirmToWriteOffPermission = new Permission();
         $confirmToWriteOffPermission->name = 'Материальный учет: Редактирование типов материалов';
@@ -52,10 +50,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permission = Permission::where('codename', 'material_accounting_materials_types_editing')->first();
         if (isset($permission)) {

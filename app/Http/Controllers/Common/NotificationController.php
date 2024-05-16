@@ -14,7 +14,10 @@ use App\Http\Resources\Notification\NotificationResource;
 use App\Services\Notification\NotificationServiceInterface;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
 use App\Services\System\NotificationService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 use function auth;
 
@@ -32,7 +35,7 @@ class NotificationController extends Controller
         $this->notificationItemService = $notificationItemService;
     }
 
-    public function index()
+    public function index(): View
     {
         return view('notifications.index');
     }
@@ -48,7 +51,7 @@ class NotificationController extends Controller
         );
     }
 
-    public function delete(DeleteNotificationRequest $request)
+    public function delete(DeleteNotificationRequest $request): JsonResponse
     {
         $this->notificationService->delete(
             $request->get('notify_id')
@@ -57,7 +60,7 @@ class NotificationController extends Controller
         return response()->json(true);
     }
 
-    public function view(ViewNotificationRequest $request)
+    public function view(ViewNotificationRequest $request): JsonResponse
     {
         $this->notificationService->view(
             $request->get('notify_id')
@@ -85,7 +88,7 @@ class NotificationController extends Controller
         );
     }
 
-    public function viewAll()
+    public function viewAll(): JsonResponse
     {
         $this->notificationService
             ->viewAll(auth()->id());
@@ -93,7 +96,7 @@ class NotificationController extends Controller
         return response()->json(true);
     }
 
-    public function redirect($encoded_url)
+    public function redirect($encoded_url): RedirectResponse
     {
         DB::beginTransaction();
         $url = (new NotificationService())->decodeNotificationUrl($encoded_url);

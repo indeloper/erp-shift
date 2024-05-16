@@ -4,6 +4,7 @@ namespace App\Models\TechAcc;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CategoryCharacteristic extends Model
@@ -18,7 +19,7 @@ class CategoryCharacteristic extends Model
         'required' => 'boolean',
     ];
 
-    public function technic_categories()
+    public function technic_categories(): BelongsToMany
     {
         return $this->belongsToMany(TechnicCategory::class, 'technic_category_category_characteristic');
     }

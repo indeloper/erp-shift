@@ -11,10 +11,8 @@ class employeeSubdivisionsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $subdivisions = json_decode('{"data": [
 {

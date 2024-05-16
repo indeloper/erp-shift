@@ -9,10 +9,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('project_object_document_statuses', function (Blueprint $table) {
             $table->unsignedBigInteger('status_type_id')->after('id')->comment('ID типа статуса');
@@ -32,10 +30,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('project_object_document_statuses', function (Blueprint $table) {
             $table->dropForeign('project_object_document_statuses_status_type_id_foreign');

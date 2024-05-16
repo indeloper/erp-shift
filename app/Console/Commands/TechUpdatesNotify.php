@@ -35,10 +35,8 @@ class TechUpdatesNotify extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $message = 'Техническая поддержка. '.'C '.$this->argument('start_date').' '.$this->argument('start_time').
                 ' по '.$this->argument('finish_date').' '.$this->argument('finish_time').

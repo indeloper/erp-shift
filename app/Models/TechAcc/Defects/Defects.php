@@ -12,6 +12,8 @@ use App\Traits\Taskable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -134,7 +136,7 @@ class Defects extends Model
      * @param  int  $userId
      * @return Builder
      */
-    public function scopeSoonExpire(Builder $query)
+    public function scopeSoonExpire(Builder $query): Builder
     {
         return $query->whereStatus(self::IN_WORK)->whereNotNull('repair_end_date')->where(function ($q) {
             $q->whereDate('repair_end_date', '<=', now());
@@ -147,7 +149,7 @@ class Defects extends Model
      *
      * @return Builder
      */
-    public function scopeFilter(Builder $query, Request $request)
+    public function scopeFilter(Builder $query, Request $request): Builder
     {
         $filters = $request->filters ?? [];
         $values = $request->values ?? [];
@@ -281,7 +283,7 @@ class Defects extends Model
      *
      * @return Builder
      */
-    public function scopePermissionCheck(Builder $query)
+    public function scopePermissionCheck(Builder $query): Builder
     {
         $check = boolval(auth()->user()->hasPermission('tech_acc_defects_see'));
 
@@ -309,7 +311,7 @@ class Defects extends Model
      *
      * @return string|null
      */
-    public function getContractorAttribute()
+    public function getContractorAttribute(): ?string
     {
         return $this->defectable ? ($this->defectable->getMorphClass() == OurTechnic::class ? $this->defectable->owner : null) : null;
     }
@@ -319,7 +321,7 @@ class Defects extends Model
      *
      * @return Carbon|null
      */
-    public function getRepairStartAttribute()
+    public function getRepairStartAttribute(): ?Carbon
     {
         return $this->repair_start_date ? $this->repair_start_date->format(self::REPAIR_DATE_FORMAT) : null;
     }
@@ -329,7 +331,7 @@ class Defects extends Model
      *
      * @return Carbon|null
      */
-    public function getRepairEndAttribute()
+    public function getRepairEndAttribute(): ?Carbon
     {
         return $this->repair_end_date ? $this->repair_end_date->format(self::REPAIR_DATE_FORMAT) : null;
     }
@@ -339,7 +341,7 @@ class Defects extends Model
      *
      * @return Carbon|null
      */
-    public function getCreatedAtFormattedAttribute()
+    public function getCreatedAtFormattedAttribute(): ?Carbon
     {
         return $this->created_at->format(self::ADDITIONAL_DATE_FORMAT);
     }
@@ -349,7 +351,7 @@ class Defects extends Model
      *
      * @return string|null
      */
-    public function getAuthorNameAttribute()
+    public function getAuthorNameAttribute(): ?string
     {
         return $this->author ? $this->author->full_name : null;
     }
@@ -359,7 +361,7 @@ class Defects extends Model
      *
      * @return string|null
      */
-    public function getResponsibleUserNameAttribute()
+    public function getResponsibleUserNameAttribute(): ?string
     {
         return $this->responsible_user ? $this->responsible_user->full_name : null;
     }
@@ -370,7 +372,7 @@ class Defects extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
@@ -380,7 +382,7 @@ class Defects extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function defectable()
+    public function defectable(): MorphTo
     {
         return $this->morphTo();
     }
@@ -410,17 +412,17 @@ class Defects extends Model
      *
      * @return mixed
      */
-    public function responsible_user()
+    public function responsible_user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id', 'id');
     }
 
     // Methods
+
     /**
-     * Function find defectable model and call
-     * model create() method
+     * @param  array  $request
      *
-     * @return self::create()
+     * @return mixed
      */
     public static function smartCreate(array $request)
     {
@@ -434,7 +436,7 @@ class Defects extends Model
      *
      * @return string
      */
-    public function card_route()
+    public function card_route(): string
     {
         return route('building::tech_acc::defects.show', $this->id);
     }

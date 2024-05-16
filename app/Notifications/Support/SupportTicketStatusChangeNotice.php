@@ -13,7 +13,7 @@ class SupportTicketStatusChangeNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о изменении статуса заявки в техническую поддержку';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

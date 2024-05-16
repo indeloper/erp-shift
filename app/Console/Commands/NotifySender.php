@@ -50,10 +50,8 @@ class NotifySender extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $places = self::PLACES;
         $user_types = self::USERS;
@@ -71,10 +69,8 @@ class NotifySender extends Command
     /**
      * Function check parameters and
      * can stop execution
-     *
-     * @param  bool  $have_errors
      */
-    public function checkParameters(string $text, string $place, string $users, $have_errors = false)
+    public function checkParameters(string $text, string $place, string $users, bool $have_errors = false)
     {
         // check $text
         if ($text == 'Стандартное сообщение') {

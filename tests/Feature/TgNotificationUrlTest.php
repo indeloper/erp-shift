@@ -10,7 +10,7 @@ use Tests\TestCase;
 class TgNotificationUrlTest extends TestCase
 {
     /** @test */
-    public function it_can_decode_url()
+    public function it_can_decode_url(): void
     {
         $this->withoutExceptionHandling();
         $url = 'http://sk/tasks';
@@ -27,7 +27,7 @@ class TgNotificationUrlTest extends TestCase
     }
 
     /** @test */
-    public function it_can_detect_and_encode_url_in_message()
+    public function it_can_detect_and_encode_url_in_message(): void
     {
         $service = new NotificationService();
         $notif = Notification::create();

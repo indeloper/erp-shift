@@ -13,7 +13,7 @@ class TechnicAvailableNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление об освобождении техники';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)

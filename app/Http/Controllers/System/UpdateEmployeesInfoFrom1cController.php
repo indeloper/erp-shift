@@ -12,13 +12,14 @@ use App\Models\User;
 use App\Notifications\Employee\EmployeeTerminationNotice;
 use App\Notifications\Employee\NewEmployeeArrivalNotice;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use function morphos\Russian\pluralize;
 
 class UpdateEmployeesInfoFrom1cController extends Controller
 {
-    public function uploadData(Request $request)
+    public function uploadData(Request $request): JsonResponse
     {
         // Проверка токена временно здесь, т.к. другие способы подразумевают аутентификацию пользователя.
         // На первом решили действовать без перенастройки на стороне 1с

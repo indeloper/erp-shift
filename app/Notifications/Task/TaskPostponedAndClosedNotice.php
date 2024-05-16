@@ -13,7 +13,7 @@ class TaskPostponedAndClosedNotice extends BaseNotification
 
     const DESCRIPTION = 'Уведомление о том, что задача отложена и закрыта';
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject(self::DESCRIPTION)
