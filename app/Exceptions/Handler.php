@@ -34,7 +34,6 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
-        dd($exception);
         if (auth()->check() and $this->isDeployedEnvironment()) {
             if ($exception instanceof ValidationException) {
                 $text = $this->reportValidationErrors($exception);

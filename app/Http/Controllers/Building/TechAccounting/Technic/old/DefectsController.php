@@ -119,7 +119,7 @@ class DefectsController extends Controller
     public function decline(DefectDeclineRequest $request, Defects $defects): JsonResponse
     {
         if ($defects->isNotInDiagnostics()) {
-            return;
+            return response()->json(false);
         }
 
         DB::beginTransaction();
@@ -142,7 +142,7 @@ class DefectsController extends Controller
     public function accept(DefectAcceptRequest $request, Defects $defects): JsonResponse
     {
         if ($defects->isNotInDiagnostics()) {
-            return;
+            return response()->json(false);
         }
 
         DB::beginTransaction();

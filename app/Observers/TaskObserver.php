@@ -14,12 +14,12 @@ class TaskObserver
     {
         if ($task->wasRecentlyCreated) {
             if ($task->status == 21) {
-                return $this->notificationForWriteOffControlTask($task);
+                $this->notificationForWriteOffControlTask($task);
             }
         }
     }
 
-    public function notificationForWriteOffControlTask(Task $task)
+    public function notificationForWriteOffControlTask(Task $task): void
     {
         WriteOffControlTaskCreatedNotice::send(
             $task->responsible_user_id,

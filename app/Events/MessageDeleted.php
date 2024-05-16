@@ -37,7 +37,9 @@ class MessageDeleted implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return new Channel(config('app.env').'.App.User.'.$this->recipientID);
+        return [
+            new Channel(config('app.env').'.App.User.'.$this->recipientID)
+        ];
     }
 
     public function broadcastAs()

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\System;
 
 use App\Events\MessageDeleted;
-use App\Events\MessageStored;
 use App\Events\MessageUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
@@ -199,7 +198,7 @@ class MessagesController extends Controller
     /**
      * Send the new message to Pusher in order to notify users.
      */
-    protected function oooPushIt(Message $message, Event $event = MessageStored::class): void
+    protected function oooPushIt(Message $message, Event $event): void
     {
         $thread = $message->thread;
         $sender = $message->user;

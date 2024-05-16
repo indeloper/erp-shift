@@ -16,10 +16,10 @@ class VacationsHistoryObserver
     public function saved(VacationsHistory $vacationsHistory): void
     {
         if ($vacationsHistory->wasRecentlyCreated) {
-            return $this->newVacation($vacationsHistory);
+            $this->newVacation($vacationsHistory);
         }
 
-        return $this->updatedFork($vacationsHistory);
+        $this->updatedFork($vacationsHistory);
     }
 
     public function newVacation(VacationsHistory $vacationsHistory)

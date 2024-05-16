@@ -16,7 +16,7 @@ class CommentObserver
     public function saved(Comment $comment): void
     {
         if ($comment->commentable_type == Defects::class and strpos($comment->comment, '@user(') === false) {
-            return $this->generateDefectNewCommentNotifications($comment);
+            $this->generateDefectNewCommentNotifications($comment);
         }
     }
 }

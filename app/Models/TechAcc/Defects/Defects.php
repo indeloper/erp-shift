@@ -2,8 +2,6 @@
 
 namespace App\Models\TechAcc\Defects;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
@@ -14,6 +12,8 @@ use App\Traits\Taskable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -418,13 +418,13 @@ class Defects extends Model
     }
 
     // Methods
+
     /**
-     * Function find defectable model and call
-     * model create() method
+     * @param  array  $request
      *
-     * @return self::create()
+     * @return mixed
      */
-    public static function smartCreate(array $request): self::create
+    public static function smartCreate(array $request)
     {
         $request['defectable_type'] = self::DEFECTABLE_TYPE[$request['defectable_type']];
 

@@ -57,6 +57,6 @@ class CheckContractorContactsAdding extends Command
 
         DB::commit();
 
-        return $this->info('Contactless contractors checked!');
+        $this->info('Contactless contractors checked!');
     }
 }

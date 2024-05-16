@@ -63,7 +63,7 @@ trait Messagable
     /**
      * Returns the new messages for user.
      */
-    public function unreadMessages(): int
+    public function unreadMessages(): Collection
     {
         return \App\Models\Messenger\Message::unreadForUser($this->getKey())->get();
     }

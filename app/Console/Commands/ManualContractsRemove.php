@@ -55,6 +55,6 @@ class ManualContractsRemove extends Command
             }
         }
 
-        return count($deleted) ? $this->info('Nice, contracts removed!') : $this->info('Nothing removed');
+        count($deleted) ? $this->info('Nice, contracts removed!') : $this->info('Nothing removed');
     }
 }
