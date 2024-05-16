@@ -106,7 +106,7 @@ class q3wMaterialStandardController extends Controller
      */
     public function show(Request $request): string
     {
-        $options = json_decode($request['data']);
+        $options = json_decode($request->get('data', '{}'), false);
 
         return (new q3wMaterialStandard())
             ->dxLoadOptions($options)

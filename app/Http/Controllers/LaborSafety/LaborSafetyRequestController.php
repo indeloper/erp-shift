@@ -52,7 +52,7 @@ class LaborSafetyHtml extends Html
      *                           + IMG_SRC_SEARCH: optional to speed up images loading from remote url when files can be found locally
      *                           + IMG_SRC_REPLACE: optional to speed up images loading from remote url when files can be found locally
      */
-    public static function addHtml(AbstractContainer $element, string $html, bool $fullHTML = false, bool $preserveWhiteSpace = true, $options = null)
+    public static function addHtml($element, $html, $fullHTML = false, $preserveWhiteSpace = true, $options = null)
     {
         /*
          * @todo parse $stylesheet for default styles.  Should result in an array based on id, class and element,
@@ -96,7 +96,7 @@ class LaborSafetyHtml extends Html
      * @param  array  $styles  Array with all styles
      * @param  array  $data  Array to transport data to a next level in the DOM tree, for example level of listitems
      */
-    protected static function parseNode(DOMNode $node, AbstractContainer $element, array $styles = [], array $data = [])
+    protected static function parseNode($node, $element, $styles = [], $data = [])
     {
         // Populate styles array
         $styleTypes = ['font', 'paragraph', 'list', 'table', 'row', 'cell'];
@@ -176,7 +176,7 @@ class LaborSafetyHtml extends Html
     /**
      * Parse child nodes.
      */
-    protected static function parseChildNodes(DOMNode $node, AbstractContainer $element, array $styles, array $data)
+    protected static function parseChildNodes($node, $element, $styles, $data)
     {
         if ($node->nodeName != 'li') {
             $cNodes = $node->childNodes;
@@ -209,7 +209,7 @@ class LaborSafetyHtml extends Html
     /**
      * Parse list node
      */
-    protected static function parseList(DOMNode $node, AbstractContainer $element, array &$styles, array &$data)
+    protected static function parseList($node, $element, &$styles, &$data)
     {
         $isOrderedList = $node->nodeName === 'ol';
         if (isset($data['listdepth'])) {
@@ -249,7 +249,7 @@ class LaborSafetyHtml extends Html
         }
     }
 
-    protected static function getListStyle(bool $isOrderedList): array
+    protected static function getListStyle($isOrderedList): array
     {
         if ($isOrderedList) {
             return [
@@ -287,7 +287,7 @@ class LaborSafetyHtml extends Html
     /**
      * Parse list item node
      */
-    protected static function parseListItem(DOMNode $node, AbstractContainer $element, array &$styles, array $data)
+    protected static function parseListItem($node, $element, &$styles, $data)
     {
         $styles['paragraph'] = ['align' => 'both'];
 

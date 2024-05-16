@@ -5,11 +5,11 @@ use App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankOperationContr
 use App\Http\Controllers\Building\TechAccounting\Technic;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('technic_category', 'Technic\old\TechnicCategoryController');
+Route::resource('technic_category', 'App\Http\Controllers\Building\TechAccounting\Technic\old\TechnicCategoryController');
 Route::get('technic_category_trashed', [Technic\old\TechnicCategoryController::class, 'display_trashed'])->name('technic_category.display_trashed');
 Route::get('technic_category_trashed/{technic_category}', [Technic\old\TechnicCategoryController::class, 'show_trashed'])->name('technic_category.show_trashed');
 
-Route::resource('technic_category.our_technic', 'Technic\old\OurTechnicController')->except([
+Route::resource('technic_category.our_technic', 'App\Http\Controllers\Building\TechAccounting\Technic\old\OurTechnicController')->except([
     'create', 'show', 'edit',
 ]);
 Route::get('technic_category/{technic_category}/our_technic_trashed', [Technic\old\OurTechnicController::class, 'display_trashed'])->name('technic_category.our_technic.trashed_index');
@@ -69,7 +69,7 @@ Route::post('fuel_tank/{fuel_tank}/change_fuel_level', [FuelTankController::clas
 Route::get('fuel_tank_trashed', [FuelTankController::class, 'display_trashed'])->name('fuel_tank.display_trashed');
 Route::get('trashed_fuel_tank/{fuel_tank}', [FuelTankController::class, 'show_trashed'])->name('fuel_tank.show_trashed');
 
-Route::resource('fuel_tank', 'Fuel\Old\FuelTankController')->except([
+Route::resource('fuel_tank', 'App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankController')->except([
     'create',
     'edit',
 ]);

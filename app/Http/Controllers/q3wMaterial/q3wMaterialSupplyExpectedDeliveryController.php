@@ -7,7 +7,7 @@ use App\Models\q3wMaterial\q3wMaterialSupplyExpectedDeliveries;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-define('SUPPLY_PLANNING_QUANTITY_DELTA', 0.2);
+//define('SUPPLY_PLANNING_QUANTITY_DELTA', 0.2);
 
 class q3wMaterialSupplyExpectedDeliveryController extends Controller
 {

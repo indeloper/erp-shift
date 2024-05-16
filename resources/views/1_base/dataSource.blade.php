@@ -37,57 +37,45 @@
 
             update: function (key, values, isMobile=false) {
 
-               @php
-                   // TODO: // FIX URL !!!
-
-    //                   return $.ajax({
-    //                       url: getUrlWithId("{{route($routeNameFixedPart.'resource.update', ['id'=>'setId'])}}", key),
-    //                       method: "PUT",
-    //                       headers: {
-    //                           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //                       },
-    //                       data: {
-    //                           data: JSON.stringify(values),
-    //                           options: null
-    //                       },
-    //                       success: function (data, textStatus, jqXHR) {
-    //                           DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
-    //                           // $('#entitiesListMobile').dxList('instance')?.reload()
-    //                       },
-    //                   })
-               @endphp
+              return $.ajax({
+                url: getUrlWithId("{{route($routeNameFixedPart.'resource.update', ['resource'=>'setId'])}}", key),
+                method: "PUT",
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                  data: JSON.stringify(values),
+                  options: null
+                },
+                success: function (data, textStatus, jqXHR) {
+                  DevExpress.ui.notify("Данные успешно обновлены", "success", 1000)
+                  // $('#entitiesListMobile').dxList('instance')?.reload()
+                },
+              })
 
             },
             remove: function (key) {
 
-                @php
-                    // TODO: // FIX URL !!!
-
-    //                    return $.ajax({
-    //                        url: getUrlWithId("{{route($routeNameFixedPart.'resource.destroy', ['id'=>'setId'])}}", key),
-    //                        method: "DELETE",
-    //                        headers: {
-    //                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //                        },
-    //                        success: function (data, textStatus, jqXHR) {
-    //                            DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
-    //                            entitiesDataSource.reload()
-    //                            $('#entitiesListMobile').dxList('instance')?.reload()
-    //                        },
-    //                    })
-                @endphp
+              return $.ajax({
+                url: getUrlWithId("{{route($routeNameFixedPart.'resource.destroy', ['resource'=>'setId'])}}", key),
+                method: "DELETE",
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data, textStatus, jqXHR) {
+                  DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                  entitiesDataSource.reload()
+                  $('#entitiesListMobile').dxList('instance')?.reload()
+                },
+              })
 
             },
             byKey: function (key) {
                 let d = new $.Deferred();
-                @php
-                    // TODO: // FIX URL !!!
-
-    //                    $.get(getUrlWithId("{{route($routeNameFixedPart.'resource.show', ['id'=>'setId'])}}", key))
-    //                        .done(function (dataItem) {
-    //                            d.resolve(dataItem);
-    //                        });
-                @endphp
+              $.get(getUrlWithId("{{route($routeNameFixedPart.'resource.show', ['resource'=>'setId'])}}", key))
+                .done(function (dataItem) {
+                  d.resolve(dataItem);
+                });
                 return d.promise();
             }
         })
@@ -97,12 +85,8 @@
         store: new DevExpress.data.CustomStore({
             loadMode: "raw",
             load: function (loadOptions) {
-              @php
-                  // TODO: // FIX URL !!!
+              return $.getJSON(getUrlWithId("{{route($routeNameFixedPart.'resource.show', ['resource'=>'setId'])}}", editingRowId));
 
-    //                  return $.getJSON(getUrlWithId("{{route($routeNameFixedPart.'resource.show', ['id'=>'setId'])}}", editingRowId));
-
-              @endphp
             }
         })
     })
