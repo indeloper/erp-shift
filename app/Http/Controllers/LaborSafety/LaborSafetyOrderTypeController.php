@@ -28,7 +28,7 @@ class LaborSafetyOrderTypeController extends Controller
      */
     public function shortNameList(Request $request)
     {
-        $loadOptions = json_decode($request['loadOptions']);
+        $loadOptions = json_decode($request->get('loadOptions', '{}'));
 
         return (new LaborSafetyOrderType())
             ->dxLoadOptions($loadOptions)
