@@ -2,25 +2,23 @@
 
 namespace App\Providers;
 
-use App\Models\User;
-use App\Models\Project;
-use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\Permission;
-use App\Models\TechAcc\OurTechnicTicketReport;
+use App\Models\Project;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
-use Laravel\Passport\Passport;
-use Illuminate\Contracts\Auth\Access\Gate as GateContract;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-
-use App\Policies\UserPolicy;
-use App\Policies\ProjectPolicy;
+use App\Models\TechAcc\OurTechnicTicket;
+use App\Models\TechAcc\OurTechnicTicketReport;
+use App\Models\User;
+use App\Policies\FuelTankOperationPolicy;
+use App\Policies\FuelTankPolicy;
 use App\Policies\OurTechnicTicketActionsPolicy;
 use App\Policies\OurTechnicTicketReportPolicy;
-use App\Policies\FuelTankPolicy;
-use App\Policies\FuelTankOperationPolicy;
+use App\Policies\ProjectPolicy;
+use App\Policies\UserPolicy;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
+//use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -40,14 +38,10 @@ class AuthServiceProvider extends ServiceProvider
 
     /**
      * Register any authentication / authorization services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        $this->registerPolicies();
-
-        Passport::routes();
+        //        Passport::routes();
 
         //allow everything for super admin
         Gate::before(function ($user, $ability, $arguments) {
@@ -56,7 +50,7 @@ class AuthServiceProvider extends ServiceProvider
             }
             if (isset($arguments[0])) {
                 $short_name = (new \ReflectionClass($arguments[0]))->getShortName();
-                $permission = $ability . '.' . $short_name;
+                $permission = $ability.'.'.$short_name;
                 $is_authed = $user->hasPermission($permission);
                 if ($is_authed) {
                     return true;
@@ -65,12 +59,12 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         // load check user permission
-        foreach (Permission::all() AS $permission) {
+        foreach (Permission::all() as $permission) {
             $ability = $permission->codename;
-            Gate::define($ability, function($user) use ($ability) {
+            Gate::define($ability, function ($user) use ($ability) {
                 return $user->hasPermission($ability);
             });
         }
 
-   }
+    }
 }

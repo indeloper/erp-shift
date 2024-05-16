@@ -2,13 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-
 use App\Models\MatAcc\MaterialAccountingBase;
-use App\Models\MatAcc\MaterialAccountingOperation;
-
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use \Carbon\Carbon;
 
 class MatAccTransferBase extends Command
 {
@@ -38,10 +35,8 @@ class MatAccTransferBase extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         DB::beginTransaction();
 

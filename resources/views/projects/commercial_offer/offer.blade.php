@@ -40,11 +40,26 @@
 
     <body>
         <htmlpageheader name="page-header">
-            @if($project->entity == 1)
-                <img src="{{ asset('img/kp_head.png') }}" width="500px;" style="padding-left: 45px; padding-right: 35px;">
-            @else
-                <img src="{{ asset('img/kp_head_2.png') }}" width="500px;" style="padding-left: 45px; padding-right: 35px;">
-            @endif
+            <table>
+                <tr>
+                    <td style="width:70%; padding-left: 45px;">
+                        <img src="{{ $company->logo }}" width="250px">
+                    </td>
+                    <td style="text-align: right; padding-right: 35px; font-size: 10px">
+                        {{ $company->legal_address }}
+                        <br>
+                        Тел.: {{ $company->phone }}
+                        <br>
+                        ОГРН: {{ $company->ogrn }}
+                        <br>
+                        ИНН: {{ $company->inn }}
+                        <br>
+                        {{ $company->web_site }}
+                        <br>
+                        {{ $company->email }}
+                    </td>
+                </tr>
+            </table>
         </htmlpageheader>
         <div class="offer-list clearfix">
             <div class="main-content">
@@ -481,19 +496,36 @@
                                     </div>
                                 </div>
                             @else
-                                <div>
-                                    <div style="text-align: left; margin-top: -14px">
-                                        Генеральный директор {{ $project::$entities[$project->entity] }}
-                                    </div>
-                                    <div style="text-align: right; margin-top: -14px">
-                                        М.Д. Исмагилов
-                                    </div>
-                                    @if(in_array($offer->status, [4, 5]) || $offer->is_tongue == 2)
-                                        <div style="text-align: right; margin-right: 80px; margin-top: -80px">
-                                            <img src="{{ asset('img/small.png') }}" max-width="1px;" max-height="1px;">
+                                @if($company->id == 1)
+                                    <div>
+                                        <div style="text-align: left; margin-top: -14px">
+                                            Генеральный директор {{ $company->name }}
                                         </div>
-                                    @endif
-                                </div>
+                                        <div style="text-align: right; margin-top: -14px">
+                                            М.Д. Исмагилов
+                                        </div>
+                                        @if(in_array($offer->status, [4, 5]) || $offer->is_tongue == 2)
+                                            <div style="text-align: right; margin-right: 80px; margin-top: -80px">
+                                                <img src="{{ asset('img/small.png') }}" max-width="1px;" max-height="1px;">
+                                            </div>
+                                        @endif
+                                    </div>
+                                @elseif($company->id == 2)
+                                    <div>
+                                        <div style="text-align: left; margin-top: -14px">
+                                            Директор по строительству {{ $company->name }}
+                                        </div>
+                                        <div style="text-align: right; margin-top: -14px">
+                                            С.А. Левичев
+                                        </div>
+                                        @if(in_array($offer->status, [4, 5]))
+                                            <div style="text-align: right; margin-right: 80px; margin-top: -80px">
+                                                <img src="{{ asset('img/small_2.png') }}" max-width="1px;" max-height="1px;">
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
                             @endif
                         </div>
 
@@ -501,22 +533,25 @@
 
                         <div style="font-size: 10px; margin-top: @if(in_array($offer->status, [4, 5]) || $offer->is_tongue == 2)-15mm; @else 1mm; @endif margin-bottom: 5mm; margin-left: 5mm; margin-right: 3mm; position: relative;">
                             Исп.: <br>
-                            @foreach ($resp_users as $user)
+                             Кириличева Люсьена Андреевна, <br>
+                            Тел.
+                            <!--@foreach ($resp_users as $user)
                                 @if (in_array($user->role, [2,4]))
                                     {!! ($user->role == 4) ? "По тех. вопросам: <br>" : 'По коммерческим вопросам: <br>' !!}
                                     {{ str_replace(' (шпунт)', '' , $user->profession) . ', ' . $user->last_name }}
                                     {{ (!is_null($user->first_name) ? mb_substr($user->first_name, 0 , 1) . '.' :  '') }}
                                     {{ (!is_null($user->patronymic) ? mb_substr($user->patronymic, 0 , 1) . '.' : '') }}
                                     {{ ($user->work_phone ? 'Тел. 326-94-06 доб. ' . $user->work_phone . '.' : '') }}
-                                    {!! ($user->person_phone ? $user->person_phone : '<br>') !!}
+                                    {!! ($user->person_phone ? ', '. $user->person_phone : '<br>') !!}
                                 @else
                                     {{ str_replace(' (сваи)', '' , $user->profession) . ', ' . $user->last_name  }}
-                                    {{ mb_substr($user->first_name, 0 , 1) . '.' . mb_substr($user->patronymic, 0 , 1) . '.'}}
-                                    {{ ($user->work_phone ? 'Тел. 326-94-06 доб. ' . $user->work_phone . '.' : '') }}
+                                    {{ $user->first_name . ' ' . $user->patronymic . ','}} <br>
+                                    {{ ( 'Тел.: 326-94-06 доб. ' . $user->work_phone ? $user->work_phone . ', ' : '') }}
                                     {{($user->person_phone ? $user->person_phone : '') }}
+                                    {{($user->email ? '<br>' . $user->email : '') }}
                                 @endif
                                 <br>
-                            @endforeach
+                            @endforeach-->
                         </div>
                     </htmlpagefooter>
 

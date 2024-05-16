@@ -10,22 +10,23 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\WithDrawings;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents, WithTitle, WithDrawings, WithColumnFormatting, WithColumnWidths
+class MaterialTableXLSXReport implements FromCollection, ShouldAutoSize, WithColumnFormatting, WithColumnWidths, WithDrawings, WithEvents, WithHeadings, WithTitle
 {
     use Exportable;
 
     const startLineNumber = 12;
+
     /**
      * @var string
      */
@@ -35,9 +36,13 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
      * @var array
      */
     private $date;
+
     private $filterText;
+
     private $borderStyleRulesArray;
+
     private $colorStyleRulesArray;
+
     /**
      * @var Collection
      */
@@ -47,6 +52,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
      * @var int
      */
     private $projectObjectId;
+
     private $lastLineNumber;
 
     public function __construct($projectObjectId, $materials, $filterText, $reportType)
@@ -69,15 +75,15 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',  'Тел.:', '+7 (812) 922-76-96'],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',  ' ', '+7 (812) 326-94-06'],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'www.sk-gorod.com'],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [
-                'ТАБЕЛЬ УЧЕТА МАТЕРИАЛОВ ОТ ' .  Carbon::now()->format('d.m.Y')
+                'ТАБЕЛЬ УЧЕТА МАТЕРИАЛОВ ОТ '.Carbon::now()->format('d.m.Y'),
             ],
             [
-                "Объект: " . ProjectObject::findOrFail($this->projectObjectId)->short_name
+                'Объект: '.ProjectObject::findOrFail($this->projectObjectId)->short_name,
             ],
             [
-                'Фильтры: ' . $this->filterText
+                'Фильтры: '.$this->filterText,
             ],
             [
 
@@ -95,8 +101,9 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                 'Уход',
                 'Комментарий',
                 '№ ТТН',
-                '№ ТН'
-            ]
+                '№ ТН',
+                'Индекс типа преобразования',
+            ],
         ];
     }
 
@@ -121,7 +128,8 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                 $material['outgoing_to_project_object'],
                 $material['comment'],
                 $material['item_transport_consignment_note_number'],
-                $material['consignment_note_number']
+                $material['consignment_note_number'],
+                $material['transform_operation_stage_id'],
             ]);
 
             if ($prevOperationId == 0) {
@@ -134,18 +142,18 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                 $borders = [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
-                        'color' => array('rgb' => '303030'),
+                        'color' => ['rgb' => '303030'],
                     ],
                 ];
             } else {
                 $borders = [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
-                        'color' => array('rgb' => '303030'),
+                        'color' => ['rgb' => '303030'],
                     ],
                     'top' => [
                         'borderStyle' => Border::BORDER_THICK,
-                        'color' => array('rgb' => '868686'),
+                        'color' => ['rgb' => '868686'],
                     ],
                 ];
             }
@@ -165,47 +173,48 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                     break;
                 case 4:
                     $isMaterialHasLeftProjectObject = true;
-                break;
+                    break;
             }
 
             if ($isMaterialHasLeftProjectObject) {
                 $fontStyle = [
-                    'color' => array('rgb' => '9C0006'),
+                    'color' => ['rgb' => '9C0006'],
                 ];
                 $fillStyle = [
                     'fillType' => Fill::FILL_SOLID,
-                    'color' => array('rgb' => 'FCD5D4'),
+                    'color' => ['rgb' => 'FCD5D4'],
                 ];
             } else {
                 $fontStyle = [
-                    'color' => array('rgb' => '006100'),
+                    'color' => ['rgb' => '006100'],
                 ];
                 $fillStyle = [
                     'fillType' => Fill::FILL_SOLID,
-                    'color' => array('rgb' => 'EBF1DE'),
+                    'color' => ['rgb' => 'EBF1DE'],
                 ];
             }
 
             $prevOperationId = $material['id'];
 
             $this->borderStyleRulesArray[$lineNumber] = ['borders' => $borders];
-            $this->colorStyleRulesArray[$lineNumber] = ['font' => $fontStyle,'fill' => $fillStyle];
+            $this->colorStyleRulesArray[$lineNumber] = ['font' => $fontStyle, 'fill' => $fillStyle];
 
             $number++;
-            $lineNumber ++;
+            $lineNumber++;
         }
 
         $this->lastLineNumber = $lineNumber;
+
         return $results;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->setAutoFilter('A11:M11');
 
                 //Main header styles
@@ -224,47 +233,47 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
 
                 $event->sheet->getDelegate()->getStyle('L2')->getAlignment()->setWrapText(true);
 
-                $event->sheet->horizontalAlign('A7' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('K3' , Alignment::HORIZONTAL_RIGHT);
-                $event->sheet->horizontalAlign('A8:E10' , Alignment::HORIZONTAL_LEFT);
-                $event->sheet->horizontalAlign('L1:M6' , Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign('A7', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('K3', Alignment::HORIZONTAL_RIGHT);
+                $event->sheet->horizontalAlign('A8:E10', Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign('L1:M6', Alignment::HORIZONTAL_LEFT);
                 $event->sheet->getDelegate()->getStyle('C10')->getAlignment()->setWrapText(true);
 
                 $event->sheet->getStyle('A7')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
-                        ]
+                            'bold' => true,
+                        ],
                     ]);
 
                 //Table headers
                 $event->sheet->getStyle('A11:M11')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
+                            'bold' => true,
 
                         ],
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
-                            'color' => array('rgb' => 'B8CCE4')
+                            'color' => ['rgb' => 'B8CCE4'],
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
-                        ]
+                        ],
                     ]);
 
-                if (!isset($this->borderStyleRulesArray)){
+                if (! isset($this->borderStyleRulesArray)) {
                     return;
                 }
 
-                foreach ($this->borderStyleRulesArray as $line => $style){
+                foreach ($this->borderStyleRulesArray as $line => $style) {
                     $event->sheet->getStyle('A'.$line.':M'.$line)->applyFromArray($style);
                 }
 
-                foreach ($this->colorStyleRulesArray as $line => $style){
+                foreach ($this->colorStyleRulesArray as $line => $style) {
                     $event->sheet->getStyle('C'.$line)->applyFromArray($style);
                 }
 
@@ -273,16 +282,16 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
                         'borders' => [
                             'bottom' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
-                        ]
+                        ],
                     ]);
-            }
+            },
         ];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function title(): string
     {
@@ -295,7 +304,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function drawings()
     {
@@ -310,7 +319,7 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function columnFormats(): array
     {
@@ -330,7 +339,8 @@ class MaterialTableXLSXReport implements FromCollection, WithHeadings, ShouldAut
             'G' => 16,
             'E' => 16,
             'L' => 11,
-            'M' => 11
+            'M' => 11,
+            'N' => 0,
         ];
     }
 }

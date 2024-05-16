@@ -4,13 +4,11 @@ namespace App\Console\Commands;
 
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Services\TechAccounting\TechnicTicketReportService;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CreateUsageReportTask extends Command
 {
-    use TimeCalculator;
     /**
      * The name and signature of the console command.
      *
@@ -37,12 +35,12 @@ class CreateUsageReportTask extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        $grouped_tickets = OurTechnicTicket::where('status', 7)->get()->groupBy(function($item) {return $item->users()->ofType('usage_resp_user_id')->activeResp()->first()->id ?? '-1';});
+        $grouped_tickets = OurTechnicTicket::where('status', 7)->get()->groupBy(function ($item) {
+            return $item->users()->ofType('usage_resp_user_id')->activeResp()->first()->id ?? '-1';
+        });
         $report_service = new TechnicTicketReportService();
 
         foreach ($grouped_tickets as $user_id => $tickets) {
@@ -50,5 +48,4 @@ class CreateUsageReportTask extends Command
             $report_service->checkAndCreateTaskForUserId($user_id, $tickets);
         }
     }
-
 }

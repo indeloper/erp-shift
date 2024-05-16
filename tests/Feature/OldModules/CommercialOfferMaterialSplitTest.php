@@ -3,26 +3,20 @@
 namespace Tests\Feature\OldModules;
 
 use App\Models\CommercialOffer\CommercialOffer;
-use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 use App\Models\Manual\ManualMaterial;
 use App\Services\Commerce\SplitService;
+use Illuminate\Database\Eloquent\Model;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CommercialOfferMaterialSplitTest extends TestCase
 {
-    /** @var  CommercialOffer */
+    /** @var CommercialOffer */
     private $commercial_offer;
 
     /** @var SplitService */
     private $split_service;
 
-    /**
-     * @param $count
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function createBasicSplit($count = null)
+    public function createBasicSplit($count = null): Model
     {
         return $this->commercial_offer->mat_splits()->create([
             'count' => $count ?? $this->faker()->randomNumber(3),
@@ -40,12 +34,12 @@ class CommercialOfferMaterialSplitTest extends TestCase
     {
         parent::setUp();
 
-        $this->commercial_offer = factory(CommercialOffer::class)->create();
+        $this->commercial_offer = CommercialOffer::factory()->create();
         $this->split_service = new SplitService();
     }
 
     /** @test */
-    public function it_converts_type_to_numeric()
+    public function it_converts_type_to_numeric(): void
     {
         $sale_type = $this->split_service->convertTypeToNumeric('sale');
         $given_type = $this->split_service->convertTypeToNumeric('given');
@@ -55,7 +49,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_can_split_a_split()
+    public function it_can_split_a_split(): void
     {
         $split = $this->createBasicSplit();
 
@@ -67,7 +61,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_correctly_change_count()
+    public function it_correctly_change_count(): void
     {
         $split = $this->createBasicSplit(45);
 
@@ -78,7 +72,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_modification_split()
+    public function it_creates_modification_split(): void
     {
         $split = $this->createBasicSplit(45);
 
@@ -89,7 +83,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_joins_same_splits()
+    public function it_joins_same_splits(): void
     {
         $split = $this->createBasicSplit(40);
 
@@ -103,7 +97,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_modification_on_modification()
+    public function it_creates_modification_on_modification(): void
     {
         $split = $this->createBasicSplit(45);
 
@@ -116,7 +110,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_deletes_split_when_count_become_zero()
+    public function it_deletes_split_when_count_become_zero(): void
     {
         $split = $this->createBasicSplit(45);
 
@@ -126,7 +120,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_can_split_and_than_merge_back_everything()
+    public function it_can_split_and_than_merge_back_everything(): void
     {
         $split = $this->createBasicSplit(100);
         $rent_split = $this->split_service->splitMore($split, 30, 'rent', '12');
@@ -143,7 +137,7 @@ class CommercialOfferMaterialSplitTest extends TestCase
     }
 
     /** @test */
-    public function it_can_fix_parent_child_relation()
+    public function it_can_fix_parent_child_relation(): void
     {
         //given split and it's child
         $split = $this->createBasicSplit();

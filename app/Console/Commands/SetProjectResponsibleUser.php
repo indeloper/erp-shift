@@ -38,53 +38,52 @@ class SetProjectResponsibleUser extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
 
         $role_id = $this->argument('role_id');
         $new_resp_user = User::find($this->argument('user_id'));
         $mode = $this->argument('mode');
 
-
         if ($mode === '1') {
-            $resps_to_delete = Project::with('respUsers')->whereHas('respUsers', function ($q) use($role_id) {
+            $resps_to_delete = Project::with('respUsers')->whereHas('respUsers', function ($q) use ($role_id) {
                 return $q->where('role', $role_id);
             })->count();
 
-            $this->info('Количество проектов, в которых ответственный будет заменён первый из всех: ' . $resps_to_delete);
-            $this->info('Количество проектов, в которых ответственный будет добавлен: ' . (Project::count() - $resps_to_delete));
+            $this->info('Количество проектов, в которых ответственный будет заменён первый из всех: '.$resps_to_delete);
+            $this->info('Количество проектов, в которых ответственный будет добавлен: '.(Project::count() - $resps_to_delete));
 
-            $confirmation = $this->confirm('Продолжить операцию? Старые ответственные будут удалены, вместо них будет назначен(а) ' . $new_resp_user->full_name);
+            $confirmation = $this->confirm('Продолжить операцию? Старые ответственные будут удалены, вместо них будет назначен(а) '.$new_resp_user->full_name);
 
             if ($confirmation) {
                 $projects = Project::with('respUsers')->get();
                 foreach ($projects as $project) {
                     $user = $project->respUsers->where('role', $role_id)->first();
-                    if ($user){
+                    if ($user) {
                         $user->user_id = $new_resp_user->id;
                         $user->save();
                     } else {
                         $project->respUsers()->create([
                             'project_id' => $project->id,
                             'user_id' => $new_resp_user->id,
-                            'role' => $role_id
+                            'role' => $role_id,
                         ]);
                     }
                 }
 
                 $this->info('Операция завершена');
+
                 return true;
             } else {
                 $this->info('Операция прервана.');
+
                 return false;
             }
         } elseif ($mode === '2') {
             $projects = Project::get();
 
-            $this->info('Количество проектов, в которых будет добавлен новый (или ещё один) ответственный: ' . $projects->count());
+            $this->info('Количество проектов, в которых будет добавлен новый (или ещё один) ответственный: '.$projects->count());
 
             $confirmation = $this->confirm('Вы хотите добавить нового (или ещё одного) ответственного во все проекты?');
 
@@ -93,38 +92,42 @@ class SetProjectResponsibleUser extends Command
                     $project->respUsers()->create([
                         'project_id' => $project->id,
                         'user_id' => $new_resp_user->id,
-                        'role' => $role_id
+                        'role' => $role_id,
                     ]);
                 }
 
                 $this->info('Операция завершена');
+
                 return true;
             } else {
                 $this->info('Операция прервана.');
+
                 return false;
             }
         } elseif ($mode === '3') {
-            $proj_to_add_resp = Project::with('respUsers')->whereDoesntHave('respUsers', function ($q) use($role_id, $new_resp_user) {
+            $proj_to_add_resp = Project::with('respUsers')->whereDoesntHave('respUsers', function ($q) use ($role_id, $new_resp_user) {
                 return $q->where('role', $role_id)->where('user_id', $new_resp_user->id);
             })->get();
 
-            $this->info('Количество проектов, в которых ответственный будет добавлен: ' . ($proj_to_add_resp->count()));
+            $this->info('Количество проектов, в которых ответственный будет добавлен: '.($proj_to_add_resp->count()));
 
-            $confirmation = $this->confirm('Продолжить операцию? В этих проектах ' . $new_resp_user->role_codes[$role_id] . ' будет назначен(а) ' . $new_resp_user->full_name);
+            $confirmation = $this->confirm('Продолжить операцию? В этих проектах '.$new_resp_user->role_codes[$role_id].' будет назначен(а) '.$new_resp_user->full_name);
 
             if ($confirmation) {
                 foreach ($proj_to_add_resp as $project) {
                     $project->respUsers()->create([
                         'project_id' => $project->id,
                         'user_id' => $new_resp_user->id,
-                        'role' => $role_id
+                        'role' => $role_id,
                     ]);
                 }
 
                 $this->info('Операция завершена');
+
                 return true;
             } else {
                 $this->info('Операция прервана.');
+
                 return false;
             }
         }

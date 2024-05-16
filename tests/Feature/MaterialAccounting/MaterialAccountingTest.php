@@ -2,11 +2,16 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-use App\Models\{Group, Manual\ManualMaterialCategory, Manual\ManualReference, ProjectObject, User};
 use App\Models\Contractors\Contractor;
+use App\Models\Group;
 use App\Models\Manual\ManualMaterial;
-use App\Models\MatAcc\{MaterialAccountingBase, MaterialAccountingOperation, MaterialAccountingOperationMaterials};
+use App\Models\Manual\ManualReference;
+use App\Models\MatAcc\MaterialAccountingBase;
+use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Models\ProjectObject;
+use App\Models\User;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class MaterialAccountingTest extends TestCase
@@ -17,32 +22,32 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_material_can_be_new()
+    public function operation_material_can_be_new(): void
     {
         // Given operation material
-        $operationMaterial = factory(MaterialAccountingOperationMaterials::class)->create();
+        $operationMaterial = MaterialAccountingOperationMaterials::factory()->create();
 
         // Then operation material should be new
         $this->assertEquals(0, $operationMaterial->used);
     }
 
     /** @test */
-    public function operation_material_can_be_used()
+    public function operation_material_can_be_used(): void
     {
         // Given used operation material
-        $operationMaterial = factory(MaterialAccountingOperationMaterials::class)->create(['used' => 1]);
+        $operationMaterial = MaterialAccountingOperationMaterials::factory()->create(['used' => 1]);
 
         // Then operation material should be used
         $this->assertEquals(1, $operationMaterial->used);
     }
 
     /** @test */
-    public function operation_material_name_getter_should_know_about_material_usage()
+    public function operation_material_name_getter_should_know_about_material_usage(): void
     {
         // Given used operation material
-        $usedOperationMaterial = factory(MaterialAccountingOperationMaterials::class)->create(['used' => 1]);
+        $usedOperationMaterial = MaterialAccountingOperationMaterials::factory()->create(['used' => 1]);
         // Given new operation material
-        $newOperationMaterial = factory(MaterialAccountingOperationMaterials::class)->create();
+        $newOperationMaterial = MaterialAccountingOperationMaterials::factory()->create();
 
         // Then used operation material name should have used label
         $this->assertContains('Б/У', $usedOperationMaterial->material_name);
@@ -51,32 +56,32 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_material_can_be_new()
+    public function base_material_can_be_new(): void
     {
         // Given base material
-        $baseMaterial = factory(MaterialAccountingBase::class)->create();
+        $baseMaterial = MaterialAccountingBase::factory()->create();
 
         // Then base material should be new
         $this->assertEquals(0, $baseMaterial->used);
     }
 
     /** @test */
-    public function base_material_can_be_used()
+    public function base_material_can_be_used(): void
     {
         // Given used base material
-        $baseMaterial = factory(MaterialAccountingBase::class)->create(['used' => 1]);
+        $baseMaterial = MaterialAccountingBase::factory()->create(['used' => 1]);
 
         // Then base material should be used
         $this->assertEquals(1, $baseMaterial->used);
     }
 
     /** @test */
-    public function base_material_name_getter_should_know_about_material_usage()
+    public function base_material_name_getter_should_know_about_material_usage(): void
     {
         // Given used base material
-        $usedBaseMaterial = factory(MaterialAccountingBase::class)->create(['used' => 1]);
+        $usedBaseMaterial = MaterialAccountingBase::factory()->create(['used' => 1]);
         // Given new base material
-        $newBaseMaterial = factory(MaterialAccountingBase::class)->create();
+        $newBaseMaterial = MaterialAccountingBase::factory()->create();
 
         // Then used base material name should have used label
         $this->assertContains('Б/У', $usedBaseMaterial->material_name);
@@ -85,7 +90,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_nothing()
+    public function operation_index_scope_can_return_nothing(): void
     {
         // Given absence
         // Whew we use index() scope
@@ -96,12 +101,12 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_operations_with_new_materials()
+    public function operation_index_scope_can_return_operations_with_new_materials(): void
     {
         // Given material accounting operation
-        $operation = factory(MaterialAccountingOperation::class)->create();
+        $operation = MaterialAccountingOperation::factory()->create();
         // Given materials for operation
-        $materials = factory(MaterialAccountingOperationMaterials::class, 3)->create(['operation_id' => $operation->id]);
+        $materials = MaterialAccountingOperationMaterials::factory()->count(3)->create(['operation_id' => $operation->id]);
 
         // Whew we use index() scope
         $result = MaterialAccountingOperation::index()->get();
@@ -118,12 +123,12 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_operations_with_used_materials()
+    public function operation_index_scope_can_return_operations_with_used_materials(): void
     {
         // Given material accounting operation
-        $operation = factory(MaterialAccountingOperation::class)->create();
+        $operation = MaterialAccountingOperation::factory()->create();
         // Given used materials for operation
-        $materials = factory(MaterialAccountingOperationMaterials::class, 3)->create(['operation_id' => $operation->id, 'used' => 1]);
+        $materials = MaterialAccountingOperationMaterials::factory()->count(3)->create(['operation_id' => $operation->id, 'used' => 1]);
 
         // Whew we use index() scope
         $result = MaterialAccountingOperation::index()->get();
@@ -140,16 +145,16 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function operation_index_scope_can_return_operations_with_new_and_used_materials()
+    public function operation_index_scope_can_return_operations_with_new_and_used_materials(): void
     {
         // Given material accounting operation
-        $operation = factory(MaterialAccountingOperation::class)->create();
+        $operation = MaterialAccountingOperation::factory()->create();
         // Given manual material
-        $manualMaterial = factory(ManualMaterial::class)->create();
+        $manualMaterial = ManualMaterial::factory()->create();
         // Given used material for operation
-        $usedMaterial = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'manual_material_id' => $manualMaterial->id, 'used' => 1]);
+        $usedMaterial = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'manual_material_id' => $manualMaterial->id, 'used' => 1]);
         // Given new material for operation
-        $newMaterial = factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'manual_material_id' => $manualMaterial->id]);
+        $newMaterial = MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'manual_material_id' => $manualMaterial->id]);
 
         // Whew we use index() scope
         $result = MaterialAccountingOperation::index()->get();
@@ -169,7 +174,7 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_nothing()
+    public function base_index_scope_can_return_nothing(): void
     {
         // Given absence
         // Whew we use index() scope
@@ -180,10 +185,10 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_bases_with_new_materials()
+    public function base_index_scope_can_return_bases_with_new_materials(): void
     {
         // Given new material accounting base
-        $base = factory(MaterialAccountingBase::class)->create(['used' => 0, 'count' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['used' => 0, 'count' => 1]);
 
         // Whew we use index() scope
         $result = MaterialAccountingBase::index()->get();
@@ -197,10 +202,10 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_bases_with_used_materials()
+    public function base_index_scope_can_return_bases_with_used_materials(): void
     {
         // Given used material accounting base
-        $base = factory(MaterialAccountingBase::class)->create(['used' => 1, 'count' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['used' => 1, 'count' => 1]);
 
         // Whew we use index() scope
         $result = MaterialAccountingBase::index()->get();
@@ -214,14 +219,14 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function base_index_scope_can_return_bases_with_new_and_used_materials()
+    public function base_index_scope_can_return_bases_with_new_and_used_materials(): void
     {
         // Given manual material
-        $manualMaterial = factory(ManualMaterial::class)->create();
+        $manualMaterial = ManualMaterial::factory()->create();
         // Given new material accounting base
-        $newBase = factory(MaterialAccountingBase::class)->create(['used' => 0, 'count' => 1, 'manual_material_id' => $manualMaterial->id]);
+        $newBase = MaterialAccountingBase::factory()->create(['used' => 0, 'count' => 1, 'manual_material_id' => $manualMaterial->id]);
         // Given used material accounting base
-        $usedBase = factory(MaterialAccountingBase::class)->create(['used' => 1, 'count' => 1, 'manual_material_id' => $manualMaterial->id]);
+        $usedBase = MaterialAccountingBase::factory()->create(['used' => 1, 'count' => 1, 'manual_material_id' => $manualMaterial->id]);
 
         // Whew we use index() scope
         $result = MaterialAccountingBase::index()->get();
@@ -240,10 +245,10 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_can_not_move_material_to_used_state()
+    public function user_without_permission_can_not_move_material_to_used_state(): void
     {
         // Given user without permissions
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // Whew user make post request
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), []);
@@ -253,11 +258,11 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function foremans_can_move_material_to_used_state()
+    public function foremans_can_move_material_to_used_state(): void
     {
         // Given foreman
         $foremans = [14, 23, 31];
-        $user = factory(User::class)->create(['group_id' => $foremans[array_rand($foremans)]]);
+        $user = User::factory()->create(['group_id' => $foremans[array_rand($foremans)]]);
 
         // Whew user make post request
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), []);
@@ -267,11 +272,11 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function RPs_can_move_material_to_used_state()
+    public function RPs_can_move_material_to_used_state(): void
     {
         // Given RP
         $RPs = [13, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $RPs[array_rand($RPs)]]);
+        $user = User::factory()->create(['group_id' => $RPs[array_rand($RPs)]]);
 
         // Whew user make post request
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), []);
@@ -281,18 +286,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_used_more_materials_than_it_was_on_base()
+    public function user_can_not_move_to_used_more_materials_than_it_was_on_base(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 12
+            'count' => 12,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -301,18 +306,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_used_zero_materials()
+    public function user_can_not_move_to_used_zero_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 0
+            'count' => 0,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -321,18 +326,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_used_materials_that_was_not_exist()
+    public function user_can_not_move_to_used_materials_that_was_not_exist(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
 
         // When user make post request with data
         $data = [
             'base_id' => ($base->id + 1),
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -341,18 +346,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_all_base_materials()
+    public function user_can_move_to_used_materials_all_base_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -370,18 +375,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_part_of_base_materials()
+    public function user_can_move_to_used_materials_part_of_base_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -399,18 +404,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_part_of_base_materials_one_more_time()
+    public function user_can_move_to_used_materials_part_of_base_materials_one_more_time(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10.002]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10.002]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -428,20 +433,20 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_all_base_materials_and_them_can_be_grouped_with_used_materials()
+    public function user_can_move_to_used_materials_all_base_materials_and_them_can_be_grouped_with_used_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
         // Given used base with same material
-        $usedBase = factory(MaterialAccountingBase::class)->create(['object_id' => $base->object_id, 'used' => 1, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
+        $usedBase = MaterialAccountingBase::factory()->create(['object_id' => $base->object_id, 'used' => 1, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -459,20 +464,20 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_used_materials_part_of_base_materials_and_them_can_be_grouped_with_used_materials()
+    public function user_can_move_to_used_materials_part_of_base_materials_and_them_can_be_grouped_with_used_materials(): void
     {
         // Given user
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
         // Given used base with same material
-        $usedBase = factory(MaterialAccountingBase::class)->create(['object_id' => $base->object_id, 'used' => 1, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
+        $usedBase = MaterialAccountingBase::factory()->create(['object_id' => $base->object_id, 'used' => 1, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_used'), $data);
 
@@ -490,10 +495,10 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_can_not_move_material_to_new_state()
+    public function user_without_permission_can_not_move_material_to_new_state(): void
     {
         // Given user without permissions
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         // Whew user make post request
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), []);
@@ -503,11 +508,11 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function foremans_can_not_move_material_to_new_state()
+    public function foremans_can_not_move_material_to_new_state(): void
     {
         // Given foreman
         $foremans = [14, 23, 31];
-        $user = factory(User::class)->create(['group_id' => $foremans[array_rand($foremans)]]);
+        $user = User::factory()->create(['group_id' => $foremans[array_rand($foremans)]]);
 
         // Whew user make post request
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), []);
@@ -517,11 +522,11 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function RPs_can_move_material_to_new_state()
+    public function RPs_can_move_material_to_new_state(): void
     {
         // Given RP
         $RPs = [13, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $RPs[array_rand($RPs)]]);
+        $user = User::factory()->create(['group_id' => $RPs[array_rand($RPs)]]);
 
         // Whew user make post request
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), []);
@@ -531,18 +536,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_more_materials_than_it_was_on_base()
+    public function user_can_not_move_to_new_more_materials_than_it_was_on_base(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10, 'used' => 1]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 12
+            'count' => 12,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -551,18 +556,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_zero_materials()
+    public function user_can_not_move_to_new_zero_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10, 'used' => 1]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 0
+            'count' => 0,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -571,18 +576,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_materials_that_was_not_exist()
+    public function user_can_not_move_to_new_materials_that_was_not_exist(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10, 'used' => 1]);
 
         // When user make post request with data
         $data = [
             'base_id' => ($base->id + 1),
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -591,18 +596,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_not_move_to_new_materials_that_was_not_used()
+    public function user_can_not_move_to_new_materials_that_was_not_used(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -611,18 +616,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_all_base_materials()
+    public function user_can_move_to_new_materials_all_base_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10, 'used' => 1]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -640,18 +645,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_part_of_base_materials()
+    public function user_can_move_to_new_materials_part_of_base_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10, 'used' => 1]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -669,20 +674,20 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_all_base_materials_and_then_can_be_grouped_with_new_materials()
+    public function user_can_move_to_new_materials_all_base_materials_and_then_can_be_grouped_with_new_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given used base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10, 'used' => 1]);
         // Given new base with same material
-        $newBase = factory(MaterialAccountingBase::class)->create(['object_id' => $base->object_id, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
+        $newBase = MaterialAccountingBase::factory()->create(['object_id' => $base->object_id, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -700,20 +705,20 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_part_of_base_materials_and_then_can_be_grouped_with_new_materials()
+    public function user_can_move_to_new_materials_part_of_base_materials_and_then_can_be_grouped_with_new_materials(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10, 'used' => 1]);
         // Given new base with same material
-        $newBase = factory(MaterialAccountingBase::class)->create(['object_id' => $base->object_id, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
+        $newBase = MaterialAccountingBase::factory()->create(['object_id' => $base->object_id, 'count' => 10, 'manual_material_id' => $base->manual_material_id]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 5
+            'count' => 5,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -731,18 +736,18 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_can_move_to_new_materials_part_of_base_materials_one_more_time()
+    public function user_can_move_to_new_materials_part_of_base_materials_one_more_time(): void
     {
         // Given user
         $ableToMoveToNew = [14, 19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToNew[array_rand($ableToMoveToNew)]]);
         // Given base
-        $base = factory(MaterialAccountingBase::class)->create(['count' => 10.002, 'used' => 1]);
+        $base = MaterialAccountingBase::factory()->create(['count' => 10.002, 'used' => 1]);
 
         // When user make post request with data
         $data = [
             'base_id' => $base->id,
-            'count' => 10
+            'count' => 10,
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::move_to_new'), $data);
 
@@ -760,11 +765,11 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_without_permission_cannot_create_arrival_with_used_materials()
+    public function user_without_permission_cannot_create_arrival_with_used_materials(): void
     {
         // Given user without permission
         $groupWithoutPermission = Group::whereNotIn('id', [13, 14, 19, 23, 27, 31])->inRandomOrder()->first()->id;
-        $user = factory(User::class)->create(['group_id' => $groupWithoutPermission]);
+        $user = User::factory()->create(['group_id' => $groupWithoutPermission]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
 
@@ -774,7 +779,7 @@ class MaterialAccountingTest extends TestCase
                 'material_id' => $material->id,
                 'material_unit' => 1,
                 'material_count' => 10,
-                'used' => 1
+                'used' => 1,
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -784,11 +789,11 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permission_can_create_arrival_with_used_materials()
+    public function user_with_permission_can_create_arrival_with_used_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
 
@@ -798,7 +803,7 @@ class MaterialAccountingTest extends TestCase
                 'material_id' => $material->id,
                 'material_unit' => 1,
                 'material_count' => 10,
-                'used' => 1
+                'used' => 1,
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -808,19 +813,19 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_with_used_materials()
+    public function we_can_create_arrival_with_used_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given supplier
-        $supplier = factory(Contractor::class)->create();
+        $supplier = Contractor::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
         $plannedDateFrom = now()->format('d.m.Y');
@@ -837,8 +842,8 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -860,19 +865,19 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_with_new_and_used_material()
+    public function we_can_create_arrival_with_new_and_used_material(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given supplier
-        $supplier = factory(Contractor::class)->create();
+        $supplier = Contractor::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
         $plannedDateFrom = now()->format('d.m.Y');
@@ -889,77 +894,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
-            ],
-        ];
-        $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
-
-        // Then ...
-        // New arrival operation should be created
-        $newOperation = MaterialAccountingOperation::first();
-        $this->assertEquals(1, $newOperation->type);
-        $this->assertEquals($object->id, $newOperation->object_id_to);
-        $this->assertEquals($supplier->id, $newOperation->supplier_id);
-        // With responsible user
-        $operationResponsibleUser = $newOperation->responsible_users->first();
-        $this->assertEquals($responsibleUser->id, $operationResponsibleUser->user_id);
-        // With used material
-        $operationMaterial = $newOperation->materials->first();
-        $this->assertEquals(0, $operationMaterial->used);
-        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
-        $this->assertEquals(11, $operationMaterial->count);
-        // With used material
-        $operationMaterial = $newOperation->materials->last();
-        $this->assertEquals(1, $operationMaterial->used);
-        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
-        $this->assertEquals(10, $operationMaterial->count);
-    }
-
-    /** @test */
-    public function we_can_create_arrival_part_send_with_same_materials()
-    {
-        // Given user with permission
-        $ableToMoveToUsed = [19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
-        // Given material
-        $material = ManualMaterial::inRandomOrder()->first();
-        // Given responsible user
-        $responsibleUser = factory(User::class)->create();
-        // Given supplier
-        $supplier = factory(Contractor::class)->create();
-        // Given object
-        $object = factory(ProjectObject::class)->create();
-        // Given some dates
-        $plannedDateTo = now()->addDay()->format('d.m.Y');
-        $plannedDateFrom = now()->format('d.m.Y');
-
-        // When user send data
-        $data = [
-            'responsible_user_id' => $responsibleUser->id,
-            'supplier_id' => $supplier->id,
-            'object_id' => $object->id,
-            'planned_date_to' => $plannedDateTo,
-            'planned_date_from' => $plannedDateFrom,
-            'materials' => [
-                [
-                    'material_id' => $material->id,
-                    'material_unit' => 1,
-                    'material_count' => 11,
-                    'used' => 0
+                    'used' => 1,
                 ],
-                [
-                    'material_id' => $material->id,
-                    'material_unit' => 1,
-                    'material_count' => 10,
-                    'used' => 1
-                ]
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -983,53 +925,22 @@ class MaterialAccountingTest extends TestCase
         $this->assertEquals(1, $operationMaterial->used);
         $this->assertEquals($material->id, $operationMaterial->manual_material_id);
         $this->assertEquals(10, $operationMaterial->count);
-
-        // When user make part send with same materials
-        $data = [
-            'materials' => [
-                [
-                    'material_id' => $material->id,
-                    'material_unit' => 1,
-                    'material_count' => 11,
-                    'used' => 0
-                ],
-                [
-                    'material_id' => $material->id,
-                    'material_unit' => 1,
-                    'material_count' => 10,
-                    'used' => 1
-                ]
-            ],
-        ];
-        $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::part_send', $newOperation->id), $data);
-        // Arrival operation should be updated
-        $newOperation->refresh();
-        // With used part send material
-        $operationMaterial = $newOperation->materialsPartTo->first();
-        $this->assertEquals(0, $operationMaterial->used);
-        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
-        $this->assertEquals(11, $operationMaterial->count);
-        // With used material
-        $operationMaterial = $newOperation->materialsPartTo->last();
-        $this->assertEquals(1, $operationMaterial->used);
-        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
-        $this->assertEquals(10, $operationMaterial->count);
     }
 
     /** @test */
-    public function we_can_create_arrival_part_send_and_move_materials_to_used()
+    public function we_can_create_arrival_part_send_with_same_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given supplier
-        $supplier = factory(Contractor::class)->create();
+        $supplier = Contractor::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
         $plannedDateFrom = now()->format('d.m.Y');
@@ -1046,14 +957,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -1085,14 +996,108 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 11,
-                    'used' => 1
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
+            ],
+        ];
+        $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::part_send', $newOperation->id), $data);
+        // Arrival operation should be updated
+        $newOperation->refresh();
+        // With used part send material
+        $operationMaterial = $newOperation->materialsPartTo->first();
+        $this->assertEquals(0, $operationMaterial->used);
+        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
+        $this->assertEquals(11, $operationMaterial->count);
+        // With used material
+        $operationMaterial = $newOperation->materialsPartTo->last();
+        $this->assertEquals(1, $operationMaterial->used);
+        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
+        $this->assertEquals(10, $operationMaterial->count);
+    }
+
+    /** @test */
+    public function we_can_create_arrival_part_send_and_move_materials_to_used(): void
+    {
+        // Given user with permission
+        $ableToMoveToUsed = [19, 27];
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        // Given material
+        $material = ManualMaterial::inRandomOrder()->first();
+        // Given responsible user
+        $responsibleUser = User::factory()->create();
+        // Given supplier
+        $supplier = Contractor::factory()->create();
+        // Given object
+        $object = ProjectObject::factory()->create();
+        // Given some dates
+        $plannedDateTo = now()->addDay()->format('d.m.Y');
+        $plannedDateFrom = now()->format('d.m.Y');
+
+        // When user send data
+        $data = [
+            'responsible_user_id' => $responsibleUser->id,
+            'supplier_id' => $supplier->id,
+            'object_id' => $object->id,
+            'planned_date_to' => $plannedDateTo,
+            'planned_date_from' => $plannedDateFrom,
+            'materials' => [
+                [
+                    'material_id' => $material->id,
+                    'material_unit' => 1,
+                    'material_count' => 11,
+                    'used' => 0,
+                ],
+                [
+                    'material_id' => $material->id,
+                    'material_unit' => 1,
+                    'material_count' => 10,
+                    'used' => 1,
+                ],
+            ],
+        ];
+        $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
+
+        // Then ...
+        // New arrival operation should be created
+        $newOperation = MaterialAccountingOperation::first();
+        $this->assertEquals(1, $newOperation->type);
+        $this->assertEquals($object->id, $newOperation->object_id_to);
+        $this->assertEquals($supplier->id, $newOperation->supplier_id);
+        // With responsible user
+        $operationResponsibleUser = $newOperation->responsible_users->first();
+        $this->assertEquals($responsibleUser->id, $operationResponsibleUser->user_id);
+        // With used material
+        $operationMaterial = $newOperation->materials->first();
+        $this->assertEquals(0, $operationMaterial->used);
+        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
+        $this->assertEquals(11, $operationMaterial->count);
+        // With used material
+        $operationMaterial = $newOperation->materials->last();
+        $this->assertEquals(1, $operationMaterial->used);
+        $this->assertEquals($material->id, $operationMaterial->manual_material_id);
+        $this->assertEquals(10, $operationMaterial->count);
+
+        // When user make part send with same materials
+        $data = [
+            'materials' => [
+                [
+                    'material_id' => $material->id,
+                    'material_unit' => 1,
+                    'material_count' => 11,
+                    'used' => 1,
+                ],
+                [
+                    'material_id' => $material->id,
+                    'material_unit' => 1,
+                    'material_count' => 10,
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::part_send', $newOperation->id), $data);
@@ -1111,19 +1116,19 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_arrival_part_send_and_move_materials_to_new()
+    public function we_can_create_arrival_part_send_and_move_materials_to_new(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [19, 27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given supplier
-        $supplier = factory(Contractor::class)->create();
+        $supplier = Contractor::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
         $plannedDateFrom = now()->format('d.m.Y');
@@ -1140,14 +1145,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::store'), $data);
@@ -1179,14 +1184,14 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 11,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $material->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::arrival::part_send', $newOperation->id), $data);
@@ -1204,13 +1209,12 @@ class MaterialAccountingTest extends TestCase
         $this->assertEquals(10, $operationMaterial->count);
     }
 
-
     /** @test */
-    public function user_without_permission_cannot_create_transformation_with_used_materials()
+    public function user_without_permission_cannot_create_transformation_with_used_materials(): void
     {
         // Given user without permission
         $groupWithoutPermission = Group::whereNotIn('id', [13, 14, 19, 23, 27, 31])->inRandomOrder()->first()->id;
-        $user = factory(User::class)->create(['group_id' => $groupWithoutPermission]);
+        $user = User::factory()->create(['group_id' => $groupWithoutPermission]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
 
@@ -1221,8 +1225,8 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1232,11 +1236,11 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function user_with_permission_can_create_transformation_with_used_materials()
+    public function user_with_permission_can_create_transformation_with_used_materials(): void
     {
         // Given user with permission
         $ableToMoveToUsed = [13, 14, 19, 23, 27, 31];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given material
         $material = ManualMaterial::inRandomOrder()->first();
 
@@ -1247,8 +1251,8 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $material->id,
                     'material_unit' => 1,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1258,19 +1262,19 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_1()
+    public function we_can_create_transformation_1(): void
     {
         // From used material to used material
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1286,16 +1290,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1316,21 +1320,21 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_2()
+    public function we_can_create_transformation_2(): void
     {
         // From used materials to used materials
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $preTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1346,28 +1350,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1388,19 +1392,19 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_3()
+    public function we_can_create_transformation_3(): void
     {
         // From new material to new material
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1416,16 +1420,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1446,21 +1450,21 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_4()
+    public function we_can_create_transformation_4(): void
     {
         // From new materials to new materials
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $preTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1476,28 +1480,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1518,19 +1522,19 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_5()
+    public function we_can_create_transformation_5(): void
     {
         // From used material to new material
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1546,16 +1550,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1576,21 +1580,21 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_6()
+    public function we_can_create_transformation_6(): void
     {
         // From used materials to new materials
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $preTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1606,28 +1610,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1648,19 +1652,19 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_7()
+    public function we_can_create_transformation_7(): void
     {
         // From new material to used material
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1676,16 +1680,16 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 10,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial->id,
                     'material_unit' => 2,
                     'material_count' => 9,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1706,21 +1710,21 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function we_can_create_transformation_8()
+    public function we_can_create_transformation_8(): void
     {
         // From new materials to used materials
         // Given user with permission
         $ableToMoveToUsed = [27];
-        $user = factory(User::class)->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
+        $user = User::factory()->create(['group_id' => $ableToMoveToUsed[array_rand($ableToMoveToUsed)]]);
         // Given materials
         $preTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial1 = ManualMaterial::inRandomOrder()->first();
         $preTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         $postTransformMaterial2 = ManualMaterial::inRandomOrder()->first();
         // Given responsible user
-        $responsibleUser = factory(User::class)->create();
+        $responsibleUser = User::factory()->create();
         // Given object
-        $object = factory(ProjectObject::class)->create();
+        $object = ProjectObject::factory()->create();
         // Given some dates
         $plannedDateTo = now()->addDay()->format('d.m.Y');
 
@@ -1736,28 +1740,28 @@ class MaterialAccountingTest extends TestCase
                     'material_id' => $preTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 2,
-                    'used' => 0
+                    'used' => 0,
                 ],
                 [
                     'material_id' => $preTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 3,
-                    'used' => 0
-                ]
+                    'used' => 0,
+                ],
             ],
             'materials_from' => [
                 [
                     'material_id' => $postTransformMaterial1->id,
                     'material_unit' => 2,
                     'material_count' => 4,
-                    'used' => 1
+                    'used' => 1,
                 ],
                 [
                     'material_id' => $postTransformMaterial2->id,
                     'material_unit' => 2,
                     'material_count' => 5,
-                    'used' => 1
-                ]
+                    'used' => 1,
+                ],
             ],
         ];
         $response = $this->actingAs($user)->post(route('building::mat_acc::transformation::store'), $data);
@@ -1778,9 +1782,9 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function it_can_filter_bases_by_reference()
+    public function it_can_filter_bases_by_reference(): void
     {
-        $newBase = factory(MaterialAccountingBase::class, 5)->create(['used' => 0]);
+        $newBase = MaterialAccountingBase::factory()->count(5)->create(['used' => 0]);
 
         //  0 => 19
         //    1 => 20
@@ -1804,7 +1808,7 @@ class MaterialAccountingTest extends TestCase
             8 => 359667,
         ];
         foreach ($mats as $mat_id) {
-            factory(MaterialAccountingBase::class)->create(['used' => 0, 'manual_material_id' => $mat_id]);
+            MaterialAccountingBase::factory()->create(['used' => 0, 'manual_material_id' => $mat_id]);
         }
 
         $reference = ManualReference::first();
@@ -1815,7 +1819,7 @@ class MaterialAccountingTest extends TestCase
                 [
                     'parameter_id' => 3,
                     'value_id' => [
-//                        'reference_name' => $reference->name,
+                        //                        'reference_name' => $reference->name,
                         'reference_id' => $reference->id,
                         'parameters' => [
                             [
@@ -1823,21 +1827,20 @@ class MaterialAccountingTest extends TestCase
                                 'value' => [
                                     'from' => 0,
                                     'to' => 16,
-                                ]
-                            ]
-                        ]
+                                ],
+                            ],
+                        ],
                     ],
-                ]
+                ],
             ]];
 
-
-//        $response = $this->get(route('building::mat_acc::report_card'))->viewData('bases');
+        //        $response = $this->get(route('building::mat_acc::report_card'))->viewData('bases');
         $response = $this->post(route('building::mat_acc::report_card::filter_base'), $payload)->json('result');
         dd($response);
     }
 
     /** @test */
-    public function it_test_getter()
+    public function it_test_getter(): void
     {
         $reference = ManualReference::first();
         $this->actingAs(User::find(1));
@@ -1851,17 +1854,17 @@ class MaterialAccountingTest extends TestCase
     }
 
     /** @test */
-    public function it_offers_conflict_solution()
+    public function it_offers_conflict_solution(): void
     {
         $material = ManualMaterial::first();
         $object = ProjectObject::first();
-        $old_base = factory(MaterialAccountingBase::class)->create([
+        $old_base = MaterialAccountingBase::factory()->create([
             'manual_material_id' => $material->id,
             'count' => 100,
             'object_id' => $object->id,
             'used' => 0,
         ]);
-        $base = factory(MaterialAccountingBase::class)->create([
+        $base = MaterialAccountingBase::factory()->create([
             'manual_material_id' => $material->id,
             'count' => 5,
             'object_id' => $object->id,
@@ -1879,7 +1882,7 @@ class MaterialAccountingTest extends TestCase
 
         $payload = [
             'materials' => [
-                $operation_mat
+                $operation_mat,
             ],
             'object_id' => $object->id,
             'planned_date_to' => Carbon::now(),
@@ -1892,31 +1895,30 @@ class MaterialAccountingTest extends TestCase
         $expected_result = [
             'transform' => true,
             'failure' => false,
-            'solutions' =>
-                [
-                    $old_base->id => [
-                        'status' => 'transform',
-                        'to' => $base->id,
-                        'count' => 5,
-                        'message' => "На ". Carbon::now()->isoFormat('DD.MM.YYYY') . " имеется 5 т {$material->name} выбранного вами б/у материала. 5 т будет переведено в б/у автоматически."
-                    ]
-                ]
+            'solutions' => [
+                $old_base->id => [
+                    'status' => 'transform',
+                    'to' => $base->id,
+                    'count' => 5,
+                    'message' => 'На '.Carbon::now()->isoFormat('DD.MM.YYYY')." имеется 5 т {$material->name} выбранного вами б/у материала. 5 т будет переведено в б/у автоматически.",
+                ],
+            ],
         ];
         $this->assertEquals($expected_result, $response->json());
     }
 
     /** @test */
-    public function it_offers_conflict_solution_for_new_mat()
+    public function it_offers_conflict_solution_for_new_mat(): void
     {
         $material = ManualMaterial::first();
         $object = ProjectObject::first();
-        $old_base = factory(MaterialAccountingBase::class)->create([
+        $old_base = MaterialAccountingBase::factory()->create([
             'manual_material_id' => $material->id,
             'count' => 100,
             'object_id' => $object->id,
             'used' => 1,
         ]);
-        $base = factory(MaterialAccountingBase::class)->create([
+        $base = MaterialAccountingBase::factory()->create([
             'manual_material_id' => $material->id,
             'count' => 5,
             'object_id' => $object->id,
@@ -1934,7 +1936,7 @@ class MaterialAccountingTest extends TestCase
 
         $payload = [
             'materials' => [
-                $operation_mat
+                $operation_mat,
             ],
             'object_id' => $object->id,
             'planned_date_to' => Carbon::now(),
@@ -1947,15 +1949,14 @@ class MaterialAccountingTest extends TestCase
         $expected_result = [
             'transform' => true,
             'failure' => false,
-            'solutions' =>
-                [
-                    $old_base->id => [
-                        'status' => 'transform',
-                        'to' => $base->id,
-                        'count' => 5,
-                        'message' => "На ". Carbon::now()->isoFormat('DD.MM.YYYY') . " имеется 5 т {$material->name} выбранного вами нового материала. 5 т будет переведено в новый автоматически."
-                    ]
-                ]
+            'solutions' => [
+                $old_base->id => [
+                    'status' => 'transform',
+                    'to' => $base->id,
+                    'count' => 5,
+                    'message' => 'На '.Carbon::now()->isoFormat('DD.MM.YYYY')." имеется 5 т {$material->name} выбранного вами нового материала. 5 т будет переведено в новый автоматически.",
+                ],
+            ],
         ];
         $this->assertEquals($expected_result, $response->json());
     }

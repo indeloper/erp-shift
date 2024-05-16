@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\q3wMaterial;
 
 use App\Traits\DevExtremeDataSourceLoadable;

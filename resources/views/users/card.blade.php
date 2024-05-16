@@ -127,13 +127,13 @@
                     <div class="row info-string line-bottom">
                         <label class="col-sm-3 col-form-label label-info-card">Должность</label>
                         <div class="col-sm-9">
-                            <p class="p-info-card"> {{ $group->name }} </p>
+                            <p class="p-info-card"> {{ $group ? $group->name : 'Не указан'}} </p>
                         </div>
                     </div>
                     <div class="row info-string line-bottom">
                         <label class="col-sm-3 col-form-label label-info-card">Подразделение</label>
                         <div class="col-sm-9">
-                            <p class="p-info-card"> {{ $department->name }} </p>
+                            <p class="p-info-card"> {{ $department ? $department->name : 'Не указано'}} </p>
                         </div>
                     </div>
                     <div class="row info-string line-bottom">
@@ -632,12 +632,13 @@ function checkConfirmation(elem) {
     }
 }
 
-    @if(Auth::user()->department_id == 5 || Auth::user()->isInGroup(10)/*14*/ | auth()->id() == 1)
+
         @if($user->in_vacation == 0)
             $('#js-select-user').select2({
                 language: "ru",
                 ajax: {
-                    url: '/tasks/get-users?not=' + '{{ $user->id }}',
+                    // url: '/tasks/get-users?not=' + '{{ $user->id }}',
+                    url: "{{ route('users::getAvailableUsersForReplaceEmployeeDuringVacation', ['userId'=>$user->id]) }}",
                     dataType: 'json',
                     delay: 250
                 }
@@ -695,7 +696,7 @@ function checkConfirmation(elem) {
                     $('#vacation_submit').removeAttr('disabled');
                 }
             }
-        });
+
 
         $('#from').datetimepicker({
             format: 'DD.MM.YYYY',
@@ -779,7 +780,7 @@ function checkConfirmation(elem) {
         });
     }
     @endif
-@endif
+
 
 @if(session()->has('pass'))
     swal({

@@ -3,28 +3,30 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
 class NotifySenderCommandTest extends TestCase
 {
     use DatabaseTransactions;
 
     protected $user1;
+
     protected $user2;
+
     protected $user3;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->user1 = factory(User::class)->create(['chat_id' => 'anything']);
-        $this->user2 = factory(User::class)->create(['chat_id' => 'second anything']);
-        $this->user3 = factory(User::class)->create();
+        $this->user1 = User::factory()->create(['chat_id' => 'anything']);
+        $this->user2 = User::factory()->create(['chat_id' => 'second anything']);
+        $this->user3 = User::factory()->create();
     }
 
     /** @test */
-    public function withTelegramChatId_scope_must_return_users_who_have_telegram_chat_id()
+    public function withTelegramChatId_scope_must_return_users_who_have_telegram_chat_id(): void
     {
         // Given three users, two have chat_id
         $user1 = $this->user1;
@@ -40,7 +42,7 @@ class NotifySenderCommandTest extends TestCase
     }
 
     /** @test */
-    public function withoutTelegramChatId_scope_must_return_users_who_dont_have_telegram_chat_id()
+    public function withoutTelegramChatId_scope_must_return_users_who_dont_have_telegram_chat_id(): void
     {
         // Given three users, two have chat_id
         $user1 = $this->user1;
@@ -56,7 +58,7 @@ class NotifySenderCommandTest extends TestCase
     }
 
     /** @test */
-    public function if_we_run_command_without_parameters_we_must_have_some_output_other_way()
+    public function if_we_run_command_without_parameters_we_must_have_some_output_other_way(): void
     {
         // When we call notify:send command
         $this->artisan('notify:send')

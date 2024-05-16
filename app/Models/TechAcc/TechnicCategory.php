@@ -2,46 +2,56 @@
 
 namespace App\Models\TechAcc;
 
+use App\Traits\DefaultSortable;
+use App\Traits\DevExtremeDataSourceLoadable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TechnicCategory extends Model
 {
-    use SoftDeletes;
+    use DefaultSortable, DevExtremeDataSourceLoadable, SoftDeletes;
+    use HasFactory;
 
-    protected $fillable = ['name', 'description', 'characteristic_id'];
+    protected $guarded = ['id'];
 
-    public function __construct($attributes = [])
-    {
-        parent::__construct($attributes);
+    public $defaultSortOrder = [
+        'name' => 'asc',
+    ];
 
-        static::deleted(function($category) {
-            $category->technics->each(function ($tech) {$tech->delete();});
-        });
-    }
+    // protected $fillable = ['name', 'description', 'characteristic_id'];
 
-    public function addCharacteristic($characteristic)
-    {
-        $this->category_characteristics()->attach($characteristic);
-    }
+    // public function __construct($attributes = [])
+    // {
+    //     parent::__construct($attributes);
 
-    public function category_characteristics()
-    {
-        return $this->belongsToMany(CategoryCharacteristic::class, 'technic_category_category_characteristic');
-    }
+    //     static::deleted(function($category) {
+    //         $category->technics->each(function ($tech) {$tech->delete();});
+    //     });
+    // }
 
-    public function technics()
-    {
-        return $this->hasMany(OurTechnic::class);
-    }
+    // public function addCharacteristic($characteristic)
+    // {
+    //     $this->category_characteristics()->attach($characteristic);
+    // }
 
-    public function free_technics()
-    {
-        return $this->technics()->free();
-    }
+    // public function category_characteristics()
+    // {
+    //     return $this->belongsToMany(CategoryCharacteristic::class, 'technic_category_category_characteristic');
+    // }
 
-    public function trashed_technics()
-    {
-        return $this->hasMany(OurTechnic::class)->onlyTrashed();
-    }
+    // public function technics()
+    // {
+    //     return $this->hasMany(OurTechnic::class);
+    // }
+
+    // public function free_technics()
+    // {
+    //     return $this->technics()->free();
+    // }
+
+    // public function trashed_technics()
+    // {
+    //     return $this->hasMany(OurTechnic::class)->onlyTrashed();
+    // }
 }

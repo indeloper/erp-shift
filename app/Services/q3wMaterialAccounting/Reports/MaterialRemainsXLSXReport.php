@@ -8,24 +8,21 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\WithDrawings;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents, WithTitle, WithColumnWidths
+class MaterialRemainsXLSXReport implements FromCollection, ShouldAutoSize, WithColumnWidths, WithEvents, WithHeadings, WithTitle
 {
     use Exportable;
 
     const startLineNumber = 7;
+
     /**
      * @var string
      */
@@ -35,8 +32,11 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
      * @var array
      */
     private $filterText;
+
     private $borderStyleRulesArray;
+
     private $colorStyleRulesArray;
+
     /**
      * @var Collection
      */
@@ -46,6 +46,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
      * @var int
      */
     private $projectObjectId;
+
     private $lastLineNumber;
 
     public function __construct($projectObjectId, $materialRemains, $filterText, $date)
@@ -64,16 +65,16 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
 
         return [
             [
-                'Остатки материалов на ' .  Carbon::parse($this->date)->format('d.m.Y')
+                'Остатки материалов на '.Carbon::parse($this->date)->format('d.m.Y'),
             ],
             [
-                'Фильтры: ' . $this->filterText
+                'Фильтры: '.$this->filterText,
             ],
             [
 
             ],
             [
-                ProjectObject::findOrFail($this->projectObjectId)->short_name
+                ProjectObject::findOrFail($this->projectObjectId)->short_name,
             ],
             [
                 'Наименование',
@@ -96,7 +97,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                 'шт.',
                 'п.м./м²',
                 'тн.',
-            ]
+            ],
         ];
     }
 
@@ -107,6 +108,17 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
         $lineNumber = self::startLineNumber;
 
         foreach ($this->materialRemains as $material) {
+            switch ($material['accounting_type']) {
+                case 1:
+                    if (round($material['coming_to_material_weight'] - $material['outgoing_material_material_weight'], 3) != 0) {
+                        $amount = 1;
+                    } else {
+                        $amount = 0;
+                    }
+                    break;
+                default:
+                    $amount = '=B'.$lineNumber.'-E'.$lineNumber;
+            }
 
             $results->push([
                 $material['standard_name'],
@@ -116,26 +128,27 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                 (string) $material['outgoing_material_amount'],
                 (string) $material['outgoing_material_quantity'],
                 (string) $material['outgoing_material_material_weight'],
-                (string) $material['amount_remains'],
-                (string) $material['quantity_remains'],
-                (string) $material['weight_remains']
+                (string) $amount,
+                '=C'.$lineNumber.'-F'.$lineNumber,
+                '=D'.$lineNumber.'-G'.$lineNumber,
             ]);
 
             $number++;
-            $lineNumber ++;
+            $lineNumber++;
         }
 
         $this->lastLineNumber = $lineNumber - 1;
+
         return $results;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->setAutoFilter('A6:J6');
 
                 //Main header styles
@@ -147,49 +160,49 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                 $event->sheet->getDelegate()->mergeCells('E5:G5');
                 $event->sheet->getDelegate()->mergeCells('H5:J5');
 
-                $event->sheet->horizontalAlign('A1' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('A2' , Alignment::HORIZONTAL_LEFT);
+                $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_LEFT);
 
-                $event->sheet->horizontalAlign('A4' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('A5' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->verticalAlign('A5' , Alignment::VERTICAL_CENTER);
-                $event->sheet->horizontalAlign('B5' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('E5' , Alignment::HORIZONTAL_CENTER);
-                $event->sheet->horizontalAlign('H5' , Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('A4', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('A5', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->verticalAlign('A5', Alignment::VERTICAL_CENTER);
+                $event->sheet->horizontalAlign('B5', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('E5', Alignment::HORIZONTAL_CENTER);
+                $event->sheet->horizontalAlign('H5', Alignment::HORIZONTAL_CENTER);
 
                 $event->sheet->getStyle('A1')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
-                        ]
+                            'bold' => true,
+                        ],
                     ]);
 
                 $event->sheet->getStyle('A4')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
-                        ]
+                            'bold' => true,
+                        ],
                     ]);
 
                 //Table headers
                 $event->sheet->getStyle('A5:J6')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
+                            'bold' => true,
 
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_MEDIUM,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
-                        ]
+                        ],
                     ]);
 
-                $event->sheet->getStyle('A'. self::startLineNumber .':A' . $this->lastLineNumber)
+                $event->sheet->getStyle('A'.self::startLineNumber.':A'.$this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
+                            'bold' => true,
 
                         ],
                         'alignment' => [
@@ -198,83 +211,83 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
                             'outline' => [
                                 'borderStyle' => Border::BORDER_MEDIUM,
-                                'color' => array('rgb' => '303030')
-                            ]
-                        ]
+                                'color' => ['rgb' => '303030'],
+                            ],
+                        ],
                     ]);
 
-                $event->sheet->getStyle('B'. self::startLineNumber .':D' . $this->lastLineNumber)
+                $event->sheet->getStyle('B'.self::startLineNumber.':D'.$this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
-                            'color' => array('rgb' => '335633'),
+                            'color' => ['rgb' => '335633'],
                         ],
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
-                            'color' => array('rgb' => 'dbf7b1'),
+                            'color' => ['rgb' => 'dbf7b1'],
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
                             'outline' => [
                                 'borderStyle' => Border::BORDER_MEDIUM,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
-                        ]
+                        ],
                     ]);
 
-                $event->sheet->getStyle('E'. self::startLineNumber .':G' . $this->lastLineNumber)
+                $event->sheet->getStyle('E'.self::startLineNumber.':G'.$this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
-                            'color' => array('rgb' => '762828'),
+                            'color' => ['rgb' => '762828'],
                         ],
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
-                            'color' => array('rgb' => 'fbb1b1'),
+                            'color' => ['rgb' => 'fbb1b1'],
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
                             'outline' => [
                                 'borderStyle' => Border::BORDER_MEDIUM,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
-                        ]
+                        ],
                     ]);
 
-                $event->sheet->getStyle('H'. self::startLineNumber .':J' . $this->lastLineNumber)
+                $event->sheet->getStyle('H'.self::startLineNumber.':J'.$this->lastLineNumber)
                     ->applyFromArray([
                         'font' => [
-                            'color' => array('rgb' => '20205a'),
+                            'color' => ['rgb' => '20205a'],
                         ],
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
-                            'color' => array('rgb' => 'bdbdf7'),
+                            'color' => ['rgb' => 'bdbdf7'],
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
                             'outline' => [
                                 'borderStyle' => Border::BORDER_MEDIUM,
-                                'color' => array('rgb' => '303030')
+                                'color' => ['rgb' => '303030'],
                             ],
-                        ]
+                        ],
                     ]);
-            }
+            },
         ];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function title(): string
     {
@@ -298,7 +311,7 @@ class MaterialRemainsXLSXReport implements FromCollection, WithHeadings, ShouldA
             'G' => 10,
             'H' => 10,
             'I' => 10,
-            'J' => 10
+            'J' => 10,
         ];
     }
 }

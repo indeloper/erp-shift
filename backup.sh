@@ -1,9 +1,9 @@
 #!/bin/bash
 # Backup storage directory
-backupfolder=/var/backups/erp-sk-gorod-database-backups
+backupfolder=/var/backups/erp.sk-gorod.com_database_backups
 backupmountpoint=/mnt/web_backup/
-backuperpfilesfolder=/var/www/accounting
-logfile=/var/log/erp-sk-gorod-backup.log
+backuperpfilesfolder=/var/www/erp.sk-gorod.com
+logfile=/var/log/erp.sk-gorod.com_backup.log
 # MySQL user
 user=root
 # MySQL password

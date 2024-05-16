@@ -8,6 +8,7 @@
 /public/fonts
 /public/temp
 /public/plugins
+/public/my-local-tests
 /storage/*.key
 /vendor
 .env
@@ -22,7 +23,12 @@ composer.lock
 package-lock.json
 
 \.idea/
+\.vscode/
 
 .env.testing
 /database/debug.log
 /bootstrap/cache/
+/public/Nginx_1.21_vhost.conf
+/public/Nginx_1.21_vhost.conf.bak
+hs_err_pid*.log
+

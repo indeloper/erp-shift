@@ -3,21 +3,22 @@
 namespace App\Models\MatAcc;
 
 use App\Models\Comment;
-use App\Models\MatAcc\MaterialAccountingBase;
-use App\Models\Task;
-use Carbon\CarbonPeriod;
-use App\Services\MaterialAccounting\MaterialAccountingService;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Manual\ManualMaterial;
-
-use App\Models\MatAcc\MaterialAccountingMaterialAddition;
-
+use App\Models\Task;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class MaterialAccountingOperationMaterials extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
@@ -50,7 +51,7 @@ class MaterialAccountingOperationMaterials extends Model
         7 => 'plan_from', // NOW only for transformation
         8 => 'part_from',
         9 => 'part_to',
-        10 => 'edition_material' // material with updation task
+        10 => 'edition_material', // material with updation task
     ];
     /* type map for operation.type / material.type
 
@@ -62,15 +63,13 @@ class MaterialAccountingOperationMaterials extends Model
 
      * */
 
-
     public $itog_types = [
         1 => 2, //8
         2 => 2, //8
         4 => 4, //9
         3 => [4, 5]];
+
     public $plan_types = [3, 6, 7];
-
-
 
     public static $main_units = [
         ['id' => 1, 'text' => 'т'],
@@ -91,7 +90,7 @@ class MaterialAccountingOperationMaterials extends Model
 
     public static function flipUnit($unit_to_flip)
     {
-        $flipped_unit_array = array_values(array_filter(self::$main_units, function($unit) use($unit_to_flip) {
+        $flipped_unit_array = array_values(array_filter(self::$main_units, function ($unit) use ($unit_to_flip) {
             return $unit['id'] == $unit_to_flip;
         }));
 
@@ -99,7 +98,7 @@ class MaterialAccountingOperationMaterials extends Model
             return $flipped_unit_array[0]['text'];
         }
 
-        $flipped_unit_array = array_values(array_filter(self::$main_units, function($unit) use($unit_to_flip) {
+        $flipped_unit_array = array_values(array_filter(self::$main_units, function ($unit) use ($unit_to_flip) {
             return $unit['text'] == $unit_to_flip;
         }));
 
@@ -129,38 +128,38 @@ class MaterialAccountingOperationMaterials extends Model
     /**
      * This getter return operation material name
      * with optional 'Б/У' label
-     * @return string
      */
-    public function getMaterialNameAttribute()
+    public function getMaterialNameAttribute(): string
     {
-        return $this->manual()->first()->name . ($this->used ? ' Б/У' : '');
+        return $this->manual()->first()->name.($this->used ? ' Б/У' : '');
     }
 
     public function getCommentNameAttribute()
     {
         if ($this->base()->exists()) {
             $comments = $this->base->getCommentsInline();
-            return $this->material_name . " ($comments)";
+
+            return $this->material_name." ($comments)";
         } else {
             return $this->material_name;
         }
     }
 
-    public function base()
+    public function base(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingBase::class, 'base_id', 'id');
     }
 
-    public function comments()
+    public function comments(): HasManyThrough
     {
         return $this->hasManyThrough(Comment::class, MaterialAccountingBase::class, 'id', 'commentable_id', 'base_id', 'id')
             ->where('commentable_type', MaterialAccountingBase::class);
     }
 
-    public function manual()
+    public function manual(): BelongsTo
     {
         return $this->belongsTo(ManualMaterial::class, 'manual_material_id', 'id')
-            ->leftJoin('manual_material_categories', 'manual_material_categories.id','=', 'manual_materials.category_id')
+            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
             ->select('manual_materials.*', 'manual_material_categories.id as cat_id', 'manual_material_categories.category_unit')
             ->withTrashed();
     }
@@ -175,15 +174,16 @@ class MaterialAccountingOperationMaterials extends Model
                 'count' => $this->count * $param->value,
             ];
         }
+
         return $converted;
     }
 
-    public function materialAddition()
+    public function materialAddition(): HasOne
     {
         return $this->hasOne(MaterialAccountingMaterialAddition::class, 'operation_material_id', 'id');
     }
 
-    public function operation()
+    public function operation(): BelongsTo
     {
         return $this->belongsTo(MaterialAccountingOperation::class, 'operation_id', 'id');
     }
@@ -199,7 +199,7 @@ class MaterialAccountingOperationMaterials extends Model
         $sib_q = $this->siblings()->where('manual_material_id', $this->manual_material_id)->where('used', $this->used);
         if ($comments->count()) {
             foreach ($comments as $comment) {
-                $sib_q->whereHas('comments', function($com_q) use ($comment) {
+                $sib_q->whereHas('comments', function ($com_q) use ($comment) {
                     $com_q->where('comment', $comment->comment);
                 });
             }
@@ -211,12 +211,12 @@ class MaterialAccountingOperationMaterials extends Model
         return $sib_q;
     }
 
-    public function delete_task()
+    public function delete_task(): HasOne
     {
         return $this->hasOne(Task::class, 'target_id', 'id')->where('status', 22);
     }
 
-    public function materialFiles()
+    public function materialFiles(): HasMany
     {
         return $this->hasMany(MaterialAccountingMaterialFile::class, 'operation_material_id', 'id');
     }
@@ -251,7 +251,7 @@ class MaterialAccountingOperationMaterials extends Model
         return round($this->count, 3);
     }
 
-    public function updated_material()
+    public function updated_material(): HasOne
     {
         return $this->hasOne(MaterialAccountingOperationMaterials::class, 'updated_material_id', 'id');
     }
@@ -259,9 +259,8 @@ class MaterialAccountingOperationMaterials extends Model
     /**
      * Function solve all unsolved tasks
      * for operation material
-     * @return bool
      */
-    public function solveTasksBeforeDeleting()
+    public function solveTasksBeforeDeleting(): bool
     {
         $this->operation->unsolved_tasks()->where('target_id', $this->id)->get()->each(function ($unsolved_task) {
             $unsolved_task->solve_n_notify();
@@ -272,7 +271,7 @@ class MaterialAccountingOperationMaterials extends Model
 
     public function createOperationMaterials(MaterialAccountingOperation $operation, array $materials, int $type, string $operation_type = 'inactivity', $description = '')
     {
-        $part_materials = [ ];
+        $part_materials = [];
         foreach ($materials as $material) {
             $mat = ManualMaterial::where('manual_materials.id', $material['material_id'])
                 ->withTrashed()
@@ -299,13 +298,13 @@ class MaterialAccountingOperationMaterials extends Model
                     'manual_material_id' => $material['material_id'],
                     'type' => $type,
                     'used' => $material['used'] ?? 0,
-                    'fact_date' => $material['material_date']
+                    'fact_date' => $material['material_date'],
                 ]);
                 MaterialAccountingMaterialAddition::create([
                     'operation_id' => $operation->id,
                     'operation_material_id' => $new_mat->id,
                     'description' => $description,
-                    'user_id' => Auth::user()->id
+                    'user_id' => Auth::user()->id,
                 ]);
                 $part_materials[] = $new_mat->id;
                 if ($new_mat->sameMaterials()->whereIn('type', $this->plan_types)->doesntExist()) {
@@ -335,33 +334,32 @@ class MaterialAccountingOperationMaterials extends Model
                     if ($type == 8) {
                         $base = $this->findOrCreateBaseTo($material, $operation, $date, $type);
                         if ($base == null) {
-                            return "Не удалось найти " . $mat->name . ($material['used'] ? ' Б/У' : '') . ". Пожалуйста, проверьте поля в форме.";
+                            return 'Не удалось найти '.$mat->name.($material['used'] ? ' Б/У' : '').'. Пожалуйста, проверьте поля в форме.';
                         }
-                        if (!isset($base->unit)) {
+                        if (! isset($base->unit)) {
                             $base->unit = $this->units_name[$material['material_unit']];
                         }
 
                         if ($base->unit == $this->units_name[$material['material_unit']]) {
                         } else {
                             $convertParam = $new_mat->manual
-                                    ->convert_from($this->units_name[$material['material_unit']])
-                                    ->where('unit', $base->unit)->first()->value ?? 0;
+                                ->convert_from($this->units_name[$material['material_unit']])
+                                ->where('unit', $base->unit)->first()->value ?? 0;
 
                             if ($convertParam) {
                                 $count = $count * $convertParam;
                             } else {
-                                $message = 'Невозможно списать  ' . $mat->name . ($material['used'] ? ' Б/У' : '') . ' т.к. нет параметра для перевода в единицу измерения (' . $base->unit . '), в которой он лежит на объекте';
+                                $message = 'Невозможно списать  '.$mat->name.($material['used'] ? ' Б/У' : '').' т.к. нет параметра для перевода в единицу измерения ('.$base->unit.'), в которой он лежит на объекте';
 
                                 return $message;
                             }
                         }
 
-                        if (!isset($base->count) or round($count, 3) > round($base->count, 3) or !$base->count) {
-                            $message = 'Невозможно списать ' . $mat->name . ($material['used'] ? ' Б/У' : '') . '. Кол-во материала на объекте ' . $date->format('d.m.Y') . ': ' . (isset($base->count) ? $base->count : 0) . ' ' . $base->unit;
+                        if (! isset($base->count) or round($count, 3) > round($base->count, 3) or ! $base->count) {
+                            $message = 'Невозможно списать '.$mat->name.($material['used'] ? ' Б/У' : '').'. Кол-во материала на объекте '.$date->format('d.m.Y').': '.(isset($base->count) ? $base->count : 0).' '.$base->unit;
 
                             return $message;
                         }
-
 
                         if ($date->format('d.m.Y') != Carbon::today()->format('d.m.Y')) {
                             $base->transferred_today = 1;
@@ -386,13 +384,13 @@ class MaterialAccountingOperationMaterials extends Model
                         }
                         if ($base->unit != $this->units_name[$material['material_unit']]) { //it means we have to convert
                             $convertParam = $new_mat->manual
-                                    ->convert_from($this->units_name[$material['material_unit']])
-                                    ->where('unit', $base->unit)->first()->value ?? 0;
+                                ->convert_from($this->units_name[$material['material_unit']])
+                                ->where('unit', $base->unit)->first()->value ?? 0;
 
                             if ($convertParam) {
                                 $count = $count * $convertParam;
                             } else {
-                                $message = 'Невозможно добавить  ' . $mat->name . ($material['used'] ? ' Б/У' : '') . ' т.к. нет параметра для перевода в единицу измерения (' . $base->unit . '), в которой он лежит на объекте';
+                                $message = 'Невозможно добавить  '.$mat->name.($material['used'] ? ' Б/У' : '').' т.к. нет параметра для перевода в единицу измерения ('.$base->unit.'), в которой он лежит на объекте';
 
                                 return $message;
                             }
@@ -416,6 +414,7 @@ class MaterialAccountingOperationMaterials extends Model
         if ($this->isPartSend($type)) {
             return ['status' => true, 'operation_material_id' => $new_mat->id ?? 0];
         }
+
         return true;
     }
 
@@ -428,19 +427,16 @@ class MaterialAccountingOperationMaterials extends Model
         $result_mats = $mat->sameMaterials()->where('type', (in_array($operation->type, [3, 4]) ? ($mat->type == 8 ? 1 : 2) : 1))->get();
 
         if ($result_mats->count()) {
-//                $operation->status = 1;
+            //                $operation->status = 1;
             $mat->type == 8 ? $operation->actual_date_from = '' : $operation->actual_date_to = '';
             $operation->save();
             $count_to_subtract = $mat->count;
-            foreach ($result_mats as $result_mat)
-            {
-                if ($result_mat->count > $count_to_subtract)
-                {
+            foreach ($result_mats as $result_mat) {
+                if ($result_mat->count > $count_to_subtract) {
                     $result_mat->count -= $count_to_subtract;
                     $result_mat->save();
                     break;
-                } else
-                {
+                } else {
                     $count_to_subtract -= $result_mat->count;
                     $result_mat->materialFiles()->delete();
                     $result_mat->delete();
@@ -453,7 +449,7 @@ class MaterialAccountingOperationMaterials extends Model
         if ($mat->type == 8) {
             $diffCount = $mat->count;
             $object_id = $operation->object_id_from;
-        } elseif($mat->type == 9) {
+        } elseif ($mat->type == 9) {
             $diffCount = -$mat->count;
             $object_id = $operation->object_id_to;
         } else {
@@ -469,34 +465,34 @@ class MaterialAccountingOperationMaterials extends Model
                         ->with('historyBases')
                         ->where('date', $date->format('d.m.Y'))
                         ->first();
-                    if (!$base) {
+                    if (! $base) {
                         $base = MaterialAccountingBase::firstOrNew([
-                                'object_id' => $object_id,
-                                'manual_material_id' => $mat->manual_material_id,
-                                'date' => $date->format('d.m.Y'),
-                                'used' => $mat->used
-                            ]);
+                            'object_id' => $object_id,
+                            'manual_material_id' => $mat->manual_material_id,
+                            'date' => $date->format('d.m.Y'),
+                            'used' => $mat->used,
+                        ]);
                     }
                 } else {
                     $base = MaterialAccountingBase::where('id', $mat->base_id)
                         ->with('historyBases')
                         ->where('date', $date->format('d.m.Y'))
                         ->first();
-                    if (!$base) {
+                    if (! $base) {
                         $base = MaterialAccountingBase::firstOrNew([
                             'object_id' => $object_id,
                             'manual_material_id' => $mat->manual_material_id,
                             'date' => $date->format('d.m.Y'),
-                            'used' => $mat->used
+                            'used' => $mat->used,
                         ]);
                     }
                 }
 
-                if ($base && !isset($base->unit)) {
+                if ($base && ! isset($base->unit)) {
                     $base->unit = $mat->manual->category_unit;
                 }
-                if (!isset($base->unit)) {
-                    $message = 'Невозможно списать ' . $mat->name . ($mat->used ? ' Б/У' : '') . '. Кол-во материала на объекте на ' . $date->format('d.m.Y') . ': ' . (isset($base->count) ? round($base->count, 3) : 0) . ' ' . ($base->unit ?? '');
+                if (! isset($base->unit)) {
+                    $message = 'Невозможно списать '.$mat->name.($mat->used ? ' Б/У' : '').'. Кол-во материала на объекте на '.$date->format('d.m.Y').': '.(isset($base->count) ? round($base->count, 3) : 0).' '.($base->unit ?? '');
 
                     return ['status' => 'error', 'message' => $message];
                 }
@@ -509,14 +505,14 @@ class MaterialAccountingOperationMaterials extends Model
                         $diffCount = $diffCount * $convertParam;
                         $mat->unit = array_flip($mat->units_name)[$base->unit];
                     } else {
-                        $message = 'Невозможно списать  ' . $mat->manual->name . ' т.к. нет параметра для перевода в единицу измерения (' . $base->unit . '), в которой он лежит на объекте';
+                        $message = 'Невозможно списать  '.$mat->manual->name.' т.к. нет параметра для перевода в единицу измерения ('.$base->unit.'), в которой он лежит на объекте';
 
                         return ['status' => 'error', 'message' => $message];
                     }
                 }
 
-                if ($diffCount < 0 and (!isset($base->count) or (round($base->count ?? 0, 3) + round($diffCount, 3) < 0) or !($base->count ?? 0))) {
-                    $message = 'Невозможно списать ' . $mat->name . ($mat->used ? ' Б/У' : '') . '. Кол-во материала на объекте на ' . $date->format('d.m.Y') . ': ' . (isset($base->count) ? round($base->count, 3) : 0) . ' ' . ($base->unit ?? '');
+                if ($diffCount < 0 and (! isset($base->count) or (round($base->count ?? 0, 3) + round($diffCount, 3) < 0) or ! ($base->count ?? 0))) {
+                    $message = 'Невозможно списать '.$mat->name.($mat->used ? ' Б/У' : '').'. Кол-во материала на объекте на '.$date->format('d.m.Y').': '.(isset($base->count) ? round($base->count, 3) : 0).' '.($base->unit ?? '');
 
                     return ['status' => 'error', 'message' => $message];
                 }
@@ -538,10 +534,6 @@ class MaterialAccountingOperationMaterials extends Model
         return ['status' => 'success', 'message' => 'Материал удален!'];
     }
 
-    /**
-     * @param $base
-     * @param $material
-     */
     private function updateBaseComments($base, $material): void
     {
         $base->comments()->delete();
@@ -554,20 +546,12 @@ class MaterialAccountingOperationMaterials extends Model
         }
     }
 
-    /**
-     * @param int $type
-     * @return bool
-     */
     private function isPartSend(int $type): bool
     {
         return $type == 8 or $type == 9;
     }
 
     /**
-     * @param $material
-     * @param MaterialAccountingOperation $operation
-     * @param \Carbon\CarbonInterface $date
-     * @param $type
      * @return \App\Models\MatAcc\MaterialAccountingBase|\Illuminate\Database\Eloquent\Builder|Model|object
      */
     private function findOrCreateBaseTo($material, MaterialAccountingOperation $operation, \Carbon\CarbonInterface $date, $type)
@@ -575,14 +559,14 @@ class MaterialAccountingOperationMaterials extends Model
         $comments = isset($material['comments']) ? $material['comments'] : [];
 
         if (isset($material['base_id'])) {
-            if ($material['base_id'] != 'undefined' and $material['base_id'] == true and !count($comments) and $type != 9) {
+            if ($material['base_id'] != 'undefined' and $material['base_id'] == true and ! count($comments) and $type != 9) {
                 $comments = MaterialAccountingBase::find($material['base_id'])->comments()->get();
             }
         }
         //trying to find existing base for mat
         //we have to find or create base for every day of the period
         $main_fields = [
-            'object_id' => $type == 8 ? ($operation->object_id_from ?: $operation->object_id_to ) : ($operation->object_id_to ?: $operation->object_id_from),
+            'object_id' => $type == 8 ? ($operation->object_id_from ?: $operation->object_id_to) : ($operation->object_id_to ?: $operation->object_id_from),
             'manual_material_id' => $material['material_id'],
             'date' => $date->format('d.m.Y'),
             'used' => $material['used'] ?? 0,
@@ -613,7 +597,7 @@ class MaterialAccountingOperationMaterials extends Model
         } else {
             $new_base = $ex_base->first();
         }
+
         return $new_base;
     }
-
 }

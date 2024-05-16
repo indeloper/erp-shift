@@ -1,17 +1,12 @@
 <?php
 
-
 namespace App\Services\MaterialAccounting;
 
-
-use App\Models\MatAcc\MaterialAccountingBase;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\ProjectObject;
 use Illuminate\Support\Facades\DB;
 
 class MaterialAccountingBadMaterilas
 {
-
     /**
      * @var \Illuminate\Database\Eloquent\Builder
      */
@@ -20,9 +15,9 @@ class MaterialAccountingBadMaterilas
     public function __construct()
     {
         $this->operations = MaterialAccountingOperation::query()
-            ->where('type',  4) // not transformation
+            ->where('type', 4) // not transformation
 //            ->where('status', '!=', 7)
-            ->where('status',  3)
+            ->where('status', 3)
 
             ->whereDate('created_at', '>', '2020-04-15')
             ->whereHas('materialsPart')
@@ -49,7 +44,7 @@ class MaterialAccountingBadMaterilas
                 ->pluck('sum_count', 'manual_material_id');
 
             foreach ($materials_from as $manual_material_id => $count) {
-                if (!isset($materials_to[$manual_material_id]) || $materials_to[$manual_material_id] != $count) {
+                if (! isset($materials_to[$manual_material_id]) || $materials_to[$manual_material_id] != $count) {
                     $bad_operations[] = $operation->id;
                     break;
                 }

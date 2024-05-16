@@ -11,6 +11,6 @@ class NotificationsForPermissions extends Model
 
     protected $fillable = [
         'notification_id',
-        'permission'
+        'permission',
     ];
 }

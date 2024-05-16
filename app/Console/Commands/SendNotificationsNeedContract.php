@@ -3,8 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Models\Notification;
-use App\Models\Task;
+use App\Notifications\TechnicalMaintence\TechnicalMaintenanceCompletionNotice;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -36,10 +35,8 @@ class SendNotificationsNeedContract extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $operations = MaterialAccountingOperation::query()
             ->whereNotIn('object_id_to', [76, 192])
@@ -51,14 +48,14 @@ class SendNotificationsNeedContract extends Command
             ->get();
 
         foreach ($operations as $operation) {
-
-            Notification::create([
-                'name' => 'На объекте ' . $operation->object_to->name_tag . ' существуют операции без договора!',
-                'object_id' => $operation->object_id_to,
-                'user_id' => 28,
-                'type' => 110,
-            ]);
-
+            // TODO заменить хардкод 28
+            TechnicalMaintenanceCompletionNotice::send(
+                28,
+                [
+                    'name' => 'На объекте '.$operation->object_to->name_tag.' существуют операции без договора!',
+                    'object_id' => $operation->object_id_to,
+                ]
+            );
         }
     }
 }

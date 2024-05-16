@@ -15,31 +15,31 @@ class ProjectObjectTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_fuel_tank()
+    public function it_can_get_fuel_tank(): void
     {
         $object = ProjectObject::first();
-        $tank = factory(FuelTank::class)->create(['object_id' => $object->id]);
+        $tank = FuelTank::factory()->create(['object_id' => $object->id]);
 
         $this->assertEquals($tank->id, $object->fuel_tanks()->first()->id);
     }
 
     /** @test */
-    public function it_returns_last_ten_operations()
+    public function it_returns_last_ten_operations(): void
     {
         $object = ProjectObject::first();
-        $tank1 = factory(FuelTank::class)->create(['object_id' => $object->id]);
-        factory(FuelTankOperation::class, 15)->create(['fuel_tank_id' => $tank1->id]);
-        $tank = factory(FuelTank::class)->create(['object_id' => $object->id]);
-        $operations = factory(FuelTankOperation::class, 15)->create(['fuel_tank_id' => $tank->id]);
+        $tank1 = FuelTank::factory()->create(['object_id' => $object->id]);
+        FuelTankOperation::factory()->count(15)->create(['fuel_tank_id' => $tank1->id]);
+        $tank = FuelTank::factory()->create(['object_id' => $object->id]);
+        $operations = FuelTankOperation::factory()->count(15)->create(['fuel_tank_id' => $tank->id]);
 
         $this->assertEquals($operations->reverse()->pluck('id')->take(10), $object->getLastTenOperations()->pluck('id'));
     }
 
     /** @test */
-    public function name_tag_getter_can_return_location_if_object_does_not_have_short_name()
+    public function name_tag_getter_can_return_location_if_object_does_not_have_short_name(): void
     {
         // Given object without short name
-        $object = factory(ProjectObject::class)->create(['short_name' => null]);
+        $object = ProjectObject::factory()->create(['short_name' => null]);
 
         // When we get name tag property of object
         $nameTag = $object->name_tag;
@@ -49,10 +49,10 @@ class ProjectObjectTest extends TestCase
     }
 
     /** @test */
-    public function name_tag_getter_can_return_short_name_if_object_have_short_name()
+    public function name_tag_getter_can_return_short_name_if_object_have_short_name(): void
     {
         // Given object without short name
-        $object = factory(ProjectObject::class)->create(['short_name' => 'TIMELESS']);
+        $object = ProjectObject::factory()->create(['short_name' => 'TIMELESS']);
 
         // When we get name tag property of object
         $nameTag = $object->name_tag;

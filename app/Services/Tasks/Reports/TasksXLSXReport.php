@@ -17,7 +17,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents, WithTitle, WithColumnFormatting, WithColumnWidths
+class TasksXLSXReport implements FromCollection, ShouldAutoSize, WithColumnFormatting, WithColumnWidths, WithEvents, WithHeadings, WithTitle
 {
     use Exportable;
 
@@ -27,9 +27,11 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
      * @var array
      */
     private $mergeTaskArray = [];
+
     private $mergeCommercialOfferArray = [];
 
     private $date;
+
     /**
      * @var Collection
      */
@@ -45,10 +47,6 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
      */
     private $reportType;
 
-    /**
-     * @param $tasks
-     * @param $reportType
-     */
     public function __construct($tasks, $reportType)
     {
         $this->tasks = $tasks;
@@ -59,15 +57,15 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
     {
         $headingArray = [];
 
-        if ($this->reportType == "tasks"){
+        if ($this->reportType == 'tasks') {
             $headingArray = [
                 '№ п/п',
                 'Работа',
                 'Адрес',
                 'Заказчик',
-                'Комментарий'
+                'Комментарий',
             ];
-        } elseif ($this->reportType == "tasksAndMaterials"){
+        } elseif ($this->reportType == 'tasksAndMaterials') {
             $headingArray = [
                 '№ п/п',
                 'Работа',
@@ -76,15 +74,15 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                 'Коммерческое предложение',
                 'Комментарий',
                 'Номенклатура',
-                'Тоннаж'
+                'Тоннаж',
             ];
         }
 
         return [
             [
-                'Отчет по задачам от '.Carbon::now()->format('d.m.Y')
+                'Отчет по задачам от '.Carbon::now()->format('d.m.Y'),
             ],
-            $headingArray
+            $headingArray,
         ];
     }
 
@@ -99,7 +97,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
         $commercialOfferMergeStartIndex = 3;
         $commercialOfferMergeEndIndex = 3;
 
-        if ($this->reportType == "tasks") {
+        if ($this->reportType == 'tasks') {
             foreach ($this->tasks as $task) {
                 if ($task['revive_at']) {
                     $taskTitle = $task['project_name'].PHP_EOL.'Отложена до '.$task['revive_at'];
@@ -112,16 +110,16 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                     $taskTitle,
                     $task['project_address'],
                     $task['contractor_name'],
-                    $task['final_note']
+                    $task['final_note'],
                 ]);
 
                 $taskNumber++;
             }
             $this->lastLineNumber = $taskNumber + 1;
-        } elseif ($this->reportType == "tasksAndMaterials") {
+        } elseif ($this->reportType == 'tasksAndMaterials') {
             foreach ($this->tasks as $task) {
-                foreach($task as $commercialOffer) {
-                    foreach($commercialOffer as $material) {
+                foreach ($task as $commercialOffer) {
+                    foreach ($commercialOffer as $material) {
                         if ($material['revive_at']) {
                             $commercialOfferTitle = $material['commercial_offers_title'].PHP_EOL.'Отложена до '.$material['revive_at'];
                         } else {
@@ -135,7 +133,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
                             $commercialOfferTitle,
                             $material['final_note'],
                             $material['material_name'],
-                            $material['material_count']
+                            $material['material_count'],
                         ]);
 
                         $taskMergeEndIndex++;
@@ -156,98 +154,98 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
-                $headerEndName = "A";
-                if ($this->reportType == "tasks") {
-                    $headerEndName = "E";
+            AfterSheet::class => function (AfterSheet $event) {
+                $headerEndName = 'A';
+                if ($this->reportType == 'tasks') {
+                    $headerEndName = 'E';
                     $event->sheet->setAutoFilter('B2:E2');
-                } elseif ($this->reportType == "tasksAndMaterials") {
-                    $headerEndName = "H";
+                } elseif ($this->reportType == 'tasksAndMaterials') {
+                    $headerEndName = 'H';
                     $event->sheet->setAutoFilter('G2:H2');
                 }
 
                 //Main header styles
                 $event->sheet->getDelegate()->mergeCells('A1:'.$headerEndName.'1');
 
-                if ($this->reportType == "tasksAndMaterials") {
+                if ($this->reportType == 'tasksAndMaterials') {
                     // Cell Merging
                     foreach ($this->mergeTaskArray as $mergeArray) {
-                        $event->sheet->getDelegate()->mergeCells('A' . $mergeArray[0] . ':A' . $mergeArray[1]);
-                        $event->sheet->getDelegate()->mergeCells('B' . $mergeArray[0] . ':B' . $mergeArray[1]);
-                        $event->sheet->getDelegate()->mergeCells('C' . $mergeArray[0] . ':C' . $mergeArray[1]);
-                        $event->sheet->getDelegate()->mergeCells('D' . $mergeArray[0] . ':D' . $mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('A'.$mergeArray[0].':A'.$mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('B'.$mergeArray[0].':B'.$mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('C'.$mergeArray[0].':C'.$mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('D'.$mergeArray[0].':D'.$mergeArray[1]);
                     }
 
                     foreach ($this->mergeCommercialOfferArray as $mergeArray) {
-                        $event->sheet->getDelegate()->mergeCells('E' . $mergeArray[0] . ':E' . $mergeArray[1]);
-                        $event->sheet->getDelegate()->mergeCells('F' . $mergeArray[0] . ':F' . $mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('E'.$mergeArray[0].':E'.$mergeArray[1]);
+                        $event->sheet->getDelegate()->mergeCells('F'.$mergeArray[0].':F'.$mergeArray[1]);
                     }
                 }
 
                 $event->sheet->getStyle('A1:'.$headerEndName.'1')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
+                            'bold' => true,
                         ],
                         'alignment' => [
                             'horizontal' => Alignment::HORIZONTAL_CENTER,
-                            'vertical' => Alignment::VERTICAL_CENTER
+                            'vertical' => Alignment::VERTICAL_CENTER,
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030'),
+                                'color' => ['rgb' => '303030'],
                             ],
-                        ]
+                        ],
                     ]);
 
                 //Table headers
                 $event->sheet->getStyle('A2:'.$headerEndName.'2')
                     ->applyFromArray([
                         'font' => [
-                            'bold' => true
+                            'bold' => true,
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030'),
+                                'color' => ['rgb' => '303030'],
                             ],
                         ],
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
-                            'color' => array('rgb' => 'FDE9D9'),
-                        ]
+                            'color' => ['rgb' => 'FDE9D9'],
+                        ],
                     ]);
 
                 //Table data
-                $event->sheet->getStyle('A' . self::startLineNumber . ':' . $headerEndName . $this->lastLineNumber)
+                $event->sheet->getStyle('A'.self::startLineNumber.':'.$headerEndName.$this->lastLineNumber)
                     ->applyFromArray([
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color' => array('rgb' => '303030'),
+                                'color' => ['rgb' => '303030'],
                             ],
                         ],
                         'alignment' => [
-                            'vertical' => Alignment::VERTICAL_CENTER
+                            'vertical' => Alignment::VERTICAL_CENTER,
                         ],
                     ]);
 
                 $event->sheet->getDelegate()
-                    ->getStyle('A' . self::startLineNumber . ':' . $headerEndName . $this->lastLineNumber)
+                    ->getStyle('A'.self::startLineNumber.':'.$headerEndName.$this->lastLineNumber)
                     ->getAlignment()
                     ->setWrapText(true);
-            }
+            },
         ];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function title(): string
     {
@@ -260,7 +258,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function columnFormats(): array
     {
@@ -277,7 +275,7 @@ class TasksXLSXReport implements FromCollection, WithHeadings, ShouldAutoSize, W
             'C' => 85,
             'D' => 31,
             'F' => 40,
-            'E' => 31
+            'E' => 31,
         ];
     }
 }

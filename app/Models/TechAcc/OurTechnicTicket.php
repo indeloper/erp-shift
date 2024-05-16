@@ -6,24 +6,29 @@ use App\Models\ProjectObject;
 use App\Models\TechAcc\Vehicles\OurVehicles;
 use App\Models\User;
 use App\Services\TechAccounting\TechnicTicketService;
-use App\Traits\{Commentable,
-    Notificationable,
-    NotificationGenerator,
-    RussianShortDates,
-    Taskable};
+use App\Traits\Commentable;
+use App\Traits\Notificationable;
+use App\Traits\NotificationGenerator;
+use App\Traits\RussianShortDates;
+use App\Traits\Taskable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OurTechnicTicket extends Model
 {
-    use Taskable;
     use Commentable;
-    use RussianShortDates;
-    use SoftDeletes;
+    use HasFactory;
     use Notificationable;
     use NotificationGenerator;
+    use RussianShortDates;
+    use SoftDeletes;
+    use Taskable;
 
     protected $fillable = [
         'our_technic_id',
@@ -75,11 +80,12 @@ class OurTechnicTicket extends Model
         'usage_from_date' => 'string',
         'usage_to_date' => 'string',
     ];
+
     protected static function boot()
     {
         parent::boot();
 
-        static::saving(function($ticket) {
+        static::saving(function ($ticket) {
             $date_columns = [
                 'sending_from_date',
                 'sending_to_date',
@@ -87,7 +93,7 @@ class OurTechnicTicket extends Model
                 'getting_to_date',
                 'usage_from_date',
                 'usage_to_date',
-                ];
+            ];
             foreach ($date_columns as $column) {
                 if ($ticket->$column) {
                     $ticket->$column = Carbon::parse($ticket->$column);
@@ -96,7 +102,7 @@ class OurTechnicTicket extends Model
             if (isset($ticket->getChanges()['our_technic_id'])) {
                 $ticket->sending_object_id = $ticket->our_technic->start_location_id;
             }
-            if (!$ticket->sending_object_id and $ticket->our_technic()->exists()) {
+            if (! $ticket->sending_object_id and $ticket->our_technic()->exists()) {
                 $ticket->sending_object_id = $ticket->our_technic->start_location_id;
             }
         });
@@ -106,12 +112,12 @@ class OurTechnicTicket extends Model
         });
     }
 
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'our_technic_ticket_user', 'tic_id')
-                    ->withPivot(['type', 'deactivated_at'])
-                    ->as('ticket_responsible')
-                    ->withTimestamps();
+            ->withPivot(['type', 'deactivated_at'])
+            ->as('ticket_responsible')
+            ->withTimestamps();
     }
 
     public function usersOrdered()
@@ -124,27 +130,27 @@ class OurTechnicTicket extends Model
         return $this->users()->ofType($human_type)->first() ?? new User();
     }
 
-    public function reports()
+    public function reports(): HasMany
     {
         return $this->hasMany(OurTechnicTicketReport::class)->orderByRaw("STR_TO_DATE(date,'%d.%m.%Y') desc");
     }
 
-    public function our_technic()
+    public function our_technic(): BelongsTo
     {
         return $this->belongsTo(OurTechnic::class);
     }
 
-    public function getting_object()
+    public function getting_object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'getting_object_id');
     }
 
-    public function sending_object()
+    public function sending_object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class, 'sending_object_id');
     }
 
-    public function vehicles()
+    public function vehicles(): BelongsToMany
     {
         return $this->belongsToMany(OurVehicles::class, 'our_technic_ticket_our_vehicle', 'our_technic_ticket_id', 'our_vehicle_id');
     }
@@ -162,6 +168,7 @@ class OurTechnicTicket extends Model
             'status_name' => isset($this->statuses[$this->status]) ? $this->statuses[$this->status] : 'Отклонена',
             //'inventory_number' => $this->our_technic->inventory_number,
         ];
+
         return $short_names;
     }
 
@@ -207,7 +214,7 @@ class OurTechnicTicket extends Model
     {
         $this->update([
             'usage_to_date' => Carbon::now(),
-            'status' => 8
+            'status' => 8,
         ]);
 
         $this->generateOurTechnicTicketCloseNotifications($this);
@@ -220,22 +227,23 @@ class OurTechnicTicket extends Model
     public function loadAllMissingRelations()
     {
         $this->append('show_buttons', 'active_users');
+
         return $this->loadMissing(['users', 'usersOrdered', 'our_technic', 'sending_object', 'getting_object', 'comments.files', 'reports', 'active_tasks.responsible_user', 'vehicles']);
     }
 
     public function getCanExtensionAttribute()
     {
-        return !$this->tasks()->where('status', 27)->whereIsSolved(0)->count();
+        return ! $this->tasks()->where('status', 27)->whereIsSolved(0)->count();
     }
 
     public function getSendingTimestampsTextAttribute()
     {
-        return 'с ' . Carbon::parse($this->sending_from_date)->isoFormat('DD.MM.YYYY') . ' по ' . Carbon::parse($this->sending_to_date)->isoFormat('DD.MM.YYYY');
+        return 'с '.Carbon::parse($this->sending_from_date)->isoFormat('DD.MM.YYYY').' по '.Carbon::parse($this->sending_to_date)->isoFormat('DD.MM.YYYY');
     }
 
     public function getGettingTimestampsTextAttribute()
     {
-        return 'с ' . Carbon::parse($this->getting_from_date)->isoFormat('DD.MM.YYYY') . ' по ' . Carbon::parse($this->getting_to_date)->isoFormat('DD.MM.YYYY');
+        return 'с '.Carbon::parse($this->getting_from_date)->isoFormat('DD.MM.YYYY').' по '.Carbon::parse($this->getting_to_date)->isoFormat('DD.MM.YYYY');
 
     }
 
@@ -249,85 +257,77 @@ class OurTechnicTicket extends Model
         $query->with('users', 'reports', 'our_technic');
 
         foreach ($request as $param => $values) {
-            if (in_array($param, ['id']))
-            {
+            if (in_array($param, ['id'])) {
                 $query->where(function ($query) use ($param, $values) {
-                     foreach ((array) $values as $item) {
-                        $query->orWhere($param, 'like',  '%' . $item .'%');
-                     }
+                    foreach ((array) $values as $item) {
+                        $query->orWhere($param, 'like', '%'.$item.'%');
+                    }
                 });
             }
-            if (in_array($param, ['status']))
-            {
+            if (in_array($param, ['status'])) {
                 $query->where(function ($query) use ($param, $values) {
-                     foreach ((array) $values as $item) {
-                        $query->orWhere($param, 'like',  '%' . array_flip($this->statuses)[$item] .'%');
-                     }
+                    foreach ((array) $values as $item) {
+                        $query->orWhere($param, 'like', '%'.array_flip($this->statuses)[$item].'%');
+                    }
                 });
-            }
-            elseif(in_array($param, ['sending_object_id', 'getting_object_id']))
-            {
+            } elseif (in_array($param, ['sending_object_id', 'getting_object_id'])) {
                 $query->where(function ($query) use ($param, $values) {
-                     foreach ((array) $values as $item) {
+                    foreach ((array) $values as $item) {
                         $query->orWhere($param, $item);
-                     }
+                    }
                 });
-            }
-            elseif (in_array($param, ['brand', 'model']))
-            {
+            } elseif (in_array($param, ['brand', 'model'])) {
                 $query->whereHas('our_technic', function ($que) use ($param, $values) {
                     $que->where(function ($q) use ($param, $values) {
                         foreach ((array) $values as $item) {
-                           $q->orWhere($param, 'like',  '%' . $item .'%');
+                            $q->orWhere($param, 'like', '%'.$item.'%');
                         }
                     });
 
                 });
-            }
-            elseif (in_array($param, ['page', 'ticket_id', 'show_active'])) {}
-            elseif (in_array($param, ['resp_rp_user_id', 'usage_resp_user_id', /*'logist',*/ 'request_resp_user_id', 'recipient_user_id', 'author_user_id']))
-            {
+            } elseif (in_array($param, ['page', 'ticket_id', 'show_active'])) {
+            } elseif (in_array($param, ['resp_rp_user_id', 'usage_resp_user_id', /*'logist',*/ 'request_resp_user_id', 'recipient_user_id', 'author_user_id'])) {
                 $query->whereHas('users', function ($q) use ($param, $values) {
                     $q->where('type', array_flip(User::getModel()->ticket_responsible_types)[$param]);
                     $q->whereIn('user_id', (array) $values);
                 });
             } elseif ($param == 'search') {
-                $query->where(function($q) use ($values) {
-                    $q->orWhere('id', 'like', '%' . $values . '%');
+                $query->where(function ($q) use ($values) {
+                    $q->orWhere('id', 'like', '%'.$values.'%');
                     if (isset(array_flip($this->statuses)[$values])) {
-                        $q->orWhere('status', 'like',  '%' . array_flip($this->statuses)[$values]  .'%');
+                        $q->orWhere('status', 'like', '%'.array_flip($this->statuses)[$values].'%');
                     }
-                    $q->orWhereHas('sending_object', function($que) use ($values) {
-                        $que->where(function($query) use ($values) {
-                            $query->orWhere('address', 'like', '%' . $values . '%');
-                            $query->orWhere('name', 'like', '%' . $values . '%');
+                    $q->orWhereHas('sending_object', function ($que) use ($values) {
+                        $que->where(function ($query) use ($values) {
+                            $query->orWhere('address', 'like', '%'.$values.'%');
+                            $query->orWhere('name', 'like', '%'.$values.'%');
                         });
                     });
-                    $q->orWhereHas('getting_object', function($que) use ($values) {
-                        $que->where(function($query) use ($values) {
-                            $query->orWhere('address', 'like', '%' . $values . '%');
-                            $query->orWhere('name', 'like', '%' . $values . '%');
+                    $q->orWhereHas('getting_object', function ($que) use ($values) {
+                        $que->where(function ($query) use ($values) {
+                            $query->orWhere('address', 'like', '%'.$values.'%');
+                            $query->orWhere('name', 'like', '%'.$values.'%');
                         });
                     });
 
                     $q->orWhereHas('our_technic', function ($que) use ($values) {
                         $que->where(function ($q) use ($values) {
-                            $q->orWhere('brand', 'like',  '%' . $values .'%');
-                            $q->orWhere('model', 'like',  '%' . $values .'%');
+                            $q->orWhere('brand', 'like', '%'.$values.'%');
+                            $q->orWhere('model', 'like', '%'.$values.'%');
                         });
                     });
-                     $q->orWhereHas('users', function ($que) use ($values) {
-                         $que->where(function ($q) use ($values) {
-                             $q->orWhere('last_name', 'like', '%' . $values . '%');
-                             $q->orWhere('first_name', 'like', '%' . $values . '%');
-                         });
-                     });
+                    $q->orWhereHas('users', function ($que) use ($values) {
+                        $que->where(function ($q) use ($values) {
+                            $q->orWhere('last_name', 'like', '%'.$values.'%');
+                            $q->orWhere('first_name', 'like', '%'.$values.'%');
+                        });
+                    });
                 });
 
             }
         }
 
-        if (!isset($request['show_active'])) {
+        if (! isset($request['show_active'])) {
             $query->withOutClosed();
         }
 
@@ -337,11 +337,8 @@ class OurTechnicTicket extends Model
     /**
      * Return all tickets if user have permission
      * and only related if not
-     *
-     * @param Builder $query
-     * @return Builder
      */
-    public function scopePermissionCheck(Builder $query)
+    public function scopePermissionCheck(Builder $query): Builder
     {
         $check = boolval(auth()->user()->hasPermission('tech_acc_our_technic_tickets_see'));
 

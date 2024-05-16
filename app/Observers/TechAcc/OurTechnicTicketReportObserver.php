@@ -3,23 +3,20 @@
 namespace App\Observers\TechAcc;
 
 use App\Models\TechAcc\OurTechnicTicketReport;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+
 class OurTechnicTicketReportObserver
 {
     /**
      * Handle the our technic ticket report "created" event.
-     *
-     * @param  \App\Models\TechAcc\OurTechnicTicketReport  $ourTechnicTicketReport
-     * @return void
      */
-    public function created(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function created(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $ourTechnicTicketReport->ticket->comments()->create([
-            'comment' =>
-                'Добавлен отчет об использовании на ' . $ourTechnicTicketReport->date_carbon .
-                ($ourTechnicTicketReport->comment ? '. Комментарий пользователя: ' . $ourTechnicTicketReport->comment : '') .
-                '. Время использования: ' . $ourTechnicTicketReport->hours . 'ч.',
+            'comment' => 'Добавлен отчет об использовании на '.$ourTechnicTicketReport->date_carbon.
+                ($ourTechnicTicketReport->comment ? '. Комментарий пользователя: '.$ourTechnicTicketReport->comment : '').
+                '. Время использования: '.$ourTechnicTicketReport->hours.'ч.',
             'author_id' => Auth::user()->id,
             'system' => 1,
         ]);
@@ -27,21 +24,18 @@ class OurTechnicTicketReportObserver
 
     /**
      * Handle the our technic ticket report "updated" event.
-     *
-     * @param  \App\Models\TechAcc\OurTechnicTicketReport  $ourTechnicTicketReport
-     * @return void
      */
-    public function updating(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function updating(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $comment = 'Изменен отчет об использовании';
 
         foreach ($ourTechnicTicketReport->getDirty() as $key => $value) {
             if ($key == 'hours') {
-                $comment.= '. Предыдущее кол-во часов: ' . $ourTechnicTicketReport->getOriginal()['hours'] . '. Новое: ' . $value;
+                $comment .= '. Предыдущее кол-во часов: '.$ourTechnicTicketReport->getOriginal()['hours'].'. Новое: '.$value;
             } elseif ($key == 'comment') {
-                $comment.= '. Предыдущий комментарий: ' . $ourTechnicTicketReport->getOriginal()['comment'] . '. Новый: ' . $value;
+                $comment .= '. Предыдущий комментарий: '.$ourTechnicTicketReport->getOriginal()['comment'].'. Новый: '.$value;
             } else {
-                $comment.= '. Предыдущая дата: ' . Carbon::parse($ourTechnicTicketReport->getOriginal()['date'])->format('d.m.Y') . '. Новая: ' . Carbon::parse($value)->format('d.m.Y');
+                $comment .= '. Предыдущая дата: '.Carbon::parse($ourTechnicTicketReport->getOriginal()['date'])->format('d.m.Y').'. Новая: '.Carbon::parse($value)->format('d.m.Y');
             }
         }
         $ourTechnicTicketReport->ticket->comments()->create([
@@ -53,14 +47,11 @@ class OurTechnicTicketReportObserver
 
     /**
      * Handle the our technic ticket report "deleted" event.
-     *
-     * @param  \App\Models\TechAcc\OurTechnicTicketReport  $ourTechnicTicketReport
-     * @return void
      */
-    public function deleted(OurTechnicTicketReport $ourTechnicTicketReport)
+    public function deleted(OurTechnicTicketReport $ourTechnicTicketReport): void
     {
         $ourTechnicTicketReport->ticket->comments()->create([
-            'comment' => 'Удален отчет об использовании на ' . Carbon::parse($ourTechnicTicketReport->date)->format('d.m.Y'),
+            'comment' => 'Удален отчет об использовании на '.Carbon::parse($ourTechnicTicketReport->date)->format('d.m.Y'),
             'author_id' => Auth::user()->id,
             'system' => 1,
         ]);

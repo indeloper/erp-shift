@@ -1418,6 +1418,7 @@
     var userSelect = new Vue({
         el: "#select-user",
         data: {
+            // project roles - роли ответственных за проект 
             POSITIONS: [
                 { id: 1, name: 'Ответственный специалист по КП (сваи)'},
                 { id: 2, name: 'Ответственный специалист по КП (шпунт)'},
@@ -1458,6 +1459,9 @@
             @if(in_array(Auth::id(), $project->respUsers->where('role', 6)->pluck('user_id')->toArray()))
                 9,
             @endif
+            @can('projects_responsible_users')
+                1, 2, 3, 4, 5, 6, 7,
+            @endcan
             ],
             relatedUsers: [],
 
@@ -1470,6 +1474,7 @@
         computed: {
             positionOptions() {
                 return this.POSITIONS.filter(el => this.visiblePositions.indexOf(el.id) !== -1);
+                // return this.POSITIONS;
             }
         },
         watch: {

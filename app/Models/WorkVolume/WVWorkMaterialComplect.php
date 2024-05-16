@@ -3,6 +3,7 @@
 namespace App\Models\WorkVolume;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class WVWorkMaterialComplect extends Model
@@ -10,10 +11,10 @@ class WVWorkMaterialComplect extends Model
     protected $fillable = [
         'complect_name',
         'work_volume_id',
-        'wv_work_id'
+        'wv_work_id',
     ];
 
-    public function complects()
+    public function complects(): HasMany
     {
         return $this->hasMany(WorkVolumeMaterialComplect::class, 'name', 'complect_name')
             ->leftJoin('work_volume_materials', 'work_volume_materials.id', '=', 'work_volume_material_complects.wv_material_id')

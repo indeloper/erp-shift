@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Model\Messenger\Thread;
+use App\Models\Messenger\Thread;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -34,14 +34,12 @@ class MoveThreadsCreatorsToNewLogic extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         DB::beginTransaction();
 
-        foreach(Thread::get() as $thread) {
+        foreach (Thread::get() as $thread) {
             $oldCrutchLogicCreatorId = $thread->creator()->id;
             // fix
             $thread->update(['creator_id' => $oldCrutchLogicCreatorId]);

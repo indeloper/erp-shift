@@ -2,8 +2,8 @@
 
 namespace App\Models\Messenger;
 
-use App\Models\Messenger\Message;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MessageForwards extends Model
 {
@@ -15,15 +15,14 @@ class MessageForwards extends Model
     ];
 
     // message relation
-    public function message()
+    public function message(): BelongsTo
     {
         return $this->belongsTo(Message::class, 'message_id', 'id');
     }
 
     // forwarder/replied message relation
-    public function forwarded_message()
+    public function forwarded_message(): BelongsTo
     {
         return $this->belongsTo(Message::class, 'forwarded_message_id', 'id');
     }
-
 }

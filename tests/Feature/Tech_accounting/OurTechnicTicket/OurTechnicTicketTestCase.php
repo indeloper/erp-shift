@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Tests\Feature\Tech_accounting\OurTechnicTicket;
 
 use App\Models\Department;
@@ -19,14 +18,20 @@ use Tests\TestCase;
 abstract class OurTechnicTicketTestCase extends TestCase
 {
     protected $warehouse_users;
-    protected $rps;
-    protected $rps_and_prorabs;
-    protected $objects;
-    protected $service;
-    protected $logists;
-    protected $logist;
-    protected $prorabs;
 
+    protected $rps;
+
+    protected $rps_and_prorabs;
+
+    protected $objects;
+
+    protected $service;
+
+    protected $logists;
+
+    protected $logist;
+
+    protected $prorabs;
 
     protected function setUp(): void
     {
@@ -40,7 +45,7 @@ abstract class OurTechnicTicketTestCase extends TestCase
         $this->rps_and_prorabs = Group::with('users')->find([27, 13, 19, 31, 14, 23])->pluck('users')->flatten();
         $this->logists = Group::with('users')->find(array_merge(Group::LOGIST, Group::MECHANICS))->pluck('users')->flatten();
         $this->logist = $this->logists->random();
-        $this->objects = ProjectObject::query()->count() ? ProjectObject::all() : factory(ProjectObject::class, 10)->create();
+        $this->objects = ProjectObject::query()->count() ? ProjectObject::all() : ProjectObject::factory()->count(10)->create();
         $this->service = new TechnicTicketService();
 
         $this->actingAs($this->rps->random());
@@ -48,11 +53,10 @@ abstract class OurTechnicTicketTestCase extends TestCase
 
     }
 
-
     /**
-     * @param int $count
-     * @param array $overrides
-     * @param array $overrides_users
+     * @param  int  $count
+     * @param  array  $overrides
+     * @param  array  $overrides_users
      * @return Collection
      */
     public function seedTicketsWithUsers($count = 1, $overrides = [], $overrides_users = [])
@@ -68,7 +72,7 @@ abstract class OurTechnicTicketTestCase extends TestCase
             'author_user_id' => Auth::id(),
         ], $overrides_users);
 
-        $tickets = factory(OurTechnicTicket::class, $count)->create($overrides)->each(function ($ticket) use ($users, $type_map) {
+        $tickets = OurTechnicTicket::factory()->count($count)->create($overrides)->each(function ($ticket) use ($users, $type_map) {
             foreach ($users as $type_name => $user_id) {
                 $ticket->users()->attach($user_id, ['type' => array_search($type_name, $type_map)]);
             }
@@ -77,10 +81,10 @@ abstract class OurTechnicTicketTestCase extends TestCase
         return $tickets;
     }
 
-    protected function validFields ($overrides = [])
+    protected function validFields($overrides = [])
     {
         return array_merge([
-            'our_technic_id' => factory(OurTechnic::class)->create()->id,
+            'our_technic_id' => OurTechnic::factory()->create()->id,
             'resp_rp_user_id' => $this->rps->random()->id,
             'ticket_resp_user_id' => $this->rps_and_prorabs->random()->id,
             'recipient_user_id' => $this->warehouse_users->count() ? $this->warehouse_users->random()->id : $this->rps_and_prorabs->random()->id,
@@ -95,7 +99,7 @@ abstract class OurTechnicTicketTestCase extends TestCase
             'usage_from_date' => Carbon::now()->addDays(2),
             'usage_to_date' => Carbon::now()->addDays(5),
             'comment' => $this->faker->text(150),
-            'vehicle_ids' => factory(OurVehicles::class, 2)->create()->pluck('id')->toArray(),
+            'vehicle_ids' => OurVehicles::factory()->count(2)->create()->pluck('id')->toArray(),
         ], $overrides);
     }
 }

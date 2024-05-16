@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\q3wMaterial\operations;
 
 use App\Models\Building\ObjectResponsibleUser;
@@ -12,13 +14,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\Routing\Annotation\Route;
 
 class q3wMaterialOperation extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 
     protected $appends = ['have_conflict', 'url', 'expected_users_names'];
 
@@ -59,8 +60,6 @@ class q3wMaterialOperation extends Model
             ->whereIn('operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'));
     }
 
-
-
     public function scopeWithMaterialsSummary($query)
     {
         $materialRawQuery = DB::raw("(SELECT
@@ -86,47 +85,45 @@ class q3wMaterialOperation extends Model
             ->addSelect('material_types_info');
     }
 
-    public function getUrlAttribute(){
-        $routeName = "";
-        $routeStageName = "";
-
+    public function getUrlAttribute()
+    {
         switch ($this->operation_route_id) {
             case 1:
-                $routeName = "supply";
+                $routeName = 'supply';
                 break;
             case 2:
-                $routeName = "transfer";
+                $routeName = 'transfer';
                 break;
             case 3:
-                $routeName = "transformation";
+                $routeName = 'transformation';
                 break;
             case 4:
-                $routeName = "write-off";
+                $routeName = 'write-off';
                 break;
             default:
-                $routeName = "#";
+                $routeName = '#';
         }
 
         switch ($this->routeStage->operation_route_stage_type_id) {
             case 2:
             case 7:
-                $routeStageName = "completed";
-                //$routeStageName = "view";
+                $routeStageName = 'completed';
                 break;
             case 3:
             case 5:
             case 6:
-                $routeStageName = "view";
+                $routeStageName = 'view';
                 break;
             default:
-                $routeStageName = "view";
+                $routeStageName = 'view';
         }
-        $routeName = 'materials.operations.' . $routeName . '.' . $routeStageName;
+        $routeName = 'materials.operations.'.$routeName.'.'.$routeStageName;
 
-        return route($routeName).'/?operationId=' . $this->id;
+        return route($routeName).'/?operationId='.$this->id;
     }
 
-    public function getExpectedUsersNamesAttribute() {
+    public function getExpectedUsersNamesAttribute()
+    {
         $routeStageId = $this->operation_route_stage_id;
         switch ($routeStageId) {
             case 11:
@@ -138,14 +135,21 @@ class q3wMaterialOperation extends Model
             case 37:
             case 71:
             case 77:
-                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->source_project_object_id)->get()->pluck('user_id');
+                $responsibilityUsers = (new ObjectResponsibleUser)
+                    ->getResponsibilityUsers($this->destination_project_object_id, $role = 'TONGUE_PROJECT_MANAGER')
+                    ->pluck('user_id');
+
                 return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
             case 19:
-                $responsibilityUsers = ObjectResponsibleUser::where('object_id', $this->destination_project_object_id)->get()->pluck('user_id');
+                $responsibilityUsers = (new ObjectResponsibleUser)
+                    ->getResponsibilityUsers($this->source_project_object_id, $role = 'TONGUE_PROJECT_MANAGER')
+                    ->pluck('user_id');
+
                 return User::whereIn('id', $responsibilityUsers)->get()->pluck('full_name')->join(';');
             case 79:
                 $permissionId = Permission::where('codename', 'material_accounting_write_off_confirmation')->first()->id;
                 $userIds = UserPermission::where('permission_id', $permissionId)->pluck('user_id');
+
                 return User::whereIn('id', $userIds)->get()->pluck('full_name')->join(';');
             default:
                 return null;

@@ -2,51 +2,53 @@
 
 namespace App\Providers;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\ServiceProvider;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         if (config('app.env') != 'production') {
             DB::listen(function ($query) {
                 File::append(
                     storage_path('/logs/query.log'),
-                    $query->sql . ' [' . implode(', ', $query->bindings) . ']' . PHP_EOL
+                    $query->sql.' ['.implode(', ', $query->bindings).']'.PHP_EOL
                 );
             });
         }
 
+        \Illuminate\Pagination\Paginator::useBootstrap();
+
         setlocale(LC_TIME, 'ru_RU.UTF-8');
+
         Carbon::setLocale('ru');
 
         Relation::morphMap([
-            'regular' => 'App\Models\Manual\ManualMaterial',
-            'complect' => 'App\Models\WorkVolume\WorkVolumeMaterialComplect',
+            'regular' => \App\Models\Manual\ManualMaterial::class,
+            'complect' => \App\Models\WorkVolume\WorkVolumeMaterialComplect::class,
         ]);
 
         /**
          * Paginate a standard Laravel Collection.
          *
-         * @param int $perPage
-         * @param int $total
-         * @param int $page
-         * @param string $pageName
+         * @param  int  $perPage
+         * @param  int  $total
+         * @param  int  $page
+         * @param  string  $pageName
          * @return array
          */
-        Collection::macro('collection_paginate', function($perPage, $total = null, $page = null, $pageName = 'page') {
+        Collection::macro('collection_paginate', function ($perPage, $total = null, $page = null, $pageName = 'page') {
             $page = $page ?: LengthAwarePaginator::resolveCurrentPage($pageName);
+
             return new LengthAwarePaginator(
                 $this->forPage($page, $perPage),
                 $total ?: $this->count(),
@@ -62,10 +64,8 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         setlocale(LC_TIME, 'ru_RU.UTF-8');
         Carbon::setLocale('ru');

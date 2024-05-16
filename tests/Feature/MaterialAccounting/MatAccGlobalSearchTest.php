@@ -4,13 +4,11 @@ namespace Tests\Feature\MaterialAccounting;
 
 use App\Models\User;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class MatAccGlobalSearchTest extends TestCase
 {
     /** @test */
-    public function it_can_return_complex_data_for_request()
+    public function it_can_return_complex_data_for_request(): void
     {
         $this->actingAs(User::first());
         $payload = [
@@ -27,9 +25,9 @@ class MatAccGlobalSearchTest extends TestCase
                 'value' => [
                     [
                         'result_id' => 7,
-                        'result_name' => 'Шпунт'
-                    ]
-                ]
+                        'result_name' => 'Шпунт',
+                    ],
+                ],
             ],
             [
                 'type_name' => 'Объект',
@@ -43,7 +41,7 @@ class MatAccGlobalSearchTest extends TestCase
                         'result_id' => 13,
                         'resuls_name' => 'Лиговский',
                     ],
-                ]
+                ],
             ],
             [
                 'type_name' => 'Пользователь',
@@ -51,9 +49,9 @@ class MatAccGlobalSearchTest extends TestCase
                 'value' => [
                     [
                         'result_id' => 13,
-                        'result_name' => 'Самсонов'
-                    ]
-                ]
+                        'result_name' => 'Самсонов',
+                    ],
+                ],
             ],
             [
                 'type_name' => 'Эталон',
@@ -64,10 +62,10 @@ class MatAccGlobalSearchTest extends TestCase
                         'result_name' => 'Балка Ш2',
                         'attr_id' => [
                             188 => 'Длина',
-                        ]
-                    ]
-                ]
-            ]
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 }

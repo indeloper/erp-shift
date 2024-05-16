@@ -2,38 +2,33 @@
 
 namespace App\Observers;
 
-use App\Models\Notification;
-use App\Models\Project;
 use App\Models\Task;
-use App\Models\User;
+use App\Notifications\Task\WriteOffControlTaskCreatedNotice;
 
 class TaskObserver
 {
     /**
      * Handle the task "stored" event.
-     *
-     * @param  Task  $task
-     * @return void
      */
-    public function saved(Task $task)
+    public function saved(Task $task): void
     {
         if ($task->wasRecentlyCreated) {
             if ($task->status == 21) {
-                return $this->notificationForWriteOffControlTask($task);
+                $this->notificationForWriteOffControlTask($task);
             }
         }
     }
 
-    public function notificationForWriteOffControlTask(Task $task)
+    public function notificationForWriteOffControlTask(Task $task): void
     {
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $task->name . '»',
-            'task_id' => $task->id,
-            'user_id' => $task->responsible_user_id,
-            'type' => 8,
-        ]);
+        WriteOffControlTaskCreatedNotice::send(
+            $task->responsible_user_id,
+            [
+                'name' => 'Новая задача «'.$task->name.'»',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $task->task_route(),
+                'task_id' => $task->id,
+            ]
+        );
     }
 }

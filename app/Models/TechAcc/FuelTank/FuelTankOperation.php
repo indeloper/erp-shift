@@ -7,14 +7,18 @@ use App\Models\ProjectObject;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Traits\Documentable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTankOperation extends Model
 {
     use Documentable;
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
@@ -48,7 +52,7 @@ class FuelTankOperation extends Model
         'author',
         'our_technic',
         'contractor',
-        'object'
+        'object',
     ];
 
     protected $appends = [
@@ -66,32 +70,32 @@ class FuelTankOperation extends Model
         });
     }
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function our_technic()
+    public function our_technic(): BelongsTo
     {
         return $this->belongsTo(OurTechnic::class)->withTrashed();
     }
 
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class);
     }
 
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class);
     }
 
-    public function fuel_tank()
+    public function fuel_tank(): BelongsTo
     {
         return $this->belongsTo(FuelTank::class);
     }
 
-    public function history()
+    public function history(): HasMany
     {
         return $this->hasMany(FuelOperationsHistory::class, 'fuel_operation_id');
     }
@@ -106,10 +110,9 @@ class FuelTankOperation extends Model
         $fuel_level = null;
         $older_oper = FuelTankOperation::where('operation_date', '<', $this->operation_date)->where('fuel_tank_id', $this->fuel_tank_id)->where('id', '!=', $this->id)->latest('operation_date')->first();
 
-        if($older_oper) {
+        if ($older_oper) {
             $fuel_level = $older_oper->result_value;
-        }
-        else {
+        } else {
             $younger_oper = FuelTankOperation::where('operation_date', '>', $this->operation_date)->where('fuel_tank_id', $this->fuel_tank_id)->where('id', '!=', $this->id)->oldest('operation_date')->first();
             if ($younger_oper) {
                 $fuel_level = $younger_oper->result_value - $younger_oper->value;
@@ -136,7 +139,7 @@ class FuelTankOperation extends Model
 
     public function getFuelTankNumberAttribute()
     {
-        if ($this->fuel_tank()->count()){
+        if ($this->fuel_tank()->count()) {
             return $this->fuel_tank->tank_number;
         }
 
@@ -178,7 +181,7 @@ class FuelTankOperation extends Model
             $query->whereIn('fuel_tank_id', (array) $request['fuel_tank_id']);
         }
         if (isset($request['tank_number'])) {
-            $query->whereHas('fuel_tank', function($q) use ($request) {
+            $query->whereHas('fuel_tank', function ($q) use ($request) {
                 $q->whereIn('tank_number', (array) $request['tank_number']);
             });
         }

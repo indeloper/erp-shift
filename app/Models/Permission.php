@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use App\Models\Notifications\NotificationsForPermissions;
+use App\Traits\DevExtremeDataSourceLoadable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Permission extends Model
 {
-    protected $fillable = ['name', 'codename'];
+    use DevExtremeDataSourceLoadable;
+
+    protected $fillable = ['name', 'codename', 'category'];
 
     public $categories = [
         1 => 'Модуль "Задачи"',
@@ -28,22 +33,53 @@ class Permission extends Model
         16 => 'Модуль "Заявки на технику"',
         17 => 'Модуль "Топливные ёмкости"',
         18 => 'Модуль "Учёт человеческих ресурсов"',
+        19 => 'Модуль "Охрана труда"',
+        20 => 'Модуль "Документооборот: Площадка ⇆ Офис"',
     ];
 
     protected $appends = ['label', 'key'];
 
-    function getLabelAttribute()
+    public function getLabelAttribute()
     {
         return $this->name;
     }
 
-    function getKeyAttribute()
+    public function getKeyAttribute()
     {
         return $this->id;
     }
 
-    public function relatedNotifications()
+    public function relatedNotifications(): HasMany
     {
         return $this->hasMany(NotificationsForPermissions::class, 'permission', 'codename');
+    }
+
+    public function getUsersIdsByCodename($codename = null)
+    {
+        if (! $codename) {
+            return [];
+        }
+
+        $permissionId = Permission::where('codename', $codename)->firstOrFail()->id;
+        $relatedUsersIdsArr = UserPermission::where('permission_id', $permissionId)->pluck('user_id')->toArray();
+        $relatedGroupsIdsArr = GroupPermission::where('permission_id', $permissionId)->pluck('group_id')->toArray();
+
+        $permissionUsers = User::query()
+            ->whereIn('group_id', $relatedGroupsIdsArr)
+            ->orWhereIn('id', $relatedUsersIdsArr)
+            ->active()
+            ->pluck('id')
+            ->toArray();
+
+        return $permissionUsers;
+    }
+
+    public function scopeUsersIdsByCodename(Builder $query, $codename = null)
+    {
+        if (! $codename) {
+            return [];
+        }
+
+        return $this->getUsersIdsByCodename($codename);
     }
 }

@@ -325,7 +325,10 @@
                                         reservedMaterialsDataSource.reload();
                                         projectObjectActiveOperationsDataSource.reload();
                                         projectObjectInfoForm.getEditor("materialDataGrid").refresh();
+                                        console.log("projectObjectInfoForm.getEditor(reservedMaterialsGrid)", projectObjectInfoForm.getEditor("reservedMaterialsGrid"));
                                         projectObjectInfoForm.getEditor("reservedMaterialsGrid").refresh();
+
+
 
                                         window.history.pushState("", "", "?project_object=" + projectObject)
                                     }
@@ -435,18 +438,14 @@
                         items: [{
                             editorType: "dxTileView",
                             editorOptions: {
-                                height: 50,
-                                baseItemHeight: 40,
-                                baseItemWidth: 140,
+                                height: 70,
+                                baseItemHeight: 60,
+                                baseItemWidth: 160,
                                 itemMargin: 10,
                                 direction: "horizontal",
                                 showScrollbar: true,
                                 dataSource: materialSnapshotsDataSource,
                                 onItemClick: function (e) {
-                                    //Раньше загружался снапшот операции. Теперь - идем в карточку завершенной операции
-                                    /*snapshotId = e.itemData.id;
-                                    actualMaterialsDataSource.reload();
-                                    projectObjectInfoForm.getEditor("materialDataGrid").refresh();*/
                                     window.open(e.itemData.url, '_blank');
                                 },
                                 itemTemplate: function (itemData, _, itemElement) {
@@ -486,6 +485,8 @@
                                     createdDate = createdDate.replaceAll(',', ' ');
 
                                     itemElement.append('<div class="snapshot-tile-content">' +
+                                        "Операция #" + itemData.id +
+                                        '<br>' +
                                         createdDate +
                                         '<br>' +
                                         operationCaption +
@@ -503,7 +504,7 @@
                         colSpan: 2,
                         tabs:[
                             {
-                                title: "Материалы на объекте",
+                                tabTemplate: '<div>Материалы на объекте</div>',
                                 items: [{
                                     name: "materialDataGrid",
                                     editorType: "dxDataGrid",
@@ -534,6 +535,9 @@
                                         paging: {
                                             enabled: false
                                         },
+                                        scrolling: {
+                                            mode: 'virtual',
+                                        },
                                         columns: materialColumns,
                                         onRowPrepared: function (e) {
                                             if (e.rowType === "data") {
@@ -546,35 +550,127 @@
                                                 }
                                             }
                                         },
+                                        onSelectionChanged: (e) => {
+                                            e.component.refresh();
+                                        },
                                         summary: {
                                             groupItems: [{
                                                 column: "standard_id",
                                                 summaryType: "count",
                                                 displayFormat: "Количество: {0}",
                                             },
+{
+                                                summaryType: "custom",
+                                                name: "totalQuantitySummary",
+                                                showInGroupFooter: false,
+                                                alignByColumn: true,
+                                                showInColumn: "quantity",
+                                            },
                                             {
-                                                column: "amount",
-                                                summaryType: "sum",
-                                                displayFormat: "Всего: {0} шт",
+                                                showInColumn: "amount",
+                                                name: "amountSummary",
+                                                summaryType: "custom",
                                                 showInGroupFooter: false,
                                                 alignByColumn: true
                                             },
                                             {
-                                                column: "computed_weight",
-                                                summaryType: "sum",
-                                                customizeText: function (data) {
-                                                    return "Всего: " + Math.round(data.value * 1000) / 1000 + " т"
-                                                },
+                                                showInColumn: "computed_weight",
+                                                summaryType: "custom",
+                                                name: "computedWeightSummary",
                                                 showInGroupFooter: false,
                                                 alignByColumn: true
-                                            }],
-                                            totalItems: [{
-                                                column: "computed_weight",
-                                                summaryType: "sum",
-                                                customizeText: function (data) {
-                                                    return "Итого: " + Math.round(data.value * 1000) / 1000 + " т"
+                                            }
+                                            ],
+                                            totalItems: [
+                                                {
+                                                showInColumn: "computed_weight",
+                                                summaryType: "custom",
+                                                name: "totalComputedWeightSummary",
+                                           }],
+                                            calculateCustomSummary: (options) => {
+                                                if (options.name === 'totalQuantitySummary' ||
+                                                    options.name === 'amountSummary' ||
+                                                    options.name === 'computedWeightSummary' ||
+                                                    options.name === 'totalComputedWeightSummary') {
+                                                    if (options.summaryProcess === 'start') {
+                                                        options.totalValue = 0;
+                                                        options.selectedValue = 0;
+                                                    }
+
+                                                    if (options.summaryProcess === 'calculate') {
+                                                        switch (options.name) {
+                                                            case 'totalQuantitySummary':
+                                                                options.totalValue += options.value.amount * options.value.quantity;
+                                                                break;
+                                                            case 'amountSummary':
+                                                                options.totalValue += options.value.amount;
+                                                                break;
+                                                            case 'computedWeightSummary':
+                                                            case 'totalComputedWeightSummary':
+                                                                options.totalValue += options.value.weight * options.value.amount * options.value.quantity;
+                                                                break;
+                                                        }
+                                                        options.measureUnit = options.value.measure_unit_value;
+
+                                                        if (options.component.getSelectedRowKeys().includes(options.value.id)) {
+                                                            switch (options.name) {
+                                                                case 'totalQuantitySummary':
+                                                                    options.selectedValue += options.value.amount * options.value.quantity;
+                                                                    break;
+                                                                case 'amountSummary':
+                                                                    options.selectedValue += options.value.amount;
+                                                                    break;
+                                                                case 'computedWeightSummary':
+                                                                case 'totalComputedWeightSummary':
+                                                                    options.selectedValue += options.value.weight * options.value.amount * options.value.quantity;
+                                                                    break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (options.summaryProcess === 'finalize') {
+                                                        let roundModificator = 100;
+
+                                                        if (options.name === 'computedWeightSummary' || options.name === 'totalComputedWeightSummary'){
+                                                            roundModificator = 1000
+                                                        }
+
+                                                        options.totalValue = Math.round(options.totalValue * roundModificator) / roundModificator
+                                                        options.selectedValue = Math.round(options.selectedValue * roundModificator) / roundModificator
+
+                                                        options.totalValue = new Intl.NumberFormat('ru-RU').format(options.totalValue);
+
+                                                        if (options.selectedValue === 0) {
+                                                            switch (options.name) {
+                                                                case 'totalQuantitySummary':
+                                                                    options.totalValue = `Всего: ${options.totalValue} ${options.measureUnit}`;
+                                                                    break;
+                                                                case 'amountSummary':
+                                                                    options.totalValue = `Всего: ${options.totalValue} шт`;
+                                                                    break;
+                                                                case 'computedWeightSummary':
+                                                                case 'totalComputedWeightSummary':
+                                                                    options.totalValue = `Всего: ${options.totalValue} т`;
+                                                                    break;
+                                                            }
+                                                        } else {
+                                                            switch (options.name) {
+                                                                case 'totalQuantitySummary':
+                                                                    options.totalValue = `Выбрано: ${new Intl.NumberFormat('ru-RU').format(options.selectedValue)} из ${options.totalValue} ${options.measureUnit}`;
+                                                                    break;
+                                                                case 'amountSummary':
+                                                                    options.totalValue = `Выбрано: ${options.selectedValue} из ${options.totalValue} шт`;
+                                                                    break;
+                                                                case 'computedWeightSummary':
+                                                                case 'totalComputedWeightSummary':
+                                                                    options.totalValue = `Выбрано: ${new Intl.NumberFormat('ru-RU').format(options.selectedValue)} из ${options.totalValue} т`;
+                                                                    break;
+                                                            }
+
+                                                        }
+                                                    }
                                                 }
-                                            }]
+                                            }
                                         },
                                         masterDetail: {
                                             enabled: true,
@@ -752,7 +848,7 @@
                                 }]
                             },
                             {
-                                title: "Материалы в резерве",
+                                tabTemplate: '<div>Материалы в резерве</div>',
                                 items: [{
                                     name: "reservedMaterialsGrid",
                                     editorType: "dxDataGrid",
@@ -910,8 +1006,7 @@
 
             function createOperationButtons(){
                 let groupTabs = $('.actual-materials-grid').find('.dx-tabpanel-tabs');
-                $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupTabs);
-                let tabList = groupTabs.find('.dx-tabs[role=tablist]')
+                let tabList = groupTabs.find('.dx-tabs')
                 console.log(tabList);
 
                 $('<div class="tab-wrapper-button">')
@@ -919,6 +1014,7 @@
                         {
                             text: "Комментировать",
                             stylingMode: 'outlined',
+                            disabled: true,
                             onClick: (e) => {
                                 let popupWindow = $("#commentPopup")
                                     .dxPopup(
@@ -1039,7 +1135,6 @@
                             if (e.itemData === "Поставка") {
                                 let popupWindow = $("#supplyTypePopup")
                                     .dxPopup({
-                                        showCloseButton: true,
                                         width: "auto",
                                         height: "auto",
                                         title: "Выберите тип поставки",
