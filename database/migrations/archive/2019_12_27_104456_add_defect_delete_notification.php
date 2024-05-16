@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddDefectDeleteNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о удалении заявки на неисправность';
 
@@ -69,4 +69,4 @@ class AddDefectDeleteNotification extends Migration
 
         DB::commit();
     }
-}
+};

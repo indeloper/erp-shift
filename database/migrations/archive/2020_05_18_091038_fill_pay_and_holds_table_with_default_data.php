@@ -3,7 +3,7 @@
 use App\Models\HumanResources\PayAndHold;
 use Illuminate\Database\Migrations\Migration;
 
-class FillPayAndHoldsTableWithDefaultData extends Migration
+return new class extends Migration
 {
     const DATA_FROM_OLD_SYSTEM = [
         ['name' => 'Доплата за работу во вредных условиях труда'],
@@ -77,4 +77,4 @@ class FillPayAndHoldsTableWithDefaultData extends Migration
     {
         //
     }
-}
+};

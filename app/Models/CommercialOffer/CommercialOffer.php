@@ -4,12 +4,8 @@ namespace App\Models\CommercialOffer;
 
 use App\Models\Company\Company;
 use App\Models\Contract\Contract;
-use App\Notifications\CommercialOffer\ApprovalOfOfferSheetPilingTaskNotice;
-use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
-use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
-use App\Notifications\CommercialOffer\PileDrivingOfferApprovalTaskCreationNotice;
-use App\Notifications\Task\TaskClosureNotice;
-use App\Models\Contractors\{Contractor, ContractorContact};
+use App\Models\Contractors\Contractor;
+use App\Models\Contractors\ContractorContact;
 use App\Models\FileEntry;
 use App\Models\Manual\ManualWork;
 use App\Models\Project;
@@ -20,6 +16,11 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
 use App\Models\WorkVolume\WorkVolumeWorkMaterial;
+use App\Notifications\CommercialOffer\ApprovalOfOfferSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice;
+use App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice;
+use App\Notifications\CommercialOffer\PileDrivingOfferApprovalTaskCreationNotice;
+use App\Notifications\Task\TaskClosureNotice;
 use App\Services\Commerce\SplitService;
 use App\Traits\Commentable;
 use App\Traits\Reviewable;
@@ -29,33 +30,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Image;
 use PDF;
-use phpDocumentor\Reflection\Types\Integer;
 
 class CommercialOffer extends Model
 {
     use Commentable, Reviewable, SoftDeletes;
-
 
     public $com_offer_status = [
         1 => 'В работе',
         2 => 'На согласовании',
         3 => 'Отклонено',
         4 => 'Согласовано с заказчиком',
-        5 => 'Отправлено'
+        5 => 'Отправлено',
     ];
+
     public $com_offer_status_description = [
         1 => 'Ведутся работы по формированию коммерческого предложения',
         2 => 'Внутреннее согласование с Генеральным директором или его заместителем',
         3 => 'Было отклонено в ходе внутренного согласования или заказчиком',
         4 => 'Заказчик принял данный вариант КП',
-        5 => 'Сформированное КП было отправлено на рассмотрение заказчику'
+        5 => 'Сформированное КП было отправлено на рассмотрение заказчику',
     ];
 
     protected $fillable = ['name', 'user_id', 'file_name', 'project_id', 'version', 'status', 'work_volume_id', 'contract_number', 'contract_date', 'is_tongue', 'title', 'is_uploaded', 'option'];
 
     protected $appends = ['status_description', 'type_name', 'status_name'];
+
     /** Statuses for coloring in situation
      * when CO project is important
      */
@@ -75,6 +75,7 @@ class CommercialOffer extends Model
     {
         return $this->com_offer_status[$this->status];
     }
+
     /**
      * Scope a query commercial offers
      * at documents block.
@@ -85,20 +86,19 @@ class CommercialOffer extends Model
     public function scopeForDocuments($query)
     {
         return $query->with('project')
-        ->leftjoin('users', 'users.id', '=', 'commercial_offers.user_id')
-        ->leftjoin('projects', 'projects.id', '=', 'commercial_offers.project_id')
-        ->leftjoin('contractors', 'contractors.id', '=', 'projects.contractor_id')
-        ->leftjoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
-        ->whereIn('commercial_offers.id', [DB::raw('select max(commercial_offers.id) from commercial_offers GROUP BY project_id, `option`')])
-        ->select('commercial_offers.*', DB::raw('CONCAT(users.last_name, " ", users.first_name, " ", users.patronymic) as user_full_name'),
-            'projects.name as project_name', 'projects.entity as project_entity', 'contractors.short_name as contractor_name',
-            'contractors.id as contractor_id', 'project_objects.address as address', 'projects.is_important as is_important');
+            ->leftjoin('users', 'users.id', '=', 'commercial_offers.user_id')
+            ->leftjoin('projects', 'projects.id', '=', 'commercial_offers.project_id')
+            ->leftjoin('contractors', 'contractors.id', '=', 'projects.contractor_id')
+            ->leftjoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
+            ->whereIn('commercial_offers.id', [DB::raw('select max(commercial_offers.id) from commercial_offers GROUP BY project_id, `option`')])
+            ->select('commercial_offers.*', DB::raw('CONCAT(users.last_name, " ", users.first_name, " ", users.patronymic) as user_full_name'),
+                'projects.name as project_name', 'projects.entity as project_entity', 'contractors.short_name as contractor_name',
+                'contractors.id as contractor_id', 'project_objects.address as address', 'projects.is_important as is_important');
     }
 
     /**
      * Function check that commercial offer
      * is in agreed with customer status
-     * @return bool
      */
     public function isAgreedWithCustomer(): bool
     {
@@ -108,7 +108,6 @@ class CommercialOffer extends Model
     /**
      * Function check that commercial offer
      * is not in agreed with customer status
-     * @return bool
      */
     public function isNotAgreedWithCustomer(): bool
     {
@@ -119,7 +118,6 @@ class CommercialOffer extends Model
      * Function check that commercial offer
      * is in NICE_STATUSES status and
      * CO project is important
-     * @return bool
      */
     public function isNeedToBeColored(): bool
     {
@@ -131,30 +129,31 @@ class CommercialOffer extends Model
      * Com offer has no reviews itself.
      * This is for those reviews that don't have own model in project
      *
-     * @param  integer|string|null $type Type of the category review you want to get (null for both, 1 for material, 2 for works)
-     * @param  int|null $reviewable_id Index of material or work
-     *
+     * @param  int|string|null  $type  Type of the category review you want to get (null for both, 1 for material, 2 for works)
+     * @param  int|null  $reviewable_id  Index of material or work
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function reviews($type = null, $reviewable_id = null)
     {
-        if(is_null($type) and is_null($reviewable_id)) {
-            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->whereIn('reviewable_type', ['MaterialWorkRelation', 'App\Models\Manual\ManualWork']);
-        } elseif($type == '1') {
+        if (is_null($type) and is_null($reviewable_id)) {
+            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->whereIn('reviewable_type', ['MaterialWorkRelation', \App\Models\Manual\ManualWork::class]);
+        } elseif ($type == '1') {
             return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->where('reviewable_id', $reviewable_id)->where('reviewable_type', 'MaterialWorkRelation');
-        } elseif($type == '2') {
-            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->where('reviewable_id', $reviewable_id)->where('reviewable_type', 'App\Models\Manual\ManualWork');
+        } elseif ($type == '2') {
+            return $this->hasMany(Review::class, 'commercial_offer_id', 'id')->where('reviewable_id', $reviewable_id)->where('reviewable_type', \App\Models\Manual\ManualWork::class);
         }
+
         return collect();
     }
 
     public function clone_reviews_from($old_owner)
     {
-        foreach($old_owner->reviews()->where('result_status', 0)->get() as $review) {
+        foreach ($old_owner->reviews()->where('result_status', 0)->get() as $review) {
             $new_review = $review->replicate();
             $new_review->commercial_offer_id = $this->id;
             $new_review->save();
         }
+
         return true;
     }
 
@@ -168,16 +167,16 @@ class CommercialOffer extends Model
         return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
     }
 
-//methods
+    //methods
     public function decline()
     {
         $project = Project::findOrFail($this->project_id);
 
-        $this->unsolved_tasks->each(function ($task) use($project) {
+        $this->unsolved_tasks->each(function ($task) use ($project) {
             TaskClosureNotice::send(
                 $task->responsible_user_id,
                 [
-                    'name' => 'Задача «' . $task->name . '» закрыта',
+                    'name' => 'Задача «'.$task->name.'» закрыта',
                     'task_id' => $task->id,
                     'contractor_id' => $project->contractor_id,
                     'project_id' => $project->id,
@@ -194,10 +193,9 @@ class CommercialOffer extends Model
         $this->save();
     }
 
-
     public function getAdaptedSplitsAttribute()
     {
-        $split_wv_mat = $this->mat_splits->sortBy('type')->groupBy(['WV_material.manual_material_id','type']);
+        $split_wv_mat = $this->mat_splits->sortBy('type')->groupBy(['WV_material.manual_material_id', 'type']);
 
         foreach ($split_wv_mat as $id => $material) {
             foreach ($material as $type => $split) {
@@ -205,15 +203,15 @@ class CommercialOffer extends Model
                     $split_wv_mat[$id][$type] = $split->groupBy('time');
 
                     foreach ($split->groupBy('time') as $time => $mat) {
-                        if ($type == 4 and isset($split_wv_mat[$id][3 . '|' . $time])) {
-                            $split_wv_mat[$id]['3' . '|' . $time] = [
+                        if ($type == 4 and isset($split_wv_mat[$id][3 .'|'.$time])) {
+                            $split_wv_mat[$id]['3'.'|'.$time] = [
                                 'security' => $mat->sum('count'),
-                                'count' => $split_wv_mat[$id]['3' . '|' . $time]['count'],
-                                'is_hidden' => $split_wv_mat[$id]['3' . '|' . $time]['is_hidden'],
-                                'id' => $split_wv_mat[$id]['3' . '|' . $time]['id'],
+                                'count' => $split_wv_mat[$id]['3'.'|'.$time]['count'],
+                                'is_hidden' => $split_wv_mat[$id]['3'.'|'.$time]['is_hidden'],
+                                'id' => $split_wv_mat[$id]['3'.'|'.$time]['id'],
                             ];
                         } else {
-                            $split_wv_mat[$id][$type . '|' . $time] = [
+                            $split_wv_mat[$id][$type.'|'.$time] = [
                                 'count' => $mat->sum('count'),
                                 'is_hidden' => $mat[0]->is_hidden,
                                 'id' => $mat[0]->id,
@@ -248,11 +246,10 @@ class CommercialOffer extends Model
      * makes all necessary tasks, closes others
      *
      * @return Collection
-     * there are notifications to send after DB commit in this collection.
-     * be sure to merge them with your local events_cache <- but
-     * now with new notification backend we don't need to do this
+     *                    there are notifications to send after DB commit in this collection.
+     *                    be sure to merge them with your local events_cache <- but
+     *                    now with new notification backend we don't need to do this
      */
-
     public function to_negotiation()
     {
         $this->status = 2;
@@ -274,7 +271,7 @@ class CommercialOffer extends Model
                     'target_id' => $this->id,
                     'expired_at' => $this->addHours(8),
                     'prev_task_id' => $old_tasks->first()->id ?? null,
-                    'status' => 16
+                    'status' => 16,
                 ]);
 
                 $task->save();
@@ -282,10 +279,10 @@ class CommercialOffer extends Model
                 ApprovalOfOfferSheetPilingTaskNotice::send(
                     $task->responsible_user_id,
                     [
-                        'name' => 'Новая задача «' . $task->name . '»',
-                        'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
-                            "\r\nНазвание объекта: " . $project->object->name .
-                            "\r\nАдрес объекта: " . $project->object->address,
+                        'name' => 'Новая задача «'.$task->name.'»',
+                        'additional_info' => "\r\nЗаказчик: ".$project->contractor_name.
+                            "\r\nНазвание объекта: ".$project->object->name.
+                            "\r\nАдрес объекта: ".$project->object->address,
                         'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
@@ -294,7 +291,7 @@ class CommercialOffer extends Model
                     ]
                 );
             }
-        } else if ($this->is_tongue == 0) {
+        } elseif ($this->is_tongue == 0) {
             foreach ([5, 6] as $group_id) {
                 $old_tasks = Task::where('project_id', $this->project_id)->where('status', 5)->where('target_id', $this->id)->where('is_solved', 0)->get();
 
@@ -310,7 +307,7 @@ class CommercialOffer extends Model
                     'target_id' => $this->id,
                     'expired_at' => $this->addHours(8),
                     'prev_task_id' => $old_tasks->first()->id ?? null,
-                    'status' => 16
+                    'status' => 16,
                 ]);
 
                 $task->save();
@@ -318,10 +315,10 @@ class CommercialOffer extends Model
                 PileDrivingOfferApprovalTaskCreationNotice::send(
                     $task->responsible_user_id,
                     [
-                        'name' => 'Новая задача «' . $task->name . '»',
-                        'additional_info' => "\r\nЗаказчик: " . $project->contractor_name .
-                            "\r\nНазвание объекта: " . $project->object->name .
-                            "\r\nАдрес объекта: " . $project->object->address,
+                        'name' => 'Новая задача «'.$task->name.'»',
+                        'additional_info' => "\r\nЗаказчик: ".$project->contractor_name.
+                            "\r\nНазвание объекта: ".$project->object->name.
+                            "\r\nАдрес объекта: ".$project->object->address,
                         'url' => $task->task_route(),
                         'task_id' => $task->id,
                         'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
@@ -332,7 +329,6 @@ class CommercialOffer extends Model
             }
         }
     }
-
 
     public function create_offer_pdf($offer_id, $COtype = 'regular', $from_task = false)
     {
@@ -363,7 +359,7 @@ class CommercialOffer extends Model
 
         $work_volume = WorkVolume::with(['works_offer' => function ($q) {
             $q->where('is_hidden', 0);
-        }]) ->where('work_volumes.id', $offer->work_volume_id)
+        }])->where('work_volumes.id', $offer->work_volume_id)
             ->leftJoin('projects', 'projects.id', '=', 'work_volumes.project_id')
             ->select('work_volumes.*', 'projects.name as project_name', 'projects.contractor_id as contractor_id', 'projects.object_id as object_id')
             ->first();
@@ -379,7 +375,7 @@ class CommercialOffer extends Model
 
                     foreach ($split->groupBy('time') as $time => $mat) {
 
-                        $split_wv_mat[$id][$type .'|'. $time] = $mat->sum('count');
+                        $split_wv_mat[$id][$type.'|'.$time] = $mat->sum('count');
                     }
                     $split_wv_mat[$id]->forget($type);
                 } else {
@@ -390,7 +386,7 @@ class CommercialOffer extends Model
 
         $materials_ids = [];
         foreach ($offer->works as $work) {
-            if (!is_array($work->relations)) {
+            if (! is_array($work->relations)) {
                 $materials_ids[] = $work->relations->pluck('wv_material_id')->toArray();
             }
         }
@@ -401,7 +397,7 @@ class CommercialOffer extends Model
 
         $today = Carbon::now()->format('d-m-Y');
 
-        $resp_users = !$offer->is_tongue ? ProjectResponsibleUser::where('project_id', $offer->project_id)->whereIn('role',[1,3]) : ProjectResponsibleUser::where('project_id', $offer->project_id)->whereIn('role',[2,4]);
+        $resp_users = ! $offer->is_tongue ? ProjectResponsibleUser::where('project_id', $offer->project_id)->whereIn('role', [1, 3]) : ProjectResponsibleUser::where('project_id', $offer->project_id)->whereIn('role', [2, 4]);
 
         $resp_users->leftJoin('users', 'users.id', '=', 'user_id')
             ->leftJoin('groups', 'groups.id', '=', 'users.group_id')
@@ -458,18 +454,17 @@ class CommercialOffer extends Model
         ];
         $data['set_page_break'] = $set_page_break;
         $pdf = PDF::loadView('projects.commercial_offer.offer', $data, [], [
-            'margin_bottom' => 40
+            'margin_bottom' => 40,
         ]);
-//        $pdf_new = PDF::loadView('projects.commercial_offer.offer', $data);
+        //        $pdf_new = PDF::loadView('projects.commercial_offer.offer', $data);
         $pdf_new = $pdf;
 
-        if((count($pdf_new->mpdf->pages) != 1)) {
+        if ((count($pdf_new->mpdf->pages) != 1)) {
             $sum_count = 0;
             foreach ($pdf_new->mpdf->pages as $page) {
                 $sum_count += strlen(explode('___HEADER___', $page)[1]);
             }
             $average_count = $sum_count / (count($pdf_new->mpdf->pages) - 1);
-
 
             if (($average_count < 0.05)) { //if on last page more that 5% of full page (aprox 43k)
                 $set_page_break = [
@@ -526,29 +521,30 @@ class CommercialOffer extends Model
 
                 $data['set_page_break'] = $set_page_break;
                 $pdf_new = PDF::loadView('projects.commercial_offer.offer', $data, [], [
-                    'margin_bottom' => 40
+                    'margin_bottom' => 40,
                 ]);
             }
         }
-        $file_name = 'project-' . $offer->project_id . '_commercial_offer-' . uniqid() . '.' . 'pdf';
+        $file_name = 'project-'.$offer->project_id.'_commercial_offer-'.uniqid().'.'.'pdf';
 
         $filenamePathParts = ['app', 'public', 'docs', 'commercial_offers', $file_name];
         $pdf_new->save(storage_path(implode(DIRECTORY_SEPARATOR, $filenamePathParts)));
 
         FileEntry::create(['filename' => $file_name, 'size' => 0,
-            'mime' => 'pdf', 'original_filename' => $file_name, 'user_id' => Auth::user()->id,]);
+            'mime' => 'pdf', 'original_filename' => $file_name, 'user_id' => Auth::user()->id, ]);
 
         $offer->file_name = $file_name;
 
         $offer->save();
 
-//        dd($set_page_break);
+        //        dd($set_page_break);
         DB::commit();
         if ($from_task) {
             return true;
         }
-        return $pdf_new->stream('commercial_offer_' . $today . '.pdf');
-//        return view('projects.commercial_offer.offer', $data);
+
+        return $pdf_new->stream('commercial_offer_'.$today.'.pdf');
+        //        return view('projects.commercial_offer.offer', $data);
     }
 
     /**
@@ -556,12 +552,9 @@ class CommercialOffer extends Model
      * also copy all necessary relations
      * and even work_volume
      *
-     * @param
-     * @param
      *
      * @return CommercialOffer
      */
-
     public function createCopy($project_id, $option = null)
     {
         DB::beginTransaction();
@@ -570,7 +563,7 @@ class CommercialOffer extends Model
         $last_com_offer = $target_project->com_offers()->where('is_tongue', $this->is_tongue);
         $exist_offer_option = null;
         if ($option) {
-            if(strpos($option, 'id:') === 0) {
+            if (strpos($option, 'id:') === 0) {
                 $com_offer_id = substr($option, 3, strlen($option));
                 $last_com_offer->where('id', $com_offer_id);
                 $option = '';
@@ -689,6 +682,7 @@ class CommercialOffer extends Model
                 if ($relation['wv_work_id'] == $work_old->id) {
                     $relation['wv_work_id'] = $work_copy->id;
                 }
+
                 return $relation;
             });
         }
@@ -743,7 +737,9 @@ class CommercialOffer extends Model
 
             $replChildren = function ($old_parent, $new_parent) use (&$replChildren, $com_offer_copy, $complect_id_diff) {
                 foreach ($old_parent->children as $child) {
-                    if ($child->com_offer_id != $old_parent->com_offer_id) {continue;}
+                    if ($child->com_offer_id != $old_parent->com_offer_id) {
+                        continue;
+                    }
                     $child_copy = $child->replicate();
                     $child_copy->com_offer_id = $com_offer_copy->id;
                     $child_copy->parent_id = $new_parent->id;
@@ -775,22 +771,22 @@ class CommercialOffer extends Model
         } else {
             foreach ($work_volume_old->raw_works as $work) {
                 CommercialOfferWork::create([
-                    "work_volume_work_id" => $work->id,
-                    "commercial_offer_id" => $com_offer_copy->id,
-                    "count" => $work->count,
-                    "term" => $work->term,
-                    "price_per_one" => $work->price_per_one,
-                    "result_price" => $work->result_price,
-                    "subcontractor_file_id" => $work->subcontractor_file_id,
-                    "is_hidden" => $work->is_hidden,
-                    "order" => $work->order,
+                    'work_volume_work_id' => $work->id,
+                    'commercial_offer_id' => $com_offer_copy->id,
+                    'count' => $work->count,
+                    'term' => $work->term,
+                    'price_per_one' => $work->price_per_one,
+                    'result_price' => $work->result_price,
+                    'subcontractor_file_id' => $work->subcontractor_file_id,
+                    'is_hidden' => $work->is_hidden,
+                    'order' => $work->order,
                 ]);
             }
         }
 
         $responsible_user = ProjectResponsibleUser::where('project_id', $project_id)->where('role', ($com_offer_copy->is_tongue ? 2 : 1))->first();
 
-        if (!$responsible_user) {
+        if (! $responsible_user) {
             $responsible_user = ProjectResponsibleUser::create([
                 'project_id' => $project_id,
                 'user_id' => Auth::id(),
@@ -800,7 +796,7 @@ class CommercialOffer extends Model
 
         $work_task = Task::create([
             'project_id' => $project_id,
-            'name' => 'Формирование КП' . ($com_offer_copy->is_tongue ? ' (шпунтовое направление)' : ' (свайное направление)'),
+            'name' => 'Формирование КП'.($com_offer_copy->is_tongue ? ' (шпунтовое направление)' : ' (свайное направление)'),
             'responsible_user_id' => $responsible_user->user_id,
             'contractor_id' => $target_project->contractor_id,
             'target_id' => $com_offer_copy->id,
@@ -820,7 +816,7 @@ class CommercialOffer extends Model
         $notificationClass::send(
             $work_task->responsible_user_id,
             [
-                'name' => 'Новая задача «' . $work_task->name . '»',
+                'name' => 'Новая задача «'.$work_task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $work_task->task_route(),
                 'task_id' => $work_task->id,
@@ -832,7 +828,8 @@ class CommercialOffer extends Model
 
         return $com_offer_copy;
     }
-//relations
+
+    //relations
     public function gantts()
     {
         return $this->hasMany(ComOfferGantt::class, 'com_offer_id', 'id');
@@ -840,11 +837,12 @@ class CommercialOffer extends Model
 
     public function contracts()
     {
-        return $this->belongsToMany(Contract::class, 'contract_commercial_offer_relations', 'commercial_offer_id' ,'contract_id');
+        return $this->belongsToMany(Contract::class, 'contract_commercial_offer_relations', 'commercial_offer_id', 'contract_id');
     }
 
     /**
      * Relation to father project
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function project()
@@ -854,13 +852,12 @@ class CommercialOffer extends Model
 
     public function is_uploaded()
     {
-        if ($this->gantts->count() == 0 and $this->mat_splits()->count() == 0 and ($this->work_volume ? $this->work_volume->works()->count() == 0 : 1 )) {
+        if ($this->gantts->count() == 0 and $this->mat_splits()->count() == 0 and ($this->work_volume ? $this->work_volume->works()->count() == 0 : 1)) {
             return 1;
         } else {
             return 0;
         }
     }
-
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany | CommercialOfferMaterialSplit
@@ -870,34 +867,29 @@ class CommercialOffer extends Model
         return $this->hasMany(CommercialOfferMaterialSplit::class, 'com_offer_id', 'id');
     }
 
-
     public function tasks()
     {
         return $this->all_tasks();
     }
 
-
     public function all_tasks()
     {
-        return $this->hasMany( Task::class, 'target_id', 'id')->whereIn('status', Task::CO_STATUS);
+        return $this->hasMany(Task::class, 'target_id', 'id')->whereIn('status', Task::CO_STATUS);
     }
-
 
     public function unsolved_tasks()
     {
-        return $this->hasMany( Task::class, 'target_id', 'id')
+        return $this->hasMany(Task::class, 'target_id', 'id')
             ->whereIn('status', Task::CO_STATUS)
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->orWhere('is_solved', 0)->orWhere('revive_at', '<>', null);
             });
     }
-
 
     public function get_requests()
     {
         return $this->hasMany(CommercialOfferRequest::class, 'commercial_offer_id', 'id');
     }
-
 
     public function works()
     {
@@ -908,7 +900,6 @@ class CommercialOffer extends Model
         }
     }
 
-
     public function worksForToggling()
     {
         if ($this->commercial_offer_works()->count() > 0) {
@@ -918,48 +909,40 @@ class CommercialOffer extends Model
         }
     }
 
-
     public function commercial_offer_works()
     {
         return $this->hasMany(CommercialOfferWork::class);
     }
-
 
     public function work_volume_works()
     {
         return $this->work_volume->works();
     }
 
-
     public function work_volume_works_without_info()
     {
         return $this->work_volume->worksWithoutManualInfo();
     }
 
-
     public function notes()
     {
-        return $this->hasMany(CommercialOfferNote::class, 'commercial_offer_id', 'id')->where('note' , '!=', '');
+        return $this->hasMany(CommercialOfferNote::class, 'commercial_offer_id', 'id')->where('note', '!=', '');
     }
-
 
     public function requirements()
     {
-        return $this->hasMany(CommercialOfferRequirement::class, 'commercial_offer_id', 'id')->where('requirement' , '!=', '');
+        return $this->hasMany(CommercialOfferRequirement::class, 'commercial_offer_id', 'id')->where('requirement', '!=', '');
     }
-
 
     public function work_volume()
     {
         return $this->belongsTo(WorkVolume::class, 'work_volume_id', 'id');
     }
 
-
     public function advancements()
     {
-        return $this->hasMany(CommercialOfferAdvancement::class, 'commercial_offer_id', 'id')->where('description' , '!=', '');
+        return $this->hasMany(CommercialOfferAdvancement::class, 'commercial_offer_id', 'id')->where('description', '!=', '');
     }
-
 
     public function signer()
     {
@@ -968,10 +951,8 @@ class CommercialOffer extends Model
             ->select('users.*', 'groups.name as group_name');
     }
 
-
     public function siblings()
     {
         return $this->hasMany(CommercialOffer::class, 'project_id', 'project_id')->where('is_tongue', $this->is_tongue);
     }
 }
-

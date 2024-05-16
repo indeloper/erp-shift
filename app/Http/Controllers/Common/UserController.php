@@ -3,24 +3,31 @@
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserRequests\{UserCreateRequest, UserUpdatePasswordRequest, UserUpdateRequest};
-use App\Models\{Department,
-    FileEntry,
-    Group,
-    GroupPermission,
-    Permission,
-    Project,
-    ProjectResponsibleUser,
-    User,
-    UserPermission,
-    UsersSetting};
+use App\Http\Requests\UserRequests\UserCreateRequest;
+use App\Http\Requests\UserRequests\UserUpdatePasswordRequest;
+use App\Http\Requests\UserRequests\UserUpdateRequest;
+use App\Models\Department;
+use App\Models\FileEntry;
+use App\Models\Group;
+use App\Models\GroupPermission;
 use App\Models\Notifications\UserDisabledNotifications;
+use App\Models\Permission;
+use App\Models\Project;
+use App\Models\ProjectResponsibleUser;
 use App\Models\TechAcc\Defects\Defects;
+use App\Models\User;
+use App\Models\UserPermission;
+use App\Models\UsersSetting;
 use App\Models\Vacation\VacationsHistory;
 use App\Traits\AdditionalFunctions;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Artisan, Auth, DB, File, Hash, Storage};
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -29,16 +36,16 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $newRequest = $this->createNewRequest($request->toArray());
-        $users = User::getAllUsers()->withoutGlobalScope('email')->filter($newRequest)->orderByRaw("CASE WHEN users.id IN (6,7) THEN 1 ELSE 2 END, users.last_name");
+        $users = User::getAllUsers()->withoutGlobalScope('email')->filter($newRequest)->orderByRaw('CASE WHEN users.id IN (6,7) THEN 1 ELSE 2 END, users.last_name');
 
         if ($request->search) {
             $groups = Group::where('name', $request->search)
-                ->orWhere('name', 'like', '%' . $request->search . '%')
+                ->orWhere('name', 'like', '%'.$request->search.'%')
                 ->pluck('id')
                 ->toArray();
 
             $departments = Department::where('name', $request->search)
-                ->orWhere('name', 'like', '%' . $request->search . '%')
+                ->orWhere('name', 'like', '%'.$request->search.'%')
                 ->pluck('id')
                 ->toArray();
 
@@ -47,25 +54,25 @@ class UserController extends Controller
             }));
 
             $users->where(function ($query) use ($request) {
-                $query->where('last_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                    ->orWhere('patronymic', 'like', '%' . $request->search . '%')
-                    ->orWhere(DB::raw("CONCAT(last_name, ' ', first_name, ' ', patronymic)"), 'LIKE', "%" . $request->search . "%");
+                $query->where('last_name', 'like', '%'.$request->search.'%')
+                    ->orWhere('first_name', 'like', '%'.$request->search.'%')
+                    ->orWhere('patronymic', 'like', '%'.$request->search.'%')
+                    ->orWhere(DB::raw("CONCAT(last_name, ' ', first_name, ' ', patronymic)"), 'LIKE', '%'.$request->search.'%');
             });
 
-            if (!empty($groups)) {
+            if (! empty($groups)) {
                 $users->orWhere(function ($query) use ($groups) {
                     $query->orWhereIn('users.group_id', $groups);
                 });
             }
 
-            if (!empty($departments)) {
+            if (! empty($departments)) {
                 $users->orWhere(function ($query) use ($departments) {
                     $query->orWhereIn('users.department_id', $departments);
                 });
             }
 
-            if (!empty($results)) {
+            if (! empty($results)) {
                 $users->orWhere(function ($query) use ($results) {
                     $query->orWhereIn('users.company', $results);
                 });
@@ -78,14 +85,12 @@ class UserController extends Controller
         ]);
     }
 
-
     public function sidebar(Request $request)
     {
         $request->session()->put('sidebar_mini', $request->sidebar_mini);
 
         return \GuzzleHttp\json_encode(true);
     }
-
 
     public function create()
     {
@@ -95,7 +100,6 @@ class UserController extends Controller
             'companies' => User::$companies,
         ]);
     }
-
 
     public function store(UserCreateRequest $request)
     {
@@ -130,14 +134,12 @@ class UserController extends Controller
         return redirect()->route('users::card', $user->id);
     }
 
-
     public function department(Request $request)
     {
         $groups = Group::where('department_id', $request->department_id)->get();
 
         return \GuzzleHttp\json_encode($groups);
     }
-
 
     public function card($id)
     {
@@ -148,7 +150,7 @@ class UserController extends Controller
         if ($user->is_deleted) {
             abort(404);
         }
-        $user->birthday =  $user->birthday ? (new Carbon($user->birthday))->format('d.m.Y') : 'Не указан';
+        $user->birthday = $user->birthday ? (new Carbon($user->birthday))->format('d.m.Y') : 'Не указан';
 
         $project_ids = ProjectResponsibleUser::where('user_id', $id)->pluck('project_id')->toArray();
         $projects = Project::getAllProjects()->whereIn('projects.id', $project_ids)->get();
@@ -182,7 +184,6 @@ class UserController extends Controller
         ]);
     }
 
-
     public function edit($id)
     {
         $user = User::withoutGlobalScope('email')->findOrFail($id);
@@ -201,7 +202,6 @@ class UserController extends Controller
             'companies' => User::$companies,
         ]);
     }
-
 
     public function update(UserUpdateRequest $request, $id)
     {
@@ -227,7 +227,7 @@ class UserController extends Controller
         $user->person_phone = preg_replace('~[\D]~', '', $request->person_phone);
         $user->work_phone = preg_replace('~[\D]~', '', $request->work_phone);
 
-        if($request->input('password')) {
+        if ($request->input('password')) {
             $user->password = bcrypt($request->input('password'));
         }
 
@@ -244,7 +244,6 @@ class UserController extends Controller
         return redirect()->route('users::card', $user->id);
     }
 
-
     public function change_password(UserUpdatePasswordRequest $request, $id)
     {
         if (Auth::id() != $id) {
@@ -254,7 +253,7 @@ class UserController extends Controller
         if (Hash::check($request->get('old_password'), Auth::user()->password)) {
             $user = User::findOrFail($id);
 
-            if($request->input('password')) {
+            if ($request->input('password')) {
                 $user->password = bcrypt($request->input('password'));
             }
 
@@ -266,12 +265,11 @@ class UserController extends Controller
         return redirect()->back()->with('pass', 0);
     }
 
-
     public function to_vacation(Request $request, $id)
     {
         if ($id == $request->support_user_id) {
             return back()->with('bad_request', 'Вы выбрали одинаковых сотрудников для отпуска и замещения');
-        } else if (VacationsHistory::where('vacation_user_id', $request->vacation_user_id)->where('is_actual', 1)->count()) {
+        } elseif (VacationsHistory::where('vacation_user_id', $request->vacation_user_id)->where('is_actual', 1)->count()) {
             return back()->with('too_much_vacations', 'Сотрудник уже находится в отпуске');
         }
 
@@ -296,7 +294,6 @@ class UserController extends Controller
         return redirect()->back();
     }
 
-
     public function from_vacation(Request $request, $id)
     {
         if (User::find($id)->in_vacation == 0) {
@@ -311,7 +308,6 @@ class UserController extends Controller
 
         return response()->json(true);
     }
-
 
     public function remove(Request $request, $id)
     {
@@ -329,18 +325,17 @@ class UserController extends Controller
         return redirect()->route('users::index');
     }
 
-
     public function department_permissions(Request $request)
     {
         $departaments = Department::with('users');
 
         if ($request->search) {
-            $departaments->where('name', 'like', '%' . $request->search . '%');
+            $departaments->where('name', 'like', '%'.$request->search.'%');
         }
 
         return view('users.permissions.department_permissions', [
             'departments' => $departaments->get(),
-            'permissions' => Permission::all()
+            'permissions' => Permission::all(),
         ]);
     }
 
@@ -350,7 +345,7 @@ class UserController extends Controller
         $groups = Group::whereDepartmentId($department_id)->with('users', 'group_permissions');
 
         if ($request->search) {
-            $groups->where('name', 'like', '%' . $request->search . '%');
+            $groups->where('name', 'like', '%'.$request->search.'%');
         }
 
         $permissions = Permission::all();
@@ -359,18 +354,18 @@ class UserController extends Controller
             'department' => $department,
             'groups' => $groups->get(),
             'permissions' => $permissions,
-            'department_perms' => $permissions->whereIn('id', $department->permission_ids($groups))->values()
+            'department_perms' => $permissions->whereIn('id', $department->permission_ids($groups))->values(),
         ]);
     }
 
     public function user_permissions(Request $request, $group_id)
     {
-        $group = Group::whereId($group_id)->with(['users' => function($q) use ($request) {
+        $group = Group::whereId($group_id)->with(['users' => function ($q) use ($request) {
             if ($request->search) {
                 $q->where(function ($query) use ($request) {
-                    $query->where('last_name', 'like', '%' . $request->search . '%')
-                        ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                        ->orWhere('patronymic', 'like', '%' . $request->search . '%');
+                    $query->where('last_name', 'like', '%'.$request->search.'%')
+                        ->orWhere('first_name', 'like', '%'.$request->search.'%')
+                        ->orWhere('patronymic', 'like', '%'.$request->search.'%');
                 });
             }
         }, 'group_permissions']);
@@ -385,7 +380,7 @@ class UserController extends Controller
             'group' => $group,
             'permissions' => $permissions,
             'group_permissions' => $group->permissions()->whereNotIn('permission_id', $department->permission_ids($department->groups))->values(),
-            'department_perms' => $permissions->whereIn('id', $department->permission_ids($department->groups))->values()
+            'department_perms' => $permissions->whereIn('id', $department->permission_ids($department->groups))->values(),
         ]);
     }
 
@@ -399,21 +394,19 @@ class UserController extends Controller
             foreach ($request->permission_ids as $id) {
                 UserPermission::create([
                     'user_id' => $request->user_id,
-                    'permission_id' => $id
+                    'permission_id' => $id,
                 ]);
             }
-        }
-        else if ($request->type == 'group') {
+        } elseif ($request->type == 'group') {
             GroupPermission::where('group_id', $request->group_id)->delete();
 
             foreach ($request->permission_ids as $id) {
                 GroupPermission::create([
                     'group_id' => $request->group_id,
-                    'permission_id' => $id
+                    'permission_id' => $id,
                 ]);
             }
-        }
-        else if ($request->type == 'department') {
+        } elseif ($request->type == 'department') {
             $department = Department::findOrFail($request->department_id);
             $department->load('groups');
 
@@ -424,7 +417,7 @@ class UserController extends Controller
                 foreach ($department->groups as $group) {
                     GroupPermission::create([
                         'group_id' => $group->id,
-                        'permission_id' => $id
+                        'permission_id' => $id,
                     ]);
                 }
             }
@@ -435,16 +428,15 @@ class UserController extends Controller
         return response()->json(true);
     }
 
-
     public function addUserImage(Request $request, $user): void
     {
         $mime = $request->user_image->getClientOriginalExtension();
-        $file_name = 'user-' . rand() . '.' . $mime;
+        $file_name = 'user-'.rand().'.'.$mime;
 
         Storage::disk('user_images')->put($file_name, File::get($request->user_image));
 
         FileEntry::create(['filename' => $file_name, 'size' => $request->user_image->getSize(),
-            'mime' => $request->user_image->getClientMimeType(), 'original_filename' => $request->user_image->getClientOriginalName(), 'user_id' => Auth::user()->id,]);
+            'mime' => $request->user_image->getClientMimeType(), 'original_filename' => $request->user_image->getClientOriginalName(), 'user_id' => Auth::user()->id, ]);
 
         $user->image = $file_name;
     }
@@ -454,8 +446,9 @@ class UserController extends Controller
         $user = auth()->user();
         $userAllowedNotifications = $user->allowedNotifications();
 
-        if (request('disableAll'))
+        if (request('disableAll')) {
             return $this->disableAllNotifications($user, $userAllowedNotifications);
+        }
 
         DB::beginTransaction();
 
@@ -469,20 +462,13 @@ class UserController extends Controller
         $this->updateUserDisabledNotifications($nowTurnedOnSystemNotifications, $user, $nowTurnedOnTelegramNotifications, 1);
         $this->updateUserDisabledNotifications($disabledInSystem, $user, $disabledInTelegram);
 
-//        dd($disabledInSystem, $disabledInTelegram, $nowTurnedOnTelegramNotifications, $nowTurnedOnSystemNotifications, request()->all());
+        //        dd($disabledInSystem, $disabledInTelegram, $nowTurnedOnTelegramNotifications, $nowTurnedOnSystemNotifications, request()->all());
 
         DB::commit();
 
         return back();
     }
 
-    /**
-     * @param array $systemNotifications
-     * @param $user
-     * @param array $telegramNotifications
-     * @param int $on
-     * @return void
-     */
     public function updateUserDisabledNotifications(array $systemNotifications, $user, array $telegramNotifications, int $on = 0): void
     {
         foreach ($systemNotifications as $NotificationId) {
@@ -522,18 +508,17 @@ class UserController extends Controller
             $users_json[] = ['code' => "{$authed_rp['code']}", 'label' => $authed_rp['label']];
 
             foreach ($users as $user) {
-                if (!in_array($user->id, [1, $authed_rp['code']])) {
-                    $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
+                if (! in_array($user->id, [1, $authed_rp['code']])) {
+                    $users_json[] = ['code' => $user->id.'', 'label' => $user->full_name];
                 }
             }
         } else {
             foreach ($users as $user) {
                 if ($user->id != 1) {
-                    $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
+                    $users_json[] = ['code' => $user->id.'', 'label' => $user->full_name];
                 }
             }
         }
-
 
         return response()->json($users_json);
     }
@@ -546,8 +531,8 @@ class UserController extends Controller
             if ($user->id != 1) {
                 $users_json[] = [
                     'id' => $user->id,
-                    'text' => trim($user->last_name . ' ' . $user->first_name . ' ' . $user->patronymic) . ', Должность: ' . $user->group->name,
-                ];;
+                    'text' => trim($user->last_name.' '.$user->first_name.' '.$user->patronymic).', Должность: '.$user->group->name,
+                ];
             }
         }
 
@@ -562,7 +547,7 @@ class UserController extends Controller
 
         foreach ($users as $user) {
             if ($user->id != 1) {
-                $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
+                $users_json[] = ['code' => $user->id.'', 'label' => $user->full_name];
             }
         }
 
@@ -577,7 +562,7 @@ class UserController extends Controller
 
         foreach ($users as $user) {
             if ($user->id != 1) {
-                $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
+                $users_json[] = ['code' => $user->id.'', 'label' => $user->full_name];
             }
         }
 
@@ -600,12 +585,15 @@ class UserController extends Controller
         ]);
     }
 
-    public function getSetting(Request $request){
+    public function getSetting(Request $request)
+    {
         $codename = json_decode($request['data'])->codename;
+
         return (new UsersSetting)->getSetting($codename)->toJSON();
     }
 
-    public function setSetting(Request $request){
+    public function setSetting(Request $request)
+    {
         $codename = json_decode($request['data'])->codename;
         $value = json_decode($request['data'])->value;
 
@@ -619,9 +607,9 @@ class UserController extends Controller
         $results = [];
         foreach ($users as $user) {
             $results[] = [
-                 'id' => $user->id,
-                 'text' => trim($user->last_name . ' ' . $user->first_name . ' ' . $user->patronymic) . ', ' . $user->group_name,
-             ];
+                'id' => $user->id,
+                'text' => trim($user->last_name.' '.$user->first_name.' '.$user->patronymic).', '.$user->group_name,
+            ];
         }
 
         return ['results' => $results];
@@ -634,9 +622,9 @@ class UserController extends Controller
         $results = [];
         foreach ($users as $user) {
             $results[] = [
-                 'id' => $user->id,
-                 'text' => trim($user->last_name . ' ' . $user->first_name . ' ' . $user->patronymic) . ', ' . $user->group_name,
-             ];
+                'id' => $user->id,
+                'text' => trim($user->last_name.' '.$user->first_name.' '.$user->patronymic).', '.$user->group_name,
+            ];
         }
 
         return ['results' => $results];

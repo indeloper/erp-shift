@@ -20,7 +20,7 @@ class OperationControlTaskNotice extends BaseNotification
             ->markdown('notifications.mail.operation.operation-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

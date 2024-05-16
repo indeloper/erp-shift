@@ -3,7 +3,7 @@
 use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use Illuminate\Database\Migrations\Migration;
 
-class DeleteUnusedOperationFileType extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -32,4 +32,4 @@ class DeleteUnusedOperationFileType extends Migration
             $fileType->save();
         }
     }
-}
+};

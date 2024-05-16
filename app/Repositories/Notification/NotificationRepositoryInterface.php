@@ -11,7 +11,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface NotificationRepositoryInterface
 {
-
     public function create(NotificationData $data): Notification;
 
     public function getNotifications(int $userId, NotificationSortData $sort, int $perPage = 20): LengthAwarePaginator;
@@ -21,5 +20,4 @@ interface NotificationRepositoryInterface
     public function view(int $idNotify): void;
 
     public function viewAll(int $id): void;
-
 }

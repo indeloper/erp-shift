@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeConsignmentNoteNumberFieldType extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -28,4 +28,4 @@ class ChangeConsignmentNoteNumberFieldType extends Migration
     {
         DB::statement("ALTER TABLE q3w_material_operations CHANGE consignment_note_number consignment_note_number INT UNSIGNED DEFAULT 0 NOT NULL COMMENT 'Номер ТТН'");
     }
-}
+};

@@ -21,11 +21,11 @@ class DefaultNotification extends BaseNotification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->markdown('notifications.mail.default-notification', [
-                        'name' => $this->notificationData->getName(),
-                        'link' => $this->notificationData->getAdditionalInfo(),
-                        'url'  => $this->notificationData->getUrl(),
-                    ]);
+            ->markdown('notifications.mail.default-notification', [
+                'name' => $this->notificationData->getName(),
+                'link' => $this->notificationData->getAdditionalInfo(),
+                'url' => $this->notificationData->getUrl(),
+            ]);
     }
 
     public function toDatabase($notifiable)

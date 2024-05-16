@@ -73,14 +73,14 @@ class TaskCommerceController extends Controller
         $project = $pq->first();
 
         $work_volumes = WorkVolume::where('project_id', $project->id)->where('type', '!=', 2)->get();
-        $com_offers = CommercialOffer::where('project_id', $project->id)->whereIn('status', [1,2,3,4,5])->get();
+        $com_offers = CommercialOffer::where('project_id', $project->id)->whereIn('status', [1, 2, 3, 4, 5])->get();
 
         if ($com_offers->count()) {
             if (in_array($com_offers[0]->work_volume_id, $work_volumes->pluck('id')->toArray())) {
                 $pq->leftjoin('commercial_offers', 'commercial_offers.project_id', '=', 'projects.id')
                     ->leftjoin('work_volumes', 'work_volumes.id', '=', 'commercial_offers.work_volume_id')
-                    ->whereIn('work_volumes.status', [1,2,3])
-                    ->whereIn('commercial_offers.status', [1,2,3,4,5]);
+                    ->whereIn('work_volumes.status', [1, 2, 3])
+                    ->whereIn('commercial_offers.status', [1, 2, 3, 4, 5]);
                 if ($com_offers[0]->file_name) {
                     $pq->select('projects.id as project_id', 'projects.name as project_name', 'work_volumes.id as work_volume_id', 'commercial_offers.id as commercial_offer_id', 'commercial_offers.file_name as commercial_offer_file');
                 } else {
@@ -88,31 +88,31 @@ class TaskCommerceController extends Controller
                 }
             } else {
                 $pq->leftjoin('commercial_offers', 'commercial_offers.project_id', '=', 'projects.id')
-                    ->whereIn('commercial_offers.status', [1,2,3,4,5])
+                    ->whereIn('commercial_offers.status', [1, 2, 3, 4, 5])
                     ->select('projects.id as project_id', 'projects.name as project_name', 'commercial_offers.id as commercial_offer_id');
             }
 
         } elseif ($work_volumes->count()) {
             $pq->leftjoin('work_volumes', 'work_volumes.project_id', '=', 'projects.id')
-                ->whereIn('work_volumes.status', [1,2])
+                ->whereIn('work_volumes.status', [1, 2])
                 ->select('projects.id as project_id', 'projects.name as project_name', 'work_volumes.id as work_volume_id');
         }
 
-        if($task->status === 3) {
+        if ($task->status === 3) {
             $target = route('projects::work_volume::edit_tongue', [$task->project_id, $task->target_id]);
             $work_volume_requests = WorkVolumeRequest::where('work_volume_id', $task->target_id)->where('tongue_pile', 0)
                 ->leftJoin('users', 'users.id', '=', 'work_volume_requests.user_id')
                 ->select('work_volume_requests.*', 'users.last_name', 'users.first_name', 'users.patronymic')->with('files')->get();
         }
 
-        if($task->status === 4) {
+        if ($task->status === 4) {
             $target = route('projects::work_volume::edit_pile', [$task->project_id, $task->target_id]);
             $work_volume_requests = WorkVolumeRequest::where('work_volume_id', $task->target_id)->where('tongue_pile', 1)
                 ->leftJoin('users', 'users.id', '=', 'work_volume_requests.user_id')
                 ->select('work_volume_requests.*', 'users.last_name', 'users.first_name', 'users.patronymic')->with('files')->get();
         }
 
-        if($task->status === 5) {
+        if ($task->status === 5) {
             $uploaded_CO = $com_offers->find($task->target_id);
             $comments = $uploaded_CO->work_volume->requests()->get()->pluck('result_comment');
 
@@ -120,18 +120,18 @@ class TaskCommerceController extends Controller
             if ($task->prev_task) {
                 $show_comments = $task->prev_task->status == 18;
             }
-            $target = route('projects::commercial_offer::' . ( $uploaded_CO ? ($uploaded_CO->is_uploaded ? 'card_' . ($uploaded_CO->is_tongue ? 'tongue' : 'pile') : 'edit') : 'edit'), [$task->project_id, $task->target_id]);
+            $target = route('projects::commercial_offer::'.($uploaded_CO ? ($uploaded_CO->is_uploaded ? 'card_'.($uploaded_CO->is_tongue ? 'tongue' : 'pile') : 'edit') : 'edit'), [$task->project_id, $task->target_id]);
             $commercial_offer_requests = CommercialOfferRequest::where('project_id', $task->project_id)->where('commercial_offer_id', $task->target_id)
                 ->where('commercial_offer_requests.status', 0)
                 ->leftJoin('users', 'users.id', '=', 'commercial_offer_requests.user_id')
                 ->select('commercial_offer_requests.*', 'users.last_name', 'users.first_name', 'users.patronymic')->get();
         }
 
-        if($task->status === 6) {
+        if ($task->status === 6) {
             $target = route('projects::commercial_offer::agree_commercial_offer', $task->target_id);
         }
 
-        if($task->status >= 7 and $task->status <= 11) {
+        if ($task->status >= 7 and $task->status <= 11) {
             $target = route('projects::contract::card', [$task->project_id, $task->target_id]);
             $contract_requests = ContractRequest::where('contract_id', $task->target_id)
                 ->leftJoin('users', 'users.id', '=', 'contract_requests.user_id')
@@ -139,11 +139,11 @@ class TaskCommerceController extends Controller
                 ->with('files')->get();
         }
 
-        if($task->status === 12) {
+        if ($task->status === 12) {
             $target = route('tasks::solve_task', $task->id);
         }
 
-        if($task->status === 14) {
+        if ($task->status === 14) {
             $target = route('projects::card', [$task->project_id, 'task_14']);
 
             $pq->leftjoin('project_responsible_users', 'project_responsible_users.project_id', '=', 'projects.id')
@@ -153,13 +153,13 @@ class TaskCommerceController extends Controller
                     'users.last_name', 'users.first_name', 'users.patronymic', 'work_volumes.id as work_volume_id');
         }
 
-        if(in_array($task->status,[24, 25])) {
-            $target = route('projects::commercial_offer::card_'. ($task->status === 25 ? 'tongue' : 'pile'), [$task->project_id, $task->target_id]);
+        if (in_array($task->status, [24, 25])) {
+            $target = route('projects::commercial_offer::card_'.($task->status === 25 ? 'tongue' : 'pile'), [$task->project_id, $task->target_id]);
             $sop = ProjectResponsibleUser::where('project_id', $pq->first()->project_id)->where('role', $task->status === 24 ? 5 : 6)->first();
 
         }
 
-        if($task->status === 15) {
+        if ($task->status === 15) {
             $target = route('projects::card', [$task->project_id, 'task_14']);
 
             $pq->leftjoin('project_responsible_users', 'project_responsible_users.project_id', '=', 'projects.id')
@@ -169,13 +169,13 @@ class TaskCommerceController extends Controller
                     'users.last_name', 'users.first_name', 'users.patronymic', 'work_volumes.id as work_volume_id');
         }
 
-        if($task->status === 16) {
+        if ($task->status === 16) {
             $target = route('projects::card', [$project->id, 'task_16']);
             $pq->select('projects.id as project_id', 'projects.name as project_name', 'work_volumes.id as work_volume_id',
                 'commercial_offers.id as commercial_offer_id', 'commercial_offers.file_name as commercial_offer_file', 'projects.is_important');
         }
 
-        if($task->status === 17) {
+        if ($task->status === 17) {
             $wv_request = WorkVolumeRequest::where('work_volume_requests.id', $task->target_id)
                 ->leftJoin('users', 'users.id', '=', 'work_volume_requests.user_id')
                 ->select('work_volume_requests.*', 'users.last_name', 'users.first_name', 'users.patronymic')
@@ -184,14 +184,14 @@ class TaskCommerceController extends Controller
             $target = route($route, [$task->project_id, $task->target_id]);
         }
 
-        if($task->status === 18) {
+        if ($task->status === 18) {
             $route = stristr($task->name, 'шпунт') ? 'projects::work_volume::edit_tongue' : 'projects::work_volume::edit_pile';
             $target = route($route, [$task->project_id, $task->target_id]);
             $wv_request = WorkVolume::find($task->target_id); // actually, this is WV, not WV request
             $sop = ProjectResponsibleUser::where('project_id', $pq->first()->project_id)->where('role', 2)->first(); // specially for this task
         }
 
-        if($task->status === 20) {
+        if ($task->status === 20) {
             $target = route('projects::contract::card', [$task->project_id, $task->target_id]);
         }
 
@@ -218,7 +218,7 @@ class TaskCommerceController extends Controller
             'work_volume_requests' => isset($work_volume_requests) ? $work_volume_requests : null,
             'commercial_offer_requests' => isset($commercial_offer_requests) ? $commercial_offer_requests : null,
             'contract_requests' => isset($contract_requests) ? $contract_requests : null,
-            'wv_responsible' => $task->project->respUsers()->whereRole(4)->first()->user ?? ''
+            'wv_responsible' => $task->project->respUsers()->whereRole(4)->first()->user ?? '',
         ]);
     }
 
@@ -249,7 +249,7 @@ class TaskCommerceController extends Controller
 
             if ($request->status_result === 'accept') {
                 $task->result = 1;
-                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status] . $task->results[$task->status][$task->result] : $request->final_note);
+                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status].$task->results[$task->status][$task->result] : $request->final_note);
                 $task->save();
 
                 $prev_task = $task;
@@ -259,7 +259,7 @@ class TaskCommerceController extends Controller
                     $com_offer->save();
 
                     // here we catch uploadedCO
-                    if (!$com_offer->is_uploaded && !$com_offer->is_signed) {
+                    if (! $com_offer->is_uploaded && ! $com_offer->is_signed) {
                         $com_offer->create_offer_pdf($com_offer->id, $COtype = 'regular', $from_task = true);
                     }
 
@@ -278,14 +278,14 @@ class TaskCommerceController extends Controller
                         'prev_task_id' => $prev_task->id,
                         'expired_at' => $this->addHours(48),
                         'status' => 6,
-                        'description' => $request->final_note ? 'Комментарий от ' . Auth::user()->full_name . ': ' . $request->final_note : '',
+                        'description' => $request->final_note ? 'Комментарий от '.Auth::user()->full_name.': '.$request->final_note : '',
                     ]);
 
                     $task_1->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\CustomerApprovalOfOfferSheetPilingTaskNotice::class] = [
                         'user_ids' => $task_1->responsible_user_id,
-                        'name' => 'Новая задача «' . $task_1->name . '»',
+                        'name' => 'Новая задача «'.$task_1->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
                         'url' => $task_1->task_route(),
                         'task_id' => $task_1->id,
@@ -295,14 +295,14 @@ class TaskCommerceController extends Controller
                     ];
                     $project->status = 8;
                     $project->save();
-                } else if ($com_offer->is_tongue == 0) {
+                } elseif ($com_offer->is_tongue == 0) {
                     if (Auth::user()->isInGroup(5, 6, 73)/*3*/) {
                         // sign our CO
                         $com_offer->status = 5;
                         $com_offer->save();
 
                         // here we catch uploadedCO
-                        if (!$com_offer->is_uploaded) {
+                        if (! $com_offer->is_uploaded) {
                             $com_offer->create_offer_pdf($com_offer->id, $COtype = 'regular', $from_task = true);
                         }
 
@@ -321,14 +321,14 @@ class TaskCommerceController extends Controller
                             'prev_task_id' => $prev_task->id,
                             'expired_at' => $this->addHours(48),
                             'status' => 6,
-                            'description' => $request->final_note ? 'Комментарий от ' . Auth::user()->full_name . ': ' . $request->final_note : '',
+                            'description' => $request->final_note ? 'Комментарий от '.Auth::user()->full_name.': '.$request->final_note : '',
                         ]);
 
                         $new_task->save();
 
-                        $prepareNotifications['App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\CommercialOffer\CustomerApprovalOfOfferPileDrivingTaskNotice::class] = [
                             'user_ids' => $new_task->responsible_user_id,
-                            'name' => 'Новая задача «' . $new_task->name . '»',
+                            'name' => 'Новая задача «'.$new_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $new_task->task_route(),
                             'task_id' => $new_task->id,
@@ -337,27 +337,27 @@ class TaskCommerceController extends Controller
                             'object_id' => $new_task->project_id ? Project::find($new_task->project_id)->object_id : null,
                         ];
                     } else {
-                        Task::where('project_id', $project->id)->where('target_id', $com_offer->id)->where('is_solved', 0)->where('id', '!=', $task_id)->update(['description' => $request->final_note ? 'Комментарий от ' . Auth::user()->full_name . ': ' . $request->final_note : '']);
+                        Task::where('project_id', $project->id)->where('target_id', $com_offer->id)->where('is_solved', 0)->where('id', '!=', $task_id)->update(['description' => $request->final_note ? 'Комментарий от '.Auth::user()->full_name.': '.$request->final_note : '']);
                     }
 
-                    $usersToNotifyAboutAcceptedCommercialOffer = User::whereIn("group_id", [2])->where("status", "=", 1)->where("is_deleted", "=", 0)->get();
+                    $usersToNotifyAboutAcceptedCommercialOffer = User::whereIn('group_id', [2])->where('status', '=', 1)->where('is_deleted', '=', 0)->get();
                     if ($project) {
                         $notificationProjectObject = ProjectObject::find($project->object_id);
-                        $notificationText = 'Коммерческое предложение согласовано.' . PHP_EOL . 'Адрес: ' . $notificationProjectObject->address . PHP_EOL;
+                        $notificationText = 'Коммерческое предложение согласовано.'.PHP_EOL.'Адрес: '.$notificationProjectObject->address.PHP_EOL;
 
-                        $prepareNotifications['App\Notifications\CommercialOffer\CommercialOfferApprovedNotice'] = [
+                        $prepareNotifications[\App\Notifications\CommercialOffer\CommercialOfferApprovedNotice::class] = [
                             'user_ids' => $usersToNotifyAboutAcceptedCommercialOffer->pluck('id')->toArray(),
                             'name' => $notificationText,
                             'additional_info' => 'Коммерческое предложение: ',
-                            'url' => route('projects::commercial_offer' .
+                            'url' => route('projects::commercial_offer'.
                                 (($com_offer->is_tongue) ? '::card_tongue' : '::card_pile'),
                                 [$com_offer->project_id, $com_offer->id]),
                         ];
                     }
                 }
-            } else if ($request->status_result == 'decline') {
+            } elseif ($request->status_result == 'decline') {
                 $task->result = 2;
-                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status] . $task->results[$task->status][$task->result] : $request->final_note);
+                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status].$task->results[$task->status][$task->result] : $request->final_note);
                 $task->save();
 
                 $declined_task = $task;
@@ -389,7 +389,7 @@ class TaskCommerceController extends Controller
                     $commercial_offer->save();
                     $commercial_offer->clone_reviews_from($com_offer);
 
-                    foreach($com_offer->works as $work) {
+                    foreach ($com_offer->works as $work) {
                         $work->reviews()->where('result_status', 1)->delete();
                     }
 
@@ -423,7 +423,9 @@ class TaskCommerceController extends Controller
                         $mat_split_copy->push();
                         $replChildren = function ($old_parent, $new_parent) use (&$replChildren, $commercial_offer) {
                             foreach ($old_parent->children as $child) {
-                                if ($child->com_offer_id != $old_parent->com_offer_id) {continue;}
+                                if ($child->com_offer_id != $old_parent->com_offer_id) {
+                                    continue;
+                                }
                                 $child_copy = $child->replicate();
                                 $child_copy->com_offer_id = $commercial_offer->id;
                                 $child_copy->parent_id = $new_parent->id;
@@ -456,15 +458,15 @@ class TaskCommerceController extends Controller
                     } else {
                         foreach ($commercial_offer->work_volume->raw_works as $work) {
                             $new_work = CommercialOfferWork::create([
-                                "work_volume_work_id" => $work->id,
-                                "commercial_offer_id" => $commercial_offer->id,
-                                "count" => $work->count,
-                                "term" => $work->term,
-                                "price_per_one" => $work->price_per_one,
-                                "result_price" => $work->result_price,
-                                "subcontractor_file_id" => $work->subcontractor_file_id,
-                                "is_hidden" => $work->is_hidden,
-                                "order" => $work->order,
+                                'work_volume_work_id' => $work->id,
+                                'commercial_offer_id' => $commercial_offer->id,
+                                'count' => $work->count,
+                                'term' => $work->term,
+                                'price_per_one' => $work->price_per_one,
+                                'result_price' => $work->result_price,
+                                'subcontractor_file_id' => $work->subcontractor_file_id,
+                                'is_hidden' => $work->is_hidden,
+                                'order' => $work->order,
                             ]);
                             $new_work->clone_reviews_from($work);
                             $new_work->push();
@@ -490,14 +492,14 @@ class TaskCommerceController extends Controller
                         'target_id' => $commercial_offer->id,
                         'prev_task_id' => $declined_task->id,
                         'expired_at' => $this->addHours(24),
-                        'status' => 5
+                        'status' => 5,
                     ]);
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
-                        'name' => 'Новая задача «' . $task_2->name . '»',
+                        'name' => 'Новая задача «'.$task_2->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
                         'url' => $task_2->task_route(),
                         'task_id' => $task_2->id,
@@ -505,7 +507,7 @@ class TaskCommerceController extends Controller
                         'project_id' => $task_2->project_id ? $task_2->project_id : null,
                         'object_id' => $task_2->project_id ? Project::find($task_2->project_id)->object_id : null,
                     ];
-                } else if ($com_offer->is_tongue == 0) {
+                } elseif ($com_offer->is_tongue == 0) {
                     $tasks = Task::where('project_id', $project->id)->where('status', 16)->where('target_id', $com_offer->id)->where('is_solved', 0)->get();
                     foreach ($tasks as $item) {
                         $item->result = 2;
@@ -530,7 +532,7 @@ class TaskCommerceController extends Controller
                     $commercial_offer->save();
                     $commercial_offer->clone_reviews_from($com_offer);
 
-                    foreach($com_offer->works as $work) {
+                    foreach ($com_offer->works as $work) {
                         $work->reviews()->where('result_status', 1)->delete();
                     }
 
@@ -592,15 +594,15 @@ class TaskCommerceController extends Controller
                     } else {
                         foreach ($commercial_offer->work_volume->raw_works as $work) {
                             $new_work = CommercialOfferWork::create([
-                                "work_volume_work_id" => $work->id,
-                                "commercial_offer_id" => $commercial_offer->id,
-                                "count" => $work->count,
-                                "term" => $work->term,
-                                "price_per_one" => $work->price_per_one,
-                                "result_price" => $work->result_price,
-                                "subcontractor_file_id" => $work->subcontractor_file_id,
-                                "is_hidden" => $work->is_hidden,
-                                "order" => $work->order,
+                                'work_volume_work_id' => $work->id,
+                                'commercial_offer_id' => $commercial_offer->id,
+                                'count' => $work->count,
+                                'term' => $work->term,
+                                'price_per_one' => $work->price_per_one,
+                                'result_price' => $work->result_price,
+                                'subcontractor_file_id' => $work->subcontractor_file_id,
+                                'is_hidden' => $work->is_hidden,
+                                'order' => $work->order,
                             ]);
                             $new_work->clone_reviews_from($work);
                             $new_work->push();
@@ -626,36 +628,36 @@ class TaskCommerceController extends Controller
                         'target_id' => $commercial_offer->id,
                         'prev_task_id' => $declined_task->id,
                         'expired_at' => $this->addHours(24),
-                        'status' => 5
+                        'status' => 5,
                     ]);
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
-                        'name' => 'Новая задача «' . $task_2->name . '»',
+                        'name' => 'Новая задача «'.$task_2->name.'»',
                         'task_id' => $task_2->id,
                         'contractor_id' => $task_2->project_id ? Project::find($task_2->project_id)->contractor_id : null,
                         'project_id' => $task_2->project_id ? $task_2->project_id : null,
                         'object_id' => $task_2->project_id ? Project::find($task_2->project_id)->object_id : null,
                     ];
                 }
-            }  else if ($request->status_result == 'close') {
+            } elseif ($request->status_result == 'close') {
                 $com_offer->status = 3;
                 $com_offer->save();
 
                 $task->result = 2;
-                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status] . $task->results[$task->status][$task->result] : $request->final_note);
+                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status].$task->results[$task->status][$task->result] : $request->final_note);
                 $task->save();
             }
 
             $task->refresh();
-        } else if ($task->status === 6) {
+        } elseif ($task->status === 6) {
             $com_offer = CommercialOffer::findOrFail($task->target_id);
 
             if ($request->status_result === 'accept') {
                 $task->result = 1;
-                $task->final_note = $task->descriptions[$task->status] . $task->results[$task->status][$task->result];
+                $task->final_note = $task->descriptions[$task->status].$task->results[$task->status][$task->result];
                 $task->save();
 
                 $prev_task = $task;
@@ -667,18 +669,18 @@ class TaskCommerceController extends Controller
 
                         $add_RP_task = Task::create([
                             'project_id' => $project->id,
-                            'name' => 'Назначение ответственного руководителя проектов' . ($com_offer->is_tongue ? ' (шпунт)' : ' (сваи)'),
+                            'name' => 'Назначение ответственного руководителя проектов'.($com_offer->is_tongue ? ' (шпунт)' : ' (сваи)'),
                             'responsible_user_id' => $main_engineer ? $main_engineer->id : 6,
                             'contractor_id' => $project->contractor_id,
                             'target_id' => $com_offer->id,
                             'prev_task_id' => $prev_task->id,
                             'status' => $com_offer->is_tongue ? 25 : 24,
-                            'expired_at' => $this->addHours(11)
+                            'expired_at' => $this->addHours(11),
                         ]);
 
-                        $prepareNotifications['App\Notifications\Task\ProjectLeaderAppointmentTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\Task\ProjectLeaderAppointmentTaskNotice::class] = [
                             'user_ids' => $add_RP_task->responsible_user_id,
-                            'name' => 'Новая задача «' . $add_RP_task->name . '»',
+                            'name' => 'Новая задача «'.$add_RP_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $add_RP_task->task_route(),
                             'task_id' => $add_RP_task->id,
@@ -705,14 +707,14 @@ class TaskCommerceController extends Controller
                             'contractor_id' => $project->contractor_id,
                             'expired_at' => $this->addHours(48),
                             'target_id' => $com_offer->id,
-                            'status' => 12
+                            'status' => 12,
                         ]);
 
                         $new_task->save();
 
-                        $prepareNotifications['App\Notifications\Task\ContractCreationTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\Task\ContractCreationTaskNotice::class] = [
                             'user_ids' => $new_task->responsible_user_id,
-                            'name' => 'Новая задача «' . $new_task->name . '»',
+                            'name' => 'Новая задача «'.$new_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $task->id,
@@ -725,7 +727,7 @@ class TaskCommerceController extends Controller
                     }
                 }
 
-                if(!$task_created) {
+                if (! $task_created) {
                     foreach (ProjectResponsibleUser::where('project_id', $project->id)->where('role', 7)->get() as $user) {
                         $new_task = new Task([
                             'project_id' => $project->id,
@@ -736,14 +738,14 @@ class TaskCommerceController extends Controller
                             'prev_task_id' => $prev_task->id,
                             'expired_at' => $this->addHours(48),
                             'target_id' => $com_offer->id,
-                            'status' => 12
+                            'status' => 12,
                         ]);
 
                         $new_task->save();
 
-                        $prepareNotifications['App\Notifications\Task\OfferChangeControlTaskNotice'] = [
+                        $prepareNotifications[\App\Notifications\Task\OfferChangeControlTaskNotice::class] = [
                             'user_ids' => $new_task->responsible_user_id,
-                            'name' => 'Новая задача «' . $new_task->name . '»',
+                            'name' => 'Новая задача «'.$new_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $new_task->id,
@@ -753,23 +755,23 @@ class TaskCommerceController extends Controller
                         ];
                     }
                 }
-            } else if ($request->status_result == 'archive') {
+            } elseif ($request->status_result == 'archive') {
                 $com_offer->status = 3;
                 $task->result = 2;
-                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status] . $task->results[$task->status][$task->result] : $request->final_note);
+                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status].$task->results[$task->status][$task->result] : $request->final_note);
                 $task->save();
 
                 Project::where('id', $com_offer->project_id)->update(['status' => 5]);
-            } else if ($request->status_result == 'transfer') {
+            } elseif ($request->status_result == 'transfer') {
                 $task->result = 3;
                 $task->revive_at = Carbon::parse($request->revive_at);
-                $task->final_note =  (is_null($request->final_note) ? $task->descriptions[$task->status] . $task->results[$task->status][$task->result] . $request->revive_at : $request->final_note);
+                $task->final_note = (is_null($request->final_note) ? $task->descriptions[$task->status].$task->results[$task->status][$task->result].$request->revive_at : $request->final_note);
                 $task->is_solved = 1;
 
                 $task->save();
-            } else if ($request->status_result == 'change') {
+            } elseif ($request->status_result == 'change') {
                 $task->result = 4;
-                $task->final_note = $task->descriptions[$task->status] . $task->results[$task->status][$task->result];
+                $task->final_note = $task->descriptions[$task->status].$task->results[$task->status][$task->result];
                 $task->save();
 
                 $com_offer = CommercialOffer::findOrFail($task->target_id);
@@ -841,12 +843,12 @@ class TaskCommerceController extends Controller
                             $remember_old_new_split[$mat_split_old->id] = $mat_split_copy->id;
                         }
                         // replicating children and updating parent_id
-                        foreach ($splits->where('parent_id', '!=' , null) as $mat_split_old) {
+                        foreach ($splits->where('parent_id', '!=', null) as $mat_split_old) {
                             $mat_split_copy = $mat_split_old->replicate();
                             $mat_split_copy->com_offer_id = $commercial_offer->id;
                             $mat_split_copy->man_mat_id = $mat_split_old->man_mat_id;
 
-                            if (!isset($remember_old_new_split[$mat_split_old->parent_id])) {
+                            if (! isset($remember_old_new_split[$mat_split_old->parent_id])) {
                                 continue;
                             }
                             $mat_split_copy->parent_id = $remember_old_new_split[$mat_split_old->parent_id];
@@ -881,14 +883,14 @@ class TaskCommerceController extends Controller
                         'target_id' => $commercial_offer->id,
                         'prev_task_id' => $com_offer->tasks->last()->id,
                         'expired_at' => $this->addHours(24),
-                        'status' => 5
+                        'status' => 5,
                     ]);
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationSheetPilingTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
-                        'name' => 'Новая задача «' . $task_2->name . '»',
+                        'name' => 'Новая задача «'.$task_2->name.'»',
                         'additional_info' => ' Ссылка на задачу: ',
                         'url' => $task_2->task_route(),
                         'task_id' => $task_2->id,
@@ -896,7 +898,7 @@ class TaskCommerceController extends Controller
                         'project_id' => $task_2->project_id ? $task_2->project_id : null,
                         'object_id' => $task_2->project_id ? Project::find($task_2->project_id)->object_id : null,
                     ];
-                } else if ($com_offer->is_tongue == 0) {
+                } elseif ($com_offer->is_tongue == 0) {
 
                     $com_offer->status = 3;
                     $com_offer->save();
@@ -962,12 +964,12 @@ class TaskCommerceController extends Controller
                             $remember_old_new_split[$mat_split_old->id] = $mat_split_copy->id;
                         }
                         // replicating children and updating parent_id
-                        foreach ($splits->where('parent_id', '!=' , null) as $mat_split_old) {
+                        foreach ($splits->where('parent_id', '!=', null) as $mat_split_old) {
                             $mat_split_copy = $mat_split_old->replicate();
                             $mat_split_copy->com_offer_id = $commercial_offer->id;
                             $mat_split_copy->man_mat_id = $mat_split_old->man_mat_id;
 
-                            if (!isset($remember_old_new_split[$mat_split_old->parent_id])) {
+                            if (! isset($remember_old_new_split[$mat_split_old->parent_id])) {
                                 continue;
                             }
                             $mat_split_copy->parent_id = $remember_old_new_split[$mat_split_old->parent_id];
@@ -1002,14 +1004,14 @@ class TaskCommerceController extends Controller
                         'target_id' => $commercial_offer->id,
                         'prev_task_id' => $com_offer->tasks->last()->id,
                         'expired_at' => $this->addHours(24),
-                        'status' => 5
+                        'status' => 5,
                     ]);
 
                     $task_2->save();
 
-                    $prepareNotifications['App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice'] = [
+                    $prepareNotifications[\App\Notifications\CommercialOffer\OfferCreationPilingDirectionTaskNotice::class] = [
                         'user_ids' => $task_2->responsible_user_id,
-                        'name' => 'Новая задача «' . $task_2->name . '»',
+                        'name' => 'Новая задача «'.$task_2->name.'»',
                         'task_id' => $task_2->id,
                         'contractor_id' => $task_2->project_id ? Project::find($task_2->project_id)->contractor_id : null,
                         'project_id' => $task_2->project_id ? $task_2->project_id : null,
@@ -1027,18 +1029,18 @@ class TaskCommerceController extends Controller
 
             $task->refresh();
 
-            $name = 'Задача «' . $task->name . '» закрыта с результатом: ' . $status_for_humans[$request->status_result] .
+            $name = 'Задача «'.$task->name.'» закрыта с результатом: '.$status_for_humans[$request->status_result].
                     (is_null($task->revive_at) ? '' : '. Дата, на которую перенесли: '
-                        . strftime('%d.%m.%Y', strtotime($task->revive_at))) . (is_null($task->final_note) ? ''
-                    : '. Комментарий: ' . $task->final_note);
+                        .strftime('%d.%m.%Y', strtotime($task->revive_at))).(is_null($task->final_note) ? ''
+                    : '. Комментарий: '.$task->final_note);
 
-            $prepareNotifications['App\Notifications\Task\TaskClosureNotice'] = [
+            $prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
                 'user_ids' => Group::find(5/*3*/)->getUsers()->first()->id,
                 'name' => $name,
-                'additional_info' => "\r\nЗаказчик: " . Project::find($task->project_id)->contractor_name .
-                    "\r\nНазвание объекта: " . Project::find($task->project_id)->object->name .
-                    "\r\nАдрес объекта: " . Project::find($task->project_id)->object->address .
-                    "\r\n Исполнитель: " . User::find($task->responsible_user_id)->long_full_name,
+                'additional_info' => "\r\nЗаказчик: ".Project::find($task->project_id)->contractor_name.
+                    "\r\nНазвание объекта: ".Project::find($task->project_id)->object->name.
+                    "\r\nАдрес объекта: ".Project::find($task->project_id)->object->address.
+                    "\r\n Исполнитель: ".User::find($task->responsible_user_id)->long_full_name,
                 'url' => route('projects::card', [$task->project_id, 'task' => $task->id]),
                 'task_id' => $task->id,
                 'status' => 2,
@@ -1052,17 +1054,17 @@ class TaskCommerceController extends Controller
         } elseif ($task->status == 20) {
             $contract = Contract::findOrFail($task->target_id);
             $task->result = $request->status_result == 'accept' ? 1 : 2;
-            $task->final_note = $task->descriptions[$task->status] . $task->results[$task->status][$task->result] .
-                ($request->description ? ', с комментарием: ' . $request->description : '');
+            $task->final_note = $task->descriptions[$task->status].$task->results[$task->status][$task->result].
+                ($request->description ? ', с комментарием: '.$request->description : '');
             $task->solve_n_notify();
 
-            $prepareNotifications['App\Notifications\Contract\ContractDeletionRequestResolutionNotice'] = [
+            $prepareNotifications[\App\Notifications\Contract\ContractDeletionRequestResolutionNotice::class] = [
                 'user_ids' => $task->user_id,
-                'name' => 'Запрашиваемый вами договор ' . $contract->name_for_humans .
-                    ' ' . $task->results[$task->status][$task->result] .
-                    ($request->description ? ', комментарий: ' . $request->description : ''),
+                'name' => 'Запрашиваемый вами договор '.$contract->name_for_humans.
+                    ' '.$task->results[$task->status][$task->result].
+                    ($request->description ? ', комментарий: '.$request->description : ''),
                 'task_id' => $task->id,
-                'contractor_id' => $task->contractor_id
+                'contractor_id' => $task->contractor_id,
             ];
 
             if ($request->status_result == 'accept') {
@@ -1099,7 +1101,7 @@ class TaskCommerceController extends Controller
                 );
             } catch (\Throwable $throwable) {
                 $message = "В контроллере TaskCommerceController, не удалось отправить уведомление $class, возникла ошибка: ";
-                Log::error($message . $throwable->getMessage());
+                Log::error($message.$throwable->getMessage());
             }
         }
 
@@ -1115,7 +1117,7 @@ class TaskCommerceController extends Controller
         DB::beginTransaction();
         $task = Task::find($task_id);
         $task->revive_at = Carbon::parse(str_replace('/', '.', $request->revive_at));
-        $task->description = $request->description . "\n Задача была перенесена на " . "$request->revive_at";
+        $task->description = $request->description."\n Задача была перенесена на "."$request->revive_at";
         $task->final_note = $request->description;
         $task->is_solved = 1;
 
@@ -1126,7 +1128,7 @@ class TaskCommerceController extends Controller
         TaskPostponedAndClosedNotice::send(
             $task->responsible_user_id,
             [
-                'name' => 'Задача «' . $task->name . '» отложена и закрыта',
+                'name' => 'Задача «'.$task->name.'» отложена и закрыта',
                 'task_id' => $task->id,
                 'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                 'project_id' => $task->project_id ? $task->project_id : null,
@@ -1144,7 +1146,7 @@ class TaskCommerceController extends Controller
         $task = Task::find($request->task_id);
         if ($task->is_solved == 0) {
             $task->result = 2;
-            $task->final_note = $task->descriptions[$task->status] .  Auth::user()->full_name . $task->results[$task->status][$task->result];
+            $task->final_note = $task->descriptions[$task->status].Auth::user()->full_name.$task->results[$task->status][$task->result];
             $task->is_solved = 1;
             $task->save();
         }
@@ -1161,7 +1163,7 @@ class TaskCommerceController extends Controller
 
         return view('tasks.slim_task', [
             'task' => $task,
-            'operation' => $task->status == 45 ? MaterialAccountingOperation::find($task->target_id) : false
+            'operation' => $task->status == 45 ? MaterialAccountingOperation::find($task->target_id) : false,
         ]);
     }
 }

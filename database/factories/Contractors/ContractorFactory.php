@@ -14,11 +14,11 @@ class ContractorFactory extends Factory
     public function definition()
     {
         return [
-            'full_name' => $this->faker->company,
-            'short_name' => $this->faker->company,
+            'full_name' => $this->faker->company(),
+            'short_name' => $this->faker->company(),
             'inn' => random_int(89000000000, 89999999999),
-            'legal_address' => $this->faker->address,
-            'phone_number' => $this->faker->phoneNumber,
+            'legal_address' => $this->faker->address(),
+            'phone_number' => $this->faker->phoneNumber(),
             'main_type' => null,
         ];
     }

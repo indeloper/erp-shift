@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMaterialAccountingTtnsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -59,4 +59,4 @@ class CreateMaterialAccountingTtnsTable extends Migration
     {
         Schema::dropIfExists('material_accounting_ttns');
     }
-}
+};

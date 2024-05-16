@@ -14,7 +14,9 @@ class TelegramNotificationEvent
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+
     public $telegramNotificationData;
+
     /**
      * Create a new event instance.
      *
@@ -23,8 +25,7 @@ class TelegramNotificationEvent
     public function __construct(
         Message $message,
         TelegramNotificationData $telegramNotificationData
-    )
-    {
+    ) {
         $this->message = $message;
         $this->telegramNotificationData = $telegramNotificationData;
     }

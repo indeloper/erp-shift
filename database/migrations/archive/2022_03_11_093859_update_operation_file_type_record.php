@@ -3,7 +3,7 @@
 use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateOperationFileTypeRecord extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -28,4 +28,4 @@ class UpdateOperationFileTypeRecord extends Migration
         $operationFileType->name = 'ТТН';
         $operationFileType->save();
     }
-}
+};

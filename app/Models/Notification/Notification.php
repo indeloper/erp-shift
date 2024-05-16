@@ -38,7 +38,7 @@ class Notification extends Model
 
     protected $casts = [
         'is_deleted' => 'bool',
-        'is_seen' => 'bool'
+        'is_seen' => 'bool',
     ];
 
     public $additional_info = [];

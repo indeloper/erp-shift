@@ -39,7 +39,7 @@ class ContractorCheckInfoTest extends TestCase
 
         $contractor = Contractor::factory()->create();
         $changingFields = [];
-        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company, 'old_value' => $contractor->full_name];
+        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company(), 'old_value' => $contractor->full_name];
         $changingFields[] = ['field_name' => 'inn', 'value' => random_int(89000000000, 89999999999), 'old_value' => $contractor->inn];
 
         (new CheckContractorsInfo)->createTask($contractor, $changingFields, Auth::user()->id);
@@ -57,7 +57,7 @@ class ContractorCheckInfoTest extends TestCase
     {
         $contractor = Contractor::factory()->create();
         $changingFields = [];
-        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company, 'old_value' => $contractor->full_name];
+        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company(), 'old_value' => $contractor->full_name];
         $changingFields[] = ['field_name' => 'inn', 'value' => random_int(89000000000, 89999999999), 'old_value' => $contractor->inn];
 
         (new CheckContractorsInfo)->createTask($contractor, $changingFields, Auth::user()->id);

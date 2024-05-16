@@ -42,7 +42,7 @@ class MatAccWriteOffController extends Controller
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'responsible_user', 'responsible_user.user', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient', 'materialsPartFrom.materialFiles', 'materialsPartFrom.materialAddition.user']);
 
         return view('building.material_accounting.write_off.work', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
 
@@ -53,7 +53,7 @@ class MatAccWriteOffController extends Controller
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'responsible_user', 'responsible_user.user', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient']);
 
         return view('building.material_accounting.write_off.confirm', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
 
@@ -63,7 +63,7 @@ class MatAccWriteOffController extends Controller
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient']);
 
         return view('building.material_accounting.write_off.complete', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
 
@@ -74,7 +74,7 @@ class MatAccWriteOffController extends Controller
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient']);
 
         return view('building.material_accounting.write_off.conflict', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
 
@@ -88,7 +88,7 @@ class MatAccWriteOffController extends Controller
             'operation' => $operation,
             'units' => MaterialAccountingOperationMaterials::$main_units,
             // required variable for update section
-            'edit_restrict' => false
+            'edit_restrict' => false,
         ]);
     }
 
@@ -102,15 +102,15 @@ class MatAccWriteOffController extends Controller
             'operation' => $operation,
             'units' => MaterialAccountingOperationMaterials::$main_units,
             // operation author can't do anything in controlled operation
-            'edit_restrict' => (Auth::id() == User::where('group_id', 8)->first()->id) ? false : ($operation->status == 8) ? true : false
+            'edit_restrict' => Auth::id() === User::where('group_id', 8)->first()->id ? false : $operation->status === 8,
         ]);
     }
 
     public function store(CreateWriteOffRequest $request)
     {
-        if (!Auth::user()->can('mat_acc_write_off_create') && !$request->is_draft) {
+        if (! Auth::user()->can('mat_acc_write_off_create') && ! $request->is_draft) {
             return response()->json(['message' => 'У вас нет прав для создания операции списания!']);
-        } elseif ($request->is_draft && !(Auth::user()->can('mat_acc_write_off_draft_create'))) {
+        } elseif ($request->is_draft && ! (Auth::user()->can('mat_acc_write_off_draft_create'))) {
             return response()->json(['message' => 'У вас нет прав для создания черновика операции списания!']);
         }
 
@@ -129,10 +129,10 @@ class MatAccWriteOffController extends Controller
             'comment_author' => $request->comment,
             'reason' => $request->reason,
 
-            'status' =>  $request->is_draft ? 5 : 8/*1*/,
+            'status' => $request->is_draft ? 5 : 8/*1*/,
             'is_close' => 0,
             'parent_id' => $request->parent_id ?? 0,
-            'responsible_RP' => $request->responsible_RP ?? null
+            'responsible_RP' => $request->responsible_RP ?? null,
         ]);
 
         $is_conflict = MaterialAccountingOperation::getModel()->checkProblem($operation, $request->materials);
@@ -185,7 +185,7 @@ class MatAccWriteOffController extends Controller
         $operation = MaterialAccountingOperation::where('type', 2)->whereIn('status', [1, 4, 5, 8])->findOrFail($operation_id);
         $operation->checkClosed();
 
-        if ((!$operation->isAuthor() and (! in_array($operation->status, [1, 5, 8]))) or ($operation->status != 5 and !Auth::user()->can('mat_acc_write_off_create'))) {
+        if ((! $operation->isAuthor() and (! in_array($operation->status, [1, 5, 8]))) or ($operation->status != 5 and ! Auth::user()->can('mat_acc_write_off_create'))) {
             return response()->json(['message' => 'У вас нет прав для создания операции списания!']);
         } elseif ($operation->status == 5 and Auth::user()->can('mat_acc_write_off_draft_create')) {
             // update info only logic
@@ -210,9 +210,9 @@ class MatAccWriteOffController extends Controller
             return response()->json(['message' => $is_conflict]);
         }
 
-        if (!$is_conflict && $operation->status == 4) {
+        if (! $is_conflict && $operation->status == 4) {
             $operation->status = 1;
-        } elseif (!$is_conflict) {
+        } elseif (! $is_conflict) {
             $operation->status = 1;
         } else {
             $operation->status = 4;
@@ -233,8 +233,9 @@ class MatAccWriteOffController extends Controller
 
         $operation->saveOrFail();
 
-        if ($oldStatus == 8)
+        if ($oldStatus == 8) {
             $operation->checkControlTask();
+        }
 
         MaterialAccountingOperationResponsibleUsers::where('operation_id', $operation_id)->delete();
 
@@ -246,8 +247,9 @@ class MatAccWriteOffController extends Controller
 
         $responsible_user->saveOrFail();
 
-        if ($operation->isWasDraft($oldStatus) and auth()->user()->isOperationCreator($operation->getEnglishTypeNameAttribute()))
+        if ($operation->isWasDraft($oldStatus) and auth()->user()->isOperationCreator($operation->getEnglishTypeNameAttribute())) {
             $operation->generateDraftAcceptNotification($oldAuthor);
+        }
 
         MaterialAccountingOperationMaterials::where('operation_id', $operation->id)->where('type', 3)->delete();
 
@@ -332,25 +334,26 @@ class MatAccWriteOffController extends Controller
 
     /**
      * Operation control task card
-     * @param int $id
+     *
+     * @param  int  $id
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function control($id)
     {
         $task = Task::findOrFail($id);
 
-        $operation = MaterialAccountingOperation/*->where('status', 8)*/::findOrFail($task->target_id);
+        $operation = MaterialAccountingOperation/*->where('status', 8)*/ ::findOrFail($task->target_id);
         $operation->load(['author', 'materials.manual']);
 
         return view('tasks.write_off_control', [
-           'task' => $task,
-           'operation' => $operation
+            'task' => $task,
+            'operation' => $operation,
         ]);
     }
 
     /**
      * Create operation control task
-     * @param MaterialAccountingOperation $operation
+     *
      * @return void
      */
     public function createControlTask(MaterialAccountingOperation $operation)
@@ -362,7 +365,7 @@ class MatAccWriteOffController extends Controller
             'responsible_user_id' => 13, //stinky place
             'target_id' => $operation->id,
             'expired_at' => $this->addHours(24),
-            'status' => 21
+            'status' => 21,
         ]);
 
         DB::commit();
@@ -370,8 +373,8 @@ class MatAccWriteOffController extends Controller
 
     /**
      * Operation control task solver
-     * @param int $task_id
-     * @param Request $request
+     *
+     * @param  int  $task_id
      * @return mixed
      */
     public function solve_control(Request $request, $task_id)
@@ -379,19 +382,19 @@ class MatAccWriteOffController extends Controller
         DB::beginTransaction();
 
         $task = Task::whereIn('status', [21, 38])->findOrFail($task_id);
-        $operation = MaterialAccountingOperation::/*->where('status', 8)*/findOrFail($task->target_id);
+        $operation = MaterialAccountingOperation::/*->where('status', 8)*/ findOrFail($task->target_id);
         $operation->checkClosed();
         $operation->load('author');
 
         // update task
         $task->result = $request->status_result === 'accept' ? 1 : 2;
-        $task->final_note = $task->descriptions[$task->status] . $task->results[$task->status][$task->result] . ($request->description ? ' с комментарием: ' . $request->description : '');
+        $task->final_note = $task->descriptions[$task->status].$task->results[$task->status][$task->result].($request->description ? ' с комментарием: '.$request->description : '');
         $task->solve_n_notify();
 
         // update operation
         $operation->update([
             'status' => $request->status_result === 'accept' ? 1 : 7,
-            'is_close' => $request->status_result === 'accept'? 0 : 1,
+            'is_close' => $request->status_result === 'accept' ? 0 : 1,
         ]);
 
         DB::commit();
@@ -400,7 +403,7 @@ class MatAccWriteOffController extends Controller
             WriteOffOperationRejectionNotice::send(
                 $operation->author->id,
                 [
-                    'name' => 'Ваша операция списания была отклонена' . ($request->description ? ' с комментарием: ' . $request->description : ''),
+                    'name' => 'Ваша операция списания была отклонена'.($request->description ? ' с комментарием: '.$request->description : ''),
                     'task_id' => $task->id,
                 ]
             );
@@ -414,7 +417,7 @@ class MatAccWriteOffController extends Controller
             $notificationClass::send(
                 $operation->author->id,
                 [
-                    'name' => 'Ваша операция была ' . $task->results[$task->status][$task->result] . ($request->description ? ' с комментарием: ' . $request->description : ''),
+                    'name' => 'Ваша операция была '.$task->results[$task->status][$task->result].($request->description ? ' с комментарием: '.$request->description : ''),
                     'task_id' => $task->id,
                 ]
             );

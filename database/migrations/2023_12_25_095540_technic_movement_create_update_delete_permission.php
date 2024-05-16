@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class TechnicMovementCreateUpdateDeletePermission extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -50,4 +50,4 @@ class TechnicMovementCreateUpdateDeletePermission extends Migration
             'category' => 13,
         ],
     ];
-}
+};

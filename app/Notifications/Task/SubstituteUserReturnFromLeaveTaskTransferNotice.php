@@ -20,7 +20,7 @@ class SubstituteUserReturnFromLeaveTaskTransferNotice extends BaseNotification
             ->markdown('notifications.mail.task.task-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

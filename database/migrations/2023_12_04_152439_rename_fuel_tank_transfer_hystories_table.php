@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class RenameFuelTankTransferHystoriesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -24,4 +24,4 @@ class RenameFuelTankTransferHystoriesTable extends Migration
     {
         Schema::rename('fuel_tank_transfer_histories', 'fuel_tank_transfer_hystories');
     }
-}
+};

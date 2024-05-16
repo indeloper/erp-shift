@@ -25,8 +25,8 @@ class NotificationRequest extends FormRequest
     public function rules()
     {
         return [
-            'sort_selector' => ['sometimes', 'in:' . implode(',', NotificationSortType::sorts())],
-            'sort_direction' => ['sometimes', 'in:desc,asc']
+            'sort_selector' => ['sometimes', 'in:'.implode(',', NotificationSortType::sorts())],
+            'sort_direction' => ['sometimes', 'in:desc,asc'],
         ];
     }
 }

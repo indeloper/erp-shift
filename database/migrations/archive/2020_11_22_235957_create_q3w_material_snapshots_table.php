@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQ3wMaterialSnapshotsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -50,4 +50,4 @@ class CreateQ3wMaterialSnapshotsTable extends Migration
         Schema::dropIfExists('q3w_material_snapshot_materials');
         Schema::dropIfExists('q3w_material_snapshots');
     }
-}
+};

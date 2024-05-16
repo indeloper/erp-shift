@@ -13,8 +13,7 @@ final class RenderTelegramNotificationData extends TelegramNotificationData
     public function __construct(
         NotificationData $notificationData,
         string $path_view
-    )
-    {
+    ) {
         $this->pathView = $path_view;
 
         parent::__construct($notificationData);
@@ -24,5 +23,4 @@ final class RenderTelegramNotificationData extends TelegramNotificationData
     {
         return $this->pathView;
     }
-
 }

@@ -4,7 +4,7 @@ use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\WorkVolume\WorkVolume;
 use Illuminate\Database\Migrations\Migration;
 
-class FillEmptyOptionsInWorkVolumesAndCommercialOffersTables extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -26,4 +26,4 @@ class FillEmptyOptionsInWorkVolumesAndCommercialOffersTables extends Migration
     {
 
     }
-}
+};

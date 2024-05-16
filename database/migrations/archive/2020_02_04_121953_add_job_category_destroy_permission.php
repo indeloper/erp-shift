@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddJobCategoryDestroyPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_job_category_destroy';
 
@@ -63,4 +63,4 @@ class AddJobCategoryDestroyPermission extends Migration
 
         DB::commit();
     }
-}
+};

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateExceptionNotificationUsersTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -19,7 +19,6 @@ class CreateExceptionNotificationUsersTable extends Migration
             );
 
             $table->unsignedInteger('user_id');
-
 
             $table->string('channel');
 
@@ -37,7 +36,6 @@ class CreateExceptionNotificationUsersTable extends Migration
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 
-
         });
     }
 
@@ -50,4 +48,4 @@ class CreateExceptionNotificationUsersTable extends Migration
     {
         Schema::dropIfExists('exception_notification_users');
     }
-}
+};

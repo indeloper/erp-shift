@@ -16,7 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-
 class ManualWorkController extends Controller
 {
     public function index(Request $request)
@@ -26,7 +25,7 @@ class ManualWorkController extends Controller
         $works = ManualWork::query();
 
         if ($request->search) {
-            $works->where('name', 'like', '%' . $request->search . '%');
+            $works->where('name', 'like', '%'.$request->search.'%');
         }
 
         if ($onlyTrashed) {
@@ -38,7 +37,6 @@ class ManualWorkController extends Controller
             'work_groups' => (new ManualWork())->work_group,
         ]);
     }
-
 
     public function store(WorkRequest $request)
     {
@@ -53,7 +51,7 @@ class ManualWorkController extends Controller
         $work->unit = $request->unit;
         $work->unit_per_days = $request->unit_per_days;
         $work->nds = $request->nds;
-        $work->show_materials = $request->show_materials ?:0;
+        $work->show_materials = $request->show_materials ?: 0;
 
         if ($request->copy) {
             $work->is_copied = 1;
@@ -75,7 +73,6 @@ class ManualWorkController extends Controller
 
         return redirect()->back();
     }
-
 
     public function update(WorkRequest $request)
     {
@@ -99,7 +96,6 @@ class ManualWorkController extends Controller
         return redirect()->back();
     }
 
-
     public function type(Request $request, $id)
     {
         $onlyTrashed = $request->deleted ?? false;
@@ -107,7 +103,7 @@ class ManualWorkController extends Controller
         $works = ManualWork::where('work_group_id', $id);
 
         if ($request->search) {
-            $works->where('name', 'like', '%' . $request->search . '%');
+            $works->where('name', 'like', '%'.$request->search.'%');
         }
 
         if ($onlyTrashed) {
@@ -120,16 +116,15 @@ class ManualWorkController extends Controller
         ]);
     }
 
-
     public function delete(Request $request)
     {
-        abort_if(!Auth::user()->can('works_remove'), 403);
+        abort_if(! Auth::user()->can('works_remove'), 403);
 
         DB::beginTransaction();
 
         $work = ManualWork::findOrFail($request->id);
         $work->material_relations()->delete();
-        !$work->is_copied ?: ManualCopiedWorks::where('child_work_id', $request->id)->delete();
+        ! $work->is_copied ?: ManualCopiedWorks::where('child_work_id', $request->id)->delete();
 
         if ($work->is_parent()) {
             $work->delete_childs();
@@ -142,16 +137,15 @@ class ManualWorkController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function restore(Request $request)
     {
-        abort_if(!Auth::user()->can('works_remove'), 403);
+        abort_if(! Auth::user()->can('works_remove'), 403);
 
         DB::beginTransaction();
 
         $work = ManualWork::onlyTrashed()->findOrFail($request->id);
         $work->materialRelationsClear()->restore();
-        !$work->is_copied ?: ManualCopiedWorks::where('child_work_id', $request->id)->withTrashed()->restore();
+        ! $work->is_copied ?: ManualCopiedWorks::where('child_work_id', $request->id)->withTrashed()->restore();
 
         if ($work->is_parent()) {
             ManualWork::whereIn('id', $this->childs()->withTrashed()->pluck('child_work_id')->toArray())->restore();
@@ -165,7 +159,6 @@ class ManualWorkController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function card(Request $request, $id)
     {
         $work = ManualWork::findOrFail($id)->load('parent.parent_work');
@@ -178,16 +171,15 @@ class ManualWorkController extends Controller
         $categories = ManualMaterialCategory::whereIn('id', $materials->get()->pluck('category_id')->unique())->get();
 
         if ($request->search) {
-            $materials->where('manual_materials.name', 'like',  '%' . $request->search . '%');
+            $materials->where('manual_materials.name', 'like', '%'.$request->search.'%');
         }
 
         return view('building.works.work_card', [
             'work' => $work,
             'materials' => $materials->take(50)->get(),
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
-
 
     public function get_materials(Request $request)
     {
@@ -198,7 +190,6 @@ class ManualWorkController extends Controller
         return response()->json($material);
     }
 
-
     public function get_attributes(Request $request)
     {
         $attrs = ManualMaterialCategoryAttribute::where('category_id', $request->id)->get();
@@ -206,20 +197,18 @@ class ManualWorkController extends Controller
         return response()->json($attrs);
     }
 
-
     public function get_values(Request $request)
     {
         if ($request->edit == 1) {
             $values = ManualMaterialParameter::where('attr_id', $request->id)->get();
             $unique_values = array_unique($values->pluck('value')->toArray());
-        } else /*if ($request->edit == 0)*/ {
-            $values = ManualMaterialParameter::/*whereIn('mat_id', $request->materials_id)->*/where('attr_id', $request->id)->get();
+        } else { /*if ($request->edit == 0)*/
+            $values = ManualMaterialParameter::/*whereIn('mat_id', $request->materials_id)->*/ where('attr_id', $request->id)->get();
             $unique_values = array_unique($values->pluck('value')->toArray());
         }
 
         return response()->json($unique_values);
     }
-
 
     public function edit(Request $request, $id)
     {
@@ -230,14 +219,14 @@ class ManualWorkController extends Controller
         }
 
         $materials = ManualMaterial::query()
-            ->with(['parameters', 'work_relations' => function($query) use ($id) {
+            ->with(['parameters', 'work_relations' => function ($query) use ($id) {
                 $query->where('manual_work_id', $id);
             }])
             ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
             ->select('manual_materials.*', 'manual_material_categories.name as category_name');
 
-        if($request->show_all != 1) {
-            $materials = $materials->whereHas('work_relations', function ($query) use ($id){
+        if ($request->show_all != 1) {
+            $materials = $materials->whereHas('work_relations', function ($query) use ($id) {
                 $query->where('manual_work_id', $id);
             });
 
@@ -247,16 +236,15 @@ class ManualWorkController extends Controller
         }
 
         if ($request->search) {
-            $materials->where('manual_materials.name', 'like',  '%' . $request->search . '%');
+            $materials->where('manual_materials.name', 'like', '%'.$request->search.'%');
         }
 
         return view('building.works.work_card_edit', [
             'work' => $work,
             'materials' => $materials->take(50)->get()->unique(),
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
-
 
     public function select_material(Request $request)
     {
@@ -264,21 +252,20 @@ class ManualWorkController extends Controller
 
         $material = ManualMaterial::findOrFail($request->manual_material_id);
 
-        if($request->is_checked == 'true') {
+        if ($request->is_checked == 'true') {
             $check = ManualRelationMaterialWork::query()->where('manual_work_id', $request->manual_work_id)->where('manual_material_id', $request->manual_material_id)->first();
-            if (!$check) {
+            if (! $check) {
                 ManualRelationMaterialWork::create([
                     'manual_work_id' => $request->manual_work_id,
-                    'manual_material_id' => $request->manual_material_id
+                    'manual_material_id' => $request->manual_material_id,
                 ]);
 
                 ManualMaterialCategoryRelationToWork::firstOrCreate([
                     'work_id' => $request->manual_work_id,
-                    'manual_material_category_id' => $material->category_id
+                    'manual_material_category_id' => $material->category_id,
                 ]);
             }
-        }
-        else {
+        } else {
             $category = ManualMaterialCategoryRelationToWork::query()
                 ->where('work_id', $request->manual_work_id)
                 ->where('manual_material_category_id', $material->category_id)
@@ -299,16 +286,15 @@ class ManualWorkController extends Controller
         DB::commit();
     }
 
-
     public function search_by_attributes(Request $request)
     {
         $step = ManualMaterialParameter::query();
 
         foreach ($request->attr_id as $key => $attr) {
-            $step->orWhere(function ($q) use ($request, $key, $attr) {
+            $step->orWhere(function ($q) use ($request, $attr) {
                 $q->where('attr_id', $attr)->whereIn('value', $request->values);
             });
-        };
+        }
 
         $a = array_count_values($step->get()->pluck('mat_id')->toArray());
         arsort($a);
@@ -320,7 +306,7 @@ class ManualWorkController extends Controller
 
         foreach ($a as $step) {
             if (count($request->attr_id) > $step) {
-                if(($key = array_search($step, $a)) !== FALSE){
+                if (($key = array_search($step, $a)) !== false) {
                     unset($a[$key]);
                 }
             }
@@ -332,7 +318,6 @@ class ManualWorkController extends Controller
 
         return response()->json($result);
     }
-
 
     public function get_all_materials(Request $request)
     {

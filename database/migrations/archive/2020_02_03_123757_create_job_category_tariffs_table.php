@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateJobCategoryTariffsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -38,4 +38,4 @@ class CreateJobCategoryTariffsTable extends Migration
     {
         Schema::dropIfExists('job_category_tariffs');
     }
-}
+};

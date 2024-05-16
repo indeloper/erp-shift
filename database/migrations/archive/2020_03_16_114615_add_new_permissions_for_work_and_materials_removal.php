@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewPermissionsForWorkAndMaterialsRemoval extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'materials_remove',
@@ -88,4 +88,4 @@ class AddNewPermissionsForWorkAndMaterialsRemoval extends Migration
 
         DB::commit();
     }
-}
+};

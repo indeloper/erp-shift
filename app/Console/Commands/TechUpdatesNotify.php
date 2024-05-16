@@ -40,8 +40,8 @@ class TechUpdatesNotify extends Command
      */
     public function handle()
     {
-        $message = 'Техническая поддержка. ' . 'C ' . $this->argument('start_date') . ' ' . $this->argument('start_time') .
-                ' по ' . $this->argument('finish_date') . ' ' . $this->argument('finish_time') .
+        $message = 'Техническая поддержка. '.'C '.$this->argument('start_date').' '.$this->argument('start_time').
+                ' по '.$this->argument('finish_date').' '.$this->argument('finish_time').
                 ' в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.';
         $usersIds = User::all()->pluck('id')->toArray();
 
@@ -49,7 +49,7 @@ class TechUpdatesNotify extends Command
             $usersIds,
             [
                 'name' => $message,
-                'created_at' => Carbon::now()
+                'created_at' => Carbon::now(),
             ]
         );
     }

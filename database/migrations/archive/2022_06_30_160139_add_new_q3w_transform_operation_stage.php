@@ -3,7 +3,7 @@
 use App\Models\q3wMaterial\operations\q3wTransformOperationStage;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewQ3wTransformOperationStage extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -30,4 +30,4 @@ class AddNewQ3wTransformOperationStage extends Migration
 
         q3wTransformOperationStage::where('name', 'like', $transformStageName)->forceDelete();
     }
-}
+};

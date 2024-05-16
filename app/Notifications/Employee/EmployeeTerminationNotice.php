@@ -20,7 +20,7 @@ class EmployeeTerminationNotice extends BaseNotification
             ->markdown('notifications.mail.employee.employee-termination-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddUserJobCategoryChangePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'user_job_category_change';
 
@@ -63,4 +63,4 @@ class AddUserJobCategoryChangePermission extends Migration
 
         DB::commit();
     }
-}
+};

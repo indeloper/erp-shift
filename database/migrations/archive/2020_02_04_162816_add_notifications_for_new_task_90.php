@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNotificationsForNewTask90 extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о создании задачи на проверку изменений в контрагентах';
 
@@ -49,4 +49,4 @@ class AddNotificationsForNewTask90 extends Migration
 
         DB::commit();
     }
-}
+};

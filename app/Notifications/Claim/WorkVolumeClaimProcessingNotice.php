@@ -12,6 +12,7 @@ class WorkVolumeClaimProcessingNotice extends BaseNotification
     use Queueable;
 
     const DESCRIPTION = 'Уведомление об обработке заявки на ОР';
+
     /** ОР - Объём работ */
     public function toMail($notifiable)
     {
@@ -20,7 +21,7 @@ class WorkVolumeClaimProcessingNotice extends BaseNotification
             ->markdown('notifications.mail.claim.claim-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

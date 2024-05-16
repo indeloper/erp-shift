@@ -9,8 +9,11 @@ use Illuminate\Support\Collection;
 final class NotificationData
 {
     private $userId;
+
     private $name;
+
     private $class;
+
     private $data;
 
     /**
@@ -18,17 +21,11 @@ final class NotificationData
      */
     private $withoutChannels;
 
-    /**
-     * @param  int  $userId
-     * @param  string  $class
-     * @param  array  $data
-     */
     public function __construct(
         int $userId,
         string $class,
         array $data = []
-    )
-    {
+    ) {
         $this->userId = $userId;
         $this->class = $class;
         $this->data = $data;
@@ -66,9 +63,6 @@ final class NotificationData
         return $this->withoutChannels;
     }
 
-    /**
-     * @param  Collection $withoutChannels
-     */
     public function setWithoutChannels(Collection $withoutChannels): void
     {
         $this->withoutChannels = $withoutChannels;

@@ -3,7 +3,7 @@
 use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 
-class AddUnitCountToAllCategory extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -59,4 +59,4 @@ class AddUnitCountToAllCategory extends Migration
             $category->attributesAll()->where('name', 'Длина')->delete();
         }
     }
-}
+};

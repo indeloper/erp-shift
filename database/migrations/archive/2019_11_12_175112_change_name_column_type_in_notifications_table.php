@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class ChangeNameColumnTypeInNotificationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,4 +14,4 @@ class ChangeNameColumnTypeInNotificationsTable extends Migration
     {
         DB::statement('ALTER TABLE notifications MODIFY COLUMN name TEXT');
     }
-}
+};

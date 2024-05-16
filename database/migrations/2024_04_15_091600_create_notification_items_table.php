@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotificationItemsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -58,4 +58,4 @@ class CreateNotificationItemsTable extends Migration
         Schema::dropIfExists('notification_item_permission');
         Schema::dropIfExists('notification_items');
     }
-}
+};

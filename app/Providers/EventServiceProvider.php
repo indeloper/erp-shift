@@ -22,13 +22,13 @@ class EventServiceProvider extends ServiceProvider
         'project.created' => [
             '\App\Events\ProjectEvents@projectCreated',
         ],
-//        NotificationCreated::class => [
-//            NotificationCreatedListener::class,
-//        ]
+        //        NotificationCreated::class => [
+        //            NotificationCreatedListener::class,
+        //        ]
 
         TelegramNotificationEvent::class => [
-            TelegramNotificationListener::class
-        ]
+            TelegramNotificationListener::class,
+        ],
     ];
 
     /**
@@ -41,5 +41,15 @@ class EventServiceProvider extends ServiceProvider
         parent::boot();
 
         //
+    }
+
+    /**
+     * Determine if events and listeners should be automatically discovered.
+     *
+     * @return bool
+     */
+    public function shouldDiscoverEvents()
+    {
+        return false;
     }
 }

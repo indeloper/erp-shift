@@ -17,10 +17,10 @@ final class TelegramChannel
 
     public function __construct(
         TelegramServiceInterface $telegramService
-    )
-    {
+    ) {
         $this->telegramService = $telegramService;
     }
+
     /**
      * Send the given notification.
      *

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddTechicCrudPermissions extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -50,4 +50,4 @@ class AddTechicCrudPermissions extends Migration
             'category' => 13,
         ],
     ];
-}
+};

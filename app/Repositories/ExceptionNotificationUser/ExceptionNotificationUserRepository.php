@@ -7,10 +7,8 @@ namespace App\Repositories\ExceptionNotificationUser;
 use App\Models\Notification\ExceptionNotificationUser;
 use Illuminate\Database\Eloquent\Collection;
 
-final class ExceptionNotificationUserRepository
-    implements ExceptionNotificationUserRepositoryInterface
+final class ExceptionNotificationUserRepository implements ExceptionNotificationUserRepositoryInterface
 {
-
     public function flush(int $userId): void
     {
         ExceptionNotificationUser::where('user_id', $userId)->delete();
@@ -19,9 +17,9 @@ final class ExceptionNotificationUserRepository
     public function store(int $userId, int $notificationItemId, string $channel)
     {
         ExceptionNotificationUser::query()->create([
-            'user_id'              => $userId,
+            'user_id' => $userId,
             'notification_item_id' => $notificationItemId,
-            'channel'              => $channel,
+            'channel' => $channel,
         ]);
     }
 
@@ -31,5 +29,4 @@ final class ExceptionNotificationUserRepository
             ->where('user_id', $userId)
             ->get();
     }
-
 }

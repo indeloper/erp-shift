@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddBrandAndModelRefsToOurTechnicsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -37,4 +37,4 @@ class AddBrandAndModelRefsToOurTechnicsTable extends Migration
             $table->dropColumn('technic_brand_model_id');
         });
     }
-}
+};

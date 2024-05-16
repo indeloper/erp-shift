@@ -4,7 +4,7 @@ use App\Models\LaborSafety\LaborSafetyOrderType;
 use App\Models\LaborSafety\LaborSafetyOrderTypeCategory;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewOrderType extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -46,4 +46,4 @@ class AddNewOrderType extends Migration
     {
         //
     }
-}
+};

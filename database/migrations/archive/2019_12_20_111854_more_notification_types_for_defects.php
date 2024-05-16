@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class MoreNotificationTypesForDefects extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о отклонении заявки на неисправность техники';
 
@@ -104,4 +104,4 @@ class MoreNotificationTypesForDefects extends Migration
 
         DB::commit();
     }
-}
+};

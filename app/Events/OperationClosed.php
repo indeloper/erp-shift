@@ -28,9 +28,9 @@ class OperationClosed
     {
         $project = $operation->object_to->projects()->whereHas('ready_contracts')->first();
 
-        if ($project and !in_array($operation->object_id_to, [76, 192])) {
+        if ($project and ! in_array($operation->object_id_to, [76, 192])) {
             $task = Task::create([
-                'name' => 'Контроль договора в операции ' . mb_strtolower($operation->type_name),
+                'name' => 'Контроль договора в операции '.mb_strtolower($operation->type_name),
                 'project_id' => $project->id,
                 'responsible_user_id' => $operation->author_id,
                 'target_id' => $operation->id,
@@ -41,7 +41,7 @@ class OperationClosed
             ContractControlInOperationsTaskNotice::send(
                 $task->responsible_user_id,
                 [
-                    'name' => 'Создана задача: ' . $task->name,
+                    'name' => 'Создана задача: '.$task->name,
                     'additional_info' => 'Перейти к задаче можно по ссылке: ',
                     'url' => $task->task_route(),
                     'task_id' => $task->id,

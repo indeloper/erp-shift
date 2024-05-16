@@ -27,7 +27,7 @@ class TechnicMovementController extends StandardEntityResourceController
         $this->sectionTitle = 'Перемещения техники';
         $this->baseModel = new TechnicMovement();
         $this->routeNameFixedPart = 'building::tech_acc::technic::movements::';
-        $this->baseBladePath = resource_path() . '/views/tech_accounting/technic/technicMovements';
+        $this->baseBladePath = resource_path().'/views/tech_accounting/technic/technicMovements';
         $this->storage_name = 'technic_movements';
         $this->isMobile = $this->isMobile($this->baseBladePath);
         $this->components = $this->getModuleComponents();
@@ -47,10 +47,10 @@ class TechnicMovementController extends StandardEntityResourceController
             // ->when(!$user->hasPermission('technics_movement_create_update') && !$user->hasPermission('technics_movement_read'), function($query) use($user) {
             //     return $query->where('responsible_id', $user->id);
             // })
-            ->when($user->hasPermission('technics_processing_movement_standart_sized_equipment') && !$user->is_su, function($query) {
+            ->when($user->hasPermission('technics_processing_movement_standart_sized_equipment') && ! $user->is_su, function ($query) {
                 return $query->where('technic_category_id', '<>', TechnicCategory::where('name', 'Гусеничные краны')->first()->id);
             })
-            ->when($user->hasPermission('technics_processing_movement_oversized_equipment') && !$user->is_su, function($query) {
+            ->when($user->hasPermission('technics_processing_movement_oversized_equipment') && ! $user->is_su, function ($query) {
                 return $query->where('technic_category_id', TechnicCategory::where('name', 'Гусеничные краны')->first()->id);
             })
             ->when($this->isMobile, function ($query) {
@@ -63,10 +63,10 @@ class TechnicMovementController extends StandardEntityResourceController
             })
             ->get();
 
-        return json_encode(array(
-            "data" => $entities
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return json_encode([
+            'data' => $entities,
+        ],
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function beforeStore($data)
@@ -81,25 +81,27 @@ class TechnicMovementController extends StandardEntityResourceController
 
     public function afterStore($entity, $data, $dataToStore)
     {
-        if(!empty($data['newAttachments']))
+        if (! empty($data['newAttachments'])) {
             (new FilesUploadService)->attachFiles($entity, $data['newAttachments']);
+        }
 
-        if(!empty($data['deletedAttachments']))
+        if (! empty($data['deletedAttachments'])) {
             $this->deleteFiles($data['deletedAttachments']);
+        }
 
         new TechnicMovementsDispatcher($data, $entity);
     }
 
     public function beforeUpdate($entity, $data)
     {
-        if(!empty($data['responsible_id'])) {
-            if($entity->responsible_id != $data['responsible_id']) {
+        if (! empty($data['responsible_id'])) {
+            if ($entity->responsible_id != $data['responsible_id']) {
                 $data['previous_responsible_id'] = $entity->responsible_id;
                 // $this->notifyNewResponsible($data, $entity);
             }
         }
 
-        if(!empty($data['movement_start_datetime'])) {
+        if (! empty($data['movement_start_datetime'])) {
             $data['movement_start_datetime'] = Carbon::parse($data['movement_start_datetime'])->setTimezone('Europe/Moscow');
         }
 
@@ -116,20 +118,20 @@ class TechnicMovementController extends StandardEntityResourceController
     {
         $dataObj = $this->getDataObj($newData, $dbData);
 
-        if(!empty($dataObj->finish_result)) {
-            if($dataObj->finish_result === 'completed') {
+        if (! empty($dataObj->finish_result)) {
+            if ($dataObj->finish_result === 'completed') {
                 return TechnicMovementStatus::where('slug', 'completed')->firstOrFail()->id;
             }
-            if($dataObj->finish_result === 'cancelled') {
+            if ($dataObj->finish_result === 'cancelled') {
                 return TechnicMovementStatus::where('slug', 'cancelled')->firstOrFail()->id;
             }
         }
 
-        if(!empty($dataObj->movement_start_datetime) && !empty($dataObj->responsible_id)) {
+        if (! empty($dataObj->movement_start_datetime) && ! empty($dataObj->responsible_id)) {
             return TechnicMovementStatus::where('slug', 'transportationPlanned')->firstOrFail()->id;
         }
 
-        return TechnicMovementStatus::where('slug', 'created')->firstOrFail()->id;;
+        return TechnicMovementStatus::where('slug', 'created')->firstOrFail()->id;
     }
 
     // public function notifyNewResponsible($newData, $dbData)
@@ -165,13 +167,13 @@ class TechnicMovementController extends StandardEntityResourceController
         $this->additionalResources->technicResponsiblesByTypes =
             [
                 'oversize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))->get(),
-                'standartSize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))->get()
+                'standartSize' => User::whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))->get(),
             ];
         $this->additionalResources->technicResponsiblesAllTypes =
             User::query()
                 ->whereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_oversized_equipment'))
                 ->orWhereIn('id', Permission::UsersIdsByCodename('technics_processing_movement_standart_sized_equipment'))
-            ->get();
+                ->get();
         $this->additionalResources->technicCategoryNameAttrs = TechnicMovementNotifications::nameAttrs;
         $this->additionalResources->technicCarriers = Contractor::byTypeSlug('technic_carrier');
         $this->additionalResources->projectObjects =

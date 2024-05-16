@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFuelTankTransferHystoriesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -58,4 +58,4 @@ class CreateFuelTankTransferHystoriesTable extends Migration
     {
         Schema::dropIfExists('fuel_tank_transfer_hystories');
     }
-}
+};

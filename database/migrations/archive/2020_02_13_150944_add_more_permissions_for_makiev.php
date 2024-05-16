@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddMorePermissionsForMakiev extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'tech_acc_our_technic_tickets_see';
 
@@ -41,4 +41,4 @@ class AddMorePermissionsForMakiev extends Migration
 
         DB::commit();
     }
-}
+};

@@ -4,7 +4,7 @@ use App\Models\Group;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddMoreTicketNotifications extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE_IDS = [84];
 
@@ -57,4 +57,4 @@ class AddMoreTicketNotifications extends Migration
 
         DB::commit();
     }
-}
+};

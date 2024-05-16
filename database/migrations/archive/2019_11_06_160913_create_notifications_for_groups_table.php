@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotificationsForGroupsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -356,4 +356,4 @@ class CreateNotificationsForGroupsTable extends Migration
     {
         Schema::dropIfExists('notifications_for_groups');
     }
-}
+};

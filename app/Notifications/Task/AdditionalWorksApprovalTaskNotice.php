@@ -7,7 +7,7 @@ use App\Notifications\BaseNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 
-    class AdditionalWorksApprovalTaskNotice extends BaseNotification
+class AdditionalWorksApprovalTaskNotice extends BaseNotification
 {
     use Queueable;
 
@@ -20,7 +20,7 @@ use Illuminate\Notifications\Messages\MailMessage;
             ->markdown('notifications.mail.task.additional-works-approval-task-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

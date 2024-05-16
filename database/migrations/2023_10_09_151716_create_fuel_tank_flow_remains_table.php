@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFuelTankFlowRemainsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -36,4 +36,4 @@ class CreateFuelTankFlowRemainsTable extends Migration
     {
         Schema::dropIfExists('fuel_tank_flow_remains');
     }
-}
+};

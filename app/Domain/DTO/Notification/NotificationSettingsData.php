@@ -6,10 +6,11 @@ namespace App\Domain\DTO\Notification;
 
 final class NotificationSettingsData
 {
-    /** @var NotificationSettingsItemData[]  */
+    /** @var NotificationSettingsItemData[] */
     private $items;
 
-    public function __construct(array $items) {
+    public function __construct(array $items)
+    {
         foreach ($items as $item) {
             $this->items[] = new NotificationSettingsItemData(
                 $item['id'],
@@ -27,5 +28,4 @@ final class NotificationSettingsData
     {
         return $this->items;
     }
-
 }

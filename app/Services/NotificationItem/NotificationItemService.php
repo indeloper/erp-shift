@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Gate;
 
 final class NotificationItemService implements NotificationItemServiceInterface
 {
-
     private $notificationItemRepository;
 
     private $userRepository;
@@ -28,7 +27,7 @@ final class NotificationItemService implements NotificationItemServiceInterface
         ExceptionNotificationUserRepositoryInterface $exceptionNotificationUserRepository
     ) {
         $this->notificationItemRepository = $notificationItemRepository;
-        $this->userRepository             = $userRepository;
+        $this->userRepository = $userRepository;
 
         $this->exceptionNotificationUserRepository
             = $exceptionNotificationUserRepository;
@@ -59,13 +58,13 @@ final class NotificationItemService implements NotificationItemServiceInterface
 
         $exceptions
             = $this->exceptionNotificationUserRepository->getUserExceptions(
-            $userId
-        );
+                $userId
+            );
 
         $notifications = $this->determinateException($notifications,
             $exceptions);
 
-//        $notifications = $this->determinateGates($notifications, $userId);
+        //        $notifications = $this->determinateGates($notifications, $userId);
 
         return $notifications;
     }
@@ -77,7 +76,7 @@ final class NotificationItemService implements NotificationItemServiceInterface
         );
 
         foreach ($data->getItems() as $item) {
-            if ( ! $item->isTelegram()) {
+            if (! $item->isTelegram()) {
                 $this->exceptionNotificationUserRepository->store(
                     $userId,
                     $item->getId(),
@@ -85,7 +84,7 @@ final class NotificationItemService implements NotificationItemServiceInterface
                 );
             }
 
-            if ( ! $item->isMail()) {
+            if (! $item->isMail()) {
                 $this->exceptionNotificationUserRepository->store(
                     $userId,
                     $item->getId(),
@@ -93,7 +92,7 @@ final class NotificationItemService implements NotificationItemServiceInterface
                 );
             }
 
-            if ( ! $item->isSystem()) {
+            if (! $item->isSystem()) {
                 $this->exceptionNotificationUserRepository->store(
                     $userId,
                     $item->getId(),
@@ -141,5 +140,4 @@ final class NotificationItemService implements NotificationItemServiceInterface
                 ->any($notificationItem->permissions->pluck('codename'));
         });
     }
-
 }

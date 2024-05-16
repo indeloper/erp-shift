@@ -24,7 +24,7 @@ class MaterialAccountingMaterialFileFactory extends Factory
                 }
             },
             'operation_material_id' => in_array('operation_material_id', $passedAttributes) ?: MaterialAccountingOperationMaterials::factory()->create()->id,
-            'file_name' => $this->faker->safeColorName, // hehe
+            'file_name' => $this->faker->safeColorName(), // hehe
             'path' => 'storage/docs/mat_acc_operation_files',
             'type' => 1,
         ];

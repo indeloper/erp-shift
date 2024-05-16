@@ -4,7 +4,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationTypesForCertificatlessContracts extends Migration
+return new class extends Migration
 {
     const NOTIFICATIONS = [
         104 => 'Уведомление о задаче Контроль наличия сертификатов',
@@ -165,4 +165,4 @@ class AddNewNotificationTypesForCertificatlessContracts extends Migration
 
         DB::commit();
     }
-}
+};

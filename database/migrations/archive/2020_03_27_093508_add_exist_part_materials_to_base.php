@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class AddExistPartMaterialsToBase extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -92,4 +92,4 @@ class AddExistPartMaterialsToBase extends Migration
     {
 
     }
-}
+};

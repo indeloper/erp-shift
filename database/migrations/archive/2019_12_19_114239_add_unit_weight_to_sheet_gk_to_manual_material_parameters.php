@@ -4,7 +4,7 @@ use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddUnitWeightToSheetGkToManualMaterialParameters extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -46,4 +46,4 @@ class AddUnitWeightToSheetGkToManualMaterialParameters extends Migration
     {
 
     }
-}
+};

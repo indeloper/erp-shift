@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddWorkTimeControlTaskExceedanceNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATIONS = [
         108 => 'Уведомление о возможно неправильном заполнении суточного табеля',
@@ -67,4 +67,4 @@ class AddWorkTimeControlTaskExceedanceNotification extends Migration
 
         DB::commit();
     }
-}
+};

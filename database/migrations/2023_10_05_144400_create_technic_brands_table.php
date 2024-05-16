@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTechnicBrandsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -54,4 +54,4 @@ class CreateTechnicBrandsTable extends Migration
             ['name' => 'INMESOL'],
         ]);
     }
-}
+};

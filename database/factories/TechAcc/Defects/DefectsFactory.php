@@ -20,7 +20,7 @@ class DefectsFactory extends Factory
             // right now here will be only technics
             'defectable_id' => OurTechnic::inRandomOrder()->first()->id ?? OurTechnic::factory()->create()->id,
             'defectable_type' => OurTechnic::class,
-            'description' => $this->faker->paragraph,
+            'description' => $this->faker->paragraph(),
             'status' => 1,
         ];
     }

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddDefectCreatePermissionForPrincipalEngineer extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -38,4 +38,4 @@ class AddDefectCreatePermissionForPrincipalEngineer extends Migration
 
         DB::commit();
     }
-}
+};

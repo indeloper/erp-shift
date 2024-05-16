@@ -15,10 +15,10 @@ class SupportMailFactory extends Factory
     public function definition()
     {
         return [
-            'title' => $this->faker->word,
-            'description' => $this->faker->sentence,
+            'title' => $this->faker->word(),
+            'description' => $this->faker->sentence(),
             'user_id' => User::factory()->create()->id,
-            'page_path' => $this->faker->url,
+            'page_path' => $this->faker->url(),
             'status' => 'new',
         ];
     }

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewBirthdayNotifications extends Migration
+return new class extends Migration
 {
     const NOTIFICATIONS = [
         88 => 'Уведомление о дне рождения сотрудника за неделю',
@@ -47,4 +47,4 @@ class AddNewBirthdayNotifications extends Migration
 
         DB::commit();
     }
-}
+};

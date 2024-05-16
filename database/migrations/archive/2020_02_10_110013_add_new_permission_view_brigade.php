@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewPermissionViewBrigade extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_brigade_view';
 
@@ -68,4 +68,4 @@ class AddNewPermissionViewBrigade extends Migration
 
         DB::commit();
     }
-}
+};

@@ -6,7 +6,7 @@ use App\Models\Manual\ManualReference;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class FillOutManualReferenceCategory11 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -103,4 +103,4 @@ class FillOutManualReferenceCategory11 extends Migration
             $manualReference->delete();
         }
     }
-}
+};

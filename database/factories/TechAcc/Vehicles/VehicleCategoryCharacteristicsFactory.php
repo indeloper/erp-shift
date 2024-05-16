@@ -16,9 +16,9 @@ class VehicleCategoryCharacteristicsFactory extends Factory
     {
         return [
             'category_id' => VehicleCategories::inRandomOrder()->first()->id ?? VehicleCategories::factory()->create()->id,
-            'name' => $this->faker->word,
-            'short_name' => rand(0, 1) ? $this->faker->word : '',
-            'unit' => rand(0, 1) ? $this->faker->word : '',
+            'name' => $this->faker->word(),
+            'short_name' => rand(0, 1) ? $this->faker->word() : '',
+            'unit' => rand(0, 1) ? $this->faker->word() : '',
             'show' => rand(0, 1),
         ];
     }

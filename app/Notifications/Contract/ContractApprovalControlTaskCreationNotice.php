@@ -20,7 +20,7 @@ class ContractApprovalControlTaskCreationNotice extends BaseNotification
             ->markdown('notifications.mail.contract.contract-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationForPrincipleMechanicsAboutTechnicSetFree extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 86;
 
@@ -49,4 +49,4 @@ class AddNewNotificationForPrincipleMechanicsAboutTechnicSetFree extends Migrati
 
         DB::commit();
     }
-}
+};

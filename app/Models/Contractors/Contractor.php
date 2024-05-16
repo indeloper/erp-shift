@@ -2,12 +2,12 @@
 
 namespace App\Models\Contractors;
 
+use App\Models\Project;
+use App\Models\ProjectContractors;
+use App\Models\Task;
+use App\Models\User;
 use App\Notifications\Contractor\ContractorContactInformationRequiredNotice;
 use App\Notifications\Contractor\UserCreatedContractorWithoutContactsNotice;
-use App\Models\{Project,
-    ProjectContractors,
-    Task,
-    User};
 use App\Traits\DefaultSortable;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\SmartSearchable;
@@ -17,12 +17,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contractor extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable, SmartSearchable, DefaultSortable;
+    use DefaultSortable, DevExtremeDataSourceLoadable, SmartSearchable, SoftDeletes;
 
     protected $guarded = ['id'];
 
     public $defaultSortOrder = [
-        'short_name' => 'asc'
+        'short_name' => 'asc',
     ];
     // protected $fillable = [
     //     'full_name', 'short_name', 'inn', 'kpp',
@@ -55,12 +55,14 @@ class Contractor extends Model
         4 => 'Услуги',
         5 => 'Оформление проектов',
         6 => 'Аренда техники',
-        7 => 'Поставка топлива'
+        7 => 'Поставка топлива',
     ];
 
     // indexes from CONTRACTOR_TYPES
     const CUSTOMER = 1;
+
     const CONTRACTOR = 2;
+
     const SUPPLIER = 3;
 
     public function scopeByTypeSlug(Builder $query, $slug)
@@ -68,13 +70,13 @@ class Contractor extends Model
         $mainTypeId = ContractorType::where('slug', $slug)->first()->id;
         $contractorAddotionalTypes = ContractorAdditionalTypes::where(
             'additional_type', $mainTypeId)->pluck('contractor_id'
-        )->toArray();
+            )->toArray();
 
         return
             $query
-            ->where('main_type', $mainTypeId)
-            ->orWhereIn('id', $contractorAddotionalTypes)
-            ->get();
+                ->where('main_type', $mainTypeId)
+                ->orWhereIn('id', $contractorAddotionalTypes)
+                ->get();
     }
 
     public function scopeByType(Builder $query, $type)
@@ -82,6 +84,7 @@ class Contractor extends Model
         if ($type === 0) {
             return $query;
         }
+
         return $query->where(function ($q) use ($type) {
             $q->where('main_type', $type)
                 ->orWhereHas('additional_types', function ($query) use ($type) {
@@ -110,6 +113,7 @@ class Contractor extends Model
                 $typeText = ContractorType::find($type->additional_type)->name;
                 $types .= ", {$typeText}";
             }
+
             return $types;
         } else {
             return $this->type_name;
@@ -129,7 +133,7 @@ class Contractor extends Model
 
     public function phones()
     {
-        return $this->hasMany( ContractorPhone::class, 'contractor_id', 'id');
+        return $this->hasMany(ContractorPhone::class, 'contractor_id', 'id');
     }
 
     public function contacts()
@@ -139,7 +143,7 @@ class Contractor extends Model
 
     public function creator()
     {
-        return $this->hasOne(User::class,'id', 'user_id');
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 
     public function projects()
@@ -154,8 +158,8 @@ class Contractor extends Model
             ->leftJoin('users', 'users.id', '=', 'projects.user_id')
             ->leftJoin('contractors', 'contractors.id', '=', 'projects.contractor_id')
             ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
-            ->leftJoin('tasks', function($query) {
-                $query->on('projects.id','=','tasks.project_id')
+            ->leftJoin('tasks', function ($query) {
+                $query->on('projects.id', '=', 'tasks.project_id')
                     ->whereRaw('tasks.id IN (select MAX(a2.id) from tasks as a2 join projects as u2 on u2.id = a2.project_id group by u2.id)');
             })->with('author');
     }
@@ -167,6 +171,7 @@ class Contractor extends Model
 
     /**
      * Relation for additional contractor types
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function additional_types()
@@ -187,7 +192,7 @@ class Contractor extends Model
             ContractorContactInformationRequiredNotice::send(
                 $this->user_id,
                 [
-                    'name' => 'Заполните контакты контрагента ' . $this->short_name,
+                    'name' => 'Заполните контакты контрагента '.$this->short_name,
                     'additional_info' => 'Ссылка на контрагента: ',
                     'url' => route('contractors::card', $this->id),
                     'contractor_id' => $this->id,
@@ -212,7 +217,7 @@ class Contractor extends Model
             UserCreatedContractorWithoutContactsNotice::send(
                 $chief_id,
                 [
-                    'name' => 'Пользователь ' . $this->creator->full_name . ' не заполнил(а) контактов контрагента ' . $this->short_name,
+                    'name' => 'Пользователь '.$this->creator->full_name.' не заполнил(а) контактов контрагента '.$this->short_name,
                     'additional_info' => 'Ссылка на контрагента: ',
                     'url' => route('contractors::card', $this->id),
                     'user_id' => $chief_id,

@@ -6,8 +6,8 @@ use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Telegram\Dialogs\FuelDialogs;
 
-class FuelActions {
-
+class FuelActions
+{
     public function handleMovingFuelTankConfirmation($tank, $user)
     {
         $lastTankTransferHistory = FuelTankTransferHistory::query()
@@ -26,11 +26,11 @@ class FuelActions {
             'responsible_id' => $tank->responsible_id,
             'fuel_level' => $tank->fuel_level,
             'event_date' => now(),
-            'tank_moving_confirmation' => true
+            'tank_moving_confirmation' => true,
         ]);
 
         (new FuelDialogs())->handleFuelTankMovingDialogMessages($tank);
-        
+
         $tank->awaiting_confirmation = false;
         $tank->comment_movement_tmp = null;
         $tank->chat_message_tmp = null;
@@ -44,7 +44,7 @@ class FuelActions {
         $tank->chat_message_tmp = json_encode([
             'chatId' => $chatId,
             'messageId' => $messageId,
-            'text' => $text
+            'text' => $text,
         ]);
         $tank->save();
     }

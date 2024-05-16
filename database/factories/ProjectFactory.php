@@ -19,7 +19,7 @@ class ProjectFactory extends Factory
         return [
             'user_id' => User::inRandomOrder()->first()->id,
             'contractor_id' => Contractor::inRandomOrder()->first()->id ?? Contractor::factory()->create()->id,
-            'name' => $this->faker->word,
+            'name' => $this->faker->word(),
             'object_id' => ProjectObject::inRandomOrder()->first()->id ?? ProjectObject::factory()->create()->id,
             'description' => $this->faker->text(30),
             'is_important' => 0,

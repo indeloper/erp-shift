@@ -20,7 +20,7 @@ class ChiefMechanicMissingForEquipmentDefectTrackingNotice extends BaseNotificat
             ->markdown('notifications.mail.equipment.equipment-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

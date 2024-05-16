@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProjectObjectDocumentStatusTypeRelationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -77,4 +77,4 @@ class CreateProjectObjectDocumentStatusTypeRelationsTable extends Migration
             ['document_type_id' => 7, 'document_status_id' => 9, 'default_selection' => false],
         ]);
     }
-}
+};

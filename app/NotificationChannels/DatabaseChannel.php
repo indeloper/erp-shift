@@ -10,10 +10,10 @@ final class DatabaseChannel
 {
     /** @var NotificationServiceInterface */
     private $notificationService;
+
     public function __construct(
         NotificationServiceInterface $notificationService
-    )
-    {
+    ) {
         $this->notificationService = $notificationService;
     }
 

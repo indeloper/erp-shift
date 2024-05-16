@@ -8,15 +8,12 @@ use App\Http\Requests\ContractorRequests\ContractorStoreRequest;
 use App\Http\Requests\ContractorRequests\ContractorUpdateRequest;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
-use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
-use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
-use App\Models\Contractors\{BankDetail,
-    Contractor,
-    ContractorContact,
-    ContractorContactPhone,
-    ContractorPhone,
-    ContractorType};
-use App\Models\Contractors\CotractorType;
+use App\Models\Contractors\BankDetail;
+use App\Models\Contractors\Contractor;
+use App\Models\Contractors\ContractorContact;
+use App\Models\Contractors\ContractorContactPhone;
+use App\Models\Contractors\ContractorPhone;
+use App\Models\Contractors\ContractorType;
 use App\Models\Group;
 use App\Models\Project;
 use App\Models\ProjectContact;
@@ -25,6 +22,8 @@ use App\Models\TaskFile;
 use App\Models\TaskRedirect;
 use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
+use App\Notifications\Contractor\ContractorDeletionControlTaskNotice;
+use App\Notifications\Contractor\ContractorDeletionControlTaskResolutionNotice;
 use App\Traits\TimeCalculator;
 use Fomvasss\Dadata\Facades\DadataSuggest;
 use Illuminate\Http\Request;
@@ -49,7 +48,7 @@ class ContractorController extends Controller
                     'inn',
                     'kpp',
                     'ogrn',
-                    'legal_address'
+                    'legal_address',
                 ],
                 $request->search);
         }
@@ -57,10 +56,9 @@ class ContractorController extends Controller
         $contractors->where('in_archive', 0);
 
         return view('contractors.index', [
-            'contractors' => $contractors->paginate(20)
+            'contractors' => $contractors->paginate(20),
         ]);
     }
-
 
     public function create()
     {
@@ -68,13 +66,12 @@ class ContractorController extends Controller
         // $contractorTypes = ContractorType::pluck('name')->toArray();
 
         $contractorTypes = [];
-        foreach(ContractorType::all() as $contractorType) {
+        foreach (ContractorType::all() as $contractorType) {
             $contractorTypes[$contractorType->id] = $contractorType->name;
         }
 
         return view('contractors.create', compact('contractorTypes'));
     }
-
 
     public function store(ContractorStoreRequest $request)
     {
@@ -100,7 +97,7 @@ class ContractorController extends Controller
         foreach ($types as $additional_type) {
             $contractor->additional_types()->create([
                 'additional_type' => $additional_type,
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
             ]);
         }
 
@@ -112,7 +109,7 @@ class ContractorController extends Controller
                     'dop_phone' => $request->phone_dop[$phone],
                     'type' => 1,
                     'is_main' => $request->main == $main_id,
-                    'contractor_id' => $contractor->id
+                    'contractor_id' => $contractor->id,
                 ]);
             }
         }
@@ -129,25 +126,24 @@ class ContractorController extends Controller
 
         DB::commit();
 
-        if($request->task_id) {
+        if ($request->task_id) {
             return redirect()->route('tasks::new_call', [$request->task_id, 'contractor_id' => $contractor->id]);
         }
 
         return redirect()->route('contractors::card', $contractor->id);
     }
 
-
     public function search_dadata(Request $request)
     {
         $type = $request->type ?? 'party';
 
-        try  {
-            $result = DadataSuggest::suggest($type, ["query"=> $request->search]);
+        try {
+            $result = DadataSuggest::suggest($type, ['query' => $request->search]);
         } catch (\RuntimeException $e) {
             $result['suggestions'] = [];
         }
         //this if is for different verions of datata api (mine is 2.1.1 on server we have 2.2.2)
-        if (!isset($result['suggestions']) and count($result) > 0 ) {
+        if (! isset($result['suggestions']) and count($result) > 0) {
             $save_plave = $result;
             $result = [];
             $result['suggestions'] = $save_plave;
@@ -156,7 +152,7 @@ class ContractorController extends Controller
         if ($request->is_edit) {
             return view('contractors.edit', [
                 'type' => $type,
-                'result' => !empty($result['suggestions']) ? ($result['suggestions'][isset($request->id) ? $request->id : 0]) : '',
+                'result' => ! empty($result['suggestions']) ? ($result['suggestions'][isset($request->id) ? $request->id : 0]) : '',
                 'results' => $result['suggestions'],
                 'old_search' => $request->search ? $request->search : '',
                 'contractor' => Contractor::findOrFail($request->contractor_id),
@@ -170,17 +166,18 @@ class ContractorController extends Controller
         } else {
             return view('contractors.create', [
                 'type' => $type,
-                'result' => !empty($result['suggestions']) ? ($result['suggestions'][isset($request->id) ? $request->id : 0]) : '',
+                'result' => ! empty($result['suggestions']) ? ($result['suggestions'][isset($request->id) ? $request->id : 0]) : '',
                 'results' => $result['suggestions'],
-                'old_search' => $request->search ? $request->search : ''
+                'old_search' => $request->search ? $request->search : '',
             ]);
         }
     }
 
-
     public function card(Request $request, $id)
     {
-        $projects = Project::getAllProjects()->with(['contracts' => function($q) { $q->withCount('get_requests'); }])->where('projects.contractor_id', $id);
+        $projects = Project::getAllProjects()->with(['contracts' => function ($q) {
+            $q->withCount('get_requests');
+        }])->where('projects.contractor_id', $id);
         $com_offers = CommercialOffer::whereIn('project_id', $projects->pluck('id'))
             ->leftjoin('users', 'users.id', '=', 'commercial_offers.user_id')
             ->select('commercial_offers.*', DB::raw('CONCAT(users.last_name, " ", users.first_name, " ", users.patronymic) as user_full_name'))
@@ -223,21 +220,23 @@ class ContractorController extends Controller
             $com_for_tasks = CommercialOffer::where('project_id', $solved_task->project_id)->whereIn('commercial_offers.status', [1, 2, 4, 5])->first();
             $wv_for_tasks = WorkVolume::where('work_volumes.project_id', $solved_task->project_id)->whereIn('work_volumes.status', [1, 2])->first();
 
-            $solved_task->commercial_offer_id = is_null($com_for_tasks)?'':$com_for_tasks->id;
-            $solved_task->work_volume_id = is_null($wv_for_tasks)?'':$wv_for_tasks->id;
-            $solved_task->commercial_offer_file = is_null($com_for_tasks)?'':$com_for_tasks->file_name;
+            $solved_task->commercial_offer_id = is_null($com_for_tasks) ? '' : $com_for_tasks->id;
+            $solved_task->work_volume_id = is_null($wv_for_tasks) ? '' : $wv_for_tasks->id;
+            $solved_task->commercial_offer_file = is_null($com_for_tasks) ? '' : $com_for_tasks->file_name;
         }
 
         $contracts = Contract::where('subcontractor_id', $id)->get();
 
         $contractor = Contractor::with('phones')->findOrFail($id);
 
-        if($contractor->in_archive) { abort(403); }
+        if ($contractor->in_archive) {
+            abort(403);
+        }
 
         foreach ($contractor->phones as $phone) {
-            preg_match("/^(\d{1})(\d{3})(\d{3})(\d{2})(\d{0,2})$/", $phone->phone_number,  $matches);
-            if(count($matches) > 2) {
-                $phone->phone_number = '+' . $matches[1] . ' (' . $matches[2] . ') ' . implode(array_slice(array_filter($matches), 3, 3), '-');
+            preg_match("/^(\d{1})(\d{3})(\d{3})(\d{2})(\d{0,2})$/", $phone->phone_number, $matches);
+            if (count($matches) > 2) {
+                $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode(array_slice(array_filter($matches), 3, 3), '-');
             }
         }
 
@@ -245,8 +244,8 @@ class ContractorController extends Controller
         foreach ($contacts as $contact) {
             foreach ($contact->phones as $phone) {
                 preg_match("/^(\d{1})(\d{3})(\d{3})(\d{2})(\d{0,2})$/", $phone->phone_number, $matches);
-                if(count($matches) > 2) {
-                    $phone->phone_number = '+' . $matches[1] . ' (' . $matches[2] . ') ' . implode(array_slice(array_filter($matches), 3, 3), '-');
+                if (count($matches) > 2) {
+                    $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode(array_slice(array_filter($matches), 3, 3), '-');
                 }
             }
         }
@@ -266,21 +265,20 @@ class ContractorController extends Controller
             'com_offers_task' => $com_offers_task,
             'work_volumes' => $work_volumes->get(),
             'projects_com_offer' => $projects_com_offer,
-            'contracts' => $contracts
+            'contracts' => $contracts,
         ]);
     }
-
 
     public function edit($id)
     {
         $contractor = Contractor::findOrFail($id);
         // $contractorTypes = Contractor::CONTRACTOR_TYPES;
         $contractorTypes = [];
-        foreach(ContractorType::all() as $contractorType) {
+        foreach (ContractorType::all() as $contractorType) {
             $contractorTypes[$contractorType->id] = $contractorType->name;
         }
 
-        if($contractor->in_archive) {
+        if ($contractor->in_archive) {
             abort(403);
         }
 
@@ -290,7 +288,6 @@ class ContractorController extends Controller
             'contractorTypes' => $contractorTypes,
         ]);
     }
-
 
     public function update(ContractorUpdateRequest $request, $id)
     {
@@ -316,7 +313,7 @@ class ContractorController extends Controller
         foreach ($types as $additional_type) {
             $contractor->additional_types()->create([
                 'additional_type' => $additional_type,
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
             ]);
         }
 
@@ -328,7 +325,7 @@ class ContractorController extends Controller
                     'dop_phone' => $request->phone_dop[$phone],
                     'type' => 1,
                     'is_main' => $request->main == $main_id,
-                    'contractor_id' => $contractor->id
+                    'contractor_id' => $contractor->id,
                 ]);
             }
         }
@@ -347,7 +344,6 @@ class ContractorController extends Controller
 
         return redirect()->route('contractors::card', $id);
     }
-
 
     public function add_contact(ContractorContactRequest $request, $id)
     {
@@ -373,12 +369,12 @@ class ContractorController extends Controller
                     'dop_phone' => $request->phone_dop[$phone],
                     'type' => 1,
                     'is_main' => $request->main == $main_id,
-                    'contact_id' => $contact->id
+                    'contact_id' => $contact->id,
                 ]);
             }
         }
 
-        if($request->task_id) {
+        if ($request->task_id) {
             return redirect()->route('tasks::new_call', [$request->task_id, 'contractor_id' => $id, 'project_id' => $request->project_id, 'contact_id' => $contact->id]);
         }
 
@@ -386,7 +382,6 @@ class ContractorController extends Controller
 
         return redirect()->back()->with('contacts', 'Новый контакт добавлен');
     }
-
 
     public function edit_contact(ContractorContactRequest $request)
     {
@@ -412,12 +407,12 @@ class ContractorController extends Controller
                     'dop_phone' => $request->phone_dop[$phone],
                     'type' => 1,
                     'is_main' => $request->main == $main_id,
-                    'contact_id' => $contact->id
+                    'contact_id' => $contact->id,
                 ]);
             }
         }
 
-        if($request->project_note) {
+        if ($request->project_note) {
             $p_contact = ProjectContact::where('contact_id', $contact->id)->where('project_id', $request->project_id)->first();
             $p_contact->note = $request->project_note;
             $p_contact->save();
@@ -427,7 +422,6 @@ class ContractorController extends Controller
 
         return redirect()->back()->with('contacts', 'Контакт изменен');
     }
-
 
     public function contact_delete(Request $request)
     {
@@ -444,12 +438,11 @@ class ContractorController extends Controller
         return \GuzzleHttp\json_encode(true);
     }
 
-
     public function is_unique(Request $request)
     {
         if ($request->full_name) {
-            if (Contractor::where('full_name', $request->full_name)->where('id', '!=', $request->id)->first()){
-                return \GuzzleHttp\json_encode(['full_name','Полное наименование']);
+            if (Contractor::where('full_name', $request->full_name)->where('id', '!=', $request->id)->first()) {
+                return \GuzzleHttp\json_encode(['full_name', 'Полное наименование']);
             }
         }
         if ($request->inn) {
@@ -467,15 +460,15 @@ class ContractorController extends Controller
                 return \GuzzleHttp\json_encode(['email', 'email']);
             }
         }
+
         return \GuzzleHttp\json_encode(true);
     }
-
 
     public function tasks($id)
     {
         $contractor = Contractor::findOrFail($id);
 
-        if($contractor->in_archive) {
+        if ($contractor->in_archive) {
             abort(403);
         }
 
@@ -521,10 +514,9 @@ class ContractorController extends Controller
             'contractor' => $contractor,
             'contacts' => $contacts,
             'com_offers' => $com_offers,
-            'work_volumes' => $work_volumes->get()
+            'work_volumes' => $work_volumes->get(),
         ]);
     }
-
 
     public function contractor_delete_request(Request $request)
     {
@@ -537,16 +529,16 @@ class ContractorController extends Controller
 
         // create task
         $task = Task::create([
-            'name' => 'Контроль удаления контрагента ' . $request->contractor_name,
-            'description' => 'Пользователь ' . Auth::user()->full_name .
-                ' отправил заявку на удаление контрагента с комментарием: ' . $request->reason .
+            'name' => 'Контроль удаления контрагента '.$request->contractor_name,
+            'description' => 'Пользователь '.Auth::user()->full_name.
+                ' отправил заявку на удаление контрагента с комментарием: '.$request->reason.
                 '. Необходимо подтвердить или отклонить удаление контрагента',
             'responsible_user_id' => Group::find(5/*3*/)->getUsers()->first()->id,
             'user_id' => Auth::id(),
             'contractor_id' => $request->contractor_id,
             'target_id' => $request->contractor_id,
             'expired_at' => $this->addHours(48),
-            'status' => 19
+            'status' => 19,
         ]);
 
         DB::commit();
@@ -554,7 +546,7 @@ class ContractorController extends Controller
         ContractorDeletionControlTaskNotice::send(
             $task->responsible_user_id,
             [
-                'name' => 'Новая задача «' . $task->name . '»',
+                'name' => 'Новая задача «'.$task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
                 'url' => $task->task_route(),
                 'task_id' => $task->id,
@@ -596,13 +588,13 @@ class ContractorController extends Controller
         $contractor = Contractor::findOrFail($task->contractor_id)->load('projects');
 
         $task->result = $request->status_result == 'accept' ? 1 : 2;
-        $task->final_note = $task->descriptions[$task->status] . $task->results[$task->status][$task->result] .
-            ($request->description ? ', с комментарием: ' . $request->description : '');
+        $task->final_note = $task->descriptions[$task->status].$task->results[$task->status][$task->result].
+            ($request->description ? ', с комментарием: '.$request->description : '');
         $task->solve_n_notify();
 
-        if ($request->status_result == 'accept' ) {
+        if ($request->status_result == 'accept') {
             if (Schema::hasColumn($contractor->getTable(), 'deleted_at')) {
-                foreach($contractor->projects as $project){
+                foreach ($contractor->projects as $project) {
                     $project->all_tasks()->delete();
                     $project->contracts()->delete();
                     $project->com_offers()->delete();
@@ -621,8 +613,8 @@ class ContractorController extends Controller
         ContractorDeletionControlTaskResolutionNotice::send(
             $task->user_id,
             [
-                'name' => 'Запрашиваемый вами контрагент ' . $contractor->short_name . ' ' . $task->results[$task->status][$task->result] .
-                    ($request->description ? ', с комментарием: ' . $request->description : ''),
+                'name' => 'Запрашиваемый вами контрагент '.$contractor->short_name.' '.$task->results[$task->status][$task->result].
+                    ($request->description ? ', с комментарием: '.$request->description : ''),
                 'task_id' => $task->id,
                 'contractor_id' => $task->contractor_id,
             ]
@@ -636,17 +628,17 @@ class ContractorController extends Controller
         $contractors = Contractor::byType(request('contractor_type'));
 
         if (request('q')) {
-            $contractors = $contractors->where('full_name', 'like', '%' . trim(request('q')) . '%')
-                ->orWhere('short_name', 'like', '%' . trim(request('q')) . '%')
-                ->orWhere('inn', 'like', '%' . trim(request('q')) . '%')
-                ->orWhere('kpp', 'like', '%' . trim(request('q')) . '%');
+            $contractors = $contractors->where('full_name', 'like', '%'.trim(request('q')).'%')
+                ->orWhere('short_name', 'like', '%'.trim(request('q')).'%')
+                ->orWhere('inn', 'like', '%'.trim(request('q')).'%')
+                ->orWhere('kpp', 'like', '%'.trim(request('q')).'%');
         }
 
         $contractors = $contractors->where('in_archive', 0)->take(10)->get();
         $results = [];
 
         foreach ($contractors as $contractor) {
-            $results[] = ['id' => $contractor->id . '', 'text' => $contractor->short_name];
+            $results[] = ['id' => $contractor->id.'', 'text' => $contractor->short_name];
         }
 
         return ['results' => $results];
@@ -659,13 +651,13 @@ class ContractorController extends Controller
         if ($request->q) {
             $contractors->whereRaw("REPLACE(full_name, '\"', '') LIKE '%{$request->q}%'")
                 ->orWhereRaw("REPLACE(short_name, '\"', '') LIKE '%{$request->q}%'")
-                ->orWhere('inn', 'like', '%' . $request->q . '%')
-                ->orWhere('kpp', 'like', '%' . $request->q . '%')
-                ->orWhere('legal_address', 'like', '%' . $request->q . '%');
+                ->orWhere('inn', 'like', '%'.$request->q.'%')
+                ->orWhere('kpp', 'like', '%'.$request->q.'%')
+                ->orWhere('legal_address', 'like', '%'.$request->q.'%');
         }
 
         return $contractors->limit(20)->get()->map(function ($contractor) {
-            return ['code' => $contractor->id . '', 'label' => $contractor->short_name];
+            return ['code' => $contractor->id.'', 'label' => $contractor->short_name];
         });
     }
 

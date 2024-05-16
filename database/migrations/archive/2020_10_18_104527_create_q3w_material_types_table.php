@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQ3wMaterialTypesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -99,4 +99,4 @@ class CreateQ3wMaterialTypesTable extends Migration
         Schema::dropIfExists('q3w_measure_units');
         Schema::dropIfExists('q3w_material_accounting_types');
     }
-}
+};

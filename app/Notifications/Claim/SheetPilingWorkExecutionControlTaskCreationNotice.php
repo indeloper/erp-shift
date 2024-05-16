@@ -12,8 +12,8 @@ class SheetPilingWorkExecutionControlTaskCreationNotice extends BaseNotification
     use Queueable;
 
     const DESCRIPTION = 'Уведомление о создании задачи Контроль выполнения ОР (шпунтовое направление)';
-    /** ОР - Объём работ */
 
+    /** ОР - Объём работ */
     public function toMail($notifiable)
     {
         return (new MailMessage)
@@ -21,7 +21,7 @@ class SheetPilingWorkExecutionControlTaskCreationNotice extends BaseNotification
             ->markdown('notifications.mail.claim.claim-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

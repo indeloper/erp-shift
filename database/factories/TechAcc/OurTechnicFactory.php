@@ -17,8 +17,8 @@ class OurTechnicFactory extends Factory
     public function definition()
     {
         return [
-            'brand' => $this->faker->word,
-            'model' => $this->faker->word.$this->faker->randomNumber(3),
+            'brand' => $this->faker->word(),
+            'model' => $this->faker->word().$this->faker->randomNumber(3),
             'owner' => OurTechnic::$owners[array_rand(OurTechnic::$owners)],
             'start_location_id' => ProjectObject::count() ? ProjectObject::inRandomOrder()->first()->id : ProjectObject::factory()->create()->id,
             'technic_category_id' => TechnicCategory::count() ? TechnicCategory::inRandomOrder()->first()->id : TechnicCategory::factory()->create()->id,

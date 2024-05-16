@@ -20,7 +20,7 @@ class NewProjectCreationNotice extends BaseNotification
             ->markdown('notifications.mail.project.project-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

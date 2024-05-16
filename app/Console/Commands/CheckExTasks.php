@@ -59,7 +59,7 @@ class CheckExTasks extends Command
                     TaskCompletionDeadlineApproachingNotice::send(
                         $task->responsible_user_id,
                         [
-                            'name' => 'Задача «' . $task->name . '» скоро будет просрочена.',
+                            'name' => 'Задача «'.$task->name.'» скоро будет просрочена.',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $task->id,
@@ -78,7 +78,7 @@ class CheckExTasks extends Command
                     TaskCompletionDeadlineNotice::send(
                         $task->responsible_user_id,
                         [
-                            'name' => 'Задача «' . $task->name . '» просрочена.',
+                            'name' => 'Задача «'.$task->name.'» просрочена.',
                             'additional_info' => ' Ссылка на задачу: ',
                             'url' => $task->task_route(),
                             'task_id' => $task->id,
@@ -101,7 +101,7 @@ class CheckExTasks extends Command
                         UserOverdueTaskNotice::send(
                             $task->chief(),
                             [
-                                'name' => 'Задача исполнителя ' . User::find($task->responsible_user_id)->long_full_name . ' «' . $task->name . '» просрочена.',
+                                'name' => 'Задача исполнителя '.User::find($task->responsible_user_id)->long_full_name.' «'.$task->name.'» просрочена.',
                                 'additional_info' => 'Ссылка на события проекта: ',
                                 'url' => $route,
                                 'task_id' => $task->id,
@@ -115,11 +115,11 @@ class CheckExTasks extends Command
 
                     $ceo = User::where('group_id', 5/*3*/)->first();
 
-                    if ($task->chief() != $ceo->id and $ceo->id != $task->responsible_user_id){
+                    if ($task->chief() != $ceo->id and $ceo->id != $task->responsible_user_id) {
                         UserOverdueTaskNotice::send(
                             $ceo->id,
                             [
-                                'name' => 'Задача исполнителя ' . User::find($task->responsible_user_id)->user_name() . ' «' . $task->name . '» просрочена.',
+                                'name' => 'Задача исполнителя '.User::find($task->responsible_user_id)->user_name().' «'.$task->name.'» просрочена.',
                                 'additional_info' => 'Ссылка на события проекта: ',
                                 'url' => $route,
                                 'task_id' => $task->id,

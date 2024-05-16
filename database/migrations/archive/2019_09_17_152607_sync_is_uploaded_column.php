@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class SyncIsUploadedColumn extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -33,4 +33,4 @@ class SyncIsUploadedColumn extends Migration
     {
         \App\Models\CommercialOffer\CommercialOffer::query()->update(['is_uploaded' => 0]);
     }
-}
+};

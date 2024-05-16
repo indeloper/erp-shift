@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddHumanAccountingWorkTimeReportGeneratePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_work_time_report_generate';
 
@@ -58,4 +58,4 @@ class AddHumanAccountingWorkTimeReportGeneratePermission extends Migration
 
         DB::commit();
     }
-}
+};

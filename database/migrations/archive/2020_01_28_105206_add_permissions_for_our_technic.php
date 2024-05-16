@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddPermissionsForOurTechnic extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'tech_acc_our_technic_create',
@@ -79,4 +79,4 @@ class AddPermissionsForOurTechnic extends Migration
 
         DB::commit();
     }
-}
+};

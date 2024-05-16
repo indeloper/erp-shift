@@ -11,7 +11,6 @@ use Illuminate\Notifications\Notification;
 
 class BaseNotification extends Notification
 {
-
     use Queueable;
 
     const DESCRIPTION = 'TEST NOTIFY';
@@ -28,15 +27,14 @@ class BaseNotification extends Notification
         $this->notificationData = $notificationData;
     }
 
-
     /**
-     * @param int|int[] $users
+     * @param  int|int[]  $users
      * @return void
      */
     public static function send($users, array $notificationData)
     {
-        if (!is_array($users)) {
-            $users = [$users];;
+        if (! is_array($users)) {
+            $users = [$users];
         }
 
         foreach ($users as $user) {
@@ -52,7 +50,6 @@ class BaseNotification extends Notification
      * Get the notification's delivery channels.
      *
      * @param  mixed  $notifiable
-     *
      * @return array
      */
     public function via($notifiable)
@@ -88,8 +85,7 @@ class BaseNotification extends Notification
         string $method
     ): bool {
         return ! $this->notificationData->getWithoutChannels()
-                ->contains($channel)
+            ->contains($channel)
             && method_exists($class, $method);
     }
-
 }

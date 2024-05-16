@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddTimecardsViewPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_timecards_view';
 
@@ -77,4 +77,4 @@ class AddTimecardsViewPermission extends Migration
 
         DB::commit();
     }
-}
+};

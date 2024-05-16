@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddDefectCommentPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_NAME = 'tech_acc_defect_comments_create';
 
@@ -76,4 +76,4 @@ class AddDefectCommentPermission extends Migration
 
         DB::commit();
     }
-}
+};

@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotificationsForPermissionsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -124,4 +124,4 @@ class CreateNotificationsForPermissionsTable extends Migration
     {
         Schema::dropIfExists('notifications_for_permissions');
     }
-}
+};

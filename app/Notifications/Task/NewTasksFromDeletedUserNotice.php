@@ -20,8 +20,8 @@ class NewTasksFromDeletedUserNotice extends BaseNotification
             ->markdown('notifications.mail.task.new-task-from-deleted-used-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
-                'tasks_url'   => $this->notificationData->getData()['tasks_url'],
+                'url' => $this->notificationData->getUrl(),
+                'tasks_url' => $this->notificationData->getData()['tasks_url'],
             ]);
     }
 

@@ -19,7 +19,7 @@ class TimestampTechniqueUsageNotice extends BaseNotification
             ->markdown('notifications.mail.timestamp-of-technique-usage-notification', [
                 'name' => $this->notificationData->getName(),
                 'info' => $this->notificationData->getAdditionalInfo(),
-                'url'  => $this->notificationData->getUrl(),
+                'url' => $this->notificationData->getUrl(),
             ]);
     }
 

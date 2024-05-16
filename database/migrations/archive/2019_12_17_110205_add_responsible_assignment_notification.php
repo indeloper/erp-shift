@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddResponsibleAssignmentNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о создании задачи Назначение исполнителя заявки на неисправность техники';
 
@@ -85,4 +85,4 @@ class AddResponsibleAssignmentNotification extends Migration
 
         DB::commit();
     }
-}
+};

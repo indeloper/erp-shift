@@ -53,17 +53,17 @@ class CheckDelayedTasks extends Command
             DelayedTaskAddedAgainNotice::send(
                 $task->responsible_user_id,
                 [
-                    'name' => 'Новая задача «' . $task->name . '»',
+                    'name' => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
                     'url' => $task->task_route(),
                     'task_id' => $task->id,
                     'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
                     'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null
+                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
                 ]
             );
 
-            $this->info('task '. $task->name .' was revived');
+            $this->info('task '.$task->name.' was revived');
         }
     }
 }

@@ -3,7 +3,7 @@
 use App\Models\Manual\ManualMaterialCategory;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSomeAttributesToManualCategories extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -45,4 +45,4 @@ class AddSomeAttributesToManualCategories extends Migration
 
         $category->attributesAll()->where('name', 'Удельный погонаж')->update(['is_display' => 1]);
     }
-}
+};

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddNotificationTypeForDefectControlTasks extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о задаче Контроль неисправности техники';
 
@@ -57,4 +57,4 @@ class AddNotificationTypeForDefectControlTasks extends Migration
 
         DB::commit();
     }
-}
+};
