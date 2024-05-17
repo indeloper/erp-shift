@@ -30,7 +30,12 @@ class OurVehicles extends Model
 
     protected $appends = ['owner_name'];
 
-    protected $casts = ['owner' => 'integer'];
+    protected function casts(): array
+    {
+        return [
+            'owner' => 'integer'
+        ];
+    }
 
     const OWNERS = [
         1 => 'ООО «СК ГОРОД»',

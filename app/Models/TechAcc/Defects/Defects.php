@@ -38,13 +38,16 @@ class Defects extends Model
 
     protected $appends = ['status_name', 'repair_start', 'repair_end', 'contractor', 'created_at_formatted', 'class_name', 'author_name', 'responsible_user_name'];
 
-    protected $casts = [
-        'repair_start_date' => 'datetime',
-        'repair_end_date' => 'datetime',
-        'status' => 'integer',
-    ];
-
     protected $hidden = ['contractor'];
+
+    protected function casts(): array
+    {
+        return [
+            'repair_start_date' => 'datetime',
+            'repair_end_date' => 'datetime',
+            'status' => 'integer',
+        ];
+    }
 
     const STATUSES = [
         1 => 'Новая заявка',
