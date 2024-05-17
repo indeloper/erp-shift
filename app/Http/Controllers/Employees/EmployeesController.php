@@ -27,7 +27,7 @@ class EmployeesController extends Controller
      */
     public function list(Request $request)
     {
-        $loadOptions = json_decode($request['loadOptions']);
+        $loadOptions = json_decode($request->get('loadOptions', '{}'));
 
         return (new Employee())
             ->dxLoadOptions($loadOptions)

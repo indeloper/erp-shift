@@ -159,9 +159,13 @@ trait DevExtremeDataSourceLoadable
      *
      * @return Builder|static
      */
-    public function dxLoadOptions(object $loadOption, $useHavingInsteadOfWhere = false)
+    public function dxLoadOptions(object|null $loadOption, $useHavingInsteadOfWhere = false)
     {
         $result = $this::query();
+
+        if ($loadOption === null) {
+            return $result;
+        }
 
         if (isset($loadOption->searchOperation) && ($loadOption->searchValue != null)) {
             $this->appendSearchOperation($result, $loadOption->searchOperation, $loadOption->searchValue, $loadOption->searchExpr);

@@ -27,10 +27,12 @@ package-lock.json
 
 .env.testing
 /database/debug.log
-/bootstrap/cache/
 /public/Nginx_1.21_vhost.conf
 /public/Nginx_1.21_vhost.conf.bak
 hs_err_pid*.log
 
-docker-compose.yml
-/docker
+# Игнорировать все файлы внутри bootstrap/cache/
+bootstrap/cache/*
+# Но не игнорировать саму папку иначе composer i упадет с ошибкой [auth] и .gitkeep файл
+!bootstrap/cache/
+!bootstrap/cache/.gitkeep

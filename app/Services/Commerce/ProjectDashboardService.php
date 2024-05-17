@@ -159,13 +159,13 @@ class ProjectDashboardService
         if ($project_mats_stats) {
             foreach ($project_mats_stats as $cat_id => $proj_sum) {
                 $mat_acc_sum = $mat_acc_stats[$cat_id] ?? 0;
-                $percent = (1 - (($proj_sum['sum'] - $mat_acc_sum['sum']) / $proj_sum['sum']));
+                $percent = (1 - (($proj_sum['sum'] - $mat_acc_sum) / $proj_sum['sum']));
                 $cat_percentage[$cat_id] = [
                     'name' => $proj_sum['name'],
                     'sum' => $percent > 1 ? 1 : $percent,
-                    'count' => round($mat_acc_sum['sum'], 3),
+                    'count' => round($mat_acc_sum, 3),
                     'wv_count' => round($proj_sum['sum'], 3),
-                    'unit' => $mat_acc_sum['unit'],
+                    'unit' => $mat_acc_sum,
                 ];
             }
         }
@@ -177,7 +177,7 @@ class ProjectDashboardService
                         'name' => $mat_acc_sum['name'],
                         'sum' => 1,
                         'count' => round($mat_acc_sum['sum'], 3),
-                        'wv_count' => round($proj_sum['sum'], 3),
+                        'wv_count' => round($proj_sum, 3),
                         'unit' => $mat_acc_sum['unit'],
                     ];
                 }
