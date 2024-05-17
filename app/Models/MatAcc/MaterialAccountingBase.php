@@ -53,7 +53,7 @@ class MaterialAccountingBase extends Model
     protected function casts(): array
     {
         return [
-            'used' => 'boolean'
+            'used' => 'boolean',
         ];
     }
 

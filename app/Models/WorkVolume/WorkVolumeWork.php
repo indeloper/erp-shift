@@ -2,7 +2,6 @@
 
 namespace App\Models\WorkVolume;
 
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Contractors\ContractorFile;
 use App\Models\Manual\ManualWork;
 use App\Traits\Reviewable;

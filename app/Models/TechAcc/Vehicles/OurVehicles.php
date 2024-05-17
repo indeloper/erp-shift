@@ -33,7 +33,7 @@ class OurVehicles extends Model
     protected function casts(): array
     {
         return [
-            'owner' => 'integer'
+            'owner' => 'integer',
         ];
     }
 

@@ -24,7 +24,7 @@ class FuelOperationsHistory extends Model
     protected function casts(): array
     {
         return [
-            'changed_fields' => 'array'
+            'changed_fields' => 'array',
         ];
     }
 

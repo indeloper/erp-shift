@@ -1,14 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\ServiceProvider;
 
 return [
 
     'notifications_dumping' => env('NOTIFICATION_DUMPING', false),
 
     'notification_dumping' => env('NOTIFICATION_DUMPING', false),
-
 
     'aliases' => Facade::defaultAliases()->merge([
         'Image' => Intervention\Image\Facades\Image::class,

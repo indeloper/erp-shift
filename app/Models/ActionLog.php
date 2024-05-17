@@ -16,7 +16,7 @@ class ActionLog extends Model
     protected function casts(): array
     {
         return [
-            'actions' => 'array'
+            'actions' => 'array',
         ];
     }
 
