@@ -9,37 +9,6 @@ return [
 
     'notification_dumping' => env('NOTIFICATION_DUMPING', false),
 
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        //        Fomvasss\Dadata\DadataServiceProvider::class,
-        niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class,
-
-        /*
-         * Package Service Providers...
-         */
-
-        /*
-         * Application Service Providers...
-         */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        App\Providers\ViewComposerServiceProvider::class,
-        Telegram\Bot\Laravel\TelegramServiceProvider::class,
-        Lexx\ChatMessenger\ChatMessengerServiceProvider::class,
-        App\Providers\PHPExcelMacroServiceProvider::class, // Add this provider to the list
-
-        /*
-         * Our Providers
-         */
-        \App\Providers\ObserversServiceProvider::class,
-        \App\Providers\BladeDirectivesProvider::class,
-        \App\Providers\BlueprintMacroServiceProvider::class,
-        \App\Providers\ServiceServiceProvider::class,
-        \App\Providers\RepositoryServiceProvider::class,
-    ])->toArray(),
 
     'aliases' => Facade::defaultAliases()->merge([
         'Image' => Intervention\Image\Facades\Image::class,

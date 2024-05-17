@@ -6,7 +6,13 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->withProviders()
+    ->withProviders([
+        \niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
+        \Intervention\Image\ImageServiceProvider::class,
+        \Telegram\Bot\Laravel\TelegramServiceProvider::class,
+        \Lexx\ChatMessenger\ChatMessengerServiceProvider::class,
+        App\Providers\PHPExcelMacroServiceProvider::class, // Add this provider to the list,
+    ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         // api: __DIR__.'/../routes/api.php',
