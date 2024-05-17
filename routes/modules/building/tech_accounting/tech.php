@@ -5,11 +5,11 @@ use App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankOperationContr
 use App\Http\Controllers\Building\TechAccounting\Technic;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('technic_category', 'App\Http\Controllers\Building\TechAccounting\Technic\old\TechnicCategoryController');
+Route::resource('technic_category', \App\Http\Controllers\Building\TechAccounting\Technic\old\TechnicCategoryController::class);
 Route::get('technic_category_trashed', [Technic\old\TechnicCategoryController::class, 'display_trashed'])->name('technic_category.display_trashed');
 Route::get('technic_category_trashed/{technic_category}', [Technic\old\TechnicCategoryController::class, 'show_trashed'])->name('technic_category.show_trashed');
 
-Route::resource('technic_category.our_technic', 'App\Http\Controllers\Building\TechAccounting\Technic\old\OurTechnicController')->except([
+Route::resource('technic_category.our_technic', \App\Http\Controllers\Building\TechAccounting\Technic\old\OurTechnicController::class)->except([
     'create', 'show', 'edit',
 ]);
 Route::get('technic_category/{technic_category}/our_technic_trashed', [Technic\old\OurTechnicController::class, 'display_trashed'])->name('technic_category.our_technic.trashed_index');
@@ -85,19 +85,19 @@ Route::post('get_trashed_fuel_tanks_paginated', [FuelTankController::class, 'get
 
 Route::prefix('technic')->name('technic::')->group(function () {
     Route::prefix('ourTechnicList')->name('ourTechnicList::')->group(function () {
-        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\OurTechnicController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Technic\OurTechnicController::class, $attachmentsRoutes = false);
     });
     Route::prefix('technicCategory')->name('technicCategory::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicCategoryController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Technic\TechnicCategoryController::class, $attachmentsRoutes = false);
     });
     Route::prefix('technicBrand')->name('technicBrand::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicBrandController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Technic\TechnicBrandController::class, $attachmentsRoutes = false);
     });
     Route::prefix('mtechnicBrandModel')->name('technicBrandModel::')->middleware('can:technics_brands_models_categories_read_create_update_delete')->group(function () {
-        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicBrandModelController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Technic\TechnicBrandModelController::class, $attachmentsRoutes = false);
     });
     Route::prefix('movements')->name('movements::')->group(function () {
-        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Technic\TechnicMovementController', $attachmentsRoutes = true);
+        Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Technic\TechnicMovementController::class, $attachmentsRoutes = true);
     });
 });
 
@@ -113,20 +113,20 @@ Route::prefix('fuel')->name('fuel::')->group(function () {
         Route::post('confirmMovingFuelTank', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'confirmMovingFuelTank'])->name('confirmMovingFuelTank');
         Route::get('getFuelTankConfirmationFormData', [App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, 'getFuelTankConfirmationFormData'])->name('getFuelTankConfirmationFormData');
 
-        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController', $attachmentsRoutes = false);
+        Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankController::class, $attachmentsRoutes = false);
     });
 
     Route::prefix('fuelFlow')->name('fuelFlow::')->group(function () {
-        Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankFlowController', $attachmentsRoutes = true);
+        Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Fuel\FuelTankFlowController::class, $attachmentsRoutes = true);
     });
 
     Route::prefix('reports')->name('reports::')->group(function () {
         Route::prefix('fuelTankPeriodReport')->name('fuelTankPeriodReport::')->group(function () {
-            Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTankPeriodReportController', $attachmentsRoutes = false);
+            Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTankPeriodReportController::class, $attachmentsRoutes = false);
             Route::get('getPdf', [App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTankPeriodReportController::class, 'getPdf'])->name('getPdf');
         });
         Route::prefix('tanksMovementReport')->name('tanksMovementReport::')->middleware('can:fuel_tanks_movements_report_access')->group(function () {
-            Route::registerBaseRoutes('App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTanksMovementsReportController', $attachmentsRoutes = false);
+            Route::registerBaseRoutes(\App\Http\Controllers\Building\TechAccounting\Fuel\Reports\FuelTanksMovementsReportController::class, $attachmentsRoutes = false);
         });
     });
 });
