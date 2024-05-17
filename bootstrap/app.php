@@ -14,7 +14,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(RouteServiceProvider::HOME);
+
+        $middleware->validateCsrfTokens(except: [
+            '/login',
+        ]);
+
+        $middleware->append(\App\Http\Middleware\TrimStringsLimited::class);
+
+        $middleware->throttleApi();
+
+        $middleware->alias([
+            'activeuser' => \App\Http\Middleware\ActiveUser::class,
+            'log.requests' => \App\Http\Middleware\LogRequests::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
