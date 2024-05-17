@@ -21,7 +21,12 @@ class FuelOperationsHistory extends Model
 
     protected $with = ['user'];
 
-    protected $casts = ['changed_fields' => 'array'];
+    protected function casts(): array
+    {
+        return [
+            'changed_fields' => 'array',
+        ];
+    }
 
     public function fuelTankOperation()
     {

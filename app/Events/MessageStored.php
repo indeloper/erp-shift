@@ -38,7 +38,7 @@ class MessageStored implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel(config('app.env').'.App.User.'.$this->recipientID)
+            new Channel(config('app.env').'.App.User.'.$this->recipientID),
         ];
     }
 

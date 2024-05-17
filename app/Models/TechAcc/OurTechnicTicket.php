@@ -72,15 +72,6 @@ class OurTechnicTicket extends Model
 
     protected $appends = ['short_data', 'class_name', 'can_extension', 'human_specialization'];
 
-    protected $casts = [
-        'sending_from_date' => 'string',
-        'sending_to_date' => 'string',
-        'getting_from_date' => 'string',
-        'getting_to_date' => 'string',
-        'usage_from_date' => 'string',
-        'usage_to_date' => 'string',
-    ];
-
     protected static function boot()
     {
         parent::boot();
@@ -110,6 +101,18 @@ class OurTechnicTicket extends Model
         static::addGlobalScope('orderByUpdated', function (Builder $builder) {
             $builder->orderByDesc('updated_at');
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'sending_from_date' => 'string',
+            'sending_to_date' => 'string',
+            'getting_from_date' => 'string',
+            'getting_to_date' => 'string',
+            'usage_from_date' => 'string',
+            'usage_to_date' => 'string',
+        ];
     }
 
     public function users(): BelongsToMany

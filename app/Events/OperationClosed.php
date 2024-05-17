@@ -59,7 +59,7 @@ class OperationClosed
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name')
+            new PrivateChannel('channel-name'),
         ];
     }
 }

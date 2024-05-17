@@ -8,14 +8,14 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "doctrine/dbal": "^3.5",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.4",
-        "irazasyed/telegram-bot-sdk": "^3.9",
-        "laravel/framework": "^10.48",
-        "laravel/tinker": "^2.8",
-        "syntaxlexx/chatmessenger": "^1.4",
+        "irazasyed/telegram-bot-sdk": "^3.14",
+        "laravel/framework": "^11.7",
+        "laravel/tinker": "^2.9",
+        "syntaxlexx/chatmessenger": "^1.5",
         "maatwebsite/excel": "^3.1",
         "niklasravnsborg/laravel-pdf": "^4.1",
         "pusher/pusher-php-server": "^7.0",
@@ -23,16 +23,15 @@
         "phpoffice/phpword": "v0.18.*",
         "wapmorgan/morphos": "^3.2",
         "ext-curl": "*",
-        "laravel/ui": "^4.2",
-        "spatie/laravel-ignition": "^2.0"
+        "laravel/ui": "^4.4",
+        "spatie/laravel-ignition": "^2.4"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.8",
-        "laravel/dusk": "^7.4",
-        "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^6.3",
+        "barryvdh/laravel-debugbar": "^3.10",
+        "laravel/dusk": "^8.0",
+        "mockery/mockery": "^1.6",
         "phpunit/phpunit": "^9.5.10",
-        "fakerphp/faker": "^1.9.1"
+        "fakerphp/faker": "^1.23"
     },
     "config": {
         "platform-check": false,

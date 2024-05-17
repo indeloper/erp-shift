@@ -38,13 +38,16 @@ class Defects extends Model
 
     protected $appends = ['status_name', 'repair_start', 'repair_end', 'contractor', 'created_at_formatted', 'class_name', 'author_name', 'responsible_user_name'];
 
-    protected $casts = [
-        'repair_start_date' => 'datetime',
-        'repair_end_date' => 'datetime',
-        'status' => 'integer',
-    ];
-
     protected $hidden = ['contractor'];
+
+    protected function casts(): array
+    {
+        return [
+            'repair_start_date' => 'datetime',
+            'repair_end_date' => 'datetime',
+            'status' => 'integer',
+        ];
+    }
 
     const STATUSES = [
         1 => 'Новая заявка',
@@ -134,7 +137,6 @@ class Defects extends Model
      * Return defects that in IN_WORK status and will expire soon.
      *
      * @param  int  $userId
-     * @return Builder
      */
     public function scopeSoonExpire(Builder $query): Builder
     {
@@ -146,8 +148,6 @@ class Defects extends Model
 
     /**
      * Return defects for given filter.
-     *
-     * @return Builder
      */
     public function scopeFilter(Builder $query, Request $request): Builder
     {
@@ -280,8 +280,6 @@ class Defects extends Model
     /**
      * Return all defects if user have permission
      * and only related if not
-     *
-     * @return Builder
      */
     public function scopePermissionCheck(Builder $query): Builder
     {
@@ -308,8 +306,6 @@ class Defects extends Model
 
     /**
      * Getter for defectable owner name
-     *
-     * @return string|null
      */
     public function getContractorAttribute(): ?string
     {
@@ -318,8 +314,6 @@ class Defects extends Model
 
     /**
      * Getter for repair_start_date formatting
-     *
-     * @return Carbon|null
      */
     public function getRepairStartAttribute(): ?Carbon
     {
@@ -328,8 +322,6 @@ class Defects extends Model
 
     /**
      * Getter for repair_end_date formatting
-     *
-     * @return Carbon|null
      */
     public function getRepairEndAttribute(): ?Carbon
     {
@@ -338,8 +330,6 @@ class Defects extends Model
 
     /**
      * Getter for created_at formatting
-     *
-     * @return Carbon|null
      */
     public function getCreatedAtFormattedAttribute(): ?Carbon
     {
@@ -348,8 +338,6 @@ class Defects extends Model
 
     /**
      * Getter for author name
-     *
-     * @return string|null
      */
     public function getAuthorNameAttribute(): ?string
     {
@@ -358,8 +346,6 @@ class Defects extends Model
 
     /**
      * Getter for responsible user name
-     *
-     * @return string|null
      */
     public function getResponsibleUserNameAttribute(): ?string
     {
@@ -369,8 +355,6 @@ class Defects extends Model
     // Relations
     /**
      * Relation for defect author
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function author(): BelongsTo
     {
@@ -379,8 +363,6 @@ class Defects extends Model
 
     /**
      * Relation to defectable model
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function defectable(): MorphTo
     {
@@ -420,8 +402,6 @@ class Defects extends Model
     // Methods
 
     /**
-     * @param  array  $request
-     *
      * @return mixed
      */
     public static function smartCreate(array $request)
@@ -433,8 +413,6 @@ class Defects extends Model
 
     /**
      * Function generate route to defect card
-     *
-     * @return string
      */
     public function card_route(): string
     {

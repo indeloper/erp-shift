@@ -14,10 +14,13 @@ class CategoryCharacteristic extends Model
 
     protected $fillable = ['name', 'description', 'is_hidden', 'unit', 'required'];
 
-    protected $casts = [
-        'is_hidden' => 'boolean',
-        'required' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_hidden' => 'boolean',
+            'required' => 'boolean',
+        ];
+    }
 
     public function technic_categories(): BelongsToMany
     {

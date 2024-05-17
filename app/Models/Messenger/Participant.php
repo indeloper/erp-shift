@@ -25,16 +25,6 @@ class Participant extends Eloquent
     protected $fillable = ['thread_id', 'user_id', 'last_read', 'starred'];
 
     /**
-     * attributes that should be cast
-     *
-     * @var array
-     */
-    protected $casts = [
-        'last_read' => 'datetime',
-        'starred' => 'boolean',
-    ];
-
-    /**
      * {@inheritDoc}
      */
     public function __construct(array $attributes = [])
@@ -42,6 +32,19 @@ class Participant extends Eloquent
         $this->table = Models::table('participants');
 
         parent::__construct($attributes);
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'last_read' => 'datetime',
+            'starred' => 'boolean',
+        ];
     }
 
     /**

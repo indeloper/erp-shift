@@ -52,7 +52,6 @@ class Thread extends Eloquent
     /**
      * Messages relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
@@ -63,8 +62,6 @@ class Thread extends Eloquent
 
     /**
      * Returns the latest message from a thread.
-     *
-     * @return null|\Lexx\ChatMessenger\Models\Message
      */
     public function getLatestMessageAttribute(): ?Message
     {
@@ -74,7 +71,6 @@ class Thread extends Eloquent
     /**
      * Participants relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
@@ -86,7 +82,6 @@ class Thread extends Eloquent
     /**
      * Participants relationship with trashed.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
@@ -99,7 +94,6 @@ class Thread extends Eloquent
     /**
      * User's relationship without thrashed.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      *
      * @codeCoverageIgnore
      */
@@ -112,7 +106,6 @@ class Thread extends Eloquent
     /**
      * User's relationship without thrashed.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      *
      * @codeCoverageIgnore
      */
@@ -151,7 +144,6 @@ class Thread extends Eloquent
     /**
      * Returns all threads by subject.
      *
-     * @param  string  $subject
      * @return \Illuminate\Database\Query\Builder|static
      */
     public static function getBySubject(string $subject)
@@ -164,7 +156,6 @@ class Thread extends Eloquent
      * Deleted participants from a thread will not be returned
      *
      * @param  null  $userId
-     * @return array
      */
     public function participantsUserIds($userId = null): array
     {
@@ -183,7 +174,6 @@ class Thread extends Eloquent
      * Returns an array of user ids that are associated with the thread (including removed participants from a thread).
      *
      * @param  null  $userId
-     * @return array
      */
     public function participantsUserIdsWithTrashed($userId = null): array
     {
@@ -200,9 +190,6 @@ class Thread extends Eloquent
 
     /**
      * Returns threads that the user is associated with.
-     *
-     * @param  int  $userId
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForUser(Builder $query, int $userId): Builder
     {
@@ -217,9 +204,6 @@ class Thread extends Eloquent
 
     /**
      * Returns threads that the user is associated with, now with leaved threads.
-     *
-     * @param  int  $userId
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForUserWithTrashed(Builder $query, int $userId): Builder
     {
@@ -233,9 +217,6 @@ class Thread extends Eloquent
 
     /**
      * Returns threads that the user is associated with, only leaved threads.
-     *
-     * @param  int  $userId
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForUserOnlyTrashed(Builder $query, int $userId): Builder
     {
@@ -250,9 +231,6 @@ class Thread extends Eloquent
 
     /**
      * Returns threads with new messages that the user is associated with.
-     *
-     * @param  int  $userId
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForUserWithNewMessages(Builder $query, int $userId): Builder
     {
@@ -271,9 +249,6 @@ class Thread extends Eloquent
 
     /**
      * Returns threads between given user ids.
-     *
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeBetween(Builder $query, array $participants): Builder
     {
@@ -289,7 +264,6 @@ class Thread extends Eloquent
      * Add users to thread as participants.
      *
      * @param  array|mixed  $userId
-     * @return bool
      */
     public function addParticipant($userId): bool
     {
@@ -310,7 +284,6 @@ class Thread extends Eloquent
      * Remove participants from thread.
      *
      * @param  array|mixed  $userId
-     * @return bool
      */
     public function removeParticipant($userId): bool
     {
@@ -321,9 +294,6 @@ class Thread extends Eloquent
 
     /**
      * Mark a thread as read for a user.
-     *
-     * @param  int  $userId
-     * @return void
      */
     public function markAsRead(int $userId): void
     {
@@ -338,9 +308,6 @@ class Thread extends Eloquent
 
     /**
      * See if the current thread is unread by the user.
-     *
-     * @param  int  $userId
-     * @return bool
      */
     public function isUnread(int $userId): bool
     {
@@ -372,8 +339,6 @@ class Thread extends Eloquent
 
     /**
      * Restores all participants within a thread that has a new message.
-     *
-     * @return void
      */
     public function activateAllParticipants(): void
     {
@@ -385,10 +350,6 @@ class Thread extends Eloquent
 
     /**
      * Generates a string of participant information.
-     *
-     * @param  null|int  $userId
-     * @param  array  $columns
-     * @return string
      */
     public function participantsString(?int $userId = null, array $columns = []): string
     {
@@ -417,9 +378,6 @@ class Thread extends Eloquent
 
     /**
      * Checks to see if a user is a current participant of the thread.
-     *
-     * @param  int  $userId
-     * @return bool
      */
     public function hasParticipant(int $userId): bool
     {
@@ -433,9 +391,6 @@ class Thread extends Eloquent
 
     /**
      * Checks to see if a user is a current participant of the thread with trashed.
-     *
-     * @param  int  $userId
-     * @return bool
      */
     public function hasTrashedParticipant(int $userId): bool
     {
@@ -449,9 +404,6 @@ class Thread extends Eloquent
 
     /**
      * Generates a select string used in participantsString().
-     *
-     * @param  array  $columns
-     * @return string
      */
     protected function createSelectString(array $columns): string
     {
@@ -479,9 +431,6 @@ class Thread extends Eloquent
 
     /**
      * Returns array of unread messages in thread for given user.
-     *
-     * @param  int  $userId
-     * @return \Illuminate\Support\Collection
      */
     public function userUnreadMessages(int $userId): Collection
     {
@@ -504,9 +453,6 @@ class Thread extends Eloquent
 
     /**
      * Returns count of unread messages in thread for given user.
-     *
-     * @param  int  $userId
-     * @return int
      */
     public function userUnreadMessagesCount(int $userId): int
     {
@@ -515,8 +461,6 @@ class Thread extends Eloquent
 
     /**
      * Returns the max number of participants allowed in a thread.
-     *
-     * @return int
      */
     public function getMaxParticipants(): int
     {
@@ -525,8 +469,6 @@ class Thread extends Eloquent
 
     /**
      * Checks if the max number of participants in a thread has been reached.
-     *
-     * @return bool
      */
     public function hasMaxParticipants(): bool
     {
@@ -579,7 +521,6 @@ class Thread extends Eloquent
      * check if the thread has been starred
      *
      * @param  null  $userId
-     * @return bool
      */
     public function getIsStarredAttribute($userId = null): bool
     {
