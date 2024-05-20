@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\Bitrix\BitrixService;
+use App\Services\Bitrix\BitrixServiceInterface;
 use App\Services\Menu\MenuItemFavorite;
 use App\Services\Menu\MenuItemFavoriteInterface;
 use App\Services\Menu\MenuService;
@@ -18,39 +20,16 @@ use Illuminate\Support\ServiceProvider;
 
 class ServiceServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
-    public function register(): void
-    {
-        $this->app->bind(
-            NotificationItemServiceInterface::class,
-            NotificationItemService::class
-        );
 
-        $this->app->bind(
-            MenuServiceInterface::class,
-            MenuService::class
-        );
+    public $bindings
+        = [
+            NotificationItemServiceInterface::class => NotificationItemService::class,
+            MenuServiceInterface::class             => MenuService::class,
+            MenuItemFavoriteInterface::class        => MenuItemFavorite::class,
+            UserServiceInterface::class             => UserService::class,
+            NotificationServiceInterface::class     => NotificationService::class,
+            TelegramServiceInterface::class         => TelegramService::class,
+            BitrixServiceInterface::class           => BitrixService::class,
+        ];
 
-        $this->app->bind(
-            MenuItemFavoriteInterface::class,
-            MenuItemFavorite::class
-        );
-
-        $this->app->bind(
-            UserServiceInterface::class,
-            UserService::class
-        );
-
-        $this->app->bind(
-            NotificationServiceInterface::class,
-            NotificationService::class
-        );
-
-        $this->app->bind(
-            TelegramServiceInterface::class,
-            TelegramService::class
-        );
-    }
 }

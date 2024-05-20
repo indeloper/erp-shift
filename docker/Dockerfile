@@ -43,6 +43,8 @@ RUN pecl channel-update pecl.php.net && \
     pecl install redis && \
     rm -rf /tmp/pear
 
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+
 # Install extensions
 RUN docker-php-ext-install gd zip exif pcntl opcache sockets mysqli pdo pdo_mysql && \
     docker-php-ext-enable pdo_mysql
@@ -55,6 +57,7 @@ WORKDIR /var/www
 COPY --chown=www-data .. .
 
 COPY ./php/php.ini /usr/local/etc/php/php.ini
+COPY ./php/20-xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 COPY ./php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
