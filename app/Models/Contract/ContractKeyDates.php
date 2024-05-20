@@ -21,10 +21,13 @@ class ContractKeyDates extends Model
         'note',
     ];
 
-    protected $casts = [
-        'date_from' => 'datetime',
-        'date_to' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'date_from' => 'datetime',
+            'date_to' => 'datetime',
+        ];
+    }
 
     public function related_key_dates(): HasMany
     {

@@ -37,11 +37,6 @@ class Notification extends Model
         'notificationable_id',
     ];
 
-    protected $casts = [
-        'is_deleted' => 'bool',
-        'is_seen' => 'bool',
-    ];
-
     public $additional_info = [];
 
     public static $status_names = [
@@ -55,6 +50,14 @@ class Notification extends Model
         '8' => 'Ссылка на согласование заявки', //please, remove this after friday
         '9' => 'Ссылка на список задач пользователя',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_deleted' => 'bool',
+            'is_seen' => 'bool',
+        ];
+    }
 
     public function task(): BelongsTo
     {

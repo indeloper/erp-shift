@@ -13,7 +13,12 @@ class ActionLog extends Model
 
     protected $fillable = ['user_id', 'actions', 'logable_type', 'logable_id'];
 
-    protected $casts = ['actions' => 'array'];
+    protected function casts(): array
+    {
+        return [
+            'actions' => 'array',
+        ];
+    }
 
     /**
      * Relation to logable model

@@ -44,13 +44,18 @@ class MaterialAccountingBase extends Model
 
     protected $appends = ['round_count', 'convert_params', 'material_name'];
 
-    protected $casts = ['used' => 'boolean'];
-
     public static $filter = [
         ['id' => 0, 'text' => 'Объект', 'db_name' => 'object_id'],
         ['id' => 1, 'text' => 'Материал', 'db_name' => 'manual_material_id'],
         ['id' => 3, 'text' => 'Эталон', 'db_name' => 'manual_reference_id'],
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'used' => 'boolean',
+        ];
+    }
 
     /**
      * Scope for operations index page

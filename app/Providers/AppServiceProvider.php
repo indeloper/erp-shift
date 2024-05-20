@@ -2,16 +2,28 @@
 
 namespace App\Providers;
 
+use App\Models\Permission;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * The path to your application's "home" route.
+     *
+     * Typically, users are redirected here after authentication.
+     *
+     * @var string
+     */
+    public const HOME = '/home';
+
     /**
      * Bootstrap any application services.
      */
@@ -60,6 +72,8 @@ class AppServiceProvider extends ServiceProvider
                 ]
             );
         });
+
+        $this->bootAuth();
     }
 
     /**
@@ -69,5 +83,34 @@ class AppServiceProvider extends ServiceProvider
     {
         setlocale(LC_TIME, 'ru_RU.UTF-8');
         Carbon::setLocale('ru');
+    }
+
+    public function bootAuth(): void
+    {
+        //        Passport::routes();
+
+        //allow everything for super admin
+        Gate::before(function ($user, $ability, $arguments) {
+            if ($user->is_su) {
+                return true;
+            }
+            if (isset($arguments[0])) {
+                $short_name = (new \ReflectionClass($arguments[0]))->getShortName();
+                $permission = $ability.'.'.$short_name;
+                $is_authed = $user->hasPermission($permission);
+                if ($is_authed) {
+                    return true;
+                }
+            }
+        });
+
+        // load check user permission
+        foreach (Permission::all() as $permission) {
+            $ability = $permission->codename;
+            Gate::define($ability, function ($user) use ($ability) {
+                return $user->hasPermission($ability);
+            });
+        }
+
     }
 }

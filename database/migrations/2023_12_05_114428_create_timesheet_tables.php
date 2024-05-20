@@ -154,7 +154,7 @@ return new class extends Migration
                 $table->unsignedInteger('month')->index()->comment('Месяц табеля, с индексированием для ускорения поиска');
                 $table->unsignedInteger('year')->index()->comment('Год табеля, с индексированием для ускорения поиска');
                 $table->unsignedBigInteger('timesheet_state_id')->default(1)->comment('Идентификатор состояния табеля');
-                $table->unsignedDecimal('ktu', 8, 2)->default(0)->comment('Коэффициент трудоемкости (KTU)');
+                $table->decimal('ktu', 8, 2)->unsigned()->default(0)->comment('Коэффициент трудоемкости (KTU)');
 
                 $table->audit();
 

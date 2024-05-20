@@ -15,9 +15,12 @@ class NotificationItem extends Model
         'status',
     ];
 
-    protected $casts = [
-        'status' => 'bool',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'status' => 'bool',
+        ];
+    }
 
     public function permissions(): BelongsToMany
     {

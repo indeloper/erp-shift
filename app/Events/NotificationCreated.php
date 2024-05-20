@@ -49,7 +49,7 @@ class NotificationCreated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel(config('app.env').'.App.User.'.$this->target_user)
+            new Channel(config('app.env').'.App.User.'.$this->target_user),
         ];
     }
 }

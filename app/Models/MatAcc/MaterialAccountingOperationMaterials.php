@@ -39,8 +39,6 @@ class MaterialAccountingOperationMaterials extends Model
 
     protected $appends = ['material_id', 'material_unit', 'material_count', 'drawer', 'material_name', 'comment_name', 'converted_count'];
 
-    protected $casts = ['used' => 'boolean'];
-
     public $type_name = [
         1 => 'user from',
         2 => 'user to', // "ИТОГ" for "Списание" and "Поступление"
@@ -87,6 +85,13 @@ class MaterialAccountingOperationMaterials extends Model
         4 => 'м2',
         5 => 'м3',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'used' => 'boolean',
+        ];
+    }
 
     public static function flipUnit($unit_to_flip)
     {

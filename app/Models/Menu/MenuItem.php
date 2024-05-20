@@ -26,12 +26,15 @@ class MenuItem extends Model
         'actives',
     ];
 
-    protected $casts = [
-        'status' => 'boolean',
-        'is_su' => 'boolean',
-        'gates' => 'array',
-        'actives' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'status' => 'boolean',
+            'is_su' => 'boolean',
+            'gates' => 'array',
+            'actives' => 'array',
+        ];
+    }
 
     public function scopeActive($query)
     {

@@ -22,10 +22,13 @@ class VehicleCategoryCharacteristics extends Model
         'required',
     ];
 
-    protected $casts = [
-        'show' => 'boolean',
-        'required' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'show' => 'boolean',
+            'required' => 'boolean',
+        ];
+    }
 
     const SHOW = [
         0 => 'show off',
