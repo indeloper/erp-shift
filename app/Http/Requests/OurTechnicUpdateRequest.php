@@ -10,16 +10,17 @@ class OurTechnicUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function withValidator($validator) {
-        if (! $this->characteristics) return;
+    public function withValidator($validator)
+    {
+        if (! $this->characteristics) {
+            return;
+        }
         foreach ($this->characteristics as $key => $characteristic) {
             if ($this->isEmptyRequiredParameter($characteristic)) {
                 $validator->errors()->add("characteristics.{$key}.required", 'Поле является обязательным');
@@ -35,10 +36,8 @@ class OurTechnicUpdateRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'brand' => 'sometimes|required|string|max:60',

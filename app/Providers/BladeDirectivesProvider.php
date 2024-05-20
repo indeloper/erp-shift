@@ -10,25 +10,22 @@ class BladeDirectivesProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Blade::directive('user', function ($userId) {
             $user = User::findOrFail($userId);
-            return '<a href=' . route('users::card', $user->id) . ' class="activity-content__link">' .
-                $user->long_full_name . '</a>';
+
+            return '<a href='.route('users::card', $user->id).' class="activity-content__link">'.
+                $user->long_full_name.'</a>';
         });
     }
 }

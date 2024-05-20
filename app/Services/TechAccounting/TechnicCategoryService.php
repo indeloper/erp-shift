@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\TechAccounting;
 
 use App\Models\FileEntry;
@@ -6,20 +7,18 @@ use App\Models\TechAcc\CategoryCharacteristic;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\TechAcc\TechnicCategory;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class TechnicCategoryService
 {
-    public function createTechnicCategoryWithCharacteristics(array $attributes) {
+    public function createTechnicCategoryWithCharacteristics(array $attributes)
+    {
         DB::beginTransaction();
 
         $technic = TechnicCategory::create($attributes);
         $characteristics = [];
 
-        if(isset($attributes['characteristics'])) {
+        if (isset($attributes['characteristics'])) {
             foreach ($attributes['characteristics'] as $characteristic_attrs) {
                 $characteristics[] = CategoryCharacteristic::create($characteristic_attrs)->id;
             }
@@ -29,14 +28,15 @@ class TechnicCategoryService
         DB::commit();
     }
 
-    public function updateTechnicCategoryWithCharacteristics(array $attributes, $technic_category_id) {
+    public function updateTechnicCategoryWithCharacteristics(array $attributes, $technic_category_id)
+    {
         DB::beginTransaction();
         $technic = TechnicCategory::find($technic_category_id);
         $technic->update($attributes);
 
         $characteristics = [];
 
-        if(isset($attributes['characteristics'])) {
+        if (isset($attributes['characteristics'])) {
             foreach ($attributes['characteristics'] as $characteristic_attrs) {
                 if ($characteristic_attrs['id'] > 0) {
                     CategoryCharacteristic::find($characteristic_attrs['id'])->update($characteristic_attrs);
@@ -58,12 +58,12 @@ class TechnicCategoryService
     {
         DB::beginTransaction();
 
-        if(isset($attributes['technic_category'])) {
+        if (isset($attributes['technic_category'])) {
             $category = TechnicCategory::query()->where('name', $attributes['technic_category'])->first();
 
             $attributes['technic_category_id'] = $category ? $category->id : 0;
         }
-        if(isset($attributes['exploitation_start'])) {
+        if (isset($attributes['exploitation_start'])) {
             $attributes['exploitation_start'] = \Carbon\Carbon::parse($attributes['exploitation_start']);
         }
 
@@ -74,7 +74,7 @@ class TechnicCategoryService
             $our_technic->save();
         }
 
-        if(isset($attributes['file_ids'])) {
+        if (isset($attributes['file_ids'])) {
             $files = FileEntry::find($attributes['file_ids']);
             $our_technic->documents()->saveMany($files);
         }
@@ -90,12 +90,12 @@ class TechnicCategoryService
     {
         DB::beginTransaction();
 
-        if(isset($attributes['technic_category'])) {
+        if (isset($attributes['technic_category'])) {
             $category = TechnicCategory::query()->where('name', $attributes['technic_category'])->first();
 
             $attributes['technic_category_id'] = $category ? $category->id : 0;
         }
-        if(isset($attributes['exploitation_start'])) {
+        if (isset($attributes['exploitation_start'])) {
             $attributes['exploitation_start'] = \Carbon\Carbon::parse($attributes['exploitation_start']);
         }
 
@@ -106,7 +106,7 @@ class TechnicCategoryService
             $our_technic->setCharacteristicsValue($attributes['characteristics']);
         }
 
-        if(isset($attributes['file_ids'])) {
+        if (isset($attributes['file_ids'])) {
             $files = FileEntry::find($attributes['file_ids']);
             $our_technic->documents()->saveMany($files);
         }
@@ -148,5 +148,4 @@ class TechnicCategoryService
 
         return ['data' => compact(['owners', 'category', 'technics', 'technicsCount', 'statuses'])];
     }
-
 }

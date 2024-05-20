@@ -2,28 +2,26 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class ViewComposerServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         View::composer(
             [
                 'layouts.app',
-                'layouts.messages'
+                'layouts.messages',
             ],
-            'App\Http\ViewComposers\TaskComposer'
+            \App\Http\ViewComposers\TaskComposer::class
         );
 
         View::composer(
-            'building.material_accounting.modules.*', 'App\Http\ViewComposers\MatAccComposer'
+            'building.material_accounting.modules.*', \App\Http\ViewComposers\MatAccComposer::class
         );
 
         View::composer(
@@ -31,27 +29,16 @@ class ViewComposerServiceProvider extends ServiceProvider
                 'building.material_accounting.arrival.*',
                 'building.material_accounting.moving.*',
                 'building.material_accounting.transformation.*',
-                'building.material_accounting.write_off.*'
+                'building.material_accounting.write_off.*',
             ],
-            'App\Http\ViewComposers\ManualMaterialCategoryComposer'
-        );
-
-        View::composer(
-            [
-                'human_resources.reports.summary_report',
-                'human_resources.reports.daily_report',
-                'human_resources.reports.detailed_report',
-            ],
-            'App\Http\ViewComposers\TimecardComposer'
+            \App\Http\ViewComposers\ManualMaterialCategoryComposer::class
         );
     }
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }

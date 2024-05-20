@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\{Notification, User};
+use App\Models\{User};
+use App\Notifications\DefaultNotification;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 
 class NotifySender extends Command
 {
@@ -48,10 +50,8 @@ class NotifySender extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $places = self::PLACES;
         $user_types = self::USERS;
@@ -69,47 +69,56 @@ class NotifySender extends Command
     /**
      * Function check parameters and
      * can stop execution
-     * @param string $text
-     * @param string $place
-     * @param string $users
-     * @param bool $have_errors
      */
-    public function checkParameters(string $text, string $place, string $users, $have_errors = false)
+    public function checkParameters(string $text, string $place, string $users, bool $have_errors = false)
     {
         // check $text
         if ($text == 'Стандартное сообщение') {
-            if (! $this->confirm('Looks like you dont send any text here. Do you want to continue?')) { $have_errors = true; }
+            if (! $this->confirm('Looks like you dont send any text here. Do you want to continue?')) {
+                $have_errors = true;
+            }
         }
         // check $place
-        if (! in_array($place, array_keys(self::PLACES))) { $this->error('Bad $place parameter value! Check inputs'); $have_errors = true; }
+        if (! in_array($place, array_keys(self::PLACES))) {
+            $this->error('Bad $place parameter value! Check inputs');
+            $have_errors = true;
+        }
 
         // check $users
-        if (! in_array($users, array_keys(self::USERS))) { $this->error('Bad $users parameter value! Check inputs'); $have_errors = true; }
+        if (! in_array($users, array_keys(self::USERS))) {
+            $this->error('Bad $users parameter value! Check inputs');
+            $have_errors = true;
+        }
 
-        if ($have_errors) exit(5);
+        if ($have_errors) {
+            exit(5);
+        }
     }
 
     /**
      * Function create notifications with
      * $text to $recipients
-     * @param string $text
-     * @param string $place
-     * @param string $users
      */
     public function generateNotifications(string $text, string $place, string $users)
     {
-        $recipients = ($users == 0 ? User::withoutTelegramChatId() :
-            ($users == 1 ? User::withTelegramChatId() : User::query()))
-            ->pluck('id')->toArray();
+        $recipients = User::query()
+            ->when($users === 0, function (Builder $query) {
+                $query->withoutTelegramChatId();
+            })
+            ->when($users === 1, function (Builder $query) {
+                $query->withTelegramChatId();
+            })
+            ->get();
 
-        foreach ($recipients as $recipient) {
-            // here can be some switches/if's for other variants
-            // right now works only for first variant
-            Notification::create([
-                'name' => $text,
-                'user_id' => $recipient,
-                'type' => 0,
-            ]);
-        }
+        $recipients->each(function (User $user) use ($text) {
+
+            DefaultNotification::send(
+                $user->id,
+                [
+                    'name' => 'Описание уведомления',
+                    'additional_info' => $text,
+                ]
+            );
+        });
     }
 }

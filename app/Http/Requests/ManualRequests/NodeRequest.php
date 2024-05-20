@@ -8,10 +8,8 @@ class NodeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -38,10 +36,8 @@ class NodeRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'node_id' => 'sometimes|required|numeric|exists:manual_nodes,id',
@@ -50,7 +46,7 @@ class NodeRequest extends FormRequest
             'count' => 'array|required',
             'node_category_id' => 'string|required|exists:manual_node_categories,id',
             'node_name' => 'string|required|max:150',
-            'node_description' => 'string|nullable|max:200'
+            'node_description' => 'string|nullable|max:200',
         ];
     }
 }

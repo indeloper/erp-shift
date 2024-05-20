@@ -1,0 +1,1 @@
+@include('tech_accounting.fuel.tanks.moduleCommonVariables')

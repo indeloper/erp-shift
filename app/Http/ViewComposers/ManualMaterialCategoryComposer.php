@@ -2,12 +2,8 @@
 
 namespace App\Http\ViewComposers;
 
-use App\Models\Notification;
-
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Manual\ManualMaterialCategory;
-
+use Illuminate\View\View;
 
 class ManualMaterialCategoryComposer
 {
@@ -18,7 +14,7 @@ class ManualMaterialCategoryComposer
 
     public function compose(View $view)
     {
-        $categories = ManualMaterialCategory::whereNotIn('id', [12,14])->with('attributes')->select('id', 'name')->get();
+        $categories = ManualMaterialCategory::whereNotIn('id', [12, 14])->with('attributes')->select('id', 'name')->get();
 
         $view->with('categories', $categories);
     }

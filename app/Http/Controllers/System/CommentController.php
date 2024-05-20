@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\System;
 
+use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\FileEntry;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): Response
     {
         DB::beginTransaction();
         $attributes = $request->all();
@@ -20,10 +21,11 @@ class CommentController extends Controller
         $comment = $this->system_service->storeComment($attributes);
 
         DB::commit();
+
         return response(['data' => compact('comment')]);
     }
 
-    public function update(Request $request, Comment $comment)
+    public function update(Request $request, Comment $comment): Response
     {
         DB::beginTransaction();
         //update ticket
@@ -40,13 +42,12 @@ class CommentController extends Controller
             $comment->refresh();
         }
 
-
         DB::commit();
 
         return response(['data' => compact('comment')]);
     }
 
-    public function destroy(Comment $comment)
+    public function destroy(Comment $comment): Response
     {
         $comment->delete();
 

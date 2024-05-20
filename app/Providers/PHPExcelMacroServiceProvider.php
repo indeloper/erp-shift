@@ -3,17 +3,15 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-Use \Maatwebsite\Excel\Sheet;
-use \Maatwebsite\Excel\Writer;
+use Maatwebsite\Excel\Sheet;
+use Maatwebsite\Excel\Writer;
 
 class PHPExcelMacroServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         /**
          * Page format macros
@@ -77,10 +75,8 @@ class PHPExcelMacroServiceProvider extends ServiceProvider
 
     /**
      * Register services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }

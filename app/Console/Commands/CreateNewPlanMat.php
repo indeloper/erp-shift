@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\MatAcc\MaterialAccountingBase;
 use App\Models\MatAcc\MaterialAccountingOperation;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -36,10 +35,8 @@ class CreateNewPlanMat extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         DB::beginTransaction();
 
@@ -47,7 +44,7 @@ class CreateNewPlanMat extends Command
         $total = $operations->count();
         $quater = $total / 4;
         $progress = 0;
-        $this->info("we will iterate $total operations" );
+        $this->info("we will iterate $total operations");
         $missed_operations = 0;
         foreach ($operations as $operation) {
             $progress++;
@@ -71,7 +68,7 @@ class CreateNewPlanMat extends Command
                 ])->first();
 
                 // if there is no base, we have to create one
-                if (!$plan_base_from) {
+                if (! $plan_base_from) {
                     $this->info("problem operation id is $operation->id");
                     if ($this->confirm('Do you wish to continue?')) {
                         $this->info("materials is $old_plan->material_name");
@@ -83,7 +80,7 @@ class CreateNewPlanMat extends Command
                     }
                 }
 
-                if (!$plan_base_to) {
+                if (! $plan_base_to) {
                     $plan_base_to = $this->createNewBase(true, $operation, $old_plan);
                 }
 
@@ -99,16 +96,10 @@ class CreateNewPlanMat extends Command
                 }
             }
         }
-        $this->info("done!");
+        $this->info('done!');
         DB::commit();
     }
 
-    /**
-     * @param int $is_to
-     * @param $operation
-     * @param $old_plan
-     * @return MaterialAccountingBase
-     */
     private function createNewBase(int $is_to, $operation, $old_plan): MaterialAccountingBase
     {
         $date_to = $operation->actual_date_to ? $operation->actual_date_to : ($operation->planned_date_to ? $operation->planned_date_to : $operation->planned_date_from);
@@ -118,11 +109,12 @@ class CreateNewPlanMat extends Command
             'manual_material_id' => $old_plan->manual_material_id,
             'used' => $old_plan->used,
             'date' => $is_to ? $date_to : $date_from,
-            'count' => !$is_to ? $old_plan->count : 0,
+            'count' => ! $is_to ? $old_plan->count : 0,
         ]);
         $plan_base->save();
         $plan_base->ancestor_base_id = $plan_base->id;
         $plan_base->save();
+
         return $plan_base;
     }
 }

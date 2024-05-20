@@ -19,7 +19,7 @@ use Tests\Feature\Tech_accounting\OurTechnicTicket\OurTechnicTicketTestCase;
 class OurTechnicTicketTest extends OurTechnicTicketTestCase
 {
     /** @test */
-    public function it_can_create_ticket()
+    public function it_can_create_ticket(): void
     {
         $request = $this->validFields(['ticket_resp_user_id' => 1]);
         $this->service->createNewTicket($request);
@@ -29,11 +29,11 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function new_tickets_go_first()
+    public function new_tickets_go_first(): void
     {
-        $old_tickets = factory(OurTechnicTicket::class, 2)->create(['updated_at' => Carbon::now()->subDays(2)]);
-        $newer_tickets = factory(OurTechnicTicket::class, 2)->create(['updated_at' => Carbon::now()->subDays(1)]);
-        $brand_new_tickets = factory(OurTechnicTicket::class, 1)->create(['updated_at' => Carbon::now()]);
+        $old_tickets = OurTechnicTicket::factory()->count(2)->create(['updated_at' => Carbon::now()->subDays(2)]);
+        $newer_tickets = OurTechnicTicket::factory()->count(2)->create(['updated_at' => Carbon::now()->subDays(1)]);
+        $brand_new_tickets = OurTechnicTicket::factory()->count(1)->create(['updated_at' => Carbon::now()]);
 
         $all_tickets = OurTechnicTicket::all();
 
@@ -41,7 +41,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_task_to_accept_ticket()
+    public function it_creates_task_to_accept_ticket(): void
     {
         $this->actingAs(User::find(1)); //rp will skip this step and will go directly to usage(transfer)
         $ticket_service = new TechnicTicketService();
@@ -55,7 +55,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_return_users_by_scope()
+    public function it_can_return_users_by_scope(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, [], ['author_user_id' => 6])->first();
 
@@ -65,7 +65,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_show_buttons_only_for_current_responsible()
+    public function it_show_buttons_only_for_current_responsible(): void
     {
         $ticket = $this->seedTicketsWithUsers()->first();
 
@@ -77,11 +77,11 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_have_vehicles()
+    public function it_can_have_vehicles(): void
     {
-        $ticket = factory(OurTechnicTicket::class)->create();
-        $vehicle_collection = factory(OurVehicles::class,2 )->create();
-        $vehicle_model = factory(OurVehicles::class)->create();
+        $ticket = OurTechnicTicket::factory()->create();
+        $vehicle_collection = OurVehicles::factory()->count(2)->create();
+        $vehicle_model = OurVehicles::factory()->create();
 
         $ticket->vehicles()->attach($vehicle_collection);
         $ticket->vehicles()->attach($vehicle_model);
@@ -90,7 +90,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_path_step_by_step()
+    public function it_can_go_through_path_step_by_step(): void
     {
         $controller = new OurTechnicTicketController();
         //2 => 'Ожидает назначения'
@@ -162,7 +162,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_very_long_path_step_by_step()
+    public function it_can_go_through_very_long_path_step_by_step(): void
     {
         $controller = new OurTechnicTicketController();
         //2 => 'Ожидает назначения'
@@ -243,7 +243,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_logist_failure_path()
+    public function it_can_go_through_logist_failure_path(): void
     {
         $controller = new OurTechnicTicketController();
         //0 => 'Создание заявки'
@@ -265,7 +265,6 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
 
         $this->assertEquals(4, $ticket->status);
 
-
         //6 => 'Удержание'
         $request = new DynamicTicketUpdateRequest([
             'result' => 'reject',
@@ -278,7 +277,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_go_through_rp_failure_path()
+    public function it_can_go_through_rp_failure_path(): void
     {
         $controller = new OurTechnicTicketController();
         $this->actingAs($this->prorabs->first());
@@ -300,7 +299,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_fires_seven_notification_after_logist_accepts_ticket()
+    public function it_fires_seven_notification_after_logist_accepts_ticket(): void
     {
         $controller = new OurTechnicTicketController();
 
@@ -310,7 +309,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
         $this->actingAs($this->logist);
         $request = new DynamicTicketUpdateRequest([
             'result' => 'confirm',
-            'vehicle_ids' => [factory(OurVehicles::class)->create()->id],
+            'vehicle_ids' => [OurVehicles::factory()->create()->id],
         ]);
 
         Event::fake([
@@ -321,12 +320,12 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
         $expected_count = $ticket->users->unique()->count() + 2;
         Event::assertDispatched(NotificationCreated::class, $expected_count);
 
-//        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
+        //        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
         $this->assertEquals(6, $ticket->status);
     }
 
     /** @test */
-    public function it_fires_five_notification_after_logist_holds_ticket()
+    public function it_fires_five_notification_after_logist_holds_ticket(): void
     {
         $controller = new OurTechnicTicketController();
 
@@ -336,7 +335,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
         $this->actingAs($this->logist);
         $request = new DynamicTicketUpdateRequest([
             'result' => 'reject', //or hold
-            'vehicle_ids' => [factory(OurVehicles::class)->create()->id],
+            'vehicle_ids' => [OurVehicles::factory()->create()->id],
         ]);
 
         Event::fake([
@@ -347,17 +346,17 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
         $expected_count = $ticket->users->unique()->count();
         Event::assertDispatched(NotificationCreated::class, $expected_count);
 
-//        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
+        //        dd(collect(Event::dispatched(NotificationCreated::class))->flatten()->pluck('text')); //if you want to see text
     }
 
     /** @test */
-    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order()
+    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order(): void
     {
         // Given ticket and reports
-        $ticket = factory(OurTechnicTicket::class)->create();
-        $report1 = $ticket->reports()->save(factory(OurTechnicTicketReport::class)->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->format('d.m.Y')]));
-        $report2 = $ticket->reports()->save(factory(OurTechnicTicketReport::class)->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subDay()->format('d.m.Y')]));
-        $report3 = $ticket->reports()->save(factory(OurTechnicTicketReport::class)->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subDays(2)->format('d.m.Y')]));
+        $ticket = OurTechnicTicket::factory()->create();
+        $report1 = $ticket->reports()->save(OurTechnicTicketReport::factory()->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->format('d.m.Y')]));
+        $report2 = $ticket->reports()->save(OurTechnicTicketReport::factory()->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subDay()->format('d.m.Y')]));
+        $report3 = $ticket->reports()->save(OurTechnicTicketReport::factory()->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subDays(2)->format('d.m.Y')]));
 
         // When we user reports() relation
         $reports = $ticket->reports;
@@ -367,13 +366,13 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order_one_more_time()
+    public function ticket_reports_relation_return_reports_ordered_by_date_in_desc_order_one_more_time(): void
     {
         // Given ticket and reports
-        $ticket = factory(OurTechnicTicket::class)->create();
-        $report1 = $ticket->reports()->save(factory(OurTechnicTicketReport::class)->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->format('d.m.Y')]));
-        $report2 = $ticket->reports()->save(factory(OurTechnicTicketReport::class)->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subDay()->format('d.m.Y')]));
-        $report3 = $ticket->reports()->save(factory(OurTechnicTicketReport::class)->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subMonth()->day(28)->format('d.m.Y')]));
+        $ticket = OurTechnicTicket::factory()->create();
+        $report1 = $ticket->reports()->save(OurTechnicTicketReport::factory()->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->format('d.m.Y')]));
+        $report2 = $ticket->reports()->save(OurTechnicTicketReport::factory()->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subDay()->format('d.m.Y')]));
+        $report3 = $ticket->reports()->save(OurTechnicTicketReport::factory()->create(['our_technic_ticket_id' => $ticket->id, 'date' => now()->subMonth()->day(28)->format('d.m.Y')]));
 
         // When we user reports() relation
         $reports = $ticket->reports;
@@ -383,16 +382,16 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function users_who_have_permissions_can_see_all_tickets()
+    public function users_who_have_permissions_can_see_all_tickets(): void
     {
         // Given tickets
-        $ticket1 = factory(OurTechnicTicket::class)->create();
-        $ticket2 = factory(OurTechnicTicket::class)->create();
-        $ticket3 = factory(OurTechnicTicket::class)->create();
+        $ticket1 = OurTechnicTicket::factory()->create();
+        $ticket2 = OurTechnicTicket::factory()->create();
+        $ticket3 = OurTechnicTicket::factory()->create();
 
         // When we use OurTechnicTicket::filter()
         // as principle
-        $principle = User::whereGroupId(47)->where('is_deleted', 0)->first() ?? factory(User::class)->create(['group_id' => 47]);
+        $principle = User::whereGroupId(47)->where('is_deleted', 0)->first() ?? User::factory()->create(['group_id' => 47]);
         $this->actingAs($principle);
         $results = OurTechnicTicket::filter(request()->all())->permissionCheck()->get();
 
@@ -403,16 +402,16 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function users_who_have_permissions_can_see_only_related_tickets()
+    public function users_who_have_permissions_can_see_only_related_tickets(): void
     {
         // Given tickets
-        $ticket1 = factory(OurTechnicTicket::class)->create();
-        $ticket2 = factory(OurTechnicTicket::class)->create();
-        $ticket3 = factory(OurTechnicTicket::class)->create();
+        $ticket1 = OurTechnicTicket::factory()->create();
+        $ticket2 = OurTechnicTicket::factory()->create();
+        $ticket3 = OurTechnicTicket::factory()->create();
 
         // When we use OurTechnicTicket::filter()
         // as non - principle
-        $nonPrimary = User::where('group_id', '!=', 47)->whereNotIn('id', [1, User::HARDCODED_PERSONS['router']])->where('is_deleted', 0)->first() ?? factory(User::class)->create(['group_id' => 7]);
+        $nonPrimary = User::where('group_id', '!=', 47)->whereNotIn('id', [1, User::HARDCODED_PERSONS['router']])->where('is_deleted', 0)->first() ?? User::factory()->create(['group_id' => 7]);
         $this->actingAs($nonPrimary);
         $results = OurTechnicTicket::filter(request()->all())->permissionCheck()->get();
 
@@ -422,18 +421,17 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function users_who_have_permissions_can_see_only_related_tickets_one_more_time()
+    public function users_who_have_permissions_can_see_only_related_tickets_one_more_time(): void
     {
         // Given tickets
-        $ticket1 = factory(OurTechnicTicket::class)->create();
-        $ticket2 = factory(OurTechnicTicket::class)->create();
-        $ticket3 = factory(OurTechnicTicket::class)->create();
+        $ticket1 = OurTechnicTicket::factory()->create();
+        $ticket2 = OurTechnicTicket::factory()->create();
+        $ticket3 = OurTechnicTicket::factory()->create();
         // And non - principle user
-        $nonPrimary = User::where('group_id', '!=', 47)->whereNotIn('id', [1, User::HARDCODED_PERSONS['router']])->where('is_deleted', 0)->first() ?? factory(User::class)->create(['group_id' => 7]);
+        $nonPrimary = User::where('group_id', '!=', 47)->whereNotIn('id', [1, User::HARDCODED_PERSONS['router']])->where('is_deleted', 0)->first() ?? User::factory()->create(['group_id' => 7]);
         // Add user to tickets
         $ticket1->users()->attach($nonPrimary->id, ['type' => rand(1, 5)]);
         $ticket3->users()->attach($nonPrimary->id, ['type' => rand(1, 5)]);
-
 
         // When we use OurTechnicTicket::filter()
         // as non - principle
@@ -448,7 +446,7 @@ class OurTechnicTicketTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_udates_usage_time_correctly()
+    public function it_udates_usage_time_correctly(): void
     {
         $ser = new TechnicTicketService();
         $tic = $this->seedTicketsWithUsers(1, [

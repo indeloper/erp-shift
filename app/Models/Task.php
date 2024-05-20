@@ -4,19 +4,24 @@ namespace App\Models;
 
 use App\Models\Contractors\Contractor;
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Notifications\Task\TaskClosureNotice;
 use App\Traits\DevExtremeDataSourceLoadable;
 use App\Traits\Notificationable;
 use App\Traits\NotificationGenerator;
 use App\Traits\SmartSearchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use App\Models\MatAcc\MaterialAccountingOperationMaterials;
 
 class Task extends Model
 {
-    use SoftDeletes, Notificationable, NotificationGenerator, SmartSearchable, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, Notificationable, NotificationGenerator, SmartSearchable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -46,7 +51,7 @@ class Task extends Model
     public $notify_codes = [
         0 => 'Новая/закрытая задача',
         1 => 'Уведомление о 30%',
-        2 => 'Просрочена'
+        2 => 'Просрочена',
     ];
 
     public static $task_status = [
@@ -93,7 +98,6 @@ class Task extends Model
         43 => 'Контроль наличия сертификатов',
         45 => 'Контроль договора в операциях',
     ]; //TODO: adding something here? check trello first
-
 
     public $descriptions = [
         1 => 'Задача выполнена',
@@ -180,15 +184,15 @@ class Task extends Model
     public function getGetResultAttribute()
     {
         $result = $this->result ?: $this->is_solved;
-        $text = $this->descriptions[$this->status] . ' ' . ($this->results[$this->status][$result] ?? '');
+        $text = $this->descriptions[$this->status].' '.($this->results[$this->status][$result] ?? '');
+
         return $text;
     }
 
     /**
      * Getter for created_at formatting
-     * @return string
      */
-    public function getCreatedAtFormattedAttribute($date)
+    public function getCreatedAtFormattedAttribute($date): string
     {
         return Carbon::parse($date)->format(self::ADDITIONAL_DATE_FORMAT);
     }
@@ -207,6 +211,7 @@ class Task extends Model
     {
         return Carbon::parse($date)->format('d.m.Y H:i:s');
     }
+
     public function getReviveAtAttribute($date)
     {
         if ($date) {
@@ -218,84 +223,103 @@ class Task extends Model
 
     public function task_route()
     {
-        if ($this->status == 1) return route('tasks::card', $this->id);
-        elseif ($this->status == 2) return route('tasks::new_call', $this->id);
-        elseif ($this->status == 19) return route('contractors::remove_task', $this->id);
-        elseif ($this->status == 21) return route('building::mat_acc::write_off::control', $this->id);
-        elseif ($this->status == 38) return route('building::mat_acc::write_off::control', $this->id);
-        elseif ($this->status == 22) return route('building::mat_acc::delete_part_task', $this->id);
-        elseif ($this->status == 23) return route('building::mat_acc::update_part_task', $this->id);
-        elseif ($this->status == 43) return route('building::mat_acc::certificateless_task', $this->id);
-        elseif ($this->status == 37) return route('tasks::slim_task', $this->id);
-        elseif ($this->status == 45) return route('tasks::slim_task', $this->id);
-        elseif (in_array($this->status, self::LINK_TO_TICKET_STATUS)) return route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $this->taskable->id ?? '']);
-        elseif ($this->status >= 26 and $this->status < 36) return route('tasks::tech_task', $this->id);
-        elseif ($this->status == 36) return route('tasks::partial_36', $this->id);
-        elseif ($this->status === 40) return route('human_resources.timecard_day.appearance_task', $this->id);
+        if ($this->status == 1) {
+            return route('tasks::card', $this->id);
+        } elseif ($this->status == 2) {
+            return route('tasks::new_call', $this->id);
+        } elseif ($this->status == 19) {
+            return route('contractors::remove_task', $this->id);
+        } elseif ($this->status == 21) {
+            return route('building::mat_acc::write_off::control', $this->id);
+        } elseif ($this->status == 38) {
+            return route('building::mat_acc::write_off::control', $this->id);
+        } elseif ($this->status == 22) {
+            return route('building::mat_acc::delete_part_task', $this->id);
+        } elseif ($this->status == 23) {
+            return route('building::mat_acc::update_part_task', $this->id);
+        } elseif ($this->status == 43) {
+            return route('building::mat_acc::certificateless_task', $this->id);
+        } elseif ($this->status == 37) {
+            return route('tasks::slim_task', $this->id);
+        } elseif ($this->status == 45) {
+            return route('tasks::slim_task', $this->id);
+        } elseif (in_array($this->status, self::LINK_TO_TICKET_STATUS)) {
+            return route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $this->taskable->id ?? '']);
+        } elseif ($this->status >= 26 and $this->status < 36) {
+            return route('tasks::tech_task', $this->id);
+        } elseif ($this->status == 36) {
+            return route('tasks::partial_36', $this->id);
+        }
         // TODO ADD SOMETHING HERE
-        elseif ($this->status === 41) return route('human_resources.timecard_day.working_time_task', $this->id);
-        else return route('tasks::common_task', $this->id);
+        else {
+            return route('tasks::common_task', $this->id);
+        }
     }
 
     public function getTargetAttribute()
     {
-        if ($this->status == 23) return MaterialAccountingOperationMaterials::with('manual', 'updated_material.manual')->find($this->target_id);
-        else return false;
+        if ($this->status == 23) {
+            return MaterialAccountingOperationMaterials::with('manual', 'updated_material.manual')->find($this->target_id);
+        } else {
+            return false;
+        }
     }
 
     public function chief()
     {
-        if (in_array($this->status, [14, 15])) return User::where('group_id', 5/*3*/)->first()->id; // Генеральный директор
-        elseif (in_array($this->status, [2, 4, 5, 6, 12, 16])) return User::where('group_id', 50/*7*/)->first()->id; // Директор по развитию
-        elseif (in_array($this->status, [1])) return $this->user_id; // Создатель задачи
-        elseif (in_array($this->status, [3, 7, 8, 9, 10, 11, 13])) return User::where('group_id', 53/*16*/)->first()->id; // Начальник ПТО
+        if (in_array($this->status, [14, 15])) {
+            return User::where('group_id', 5/*3*/)->first()->id;
+        } // Генеральный директор
+        elseif (in_array($this->status, [2, 4, 5, 6, 12, 16])) {
+            return User::where('group_id', 50/*7*/)->first()->id;
+        } // Директор по развитию
+        elseif (in_array($this->status, [1])) {
+            return $this->user_id;
+        } // Создатель задачи
+        elseif (in_array($this->status, [3, 7, 8, 9, 10, 11, 13])) {
+            return User::where('group_id', 53/*16*/)->first()->id;
+        } // Начальник ПТО
         else {
             return User::where('group_id', 5/*3*/)->first()->id;
         }
     }
 
-    public function taskable()
+    public function taskable(): MorphTo
     {
         return $this->morphTo();
     }
 
-
-    public function responsible_user()
+    public function responsible_user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id', 'id');
     }
 
-
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-
-    public function redirects()
+    public function redirects(): HasMany
     {
         return $this->hasMany(TaskRedirect::class, 'task_id', 'id');
     }
 
-
-    public function task_files()
+    public function task_files(): HasMany
     {
         return $this->hasMany(TaskFile::class, 'task_id', 'id');
     }
 
-
-    public function project()
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class, 'contractor_id', 'id');
     }
@@ -310,7 +334,7 @@ class Task extends Model
             return false;
         }
 
-        if (!$this->result) {
+        if (! $this->result) {
             $this->result = 1;
         }
         $this->save();
@@ -318,27 +342,27 @@ class Task extends Model
         return true;
     }
 
-
     public function solve_n_notify()
     {
         $was_solved = $this->solve();
 
         if ($was_solved) {
-            Notification::create(['name' => 'Задача «' . $this->name . '» закрыта',
-                'task_id' => $this->id,
-                'user_id' => $this->responsible_user_id,
-                'contractor_id' => $this->project_id ? Project::find($this->project_id)->contractor_id : null,
-                'project_id' => $this->project_id ? $this->project_id : null,
-                'object_id' => $this->project_id ? Project::find($this->project_id)->object_id : null,
-                'type' => 3
-            ]);
+            TaskClosureNotice::send(
+                $this->responsible_user_id,
+                [
+                    'name' => 'Задача «'.$this->name.'» закрыта',
+                    'task_id' => $this->id,
+                    'contractor_id' => $this->project_id ? Project::find($this->project_id)->contractor_id : null,
+                    'project_id' => $this->project_id ? $this->project_id : null,
+                    'object_id' => $this->project_id ? Project::find($this->project_id)->object_id : null,
+                ]
+            );
         }
     }
 
-
     public function is_unsolved(...$statuses)
     {
-        if (!$statuses) {
+        if (! $statuses) {
             $statuses = array_keys($this::$task_status);
         }
 
@@ -348,7 +372,6 @@ class Task extends Model
             return in_array($this->status, array_merge($statuses));
         }
     }
-
 
     public function is_overdue()
     {
@@ -374,7 +397,7 @@ class Task extends Model
                     'old_user_id' => $old_user_id,
                     'responsible_user_id' => $new_user_id,
                     'redirect_note' => $reason,
-                    'created_at' => Carbon::now()
+                    'created_at' => Carbon::now(),
                 ];
                 $task->update(['responsible_user_id' => $new_user_id]);
             }
@@ -385,7 +408,7 @@ class Task extends Model
                     'old_user_id' => $old_user_id,
                     'responsible_user_id' => $new_user_id,
                     'redirect_note' => $reason,
-                    'created_at' => Carbon::now()
+                    'created_at' => Carbon::now(),
                 ];
                 $task->update(['responsible_user_id' => $new_user_id]);
             }
@@ -395,9 +418,8 @@ class Task extends Model
 
         DB::commit();
 
-        return 'Tasks Movin\'';
+        // return 'Tasks Movin\'';
     }
-
 
     public static function moveTasksBack($tasks, $old_user_id, $new_user_id, $vacation_id, $reason = 'Выход из отпуска')
     {
@@ -410,7 +432,7 @@ class Task extends Model
                 'task_id' => $task->id,
                 'old_user_id' => $old_user_id,
                 'responsible_user_id' => $new_user_id,
-                'redirect_note' => $reason
+                'redirect_note' => $reason,
             ];
             $task->update(['responsible_user_id' => $new_user_id]);
         }
@@ -422,21 +444,21 @@ class Task extends Model
         return 'Tasks Movin\' Back';
     }
 
-    public function create_notify($name, $type)
+    public function taskClosureNotice($name)
     {
-        Notification::create([
-            'name' => $name,
-            'task_id' => $this->id,
-            'user_id' => $this->responsible_user_id,
-            'contractor_id' => $this->contractor_id ?? null,
-            'project_id' => $this->project_id ?? null,
-            'object_id' => isset($this->project->object->id) ? $this->project->object->id : null,
-            'type' => $type
-        ]);
+        TaskClosureNotice::send(
+            $this->responsible_user_id,
+            [
+                'name' => $name,
+                'task_id' => $this->id,
+                'contractor_id' => $this->contractor_id ?? null,
+                'project_id' => $this->project_id ?? null,
+                'object_id' => isset($this->project->object->id) ? $this->project->object->id : null,
+            ]
+        );
     }
 
-
-    public function prev_task()
+    public function prev_task(): HasOne
     {
         return $this->hasOne(Task::class, 'id', 'prev_task_id')
             ->with('responsible_user', 'author', 'redirects', 'task_files')
@@ -451,13 +473,12 @@ class Task extends Model
             ->orderBy('created_at', 'desc');
     }
 
-
-    public function operation()
+    public function operation(): HasOne
     {
         return $this->hasOne(MaterialAccountingOperation::class, 'id', 'target_id');
     }
 
-    public function changing_fields()
+    public function changing_fields(): HasMany
     {
         return $this->hasMany(TaskChangingField::class);
     }

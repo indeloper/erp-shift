@@ -3,16 +3,13 @@
 namespace App\Http\Requests\ManualRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class MaterialsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -21,14 +18,12 @@ class MaterialsRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'id' => 'sometimes|required|numeric|' . (($this->className == 'ManualReference') ? 'exists:manual_references,id' : 'exists:manual_materials,id'),
-            'name' => 'required|max:200',
+            'id' => 'sometimes|required|numeric|'.(($this->className == 'ManualReference') ? 'exists:manual_references,id' : 'exists:manual_materials,id'),
+            'name' => 'required|max:255',
             'description' => 'nullable|max:250',
             'use_cost' => ($this->className == 'ManualReference') ? 'nullable' : 'required|min:1|max:20',
             'buy_cost' => ($this->className == 'ManualReference') ? 'nullable' : 'required|min:1|max:20',

@@ -1,3 +1,8 @@
+/* DataGrid filter popup */
+.dx-overlay-wrapper.dx-popup-wrapper.dx-dropdowneditor-overlay.dx-popup-cancel-visible.dx-popup-done-visible.dx-dropdownlist-popup-wrapper.dx-selectbox-popup-wrapper.dx-tagbox-popup-wrapper  .dx-overlay-content.dx-popup-normal.dx-resizable {
+    width: auto !important;
+}
+
 /*File uploader*/
 .dropzone-external {
     width: 120px;
@@ -177,7 +182,7 @@ div.dx-datagrid-header-panel{
 }
 
 .snapshot-tile-icon > i {
-    line-height: 40px;
+    line-height: 60px;
 
     font-size: x-large;
     font-weight: bold;
@@ -224,4 +229,46 @@ i.fas.fa-random.minus, i.fas.fa-minus {
     height: 100%;
     padding: 4px;
     text-align: right;
+}
+
+/* lightgallery */
+
+.lg-backdrop {
+    z-index: 10040 !important;
+}
+
+.lg-outer {
+    z-index: 10050 !important;
+}
+
+/* END lightgallery */
+
+/*dx DataGrid Form Group Container*/
+.datagrid-container .dx-form-group-with-caption {
+    background: white;
+    padding: 10px;
+    border: #dddddd solid 1px;
+    border-radius: 5px;
+
+}
+
+.datagrid-container .dx-form-group-content {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.main-panel .content {
+    padding: 10px 0;
+}
+
+.container-fluid {
+    padding-right:10px;
+    padding-left: 10px;
+}
+
+@media (min-width: 576px)
+{
+    .modal-dialog {
+        max-width: 700px;
+    }
 }

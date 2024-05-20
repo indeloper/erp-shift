@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\System;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +18,7 @@ use Illuminate\Http\Request;
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+Route::post('/1c-sync', [System\UpdateEmployeesInfoFrom1cController::class, 'uploadData']);
+Route::post('/telegram/'.config('telegram.internal_bot_token'), [System\TelegramController::class, 'requestDispatching']);
+Route::post('/bitrix/', [System\BitrixWebhookController::class, 'handleIncomingRequest'])->middleware('log.requests');

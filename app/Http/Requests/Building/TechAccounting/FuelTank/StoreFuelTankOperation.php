@@ -10,17 +10,15 @@ class StoreFuelTankOperation extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     public function withValidator($validator)
     {
-        if (!$this->requestHasTwoVideos()) {
+        if (! $this->requestHasTwoVideos()) {
             $validator->errors()->add('videos', 'Необходимо прикрепить как минимум 2 видео');
             throw new ValidationException($validator);
         }
@@ -28,10 +26,8 @@ class StoreFuelTankOperation extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'fuel_tank_id' => 'required',
@@ -53,6 +49,7 @@ class StoreFuelTankOperation extends FormRequest
 
             return $videos_count >= 2;
         }
+
         return false;
     }
 }

@@ -482,14 +482,12 @@
             }).dxForm("instance");
 
             let popupContainer = $("#popupContainer").dxPopup({
-                showCloseButton: true,
                 height: "auto",
                 width: "auto",
                 title: "Выберите материалы для добавления"
             });
 
             let materialCommentPopupContainer = $("#commentPopupContainer").dxPopup({
-                showCloseButton: true,
                 height: "auto",
                 width: "auto",
                 title: "Введите комментарий"
@@ -808,7 +806,6 @@
                         }
                     }
                 },
-
                 onRowUpdating: (e) => {
                     e.newData.validationUid = getValidationUid(e.oldData.standard_id, e.oldData.accounting_type, e.oldData.quantity, e.newData.amount, e.oldData.initial_comment_id);
                     e.newData.validationState = "unvalidated";
@@ -906,7 +903,7 @@
                             },
                             validationRules: [{
                                 type: transferOperationInitiator !== "destination" ? "required" : "",
-                                message: 'Поле "Дата получения" обязательно для заполнения'
+                                message: 'Поле "Дата отправления" обязательно для заполнения'
                             }]
                         },
                         {
@@ -968,6 +965,8 @@
                             editorType: "dxDateBox",
                             editorOptions: {
                                 value: transferOperationInitiator === "destination" ? Date.now() : null,
+                                max: Date.now(),
+                                min: getMinDate(),
                             },
                             validationRules: [{
                                 type: transferOperationInitiator === "destination" ? "required" : "",

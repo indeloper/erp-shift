@@ -4,19 +4,22 @@ namespace Tests\Feature;
 
 use App\Models\Contractors\Contractor;
 use App\Models\User;
-
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Tests\TestCase;
+
 class ContractorTypeTest extends TestCase
 {
     use WithoutMiddleware;
 
     protected $migration;
+
     protected $customer;
+
     protected $contractor;
+
     protected $supplier;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -32,7 +35,7 @@ class ContractorTypeTest extends TestCase
     public function a_standard_contractor_doesnt_have_type(): void
     {
         // Given fresh contractor
-        $contractor = factory(Contractor::class)->create();
+        $contractor = Contractor::factory()->create();
 
         // Then $contractor main_type property should be equal to null
         $this->assertNull($contractor->main_type);
@@ -44,9 +47,9 @@ class ContractorTypeTest extends TestCase
     public function types_getter_test(): void
     {
         // Given contractors with all existed types
-        $customer = factory(Contractor::class)->create(['main_type' => $this->customer]);
-        $contractor = factory(Contractor::class)->create(['main_type' => $this->contractor]);
-        $supplier = factory(Contractor::class)->create(['main_type' => $this->supplier]);
+        $customer = Contractor::factory()->create(['main_type' => $this->customer]);
+        $contractor = Contractor::factory()->create(['main_type' => $this->contractor]);
+        $supplier = Contractor::factory()->create(['main_type' => $this->supplier]);
 
         // Then types getter should return this values
         $this->assertEquals('Заказчик', $customer->types);
@@ -58,10 +61,10 @@ class ContractorTypeTest extends TestCase
     public function scope_by_type_test(): void
     {
         // Given contractors with all existed types
-        $standard = factory(Contractor::class)->create();
-        $customer = factory(Contractor::class)->create(['main_type' => $this->customer]);
-        $contractor = factory(Contractor::class)->create(['main_type' => $this->contractor]);
-        $supplier = factory(Contractor::class)->create(['main_type' => $this->supplier]);
+        $standard = Contractor::factory()->create();
+        $customer = Contractor::factory()->create(['main_type' => $this->customer]);
+        $contractor = Contractor::factory()->create(['main_type' => $this->contractor]);
+        $supplier = Contractor::factory()->create(['main_type' => $this->supplier]);
 
         // When we make scope queries
         $queryForCustomers = Contractor::byType($this->customer)->get();
@@ -104,7 +107,7 @@ class ContractorTypeTest extends TestCase
     {
         // Given user and contractor
         $user = User::first();
-        $contractor = factory(Contractor::class)->create();
+        $contractor = Contractor::factory()->create();
 
         // When we make post request with data without main_type
         $response = $this->actingAs($user)->post(route('contractors::update', $contractor->id), [
@@ -121,18 +124,18 @@ class ContractorTypeTest extends TestCase
     public function contractor_can_have_additional_types(): void
     {
         // Given contractor
-        $contractor = factory(Contractor::class)->create(['main_type' => $this->supplier]);
+        $contractor = Contractor::factory()->create(['main_type' => $this->supplier]);
 
         // When we add other types to contractor
         $contractor->additional_types()->createMany([
             [
                 'additional_type' => $this->contractor,
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'additional_type' => $this->customer,
-                'user_id' => 1
-            ]
+                'user_id' => 1,
+            ],
         ]);
 
         // Then contractor should have additional types
@@ -152,7 +155,7 @@ class ContractorTypeTest extends TestCase
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$this->supplier, $this->contractor]
+            'types' => [$this->supplier, $this->contractor],
         ]);
 
         // Then we must have new contractor in DB
@@ -168,16 +171,16 @@ class ContractorTypeTest extends TestCase
     {
         /// Given user and contractor
         $user = User::first();
-        $contractor = factory(Contractor::class)->create(['main_type' => $this->supplier]);
+        $contractor = Contractor::factory()->create(['main_type' => $this->supplier]);
         $contractor->additional_types()->createMany([
             [
                 'additional_type' => $this->contractor,
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'additional_type' => $this->customer,
-                'user_id' => 1
-            ]
+                'user_id' => 1,
+            ],
         ]);
 
         // When we make post request with data
@@ -185,7 +188,7 @@ class ContractorTypeTest extends TestCase
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$contractor->main_type]
+            'types' => [$contractor->main_type],
         ]);
 
         // Then we must have fresh contractor in DB
@@ -200,14 +203,14 @@ class ContractorTypeTest extends TestCase
     {
         /// Given user and contractor
         $user = User::first();
-        $contractor = factory(Contractor::class)->create(['main_type' => $this->supplier]);
+        $contractor = Contractor::factory()->create(['main_type' => $this->supplier]);
 
         // When we make post request with data
         $response = $this->actingAs($user)->post(route('contractors::update', $contractor->id), [
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$contractor->main_type, $this->contractor, $this->customer]
+            'types' => [$contractor->main_type, $this->contractor, $this->customer],
         ]);
 
         // Then we must have fresh contractor in DB
@@ -222,10 +225,10 @@ class ContractorTypeTest extends TestCase
     {
         /// Given user and contractor
         $user = User::first();
-        $contractor = factory(Contractor::class)->create(['main_type' => $this->supplier]);
+        $contractor = Contractor::factory()->create(['main_type' => $this->supplier]);
         $contractor->additional_types()->create([
             'additional_type' => $this->contractor,
-            'user_id' => 1
+            'user_id' => 1,
         ]);
 
         // When we make post request with data
@@ -233,7 +236,7 @@ class ContractorTypeTest extends TestCase
             'full_name' => 'bla-bla',
             'short_name' => 'bla',
             'phone_count' => [1],
-            'types' => [$contractor->main_type, $this->customer]
+            'types' => [$contractor->main_type, $this->customer],
         ]);
 
         // Then we must have fresh contractor in DB
@@ -243,23 +246,22 @@ class ContractorTypeTest extends TestCase
         $this->assertEquals('Поставщик, Заказчик', $contractor->types);
     }
 
-
     /** @test */
     public function scope_by_type_work_with_additional_types(): void
     {
         // Given contractor with additional types
-        $contractor = factory(Contractor::class)->create(['main_type' => $this->supplier]);
+        $contractor = Contractor::factory()->create(['main_type' => $this->supplier]);
         $contractor->additional_types()->createMany([
             [
                 'additional_type' => $this->contractor,
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'additional_type' => $this->customer,
-                'user_id' => 1
-            ]
+                'user_id' => 1,
+            ],
         ]);
-        $standard = factory(Contractor::class)->create();
+        $standard = Contractor::factory()->create();
 
         // When we make scope queries
         $queryForSuppliers = Contractor::byType($this->supplier)->get();

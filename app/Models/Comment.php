@@ -5,15 +5,20 @@ namespace App\Models;
 use App\Traits\Documentable;
 use App\Traits\RussianShortDates;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Blade;
 
 class Comment extends Model
 {
     use Documentable;
+    use HasFactory;
     use RussianShortDates;
 
-    protected $fillable = ['commentable_id', 'commentable_type', 'comment', 'author_id', 'system', 'count'];
+    protected $guarded = ['id'];
+    // protected $fillable = ['commentable_id', 'commentable_type', 'comment', 'author_id', 'system', 'count'];
 
     protected $with = ['files', 'author'];
 
@@ -21,7 +26,7 @@ class Comment extends Model
     {
         parent::__construct($attributes);
 
-        static::deleted(function($comment) {
+        static::deleted(function ($comment) {
             $comment->documents()->delete();
         });
     }
@@ -33,9 +38,8 @@ class Comment extends Model
     /**
      * This getter parse blade directive if comment
      * have it, otherwise return old comment
-     * @return string
      */
-    public function getPrettyCommentAttribute()
+    public function getPrettyCommentAttribute(): string
     {
         if (strpos($this->comment, '@') !== false) {
             return Blade::compileString($this->comment);
@@ -46,19 +50,18 @@ class Comment extends Model
 
     /**
      * Getter for created_at formatting
-     * @return Carbon|null
      */
-    public function getCreatedAtFormattedAttribute()
+    public function getCreatedAtFormattedAttribute(): ?Carbon
     {
         return $this->created_at->format(self::DATE_FORMAT);
     }
 
-    public function commentable()
+    public function commentable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
     }

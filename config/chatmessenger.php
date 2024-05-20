@@ -21,13 +21,9 @@ return [
 
     /**
      * Define custom database table names - without prefixes.
-    */
-
+     */
     'use_pusher' => env('CHATMESSENGER_USE_PUSHER', true),
 
-    /**
-     *
-     */
     'defaults' => [
 
         /**
@@ -36,5 +32,5 @@ return [
          */
         'participant_aka' => env('CHATMESSENGER_PARTICIPANT_AKA', ['first_name', 'last_name']),
 
-    ]
+    ],
 ];

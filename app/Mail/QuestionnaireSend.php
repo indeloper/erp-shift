@@ -2,14 +2,11 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
-
 use Illuminate\Support\Facades\DB;
-
-use App\Models\User;
 
 class QuestionnaireSend extends Mailable
 {
@@ -33,10 +30,8 @@ class QuestionnaireSend extends Mailable
 
     /**
      * Build the message.
-     *
-     * @return $this
      */
-    public function build()
+    public function build(): static
     {
         return $this->view('emails.questionnaire', [
             'task' => $this->task,

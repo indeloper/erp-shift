@@ -2,9 +2,10 @@
 
 namespace App\Models\Messenger;
 
-use App\Models\Messenger\MessageForwards;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Message extends Eloquent
@@ -33,13 +34,6 @@ class Message extends Eloquent
     protected $fillable = ['thread_id', 'user_id', 'body', 'has_relation'];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
-    /**
      * {@inheritDoc}
      */
     public function __construct(array $attributes = [])
@@ -52,11 +46,10 @@ class Message extends Eloquent
     /**
      * Thread relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */
-    public function thread()
+    public function thread(): BelongsTo
     {
         return $this->belongsTo(Models::classname(Thread::class), 'thread_id', 'id');
     }
@@ -64,11 +57,10 @@ class Message extends Eloquent
     /**
      * User relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(Models::user(), 'user_id');
     }
@@ -76,53 +68,42 @@ class Message extends Eloquent
     /**
      * Participants relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      *
      * @codeCoverageIgnore
      */
-    public function participants()
+    public function participants(): HasMany
     {
         return $this->hasMany(Models::classname(Participant::class), 'thread_id', 'thread_id');
     }
 
     /**
      * Recipients of this message.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function recipients()
+    public function recipients(): HasMany
     {
         return $this->participants()->where('user_id', '!=', $this->user_id);
     }
 
     /**
      * Files of this message.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(MessageFile::class, 'message_id', 'id');
     }
 
     /**
      * Replies of this message.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function related_messages()
+    public function related_messages(): HasMany
     {
         return $this->hasMany(MessageForwards::class, 'message_id', 'id');
     }
 
     /**
      * Returns unread messages given the userId.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeUnreadForUser(Builder $query, $userId)
+    public function scopeUnreadForUser(Builder $query, int $userId): Builder
     {
         return $query->has('thread')
             ->where('user_id', '!=', $userId)
@@ -130,7 +111,7 @@ class Message extends Eloquent
                 $query->where('user_id', $userId)
                     ->whereNull('deleted_at')
                     ->where(function (Builder $q) {
-                        $q->where('last_read', '<', $this->getConnection()->raw($this->getConnection()->getTablePrefix() . $this->getTable() . '.created_at'))
+                        $q->where('last_read', '<', $this->getConnection()->raw($this->getConnection()->getTablePrefix().$this->getTable().'.created_at'))
                             ->orWhereNull('last_read');
                     });
             });

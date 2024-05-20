@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Cписание ('.$operationRouteStage.')')
+@section('title', 'Cписание #'.json_decode($operationData)->id. ' [' .$operationRouteStage.']')
 
 @section('url', "#")
 

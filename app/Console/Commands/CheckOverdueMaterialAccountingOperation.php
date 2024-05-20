@@ -2,10 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Events\NotificationCreated;
 use App\Http\Controllers\q3wMaterial\operations\q3wMaterialTransferOperationController;
-use App\Models\Notification;
-use App\Models\Project;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -39,13 +36,11 @@ class CheckOverdueMaterialAccountingOperation extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        $notificationStartPeriodDate = Carbon::createFromTime(7,30,00);
-        $notificationEndPeriodDate = Carbon::createFromTime(20,00,00);
+        $notificationStartPeriodDate = Carbon::createFromTime(7, 30, 00);
+        $notificationEndPeriodDate = Carbon::createFromTime(20, 00, 00);
 
         if (Carbon::now() > $notificationStartPeriodDate && Carbon::now() < $notificationEndPeriodDate) {
             $overdueTimeInHours = 12;
@@ -56,7 +51,7 @@ class CheckOverdueMaterialAccountingOperation extends Command
                 ->get();
 
             foreach ($overduedOperations as $operation) {
-                $this->info('Operation #' . $operation->id . ' is overdued');
+                $this->info('Operation #'.$operation->id.' is overdued');
                 $notificationText = 'Активность по операции отсутствует более 12 часов.';
 
                 switch ($operation->operation_route_stage_id) {
@@ -76,12 +71,12 @@ class CheckOverdueMaterialAccountingOperation extends Command
                         break;
                     case 19:
                         //Руководителю получателя
-                        $projectObjectId = $operation->destination_project_object_id;
+                        $projectObjectId = $operation->source_project_object_id;
                         (new q3wMaterialTransferOperationController)->sendTransferNotificationToResponsibilityUsersOfObject($operation, $notificationText, $projectObjectId);
                         break;
                     case 38:
                         //Руководителю отправителя
-                        $projectObjectId = $operation->source_project_object_id;
+                        $projectObjectId = $operation->destination_project_object_id;
                         (new q3wMaterialTransferOperationController)->sendTransferNotificationToResponsibilityUsersOfObject($operation, $notificationText, $projectObjectId);
                         break;
                 }

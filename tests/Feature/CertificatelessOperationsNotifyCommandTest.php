@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Contract\Contract;
+use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Models\Notification;
+use App\Models\User;
 use Carbon\Carbon;
-use App\Models\{Contract\Contract, Notification, User};
-use App\Models\MatAcc\{MaterialAccountingOperation,
-    MaterialAccountingOperationMaterials};
 use Tests\TestCase;
 
 class CertificatelessOperationsNotifyCommandTest extends TestCase
@@ -14,7 +16,7 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
     public function when_we_call_command_with_contracts_without_operations_nothing_should_happen(): void
     {
         // Given contract without operations
-        $contract = factory(Contract::class)->create();
+        $contract = Contract::factory()->create();
         // Given notifications count
         $notificationsCount = Notification::count();
 
@@ -29,11 +31,11 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
     public function when_we_call_command_with_contracts_with_operations_without_certificates_but_contract_dont_have_ks_date_nothing_should_happen(): void
     {
         // Given contract without ks_date
-        $contract = factory(Contract::class)->create();
+        $contract = Contract::factory()->create();
         // Given arrival operation for contract
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id, 'type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id, 'type' => 1]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given notifications count
         $notificationsCount = Notification::count();
 
@@ -53,11 +55,11 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
         // Set date 10/03/2020
         $newNow = Carbon::setTestNow(now()->year(2020)->month(3)->day(10));
         // Given contract with ks_date
-        $contract = factory(Contract::class)->create(['ks_date' => '20']);
+        $contract = Contract::factory()->create(['ks_date' => '20']);
         // Given arrival operation for contract
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id, 'type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id, 'type' => 1]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given notifications count
         $notificationsCount = Notification::count();
 
@@ -93,17 +95,17 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
         // Set date 10/03/2020
         $newNow = Carbon::setTestNow(now()->year(2020)->month(3)->day(10));
         // Given contract with ks_date
-        $contract = factory(Contract::class)->create(['ks_date' => '20']);
+        $contract = Contract::factory()->create(['ks_date' => '20']);
         // Given second contract with ks_date
-        $secondContract = factory(Contract::class)->create(['ks_date' => '20']);
+        $secondContract = Contract::factory()->create(['ks_date' => '20']);
         // Given arrival operation for contract
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id, 'type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id, 'type' => 1]);
         // Given moving operation for second contract
-        $movingOperation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $secondContract->id, 'type' => 4]);
+        $movingOperation = MaterialAccountingOperation::factory()->create(['contract_id' => $secondContract->id, 'type' => 4]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given operation moving part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $movingOperation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $movingOperation->id, 'type' => 9]);
         // Given notifications count
         $notificationsCount = Notification::count();
 
@@ -139,17 +141,17 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
         // Set date 10/03/2020
         $newNow = Carbon::setTestNow(now()->year(2020)->month(3)->day(15));
         // Given contract with ks_date
-        $contract = factory(Contract::class)->create(['ks_date' => '20']);
+        $contract = Contract::factory()->create(['ks_date' => '20']);
         // Given second contract with ks_date
-        $secondContract = factory(Contract::class)->create(['ks_date' => '20']);
+        $secondContract = Contract::factory()->create(['ks_date' => '20']);
         // Given arrival operation for contract
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id, 'type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id, 'type' => 1]);
         // Given moving operation for second contract
-        $movingOperation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $secondContract->id, 'type' => 4]);
+        $movingOperation = MaterialAccountingOperation::factory()->create(['contract_id' => $secondContract->id, 'type' => 4]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given operation moving part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $movingOperation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $movingOperation->id, 'type' => 9]);
         // Given notifications count
         $notificationsCount = Notification::count();
 
@@ -185,17 +187,17 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
         // Set date 10/03/2020
         $newNow = Carbon::setTestNow(now()->year(2020)->month(3)->day(19));
         // Given contract with ks_date
-        $contract = factory(Contract::class)->create(['ks_date' => '20']);
+        $contract = Contract::factory()->create(['ks_date' => '20']);
         // Given second contract with ks_date
-        $secondContract = factory(Contract::class)->create(['ks_date' => '20']);
+        $secondContract = Contract::factory()->create(['ks_date' => '20']);
         // Given arrival operation for contract
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id, 'type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id, 'type' => 1]);
         // Given moving operation for second contract
-        $movingOperation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $secondContract->id, 'type' => 4]);
+        $movingOperation = MaterialAccountingOperation::factory()->create(['contract_id' => $secondContract->id, 'type' => 4]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given operation moving part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $movingOperation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $movingOperation->id, 'type' => 9]);
         // Given notifications count
         $notificationsCount = Notification::count();
 
@@ -228,17 +230,17 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
         // Set date 10/03/2020
         $newNow = Carbon::setTestNow(now()->year(2020)->month(3)->day(15));
         // Given contract with ks_date
-        $contract = factory(Contract::class)->create(['ks_date' => '20', 'start_notifying_before' => 5]);
+        $contract = Contract::factory()->create(['ks_date' => '20', 'start_notifying_before' => 5]);
         // Given second contract with ks_date
-        $secondContract = factory(Contract::class)->create(['ks_date' => '20', 'start_notifying_before' => 5]);
+        $secondContract = Contract::factory()->create(['ks_date' => '20', 'start_notifying_before' => 5]);
         // Given arrival operation for contract
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id, 'type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id, 'type' => 1]);
         // Given moving operation for second contract
-        $movingOperation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $secondContract->id, 'type' => 4]);
+        $movingOperation = MaterialAccountingOperation::factory()->create(['contract_id' => $secondContract->id, 'type' => 4]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given operation moving part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $movingOperation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $movingOperation->id, 'type' => 9]);
         // Given notifications count
         $notificationsCount = Notification::count();
 
@@ -271,17 +273,17 @@ class CertificatelessOperationsNotifyCommandTest extends TestCase
         // Set date 10/03/2020
         $newNow = Carbon::setTestNow(now()->year(2020)->month(3)->day(10));
         // Given contract with ks_date
-        $contract = factory(Contract::class)->create(['ks_date' => '20', 'start_notifying_before' => 5]);
+        $contract = Contract::factory()->create(['ks_date' => '20', 'start_notifying_before' => 5]);
         // Given second contract with ks_date
-        $secondContract = factory(Contract::class)->create(['ks_date' => '20', 'start_notifying_before' => 5]);
+        $secondContract = Contract::factory()->create(['ks_date' => '20', 'start_notifying_before' => 5]);
         // Given arrival operation for contract
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id, 'type' => 1]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id, 'type' => 1]);
         // Given moving operation for second contract
-        $movingOperation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $secondContract->id, 'type' => 4]);
+        $movingOperation = MaterialAccountingOperation::factory()->create(['contract_id' => $secondContract->id, 'type' => 4]);
         // Given operation arrival part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $operation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $operation->id, 'type' => 9]);
         // Given operation moving part material without certificate
-        factory(MaterialAccountingOperationMaterials::class)->create(['operation_id' => $movingOperation->id, 'type' => 9]);
+        MaterialAccountingOperationMaterials::factory()->create(['operation_id' => $movingOperation->id, 'type' => 9]);
         // Given notifications count
         $notificationsCount = Notification::count();
 

@@ -412,14 +412,12 @@
             }).dxForm("instance");
 
             let popupContainer = $("#popupContainer").dxPopup({
-                showCloseButton: true,
                 height: "auto",
                 width: "auto",
                 title: "Выберите материалы для добавления"
             });
 
             let materialCommentPopupContainer = $("#commentPopupContainer").dxPopup({
-                showCloseButton: true,
                 height: "auto",
                 width: "auto",
                 title: "Введите комментарий"
@@ -1220,15 +1218,17 @@
 
                         writeOffMaterialDataSource.store().createQuery().toArray().forEach((item) => {
                             if (item.standard_id === dataItem.standard_id) {
+                                let itemCommentId = item.initial_comment_id ? item.initial_comment_id : null;
                                 switch (dataItem.accounting_type) {
                                     case 2:
-                                        let itemComment = item.initial_comment_id ? item.initial_comment_id : null;
-                                        if (item.quantity === dataItem.quantity && itemComment === initialCommentId) {
+                                        if (item.quantity === dataItem.quantity && itemCommentId === initialCommentId) {
                                             calculatedAmount = Math.round((calculatedAmount - item.amount) * 100) / 100;
                                         }
                                         break;
                                     default:
-                                        calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
+                                        if (itemCommentId === initialCommentId) {
+                                            calculatedQuantity = Math.round((calculatedQuantity - item.quantity * item.amount) * 100) / 100;
+                                        }
                                 }
                             }
                         })

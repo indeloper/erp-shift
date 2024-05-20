@@ -5,23 +5,20 @@ namespace Tests\Feature\Tech_accounting\OurTechnicTicket;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\TechAcc\OurTechnicTicketReport;
 use App\Services\TechAccounting\TechnicTicketReportService;
-use App\Traits\TimeCalculator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
-
-
 class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 {
-    use TimeCalculator;
     protected $ourTechnicTicket;
+
     protected $valide_fields;
+
     protected $response_user;
+
     /**
      * A setUp for next tests
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -29,7 +26,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 
         $migrations = [];
 
-        $this->response_user =  $this->rps->random();
+        $this->response_user = $this->rps->random();
         $this->actingAs($this->response_user);
         $this->ourTechnicTicket = $this->seedTicketsWithUsers(1, [], ['usage_resp_user_id' => Auth::user()->id])->first();
         $this->response_user = $this->ourTechnicTicket->users()->wherePivot('type', 4)->first();
@@ -39,7 +36,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     public function it_can_store_ticket_report() //store
     {
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $this->ourTechnicTicket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->make([
                     'our_technic_ticket_id' => $this->ourTechnicTicket->id,
                 ])
@@ -53,7 +50,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_can_update_ticket_report() //update
     {
-        $old_ticket = factory(OurTechnicTicketReport::class)
+        $old_ticket = OurTechnicTicketReport::factory()
             ->create([
                 'our_technic_ticket_id' => $this->ourTechnicTicket->id,
             ]);
@@ -74,7 +71,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_can_destroy_ticket_report() //delete
     {
-        $ticket_need_delete = factory(OurTechnicTicketReport::class, 2)
+        $ticket_need_delete = OurTechnicTicketReport::factory()->count(2)
             ->create([
                 'our_technic_ticket_id' => $this->ourTechnicTicket->id,
                 'user_id' => $this->response_user,
@@ -88,18 +85,18 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_doesnt_close_task_when_last_report_for_today_has_been_closed()
+    public function it_doesnt_close_task_when_last_report_for_today_has_been_closed(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
 
         $task = $this->response_user->tasks()->create([
-            'name' => "Отметка времени использования техники за " . Carbon::now()->isoFormat('DD.MM.YYYY'),
+            'name' => 'Отметка времени использования техники за '.Carbon::now()->isoFormat('DD.MM.YYYY'),
             'expired_at' => $this->addHours(8),
             'status' => 36,
         ]);
 
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $ticket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->raw([
                     'our_technic_ticket_id' => $ticket->id,
                 ])
@@ -107,22 +104,22 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 
         $task->refresh();
 
-        $this->assertFalse(boolval($task->is_solved), 'Task is_solved should be 0, but it is: '. $task->is_solved);
+        $this->assertFalse(boolval($task->is_solved), 'Task is_solved should be 0, but it is: '.$task->is_solved);
     }
 
     /** @test */
-    public function it_do_not_close_task_when_there_are_still_reports_to_make()
+    public function it_do_not_close_task_when_there_are_still_reports_to_make(): void
     {
         $ticket = $this->seedTicketsWithUsers(2, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
 
         $task = $this->response_user->tasks()->create([
-            'name' => "Отметка времени использования техники за " . Carbon::now()->isoFormat('DD.MM.YYYY'),
+            'name' => 'Отметка времени использования техники за '.Carbon::now()->isoFormat('DD.MM.YYYY'),
             'expired_at' => $this->addHours(8),
             'status' => 36,
         ]);
 
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $ticket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->raw([
                     'our_technic_ticket_id' => $ticket->id,
                 ])
@@ -130,17 +127,17 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 
         $task->refresh();
 
-        $this->assertFalse(boolval($task->is_solved), 'Task is_solved should be 0, but it is: '. $task->is_solved);
+        $this->assertFalse(boolval($task->is_solved), 'Task is_solved should be 0, but it is: '.$task->is_solved);
     }
 
     /** @test */
-    public function it_closes_task_on_last_report_in_the_past()
+    public function it_closes_task_on_last_report_in_the_past(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(4)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $date = Carbon::now()->subDays(4);
 
         $task = $this->response_user->tasks()->create([
-            'name' => "Отметка времени использования техники за " . $date->isoFormat('DD.MM.YYYY'),
+            'name' => 'Отметка времени использования техники за '.$date->isoFormat('DD.MM.YYYY'),
             'expired_at' => $this->addHours(8),
             'status' => 36,
         ]);
@@ -148,7 +145,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
         $task->save();
 
         $this->post(route('building::tech_acc::our_technic_tickets.report.store', $ticket->id),
-            factory(OurTechnicTicketReport::class)
+            OurTechnicTicketReport::factory()
                 ->raw([
                     'our_technic_ticket_id' => $ticket->id,
                     'date' => $date->isoFormat('YYYY-MM-DD'),
@@ -157,22 +154,24 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 
         $task->refresh();
 
-        $this->assertTrue(boolval($task->is_solved), 'Task is_solved should be 1, but it is: '. $task->is_solved);
+        $this->assertTrue(boolval($task->is_solved), 'Task is_solved should be 1, but it is: '.$task->is_solved);
     }
 
     /** @test */
-    public function it_groups_tickets_by_usage_user()
+    public function it_groups_tickets_by_usage_user(): void
     {
         $this->seedTicketsWithUsers(3, ['status' => 7], ['usage_resp_user_id' => '']);
         $this->seedTicketsWithUsers(3, ['status' => 7], ['usage_resp_user_id' => $this->rps_and_prorabs[1]->id]);
 
-        $grouped_ticket = OurTechnicTicket::where('status', 7)->get()->groupBy(function($item) {return $item->users()->ofType('usage_resp_user_id')->first()->id ?? '-1';});
+        $grouped_ticket = OurTechnicTicket::where('status', 7)->get()->groupBy(function ($item) {
+            return $item->users()->ofType('usage_resp_user_id')->first()->id ?? '-1';
+        });
 
         $this->assertCount(3, $grouped_ticket->first());
     }
 
     /** @test */
-    public function new_usage_resp_get_report_task_not_old_one()
+    public function new_usage_resp_get_report_task_not_old_one(): void
     {
         $Mark = $this->prorabs->random(); //actually he is not Mark
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
@@ -183,7 +182,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
         $old_resp_pivot->save();
 
         $this->post(route('building::tech_acc::our_technic_tickets.reassignment', $ticket->id), [
-            'result'=> 'usage',
+            'result' => 'usage',
             'user' => $Mark->id,
             'task_status' => 36,
         ])->assertOk();
@@ -196,7 +195,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_can_properly_set_old_resp_as_active()
+    public function it_can_properly_set_old_resp_as_active(): void
     {
         $Mark = $this->prorabs->random(); //actually he is not Mark
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], [
@@ -211,14 +210,14 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
         $old_resp_pivot->save();
 
         $this->post(route('building::tech_acc::our_technic_tickets.reassignment', $ticket->id), [
-            'result'=> 'usage',
+            'result' => 'usage',
             'user' => $Mark->id,
             'task_status' => 36,
         ])->assertOk();
 
         //trying to return old resp back
         $this->post(route('building::tech_acc::our_technic_tickets.reassignment', $ticket->id), [
-            'result'=> 'usage',
+            'result' => 'usage',
             'user' => $this->response_user->id,
             'task_status' => 36,
         ])->assertOk();
@@ -230,20 +229,20 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_new_task_and_closes_old_automatically()
+    public function it_creates_new_task_and_closes_old_automatically(): void
     {
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(1)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $date = Carbon::now()->subDays(1);
 
         $task = $this->response_user->tasks()->create([
-            'name' => "Отметка времени использования техники за " . $date->isoFormat('DD.MM.YYYY'),
+            'name' => 'Отметка времени использования техники за '.$date->isoFormat('DD.MM.YYYY'),
             'expired_at' => $this->addHours(8),
             'status' => 36,
         ]);
         $task->created_at = $date;
         $task->save();
 
-        factory(OurTechnicTicketReport::class)
+        OurTechnicTicketReport::factory()
             ->create([
                 'our_technic_ticket_id' => $ticket->id,
                 'date' => $date->isoFormat('YYYY-MM-DD'),
@@ -251,12 +250,12 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 
         Artisan::call('usage_report_task:create');
         $task->refresh();
-        $this->assertTrue(boolval($task->is_solved), 'Task is_solved should be 1, but it is: '. $task->is_solved);
+        $this->assertTrue(boolval($task->is_solved), 'Task is_solved should be 1, but it is: '.$task->is_solved);
         $this->assertEquals(2, $this->response_user->allTasks()->count());
     }
 
     /** @test */
-    public function it_creates_new_task_for_old_dates()
+    public function it_creates_new_task_for_old_dates(): void
     {
         //set usage_resp created_at to sub 3 days in seeder
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)], ['usage_resp_user_id' => $this->response_user->id])->first();
@@ -269,7 +268,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_creates_new_task_for_compicated_cases()
+    public function it_creates_new_task_for_compicated_cases(): void
     {
 
         $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)], ['usage_resp_user_id' => $this->response_user->id])->first();

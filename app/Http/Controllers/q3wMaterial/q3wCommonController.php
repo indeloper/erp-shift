@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use App\Http\Controllers\Controller;
 use App\Models\Contractors\Contractor;
 use App\Models\Permission;
 use App\Models\ProjectObject;
-use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
@@ -15,13 +15,11 @@ use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class q3wCommonController extends Controller
 {
     /**
-     * @param Request $request
      * @return string
      */
     public function projectObjectsList(Request $request)
@@ -111,6 +109,7 @@ class q3wCommonController extends Controller
 
         return (new q3wOperationRouteStage())->dxLoadOptions($options)->get(['id', 'name'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
+
     public function operationRouteStagesWithoutNotificationsList(Request $request)
     {
         $options = json_decode($request['data']);
@@ -138,7 +137,8 @@ class q3wCommonController extends Controller
         return (new q3wMaterialAccountingType())->dxLoadOptions($options)->get(['id', 'value'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function materialTypesLookupList(Request $request) {
+    public function materialTypesLookupList(Request $request)
+    {
         $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
 
         return (new q3wMaterialType())->dxLoadOptions($dxLoadOptions)
@@ -146,7 +146,8 @@ class q3wCommonController extends Controller
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function projectObjectMaterialAccountingTypesLookupList(Request $request) {
+    public function projectObjectMaterialAccountingTypesLookupList(Request $request)
+    {
         $types = (new q3wProjectObjectMaterialAccountingType())->get();
 
         $results = [];
@@ -165,10 +166,6 @@ class q3wCommonController extends Controller
     {
         $options = json_decode($request['data']);
 
-        return (new q3wMaterialTransformationType())
-            ->dxLoadOptions($options)
-            ->orderBy('id')
-            ->get(['id', 'value', 'codename'])
-            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return (new q3wMaterialTransformationType())->dxLoadOptions($options)->get(['id', 'value'])->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

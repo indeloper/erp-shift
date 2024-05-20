@@ -2,30 +2,28 @@
 
 namespace App\Observers;
 
-use App\Events\NotificationCreated;
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\User;
 
 class NotificationObserver
 {
     /**
      * Handle the vacations history "saved" event.
-     *
-     * @param  Notification $notification
-     * @return void
      */
-    public function saved(Notification $notification)
+    public function saved(Notification $notification): void
     {
-        if ($this->dontHaveName($notification) or $this->isUpdate($notification))
+        if ($this->dontHaveName($notification) or $this->isUpdate($notification)) {
             return;
+        }
 
-        event(new NotificationCreated(($notification->name . (is_array($notification->additional_info) ? '' : $notification->additional_info)), $notification->user_id, $notification->type, $notification->id));
+        //        event(new NotificationCreated(($notification->name . (is_array($notification->additional_info) ? '' : $notification->additional_info)), $notification->user_id, $notification->type, $notification->id));
     }
 
     public function saving(Notification $notification)
     {
-        if ($this->dontHaveName($notification))
+        if ($this->dontHaveName($notification)) {
             return;
+        }
 
         $user = User::find($notification->user_id);
         $type = $notification->type ?? 0;
@@ -34,8 +32,6 @@ class NotificationObserver
 
     /**
      * Method return true if notification don't have name
-     * @param Notification $notification
-     * @return bool
      */
     public function dontHaveName(Notification $notification): bool
     {
@@ -44,8 +40,6 @@ class NotificationObserver
 
     /**
      * Method return true if we update notification (see or delete)
-     * @param Notification $notification
-     * @return bool
      */
     public function isUpdate(Notification $notification): bool
     {

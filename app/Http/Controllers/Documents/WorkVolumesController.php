@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Documents;
 
+use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Group;
-use App\Models\Manual\ManualMaterial;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\WorkVolume\WorkVolume;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class WorkVolumesController extends Controller
@@ -45,47 +44,47 @@ class WorkVolumesController extends Controller
                         $from = Carbon::createFromFormat('d.m.Y', $dates[0])->toDateString();
                         $to = Carbon::createFromFormat('d.m.Y', $dates[1])->toDateString();
                         $work_volumes->whereDate($iter, '>=', $from)->whereDate($iter, '<=', $to);
-                    } else if ($iter == 'work_volumes.status') {
+                    } elseif ($iter == 'work_volumes.status') {
                         $search = mb_strtolower($values[$key]);
-                        $result = array_filter($work_volumes->getModel()->wv_status, function($item) use ($search) {
+                        $result = array_filter($work_volumes->getModel()->wv_status, function ($item) use ($search) {
                             return stristr(mb_strtolower($item), $search);
                         });
 
                         $work_volumes->WhereIn($iter, array_keys($result));
-                    } else if ($iter == 'work_volumes.type') {
+                    } elseif ($iter == 'work_volumes.type') {
                         $search = mb_strtolower($values[$key]);
-                        $result = array_filter($work_volumes->getModel()->wv_type, function($item) use ($search) {
+                        $result = array_filter($work_volumes->getModel()->wv_type, function ($item) use ($search) {
                             return stristr(mb_strtolower($item), $search);
                         });
 
                         $work_volumes->whereIn($iter, array_keys($result));
-                    } else if ($iter == 'user') {
+                    } elseif ($iter == 'user') {
                         $users = User::getAllUsers();
                         $search = mb_strtolower($values[$key]);
                         $groups = Group::where('name', $search)
-                            ->orWhere('name', 'like', '%' . $search . '%')
+                            ->orWhere('name', 'like', '%'.$search.'%')
                             ->pluck('id')
                             ->toArray();
 
                         $departments = Department::where('name', $search)
-                            ->orWhere('name', 'like', '%' . $search . '%')
+                            ->orWhere('name', 'like', '%'.$search.'%')
                             ->pluck('id')
                             ->toArray();
 
                         $users->where(function ($query) use ($search) {
-                            $query->where('last_name', 'like', '%' . $search . '%')
-                                ->orWhere('first_name', 'like', '%' . $search . '%')
-                                ->orWhere('patronymic', 'like', '%' . $search . '%')
-                                ->orWhere(DB::raw("CONCAT(last_name, ' ', first_name, ' ', patronymic)"), 'LIKE', "%" . $search . "%");
+                            $query->where('last_name', 'like', '%'.$search.'%')
+                                ->orWhere('first_name', 'like', '%'.$search.'%')
+                                ->orWhere('patronymic', 'like', '%'.$search.'%')
+                                ->orWhere(DB::raw("CONCAT(last_name, ' ', first_name, ' ', patronymic)"), 'LIKE', '%'.$search.'%');
                         });
 
-                        if (!empty($groups)) {
+                        if (! empty($groups)) {
                             $users->orWhere(function ($query) use ($groups) {
                                 $query->orWhereIn('users.group_id', $groups);
                             });
                         }
 
-                        if (!empty($departments)) {
+                        if (! empty($departments)) {
                             $users->orWhere(function ($query) use ($departments) {
                                 $query->orWhereIn('users.department_id', $departments);
                             });
@@ -94,9 +93,9 @@ class WorkVolumesController extends Controller
                         $work_volumes->whereHas('made_task.responsible_user', function ($q) use ($users) {
                             $q->whereIn('id', $users->pluck('id')->toArray());
                         });
-                    } else if ($iter == 'projects.entity') {
+                    } elseif ($iter == 'projects.entity') {
                         $search = mb_strtolower($values[$key]);
-                        $result = array_filter(Project::$entities, function($item) use ($search) {
+                        $result = array_filter(Project::$entities, function ($item) use ($search) {
                             return stristr(mb_strtolower($item), $search);
                         });
 
@@ -105,7 +104,7 @@ class WorkVolumesController extends Controller
                 } elseif ($iter == 'material') {
                     $mat_names[] = $values[$key];
                 } else {
-                    $work_volumes->where($iter, 'like', '%' . $values[$key] . '%');
+                    $work_volumes->where($iter, 'like', '%'.$values[$key].'%');
                 }
             }
 
@@ -113,11 +112,11 @@ class WorkVolumesController extends Controller
                 $work_volumes->where(function ($query) use ($mat_names) {
                     foreach ($mat_names as $name) {
                         $query->orWhereHas('materials', function ($q) use ($name) {
-                            $q->whereHasMorph('manual', ['App\Models\Manual\ManualMaterial'], function($mat) use ($name) {
-                                $mat->where('name', 'like', '%' . $name . '%')
+                            $q->whereHasMorph('manual', [\App\Models\Manual\ManualMaterial::class], function ($mat) use ($name) {
+                                $mat->where('name', 'like', '%'.$name.'%')
                                     ->where('material_type', 'regular');
                             });
-                    });
+                        });
                     }
                 });
             }

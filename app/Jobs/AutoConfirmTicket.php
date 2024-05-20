@@ -6,18 +6,20 @@ use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
 use App\Services\TechAccounting\TechnicTicketService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class AutoConfirmTicket implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     /**
      * @var OurTechnicTicket
      */
     private $ticket;
+
     /**
      * @var TechnicTicketService
      */
@@ -25,8 +27,6 @@ class AutoConfirmTicket implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param OurTechnicTicket $ticket
      */
     public function __construct(OurTechnicTicket $ticket)
     {
@@ -36,15 +36,13 @@ class AutoConfirmTicket implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         if ($this->ticket->status == 1) {
             $request = [
                 'acceptance' => 'confirm',
-//                'process_resp_user_id' => (new User())->main_logist_id,
+                //                'process_resp_user_id' => (new User())->main_logist_id,
             ];
             $this->ticket_service->updateTicketStatus($this->ticket, $request, 1);
         }
