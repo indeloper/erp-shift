@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Notifications\BaseNotification;
 use App\Services\NotificationItem\NotificationItemServiceInterface;
 use Illuminate\Database\Seeder;
