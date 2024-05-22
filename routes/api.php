@@ -24,6 +24,5 @@ Route::post('/telegram/'.config('telegram.internal_bot_token'),
     [System\TelegramController::class, 'requestDispatching']);
 
 Route::post('/bitrix',
-    [System\BitrixWebhookController::class, 'handleIncomingRequest'])
-    ->middleware('log.requests');
+    [System\BitrixWebhookController::class, 'handleIncomingRequest']);
 

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contractor\ContractorRepository;
+use App\Repositories\Contractor\ContractorRepositoryInterface;
 use App\Repositories\ExceptionNotificationUser\ExceptionNotificationUserRepository;
 use App\Repositories\ExceptionNotificationUser\ExceptionNotificationUserRepositoryInterface;
 use App\Repositories\Menu\MenuRepository;
@@ -16,6 +18,7 @@ use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
+
     /**
      * Register services.
      */
@@ -24,6 +27,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             NotificationItemRepositoryInterface::class,
             NotificationItemRepository::class
+        );
+
+        $this->app->bind(
+            ContractorRepositoryInterface::class,
+            ContractorRepository::class
         );
 
         $this->app->bind(
@@ -46,4 +54,5 @@ class RepositoryServiceProvider extends ServiceProvider
             NotificationRepository::class
         );
     }
+
 }

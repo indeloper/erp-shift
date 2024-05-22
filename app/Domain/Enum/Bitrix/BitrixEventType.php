@@ -8,5 +8,7 @@ enum BitrixEventType: string
 {
 
     case TaskUpdate = 'ONTASKUPDATE';
+    case RequisiteUpdate = 'ONCRMREQUISITEUPDATE';
+    case CompanyUpdate = 'ONCRMCOMPANYUPDATE';
 
 }

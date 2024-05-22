@@ -2,23 +2,16 @@
 
 namespace App\Events\Bitrix\Task;
 
-use App\Domain\DTO\Bitrix\BitrixEventRequestData;
+use App\Events\Bitrix\BaseBitrixEvent;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TaskUpdateEvent
+class TaskUpdateEvent extends BaseBitrixEvent
 {
 
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    /**
-     * Create a new event instance.
-     */
-    public function __construct(
-        public BitrixEventRequestData $data,
-    ) {}
 
     /**
      * Get the channels the event should broadcast on.

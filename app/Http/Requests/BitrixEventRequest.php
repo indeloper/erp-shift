@@ -26,8 +26,10 @@ class BitrixEventRequest extends FormRequest
             'event'                => 'required|string',
             'event_id'             => 'required|integer',
             'data'                 => 'required|array',
-            'data.FIELDS_AFTER'    => 'required|array',
-            'data.FIELDS_AFTER.ID' => 'required|int',
+            'data.FIELDS'          => 'sometimes|array',
+            'data.FIELDS.ID'       => 'required_with:data.FIELDS|int',
+            'data.FIELDS_AFTER'    => 'sometimes|array',
+            'data.FIELDS_AFTER.ID' => 'required_with:data.FIELDS_AFTER|int',
         ];
     }
 

@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Services\Bitrix\BitrixService;
 use App\Services\Bitrix\BitrixServiceInterface;
+use App\Services\Bitrix\BitrixSyncService;
+use App\Services\Bitrix\BitrixSyncServiceInterface;
 use App\Services\Menu\MenuItemFavorite;
 use App\Services\Menu\MenuItemFavoriteInterface;
 use App\Services\Menu\MenuService;
@@ -30,6 +32,7 @@ class ServiceServiceProvider extends ServiceProvider
             NotificationServiceInterface::class     => NotificationService::class,
             TelegramServiceInterface::class         => TelegramService::class,
             BitrixServiceInterface::class           => BitrixService::class,
+            BitrixSyncServiceInterface::class       => BitrixSyncService::class,
         ];
 
 }
