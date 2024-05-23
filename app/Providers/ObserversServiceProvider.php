@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 use App\Models\CommercialOffer\CommercialOfferWork;
+use App\Models\Contractors\Contractor;
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualNodeMaterials;
@@ -17,8 +18,8 @@ use App\Models\Notification\Notification;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TechAcc\Defects\Defects;
-use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\TechAcc\FuelTank\{FuelTank};
+use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\TechAcc\OurTechnicTicketReport;
 use App\Models\TechAcc\Vehicles\OurVehicles;
 use App\Models\TechAcc\Vehicles\VehicleCategories;
@@ -31,6 +32,7 @@ use App\Observers\CommentObserver;
 use App\Observers\CommercialOffers\CommercialOfferMaterialSplitObserver;
 use App\Observers\CommercialOffers\CommercialOfferWorkObserver;
 use App\Observers\CommercialOffersObserver;
+use App\Observers\ContractorObserver;
 use App\Observers\DefectObserver;
 use App\Observers\Manual\ManualMaterialCategoryObserver;
 use App\Observers\Manual\ManualMaterialObserver;
@@ -56,6 +58,7 @@ use Illuminate\Support\ServiceProvider;
 
 class ObserversServiceProvider extends ServiceProvider
 {
+
     /**
      * Register services.
      */
@@ -103,5 +106,8 @@ class ObserversServiceProvider extends ServiceProvider
         Project::observe(ProjectObserver::class);
         MaterialAccountingMaterialFile::observe(MaterialAccountingMaterialFileObserver::class);
         ManualMaterial::observe(ManualMaterialObserver::class);
+        
+        Contractor::observe(ContractorObserver::class);
     }
+
 }

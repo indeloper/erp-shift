@@ -17,6 +17,7 @@ final class ContractorRepository implements ContractorRepositoryInterface
     public function getByBitrixId(string $bitrixId): ?Contractor
     {
         return Contractor::query()
+            ->where('is_delete_bitrix', false)
             ->where('bitrix_id', $bitrixId)
             ->first();
     }
@@ -30,6 +31,7 @@ final class ContractorRepository implements ContractorRepositoryInterface
     public function getByInnAndKpp(string $inn, string $kpp): ?Contractor
     {
         return Contractor::query()
+            ->where('is_delete_bitrix', false)
             ->where('inn', $inn)
             ->where('kpp', $kpp)
             ->first();

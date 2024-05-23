@@ -13,4 +13,14 @@ class BitrixSyncBase
         protected BitrixServiceInterface $bitrixService
     ) {}
 
+    /**
+     * @param $item
+     *
+     * @return void
+     */
+    public static function syncStatic($item): void
+    {
+        app(static::class)->sync($item);
+    }
+
 }

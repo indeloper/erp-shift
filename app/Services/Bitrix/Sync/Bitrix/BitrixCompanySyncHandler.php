@@ -47,9 +47,10 @@ class BitrixCompanySyncHandler extends BitrixSyncBase
                 = $this->bitrixService->storeCompanyByModel($item);
 
             if ($storeCompanyResult !== false) {
-                $item->update([
-                    'bitrix_id' => $storeCompanyResult,
-                ]);
+                $item
+                    ->updateQuietly([
+                        'bitrix_id' => $storeCompanyResult,
+                    ]);
             }
         }
 
@@ -57,7 +58,7 @@ class BitrixCompanySyncHandler extends BitrixSyncBase
             $this->bitrixService->updateCompanyByModal($item,
                 $company);
 
-            $item->update([
+            $item->updateQuietly([
                 'bitrix_id' => $company->ID,
             ]);
         }
