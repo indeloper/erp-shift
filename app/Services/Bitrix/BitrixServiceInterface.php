@@ -61,6 +61,18 @@ interface BitrixServiceInterface
      */
     public function getCompanyById(string $bitrixId): ?CompanyItemData;
 
+    /**
+     * @param  string  $id
+     *
+     * @return bool
+     */
     public function updateERPCompany(string $id): bool;
+
+    /**
+     * @param  CompanyItemData  $bitrixCompany
+     *
+     * @return Contractor
+     */
+    public function storeERPCompany(CompanyItemData $bitrixCompany): Contractor;
 
 }

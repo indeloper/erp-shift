@@ -18,6 +18,7 @@ class BitrixCompanySyncHandler extends BitrixSyncBase
     public function collection(): Collection|SupportCollection|LazyCollection
     {
         return Contractor::query()
+            ->where('is_delete_bitrix', false)
             ->whereNotNull('inn')
             ->whereNotNull('kpp')
             ->lazy();

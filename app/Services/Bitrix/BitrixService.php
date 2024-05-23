@@ -9,6 +9,8 @@ use App\Domain\DTO\Bitrix\Entity\CompanyItemData;
 use App\Domain\DTO\Bitrix\Entity\RequisiteItemData;
 use App\Domain\DTO\Bitrix\Entity\RequisiteListData;
 use App\Domain\Enum\Bitrix\BitrixEventType;
+use App\Events\Bitrix\Company\CompanyAddEvent;
+use App\Events\Bitrix\Company\CompanyDeleteEvent;
 use App\Events\Bitrix\Company\CompanyUpdateEvent;
 use App\Models\Contractors\Contractor;
 use App\Repositories\Contractor\ContractorRepositoryInterface;
@@ -109,13 +111,18 @@ final class BitrixService implements BitrixServiceInterface
      */
     public function dispatchEvent(BitrixEventRequestData $data): void
     {
-        if ($data->event === BitrixEventType::CompanyUpdate->value) {
-            event(new CompanyUpdateEvent($data));
+        $event = match ($data->event) {
+            BitrixEventType::CompanyUpdate->value => CompanyUpdateEvent::class,
+            BitrixEventType::CompanyAdd->value => CompanyAddEvent::class,
+            BitrixEventType::CompanyDelete->value => CompanyDeleteEvent::class,
+            default => null,
+        };
+
+        if ($event === null) {
+            return;
         }
 
-        //        if ($data->event === BitrixEventType::RequisiteUpdate->value) {
-        //            event(new RequisiteUpdateEvent($data));
-        //        }
+        event(new $event($data));
     }
 
     /**
@@ -393,6 +400,25 @@ final class BitrixService implements BitrixServiceInterface
         ]);
 
         return true;
+    }
+
+    /**
+     * @param  CompanyItemData  $bitrixCompany
+     *
+     * @return Contractor
+     */
+    public function storeERPCompany(CompanyItemData $bitrixCompany): Contractor
+    {
+        return Contractor::query()->create([
+            'bitrix_id'       => $bitrixCompany->ID,
+            'full_name'       => $bitrixCompany->requisite->RQ_COMPANY_FULL_NAME
+                ?? 'FULL NAME',
+            'short_name'      => $bitrixCompany->TITLE ?? 'SHORT NAME',
+            'inn'             => $bitrixCompany->requisite->RQ_INN,
+            'kpp'             => $bitrixCompany->requisite->RQ_KPP,
+            'ogrn'            => $bitrixCompany->requisite->RQ_OGRN,
+            'general_manager' => $bitrixCompany->requisite->RQ_DIRECTOR,
+        ]);
     }
 
 }

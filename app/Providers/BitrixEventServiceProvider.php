@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use App\Events\Bitrix\Company\CompanyAddEvent;
+use App\Events\Bitrix\Company\CompanyDeleteEvent;
 use App\Events\Bitrix\Company\CompanyUpdateEvent;
 use App\Events\Bitrix\Requisite\RequisiteUpdateEvent;
 use App\Events\Bitrix\Task\TaskUpdateEvent;
+use App\Listeners\Bitrix\Company\CompanyAddListener;
+use App\Listeners\Bitrix\Company\CompanyDeleteListener;
 use App\Listeners\Bitrix\Company\CompanyUpdateListener;
 use App\Listeners\Bitrix\Requisite\RequisiteUpdateListener;
 use App\Listeners\Bitrix\Task\TaskUpdateListener;
@@ -32,6 +36,16 @@ class BitrixEventServiceProvider extends ServiceProvider
         Event::listen(
             RequisiteUpdateEvent::class,
             RequisiteUpdateListener::class,
+        );
+
+        Event::listen(
+            CompanyAddEvent::class,
+            CompanyAddListener::class,
+        );
+
+        Event::listen(
+            CompanyDeleteEvent::class,
+            CompanyDeleteListener::class,
         );
     }
 

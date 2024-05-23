@@ -20,13 +20,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contractor extends Model
 {
+
     use DefaultSortable, DevExtremeDataSourceLoadable, SmartSearchable, SoftDeletes;
 
     protected $guarded = ['id'];
 
-    public $defaultSortOrder = [
-        'short_name' => 'asc',
-    ];
+    public $defaultSortOrder
+        = [
+            'short_name' => 'asc',
+        ];
+
     // protected $fillable = [
     //     'full_name', 'short_name', 'inn', 'kpp',
     //     'ogrn', 'legal_address', 'physical_adress',
@@ -36,30 +39,38 @@ class Contractor extends Model
 
     protected $appends = ['types'];
 
-    public static $notify_statuses = [
-        '0' => 'Уведомлений о создании контактов не было',
-        '1' => 'Было первичное уведомление (пользователю)',
-        '2' => 'Было вторичное уведомление (начальнику)',
-    ];
+    protected $casts
+        = [
+            'is_delete_bitrix' => 'bool',
+        ];
+
+    public static $notify_statuses
+        = [
+            '0' => 'Уведомлений о создании контактов не было',
+            '1' => 'Было первичное уведомление (пользователю)',
+            '2' => 'Было вторичное уведомление (начальнику)',
+        ];
 
     // Создана табл contractor_types, пользоваться ей
-    const CONTRACTOR_TYPES = [
-        1 => 'Заказчик',
-        2 => 'Подрядчик',
-        // 3 => 'Поставщик',
-        3 => 'Поставщик материалов',
-        4 => 'Поставщик топлива',
-    ];
+    const CONTRACTOR_TYPES
+        = [
+            1 => 'Заказчик',
+            2 => 'Подрядчик',
+            // 3 => 'Поставщик',
+            3 => 'Поставщик материалов',
+            4 => 'Поставщик топлива',
+        ];
 
-    public $contractor_type = [
-        1 => 'Генподряды',
-        2 => 'Поставка',
-        3 => 'Субподряд',
-        4 => 'Услуги',
-        5 => 'Оформление проектов',
-        6 => 'Аренда техники',
-        7 => 'Поставка топлива',
-    ];
+    public $contractor_type
+        = [
+            1 => 'Генподряды',
+            2 => 'Поставка',
+            3 => 'Субподряд',
+            4 => 'Услуги',
+            5 => 'Оформление проектов',
+            6 => 'Аренда техники',
+            7 => 'Поставка топлива',
+        ];
 
     // indexes from CONTRACTOR_TYPES
     const CUSTOMER = 1;
@@ -70,10 +81,11 @@ class Contractor extends Model
 
     public function scopeByTypeSlug(Builder $query, $slug)
     {
-        $mainTypeId = ContractorType::where('slug', $slug)->first()->id;
+        $mainTypeId                = ContractorType::where('slug', $slug)
+            ->first()->id;
         $contractorAddotionalTypes = ContractorAdditionalTypes::where(
             'additional_type', $mainTypeId)->pluck('contractor_id'
-            )->toArray();
+        )->toArray();
 
         return
             $query
@@ -114,7 +126,7 @@ class Contractor extends Model
             foreach ($this->additional_types as $type) {
                 // $typeText = self::CONTRACTOR_TYPES[$type->additional_type];
                 $typeText = ContractorType::find($type->additional_type)->name;
-                $types .= ", {$typeText}";
+                $types    .= ", {$typeText}";
             }
 
             return $types;
@@ -157,10 +169,18 @@ class Contractor extends Model
     public function additions_projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class, 'project_contractors')
-            ->select('projects.*', 'contractors.short_name as contractor_name', 'contractors.inn as contractor_inn', 'contractors.id as contractor_id', 'users.last_name', 'users.first_name', 'users.patronymic', 'project_objects.name as project_name', 'project_objects.address as project_address', 'tasks.project_id', 'tasks.created_at as task_date')
+            ->select('projects.*', 'contractors.short_name as contractor_name',
+                'contractors.inn as contractor_inn',
+                'contractors.id as contractor_id', 'users.last_name',
+                'users.first_name', 'users.patronymic',
+                'project_objects.name as project_name',
+                'project_objects.address as project_address',
+                'tasks.project_id', 'tasks.created_at as task_date')
             ->leftJoin('users', 'users.id', '=', 'projects.user_id')
-            ->leftJoin('contractors', 'contractors.id', '=', 'projects.contractor_id')
-            ->leftJoin('project_objects', 'project_objects.id', '=', 'projects.object_id')
+            ->leftJoin('contractors', 'contractors.id', '=',
+                'projects.contractor_id')
+            ->leftJoin('project_objects', 'project_objects.id', '=',
+                'projects.object_id')
             ->leftJoin('tasks', function ($query) {
                 $query->on('projects.id', '=', 'tasks.project_id')
                     ->whereRaw('tasks.id IN (select MAX(a2.id) from tasks as a2 join projects as u2 on u2.id = a2.project_id group by u2.id)');
@@ -177,13 +197,15 @@ class Contractor extends Model
      */
     public function additional_types(): HasMany
     {
-        return $this->hasMany(ContractorAdditionalTypes::class, 'contractor_id', 'id');
+        return $this->hasMany(ContractorAdditionalTypes::class, 'contractor_id',
+            'id');
     }
 
     public function hasRemoveRequest()
     {
         // find remove task
-        return Task::where('status', 19)->where('target_id', $this->id)->where('is_solved', 0)->first();
+        return Task::where('status', 19)->where('target_id', $this->id)
+            ->where('is_solved', 0)->first();
     }
 
     public function create_notify($diff_in_days)
@@ -193,11 +215,12 @@ class Contractor extends Model
             ContractorContactInformationRequiredNotice::send(
                 $this->user_id,
                 [
-                    'name' => 'Заполните контакты контрагента '.$this->short_name,
+                    'name'            => 'Заполните контакты контрагента '
+                        .$this->short_name,
                     'additional_info' => 'Ссылка на контрагента: ',
-                    'url' => route('contractors::card', $this->id),
-                    'contractor_id' => $this->id,
-                    'status' => 5,
+                    'url'             => route('contractors::card', $this->id),
+                    'contractor_id'   => $this->id,
+                    'status'          => 5,
                 ]
             );
 
@@ -218,12 +241,15 @@ class Contractor extends Model
             UserCreatedContractorWithoutContactsNotice::send(
                 $chief_id,
                 [
-                    'name' => 'Пользователь '.$this->creator->full_name.' не заполнил(а) контактов контрагента '.$this->short_name,
+                    'name'            => 'Пользователь '
+                        .$this->creator->full_name
+                        .' не заполнил(а) контактов контрагента '
+                        .$this->short_name,
                     'additional_info' => 'Ссылка на контрагента: ',
-                    'url' => route('contractors::card', $this->id),
-                    'user_id' => $chief_id,
-                    'contractor_id' => $this->id,
-                    'status' => 5,
+                    'url'             => route('contractors::card', $this->id),
+                    'user_id'         => $chief_id,
+                    'contractor_id'   => $this->id,
+                    'status'          => 5,
                 ]
             );
 
@@ -234,4 +260,5 @@ class Contractor extends Model
 
         return true;
     }
+
 }
