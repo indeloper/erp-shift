@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "autonumeric": "^4.10.5",
+        "axios": "^1.7.2",
         "devextreme": "23.2.5",
         "devextreme-vue": "23.2.5",
         "jquery-mask-plugin": "^1.14.16",
