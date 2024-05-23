@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\q3wMaterial\operations;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MaterialResource;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
@@ -19,6 +20,14 @@ use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Models\User;
 use App\Notifications\Task\TaskPostponedAndClosedNotice;
+use App\Repositories\Material\MaterialAccountingTypeRepository;
+use App\Repositories\Material\MaterialAccountingTypeRepositoryInterface;
+use App\Repositories\Material\MaterialStandardRepositoryInterface;
+use App\Repositories\Material\MaterialTypeRepositoryInterface;
+use App\Repositories\Material\MeasureUnitRepository;
+use App\Repositories\Material\MeasureUnitRepositoryInterface;
+use App\Repositories\ProjectObject\ProjectObjectRepositoryInterface;
+use App\Repositories\User\UserRepositoryInterface;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
@@ -31,6 +40,17 @@ use Illuminate\View\View;
 class q3wMaterialTransformationOperationController extends Controller
 {
     const EMPTY_COMMENT_TEXT = 'Комментарий не указан';
+
+    public function __construct(
+        public MaterialAccountingTypeRepositoryInterface $materialAccountingTypeRepository,
+        public MaterialStandardRepositoryInterface $materialStandardRepository,
+        public MaterialTypeRepositoryInterface $materialTypeRepository,
+        public MeasureUnitRepositoryInterface $measureUnitRepository,
+        public ProjectObjectRepositoryInterface $projectObjectRepository,
+        public UserRepositoryInterface $userRepository
+    ){
+
+    }
 
     /**
      * Display a listing of the resource.
@@ -56,16 +76,34 @@ class q3wMaterialTransformationOperationController extends Controller
         return view('materials.operations.transformation.new')->with([
             'projectObjectId' => $projectObjectId,
             'currentUserId' => Auth::id(),
-            'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
-            'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
-            'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
-            'materialStandards' => DB::table('q3w_material_standards as a')
-                ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
-                ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
-                ->get(['a.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
-                ->toJSON(),
-            'projectObjects' => ProjectObject::all('id', 'name', 'short_name')->toJson(JSON_UNESCAPED_UNICODE),
-            'users' => User::getAllUsers()->where('status', 1)->get()->toJson(JSON_UNESCAPED_UNICODE),
+//            'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
+//            'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
+//            'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
+//            'materialStandards' => DB::table('q3w_material_standards as a')
+//                ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
+//                ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
+//                ->get(['a.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
+//                ->toJSON(),
+//            'projectObjects' => ProjectObject::all('id', 'name', 'short_name')->toJson(JSON_UNESCAPED_UNICODE),
+//            'users' => User::getAllUsers()->where('status', 1)->get()->toJson(JSON_UNESCAPED_UNICODE),
+        ]);
+    }
+
+    public function getMaterialsFor()
+    {
+        return MaterialResource::make([
+            'user_id'           => auth()->id(),
+            'accountingTypes'   => $this->materialAccountingTypeRepository->getAll(),
+            'materialStandards' => $this->materialStandardRepository->getAll(),
+            'materialTypes'     => $this->materialTypeRepository->getAll(),
+            'measureUnits'      => $this->measureUnitRepository->getAll(),
+            'projectObjects'    => $this->projectObjectRepository->getAll(),
+            'users'             => $this->userRepository->getAllUsersWithStatus(1),
+            'materialsActualListRoute' => route('materials.actual.list'),
+            'materialsStandardsListexRoute' => route('materials.standards.listex'),
+            'materialAccountingListRoute' => route('project-objects.which-participates-in-material-accounting.list'),
+            'materialTransformTypesLookupListRoute' => route('material.transformation-types.lookup-list'),
+            'usersWithMaterialListAccessListRoute' => route('users-with-material-list-access.list')
         ]);
     }
 

@@ -52,7 +52,6 @@ mix.copy('resources/assets/js/html2canvas/canvas2image.js', 'public/js');
 mix.copy('resources/assets/js/html2canvas/html2canvas.js', 'public/js');
 mix.copy('resources/assets/js/html2canvas/jquery.plugin.html2canvas.js', 'public/js');
 
-
 mix.copy('resources/assets/js/plugins/bootstrap-table-mobile.js', 'public/js/plugins');
 mix.copy('resources/assets/js/plugins/bootstrap-datetimepicker.js', 'public/js/plugins');
 mix.copy('resources/assets/js/plugins/bootstrap-notify.js', 'public/js/plugins');
@@ -184,6 +183,7 @@ mix.copy('resources/assets/js/common/devextreme/dx.messages.ru.js', 'public/js/d
 
 //Q3W
 mix.copy('resources/assets/css/custom/main.css', 'public/css/main.css');
+mix.copy('resources/views/materials/operations/transformation/components/materialsStandardsHelper.js', 'public/js');
 
 // lightgalleryjs.com
 mix.copy('node_modules/lightgallery/css/lightgallery.css', 'public/css/lightgallery/lightgallery.css');
