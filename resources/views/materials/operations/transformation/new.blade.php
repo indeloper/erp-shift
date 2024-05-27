@@ -133,6 +133,5 @@
 @endsection
 
 @section('js_footer')
-    {{-- TODO выносим в отдельный файл --}}
-    <script src="{{ asset('js/materialsStandardsHelper.js')}}"></script>
+    <script type="module" src="{{ asset('js/components/materials/materialsStandardsHelper.js')}}"></script>
 @endsection
