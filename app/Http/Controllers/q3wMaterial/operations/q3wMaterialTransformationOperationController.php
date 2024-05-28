@@ -107,6 +107,17 @@ class q3wMaterialTransformationOperationController extends Controller
         ]);
     }
 
+    public function getMaterialServiceUrls()
+    {
+        return [
+            'materialsActualListRoute' => route('materials.actual.list'),
+            'materialsStandardsListexRoute' => route('materials.standards.listex'),
+            'materialAccountingListRoute' => route('project-objects.which-participates-in-material-accounting.list'),
+            'materialTransformTypesLookupListRoute' => route('material.transformation-types.lookup-list'),
+            'usersWithMaterialListAccessListRoute' => route('users-with-material-list-access.list')
+        ];
+    }
+
     public function view(Request $request): View
     {
         if (isset($request->operationId)) {

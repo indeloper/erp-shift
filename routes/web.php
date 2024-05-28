@@ -293,6 +293,8 @@ Route::middleware('activeuser', 'auth')->group(function () {
     Route::get('/strmaterials/snapshots/list/', [q3wMaterial\q3wMaterialController::class, 'snapshotList'])->name('materials.snapshots.list');
     Route::get('/strmaterials/standard-history/list/', [q3wMaterial\q3wMaterialController::class, 'standardHistoryList'])->name('materials.standard-history.list');
 
+    //Material Accounting Types
+    Route::get('/strmaterials/material-accounting-type/list', [q3wMaterial\q3wMaterialAccountingTypeController::class, 'show'])->name('materials.accounting.types.list');
     //Material Types
     Route::get('/strmaterials/material-type', [q3wMaterial\q3wMaterialTypeController::class, 'index'])->name('materials.types.index')->middleware('can:material_accounting_materials_types_editing');
     Route::get('/strmaterials/material-type/list', [q3wMaterial\q3wMaterialTypeController::class, 'show'])->name('materials.types.list'); //!!!
@@ -350,6 +352,7 @@ Route::middleware('activeuser', 'auth')->group(function () {
     Route::get('/strmaterials/transformation/completed', [q3wMaterial\operations\q3wMaterialTransformationOperationController::class, 'completed'])->name('materials.operations.transformation.completed')->middleware('can:material_accounting_material_list_access');
     Route::post('/strmaterials/transformation/is-user-responsible-for-material-accounting', [q3wMaterial\operations\q3wMaterialTransformationOperationController::class, 'isUserResponsibleForMaterialAccountingWebRequest'])->name('materials.transformation.is-user-responsible-for-material-accounting')->middleware('can:material_accounting_operations_creating');
     Route::get('/strmaterials/transformation/get-materials-for', [q3wMaterial\operations\q3wMaterialTransformationOperationController::class, 'getMaterialsFor']);
+    Route::get('/strmaterials/transformation/get-material-service-urls', [q3wMaterial\operations\q3wMaterialTransformationOperationController::class, 'getMaterialServiceUrls']);
 
     //Material write-off
     Route::get('/strmaterials/write-off/new', [q3wMaterial\operations\q3wMaterialWriteOffOperationController::class, 'create'])->name('materials.operations.write-off.new')->middleware('can:material_accounting_operations_creating');

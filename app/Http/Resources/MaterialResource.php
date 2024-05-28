@@ -14,16 +14,6 @@ class MaterialResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-//        dd($this['projectObjects'][0]);
-//        dd($this['projectObjects']->map(function ($item) {
-//            return ['id' => $item->id, 'name' => $item->name, 'short_name' => $item->short_name];
-//        }));
-//        dd([
-//            'user_id' => $this['user_id'],
-//            'accounting_types' => $this['accountingTypes']->map(function ($item) {
-//                return ['value' => $item->value];
-//            })
-//        ]);
         return [
             'user_id' => $this['user_id'],
             'measure_units' => $this['measureUnits']->map(function ($item) {

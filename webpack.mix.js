@@ -202,11 +202,11 @@ mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/l
 
 
 mix.js('resources/assets/js/components/materials/materialsStandardsHelper.js', 'public/js/components/materials/materialsStandardsHelper.js');
-mix.js('resources/assets/js/components/materials/materialsStandardsAddingForm.js', 'public/js/components/materials/materialsStandardsAddingForm.js');
-// mix.copy('resources/assets/js/components/materials/test.js', 'public/js/components/materials/materialsStandardsAddingForm.js');
-// mix.copy('resources/assets/js/components/materials/materialsStandardsAddingForm.js', 'public/js/components/materials/materialsStandardsAddingForm.js');
-mix.copy('resources/assets/js/components/materials/popup.js', 'public/js/components/materials/popup.js');
 mix.js('resources/assets/js/components/materials/transformationStorage.js', 'public/js/components/materials/transformationStorage.js');
+
+mix.copy('resources/assets/js/components/materials/materialAddingForm/popup.js', 'public/js/components/materials/materialAddingForm/popup.js');
+mix.js('resources/assets/js/components/materials/materialAddingForm/materialsStandardsAddingForm.js', 'public/js/components/materials/materialAddingForm/materialsStandardsAddingForm.js');
+mix.js('resources/assets/js/components/materials/materialAddingForm/dateSources.js', 'public/js/components/materials/materialAddingForm/dateSources.js');
 
 
 mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js').vue({version: 3})

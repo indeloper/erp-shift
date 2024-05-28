@@ -6,8 +6,10 @@ import {
     insertTransformationRow,
     getValidationUid,
     validateStages, validateMaterialList
-} from "./transformationStorage"
+} from "../transformationStorage"
 import {createPopupContainer} from "./popup";
+import {getMaterialTypesData} from "../dataService";
+import * as dataSources from "./dateSources";
 
 export let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSource({
     store: new DevExpress.data.ArrayStore({
@@ -16,7 +18,19 @@ export let selectedMaterialStandardsListDataSource = new DevExpress.data.DataSou
     })
 })
 
-export let materialsStandardsAddingForm = materialTypesData => {
+export let materialsStandardsAddingForm = async () => {
+    let materialTypesData;
+
+    console.log('*******************************************************************************************');
+    console.log('@materialStandardsSource', dataSources.materialStandardsSource);
+
+    try {
+        materialTypesData = await getMaterialTypesData();
+    } catch (error) {
+        console.error("Failed to get material types data:", error);
+        return;
+    }
+
     const materialsStandardsAddingForm = $("#materialsStandardsAddingForm").dxForm({
         colCount: 2,
         items: [{

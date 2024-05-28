@@ -8,17 +8,17 @@ import {
     validateStages,
     updateValidationData, validateMaterialList
 } from "./transformationStorage"
-import {selectedMaterialStandardsListDataSource, materialsStandardsAddingForm} from "./materialsStandardsAddingForm"
-import {createPopupContainer} from "./popup"
+import {materialsStandardsAddingForm} from "./materialAddingForm/materialsStandardsAddingForm"
+import {createPopupContainer} from "./materialAddingForm/popup"
+import {getMaterialTypesData, materialStandardsListDataSource} from "./dataService";
 
 
 (async function () {
 
-    const response = await axios.get('/strmaterials/transformation/get-materials-for')
-    const materialsData = response.data.data
+    const materialsData = await getMaterialTypesData();
 
-    let materialTypesData = materialsData.material_types;
-    const form = materialsStandardsAddingForm(materialTypesData)
+    const materialsAddingForm = await materialsStandardsAddingForm();
+
     let projectObjectId = document.querySelector('#projectObjectId').value;
 
     let currentTransformationType = "";
@@ -39,20 +39,6 @@ import {createPopupContainer} from "./popup"
         key: "id",
         store: availableMaterialsStore
     });
-
-    let materialStandardsListStore = new DevExpress.data.CustomStore({
-        key: "id",
-        loadMode: "raw",
-        load: function (loadOptions) {
-            return $.getJSON(materialsData.materials_standards_listex_route,
-                {data: JSON.stringify({dxLoadOptions: loadOptions})});
-        },
-    });
-
-    let materialStandardsListDataSource = new DevExpress.data.DataSource({
-        key: "id",
-        store: materialStandardsListStore
-    })
 
     let projectObjectsListWhichParticipatesInMaterialAccountingDataSource = new DevExpress.data.DataSource({
         reshapeOnPush: true,
@@ -449,6 +435,8 @@ import {createPopupContainer} from "./popup"
         return row;
     }
 
+    //TODO 1 - массив фильтрации формата DevExpress
+    //TODO 2 - проект, опционально
     function showMaterialsAddingForm() {
         let dataSource = materialStandardsListDataSource;
 
@@ -461,8 +449,8 @@ import {createPopupContainer} from "./popup"
                 break;
         }
 
-        dataSource.filter(getMaterialAddingFormFilter())
-        let materialsList = form.getEditor("materialsStandardsList");
+        dataSource.filter(getMaterialAddingFormFilter());
+        let materialsList = materialsAddingForm.getEditor("materialsStandardsList");
         materialsList.option("dataSource", dataSource);
         dataSource.reload();
         materialsList.option("selectedRowKeys", []);
