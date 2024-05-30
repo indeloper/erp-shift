@@ -1,0 +1,7 @@
+@media (max-width: 1025px) {
+    .sidebar-m  {
+        padding-bottom: 50px!important;
+        display: flex;
+        flex-direction: column;
+    }
+}

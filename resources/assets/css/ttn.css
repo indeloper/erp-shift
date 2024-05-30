@@ -1,0 +1,160 @@
+* {
+  margin: 0;
+}
+
+.list-header{
+  margin-bottom: 5px;
+}
+
+.offer-list h4 {
+  font-family: 'TimesNewRoman', serif;
+  font-weight: 500;
+}
+
+.ttn-list {
+  width: 794px;   /* ширина */
+  background-color: white;
+  font-family:  Arial, "Helvetica Neue", Helvetica, sans-serif
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.pb-15 {
+  padding-bottom:15px;
+}
+
+.top-header {
+  margin-bottom: 0;
+}
+
+
+.ttn-table {
+  border: 1px solid black;
+  font-size: 4pt;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+
+.ttn-table td{
+  border: 1px solid black;
+  padding-left: 3px;
+  padding-right: 3px;
+  vertical-align: top;
+}
+
+.ttn-table th{
+  border: 1px solid black;
+  font-size: 6pt;
+  font-weight: 400;
+  line-height: 1.4;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+
+.prim {
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.prim ol {
+  margin-top: 0px;
+  padding-left: 15px;
+}
+
+.prim ol li {
+  margin-bottom: 2px;
+}
+
+.prim ul {
+  margin-top: 0px;
+  padding-left: 10px;
+}
+
+.prim ul li {
+  margin-bottom: 5px;
+}
+
+.prim p {
+  margin-bottom: 5px;
+}
+
+.list-footer {
+  margin-top: 40px;
+  font-size: 10px;
+  font-weight: 600;
+  float:right;
+  display: flex;
+  margin-bottom: 40px;
+}
+
+.head-applic {
+  font-size: 6pt;
+  margin-top:0;
+  font-family: sans-serif;
+}
+
+.contacts {
+    width:350px;
+    float:right;
+    text-align: right;
+}
+
+.contacts p {
+    font-size:10px;
+    margin-top:0;
+}
+
+.h6-offer {
+  text-align: center;
+  margin:0;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.prim h6 {
+    font-size: 11px;
+    text-decoration: underline;
+    font-weight: 600;
+    font-style: italic;
+    margin:5px 0;
+}
+
+.footer-contacts {
+    margin: 30px 0;
+    font-size:10px;
+    text-align: left;
+    float: left;
+}
+
+.logo {
+    width:200px;
+    float:left;
+}
+
+.small-logo {
+    width:200px;
+    float:left;
+}
+
+.number {
+    font-size:11px;
+    font-weight:600;
+    margin-top: 3px;
+}
+
+.title {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+
+.dib {
+    display: inline-block;
+}
