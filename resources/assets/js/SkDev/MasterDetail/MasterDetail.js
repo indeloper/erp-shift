@@ -17,11 +17,6 @@ export class MasterDetail {
             project_id: currentEmployeeData.id,
           });
 
-          $('<div>')
-            .addClass('master-detail-caption')
-            .text(`TEST:`)
-            .appendTo(container);
-
           const initDataGrid = new InitDataGrid('<div>')
             .setTitle('Объекты');
 

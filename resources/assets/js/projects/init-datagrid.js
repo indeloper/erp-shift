@@ -16,7 +16,8 @@ const initDataGrid = new InitDataGrid('#dataGridAnchor')
     new MasterDetail(),
   );
 
-initDataGrid.editing
+initDataGrid
+  .getEditing()
   .setPopup(
     new DataGridPopup()
       .setTitle('Информация об проекте'),
