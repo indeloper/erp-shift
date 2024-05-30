@@ -20,7 +20,6 @@ use App\Http\Controllers\FileEntryController;
 use App\Http\Controllers\q3wMaterial;
 use App\Http\Controllers\System;
 use App\Http\Controllers\Tasks;
-use App\Services\Bitrix\CRest;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('activeuser', 'auth')->group(function () {
@@ -978,18 +977,16 @@ Route::middleware('activeuser', 'auth')->group(function () {
     require base_path('routes/modules/timesheet/timesheet.php');
 });
 
-Route::get('/', function () {
-    $response = CRest::call('crm.requisite.list', [
-        'filter' => [
-            'ENTITY_ID'      => 81,
-            'ENTITY_TYPE_ID' => 4,
-            'PRESET_ID'      => 1,
-        ],
-        //        'select' => ["RQ_INN", "PRESET_ID"],
-    ]);
-    //    $response = CRest::call('crm.requisite.link.list');
-
-    dd($response);
-});
-
 Illuminate\Support\Facades\Auth::routes();
+
+//Route::get('/', function () {
+//    //    $response = \App\Services\Bitrix\CRest::call('crm.deal.list');
+//    //
+//    //    dd($response);
+//    //
+//    //    $response = \App\Services\Bitrix\CRest::call('crm.deal.get', [
+//    //        'id' => 2281,
+//    //    ]);
+//    //
+//    //    dd($response);
+//});

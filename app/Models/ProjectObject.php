@@ -12,6 +12,7 @@ use App\Traits\Logable;
 use App\Traits\SmartSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
@@ -19,14 +20,16 @@ use Illuminate\Support\Facades\DB;
 
 class ProjectObject extends Model
 {
+
     use DefaultSortable, DevExtremeDataSourceLoadable, Logable, SmartSearchable;
     use HasFactory;
 
     protected $guarded = ['id'];
 
-    public $defaultSortOrder = [
-        'short_name' => 'asc',
-    ];
+    public $defaultSortOrder
+        = [
+            'short_name' => 'asc',
+        ];
 
     protected $appends = ['location', 'name_tag'];
 
@@ -55,7 +58,8 @@ class ProjectObject extends Model
 
     public function material_accounting_type(): HasOne
     {
-        return $this->hasOne(q3wProjectObjectMaterialAccountingType::class, 'id', 'material_accounting_type');
+        return $this->hasOne(q3wProjectObjectMaterialAccountingType::class,
+            'id', 'material_accounting_type');
     }
 
     public function getCreatedAtAttribute($date)
@@ -70,7 +74,8 @@ class ProjectObject extends Model
 
     public function getLastTenOperations()
     {
-        return $this->fuel_tanks->pluck('operations')->flatten()->sortByDesc('id')->take(10);
+        return $this->fuel_tanks->pluck('operations')->flatten()
+            ->sortByDesc('id')->take(10);
     }
 
     public function fuel_tanks(): HasMany
@@ -85,14 +90,19 @@ class ProjectObject extends Model
 
     public function documents(): HasMany
     {
-        return $this->hasMany(ProjectObjectDocument::class, 'project_object_id');
+        return $this->hasMany(ProjectObjectDocument::class,
+            'project_object_id');
     }
 
     public function scopeWithResponsibleUserNames($query)
     {
-        $query->leftJoin('object_responsible_users', 'project_objects.id', '=', 'object_responsible_users.object_id')
-            ->leftJoin('users', 'users.id', '=', 'object_responsible_users.user_id')
-            ->leftJoin('object_responsible_user_roles', 'object_responsible_user_roles.id', '=', 'object_responsible_users.object_responsible_user_role_id')
+        $query->leftJoin('object_responsible_users', 'project_objects.id', '=',
+            'object_responsible_users.object_id')
+            ->leftJoin('users', 'users.id', '=',
+                'object_responsible_users.user_id')
+            ->leftJoin('object_responsible_user_roles',
+                'object_responsible_user_roles.id', '=',
+                'object_responsible_users.object_responsible_user_role_id')
             ->addSelect([
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PROJECT_MANAGER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_project_manager_full_names`"),
                 DB::raw("GROUP_CONCAT(CASE WHEN `object_responsible_user_roles`.`slug` = 'TONGUE_PTO_ENGINEER' THEN `users`.`user_full_name` ELSE NULL END ORDER BY `users`.`user_full_name` ASC SEPARATOR '<br>' ) AS `tongue_pto_engineer_full_names`"),
@@ -104,12 +114,19 @@ class ProjectObject extends Model
     public function getPermissionsAttribute()
     {
         $permissionsArray = [];
-        $permissions = Permission::where('category', 4)->get();
+        $permissions      = Permission::where('category', 4)->get();
 
         foreach ($permissions as $permission) {
-            $permissionsArray[$permission->codename] = Auth::user()->can($permission->codename);
+            $permissionsArray[$permission->codename] = Auth::user()
+                ->can($permission->codename);
         }
 
         return $permissionsArray;
     }
+
+    public function project(): BelongsTo
+    {
+        $this->belongsTo(Project::class, 'project_id');
+    }
+
 }
