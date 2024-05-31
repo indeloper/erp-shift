@@ -188,7 +188,9 @@ class q3wMaterialSupplyOperationController extends Controller
 
             $inputMaterialAmount = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
-            if (empty($inputMaterial['comment'])) {
+
+            // Если коммит пустой, или в нем нет ни одной буквы
+            if (!isset($inputMaterial['comment']) || empty(trim($inputMaterial['comment'])) || !preg_match('/[\p{L}\p{N}]/u', $inputMaterial['comment'])) {
                 $inputMaterialComment = null;
             } else {
                 $inputMaterialComment = $inputMaterial['comment'];

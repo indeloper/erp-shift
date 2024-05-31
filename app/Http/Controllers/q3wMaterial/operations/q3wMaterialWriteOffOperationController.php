@@ -419,7 +419,8 @@ class q3wMaterialWriteOffOperationController extends Controller
             $inputMaterialQuantity = $inputMaterial['quantity'];
             $inputMaterialInitialCommentId = $inputMaterial['initial_comment_id'];
 
-            if (empty($inputMaterial['comment'])) {
+            // Если коммит пустой, или в нем нет ни одной буквы
+            if (!isset($inputMaterial['comment']) || empty(trim($inputMaterial['comment'])) || !preg_match('/[\p{L}\p{N}]/u', $inputMaterial['comment'])) {
                 $inputMaterialComment = null;
             } else {
                 $inputMaterialComment = $inputMaterial['comment'];
