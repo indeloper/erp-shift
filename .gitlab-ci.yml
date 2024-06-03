@@ -1,11 +1,6 @@
 stages:
   - build
 
-#test:
-#  stage: build
-#  script:
-#      - echo $CI_PROJECT_DIR/
-
 composer:
   stage: build
   script:
@@ -21,21 +16,21 @@ composer:
     paths:
       - vendor/
 
-#npm:
-#  stage: build
-#  script:
-#      - npm install
-#      - npm run production
-#
-#  artifacts:
-#    expire_in: 1 month
-#    paths:
-#      - node_modules/
-#      - public/css/
-#      - public/js/
+npm:
+  stage: build
+  script:
+      - npm install
+      - npm run production
+
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - node_modules/
+      - public/css/
+      - public/js/
       
-#  cache:
-#    key: ${CI_COMMIT_REF_SLUG}-npm
-#    paths:
-#      - node_modules/
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-npm
+    paths:
+      - node_modules/
 
