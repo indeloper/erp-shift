@@ -17,25 +17,25 @@ composer:
     paths:
       - vendor/
 
-npm:
-  stage: build
-  script:
-      - npm install
-      - npm run production
+#npm:
+#  stage: build
+#  script:
+#      - npm install
+#      - npm run production
 
-  artifacts:
-    expire_in: 1 month
-    paths:
-      - node_modules/
-      - public/css/
-      - public/js/
+#  artifacts:
+#    expire_in: 1 month
+#    paths:
+#      - node_modules/
+#      - public/css/
+#      - public/js/
       
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-npm
-    paths:
-      - node_modules/
+#  cache:
+#    key: ${CI_COMMIT_REF_SLUG}-npm
+#    paths:
+#      - node_modules/
 
-staging:
+dev:
   stage: deploy
   script:
     - eval $(ssh-agent -s)
@@ -48,5 +48,8 @@ staging:
   environment:
     name: staging
     url: http://dev.erp.sk-gorod.com
-  only:
-  - master
+  #only:
+  #  - master
+  dependencies:
+    - composer
+    #- npm
