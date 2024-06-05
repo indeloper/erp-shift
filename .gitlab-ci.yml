@@ -1,5 +1,6 @@
 stages:
   - build
+  - deploy
 
 composer:
   stage: build
@@ -34,3 +35,14 @@ npm:
     paths:
       - node_modules/
 
+staging:
+  stage: deploy
+  script:
+  - Initialise an SSH connection
+  - Deploy to the staging host using Laravel Deployer
+  - run dcoker-compose file
+  environment:
+    name: staging
+    url: http://dev.erp.sk-gorod.com
+  only:
+  - master
