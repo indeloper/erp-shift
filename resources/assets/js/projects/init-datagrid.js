@@ -1,22 +1,26 @@
 import { initDxForm } from '../SkDev/custom';
-import { DataGridPopup } from '../SkDev/Editing/Popup/DataGridPopup';
-import { DataGridEditForm } from '../SkDev/Editing/Form/DataGridEditForm';
-import { DataSource } from '../SkDev/DataSource/DataSource';
+import { DefaultDataSource } from '../SkDev/DataSource/DefaultDataSource';
 import { InitDataGrid } from '../SkDev/InitDataGrid';
-import { ProjectColumns } from '../SkDev/DataSource/Columns/ProjectColumns';
-import { MasterDetail } from '../SkDev/MasterDetail/MasterDetail';
 import { ProjectEditing } from '../SkDev/Editing/ProjectEditing';
+import { DataGridPopup } from '../SkDev/Editing/Popup/Projects/DataGridPopup';
+import {
+  DataGridEditForm,
+} from '../SkDev/Editing/Form/Projects/DataGridEditForm';
+import {
+  ProjectColumns,
+} from '../SkDev/DataSource/Columns/Projects/ProjectColumns';
+import { MasterDetail } from '../SkDev/MasterDetail/Projects/MasterDetail';
 
 const initDataGrid = new InitDataGrid('#dataGridAnchor')
   .setTitle('Проект')
-  .setEditing(
-    new ProjectEditing(),
-  )
   .setMasterDetail(
     new MasterDetail(),
   );
 
 initDataGrid
+  .setEditing(
+    new ProjectEditing(),
+  )
   .getEditing()
   .setPopup(
     new DataGridPopup()
@@ -29,8 +33,11 @@ initDataGrid
 
 initDxForm(
   initDataGrid,
-  new DataSource(
+  new DefaultDataSource(
     'http://localhost:81/projects/load',
+    'http://localhost:81/projects',
+    'http://localhost:81/projects/store',
   ),
+
   new ProjectColumns(),
 );

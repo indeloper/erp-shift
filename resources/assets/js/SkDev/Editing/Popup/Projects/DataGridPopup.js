@@ -1,4 +1,4 @@
-import { BasePopup } from './BasePopup';
+import { BasePopup } from '../BasePopup';
 
 export class DataGridPopup extends BasePopup {
   constructor(onHiding, onShowing) {

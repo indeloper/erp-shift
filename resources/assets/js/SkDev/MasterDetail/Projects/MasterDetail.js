@@ -1,9 +1,9 @@
-import { InitDataGrid } from '../InitDataGrid';
-import { initDxForm } from '../custom';
-import { DataSource } from '../DataSource/DataSource';
+import { InitDataGrid } from '../../InitDataGrid';
+import { initDxForm } from '../../custom';
+import { DefaultDataSource } from '../../DataSource/DefaultDataSource';
 import {
   ProjectObjectColumns,
-} from '../DataSource/Columns/ProjectObjectColumns';
+} from '../../DataSource/Columns/Projects/ProjectObjectColumns';
 
 export class MasterDetail {
   build() {
@@ -22,7 +22,7 @@ export class MasterDetail {
 
           initDxForm(
             initDataGrid,
-            new DataSource(
+            new DefaultDataSource(
               'http://localhost:81/projects/objects/load?' + params.toString(),
             ),
             new ProjectObjectColumns(),

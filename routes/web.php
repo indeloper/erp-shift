@@ -48,13 +48,17 @@ Route::middleware('activeuser', 'auth')->group(function () {
                 ->name('index');
             Route::post('/store', [Commerce\ObjectController::class, 'store'])
                 ->name('store')->middleware('can:objects_create');
-            Route::put('/update/{id}',
+            Route::put('/{id}',
                 [Commerce\ObjectController::class, 'update'])->name('update')
                 ->middleware('can:objects_edit');
 
             Route::get('/getMaterialAccountingTypes', [
                 Commerce\ObjectController::class, 'getMaterialAccountingTypes',
             ])->name('getMaterialAccountingTypes');
+            Route::get('/getMaterialAccountingTypes/{id}', [
+                Commerce\ObjectController::class,
+                'getMaterialAccountingTypesItem',
+            ])->name('get-material-accounting-types-item');
             Route::get('/getObjectInfoByID',
                 [Commerce\ObjectController::class, 'getObjectInfoByID'])
                 ->name('getObjectInfoByID');

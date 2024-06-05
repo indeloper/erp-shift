@@ -16,7 +16,7 @@ export const initDxForm = (InitDataGrid, dataSource, columns) => {
               ...InitDataGrid.getEditing().build(),
               ...InitDataGrid.getMasterDetail().build(),
               ...InitDataGrid.getOptions(),
-              keyExpr: 'ID',
+              keyExpr: 'id',
               columns: columns.build(),
               showBorders: true,
             },

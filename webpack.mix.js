@@ -199,7 +199,9 @@ mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.min.js', 'public/js/lig
 mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.min.js', 'public/js/lightgallery/lg-rotate.min.js');
 mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
 
-mix.js('resources/assets/js/projects/init-datagrid.js', 'public/js/init-datagrid.js');
+mix.js('resources/assets/js/projects/init-datagrid.js', 'public/js/projects/init-datagrid.js');
+mix.js('resources/assets/js/objects/init-datagrid.js', 'public/js/objects/init-datagrid.js');
+
 mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js').vue({ version: 3 });
 mix.js('resources/assets/js/pages/notifications/notifications.js', 'public/js/notifications.js').vue({ version: 3 });
 
