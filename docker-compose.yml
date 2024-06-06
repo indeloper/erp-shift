@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   #php service
-  app:
+  erp_app:
     container_name: erp_app
     build:
       context: ./docker
@@ -17,7 +17,7 @@ services:
     depends_on:
       - erp_database
 
-  redis:
+  erp_redis:
     image: 'redis:alpine'
     container_name: erp_redis
     ports:
@@ -39,7 +39,7 @@ services:
       - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
 
   #Database service
-  database:
+  erp_database:
     container_name: erp_database
     restart: always
     image: mysql:8.0
