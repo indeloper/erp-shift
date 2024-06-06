@@ -1,7 +1,5 @@
 #!/bin/bash
 
-chgrp -R www-data .
-
 if [ ! -f "vendor/autoload.php" ]; then
     composer install --no-progress --no-interaction
 fi
@@ -18,6 +16,8 @@ if [ ! -f ".env" ]; then
 else
     echo "env file exists."
 fi
+
+chgrp -R www-data .
 
 php artisan key:generate
 php artisan config:clear
