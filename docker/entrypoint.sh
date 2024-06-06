@@ -1,6 +1,6 @@
 #!/bin/bash
 
-chown -R www-data:www-data
+chgrp -R www-data .
 
 if [ ! -f "vendor/autoload.php" ]; then
     composer install --no-progress --no-interaction
