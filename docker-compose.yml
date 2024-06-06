@@ -10,6 +10,7 @@ services:
       dockerfile: Dockerfile
       target: php
     working_dir: /var/www
+    user: "www-data:www-data"
     volumes:
       - ./:/var/www
     ports:
