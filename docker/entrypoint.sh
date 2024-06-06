@@ -10,12 +10,12 @@
 #    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 #fi
 
-if [ ! -f ".env" ]; then
-    echo "Creating env file for env $APP_ENV"
-    cp .env.example .env
-else
-    echo "env file exists."
-fi
+#if [ ! -f ".env" ]; then
+#    echo "Creating env file for env $APP_ENV"
+#    cp .env.example .env
+#else
+#    echo "env file exists."
+#fi
 
 php artisan key:generate
 php artisan config:clear
