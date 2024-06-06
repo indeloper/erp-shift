@@ -17,12 +17,13 @@ else
     echo "env file exists."
 fi
 
-chgrp -R www-data .
-
 php artisan key:generate
 php artisan config:clear
 php artisan view:clear
 php artisan cache:clear
 
+chgrp -R www-data .
+
 php-fpm -D
 nginx -g "daemon off;"
+
