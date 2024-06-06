@@ -23,7 +23,7 @@ php artisan view:clear
 php artisan cache:clear
 
 chgrp -R www-data .
-sudo chmod 765 "./storage/logs/laravel.log"
+sudo chmod 764 "./storage/logs/laravel.log"
 
 php-fpm -D
 nginx -g "daemon off;"
