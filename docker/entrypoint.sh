@@ -17,10 +17,8 @@
 #    echo "env file exists."
 #fi
 
-php artisan key:generate
-php artisan config:clear
-php artisan view:clear
-php artisan cache:clear
+sudo runuser -u www-data -- php artisan key:generate
+sudo runuser -u www-data -- php artisan optimize
 
 chgrp -R www-data .
 sudo chmod 764 "./storage/logs/laravel.log"
