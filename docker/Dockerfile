@@ -52,7 +52,7 @@ RUN docker-php-ext-enable redis.so
 
 WORKDIR /var/www
 
-COPY --chown=www-data .. .
+RUN chown www-data .
 
 COPY ./php/php.ini /usr/local/etc/php/php.ini
 COPY ./php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
