@@ -68,6 +68,11 @@ services:
 #    depends_on:
 #      - database
 volumes:
-  db-data: /var/docker-volumes/erp_database/
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/docker-volumes/erp_database
+      o: bind
   sail-redis:
     driver: local
