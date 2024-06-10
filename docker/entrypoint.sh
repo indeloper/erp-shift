@@ -17,12 +17,16 @@
 #    echo "env file exists."
 #fi
 
-echo "whoami and id:"
-whoami
-id
+#echo "whoami and id:"
+#whoami
+#id
 
+echo "Clearing config"
+runuser -u www-data -- php artisan config:clear
+echo "Caching config"
+runuser -u www-data -- php artisan config:cache
+echo "Generation key"
 runuser -u www-data -- php artisan key:generate
-runuser -u www-data -- php artisan optimize
 
 chgrp -R www-data .
 chmod 764 "./storage/logs/laravel.log"
