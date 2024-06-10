@@ -42,7 +42,7 @@ services:
   erp_database:
     container_name: erp_database
     restart: always
-    image: mysql:8.0
+    image: mariadb:10.4
     ports:
       - "3306:3306"
     environment:
