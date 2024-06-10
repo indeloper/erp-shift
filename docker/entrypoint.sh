@@ -17,6 +17,10 @@
 #    echo "env file exists."
 #fi
 
+echo "whoami and id:"
+echo whoami
+echo id
+
 runuser -u www-data -- php artisan key:generate
 runuser -u www-data -- php artisan optimize
 
