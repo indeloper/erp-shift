@@ -17,14 +17,11 @@
 #    echo "env file exists."
 #fi
 
-sudo runuser -u www-data -- php composer dump-autoload
-sudo runuser -u www-data -- php npm run dev
-sudo runuser -u www-data -- php artisan key:generate
-sudo runuser -u www-data -- php artisan optimize
+runuser -u www-data -- php artisan key:generate
+runuser -u www-data -- php artisan optimize
 
 chgrp -R www-data .
-sudo chmod 764 "./storage/logs/laravel.log"
+chmod 764 "./storage/logs/laravel.log"
 
 php-fpm -D
 nginx -g "daemon off;"
-
