@@ -14,6 +14,10 @@ services:
       - ./:/var/www
     ports:
       - "8080:80"
+    environment:
+      - VIRTUAL_HOST=dev.erp.sk-gorod.com
+      - LETSENCRYPT_HOST=dev.erp.sk-gorod.com
+      - LETSENCRYPT_EMAIL=dev@sk-gorod.com
     depends_on:
       - erp_database
 
