@@ -29,6 +29,7 @@ npm:
       - node_modules/
       - public/css/
       - public/js/
+      - public/mix-manifest.json
       
   cache:
     key: ${CI_COMMIT_REF_SLUG}-npm
