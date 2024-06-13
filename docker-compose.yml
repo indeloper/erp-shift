@@ -70,7 +70,7 @@ services:
     ports:
       - "${PMA_PORT}:80"
     depends_on:
-      - database
+      - erp_database
 volumes:
   db-data:
     driver: local
