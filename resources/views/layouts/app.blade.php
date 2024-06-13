@@ -137,7 +137,7 @@
          @if (config("app.env") == "local")
              data-color="red"
          @elseif (config("app.env") == "remote-dev")
-             data-color="green"
+             data-color="orange"
          @else
              data-color="purple"
          @endif
