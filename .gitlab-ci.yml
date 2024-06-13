@@ -40,7 +40,7 @@ npm:
 dev:
   stage: deploy
   script:
-    - echo "${ERP_REMOTE_DEV_ENV}" | base64 -d > .env
+    - echo "${ERP_REMOTE_DEV_ENV}" #| base64 -d > .env
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr --delete '\r' | ssh-add - > /dev/null
     - mkdir --parents ~/.ssh
