@@ -44,19 +44,11 @@ class Handler extends ExceptionHandler
             }
 
             if (isset($text)) {
-                $message = [
-                    'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
-                    'parse_mode' => 'HTML',
-                    'text' => $text,
-                ];
-
-                new TelegramApi('sendMessage', $message);
-
-                /*Telegram::sendMessage([
-                    'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                Telegram::sendMessage([
+                    'chat_id' => env('TELEGRAM_EXCEPTION_NOTIFIER_CHANNEL_ID'),
                     'parse_mode' => 'HTML',
                     'text' => $text
-                ]);*/
+                ]);
             }
         }
 

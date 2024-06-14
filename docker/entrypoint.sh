@@ -1,26 +1,13 @@
 #!/bin/bash
 
-if [ ! -f "vendor/autoload.php" ]; then
-    composer install --no-progress --no-interaction
-fi
+echo "Clearing config"
+runuser -u www-data -- php artisan config:clear
 
-#if [ $# -gt 0 ]; then
-#    exec gosu $WWWUSER "$@"
-#else
-#    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-#fi
+echo "Caching config"
+runuser -u www-data -- php artisan config:cache
 
-if [ ! -f ".env" ]; then
-    echo "Creating env file for env $APP_ENV"
-    cp .env.example .env
-else
-    echo "env file exists."
-fi
-
-php artisan key:generate
-php artisan config:clear
-php artisan view:clear
-php artisan cache:clear
+chgrp -R www-data .
+chmod 764 "./storage/logs/laravel.log"
 
 php-fpm -D
 nginx -g "daemon off;"

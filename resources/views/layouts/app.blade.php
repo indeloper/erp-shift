@@ -136,7 +136,7 @@
     <div class="sidebar"
          @if (config("app.env") == "local")
              data-color="red"
-         @elseif (config("app.env") == "local_dev")
+         @elseif (config("app.env") == "remote-dev")
              data-color="orange"
          @else
              data-color="purple"
