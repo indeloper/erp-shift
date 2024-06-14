@@ -14,7 +14,7 @@ class VehicleCategoryUpdateRequest extends FormRequest
         return boolval(auth()->user()->hasPermission('tech_acc_vehicle_category_edit'));
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $this->merge([
             'user_id' => auth()->id(),

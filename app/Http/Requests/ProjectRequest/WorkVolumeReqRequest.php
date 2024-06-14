@@ -17,7 +17,7 @@ class WorkVolumeReqRequest extends FormRequest
 
     //    protected $redirectRoute = 'request_error';
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $duplicate_pile = false;
         $duplicate_tongue = false;

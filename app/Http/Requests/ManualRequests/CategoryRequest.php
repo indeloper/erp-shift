@@ -37,7 +37,7 @@ class CategoryRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         if ($this->has('attrs')) {
             $this->merge(['attrs' => json_decode($this->attrs, true)]);

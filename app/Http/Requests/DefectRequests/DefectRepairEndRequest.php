@@ -14,7 +14,7 @@ class DefectRepairEndRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $this->merge([
             'repair_end_date' => now(),

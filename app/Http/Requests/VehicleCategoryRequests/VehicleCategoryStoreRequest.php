@@ -14,7 +14,7 @@ class VehicleCategoryStoreRequest extends FormRequest
         return boolval(auth()->user()->can('tech_acc_vehicle_category_create'));
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $this->merge([
             'user_id' => auth()->id(),

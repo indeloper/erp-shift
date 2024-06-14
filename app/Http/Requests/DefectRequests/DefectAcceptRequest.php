@@ -15,7 +15,7 @@ class DefectAcceptRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         if ($this->repair_start_date and $this->repair_end_date) {
             $this->merge([
