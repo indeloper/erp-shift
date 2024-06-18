@@ -53,7 +53,7 @@ dev:
     name: dev
     url: http://dev.erp.sk-gorod.com
   only:
-    - main
+    - dev
   dependencies:
     - composer
     - npm
