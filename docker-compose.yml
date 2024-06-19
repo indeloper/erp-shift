@@ -56,6 +56,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
     volumes:
       - db-data:/var/lib/mysql
+    command: --max-allowed-packet=64M --wait_timeout=28800 --interactive_timeout=28800
 
   phpmyadmin:
     build: ./docker/phpmyadmin
