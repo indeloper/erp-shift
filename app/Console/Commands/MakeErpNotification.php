@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class MakeErpNotification extends Command
 {
-    protected $signature = 'make:erp-notification {name?} {description?}';
+    protected $signature = 'erp:make:notification {notificationName?} {notificationDescription?}';
 
     protected $description = 'Create an ERP notification with the given class name and description';
 
@@ -21,8 +21,8 @@ class MakeErpNotification extends Command
 
     public function handle(): void
     {
-        $name = $this->argument('name');
-        $description = $this->argument('description');
+        $name = $this->argument('notificationName');
+        $description = $this->argument('notificationDescription');
 
         if (! $name) {
             $name = $this->ask('Введите имя для класса уведомления');

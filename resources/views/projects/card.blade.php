@@ -1418,7 +1418,7 @@
     var userSelect = new Vue({
         el: "#select-user",
         data: {
-            // project roles - роли ответственных за проект 
+            // project roles - роли ответственных за проект
             POSITIONS: [
                 { id: 1, name: 'Ответственный специалист по КП (сваи)'},
                 { id: 2, name: 'Ответственный специалист по КП (шпунт)'},

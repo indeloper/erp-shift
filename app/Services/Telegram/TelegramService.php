@@ -10,6 +10,7 @@ use App\Repositories\User\UserRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
+use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Objects\Message;
 
 final class TelegramService implements TelegramServiceInterface
@@ -57,6 +58,11 @@ final class TelegramService implements TelegramServiceInterface
                 $data->getNotificationData()->getUserId()
             );
 
+            $respo =         Telegram::sendMessage([
+                'chat_id' => $user->chat_id,
+                'text' => 'fawf'
+            ]);
+dd($respo);
             return $this->telegram->sendMessage([
                 'chat_id' => $user->chat_id,
                 'parse_mode' => 'HTML',
@@ -67,6 +73,7 @@ final class TelegramService implements TelegramServiceInterface
             ]);
 
         } catch (\Throwable $throwable) {
+            dd($throwable);
             Log::error($throwable->getMessage());
 
             return null;

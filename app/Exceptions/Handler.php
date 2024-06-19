@@ -3,13 +3,14 @@
 namespace App\Exceptions;
 
 use App\Models\MatAcc\MaterialAccountingOperation;
-use App\Telegram\TelegramApi;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Telegram\Bot\Laravel\Facades\Telegram;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -28,19 +29,20 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
+     * @param Throwable $e
      * @return void
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
-    public function report(Throwable $exception)
+    public function report(Throwable $e): void
     {
         if (auth()->check() and $this->isDeployedEnvironment()) {
-            if ($exception instanceof ValidationException) {
-                $text = $this->reportValidationErrors($exception);
-            } elseif ($exception instanceof ModelNotFoundException) {/* nothing */
-            } elseif ($exception instanceof TokenMismatchException) {/* nothing */
+            if ($e instanceof ValidationException) {
+                $text = $this->reportValidationErrors($e);
+            } elseif ($e instanceof ModelNotFoundException) {/* nothing */
+            } elseif ($e instanceof TokenMismatchException) {/* nothing */
             } else {
-                $text = mb_substr($this->createErrorMessage($exception), 0, 4096);
+                $text = mb_substr($this->createErrorMessage($e), 0, 4096);
             }
 
             if (isset($text)) {
@@ -52,14 +54,15 @@ class Handler extends ExceptionHandler
             }
         }
 
-        parent::report($exception);
+        parent::report($e);
     }
 
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param \Illuminate\Http\Request $request
+     * @return Response|\Symfony\Component\HttpFoundation\Response
+     * @throws Throwable
      */
     public function render($request, Throwable $exception)
     {
@@ -87,10 +90,10 @@ class Handler extends ExceptionHandler
 
     public function isDeployedEnvironment(): bool
     {
-        return in_array(config('app.env'), ['production', 'local']);
+        return in_array(config('app.env'), ['production', 'local', 'remote-dev']);
     }
 
-    public function reportValidationErrors(ValidationException $exception)
+    public function reportValidationErrors(ValidationException $exception): string
     {
         $user = auth()->user();
         $errorsBag = $exception->errors();
@@ -139,10 +142,8 @@ class Handler extends ExceptionHandler
 
         $error_bag = 'Ошибки валидации: '.PHP_EOL.$errors;
 
-        $final = $error.PHP_EOL.$exceptionClass.PHP_EOL.$file.PHP_EOL.$line.
+        return $error.PHP_EOL.$exceptionClass.PHP_EOL.$file.PHP_EOL.$line.
             PHP_EOL.$general_info.$dataInfo.PHP_EOL.$filesInfo.PHP_EOL.PHP_EOL.$error_bag;
-
-        return $final;
     }
 
     public function createErrorMessage(Exception $exception): string

@@ -53,17 +53,16 @@ final class NotificationService implements NotificationServiceInterface
 
             return;
         }
-
         if ($user === null) {
             Log::error('Нет пользователя для отправки уведомления');
 
             return;
         }
 
-        //        if (!Gate::forUser($user)->any($notification->permissions->pluck('codename'))) {
-        //            Log::error('Нет прав');
-        //            return;
-        //        }
+//        if (!Gate::forUser($user)->any($notification->permissions->pluck('codename'))) {
+//            Log::error('Нет прав');
+//            return;
+//        }
 
         $notificationClass = $notificationData->getClass();
 

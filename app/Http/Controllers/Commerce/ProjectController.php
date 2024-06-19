@@ -204,15 +204,16 @@ class ProjectController extends Controller
         $contacts = ContractorContact::with('phones')->whereIn('contractor_contacts.id', $p_contacts)
             ->leftJoin('project_contacts', function ($leftJoin) use ($id) {
                 $leftJoin->on('contractor_contacts.id', '=', 'project_contacts.contact_id');
-                $leftJoin->on(DB::raw('project_contacts.project_id'), DB::raw('='), DB::raw("'".$id."'"));
+                $leftJoin->on('project_contacts.project_id', DB::raw($id));
             })
             ->select('contractor_contacts.*', 'project_contacts.id as proj_contact_id', 'project_contacts.note as proj_contact_note')
             ->get();
+
         foreach ($contacts as $contact) {
             foreach ($contact->phones as $phone) {
                 preg_match("/^(\d{1})(\d{3})(\d{3})(\d{2})(\d{0,2})$/", $phone->phone_number, $matches);
                 if (count($matches) > 2) {
-                    $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode(array_slice(array_filter($matches), 3, 3), '-');
+                    $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode('-', array_slice(array_filter($matches), 3, 3));
                 }
             }
         }
@@ -221,19 +222,18 @@ class ProjectController extends Controller
         foreach ($contractor->phones as $phone) {
             preg_match("/^(\d{1})(\d{3})(\d{3})(\d{2})(\d{0,2})$/", $phone->phone_number, $matches);
             if (count($matches) > 2) {
-                $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode(array_slice(array_filter($matches), 3, 3), '-');
+                $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode('-', array_slice(array_filter($matches), 3, 3));
             }
         }
 
         $resp_users = User::getAllUsers()->whereIn('users.id', $p_users)
-            //->where('users.id', '!=', $creater->id)
             ->leftJoin('project_responsible_users', function ($leftJoin) use ($id) {
-                $leftJoin->on('users.id', '=', 'project_responsible_users.user_id');
-                $leftJoin->on(DB::raw('project_responsible_users.project_id'), DB::raw('='), DB::raw("'".$id."'"));
+                $leftJoin->on('users.id', '=', 'project_responsible_users.user_id')
+                $leftJoin->on('project_responsible_users.project_id', DB::raw($id))
             })
-            ->select('users.id', 'users.last_name', 'users.first_name', 'users.patronymic', 'users.birthday',
+            ->select(['users.id', 'users.last_name', 'users.first_name', 'users.patronymic', 'users.birthday',
                 'users.email', 'users.person_phone', 'users.work_phone', 'users.status', 'departments.name as dep_name',
-                'groups.name as group_name', 'project_responsible_users.id as resp_user_id', 'project_responsible_users.role as role', 'project_responsible_users.user_id as user_id')
+                'groups.name as group_name', 'project_responsible_users.id as resp_user_id', 'project_responsible_users.role as role', 'project_responsible_users.user_id as user_id'])
             ->get();
 
         $project_docs = ProjectDocument::where('project_id', $id)
@@ -1241,7 +1241,7 @@ class ProjectController extends Controller
         $contact = ContractorContact::with('phones')->where('contractor_contacts.id', $contact_id)
             ->leftJoin('project_contacts', function ($leftJoin) use ($contact_id) {
                 $leftJoin->on('contractor_contacts.id', '=', 'project_contacts.contact_id');
-                $leftJoin->on(DB::raw('project_contacts.project_id'), DB::raw('='), DB::raw("'".$contact_id."'"));
+                $leftJoin->on('project_contacts.project_id', '=', "'".$contact_id."'");
             })
             ->select('contractor_contacts.*', 'project_contacts.id as proj_contact_id', 'project_contacts.note as proj_contact_note')
             ->first();
@@ -1249,7 +1249,7 @@ class ProjectController extends Controller
         foreach ($contact->phones as $phone) {
             preg_match("/^(\d{1})(\d{3})(\d{3})(\d{2})(\d{0,2})$/", $phone->phone_number, $matches);
             if (count($matches) > 2) {
-                $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode(array_slice(array_filter($matches), 3, 3), '-');
+                $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '.implode('-', array_slice(array_filter($matches), 3, 3));
             }
         }
 

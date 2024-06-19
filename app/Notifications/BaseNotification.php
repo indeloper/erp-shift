@@ -68,6 +68,7 @@ class BaseNotification extends Notification
             $channels[] = DatabaseChannel::class;
         }
 
+
         if ($this->checkChannel($notificationClass,
             NotificationChannelType::TELEGRAM, 'toTelegram')
         ) {
