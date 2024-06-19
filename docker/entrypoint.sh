@@ -2,7 +2,7 @@
 
 # Wait for MariaDB to be available
 echo "Waiting for MariaDB..."
-while ! nc -z "$DB_HOST" "$DB_PORT"; do
+while ! nc -z $DB_HOST $DB_PORT; do
     sleep 2
     echo "Waiting for MariaDB to be available..."
 done
