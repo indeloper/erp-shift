@@ -19,7 +19,7 @@ class TaskCallRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      */
-    protected function prepareForValidation(): array
+    protected function prepareForValidation(): void
     {
         if ($this->contractor_phone_number != null) {
             $this->merge(['contractor_phone_number' => preg_replace('~[\D]~', '', $this->contractor_phone_number)]);

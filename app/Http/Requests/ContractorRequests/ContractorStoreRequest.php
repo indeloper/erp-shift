@@ -70,7 +70,7 @@ class ContractorStoreRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         if ($this->has('phone_number')) {
             $this->merge(['phone_number' => preg_replace('~[\D]~', '', $this->phone_number)]);

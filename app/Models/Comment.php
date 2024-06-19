@@ -18,7 +18,6 @@ class Comment extends Model
     use RussianShortDates;
 
     protected $guarded = ['id'];
-    // protected $fillable = ['commentable_id', 'commentable_type', 'comment', 'author_id', 'system', 'count'];
 
     protected $with = ['files', 'author'];
 
@@ -51,7 +50,7 @@ class Comment extends Model
     /**
      * Getter for created_at formatting
      */
-    public function getCreatedAtFormattedAttribute(): ?Carbon
+    public function getCreatedAtFormattedAttribute(): ?String
     {
         return $this->created_at->format(self::DATE_FORMAT);
     }

@@ -1,16 +1,24 @@
 <?php
 
+use App\Http\Middleware\ActiveUser;
+use App\Http\Middleware\LogRequests;
+use App\Models\User;
+use App\Notifications\Exceptions\ExceptionNotice;
 use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Intervention\Image\ImageServiceProvider;
+use Lexx\ChatMessenger\ChatMessengerServiceProvider;
+use niklasravnsborg\LaravelPdf\PdfServiceProvider;
+use Telegram\Bot\Laravel\TelegramServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
-        \niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
-        \Intervention\Image\ImageServiceProvider::class,
-        \Telegram\Bot\Laravel\TelegramServiceProvider::class,
-        \Lexx\ChatMessenger\ChatMessengerServiceProvider::class,
+        PdfServiceProvider::class,
+        ImageServiceProvider::class,
+        TelegramServiceProvider::class,
+        ChatMessengerServiceProvider::class,
         App\Providers\PHPExcelMacroServiceProvider::class, // Add this provider to the list,
     ])
     ->withRouting(
@@ -33,10 +41,22 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->throttleApi();
 
         $middleware->alias([
-            'activeuser' => \App\Http\Middleware\ActiveUser::class,
-            'log.requests' => \App\Http\Middleware\LogRequests::class,
+            'activeuser' => ActiveUser::class,
+            'log.requests' => LogRequests::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
+    ->withExceptions(using: function (Exceptions $exceptions) {
+        $exceptions->report(function (Throwable $e) {
+            dump($e);
+            ExceptionNotice::send(
+                User::where('is_su', 1)->get()->pluck('id')->toArray(),
+                [
+                    'name' => ExceptionNotice::DESCRIPTION,
+                    'exceptionMessage' => $e->getMessage(),
+                    'exceptionMessage' => $e->getMessage(),
+                    'user' => Auth::user(),
+                    'ip' => request()->ip()
+                ]
+            );
+        });
     })->create();

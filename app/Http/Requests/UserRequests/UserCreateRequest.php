@@ -60,7 +60,7 @@ class UserCreateRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      */
-    protected function prepareForValidation(): array
+    protected function prepareForValidation(): void
     {
         if ($this->has('person_phone')) {
             $this->merge(['person_phone' => preg_replace('~[\D]~', '', $this->person_phone)]);

@@ -14,7 +14,7 @@ class DefectStoreRequest extends FormRequest
         return boolval(auth()->user()->hasPermission('tech_acc_defects_create') or auth()->user()->isProjectManager());
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $this->merge([
             'user_id' => auth()->id(),

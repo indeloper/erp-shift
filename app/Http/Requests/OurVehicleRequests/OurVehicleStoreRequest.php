@@ -34,7 +34,7 @@ class OurVehicleStoreRequest extends FormRequest
         return boolval(VehicleCategoryCharacteristics::find($parameter['characteristic_id'])->required) and empty($parameter['value']);
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $this->merge([
             'user_id' => auth()->id(),

@@ -15,7 +15,7 @@ class CommercialOfferReqRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $duplicate = false;
         $project_id = preg_replace('/[^0-9]/', '', $this->getUri());

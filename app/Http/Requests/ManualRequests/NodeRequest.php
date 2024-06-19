@@ -16,7 +16,7 @@ class NodeRequest extends FormRequest
 
     protected $redirectRoute = 'request_error';
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
         if ($this->has('materials')) {
             $materials = array_unique(explode(',', $this->materials));

@@ -8,6 +8,7 @@ use App\Telegram\TelegramApi;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class NotificationService
 {
@@ -54,13 +55,11 @@ class NotificationService
                     'text' => $text,
                 ];
 
-                new TelegramApi('sendMessage', $message);
-
-                // Telegram::sendMessage([
-                //     'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
-                //     'parse_mode' => 'HTML',
-                //     'text' => $text,
-                // ]);
+                 Telegram::sendMessage([
+                     'chat_id' => config('app.env') == 'production' ? '-1001505547789' : '-1001558926749',
+                     'parse_mode' => 'HTML',
+                     'text' => $text,
+                 ]);
             } catch (\Throwable $t) {
                 // Неудачная отправка сообщения в Telegram
             }

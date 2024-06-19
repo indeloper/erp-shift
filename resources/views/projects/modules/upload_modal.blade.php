@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <hr style="margin-top:0">
                 <div class="card border-0" >
-                    <form id="attach_document" class="axios" @submit.prevent="preSubmitCheck" method="post" action="{{ route('projects::commercial_offer::upload', [isset($project) ? $project->id : ! isset($commercial_offer) ?: $commercial_offer->project_id ]) }}" enctype="multipart/form-data">
+                    <form id="attach_document" class="axios" @submit.prevent="preSubmitCheck" method="post" action="{{ route('projects::commercial_offer::upload', [(isset($project) ? $project->id : ! isset($commercial_offer)) ?: $commercial_offer->project_id ]) }}" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" id="uploaded_CO_type" name="is_tongue" value="">
                         <div class="row" style="margin-top:20px">
@@ -166,7 +166,7 @@ var commercialOfferExistenceChecker = new Vue({
             payload.negotiation_type = commercialOfferExistenceChecker.negotiation_type;
             payload.axios = true;
 
-            axios.post('{{ route('projects::commercial_offer::upload', [isset($project) ? $project->id : ! isset($commercial_offer) ?: $commercial_offer->project_id ]) }}', payload)
+            axios.post('{{ route('projects::commercial_offer::upload', [(isset($project) ? $project->id : ! isset($commercial_offer)) ?: $commercial_offer->project_id ]) }}', payload)
                 .then(function (response) {
                     commercialOfferExistenceChecker.$off('submit');
                     $("#attach_document").removeClass('axios');
