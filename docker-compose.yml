@@ -46,7 +46,7 @@ services:
   erp_database:
     container_name: erp_database
     restart: always
-    image: mariadb:10.4
+    image: mariadb:11.4.2-ubi
     ports:
       - "3306:3306"
     environment:
