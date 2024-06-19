@@ -18,6 +18,8 @@ services:
       - VIRTUAL_HOST=dev.erp.sk-gorod.com
       - LETSENCRYPT_HOST=dev.erp.sk-gorod.com
       - LETSENCRYPT_EMAIL=dev@sk-gorod.com
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
     depends_on:
       - erp_database
 
