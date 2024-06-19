@@ -8,6 +8,8 @@ while ! nc -z $DB_HOST $DB_PORT; do
 done
 echo "MariaDB is up"
 
+sleep 60
+
 echo "Clearing config"
 runuser -u www-data -- php artisan config:clear
 
