@@ -43,6 +43,9 @@ RUN pecl channel-update pecl.php.net && \
     pecl install redis && \
     rm -rf /tmp/pear
 
+# Install NetCat
+RUN apt-get install netcat-traditional
+
 # Install extensions
 RUN docker-php-ext-install gd zip exif pcntl opcache sockets mysqli pdo pdo_mysql && \
     docker-php-ext-enable pdo_mysql
