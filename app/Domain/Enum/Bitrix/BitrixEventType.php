@@ -14,4 +14,6 @@ enum BitrixEventType: string
     case CompanyDelete = 'ONCRMCOMPANYDELETE';
     case DealUpdate = 'ONCRMDEALUPDATE';
 
+    case DealAdd = 'ONCRMDEALADD';
+
 }

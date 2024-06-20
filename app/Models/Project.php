@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Events\ProjectEvents;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
@@ -62,7 +61,7 @@ class Project extends Model
         parent::boot();
 
         static::created(function ($project) {
-            event((new ProjectEvents())->projectCreated($project));
+            //            event((new ProjectEvents())->projectCreated($project));
         });
 
         //        static::updated(function($item) { //we might need it in future
@@ -474,6 +473,11 @@ class Project extends Model
     public function object(): HasOne
     {
         return $this->hasOne(ProjectObject::class, 'id', 'object_id');
+    }
+
+    public function objects(): HasMany
+    {
+        return $this->hasMany(ProjectObject::class, 'project_id', 'id');
     }
 
     public function last_task(): HasOne

@@ -6,14 +6,21 @@ namespace App\Services\Bitrix;
 
 use App\Domain\DTO\Bitrix\BitrixEventRequestData;
 use App\Domain\DTO\Bitrix\Entity\CompanyItemData;
+use App\Domain\DTO\Bitrix\Entity\DealItemData;
 use App\Domain\DTO\Bitrix\Entity\RequisiteItemData;
 use App\Domain\DTO\Bitrix\Entity\RequisiteListData;
 use App\Domain\Enum\Bitrix\BitrixEventType;
 use App\Events\Bitrix\Company\CompanyAddEvent;
 use App\Events\Bitrix\Company\CompanyDeleteEvent;
 use App\Events\Bitrix\Company\CompanyUpdateEvent;
+use App\Events\Bitrix\Deal\DealAddEvent;
+use App\Events\Bitrix\Deal\DealUpdateEvent;
 use App\Models\Contractors\Contractor;
+use App\Models\Project;
 use App\Repositories\Contractor\ContractorRepositoryInterface;
+use App\Repositories\Project\ProjectRepository;
+use App\Repositories\ProjectObject\ProjectObjectRepository;
+use App\Services\Project\ProjectService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -22,6 +29,9 @@ final class BitrixService implements BitrixServiceInterface
 
     public function __construct(
         private ContractorRepositoryInterface $contractorRepository,
+        private ProjectService $projectService,
+        private ProjectRepository $projectRepository,
+        private ProjectObjectRepository $projectObjectRepository
     ) {}
 
     /**
@@ -40,6 +50,25 @@ final class BitrixService implements BitrixServiceInterface
         return new RequisiteListData(
             $response['result'],
             $response['total']
+        );
+    }
+
+    public function getDeal(int $idDeal): ?DealItemData
+    {
+        $response = CRest::call('crm.deal.get', [
+            'id' => $idDeal,
+        ]);
+
+        // UF_CRM_1715933754 - BITRIX-ID USER FIELD
+
+        if (isset($response['error'])
+            || isset($response['result']) === false
+        ) {
+            return null;
+        }
+
+        return DealItemData::make(
+            $response['result'],
         );
     }
 
@@ -115,6 +144,8 @@ final class BitrixService implements BitrixServiceInterface
             BitrixEventType::CompanyUpdate->value => CompanyUpdateEvent::class,
             BitrixEventType::CompanyAdd->value => CompanyAddEvent::class,
             BitrixEventType::CompanyDelete->value => CompanyDeleteEvent::class,
+            BitrixEventType::DealUpdate->value => DealUpdateEvent::class,
+            BitrixEventType::DealAdd->value => DealAddEvent::class,
             default => null,
         };
 
@@ -243,6 +274,19 @@ final class BitrixService implements BitrixServiceInterface
         ]);
 
         $this->sleep();
+
+        return $response['result'];
+    }
+
+    private function updateDeal(string $id, DealItemData $item): bool
+    {
+        $response = CRest::call('crm.deal.update', [
+            'id'     => $id,
+            'fields' => [
+                'TITLE'             => $item->TITLE,
+                'UF_CRM_1715933754' => $item->UF_CRM_1715933754, // PROJECT ID
+            ],
+        ]);
 
         return $response['result'];
     }
@@ -419,6 +463,52 @@ final class BitrixService implements BitrixServiceInterface
             'ogrn'            => $bitrixCompany->requisite->RQ_OGRN,
             'general_manager' => $bitrixCompany->requisite->RQ_DIRECTOR,
         ]);
+    }
+
+    public function storeProjectByBitrixDeal(DealItemData $deal): Project
+    {
+        $newProject = $this->projectService->store(
+            $deal->TITLE,
+            status: true
+        );
+
+        $newProject->objects()->create([
+            'bitrix_id' => $deal->ID,
+            'name'      => $deal->TITLE,
+        ]);
+
+        $deal->UF_CRM_1715933754 = (string) $newProject->id;
+
+        $this->updateDeal($deal->ID, $deal);
+
+        return $newProject;
+    }
+
+    public function updateProjectByBitrixDeal(DealItemData $deal): ?Project
+    {
+        $projectObject = $this->projectObjectRepository
+            ->getProjectObjectByBitrixId((int) $deal->ID);
+
+        $project = $this->projectRepository->getProjectById(
+            (int) $deal->UF_CRM_1715933754,
+        );
+
+        if ($project === null) {
+            return null;
+        }
+
+        if ($projectObject === null) {
+            $project->objects()->create([
+                'bitrix_id' => $deal->ID,
+                'name'      => $deal->TITLE,
+            ]);
+        }
+
+        if ($projectObject !== null) {
+            // ЧТО-ТО ТУТ
+        }
+
+        return $project;
     }
 
 }

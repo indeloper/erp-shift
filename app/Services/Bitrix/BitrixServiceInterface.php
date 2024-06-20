@@ -6,7 +6,9 @@ namespace App\Services\Bitrix;
 
 use App\Domain\DTO\Bitrix\BitrixEventRequestData;
 use App\Domain\DTO\Bitrix\Entity\CompanyItemData;
+use App\Domain\DTO\Bitrix\Entity\DealItemData;
 use App\Models\Contractors\Contractor;
+use App\Models\Project;
 
 interface BitrixServiceInterface
 {
@@ -74,5 +76,11 @@ interface BitrixServiceInterface
      * @return Contractor
      */
     public function storeERPCompany(CompanyItemData $bitrixCompany): Contractor;
+
+    public function getDeal(int $idDeal): ?DealItemData;
+
+    public function storeProjectByBitrixDeal(DealItemData $deal): Project;
+
+    public function updateProjectByBitrixDeal(DealItemData $deal): ?Project;
 
 }

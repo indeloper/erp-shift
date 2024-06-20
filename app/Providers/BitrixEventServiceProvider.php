@@ -5,11 +5,15 @@ namespace App\Providers;
 use App\Events\Bitrix\Company\CompanyAddEvent;
 use App\Events\Bitrix\Company\CompanyDeleteEvent;
 use App\Events\Bitrix\Company\CompanyUpdateEvent;
+use App\Events\Bitrix\Deal\DealAddEvent;
+use App\Events\Bitrix\Deal\DealUpdateEvent;
 use App\Events\Bitrix\Requisite\RequisiteUpdateEvent;
 use App\Events\Bitrix\Task\TaskUpdateEvent;
 use App\Listeners\Bitrix\Company\CompanyAddListener;
 use App\Listeners\Bitrix\Company\CompanyDeleteListener;
 use App\Listeners\Bitrix\Company\CompanyUpdateListener;
+use App\Listeners\Bitrix\Deal\DealAddListener;
+use App\Listeners\Bitrix\Deal\DealUpdateListener;
 use App\Listeners\Bitrix\Requisite\RequisiteUpdateListener;
 use App\Listeners\Bitrix\Task\TaskUpdateListener;
 use Illuminate\Support\Facades\Event;
@@ -46,6 +50,16 @@ class BitrixEventServiceProvider extends ServiceProvider
         Event::listen(
             CompanyDeleteEvent::class,
             CompanyDeleteListener::class,
+        );
+
+        Event::listen(
+            DealUpdateEvent::class,
+            DealUpdateListener::class,
+        );
+
+        Event::listen(
+            DealAddEvent::class,
+            DealAddListener::class,
         );
     }
 
