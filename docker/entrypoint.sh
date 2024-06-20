@@ -8,7 +8,7 @@ while ! nc -z $DB_HOST $DB_PORT; do
 done
 echo "MariaDB is up"
 
-sleep 5
+sleep 20
 
 echo "Running migrations"
 runuser -u www-data -- php artisan migrate --force
