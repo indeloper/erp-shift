@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wait for MariaDB to be available
-echo "\033[1mWaiting for MariaDB..."
+echo "Waiting for MariaDB..."
 while ! nc -z $DB_HOST $DB_PORT; do
     sleep 2
     echo "Waiting for MariaDB to be available..."
