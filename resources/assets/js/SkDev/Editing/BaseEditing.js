@@ -7,7 +7,7 @@ export class BaseEditing {
   build() {
     return {
       editing: {
-        mode: 'popup',
+        mode: 'skPopup',
         popup: this.popup.build(),
         form: this.form.build(),
 

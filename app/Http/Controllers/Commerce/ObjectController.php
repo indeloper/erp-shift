@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use App\Domain\DTO\ShortNameProjectObject\ShortNameProjectObjectData;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProjectObjectDocuments\ProjectObjectDocumentsController;
 use App\Http\Resources\Objects\ObjectResource;
@@ -23,6 +24,7 @@ use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFl
 use App\Notifications\Object\ObjectParticipatesInWorkProductionNotice;
 use App\Notifications\Object\ProjectLeaderAppointedToObjectNotice;
 use App\Notifications\Object\ResponsibleAddedToObjectNotice;
+use App\Services\ShortNameProjectObjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -634,6 +636,22 @@ class ObjectController extends Controller
             ->first()->id;
 
         $object->update($toUpdateArr);
+
+        if (isset($data['short_name_detail'])) {
+            app(ShortNameProjectObjectService::class)
+                ->store(
+                    \auth()->user(),
+                    $object,
+                    ShortNameProjectObjectData::make(
+                        json_decode(
+                            $data['short_name_detail'],
+                            true,
+                            512,
+                            JSON_THROW_ON_ERROR
+                        )
+                    )
+                );
+        }
 
         $this->syncResponsibles($data, $id);
 

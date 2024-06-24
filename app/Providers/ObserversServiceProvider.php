@@ -16,6 +16,7 @@ use App\Models\MatAcc\MaterialAccountingMaterialFile;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Notification\Notification;
 use App\Models\Project;
+use App\Models\ShortNameProjectObject;
 use App\Models\Task;
 use App\Models\TechAcc\Defects\Defects;
 use App\Models\TechAcc\FuelTank\{FuelTank};
@@ -44,6 +45,7 @@ use App\Observers\MaterialAccountingOperationObserver;
 use App\Observers\NotificationObserver;
 use App\Observers\OurVehicleObserver;
 use App\Observers\ProjectObserver;
+use App\Observers\ShortNameProjectObjectObserver;
 use App\Observers\TaskObserver;
 use App\Observers\TechAcc\FuelTank\FuelTankObserver;
 use App\Observers\TechAcc\FuelTank\FuelTankOperationObserver;
@@ -73,6 +75,7 @@ class ObserversServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Task::observe(TaskObserver::class);
+        ShortNameProjectObject::observe(ShortNameProjectObjectObserver::class);
         Notification::observe(NotificationObserver::class);
 
         User::observe(UserObserver::class);
@@ -106,7 +109,7 @@ class ObserversServiceProvider extends ServiceProvider
         Project::observe(ProjectObserver::class);
         MaterialAccountingMaterialFile::observe(MaterialAccountingMaterialFileObserver::class);
         ManualMaterial::observe(ManualMaterialObserver::class);
-        
+
         Contractor::observe(ContractorObserver::class);
     }
 

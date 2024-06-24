@@ -332,6 +332,12 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
       contentTemplate: () => {
         return form;
       },
+      onHiding: (e) => {
+        // form.dxForm('instance').dispose();
+        setTimeout(_ => {
+          e.component.dispose();
+        }, 1500);
+      },
       ...component.option('editing.popup'),
       title: popupTitle + editState.suffix,
     };
@@ -410,7 +416,10 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
               }
 
               formInstance.option('editingState', skDataGrid.editStates.UNKNOWN);
-              formInstance.option('popupInstance').hide();
+
+              let popupInstance = formInstance.option('popupInstance');
+
+              popupInstance?.hide();
             },
           },
         },
@@ -421,8 +430,10 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
             type: 'normal',
             width: 106,
             onClick: function (e) {
-              const formInstance = e.element.closest('.dx-form').dxForm('instance');
-              formInstance.option('popupInstance').hide();
+              let formInstance = e.element.closest('.dx-form').dxForm('instance');
+              let popupInstance = formInstance.option('popupInstance');
+
+              popupInstance?.hide();
             },
           },
         },

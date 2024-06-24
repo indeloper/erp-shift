@@ -41,6 +41,12 @@ class ProjectObject extends Model
         return $this->name.', '.$this->address;
     }
 
+    public function shortName(): HasOne
+    {
+        return $this->hasOne(ShortNameProjectObject::class, 'project_object_id',
+            'id');
+    }
+
     /**
      * Getter for object name tag
      * Will return short name or location attribute

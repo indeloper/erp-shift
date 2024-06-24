@@ -1,6 +1,7 @@
 export default class IsParticipatesInMaterialAccountingItem {
-  static build() {
+  static build(label = undefined) {
     return {
+
       colSpan: 4,
       editorType: 'dxCheckBox',
       editorOptions: {
@@ -8,6 +9,7 @@ export default class IsParticipatesInMaterialAccountingItem {
       },
       label: {
         visible: false,
+        text: label,
       },
       dataField: 'is_participates_in_material_accounting',
     };

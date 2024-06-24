@@ -1,5 +1,5 @@
 export default class IsParticipatesInDocumentsFlowItem {
-  static build() {
+  static build(label = undefined) {
     return {
       colSpan: 4,
       editorType: 'dxCheckBox',

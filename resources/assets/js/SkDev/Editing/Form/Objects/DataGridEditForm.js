@@ -15,6 +15,9 @@ import ResponsiblesManagersItem
   from '../Items/Objects/ResponsiblesManagersItem';
 import ResponsiblesForemen from '../Items/Objects/ResponsiblesForemen';
 import TabItems from '../Items/TabItems';
+import DirectionItem from '../Items/Objects/DirectionItem';
+import HistoryChangesItem from '../Items/Objects/HistoryChangesItem';
+import ContractorsItem from '../Items/Objects/ContractorsItem';
 
 export class DataGridEditForm extends BaseEditForm {
   build() {
@@ -29,29 +32,48 @@ export class DataGridEditForm extends BaseEditForm {
           .setPosition('right')
           .setTab('Общее', [
             new GroupItems([
-              NameItem.build(),
-              ShortNameItem.build(),
-              AddressItem.build(),
-              CadastralItem.build(),
+              NameItem.build('Наименование'),
+              ShortNameItem.build('Сокращенное наименование'),
+              {
+                dataField: 'short_name_detail',
+                visible: false,
+              },
+              AddressItem.build('Адрес'),
+              CadastralItem.build('Кадастровый номер'),
+              DirectionItem.build('Направление'),
             ])
               .setTitle('Объект')
               .setColCount(2)
               .build(),
 
+          ], 'ordersbox')
+          .setTab('Производство', [
             new GroupItems([
-              MaterialAccountingTypeItem.build(),
-              IsParticipatesInMaterialAccountingItem.build(),
-              IsParticipatesInDocumentsFlowItem.build(),
-              ResponsiblesPtoItem.build(),
-              ResponsiblesManagersItem.build(),
-              ResponsiblesForemen.build(),
+              MaterialAccountingTypeItem.build('Тип материального учета'),
+              IsParticipatesInMaterialAccountingItem.build('ПР.Р'),
+              IsParticipatesInDocumentsFlowItem.build('ДО'),
             ])
               .setTitle('Производство работ и документооборот')
               .setColCount(4)
               .build(),
+
           ], 'ordersbox')
-          .setTab('Другое', [
-            AddressItem.build(),
+          .setTab('Ответственные', [
+            new GroupItems([
+              ResponsiblesPtoItem.build('Ответственные ПТО'),
+              ResponsiblesManagersItem.build('Ответственные РП'),
+              ResponsiblesForemen.build('Ответственные прорабы'),
+            ])
+              .setTitle('Ответственные')
+              .setColCount(4)
+              .build(),
+
+          ], 'chart')
+          .setTab('Контрагенты', [
+            ContractorsItem.build(),
+          ], 'chart')
+          .setTab('История', [
+            HistoryChangesItem.build(),
           ], 'chart')
           .build(),
 

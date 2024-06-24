@@ -12,8 +12,9 @@ export class DataGridPopup extends BasePopup {
       title: this.getTitle(),
       hideOnOutsideClick: true,
       showCloseButton: true,
-      maxWidth: '60vw',
-      height: 'auto',
+      width: '800px',
+      height: '800px',
+      fullScreen: true,
     };
   }
 

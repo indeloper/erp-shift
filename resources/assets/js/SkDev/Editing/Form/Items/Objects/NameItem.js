@@ -5,6 +5,7 @@ export default class NameItem {
         text: label,
       },
       dataField: 'name',
+
       colSpan: 2,
       validationRules: [
         {

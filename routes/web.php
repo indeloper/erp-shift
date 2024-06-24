@@ -14,12 +14,14 @@
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\Building;
 use App\Http\Controllers\Commerce;
+use App\Http\Controllers\Commerce\Project\ProjectObjectController;
 use App\Http\Controllers\Common;
 use App\Http\Controllers\Documents;
 use App\Http\Controllers\FileEntryController;
 use App\Http\Controllers\q3wMaterial;
 use App\Http\Controllers\System;
 use App\Http\Controllers\Tasks;
+use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('activeuser', 'auth')->group(function () {
@@ -55,6 +57,11 @@ Route::middleware('activeuser', 'auth')->group(function () {
             Route::get('/getMaterialAccountingTypes', [
                 Commerce\ObjectController::class, 'getMaterialAccountingTypes',
             ])->name('getMaterialAccountingTypes');
+
+            Route::get('/{id}', [
+                ProjectObjectController::class, 'show',
+            ])->name('getMaterialAccountingTypes');
+
             Route::get('/getMaterialAccountingTypes/{id}', [
                 Commerce\ObjectController::class,
                 'getMaterialAccountingTypesItem',
@@ -984,13 +991,39 @@ Route::middleware('activeuser', 'auth')->group(function () {
 Illuminate\Support\Facades\Auth::routes();
 
 //Route::get('/', function () {
-//    //    $response = \App\Services\Bitrix\CRest::call('crm.deal.list');
-//    //
-//    //    dd($response);
-//    //
-//    //    $response = \App\Services\Bitrix\CRest::call('crm.deal.get', [
-//    //        'id' => 2281,
-//    //    ]);
-//    //
-//    //    dd($response);
+//    \Telegram\Bot\Laravel\Facades\Telegram::sendMessage([
+//        'chat_id' => '537153693',
+//        'text'    => '123',
+//    ]);
+
+/** @var Project $project */
+//    $project = Project::query()->create([
+//        'name'   => 'TEST',
+//        'status' => true,
+//    ]);
+//
+//    $object = $project->objects()->create([
+//        'bitrix_id' => '222',
+//        'name'      => 'KEK',
+//    ]);
+
+//    $response = CRest::call('crm.deal.update', [
+//        'id'     => 2339,
+//        'fields' => [
+//            'TITLE'             => 'TEST TEST',
+//            'UF_CRM_1715933754' => '555555', // Новый ИНН
+//        ],
+//    ]);
+//    dd(123);
+//    dd($project, $object);
+
+//    $response = \App\Services\Bitrix\CRest::call('crm.deal.list');
+//
+//    dd($response);
+//
+//    $response = \App\Services\Bitrix\CRest::call('crm.deal.get', [
+//        'id' => 2245,
+//    ]);
+
+//    dd($response);
 //});

@@ -107,6 +107,10 @@ export class ObjectColumns {
         dataField: 'name',
       },
       {
+        caption: 'Направление',
+        dataField: 'direction',
+      },
+      {
         caption: 'Адрес',
         dataField: 'address',
       },

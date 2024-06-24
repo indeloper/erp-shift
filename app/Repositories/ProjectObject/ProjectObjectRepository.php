@@ -16,4 +16,10 @@ class ProjectObjectRepository
             ->first();
     }
 
+    public function getById(int $id): ?ProjectObject
+    {
+        return ProjectObject::query()
+            ->find($id);
+    }
+
 }
