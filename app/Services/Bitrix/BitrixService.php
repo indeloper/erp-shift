@@ -513,14 +513,14 @@ final class BitrixService implements BitrixServiceInterface
 
     public function updateDealByModal(ProjectObject $projectObject): void
     {
-        $deal = $this->getDeal($projectObject->bitrix_id);
+        $deal = $this->getDeal((int) $projectObject->bitrix_id);
 
         if ($deal === null) {
             return;
         }
 
         $contractor = $projectObject->contractors->where('is_main', true)
-            ->first()->contractor;
+            ->first()?->contractor;
 
         CRest::call('crm.deal.update', [
             'id'     => $projectObject->bitrix_id,
