@@ -55,7 +55,7 @@ Route::middleware('activeuser', 'auth')->group(function () {
 
             Route::get('/getMaterialAccountingTypes', [
                 Commerce\ObjectController::class, 'getMaterialAccountingTypes',
-            ])->name('getMaterialAccountingTypes');
+            ])->name('getMaterialAccountingTypes::index');
 
             Route::get('/{id}', [
                 ProjectObjectController::class, 'show',
@@ -988,3 +988,9 @@ Route::middleware('activeuser', 'auth')->group(function () {
 });
 
 Illuminate\Support\Facades\Auth::routes();
+
+Route::get('/', function () {
+    dd(
+        app(\App\Services\Bitrix\BitrixService::class)->getDeal((int) 2369)
+    );
+});

@@ -30,9 +30,9 @@ initDataGrid
 initDxForm(
   initDataGrid,
   new DefaultDataSource(
-    'http://localhost:81/objects/index',
-    'http://localhost:81/objects',
-    'http://localhost:81/objects/store',
+    route('objects::index'),
+    route('objects::base-template'),
+    route('objects::store'),
   ),
   new ObjectColumns(),
 );

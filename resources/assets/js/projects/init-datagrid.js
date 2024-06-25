@@ -34,9 +34,9 @@ initDataGrid
 initDxForm(
   initDataGrid,
   new DefaultDataSource(
-    'http://localhost:81/projects/load',
-    'http://localhost:81/projects',
-    'http://localhost:81/projects/store',
+    route('projects::load'),
+    route('projects::index'),
+    route('projects::store'),
   ),
 
   new ProjectColumns(),

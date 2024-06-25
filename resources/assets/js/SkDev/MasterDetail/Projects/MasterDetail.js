@@ -23,7 +23,7 @@ export class MasterDetail {
           initDxForm(
             initDataGrid,
             new DefaultDataSource(
-              'http://localhost:81/projects/objects/load?' + params.toString(),
+              route('projects::object::index') + '?' + params.toString(),
             ),
             new ProjectObjectColumns(),
           ).appendTo(container);

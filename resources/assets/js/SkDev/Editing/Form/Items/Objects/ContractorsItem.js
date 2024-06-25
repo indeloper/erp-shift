@@ -22,7 +22,7 @@ export default class ContractorsItem {
         initDxForm(
           initDataGrid,
           new DefaultDataSource(
-            'http://localhost:81/projects/objects/' + objectId + '/contractos',
+            route('projects::object::contractos::index', { projectObject: objectId }),
           ),
           new ContractorsColumns(),
         ).appendTo(currentEmployeeData);

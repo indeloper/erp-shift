@@ -15,8 +15,8 @@ export class ObjectColumns {
         visible: false,
         lookup: {
           dataSource: (new DefaultDataSource(
-            'http://localhost:81/objects/getMaterialAccountingTypes',
-            'http://localhost:81/objects/getMaterialAccountingTypes',
+            route('objects::getMaterialAccountingTypes::index'),
+            route('objects::getMaterialAccountingTypes::index'),
           ))
             .setLoadMode('raw')
             .buildStore(),

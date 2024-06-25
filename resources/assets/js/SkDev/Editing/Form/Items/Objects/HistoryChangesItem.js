@@ -22,7 +22,7 @@ export default class HistoryChangesItem {
         initDxForm(
           initDataGrid,
           new DefaultDataSource(
-            'http://localhost:81/projects/objects/' + objectId + '/history-changes',
+            route('projects::object::history_changes', { projectObject: objectId }),
           ),
           new HistoryChangesColumns(),
         ).appendTo(currentEmployeeData);
