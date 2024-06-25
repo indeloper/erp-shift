@@ -9,6 +9,7 @@ use App\Domain\DTO\Bitrix\Entity\CompanyItemData;
 use App\Domain\DTO\Bitrix\Entity\DealItemData;
 use App\Models\Contractors\Contractor;
 use App\Models\Project;
+use App\Models\ProjectObject;
 
 interface BitrixServiceInterface
 {
@@ -82,5 +83,7 @@ interface BitrixServiceInterface
     public function storeProjectByBitrixDeal(DealItemData $deal): Project;
 
     public function updateProjectByBitrixDeal(DealItemData $deal): ?Project;
+
+    public function updateDealByModal(ProjectObject $projectObject): void;
 
 }

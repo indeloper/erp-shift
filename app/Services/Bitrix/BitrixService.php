@@ -17,6 +17,7 @@ use App\Events\Bitrix\Deal\DealAddEvent;
 use App\Events\Bitrix\Deal\DealUpdateEvent;
 use App\Models\Contractors\Contractor;
 use App\Models\Project;
+use App\Models\ProjectObject;
 use App\Repositories\Contractor\ContractorRepositoryInterface;
 use App\Repositories\Project\ProjectRepository;
 use App\Repositories\ProjectObject\ProjectObjectRepository;
@@ -58,7 +59,6 @@ final class BitrixService implements BitrixServiceInterface
         $response = CRest::call('crm.deal.get', [
             'id' => $idDeal,
         ]);
-
         // UF_CRM_1715933754 - BITRIX-ID USER FIELD
 
         if (isset($response['error'])
@@ -509,6 +509,27 @@ final class BitrixService implements BitrixServiceInterface
         }
 
         return $project;
+    }
+
+    public function updateDealByModal(ProjectObject $projectObject): void
+    {
+        $deal = $this->getDeal($projectObject->bitrix_id);
+
+        if ($deal === null) {
+            return;
+        }
+
+        $contractor = $projectObject->contractors->where('is_main', true)
+            ->first()->contractor;
+
+        CRest::call('crm.deal.update', [
+            'id'     => $projectObject->bitrix_id,
+            'fields' => [
+                'TITLE'                => $projectObject->short_name,
+                'COMPANY_ID'           => $contractor?->bitrix_id,
+                'UF_CRM_1691759896386' => $projectObject->address,
+            ],
+        ]);
     }
 
 }

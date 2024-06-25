@@ -130,6 +130,12 @@ class ProjectObject extends Model
         return $permissionsArray;
     }
 
+    public function contractors(): HasMany
+    {
+        return $this->hasMany(ProjectObjectContractor::class,
+            'project_object_id');
+    }
+
     public function project(): BelongsTo
     {
         $this->belongsTo(Project::class, 'project_id');

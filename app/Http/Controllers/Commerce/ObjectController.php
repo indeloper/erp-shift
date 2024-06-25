@@ -24,6 +24,7 @@ use App\Notifications\DocumentFlow\DocumentFlowOnObjectsParticipatesInDocumentFl
 use App\Notifications\Object\ObjectParticipatesInWorkProductionNotice;
 use App\Notifications\Object\ProjectLeaderAppointedToObjectNotice;
 use App\Notifications\Object\ResponsibleAddedToObjectNotice;
+use App\Services\Bitrix\BitrixServiceInterface;
 use App\Services\ShortNameProjectObjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -677,6 +678,12 @@ class ObjectController extends Controller
         }
 
         $this->notifyNewResponsibleUser($id, $lastObjectResponsibleId);
+
+        if (isset($object->bitrix_id)) {
+            \app(BitrixServiceInterface::class)->updateDealByModal(
+                $object
+            );
+        }
 
         DB::commit();
 

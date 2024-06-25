@@ -11,6 +11,11 @@ class ProjectObjectContractor extends Model
 
     protected $guarded = [];
 
+    protected $casts
+        = [
+            'is_main' => 'boolean',
+        ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

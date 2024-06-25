@@ -57,7 +57,7 @@ export class DataGridEditForm extends BaseEditForm {
               .setColCount(4)
               .build(),
 
-          ], 'ordersbox')
+          ], 'cellproperties')
           .setTab('Ответственные', [
             new GroupItems([
               ResponsiblesPtoItem.build('Ответственные ПТО'),
@@ -68,13 +68,13 @@ export class DataGridEditForm extends BaseEditForm {
               .setColCount(4)
               .build(),
 
-          ], 'chart')
+          ], 'link')
           .setTab('Контрагенты', [
             ContractorsItem.build(),
-          ], 'chart')
+          ], 'group')
           .setTab('История', [
             HistoryChangesItem.build(),
-          ], 'chart')
+          ], 'eyeopen')
           .build(),
 
       ],
