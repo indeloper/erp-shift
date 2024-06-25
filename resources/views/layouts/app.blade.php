@@ -26,8 +26,8 @@
     <link href="{{ mix('css/tech.css') }}" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700&display=swap" rel="stylesheet">
     <link
-        href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,700,800,900&display=swap"
-        rel="stylesheet">
+            href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,700,800,900&display=swap"
+            rel="stylesheet">
 
     <link rel="stylesheet" href="{{ mix('css/index.css') }}">
     <link rel="stylesheet" href="{{ mix('css/emojione.css') }}">
@@ -50,88 +50,89 @@
 
     @yield('css_top')
     <style media="screen">
-        @media (min-width: 1025px) {
-            .sidebar-m {
-                padding-bottom: 50px !important;
-                display: flex;
-                flex-direction: column;
-            }
-        }
-
+      @media (min-width: 1025px) {
         .sidebar-m {
-            overflow-x: hidden !important;
+          padding-bottom: 50px !important;
+          display: flex;
+          flex-direction: column;
         }
+      }
 
-        .nav-m {
-            float: none;
-            display: block;
-            display: -ms-flexbox;
-            display: flex;
-            -ms-flex-wrap: wrap;
-            flex-wrap: wrap;
-            padding-left: 0;
-            margin-bottom: 0;
-            list-style: none;
-        }
+      .sidebar-m {
+        overflow-x: hidden !important;
+      }
 
-        .sidebar .nav-m .nav-item .nav-link {
-            color: #FFFFFF;
-            margin: 5px 15px 0px 10px;
-            opacity: .86;
-            border-radius: 4px;
-            text-transform: uppercase;
-            line-height: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 10px 15px;
-            white-space: nowrap;
-        }
+      .nav-m {
+        float: none;
+        display: block;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        padding-left: 0;
+        margin-bottom: 0;
+        list-style: none;
+      }
 
-        .sidebar .nav-m a, .table > tbody > tr .td-actions .btn {
-            -webkit-transition: all 150ms ease-in;
-            -moz-transition: all 150ms ease-in;
-            -o-transition: all 150ms ease-in;
-            -ms-transition: all 150ms ease-in;
-            transition: all 150ms ease-in;
-        }
+      .sidebar .nav-m .nav-item .nav-link {
+        color: #FFFFFF;
+        margin: 5px 15px 0px 10px;
+        opacity: .86;
+        border-radius: 4px;
+        text-transform: uppercase;
+        line-height: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 10px 15px;
+        white-space: nowrap;
+      }
 
-        .sidebar .nav-m .nav-item .nav-link i {
-            font-size: 28px;
-            margin-right: 15px;
-            width: 30px;
-            text-align: center;
-            vertical-align: middle;
-            float: left;
-        }
+      .sidebar .nav-m a, .table > tbody > tr .td-actions .btn {
+        -webkit-transition: all 150ms ease-in;
+        -moz-transition: all 150ms ease-in;
+        -o-transition: all 150ms ease-in;
+        -ms-transition: all 150ms ease-in;
+        transition: all 150ms ease-in;
+      }
 
-        .sidebar .sidebar-wrapper .nav-m .nav-link p {
-            margin: 0;
-            line-height: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            white-space: nowrap;
-            position: relative;
-            color: #FFFFFF;
-            -webkit-transform: translate3d(0px, 0, 0);
-            -moz-transform: translate3d(0px, 0, 0);
-            -o-transform: translate3d(0px, 0, 0);
-            -ms-transform: translate3d(0px, 0, 0);
-            transform: translate3d(0px, 0, 0);
-            display: block;
-            height: auto;
-            opacity: 1;
-        }
+      .sidebar .nav-m .nav-item .nav-link i {
+        font-size: 28px;
+        margin-right: 15px;
+        width: 30px;
+        text-align: center;
+        vertical-align: middle;
+        float: left;
+      }
 
-        .sidebar .nav-m .nav-item .nav-link:hover {
-            background: rgba(255, 255, 255, 0.13);
-            opacity: 1;
-        }
+      .sidebar .sidebar-wrapper .nav-m .nav-link p {
+        margin: 0;
+        line-height: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        white-space: nowrap;
+        position: relative;
+        color: #FFFFFF;
+        -webkit-transform: translate3d(0px, 0, 0);
+        -moz-transform: translate3d(0px, 0, 0);
+        -o-transform: translate3d(0px, 0, 0);
+        -ms-transform: translate3d(0px, 0, 0);
+        transform: translate3d(0px, 0, 0);
+        display: block;
+        height: auto;
+        opacity: 1;
+      }
+
+      .sidebar .nav-m .nav-item .nav-link:hover {
+        background: rgba(255, 255, 255, 0.13);
+        opacity: 1;
+      }
 
     </style>
 </head>
 
-<body @if(Session::has('sidebar_mini') && Session::get('sidebar_mini')) class="sidebar-mini dx-viewport" @else class="dx-viewport" @endif>
+<body @if(Session::has('sidebar_mini') && Session::get('sidebar_mini')) class="sidebar-mini dx-viewport"
+      @else class="dx-viewport" @endif>
 <div class="wrapper">
     <div class="sidebar"
          @if (config("app.env") == "local")
@@ -155,7 +156,6 @@
         </div>
 
         @include('layouts.shared.menu')
-
 
 
     </div>
@@ -268,6 +268,7 @@
 @if (
         Request::is('project-object-documents')
         || Request::is('objects')
+        || Request::is('projects')
         || Request::is('building/tech_acc/technic*')
         || Request::is('building/tech_acc/fuel*')
         || Request::is('timesheet/*')
@@ -308,86 +309,87 @@
 
 
 <script>
-    var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-    ELEMENT.locale(ELEMENT.lang.ruRU);
+  var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+  ELEMENT.locale(ELEMENT.lang.ruRU);
 
-    DevExpress.localization.locale(navigator.language);
-    DevExpress.config({
-        editorStylingMode: "outlined",
-        forceIsoDateParsing: true
-    })
+  DevExpress.localization.locale(navigator.language);
+  DevExpress.config({
+    editorStylingMode: 'outlined',
+    forceIsoDateParsing: true,
+  });
 
-    function iOS() {
-        return [
-                'iPad Simulator',
-                'iPhone Simulator',
-                'iPod Simulator',
-                'iPad',
-                'iPhone',
-                'iPod'
-            ].includes(navigator.platform)
-            // iPad on iOS 13 detection
-            || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+  function iOS() {
+    return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod',
+      ].includes(navigator.platform)
+      // iPad on iOS 13 detection
+      || (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+  }
+
+  if (iOS()) {
+    ELEMENT.Select.computed.readonly = function () {
+      // trade-off for IE input readonly problem: https://github.com/ElemeFE/element/issues/10403
+      const isIE = !this.$isServer && !Number.isNaN(Number(document.documentMode));
+
+      return !(this.filterable || this.multiple || !isIE) && !this.visible;
+    };
+  }
+
+  setInterval(function () {
+    var csrfToken = $('[name="csrf-token"]').val();
+    $.ajax({
+      url: '{{ route('get-new-csrf') }}',
+      type: 'get',
+    }).done(function (data) {
+      csrfToken = data;
+    });
+  }, 60 * 60 * 1000);
+
+  $(document).on('submit', 'form', function (event) {
+    var form = $(event.currentTarget);
+    if (form.hasClass('axios')) {
+      return;
     }
+    if (form.find('[type="file"]').length > 0) {
 
-    if (iOS()) {
-        ELEMENT.Select.computed.readonly = function () {
-            // trade-off for IE input readonly problem: https://github.com/ElemeFE/element/issues/10403
-            const isIE = !this.$isServer && !Number.isNaN(Number(document.documentMode));
+      var show_swal = false;
 
-            return !(this.filterable || this.multiple || !isIE) && !this.visible;
-        };
-    }
-
-    setInterval(function () {
-        var csrfToken = $('[name="csrf-token"]').val();
-        $.ajax({
-            url: '{{ route('get-new-csrf') }}',
-            type: 'get'
-        }).done(function (data) {
-            csrfToken = data;
-        });
-    }, 60 * 60 * 1000);
-
-    $(document).on('submit', 'form', function (event) {
-        var form = $(event.currentTarget);
-        if (form.hasClass('axios')) return;
-        if (form.find('[type="file"]').length > 0) {
-
-            var show_swal = false;
-
-            form.find('[type="file"]').each(function () {
-                if ($(this)[0].files.length > 0) {
-                    show_swal = true;
-                }
-            });
-            if (show_swal) {
-                swal.fire({
-                    title: 'Идет загрузка',
-                    html:
-                        '<div class="fa-4x">\n' +
-                        '<i class="fa fa-spinner fa-spin" style="width: auto"></i>\n' +
-                        '</div>',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    allowEnterKey: false,
-                    showConfirmButton: false,
-                })
-            }
+      form.find('[type="file"]').each(function () {
+        if ($(this)[0].files.length > 0) {
+          show_swal = true;
         }
-    });
-
-    $('input').attr('autocomplete', 'off');
-
-
-    $(document).ready(function () {
-        $('a[href$="mat_acc/operations"]').each(function () {
-            const cookies = document.cookie.split(';').filter(el => el.indexOf('opsource') !== -1);
-            if (cookies.length > 0) {
-                $(this).attr("href", decodeURIComponent(cookies[0].split('=')[1]));
-            }
+      });
+      if (show_swal) {
+        swal.fire({
+          title: 'Идет загрузка',
+          html:
+            '<div class="fa-4x">\n' +
+            '<i class="fa fa-spinner fa-spin" style="width: auto"></i>\n' +
+            '</div>',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          allowEnterKey: false,
+          showConfirmButton: false,
         });
+      }
+    }
+  });
+
+  $('input').attr('autocomplete', 'off');
+
+  $(document).ready(function () {
+    $('a[href$="mat_acc/operations"]').each(function () {
+      const cookies = document.cookie.split(';').filter(el => el.indexOf('opsource') !== -1);
+      if (cookies.length > 0) {
+        $(this).attr('href', decodeURIComponent(cookies[0].split('=')[1]));
+      }
     });
+  });
 </script>
 
 @yield('js_footer')

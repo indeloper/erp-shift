@@ -52,7 +52,6 @@ mix.copy('resources/assets/js/html2canvas/canvas2image.js', 'public/js');
 mix.copy('resources/assets/js/html2canvas/html2canvas.js', 'public/js');
 mix.copy('resources/assets/js/html2canvas/jquery.plugin.html2canvas.js', 'public/js');
 
-
 mix.copy('resources/assets/js/plugins/bootstrap-table-mobile.js', 'public/js/plugins');
 mix.copy('resources/assets/js/plugins/bootstrap-datetimepicker.js', 'public/js/plugins');
 mix.copy('resources/assets/js/plugins/bootstrap-notify.js', 'public/js/plugins');
@@ -87,7 +86,6 @@ mix.copy('resources/assets/js/velocity.min.js', 'public/js/velocity.min.js');
 mix.copy('resources/assets/js/plugins/jquery-nicescroll.min.js', 'public/js/plugins/jquery-nicescroll.min.js');
 mix.copy('resources/assets/js/plugins/jquery.steps.min.js', 'public/js/plugins/jquery.steps.min.js');
 mix.copy('resources/assets/js/plugins/jquery-ui.min.js', 'public/js/plugins/jquery-ui.min.js');
-
 
 mix.copy('resources/assets/js/plugins/bootstable.js', 'public/js/plugins/bootstable.js');
 
@@ -174,7 +172,7 @@ mix.copyDirectory('node_modules/devextreme/dist/css/icons', 'public/css/devextre
 // *** Не собирается
 //  mix.copy('node_modules/devextreme/dist/dx.all-23.1.js', 'public/js/devextreme/dx.all-23.1.js');
 mix.scripts([
-    'resources/assets/js/common/devextreme/settings/dxSelectBox.js'
+  'resources/assets/js/common/devextreme/settings/dxSelectBox.js',
 ], 'public/js/devextreme/default-settings.js');
 mix.copy('resources/assets/js/common/devextreme/skgDataGrid.js', 'public/js/devextreme/skgDataGrid.js');
 mix.copy('resources/assets/js/common/devextreme/dx.all.debug.js', 'public/js/devextreme/dx.all.debug.js');
@@ -201,8 +199,10 @@ mix.copy('node_modules/lightgallery/plugins/zoom/lg-zoom.min.js', 'public/js/lig
 mix.copy('node_modules/lightgallery/plugins/rotate/lg-rotate.min.js', 'public/js/lightgallery/lg-rotate.min.js');
 mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/lightgallery/lg-video.min.js');
 
+mix.js('resources/assets/js/projects/init-datagrid.js', 'public/js/projects/init-datagrid.js');
+mix.js('resources/assets/js/objects/init-datagrid.js', 'public/js/objects/init-datagrid.js');
 
-mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js').vue({version: 3})
-mix.js('resources/assets/js/pages/notifications/notifications.js', 'public/js/notifications.js').vue({version: 3})
+mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js').vue({ version: 3 });
+mix.js('resources/assets/js/pages/notifications/notifications.js', 'public/js/notifications.js').vue({ version: 3 });
 
 mix.version();

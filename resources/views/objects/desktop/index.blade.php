@@ -16,5 +16,5 @@
 @endsection
 
 @section('js_footer')
-    @include('objects.desktop.components')
+    <script src="/js/objects/init-datagrid.js"></script>
 @endsection

@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Traits\HasAuthor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ActionLog extends Model
 {
+
     use HasAuthor, SoftDeletes;
 
     protected $fillable = ['user_id', 'actions', 'logable_type', 'logable_id'];
@@ -20,6 +22,11 @@ class ActionLog extends Model
         ];
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     /**
      * Relation to logable model
      */
@@ -27,4 +34,5 @@ class ActionLog extends Model
     {
         return $this->morphTo();
     }
+
 }
