@@ -21,7 +21,6 @@ use App\Http\Controllers\FileEntryController;
 use App\Http\Controllers\q3wMaterial;
 use App\Http\Controllers\System;
 use App\Http\Controllers\Tasks;
-use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('activeuser', 'auth')->group(function () {
@@ -989,41 +988,3 @@ Route::middleware('activeuser', 'auth')->group(function () {
 });
 
 Illuminate\Support\Facades\Auth::routes();
-
-//Route::get('/', function () {
-//    \Telegram\Bot\Laravel\Facades\Telegram::sendMessage([
-//        'chat_id' => '537153693',
-//        'text'    => '123',
-//    ]);
-
-/** @var Project $project */
-//    $project = Project::query()->create([
-//        'name'   => 'TEST',
-//        'status' => true,
-//    ]);
-//
-//    $object = $project->objects()->create([
-//        'bitrix_id' => '222',
-//        'name'      => 'KEK',
-//    ]);
-
-//    $response = CRest::call('crm.deal.update', [
-//        'id'     => 2339,
-//        'fields' => [
-//            'TITLE'             => 'TEST TEST',
-//            'UF_CRM_1715933754' => '555555', // Новый ИНН
-//        ],
-//    ]);
-//    dd(123);
-//    dd($project, $object);
-
-//    $response = \App\Services\Bitrix\CRest::call('crm.deal.list');
-//
-//    dd($response);
-//
-//    $response = \App\Services\Bitrix\CRest::call('crm.deal.get', [
-//        'id' => 2245,
-//    ]);
-
-//    dd($response);
-//});
