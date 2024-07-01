@@ -10,11 +10,11 @@ use App\Repositories\User\UserRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Objects\Message;
 
 final class TelegramService implements TelegramServiceInterface
 {
+
     /** @var \Telegram\Bot\Api */
     private $telegram;
 
@@ -27,7 +27,7 @@ final class TelegramService implements TelegramServiceInterface
         Api $api,
         UserRepositoryInterface $userRepository
     ) {
-        $this->telegram = $api;
+        $this->telegram       = $api;
         $this->userRepository = $userRepository;
     }
 
@@ -40,7 +40,7 @@ final class TelegramService implements TelegramServiceInterface
 
             return $this->telegram->sendMessage([
                 'chat_id' => $user->chat_id,
-                'text' => $data->getNotificationData()->getName(),
+                'text'    => $data->getNotificationData()->getName(),
             ]);
         } catch (\Throwable $throwable) {
             Log::error($throwable->getMessage());
@@ -58,22 +58,16 @@ final class TelegramService implements TelegramServiceInterface
                 $data->getNotificationData()->getUserId()
             );
 
-            $respo =         Telegram::sendMessage([
-                'chat_id' => $user->chat_id,
-                'text' => 'fawf'
-            ]);
-dd($respo);
             return $this->telegram->sendMessage([
-                'chat_id' => $user->chat_id,
-                'parse_mode' => 'HTML',
-                'reply_markup' => $data->getKeyboard() ?? json_encode(['inline_keyboard' => []]),
-                'text' => view($pathView, [
+                'chat_id'      => $user->chat_id,
+                'parse_mode'   => 'HTML',
+                'reply_markup' => $data->getKeyboard() ??
+                    json_encode(['inline_keyboard' => []]),
+                'text'         => view($pathView, [
                     'notificationData' => $data->getNotificationData(),
                 ])->render(),
             ]);
-
         } catch (\Throwable $throwable) {
-            dd($throwable);
             Log::error($throwable->getMessage());
 
             return null;
@@ -98,14 +92,15 @@ dd($respo);
     ) {
         try {
             $this->telegram->editMessageText([
-                'chat_id' => $chatId,
-                'message_id' => $messageId,
-                'parse_mode' => 'HTML',
+                'chat_id'      => $chatId,
+                'message_id'   => $messageId,
+                'parse_mode'   => 'HTML',
                 'reply_markup' => json_encode(['inline_keyboard' => []]),
-                'text' => $text,
+                'text'         => $text,
             ]);
         } catch (\Throwable $throwable) {
             Log::error($throwable->getMessage());
         }
     }
+
 }

@@ -8,6 +8,7 @@ use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageServiceProvider;
 use Lexx\ChatMessenger\ChatMessengerServiceProvider;
 use niklasravnsborg\LaravelPdf\PdfServiceProvider;
@@ -19,7 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ImageServiceProvider::class,
         TelegramServiceProvider::class,
         ChatMessengerServiceProvider::class,
-        App\Providers\PHPExcelMacroServiceProvider::class, // Add this provider to the list,
+        App\Providers\PHPExcelMacroServiceProvider::class,
+        // Add this provider to the list,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -29,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectGuestsTo(fn() => route('login'));
         $middleware->redirectUsersTo(AppServiceProvider::HOME);
 
         $middleware->validateCsrfTokens(except: [
@@ -41,21 +43,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->throttleApi();
 
         $middleware->alias([
-            'activeuser' => ActiveUser::class,
+            'activeuser'   => ActiveUser::class,
             'log.requests' => LogRequests::class,
         ]);
     })
     ->withExceptions(using: function (Exceptions $exceptions) {
         $exceptions->report(function (Throwable $e) {
-            dump($e);
             ExceptionNotice::send(
                 User::where('is_su', 1)->get()->pluck('id')->toArray(),
                 [
-                    'name' => ExceptionNotice::DESCRIPTION,
+                    'name'             => ExceptionNotice::DESCRIPTION,
                     'exceptionMessage' => $e->getMessage(),
-                    'exceptionMessage' => $e->getMessage(),
-                    'user' => Auth::user(),
-                    'ip' => request()->ip()
+                    'user'             => Auth::user(),
+                    'ip'               => request()?->ip(),
                 ]
             );
         });

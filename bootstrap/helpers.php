@@ -4,7 +4,7 @@ use App\Domain\DTO\Notification\NotificationData;
 use App\Jobs\Notification\NotificationJob;
 use Carbon\Carbon;
 
-if (! function_exists('weekdayDate')) {
+if ( ! function_exists('weekdayDate')) {
     function weekdayDate($date)
     {
         if ($date == false) {
@@ -16,13 +16,12 @@ if (! function_exists('weekdayDate')) {
     }
 }
 
-if (! function_exists('dispatchNotify')) {
+if ( ! function_exists('dispatchNotify')) {
     function dispatchNotify(
         int $userId,
         string $class,
         array $notificationData = []
     ) {
-        dump($notificationData);
         NotificationJob::dispatchSync(
             new NotificationData(
                 $userId,
