@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\DTO\Bitrix\Entity;
 
 use App\Domain\DTO\DTO;
+use App\Domain\ProjectObject\DirectionWork;
 
 final class DealItemData extends DTO
 {
@@ -23,6 +24,20 @@ final class DealItemData extends DTO
         // Доп условия по материалам (шпунт/крепление >1000 тонн, новый материал или нетипичный материал).
         public ?string $UF_CRM_1710770476014,
         public ?string $UF_CRM_1715933754, // ID (ERP)
+        public ?string $UF_CRM_1715079424, // Направление работ. Сваи, Шпунт
     ) {}
+
+    public function getDirectionWork(): ?DirectionWork
+    {
+        if ($this->UF_CRM_1715079424 === '765') {
+            return DirectionWork::Piles;
+        }
+
+        if ($this->UF_CRM_1715079424 === '763') {
+            return DirectionWork::SheetPile;
+        }
+
+        return null;
+    }
 
 }

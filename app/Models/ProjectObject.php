@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\ProjectObject\DirectionWork;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\q3wMaterial\q3wProjectObjectMaterialAccountingType;
@@ -25,6 +26,13 @@ class ProjectObject extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    protected $casts
+        = [
+            'direction'                              => DirectionWork::class,
+            'is_participates_in_material_accounting' => 'boolean',
+            'is_participates_in_documents_flow'      => 'boolean',
+        ];
 
     public $defaultSortOrder
         = [

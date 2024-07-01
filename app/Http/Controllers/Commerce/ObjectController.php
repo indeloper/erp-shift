@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Commerce;
 use App\Domain\DTO\ShortNameProjectObject\ShortNameProjectObjectData;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProjectObjectDocuments\ProjectObjectDocumentsController;
-use App\Http\Resources\Objects\ObjectResource;
+use App\Http\Resources\ProjectObjectResource;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
@@ -67,7 +67,7 @@ class ObjectController extends Controller
             ->latest()
             ->paginate(15);
 
-        return ObjectResource::collection($objects);
+        return ProjectObjectResource::collection($objects);
     }
 
     public function getMaterialAccountingTypes()
@@ -627,6 +627,7 @@ class ObjectController extends Controller
 
         DB::beginTransaction();
 
+        /** @var ProjectObject $object */
         $object = ProjectObject::findOrFail($id);
         $oldIsParticipatesInDocumentsFlow
                 = $object->is_participates_in_documents_flow;
@@ -636,7 +637,25 @@ class ObjectController extends Controller
         $lastObjectResponsibleId = ObjectResponsibleUser::orderByDesc('id')
             ->first()->id;
 
-        $object->update($toUpdateArr);
+        $toUpdateArr['is_participates_in_material_accounting']
+            = $toUpdateArr['is_participates_in_material_accounting'] === 'true';
+        $toUpdateArr['is_participates_in_documents_flow']
+            = $toUpdateArr['is_participates_in_documents_flow'] === 'true';
+
+        $object->fill($toUpdateArr);
+
+        $firstLatter = str($object->direction->name())->substr(0,
+            1);
+
+        $object->update([
+            'short_name' =>
+                $firstLatter->upper()->toString()
+                .', '.str($object->short_name)->replace(['Ш,', 'С,'],
+                    '')
+                    ->toString(),
+        ]);
+
+        $object->save();
 
         if (isset($data['short_name_detail'])) {
             app(ShortNameProjectObjectService::class)

@@ -473,8 +473,11 @@ final class BitrixService implements BitrixServiceInterface
         );
 
         $newProject->objects()->create([
-            'bitrix_id' => $deal->ID,
-            'name'      => $deal->TITLE,
+            'bitrix_id'  => $deal->ID,
+            'name'       => $deal->TITLE,
+            'short_name' => $deal->TITLE,
+            'address'    => $deal->UF_CRM_1691759896386,
+            'direction'  => $deal->getDirectionWork()?->value,
         ]);
 
         $deal->UF_CRM_1715933754 = (string) $newProject->id;
@@ -499,13 +502,20 @@ final class BitrixService implements BitrixServiceInterface
 
         if ($projectObject === null) {
             $project->objects()->create([
-                'bitrix_id' => $deal->ID,
-                'name'      => $deal->TITLE,
+                'bitrix_id'  => $deal->ID,
+                'name'       => $deal->TITLE,
+                'short_name' => $deal->TITLE,
+                'address'    => $deal->UF_CRM_1691759896386,
+                'direction'  => $deal->getDirectionWork()?->value,
             ]);
         }
 
         if ($projectObject !== null) {
-            // ЧТО-ТО ТУТ
+            $projectObject->update([
+                'name'      => $deal->TITLE,
+                'address'   => $deal->UF_CRM_1691759896386,
+                'direction' => $deal->getDirectionWork()?->value,
+            ]);
         }
 
         return $project;

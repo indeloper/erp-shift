@@ -5,6 +5,36 @@ export class ObjectColumns {
 
     return [
       {
+        caption: 'Идентификатор',
+        dataField: 'id',
+        width: 75,
+      },
+      {
+        caption: 'Bitrix ID',
+        dataField: 'bitrix_id',
+        width: 75,
+      },
+      {
+        caption: 'ДО',
+        dataField: 'is_participates_in_documents_flow',
+        width: 75,
+        dataType: 'boolean',
+        allowFiltering: false,
+        editorOptions: {
+          enableThreeStateBehavior: false,
+        },
+      },
+      {
+        caption: 'ПР.Р',
+        dataField: 'is_participates_in_material_accounting',
+        width: 75,
+        dataType: 'boolean',
+        allowFiltering: false,
+        editorOptions: {
+          enableThreeStateBehavior: false,
+        },
+      },
+      {
         caption: 'Кадастровый номер',
         dataField: 'cadastral_number',
         visible: false,
@@ -73,42 +103,29 @@ export class ObjectColumns {
         },
       },
       {
-        caption: 'Идентификатор',
-        dataField: 'id',
-        width: 75,
-      },
-      {
-        caption: 'Bitrix ID',
-        dataField: 'bitrix_id',
-        width: 75,
-      },
-      {
-        caption: 'ДО',
-        dataField: 'is_participates_in_documents_flow',
-        width: 75,
-        dataType: 'boolean',
-        allowFiltering: false,
-        editorOptions: {
-          enableThreeStateBehavior: false,
-        },
-      },
-      {
-        caption: 'ПР.Р',
-        dataField: 'is_participates_in_material_accounting',
-        width: 75,
-        dataType: 'boolean',
-        allowFiltering: false,
-        editorOptions: {
-          enableThreeStateBehavior: false,
-        },
-      },
-      {
         caption: 'Наименование',
         dataField: 'name',
       },
       {
         caption: 'Направление',
         dataField: 'direction',
+        cellTemplate: function (container, options) {
+          let operationId = options.data.id;
+          let operationUrl = options.data.url;
+
+          console.log(container);
+
+          if (options.data.direction === 'sheet_pile') {
+            $(`<div>Шпунт</div>`)
+              .appendTo(container);
+          }
+
+          if (options.data.direction === 'piles') {
+            $(`<div>Сваи</div>`)
+              .appendTo(container);
+          }
+
+        },
       },
       {
         caption: 'Адрес',

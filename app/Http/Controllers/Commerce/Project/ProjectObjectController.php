@@ -19,9 +19,11 @@ final class ProjectObjectController
 
     public function index(Request $request)
     {
-        return ProjectObject::query()
-            ->where('project_id', $request->get('project_id'))
-            ->paginate(15);
+        return ProjectObjectResource::collection(
+            ProjectObject::query()
+                ->where('project_id', $request->get('project_id'))
+                ->paginate(15)
+        );
     }
 
     public function show($id)
