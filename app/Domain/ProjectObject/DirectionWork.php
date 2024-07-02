@@ -19,4 +19,13 @@ enum DirectionWork: string
         };
     }
 
+    public function getBitrixValue(): string
+    {
+        return match ($this) {
+            self::Piles => '765',
+            self::SheetPile => '763',
+            default => '',
+        };
+    }
+
 }

@@ -16,6 +16,7 @@ use App\Http\Controllers\Building;
 use App\Http\Controllers\Commerce;
 use App\Http\Controllers\Commerce\Project\ProjectObjectController;
 use App\Http\Controllers\Common;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Documents;
 use App\Http\Controllers\FileEntryController;
 use App\Http\Controllers\q3wMaterial;
@@ -24,6 +25,9 @@ use App\Http\Controllers\Tasks;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('activeuser', 'auth')->group(function () {
+    Route::get('/contacts', [ContactController::class, 'index'])
+        ->name('contacts');
+
     Route::get('storage/{file_path?}', [System\FileController::class, 'file'])
         ->where('file_path', '.*');
 
@@ -988,9 +992,3 @@ Route::middleware('activeuser', 'auth')->group(function () {
 });
 
 Illuminate\Support\Facades\Auth::routes();
-
-Route::get('/', function () {
-    dd(
-        app(\App\Services\Bitrix\BitrixService::class)->getDeal((int) 2369)
-    );
-});

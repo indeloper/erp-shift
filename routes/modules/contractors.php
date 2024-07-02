@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('can:contractors')->group(function () {
     Route::get('/', [ContractorController::class, 'index'])->name('index');
+    Route::get('/load', [ContractorController::class, 'load'])->name('load');
     Route::get('/card/{id}', [ContractorController::class, 'card'])->name('card');
     Route::get('/create', [ContractorController::class, 'create'])->name('create')->middleware('can:contractors_create');
     Route::get('/edit/{id}', [ContractorController::class, 'edit'])->name('edit')->middleware('can:contractors_edit');

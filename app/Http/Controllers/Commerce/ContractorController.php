@@ -63,6 +63,18 @@ class ContractorController extends Controller
         ]);
     }
 
+    public function load()
+    {
+        return response()->json([
+            'data' => Contractor::all(),
+        ]);
+    }
+
+    public function loadShow()
+    {
+        dd(123);
+    }
+
     public function create(): View
     {
         // $contractorTypes = Contractor::CONTRACTOR_TYPES;

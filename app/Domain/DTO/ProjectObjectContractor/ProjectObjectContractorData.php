@@ -9,6 +9,9 @@ use App\Domain\DTO\DTO;
 final class ProjectObjectContractorData extends DTO
 {
 
-    public function __construct() {}
+    public function __construct(
+        public string $contractor_id,
+        public bool $is_main
+    ) {}
 
 }

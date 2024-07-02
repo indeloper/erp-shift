@@ -538,6 +538,7 @@ final class BitrixService implements BitrixServiceInterface
                 'TITLE'                => $projectObject->short_name,
                 'COMPANY_ID'           => $contractor?->bitrix_id,
                 'UF_CRM_1691759896386' => $projectObject->address,
+                'UF_CRM_1715079424' => $projectObject->direction->getBitrixValue()
             ],
         ]);
     }

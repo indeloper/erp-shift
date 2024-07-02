@@ -16,6 +16,16 @@ export class ContractorsColumns {
         caption: 'Кто добавил',
         dataField: 'full_name_user',
       },
+      {
+        caption: 'Основной?',
+        dataField: 'is_main',
+        width: 75,
+        dataType: 'boolean',
+        allowFiltering: false,
+        editorOptions: {
+          enableThreeStateBehavior: false,
+        },
+      },
     ];
   }
 }

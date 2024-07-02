@@ -383,7 +383,6 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
                     if (!(store instanceof DevExpress.data.ArrayStore)) {
                       store.push([{ type: 'insert', data: data.data }]);
                     }
-                    formInstance.option('dataGridInstance').endCustomLoading();
                   }).always(() => {
                     formInstance.option('dataGridInstance').endCustomLoading();
                   });

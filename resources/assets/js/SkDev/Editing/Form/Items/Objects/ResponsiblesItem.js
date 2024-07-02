@@ -2,13 +2,13 @@ import { InitDataGrid } from '../../../../InitDataGrid';
 import { initDxForm } from '../../../../custom';
 import { DefaultDataSource } from '../../../../DataSource/DefaultDataSource';
 import {
-  ContractorsColumns,
-} from '../../../../DataSource/Columns/Objects/ContractorsColumns';
+  ContactsColumns,
+} from '../../../../DataSource/Columns/Objects/ContactsColumns';
 import { BaseEditing } from '../../../BaseEditing';
 import { DataGridPopup } from '../../../Popup/Objects/DataGridPopup';
-import { DataGridEditForm } from '../../Contractors/DataGridEditForm';
+import { DataGridEditForm } from '../../Contacts/DataGridEditForm';
 
-export default class ContractorsItem {
+export default class ResponsiblesItem {
   static build(label = undefined) {
     return {
       visible: true,
@@ -20,7 +20,7 @@ export default class ContractorsItem {
         const currentEmployeeData = options[0];
 
         const initDataGrid = new InitDataGrid('<div>')
-          .setTitle('Контрагенты');
+          .setTitle('Ответственные');
 
         initDataGrid
           .setEditing(
@@ -29,21 +29,21 @@ export default class ContractorsItem {
           .getEditing()
           .setPopup(
             new DataGridPopup()
-              .setTitle('Контрагенты'),
+              .setTitle('Ответственные'),
           )
           .setForm(
             new DataGridEditForm()
-              .setTitle('Контрагенты'),
+              .setTitle('Ответственные'),
           );
 
         initDxForm(
           initDataGrid,
           new DefaultDataSource(
-            route('projects::object::contractos::index', { projectObject: objectId }),
-            route('projects::object::contractos::index', { projectObject: objectId }),
-            route('projects::object::contractos::store', { projectObject: objectId }),
+            route('projects::object::contacts::index', { projectObject: objectId }),
+            route('projects::object::contacts::index', { projectObject: objectId }),
+            route('projects::object::contacts::store', { projectObject: objectId }),
           ),
-          new ContractorsColumns(),
+          new ContactsColumns(),
         ).appendTo(currentEmployeeData);
       },
 

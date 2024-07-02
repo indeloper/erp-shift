@@ -10,14 +10,11 @@ import IsParticipatesInMaterialAccountingItem
   from '../Items/Objects/IsParticipatesInMaterialAccountingItem';
 import IsParticipatesInDocumentsFlowItem
   from '../Items/Objects/IsParticipatesInDocumentsFlowItem';
-import ResponsiblesPtoItem from '../Items/Objects/ResponsiblesPtoItem';
-import ResponsiblesManagersItem
-  from '../Items/Objects/ResponsiblesManagersItem';
-import ResponsiblesForemen from '../Items/Objects/ResponsiblesForemen';
 import TabItems from '../Items/TabItems';
 import DirectionItem from '../Items/Objects/DirectionItem';
 import HistoryChangesItem from '../Items/Objects/HistoryChangesItem';
 import ContractorsItem from '../Items/Objects/ContractorsItem';
+import ResponsiblesItem from '../Items/Objects/ResponsiblesItem';
 
 export class DataGridEditForm extends BaseEditForm {
   build() {
@@ -59,15 +56,7 @@ export class DataGridEditForm extends BaseEditForm {
 
           ], 'cellproperties')
           .setTab('Ответственные', [
-            new GroupItems([
-              ResponsiblesPtoItem.build('Ответственные ПТО'),
-              ResponsiblesManagersItem.build('Ответственные РП'),
-              ResponsiblesForemen.build('Ответственные прорабы'),
-            ])
-              .setTitle('Ответственные')
-              .setColCount(4)
-              .build(),
-
+            ResponsiblesItem.build(),
           ], 'link')
           .setTab('Контрагенты', [
             ContractorsItem.build(),
