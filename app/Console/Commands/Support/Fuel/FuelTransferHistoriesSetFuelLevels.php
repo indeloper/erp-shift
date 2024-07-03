@@ -37,26 +37,24 @@ class FuelTransferHistoriesSetFuelLevels extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        $choosedId = (int)$this->ask('Укажите id топливной емкости или оставьте пустым для обновления по всем емкостям');
+        $choosedId = (int) $this->ask('Укажите id топливной емкости или оставьте пустым для обновления по всем емкостям');
         $choosedEventDate = $this->ask('Укажите дату с которой будет выполнен пересчет остатков или оставьте пустым для обновления по всем операциям');
 
-        if($choosedId) {
+        if ($choosedId) {
             $fuelTanksIds[] = $choosedId;
         } else {
             $fuelTanksIds = FuelTank::pluck('id');
         }
 
-        foreach($fuelTanksIds as $fuelTankId) {
+        foreach ($fuelTanksIds as $fuelTankId) {
             $previousTransferHistory = $this->getPreviousTransferHistory($fuelTankId, $choosedEventDate);
             $iteratableTransferHistories = $this->getIteratableTransferHistories($previousTransferHistory, $fuelTankId);
             $fuelLevel = $previousTransferHistory->fuel_level ?? 0;
 
-            foreach($iteratableTransferHistories as $history) {
+            foreach ($iteratableTransferHistories as $history) {
                 $history->fuel_level = $this->getFuelLevel($fuelLevel, $history);
                 $history->save();
                 $fuelLevel = $history->fuel_level;
@@ -68,12 +66,12 @@ class FuelTransferHistoriesSetFuelLevels extends Command
         }
     }
 
-    publiC function getPreviousTransferHistory($fuelTankId, $choosedEventDate)
+    public function getPreviousTransferHistory($fuelTankId, $choosedEventDate)
     {
         return FuelTankTransferHistory::query()
             ->where([
                 ['fuel_tank_id', $fuelTankId],
-                ['event_date', '<', Carbon::create($choosedEventDate)]
+                ['event_date', '<', Carbon::create($choosedEventDate)],
             ])
             ->orderByDesc('event_date')
             ->orderByDesc('id')
@@ -82,25 +80,25 @@ class FuelTransferHistoriesSetFuelLevels extends Command
 
     public function getIteratableTransferHistories($previousTransferHistory, $fuelTankId)
     {
-        if(!$previousTransferHistory) {
+        if (! $previousTransferHistory) {
             return FuelTankTransferHistory::query()
-            ->where([
-                ['fuel_tank_id', $fuelTankId],
-            ])
-            ->orderBy('event_date')
-            ->orderBy('id')
-            ->get();
+                ->where([
+                    ['fuel_tank_id', $fuelTankId],
+                ])
+                ->orderBy('event_date')
+                ->orderBy('id')
+                ->get();
         }
 
         return FuelTankTransferHistory::query()
             ->where([
                 ['fuel_tank_id', $fuelTankId],
                 ['event_date', $previousTransferHistory->event_date],
-                ['id', '>', $previousTransferHistory->id]
+                ['id', '>', $previousTransferHistory->id],
             ])
             ->orWhere([
                 ['fuel_tank_id', $fuelTankId],
-                ['event_date', '>', $previousTransferHistory->event_date]
+                ['event_date', '>', $previousTransferHistory->event_date],
             ])
             ->orderBy('event_date')
             ->orderBy('id')
@@ -109,16 +107,16 @@ class FuelTransferHistoriesSetFuelLevels extends Command
 
     public function getFuelLevel($fuelLevelBefore, $history)
     {
-        if(!$history->fuel_tank_flow_id) {
+        if (! $history->fuel_tank_flow_id) {
             return $fuelLevelBefore;
         }
 
         $fuelFlow = FuelTankFlow::find($history->fuel_tank_flow_id);
 
-        if(FuelTankFlowType::find($fuelFlow->fuel_tank_flow_type_id)->slug === 'outcome') {
-            return ($fuelLevelBefore + (-1 * $fuelFlow->volume));
+        if (FuelTankFlowType::find($fuelFlow->fuel_tank_flow_type_id)->slug === 'outcome') {
+            return $fuelLevelBefore + (-1 * $fuelFlow->volume);
         }
 
-        return ($fuelFlow->volume + $fuelLevelBefore);
+        return $fuelFlow->volume + $fuelLevelBefore;
     }
 }

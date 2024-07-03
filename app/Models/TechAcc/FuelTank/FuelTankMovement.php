@@ -1,15 +1,15 @@
 <?php
 
 namespace App\Models\TechAcc\FuelTank;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\Logable;
-use App\Traits\DevExtremeDataSourceLoadable;
 
+use App\Traits\DevExtremeDataSourceLoadable;
+use App\Traits\Logable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTankMovement extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable, Logable;
+    use DevExtremeDataSourceLoadable, Logable, SoftDeletes;
 
     protected $guarded = ['id'];
 }

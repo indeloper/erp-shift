@@ -12,13 +12,13 @@ class MaterialAccountingOperationFile extends Model
         'file_name',
         'path',
         'user_id',
-        'author_type'
+        'author_type',
     ];
 
     public $author_type_info = [
         1 => 'author_id',
         2 => 'sender_id',
-        3 => 'recipient_id'
+        3 => 'recipient_id',
     ];
 
     protected $appends = ['name', 'url'];
@@ -32,7 +32,7 @@ class MaterialAccountingOperationFile extends Model
     // need for file component
     public function getUrlAttribute()
     {
-        return asset($this->path . '/' . $this->file_name);
+        return asset($this->path.'/'.$this->file_name);
     }
 
     public function getCreatedAtAttribute($date)

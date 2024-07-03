@@ -1,38 +1,32 @@
 <?php
 
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class UploadProjectObjectDocumentsNewStatusTypeRelations extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $this->uploadData();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::table('project_object_document_status_type_relations')
             ->where('document_status_id', ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id)
-        ->delete();
+            ->delete();
 
         DB::table('project_object_document_statuses')
-        ->where([
-            'name' => 'Хранится на площадке'
-        ])->delete();
+            ->where([
+                'name' => 'Хранится на площадке',
+            ])->delete();
     }
 
     public function uploadData()
@@ -46,4 +40,4 @@ class UploadProjectObjectDocumentsNewStatusTypeRelations extends Migration
             ['document_type_id' => 4, 'document_status_id' => $newStatus->id, 'default_selection' => false],
         ]);
     }
-}
+};

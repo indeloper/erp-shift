@@ -8,7 +8,7 @@ export default {
   <footer class="footer">
     <nav>
       <p class="copyright text-center">
-        <span>© {{ new Date().getFullYear() }}</span>
+        <span>© {{ new Date().getFullYear() }}&nbsp;</span>
         <a href="https://sk-gorod.com">ООО «СК ГОРОД»</a>
       </p>
     </nav>

@@ -5,19 +5,20 @@ namespace App\Services\ProjectObjectDocuments\Notifications;
 use App\Models\ActionLog;
 use App\Models\Building\ObjectResponsibleUser;
 use App\Models\Building\ObjectResponsibleUserRole;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocument;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentsStatusType;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
+use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNotice;
 use Illuminate\Support\Facades\DB;
-use Telegram\Bot\Laravel\Facades\Telegram;
 
-class ProjectObjectDocumentsNotifications {
-
+class ProjectObjectDocumentsNotifications
+{
     protected $notificationsToSendArr;
+
     protected $twentyDaysBefore;
+
     protected $exclude_document_signs;
 
     public function __construct($notificationsToSendArr = [])
@@ -31,8 +32,8 @@ class ProjectObjectDocumentsNotifications {
                 'option' => [
                     'id' => 'rd_to_production',
                     'type' => 'checkbox',
-                    'value' => true
-                ]
+                    'value' => true,
+                ],
             ],
             [
                 'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()->id,
@@ -40,16 +41,18 @@ class ProjectObjectDocumentsNotifications {
                 'option' => [
                     'id' => 'ppr_confirmed_paper_format',
                     'type' => 'checkbox',
-                    'value' => true
-                ]
+                    'value' => true,
+                ],
             ],
         ];
     }
 
-    public function handle(){
+    public function handle()
+    {
 
-        if(!$this->checkNeedSendNotifications())
-        return;
+        if (! $this->checkNeedSendNotifications()) {
+            return;
+        }
 
         // РД, Акты с площадки, Журналы, ППР
         $this->handleGroup1();
@@ -71,28 +74,26 @@ class ProjectObjectDocumentsNotifications {
 
     public function notifyUsers()
     {
-        foreach($this->notificationsToSendArr as $notification)
-        {
-            foreach($notification['notificationRecipients'] as $userId)
-            {
-                Notification::create([
+        foreach ($this->notificationsToSendArr as $notification) {
+            DocumentFlowOnObjectsNotice::send(
+                $notification['notificationRecipients']->toArray(),
+                [
                     'name' => $notification['notificationText'],
-                    'user_id' => $userId,
-                    'type' => 0,
-                ]);
-            }
+                ]
+            );
         }
     }
 
     public function checkNeedSendNotifications()
     {
         $isNotificationsTodayAlreadySent = ActionLog::where([
-            ['logable_type', 'App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications'],
-            ['created_at', '>', now()->today()]
+            ['logable_type', \App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications::class],
+            ['created_at', '>', now()->today()],
         ])->exists();
 
-        if(!$isNotificationsTodayAlreadySent && now()->format('H') >= 16)
-        return true;
+        if (! $isNotificationsTodayAlreadySent && now()->format('H') >= 16) {
+            return true;
+        }
 
         return false;
     }
@@ -104,7 +105,7 @@ class ProjectObjectDocumentsNotifications {
 
         ActionLog::create([
             'logable_id' => 0,
-            'logable_type' => 'App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications',
+            'logable_type' => \App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications::class,
             'actions' => $actions,
             'user_id' => 0,
         ]);
@@ -112,20 +113,18 @@ class ProjectObjectDocumentsNotifications {
 
     public function addNewElemToNotificationsToSendArrElem($documentsGroupedByObject, $notificationType, $responsiblesRoles)
     {
-        foreach($documentsGroupedByObject as $object)
-        {
+        foreach ($documentsGroupedByObject as $object) {
             $rolesIds = ObjectResponsibleUserRole::whereIn('slug', $responsiblesRoles)->pluck('id')->toArray();
 
             $newNotificationsToSendArrElem =
                 [
-                    'notificationRecipients' =>
-                        ObjectResponsibleUser::query()
-                            ->where('object_id', $object->project_object_id)
-                            ->whereIn('object_responsible_user_role_id', $rolesIds)
-                            ->distinct()
-                            ->pluck('user_id'),
+                    'notificationRecipients' => ObjectResponsibleUser::query()
+                        ->where('object_id', $object->project_object_id)
+                        ->whereIn('object_responsible_user_role_id', $rolesIds)
+                        ->distinct()
+                        ->pluck('user_id'),
 
-                    'notificationText' => $this->getNotificationText($object, $notificationType)
+                    'notificationText' => $this->getNotificationText($object, $notificationType),
 
                 ];
 
@@ -135,42 +134,46 @@ class ProjectObjectDocumentsNotifications {
 
     public function getNotificationText($object, $notificationType)
     {
-        if($notificationType ==='handleGroup1')
-        return
-            'Документооборот на объектах' . "\n" .
-            'Документы не переданные в офис:' . "\n" .
-            ProjectObject::find($object->project_object_id)->short_name . "\n" .
-            'Количество: ' . $object->total . "\n";
+        if ($notificationType === 'handleGroup1') {
+            return
+                'Документооборот на объектах'."\n".
+                'Документы не переданные в офис:'."\n".
+                ProjectObject::find($object->project_object_id)->short_name."\n".
+                'Количество: '.$object->total."\n";
+        }
 
-        if($notificationType ==='handleGroup2')
-        return
-            'Документооборот на объектах' . "\n" .
-            'ИД не вернулось:' . "\n" .
-            ProjectObject::find($object->project_object_id)->short_name . "\n" .
-            'Количество: ' . $object->total . "\n";
+        if ($notificationType === 'handleGroup2') {
+            return
+                'Документооборот на объектах'."\n".
+                'ИД не вернулось:'."\n".
+                ProjectObject::find($object->project_object_id)->short_name."\n".
+                'Количество: '.$object->total."\n";
+        }
 
-        if($notificationType ==='handleGroup3')
-        return
-            'Документооборот на объектах' . "\n" .
-            'Выполнение не вернулось:' . "\n" .
-            ProjectObject::find($object->project_object_id)->short_name . "\n" .
-            'Количество: ' . $object->total . "\n";
+        if ($notificationType === 'handleGroup3') {
+            return
+                'Документооборот на объектах'."\n".
+                'Выполнение не вернулось:'."\n".
+                ProjectObject::find($object->project_object_id)->short_name."\n".
+                'Количество: '.$object->total."\n";
+        }
 
-        if($notificationType ==='handleGroup4')
-        return
-            'Документооборот на объектах' . "\n" .
-            'Накопились документы:' . "\n" .
-            ProjectObject::find($object->project_object_id)->short_name . "\n" .
-            'Количество: ' . $object->total . "\n";
+        if ($notificationType === 'handleGroup4') {
+            return
+                'Документооборот на объектах'."\n".
+                'Накопились документы:'."\n".
+                ProjectObject::find($object->project_object_id)->short_name."\n".
+                'Количество: '.$object->total."\n";
+        }
     }
 
-    public function getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds, $delayed=null)
+    public function getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds, $delayed = null)
     {
         $documentsCollection =
             ProjectObjectDocument::query()
                 ->whereIn('document_type_id', $documentTypesIds)
                 ->whereIn('document_status_id', $documentStatusesIds)
-                ->when($delayed, function($query) use ($delayed) {
+                ->when($delayed, function ($query) use ($delayed) {
                     $query->where('created_at', '<=', $delayed);
                 });
         $documentsCollection =
@@ -185,15 +188,16 @@ class ProjectObjectDocumentsNotifications {
     public function filterDocumentsCollectionByExcludeSigns($documentsCollection)
     {
         $excludeDocuments = ProjectObjectDocument::query();
-        foreach($this->exclude_document_signs as $sign)
-        {
+        foreach ($this->exclude_document_signs as $sign) {
             $queryArr = [];
-            if(!empty($sign['document_type_id']))
-            $queryArr[] = ['document_type_id', $sign['document_type_id']];
-            if(!empty($sign['document_status_id']))
-            $queryArr[] = ['document_status_id', $sign['document_status_id']];
-            if(!empty($sign['option'])) {
-                $queryArr[] = ["options->".$sign['option']['id']."->value", $sign['option']['value']];
+            if (! empty($sign['document_type_id'])) {
+                $queryArr[] = ['document_type_id', $sign['document_type_id']];
+            }
+            if (! empty($sign['document_status_id'])) {
+                $queryArr[] = ['document_status_id', $sign['document_status_id']];
+            }
+            if (! empty($sign['option'])) {
+                $queryArr[] = ['options->'.$sign['option']['id'].'->value', $sign['option']['value']];
             }
 
             $excludeDocuments = $excludeDocuments->orWhere($queryArr);
@@ -207,8 +211,9 @@ class ProjectObjectDocumentsNotifications {
 
     public function handleGroup1()
     {
-        if(now()->format('d') != 15)
-        return;
+        if (now()->format('d') != 15) {
+            return;
+        }
 
         $documentTypesIds = ProjectObjectDocumentType::query()
             ->where('name', 'РД')
@@ -224,7 +229,6 @@ class ProjectObjectDocumentsNotifications {
             ->pluck('id')
             ->toArray();
 
-
         $responsiblesRoles = ['TONGUE_PROJECT_MANAGER', 'TONGUE_PTO_ENGINEER', 'TONGUE_FOREMAN'];
 
         $documentsGroupedByObject = $this->getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds, $this->twentyDaysBefore);
@@ -234,8 +238,9 @@ class ProjectObjectDocumentsNotifications {
 
     public function handleGroup2()
     {
-        if(now()->format('d') != 28)
-        return;
+        if (now()->format('d') != 28) {
+            return;
+        }
 
         $documentTypesIds = ProjectObjectDocumentType::query()
             ->where('name', 'ИД')
@@ -256,8 +261,9 @@ class ProjectObjectDocumentsNotifications {
 
     public function handleGroup3()
     {
-        if(now()->format('d') != 28)
-        return;
+        if (now()->format('d') != 28) {
+            return;
+        }
 
         $documentTypesIds = ProjectObjectDocumentType::query()
             ->where('name', 'Выполнение')
@@ -278,8 +284,9 @@ class ProjectObjectDocumentsNotifications {
 
     public function handleGroup4()
     {
-        if(now()->format('d')%3)
-        return;
+        if (now()->format('d') % 3) {
+            return;
+        }
 
         $documentTypesIds = ProjectObjectDocumentType::query()
             ->where('name', 'Акт с площадки')
@@ -300,6 +307,4 @@ class ProjectObjectDocumentsNotifications {
 
         $this->addNewElemToNotificationsToSendArrElem($documentsGroupedByObject, __FUNCTION__, $responsiblesRoles);
     }
-
-
 }

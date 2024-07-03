@@ -15,8 +15,8 @@ return [
             'R' => 'calibri.ttf',    // regular font
             'B' => 'calibrib.ttf',       // optional: bold font
             'I' => 'calibrii.ttf',     // optional: italic font
-            'BI' => 'calibriz.ttf' // optional: bold-italic font
-        ]
+            'BI' => 'calibriz.ttf', // optional: bold-italic font
+        ],
 
-    ]
+    ],
 ];

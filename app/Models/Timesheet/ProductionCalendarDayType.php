@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductionCalendarDayType extends Model
 {
-    use AuthorAndEditorUserFields, SoftDeletes, DevExtremeDataSourceLoadable;
+    use AuthorAndEditorUserFields, DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 }

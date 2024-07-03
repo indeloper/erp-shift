@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Http\Controllers\Controller;
 use App\Models\Building\ObjectResponsibleUser;
-use App\Models\Notification;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationComment;
@@ -18,11 +18,11 @@ use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
 use App\Models\q3wMaterial\q3wOperationMaterialComment;
 use App\Models\User;
+use App\Notifications\Task\TaskPostponedAndClosedNotice;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Building\ObjectResponsibleUserRole;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -30,14 +30,12 @@ use Illuminate\View\View;
 
 class q3wMaterialTransformationOperationController extends Controller
 {
-    const EMPTY_COMMENT_TEXT = "Комментарий не указан";
+    const EMPTY_COMMENT_TEXT = 'Комментарий не указан';
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         //
     }
@@ -45,10 +43,9 @@ class q3wMaterialTransformationOperationController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @param Request $request
      * @return Application|Factory|View
      */
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         if (isset($request->projectObjectId)) {
             $projectObjectId = $request->projectObjectId;
@@ -59,8 +56,8 @@ class q3wMaterialTransformationOperationController extends Controller
         return view('materials.operations.transformation.new')->with([
             'projectObjectId' => $projectObjectId,
             'currentUserId' => Auth::id(),
-            'measureUnits' => q3wMeasureUnit::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
-            'accountingTypes' => q3wMaterialAccountingType::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
+            'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
+            'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
             'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
             'materialStandards' => DB::table('q3w_material_standards as a')
                 ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
@@ -72,7 +69,7 @@ class q3wMaterialTransformationOperationController extends Controller
         ]);
     }
 
-    public function view(Request $request)
+    public function view(Request $request): View
     {
         if (isset($request->operationId)) {
             $operation = q3wMaterialOperation::findOrFail($request->operationId);
@@ -85,8 +82,8 @@ class q3wMaterialTransformationOperationController extends Controller
             'operationData' => $operationData,
             'operationRouteStage' => $operationRouteStage,
             'currentUserId' => Auth::id(),
-            'measureUnits' => q3wMeasureUnit::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
-            'accountingTypes' => q3wMaterialAccountingType::all('id','value')->toJson(JSON_UNESCAPED_UNICODE),
+            'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
+            'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
             'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
             'materialStandards' => DB::table('q3w_material_standards as a')
                 ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
@@ -117,19 +114,21 @@ class q3wMaterialTransformationOperationController extends Controller
                 ->toJson(JSON_UNESCAPED_UNICODE),
             'allowEditing' => $this->allowEditing($operation),
             'allowCancelling' => $this->allowCancelling($operation),
-            'routeStageId' => $operation->operation_route_stage_id
+            'routeStageId' => $operation->operation_route_stage_id,
         ]);
     }
 
-    function validateStage(int $projectObjectId, String $stage, Array $materialsToTransform, Array $materialsAfterTransform = null) {
+    public function validateStage(int $projectObjectId, string $stage, array $materialsToTransform, ?array $materialsAfterTransform = null)
+    {
         $errors = [];
         if ($stage == 'fillingMaterialsToTransform') {
             foreach ($materialsToTransform as $material) {
-                $material = (object)$material;
+                $material = (object) $material;
                 $materialStandard = q3wMaterialStandard::find($material->standard_id);
 
-                if (!isset($materialStandard)) {
-                    $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "' . $material->standard_id . '" не существует'];
+                if (! isset($materialStandard)) {
+                    $errors['common'][] = (object) ['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "'.$material->standard_id.'" не существует'];
+
                     continue;
                 }
 
@@ -137,7 +136,7 @@ class q3wMaterialTransformationOperationController extends Controller
 
                 switch ($accountingType) {
                     case 2:
-                        $key = $material->standard_id . '-' . $material->quantity;
+                        $key = $material->standard_id.'-'.$material->quantity;
                         break;
                     default:
                         $key = $material->standard_id;
@@ -145,12 +144,12 @@ class q3wMaterialTransformationOperationController extends Controller
 
                 $materialName = $materialStandard->name;
 
-                if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
+                if (! isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
+                    $errors[$key][] = (object) ['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
                 }
 
-                if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
+                if (! isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
+                    $errors[$key][] = (object) ['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
                 }
 
                 if (isset($errors[$key]) && count($errors[$key]) > 0) {
@@ -196,14 +195,14 @@ class q3wMaterialTransformationOperationController extends Controller
                         ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
                         ->where('q3w_material_operations.source_project_object_id', $projectObjectId)
                         ->get(DB::raw('sum(`amount`) as amount, sum(`quantity`) as quantity'))
-                        ->first();;
+                        ->first();
 
                     $operationAmount = $activeOperationMaterialAmount->amount;
                     $operationQuantity = $activeOperationMaterialAmount->quantity;
                 }
 
-                if (!isset($projectObjectMaterial)) {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
+                if (! isset($projectObjectMaterial)) {
+                    $errors[$key][] = (object) ['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
                 } else {
                     if ($accountingType == 2) {
                         $materialAmountDelta = $projectObjectMaterial->amount - $material->amount - $operationAmount;
@@ -212,11 +211,12 @@ class q3wMaterialTransformationOperationController extends Controller
                     }
 
                     if ($materialAmountDelta < 0) {
-                        $errors[$key][] = (object)['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'itemName' => $materialName, 'message' => 'На объекте недостаточно материала'];
+                        $errors[$key][] = (object) ['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'itemName' => $materialName, 'message' => 'На объекте недостаточно материала'];
                     }
                 }
 
             }
+
             return $errors;
         }
 
@@ -225,12 +225,13 @@ class q3wMaterialTransformationOperationController extends Controller
             $totalSourceQuantity = 0;
             $totalQuantity = 0;
 
-            foreach ($materialsToTransform as $material){
-                $material = (object)$material;
+            foreach ($materialsToTransform as $material) {
+                $material = (object) $material;
                 $materialStandard = q3wMaterialStandard::find($material->standard_id);
 
-                if (!isset($materialStandard)) {
-                    $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "' . $material->standard_id . '" не существует'];
+                if (! isset($materialStandard)) {
+                    $errors['common'][] = (object) ['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "'.$material->standard_id.'" не существует'];
+
                     continue;
                 }
 
@@ -238,13 +239,13 @@ class q3wMaterialTransformationOperationController extends Controller
 
                 switch ($accountingType) {
                     case 2:
-                        $key = $material->standard_id . '-' . $material->quantity;
+                        $key = $material->standard_id.'-'.$material->quantity;
                         break;
                     default:
                         $key = $material->standard_id;
                 }
 
-                if (isset($unitedMaterialToTransform[$key])){
+                if (isset($unitedMaterialToTransform[$key])) {
                     $unitedMaterialToTransform[$key] = round($unitedMaterialToTransform[$key] + $material->quantity * $material->amount, 2);
                 } else {
                     $unitedMaterialToTransform[$key] = round($material->quantity * $material->amount, 2);
@@ -253,14 +254,13 @@ class q3wMaterialTransformationOperationController extends Controller
                 $totalSourceQuantity += round($material->quantity * $material->amount, 2);
             }
 
-
-
             foreach ($materialsAfterTransform as $material) {
-                $material = (object)$material;
+                $material = (object) $material;
                 $materialStandard = q3wMaterialStandard::find($material->standard_id);
 
-                if (!isset($materialStandard)) {
-                    $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "' . $material->standard_id . '" не существует'];
+                if (! isset($materialStandard)) {
+                    $errors['common'][] = (object) ['severity' => 1000, 'type' => 'materialStandardNotFound', 'message' => 'Эталона материала с идентификатором "'.$material->standard_id.'" не существует'];
+
                     continue;
                 }
 
@@ -268,7 +268,7 @@ class q3wMaterialTransformationOperationController extends Controller
 
                 switch ($accountingType) {
                     case 2:
-                        $key = $material->standard_id . '-' . $material->quantity;
+                        $key = $material->standard_id.'-'.$material->quantity;
                         break;
                     default:
                         $key = $material->standard_id;
@@ -276,12 +276,12 @@ class q3wMaterialTransformationOperationController extends Controller
 
                 $materialName = $materialStandard->name;
 
-                if (!isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
+                if (! isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
+                    $errors[$key][] = (object) ['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialName, 'message' => 'Количество в штуках не указано'];
                 }
 
-                if (!isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
-                    $errors[$key][] = (object)['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
+                if (! isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
+                    $errors[$key][] = (object) ['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialName, 'message' => 'Количество в единицах измерения не указано'];
                 }
 
                 if (isset($errors[$key]) && count($errors[$key]) > 0) {
@@ -293,24 +293,24 @@ class q3wMaterialTransformationOperationController extends Controller
             }
 
             if (round($totalQuantity, 2) > round($totalSourceQuantity, 2)) {
-                $errors[$key][] = (object)['severity' => 1000, 'type' => 'totalQuantityIsLarge', 'itemName' => $materialName, 'message' => 'Длина материалов после преобразования больше, чем длина исходных материалов'];
+                $errors[$key][] = (object) ['severity' => 1000, 'type' => 'totalQuantityIsLarge', 'itemName' => $materialName, 'message' => 'Длина материалов после преобразования больше, чем длина исходных материалов'];
             }
 
             return $errors;
         }
     }
 
-    public function validateMaterialList(Request $request)
+    public function validateMaterialList(Request $request): JsonResponse
     {
 
         $errors = [];
 
         $projectObject = ProjectObject::find($request->transformationOperationData['projectObjectId']);
-        if (!isset($projectObject)) {
-            $errors['common'][] = (object)['severity' => 1000, 'type' => 'projectObjectNotFound', 'message' => 'Объект не найден'];
+        if (! isset($projectObject)) {
+            $errors['common'][] = (object) ['severity' => 1000, 'type' => 'projectObjectNotFound', 'message' => 'Объект не найден'];
         }
 
-        switch($request->transformationOperationData['transformationStage']) {
+        switch ($request->transformationOperationData['transformationStage']) {
             case 'fillingMaterialsToTransform':
                 if (isset($request->transformationOperationData['transformationStage'])) {
                     $errors = array_merge($errors,
@@ -320,7 +320,7 @@ class q3wMaterialTransformationOperationController extends Controller
                         )
                     );
                 } else {
-                    $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Этап провеки не указан'];
+                    $errors['common'][] = (object) ['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Этап провеки не указан'];
                 }
                 break;
             case 'fillingMaterialsAfterTransform':
@@ -333,39 +333,36 @@ class q3wMaterialTransformationOperationController extends Controller
                         )
                     );
                 } else {
-                    $errors['common'][] = (object)['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Этап провеки не указан'];
+                    $errors['common'][] = (object) ['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Этап провеки не указан'];
                 }
                 break;
         }
 
         $errorResult = [];
 
-        foreach ($errors as $key => $error){
+        foreach ($errors as $key => $error) {
             $errorResult[] = ['validationId' => $key, 'errorList' => $error];
         }
 
         if (count($errors) == 0) {
             return response()->json([
-                'result' => 'ok'
+                'result' => 'ok',
             ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         } else {
             return response()->json([
                 'result' => 'error',
-                'errors' => $errorResult
+                'errors' => $errorResult,
             ], 400, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         }
     }
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
-        $requestData = json_decode($request["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
+        $requestData = json_decode($request['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
 
         $materialOperation = new q3wMaterialOperation([
             'operation_route_id' => 3,
@@ -374,11 +371,11 @@ class q3wMaterialTransformationOperationController extends Controller
             'operation_date' => $requestData['operation_date'],
             'creator_user_id' => Auth::id(),
             'source_responsible_user_id' => $requestData['responsible_user_id'],
-            'transformation_type_id' => $requestData['transformation_type_id']
+            'transformation_type_id' => $requestData['transformation_type_id'],
         ]);
         $materialOperation->save();
 
-        if (isset($requestData['new_comment'])){
+        if (isset($requestData['new_comment'])) {
             $newComment = $requestData['new_comment'];
         } else {
             $newComment = self::EMPTY_COMMENT_TEXT;
@@ -388,7 +385,7 @@ class q3wMaterialTransformationOperationController extends Controller
             'material_operation_id' => $materialOperation->id,
             'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
             'comment' => $newComment,
-            'user_id' => Auth::id()
+            'user_id' => Auth::id(),
         ]);
 
         $materialOperationComment->save();
@@ -407,7 +404,7 @@ class q3wMaterialTransformationOperationController extends Controller
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
                 'transform_operation_stage_id' => 1,
-                'initial_comment_id' => $material['initial_comment_id']
+                'initial_comment_id' => $material['initial_comment_id'],
             ]);
 
             $operationMaterial->save();
@@ -425,10 +422,10 @@ class q3wMaterialTransformationOperationController extends Controller
                 $inputMaterialComment = $material['comment'];
             }
 
-            if (!empty($inputMaterialComment)) {
+            if (! empty($inputMaterialComment)) {
                 $materialComment = new q3wOperationMaterialComment([
                     'comment' => $inputMaterialComment,
-                    'author_id' => Auth::id()
+                    'author_id' => Auth::id(),
                 ]);
                 $materialComment->save();
                 $materialCommentId = $materialComment->id;
@@ -444,7 +441,7 @@ class q3wMaterialTransformationOperationController extends Controller
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
                 'transform_operation_stage_id' => 2,
-                'comment_id' => $materialCommentId
+                'comment_id' => $materialCommentId,
             ]);
 
             $operationMaterial->save();
@@ -462,10 +459,10 @@ class q3wMaterialTransformationOperationController extends Controller
                 $inputMaterialComment = $material['comment'];
             }
 
-            if (!empty($inputMaterialComment)) {
+            if (! empty($inputMaterialComment)) {
                 $materialComment = new q3wOperationMaterialComment([
                     'comment' => $inputMaterialComment,
-                    'author_id' => Auth::id()
+                    'author_id' => Auth::id(),
                 ]);
                 $materialComment->save();
                 $materialCommentId = $materialComment->id;
@@ -481,17 +478,16 @@ class q3wMaterialTransformationOperationController extends Controller
                 'initial_amount' => $materialAmount,
                 'initial_quantity' => $materialQuantity,
                 'transform_operation_stage_id' => 3,
-                'comment_id' => $materialCommentId
+                'comment_id' => $materialCommentId,
             ]);
 
             $operationMaterial->save();
         }
 
-
         $materialOperation->operation_route_stage_id = 70;
         $materialOperation->save();
 
-        if (!$this->isUserResponsibleForMaterialAccounting($materialOperation->source_project_object_id)) {
+        if (! $this->isUserResponsibleForMaterialAccounting($materialOperation->source_project_object_id)) {
             $this->sendTransformationNotificationToResponsibilityUsersOfObject($materialOperation, 'Ожидание согласования преобразования', $materialOperation->source_project_object_id);
         }
 
@@ -509,45 +505,47 @@ class q3wMaterialTransformationOperationController extends Controller
         DB::commit();
 
         return response()->json([
-            'result' => 'ok'
+            'result' => 'ok',
         ], 200);
     }
 
-    public function sendTransformationNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId) {
+    public function sendTransformationNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId)
+    {
 
-        $responsibilityUsers = (new ObjectResponsibleUser)->getResponsibilityUsers($projectObjectId, $role='TONGUE_PROJECT_MANAGER');
+        $responsibilityUsers = (new ObjectResponsibleUser)->getResponsibilityUsers($projectObjectId, $role = 'TONGUE_PROJECT_MANAGER');
 
         foreach ($responsibilityUsers as $responsibilityUser) {
             $this->sendTransformationNotification($operation, $notificationText, $responsibilityUser->user_id, $projectObjectId);
         }
     }
 
-    public function sendTransformationNotification(q3wMaterialOperation $operation, string $notificationText, int $notifiedUserId, int $projectObjectId){
+    public function sendTransformationNotification(q3wMaterialOperation $operation, string $notificationText, int $notifiedUserId, int $projectObjectId)
+    {
         $sourceProjectObject = ProjectObject::where('id', $operation->source_project_object_id)->first();
 
-        $notificationText = 'Операция #' .
-            $operation->id .
-            ' от ' .
-            $operation->created_at->format('d.m.Y') .
-            PHP_EOL .
-            PHP_EOL .
-            $sourceProjectObject->short_name .
-            PHP_EOL .
-            PHP_EOL .
+        $notificationText = 'Операция #'.
+            $operation->id.
+            ' от '.
+            $operation->created_at->format('d.m.Y').
+            PHP_EOL.
+            PHP_EOL.
+            $sourceProjectObject->short_name.
+            PHP_EOL.
+            PHP_EOL.
             $notificationText;
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = PHP_EOL . $operation->url;
-        $notification->update([
-            'name' => $notificationText,
-            'target_id' => $operation->id,
-            'user_id' => $notifiedUserId,
-            'object_id' => $projectObjectId,
-            'created_at' => now(),
-            'type' => 7,
-            'status' => 7
-        ]);
+        TaskPostponedAndClosedNotice::send(
+            $notifiedUserId,
+            [
+                'name' => $notificationText,
+                'additional_info' => 'Ссылка на операцию:',
+                'url' => $operation->url,
+                'target_id' => $operation->id,
+                'object_id' => $projectObjectId,
+                'created_at' => now(),
+                'status' => 7,
+            ]
+        );
     }
 
     public function move(q3wMaterialOperation $operation)
@@ -580,7 +578,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->first();
             }
 
-            if (!isset($material)) {
+            if (! isset($material)) {
                 abort(400, 'Source material not found');
             }
 
@@ -591,11 +589,11 @@ class q3wMaterialTransformationOperationController extends Controller
                 $material->quantity = $material->quantity - $materialQuantity * $materialAmount;
             }
 
-            if ( $material->amount < 0){
+            if ($material->amount < 0) {
                 abort(400, 'Negative material amount after transformation');
             }
 
-            if ( $material->quantity < 0){
+            if ($material->quantity < 0) {
                 abort(400, 'Negative quantity after transformation');
             }
 
@@ -605,7 +603,7 @@ class q3wMaterialTransformationOperationController extends Controller
         $materialsAfterTransfer = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
             ->where('transform_operation_stage_id', '=', 2)->get()->toArray();
 
-        foreach($materialsAfterTransfer as $materialAfterTransfer) {
+        foreach ($materialsAfterTransfer as $materialAfterTransfer) {
             $materialStandard = q3wMaterialStandard::findOrFail($materialAfterTransfer['standard_id']);
             $materialType = $materialStandard->materialType;
 
@@ -624,7 +622,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $materialQuantity)
                     ->where(function ($query) use ($materialAfterTransferComment) {
-                        if (!empty($materialAfterTransferComment)) {
+                        if (! empty($materialAfterTransferComment)) {
                             $query->where('comment', 'like', $materialAfterTransferComment);
                         } else {
                             $query->whereNull('comment_id');
@@ -647,23 +645,23 @@ class q3wMaterialTransformationOperationController extends Controller
                     $material->quantity = $material->quantity + $materialQuantity * $materialAmount;
                 }
             } else {
-                if (!empty($materialAfterTransferComment)) {
+                if (! empty($materialAfterTransferComment)) {
                     $materialComment = new q3wMaterialComment([
                         'comment' => $materialAfterTransferComment,
-                        'author_id' => Auth::id()
+                        'author_id' => Auth::id(),
                     ]);
                     $materialComment->save();
                     $materialCommentId = $materialComment->id;
                 } else {
                     $materialCommentId = null;
-                };
+                }
 
                 $material = new q3wMaterial([
                     'standard_id' => $materialStandard->id,
                     'project_object' => $operation->source_project_object_id,
                     'amount' => $materialAmount,
                     'quantity' => $materialQuantity,
-                    'comment_id' => $materialCommentId
+                    'comment_id' => $materialCommentId,
                 ]);
             }
             $material->save();
@@ -672,7 +670,7 @@ class q3wMaterialTransformationOperationController extends Controller
         $materialsRemains = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
             ->where('transform_operation_stage_id', '=', 3)->get()->toArray();
 
-        foreach($materialsRemains as $materialRemains) {
+        foreach ($materialsRemains as $materialRemains) {
             $materialStandard = q3wMaterialStandard::findOrFail($materialRemains['standard_id']);
             $materialType = $materialStandard->materialType;
 
@@ -691,7 +689,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     ->where('standard_id', $materialStandard->id)
                     ->where('quantity', $materialQuantity)
                     ->where(function ($query) use ($materialRemainsComment) {
-                        if (!empty($materialRemainsComment)) {
+                        if (! empty($materialRemainsComment)) {
                             $query->where('comment', 'like', $materialRemainsComment);
                         } else {
                             $query->whereNull('comment_id');
@@ -714,23 +712,23 @@ class q3wMaterialTransformationOperationController extends Controller
                 }
 
             } else {
-                if (!empty($materialRemainsComment)) {
+                if (! empty($materialRemainsComment)) {
                     $materialComment = new q3wMaterialComment([
                         'comment' => $materialRemainsComment,
-                        'author_id' => Auth::id()
+                        'author_id' => Auth::id(),
                     ]);
                     $materialComment->save();
                     $materialCommentId = $materialComment->id;
                 } else {
                     $materialCommentId = null;
-                };
+                }
 
                 $material = new q3wMaterial([
                     'standard_id' => $materialStandard->id,
                     'project_object' => $operation->source_project_object_id,
                     'amount' => $materialAmount,
                     'quantity' => $materialQuantity,
-                    'comment_id' => $materialCommentId
+                    'comment_id' => $materialCommentId,
                 ]);
             }
             $material->save();
@@ -739,10 +737,10 @@ class q3wMaterialTransformationOperationController extends Controller
 
     public function confirmOperation(Request $request)
     {
-        $requestData = json_decode($request["data"]);
+        $requestData = json_decode($request['data']);
 
         $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
-        if (!$this->allowEditing($operation)) {
+        if (! $this->allowEditing($operation)) {
             abort(400, 'You are in read-only mode');
         }
 
@@ -758,11 +756,10 @@ class q3wMaterialTransformationOperationController extends Controller
             'material_operation_id' => $operation->id,
             'operation_route_stage_id' => $operation->operation_route_stage_id,
             'comment' => $commentText,
-            'user_id' => Auth::id()
+            'user_id' => Auth::id(),
         ]);
 
         $materialOperationComment->save();
-
 
         (new q3wMaterialSnapshot)->takeSnapshot($operation, $projectObject);
 
@@ -784,11 +781,12 @@ class q3wMaterialTransformationOperationController extends Controller
         DB::commit();
     }
 
-    public function cancelOperation(Request $request){
-        $requestData = json_decode($request["data"]);
+    public function cancelOperation(Request $request)
+    {
+        $requestData = json_decode($request['data']);
 
         $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
-        if ($this->allowCancelling($operation)){
+        if ($this->allowCancelling($operation)) {
             DB::beginTransaction();
 
             if (isset($requestData->new_comment)) {
@@ -801,7 +799,7 @@ class q3wMaterialTransformationOperationController extends Controller
                 'material_operation_id' => $operation->id,
                 'operation_route_stage_id' => $operation->operation_route_stage_id,
                 'comment' => $commentText,
-                'user_id' => Auth::id()
+                'user_id' => Auth::id(),
             ]);
 
             $operation->operation_route_stage_id = 72;
@@ -823,7 +821,7 @@ class q3wMaterialTransformationOperationController extends Controller
         }
     }
 
-    public function completed(Request $request)
+    public function completed(Request $request): View
     {
         $operation = q3wMaterialOperation::leftJoin('project_objects', 'project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
             ->leftJoin('users', 'users.id', '=', 'q3w_material_operations.source_responsible_user_id')
@@ -831,12 +829,12 @@ class q3wMaterialTransformationOperationController extends Controller
             ->get(['q3w_material_operations.*',
                 'project_objects.short_name as source_project_object_name',
                 'q3w_material_transformation_types.value as transformation_type_value',
-                DB::Raw('CONCAT(`users`.`last_name`, " ", UPPER(SUBSTRING(`users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name')
+                DB::Raw('CONCAT(`users`.`last_name`, " ", UPPER(SUBSTRING(`users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name'),
             ])
             ->where('id', '=', $request->operationId)
             ->first();
 
-        if (!isset($operation)) {
+        if (! isset($operation)) {
             abort(404, 'Операция не найдена');
         }
 
@@ -862,13 +860,13 @@ class q3wMaterialTransformationOperationController extends Controller
                     'q3w_operation_materials.initial_comment_id',
                     'g.comment',
                     'f.comment as initial_comment'])
-                ->toJson(JSON_UNESCAPED_UNICODE)
+                ->toJson(JSON_UNESCAPED_UNICODE),
         ]);
     }
 
     public function isUserResponsibleForMaterialAccounting(int $projectObjectId): bool
     {
-        return (new ObjectResponsibleUser)->isUserResponsibleForObject(Auth::id(), $projectObjectId, $role='TONGUE_PROJECT_MANAGER');
+        return (new ObjectResponsibleUser)->isUserResponsibleForObject(Auth::id(), $projectObjectId, $role = 'TONGUE_PROJECT_MANAGER');
     }
 
     public function allowEditing(q3wMaterialOperation $operation): bool
@@ -881,10 +879,12 @@ class q3wMaterialTransformationOperationController extends Controller
         return $this->isUserResponsibleForMaterialAccounting($operation->source_project_object_id);
     }
 
-    public function isUserResponsibleForMaterialAccountingWebRequest(Request $request) {
-        $requestData = json_decode($request["data"]);
+    public function isUserResponsibleForMaterialAccountingWebRequest(Request $request): JsonResponse
+    {
+        $requestData = json_decode($request['data']);
+
         return response()->json([
-            'isUserResponsibleForMaterialAccounting' => $this->isUserResponsibleForMaterialAccounting($requestData->project_object_id)
+            'isUserResponsibleForMaterialAccounting' => $this->isUserResponsibleForMaterialAccounting($requestData->project_object_id),
         ]);
     }
 }

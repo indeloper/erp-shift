@@ -8,10 +8,8 @@ class WorkRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -20,10 +18,8 @@ class WorkRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'name.required' => 'Поле обязательно для заполнения',
@@ -47,7 +43,7 @@ class WorkRequest extends FormRequest
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'work_id' => 'sometimes|required|numeric|exists:manual_works,id',
@@ -57,7 +53,7 @@ class WorkRequest extends FormRequest
             'unit_per_days' => 'required|max:5',
             'unit' => 'required|max:15',
             'nds' => 'required|max:5',
-            'work_group' => 'required|numeric|between:1,5'
+            'work_group' => 'required|numeric|between:1,5',
         ];
     }
 }

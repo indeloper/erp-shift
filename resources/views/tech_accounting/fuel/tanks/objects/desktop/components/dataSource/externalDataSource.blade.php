@@ -69,47 +69,47 @@
             },
 
             update: function (key, values) {
-                return $.ajax({
-                    url: getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.update', ['id'=>'setId'])}}", key),
-                    method: "PUT",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        data: JSON.stringify(values),
-                        options: null
-                    },
-                    success: function (data, textStatus, jqXHR) {
-                        execAfterSuccess('Данные успешно обновлены')
-                    },
-                })
+              return $.ajax({
+                url: getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.update', ['resource'=>'setId'])}}", key),
+                method: "PUT",
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                  data: JSON.stringify(values),
+                  options: null
+                },
+                success: function (data, textStatus, jqXHR) {
+                  execAfterSuccess('Данные успешно обновлены')
+                },
+              })
 
             },
 
             remove: function (key) {
 
-                return $.ajax({
-                    url: getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.destroy', ['id'=>'setId'])}}", key),
-                    method: "DELETE",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (data, textStatus, jqXHR) {
-                        execAfterSuccess('Данные успешно удалены')
-                    },
-                })
+              return $.ajax({
+                url: getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.destroy', ['resource'=>'setId'])}}", key),
+                method: "DELETE",
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data, textStatus, jqXHR) {
+                  execAfterSuccess('Данные успешно удалены')
+                },
+              })
 
             },
         })
     });
 
     const externalEntityInfoByID = new DevExpress.data.DataSource({
-        store: new DevExpress.data.CustomStore({
-            loadMode: "raw",
-            load: function (loadOptions) {
-                return $.getJSON(getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.show', ['id'=>'setId'])}}", externalEditingRowId));
-            }
-        })
+      store: new DevExpress.data.CustomStore({
+        loadMode: "raw",
+        load: function (loadOptions) {
+          return $.getJSON(getUrlWithId("{{route('building::tech_acc::fuel::fuelFlow::'.'resource.show', ['resource'=>'setId'])}}", externalEditingRowId));
+        }
+      })
     })
 
     function setFuelFlowLoadOptionsFilter(loadOptions, fuelFlowType) {

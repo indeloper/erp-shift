@@ -1,18 +1,14 @@
 <?php
 
 use App\Models\Manual\ManualMaterialCategory;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSomeAttributesToManualCategories extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $category = ManualMaterialCategory::find(3);
         $category->load('materials.parameters', 'attributes');
@@ -33,10 +29,8 @@ class AddSomeAttributesToManualCategories extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $category = ManualMaterialCategory::find(3);
         $category->load('materials.parameters', 'attributes');
@@ -47,4 +41,4 @@ class AddSomeAttributesToManualCategories extends Migration
 
         $category->attributesAll()->where('name', 'Удельный погонаж')->update(['is_display' => 1]);
     }
-}
+};

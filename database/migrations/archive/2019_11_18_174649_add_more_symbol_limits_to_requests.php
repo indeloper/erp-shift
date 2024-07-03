@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddMoreSymbolLimitsToRequests extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('work_volume_requests', function (Blueprint $table) {
             $table->text('description')->nullable()->change();
@@ -26,10 +24,8 @@ class AddMoreSymbolLimitsToRequests extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('work_volume_requests', function (Blueprint $table) {
             $table->string('description')->nullable()->change();
@@ -41,4 +37,4 @@ class AddMoreSymbolLimitsToRequests extends Migration
             $table->string('result_comment')->nullable()->change();
         });
     }
-}
+};

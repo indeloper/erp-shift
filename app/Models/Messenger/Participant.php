@@ -3,6 +3,7 @@
 namespace App\Models\Messenger;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Participant extends Eloquent
@@ -24,22 +25,6 @@ class Participant extends Eloquent
     protected $fillable = ['thread_id', 'user_id', 'last_read', 'starred'];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at', 'last_read'];
-
-    /**
-     * attributes that should be cast
-     *
-     * @var array
-     */
-    protected $casts = [
-        'starred' => 'boolean',
-    ];
-
-    /**
      * {@inheritDoc}
      */
     public function __construct(array $attributes = [])
@@ -50,13 +35,25 @@ class Participant extends Eloquent
     }
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'last_read' => 'datetime',
+            'starred' => 'boolean',
+        ];
+    }
+
+    /**
      * Thread relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */
-    public function thread()
+    public function thread(): BelongsTo
     {
         return $this->belongsTo(Models::classname(Thread::class), 'thread_id', 'id');
     }
@@ -64,11 +61,10 @@ class Participant extends Eloquent
     /**
      * User relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      *
      * @codeCoverageIgnore
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(Models::user(), 'user_id');
     }

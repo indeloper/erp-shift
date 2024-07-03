@@ -2,18 +2,15 @@
 
 namespace App\Http\Requests\Building\MaterialAccounting;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-
-use \Carbon\Carbon;
 
 class CreateArrivalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         $return = true;
         foreach ($this->materials as $material) {
@@ -24,15 +21,14 @@ class CreateArrivalRequest extends FormRequest
                 break;
             }
         }
+
         return $return;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $userCanCreateOnlyDrafts = boolval(! auth()->user()->hasPermission('mat_acc_arrival_create') and auth()->user()->hasPermission('mat_acc_arrival_draft_create') and $this->responsible_RP != 'old_operation');
 
@@ -49,8 +45,8 @@ class CreateArrivalRequest extends FormRequest
             'object_id' => 'required|exists:project_objects,id',
             'contract_id' => 'nullable', // required_unless:object_id,76,192
 
-            'planned_date_from' => 'required|after_or_equal:' . $afterThisDate,
-            'planned_date_to' => 'required|' . ($this->without_confirm ? '' : 'after_or_equal:planned_date_from'),
+            'planned_date_from' => 'required|after_or_equal:'.$afterThisDate,
+            'planned_date_to' => 'required|'.($this->without_confirm ? '' : 'after_or_equal:planned_date_from'),
 
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:manual_materials,id',

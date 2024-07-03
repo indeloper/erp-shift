@@ -7,7 +7,6 @@ use Tests\Feature\Tech_accounting\OurTechnicTicket\OurTechnicTicketTestCase;
 
 class OurTechnicTicketCRUDTest extends OurTechnicTicketTestCase
 {
-
     /** @test */
     public function it_can_store_ticket_and_give_it_type_three() //store
     {
@@ -31,7 +30,7 @@ class OurTechnicTicketCRUDTest extends OurTechnicTicketTestCase
     }
 
     /** @test */
-    public function it_gives_type_one_if_no_transfer_dates_was_provided()
+    public function it_gives_type_one_if_no_transfer_dates_was_provided(): void
     {
         $request = $this->validFields([
             'sending_from_date' => '',
@@ -47,7 +46,7 @@ class OurTechnicTicketCRUDTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_can_delete_specific_ticket() //destroy
     {
-        $ticket = factory(OurTechnicTicket::class)->create();
+        $ticket = OurTechnicTicket::factory()->create();
 
         $this->delete(route('building::tech_acc::our_technic_tickets.destroy', $ticket->id))
             ->assertSessionDoesntHaveErrors();

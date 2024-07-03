@@ -2,17 +2,15 @@
 
 namespace Tests\Feature;
 
-use App\Models\Notification;
+use App\Models\Notification\Notification;
 use App\Models\User;
 use App\Services\System\NotificationService;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TgNotificationUrlTest extends TestCase
 {
     /** @test */
-    public function it_can_decode_url()
+    public function it_can_decode_url(): void
     {
         $this->withoutExceptionHandling();
         $url = 'http://sk/tasks';
@@ -29,7 +27,7 @@ class TgNotificationUrlTest extends TestCase
     }
 
     /** @test */
-    public function it_can_detect_and_encode_url_in_message()
+    public function it_can_detect_and_encode_url_in_message(): void
     {
         $service = new NotificationService();
         $notif = Notification::create();

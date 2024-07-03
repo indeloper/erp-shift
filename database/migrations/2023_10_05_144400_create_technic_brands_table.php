@@ -1,18 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class CreateTechnicBrandsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('technic_brands', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -22,15 +20,13 @@ class CreateTechnicBrandsTable extends Migration
         });
 
         DB::statement("ALTER TABLE technic_brands COMMENT 'Бренды / марки техники'");
-        $this->uploadData(); 
+        $this->uploadData();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('technic_brands');
     }
@@ -38,20 +34,20 @@ class CreateTechnicBrandsTable extends Migration
     public function uploadData()
     {
         DB::table('technic_brands')->insert([
-            ['name'=>'РТС'],
-            ['name'=>'OMS'],
-            ['name'=>'TOMEN PILER'],
-            ['name'=>'STILL WORKER'],
-            ['name'=>'GIKEN'],
-            ['name'=>'HITACHI'],
-            ['name'=>'SUNWARD'],
-            ['name'=>'SOILMEC'],
-            ['name'=>'GROVE'],
-            ['name'=>'ZOOMLION'],
-            ['name'=>'TAKRAF'],
-            ['name'=>'HIDROMEK'],
-            ['name'=>'SDMO'],
-            ['name'=>'INMESOL'],
+            ['name' => 'РТС'],
+            ['name' => 'OMS'],
+            ['name' => 'TOMEN PILER'],
+            ['name' => 'STILL WORKER'],
+            ['name' => 'GIKEN'],
+            ['name' => 'HITACHI'],
+            ['name' => 'SUNWARD'],
+            ['name' => 'SOILMEC'],
+            ['name' => 'GROVE'],
+            ['name' => 'ZOOMLION'],
+            ['name' => 'TAKRAF'],
+            ['name' => 'HIDROMEK'],
+            ['name' => 'SDMO'],
+            ['name' => 'INMESOL'],
         ]);
     }
-}
+};

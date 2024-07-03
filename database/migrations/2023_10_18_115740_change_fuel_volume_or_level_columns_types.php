@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class ChangeFuelVolumeOrLevelColumnsTypes extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tanks', function (Blueprint $table) {
             $table->dropColumn('fuel_level');
@@ -36,7 +34,7 @@ class ChangeFuelVolumeOrLevelColumnsTypes extends Migration
 
         Schema::table('fuel_tank_flow_remains', function (Blueprint $table) {
             $table->dropColumn('volume');
-        });   
+        });
         Schema::table('fuel_tank_flow_remains', function (Blueprint $table) {
             $table->integer('volume')->nullable()->after('fuel_tank_id')->comment('Количество топлива');
         });
@@ -51,13 +49,11 @@ class ChangeFuelVolumeOrLevelColumnsTypes extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tanks', function (Blueprint $table) {
             $table->dropForeign(['object_id']);
         });
     }
-}
+};

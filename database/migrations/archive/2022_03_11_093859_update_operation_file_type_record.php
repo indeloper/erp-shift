@@ -1,33 +1,27 @@
 <?php
 
 use App\Models\q3wMaterial\operations\q3wOperationFileType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateOperationFileTypeRecord extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        $operationFileType = q3wOperationFileType::where("string_identifier", "like", "consignment-note-photo")->first();
-        $operationFileType->name = "Фото ТТН/ТН";
+        $operationFileType = q3wOperationFileType::where('string_identifier', 'like', 'consignment-note-photo')->first();
+        $operationFileType->name = 'Фото ТТН/ТН';
         $operationFileType->save();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        $operationFileType = q3wOperationFileType::where("string_identifier", "like", "consignment-note-photo")->first();
-        $operationFileType->name = "ТТН";
+        $operationFileType = q3wOperationFileType::where('string_identifier', 'like', 'consignment-note-photo')->first();
+        $operationFileType->name = 'ТТН';
         $operationFileType->save();
     }
-}
+};

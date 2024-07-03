@@ -1,18 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddNewMatAccNotificationInNotificationTypesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -22,7 +18,7 @@ class AddNewMatAccNotificationInNotificationTypesTable extends Migration
                 'id' => 64,
                 'group' => 2,
                 'name' => 'Уведомление об обновлении запроса на создание операции',
-                'for_everyone' => 0
+                'for_everyone' => 0,
             ],
         ]);
 
@@ -47,10 +43,8 @@ class AddNewMatAccNotificationInNotificationTypesTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -59,4 +53,4 @@ class AddNewMatAccNotificationInNotificationTypesTable extends Migration
 
         DB::commit();
     }
-}
+};

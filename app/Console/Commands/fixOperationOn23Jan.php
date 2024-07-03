@@ -35,10 +35,8 @@ class fixOperationOn23Jan extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $part_127 = MaterialAccountingOperationMaterials::create([
             'operation_id' => 238,
@@ -76,7 +74,6 @@ class fixOperationOn23Jan extends Command
             'updated_at' => '2020-01-23 03:02:37',
         ]);
 
-
         $fact_359206 = MaterialAccountingOperationMaterials::create([
             'operation_id' => 238,
             'manual_material_id' => 359206,
@@ -106,8 +103,6 @@ class fixOperationOn23Jan extends Command
             'created_at' => '2020-01-22 22:13:17',
             'updated_at' => '2020-01-23 03:02:37',
         ]);
-
-
 
         $itog_359206 = MaterialAccountingOperationMaterials::create([
             'operation_id' => 238,

@@ -1,18 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddUsageReportTaskNotification extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -20,22 +16,19 @@ class AddUsageReportTaskNotification extends Migration
             'id' => 110,
             'group' => 10,
             'name' => 'Уведомление о задаче "Отметка времени использования техники"',
-            'for_everyone' => 1
+            'for_everyone' => 1,
         ];
 
         DB::table('notification_types')->insert($new_types);
-
 
         DB::commit();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::table('notification_types')->whereIn('id', 110)->delete();
     }
-}
+};

@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class MakeUniqueFiledsInOurTechnicTicketUserTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('our_technic_ticket_user', function (Blueprint $table) {
             $table->renameColumn('our_technic_ticket_id', 'tic_id');
@@ -21,14 +19,12 @@ class MakeUniqueFiledsInOurTechnicTicketUserTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('our_technic_ticket_user', function (Blueprint $table) {
             $table->dropPrimary(['tic_id', 'user_id', 'type']);
             $table->renameColumn('tic_id', 'our_technic_ticket_id');
         });
     }
-}
+};

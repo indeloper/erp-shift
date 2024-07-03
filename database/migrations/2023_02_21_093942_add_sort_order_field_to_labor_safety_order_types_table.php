@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddSortOrderFieldToLaborSafetyOrderTypesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('labor_safety_order_types', function (Blueprint $table) {
             $table->integer('sort_order')->unsigned()->after('name')->index();
@@ -33,13 +31,11 @@ class AddSortOrderFieldToLaborSafetyOrderTypesTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('labor_safety_order_types', function (Blueprint $table) {
             $table->dropColumn('sort_order');
         });
     }
-}
+};

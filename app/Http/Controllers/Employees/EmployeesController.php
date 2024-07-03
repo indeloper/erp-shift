@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Employees;
 
-use App\Models\LaborSafety\LaborSafetyOrderType;
-use App\Models\Employees\Employee;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Employees\Employee;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class EmployeesController extends Controller
@@ -27,7 +27,7 @@ class EmployeesController extends Controller
      */
     public function list(Request $request)
     {
-        $loadOptions = json_decode($request['loadOptions']);
+        $loadOptions = json_decode($request->get('loadOptions', '{}'));
 
         return (new Employee())
             ->dxLoadOptions($loadOptions)
@@ -41,20 +41,16 @@ class EmployeesController extends Controller
                     'companies.id as company_id',
                     'companies.name as company_name',
                     'employees_1c_posts.name as post_name',
-                    DB::Raw("CONCAT(`employee_1c_name`, ' (', `companies`.`name`, ' | ', `employees_1c_posts`.`name`, ')') as `employee_extended_name`")
+                    DB::Raw("CONCAT(`employee_1c_name`, ' (', `companies`.`name`, ' | ', `employees_1c_posts`.`name`, ')') as `employee_extended_name`"),
                 ]
             )
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-
     /**
      * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
 
     }

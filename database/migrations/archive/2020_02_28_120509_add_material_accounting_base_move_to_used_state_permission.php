@@ -1,14 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddMaterialAccountingBaseMoveToUsedStatePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'mat_acc_base_move_to_used';
+
     const PERMISSION_NAME = 'Перевод материала с базы в Б/У состояние';
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -18,7 +19,7 @@ class AddMaterialAccountingBaseMoveToUsedStatePermission extends Migration
             'category' => 7,
             'name' => self::PERMISSION_NAME,
             'codename' => self::PERMISSION_CODENAME,
-            'created_at' => now()
+            'created_at' => now(),
         ];
 
         DB::table('permissions')->insert($insert);
@@ -29,32 +30,32 @@ class AddMaterialAccountingBaseMoveToUsedStatePermission extends Migration
             [
                 'group_id' => 13,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 14,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 23,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 31,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -63,10 +64,8 @@ class AddMaterialAccountingBaseMoveToUsedStatePermission extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionId = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 
@@ -76,4 +75,4 @@ class AddMaterialAccountingBaseMoveToUsedStatePermission extends Migration
 
         DB::commit();
     }
-}
+};

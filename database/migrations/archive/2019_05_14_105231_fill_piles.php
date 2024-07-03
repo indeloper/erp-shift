@@ -1,21 +1,17 @@
 <?php
 
 use App\Models\Manual\ManualMaterial;
+use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
-use App\Models\Manual\ManualMaterialCategory;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class FillPiles extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $moldings = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
         $section = [30, 35, 40];
@@ -45,7 +41,7 @@ class FillPiles extends Migration
                                     DB::beginTransaction();
 
                                     $material = new ManualMaterial();
-                                    $material->name =  'С' . $molding * 10 . '.' . $sec . '-' . $reinf . $stupid . '(' . $concr . $imperm . $frost . ')';
+                                    $material->name = 'С'.$molding * 10 .'.'.$sec.'-'.$reinf.$stupid.'('.$concr.$imperm.$frost.')';
                                     $material->buy_cost = 0;
                                     $material->use_cost = 0;
                                     $material->category_id = $category_id;
@@ -105,11 +101,9 @@ class FillPiles extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         //
     }
-}
+};

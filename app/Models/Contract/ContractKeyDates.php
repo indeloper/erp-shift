@@ -3,6 +3,8 @@
 namespace App\Models\Contract;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContractKeyDates extends Model
@@ -19,17 +21,20 @@ class ContractKeyDates extends Model
         'note',
     ];
 
-    protected $dates = [
-        'date_from',
-        'date_to',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'date_from' => 'datetime',
+            'date_to' => 'datetime',
+        ];
+    }
 
-    public function related_key_dates()
+    public function related_key_dates(): HasMany
     {
         return $this->hasMany(ContractKeyDates::class, 'key_date_id', 'id');
     }
 
-    public function contract()
+    public function contract(): BelongsTo
     {
         return $this->belongsTo(Contract::class);
     }

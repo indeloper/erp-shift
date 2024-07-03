@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Reports;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
+use Illuminate\Http\Request;
 
 class FuelTanksMovementsReportController extends StandardEntityResourceController
 {
@@ -33,10 +32,10 @@ class FuelTanksMovementsReportController extends StandardEntityResourceControlle
             ->whereNotNull('tank_moving_confirmation')
             ->get();
 
-        return json_encode(array(
-            "data" => $entities
-        ),
-        JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return json_encode([
+            'data' => $entities,
+        ],
+            JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     public function setAdditionalResources()

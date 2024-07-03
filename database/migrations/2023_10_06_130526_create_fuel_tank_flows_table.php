@@ -1,18 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class CreateFuelTankFlowsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('fuel_tank_flows', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -36,22 +34,19 @@ class CreateFuelTankFlowsTable extends Migration
 
             $table->string('comment')->nullable()->comment('Комментарий');
 
-
             $table->timestamps();
             $table->softDeletes();
         });
-        
+
         DB::statement("ALTER TABLE fuel_tank_flows COMMENT 'Движение топлива в емкостях'");
 
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('fuel_tank_flows');
     }
-}
+};

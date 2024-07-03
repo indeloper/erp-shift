@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Companies;
 
-use App\Models\Company\Company;
-use App\Models\LaborSafety\LaborSafetyOrderType;
-use App\Models\Employees\Employee;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
@@ -35,14 +34,10 @@ class CompanyController extends Controller
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-
     /**
      * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
 
     }

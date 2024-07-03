@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddCheckboxToManualNodes extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('manual_nodes', function (Blueprint $table) {
             $table->boolean('is_compact_wv')->default(0);
@@ -21,14 +19,12 @@ class AddCheckboxToManualNodes extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('manual_nodes', function (Blueprint $table) {
             $table->dropColumn('is_compact_wv');
             $table->dropColumn('is_compact_cp');
         });
     }
-}
+};

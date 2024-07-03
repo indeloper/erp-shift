@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\Timesheet;
 
 use App\Traits\AuthorAndEditorUserFields;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeesReportGroup extends Model
 {
-    use AuthorAndEditorUserFields, SoftDeletes, DevExtremeDataSourceLoadable;
+    use AuthorAndEditorUserFields, DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 }

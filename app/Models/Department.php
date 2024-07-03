@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
 {
@@ -30,12 +31,12 @@ class Department extends Model
         16 => 'ПТО',
     ];
 
-    public function users()
+    public function users(): HasMany
     {
         return $this->hasMany(User::class)->where('status', 1)->where('is_deleted', 0)->where('id', '!=', 1);
     }
 
-    public function groups()
+    public function groups(): HasMany
     {
         return $this->hasMany(Group::class);
     }
@@ -50,7 +51,7 @@ class Department extends Model
             }
         }
 
-        $perm = array_filter($perm, function($v, $k) use ($groups) {
+        $perm = array_filter($perm, function ($v, $k) use ($groups) {
             return $v == $groups->count();
         }, ARRAY_FILTER_USE_BOTH);
 

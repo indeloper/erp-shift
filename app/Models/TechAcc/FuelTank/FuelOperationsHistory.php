@@ -8,6 +8,7 @@ use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelOperationsHistory extends Model
@@ -20,7 +21,12 @@ class FuelOperationsHistory extends Model
 
     protected $with = ['user'];
 
-    protected $casts = ['changed_fields' => 'array'];
+    protected function casts(): array
+    {
+        return [
+            'changed_fields' => 'array',
+        ];
+    }
 
     public function fuelTankOperation()
     {
@@ -42,7 +48,7 @@ class FuelOperationsHistory extends Model
             ],
             'object_id' => [
                 'class' => ProjectObject::class,
-                'name_method' => 'name'
+                'name_method' => 'name',
             ],
             'contractor_id' => [
                 'class' => Contractor::class,
@@ -50,25 +56,23 @@ class FuelOperationsHistory extends Model
             ],
             'author_id' => [
                 'class' => User::class,
-                'name_method' => 'full_name'
+                'name_method' => 'full_name',
             ],
-            ];
+        ];
 
         $casted_data = [];
 
         foreach ($raw_data as $old_new => $values) {
-            foreach ($values as $field => $value)
-            {
-                if (key_exists($field, $fields_to_cast))
-                {
+            foreach ($values as $field => $value) {
+                if (array_key_exists($field, $fields_to_cast)) {
                     $name_method = $fields_to_cast[$field]['name_method'];
                     $casted_data[$old_new][$field] = $fields_to_cast[$field]['class']::find($value)->$name_method;
                 } else {
                     if ($field == 'owner_id') {
                         $casted_data[$old_new][$field] = OurTechnic::$owners[$value];
-                    } else if ($field == 'operation_date') {
+                    } elseif ($field == 'operation_date') {
                         $casted_data[$old_new][$field] = Carbon::parse($value)->isoFormat('D.MM.YYYY');
-                    } else if($field != 'result_value') {
+                    } elseif ($field != 'result_value') {
                         $casted_data[$old_new][$field] = $value;
                     }
                 }
@@ -78,7 +82,7 @@ class FuelOperationsHistory extends Model
         return $casted_data;
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

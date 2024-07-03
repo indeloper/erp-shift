@@ -1,12 +1,18 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\Models\Comment;
-use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(Comment::class, function (Faker $faker) {
-    return [
-        'comment' => $faker->sentence,
-    ];
-});
+class CommentFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     */
+    public function definition(): array
+    {
+        return [
+            'comment' => $this->faker->sentence(),
+        ];
+    }
+}

@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddNewSaveColumnsToWorkVolumes extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('work_volumes', function (Blueprint $table) {
             $table->unsignedInteger('is_save_tongue')->default(0);
@@ -21,14 +19,12 @@ class AddNewSaveColumnsToWorkVolumes extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('work_volumes', function (Blueprint $table) {
             $table->dropColumn('is_save_tongue');
             $table->dropColumn('is_save_pile');
         });
     }
-}
+};

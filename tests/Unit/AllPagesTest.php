@@ -2,13 +2,10 @@
 
 namespace Tests\Unit;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-use App\Models\User;
 
 class AllPagesTest extends TestCase
 {
@@ -16,11 +13,8 @@ class AllPagesTest extends TestCase
 
     /**
      * A basic test example.
-     *
-     * @return void
      */
-
-    public function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -29,55 +23,55 @@ class AllPagesTest extends TestCase
         $this->actingAs($user);
     }
 
-    public function testTasksIndex()
+    public function testTasksIndex(): void
     {
         $response = $this->get(route('contractors::index'));
         $response->assertStatus(200);
     }
 
-    public function test_projects_index()
+    public function test_projects_index(): void
     {
         $response = $this->get(route('projects::index'));
         $response->assertStatus(200);
     }
 
-    public function test_objects_index()
+    public function test_objects_index(): void
     {
         $response = $this->get(route('objects::index'));
         $response->assertStatus(200);
     }
 
-    public function test_tasks_index()
+    public function test_tasks_index(): void
     {
         $response = $this->get(route('contracts::index'));
         $response->assertStatus(200);
     }
 
-    public function test_project_documents()
+    public function test_project_documents(): void
     {
         $response = $this->get(route('project_documents::index'));
         $response->assertStatus(200);
     }
 
-    public function test_commercial_offers()
+    public function test_commercial_offers(): void
     {
         $response = $this->get(route('commercial_offers::index'));
         $response->assertStatus(200);
     }
 
-    public function test_users_index()
+    public function test_users_index(): void
     {
         $response = $this->get(route('users::index'));
         $response->assertStatus(200);
     }
 
-//    public function test_document_templates()
-//    {
-//        $response = $this->get('/document_templates');
-//        $response->assertStatus(200);
-//    }
+    //    public function test_document_templates()
+    //    {
+    //        $response = $this->get('/document_templates');
+    //        $response->assertStatus(200);
+    //    }
 
-    public function test_notifications()
+    public function test_notifications(): void
     {
         $response = $this->get(route('notifications::index'));
         $response->assertStatus(200);

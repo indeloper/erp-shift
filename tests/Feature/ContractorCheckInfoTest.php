@@ -8,8 +8,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ContractorCheckInfoTest extends TestCase
 {
@@ -21,26 +19,25 @@ class ContractorCheckInfoTest extends TestCase
 
         $this->actingAs(User::where('group_id', 7)->first());
     }
+
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
-    public function testRunCommand()
+    public function testRunCommand(): void
     {
         $this->artisan('check:contractors')
 //            ->expectsOutput('0 errors')
             ->assertExitCode(0);
     }
 
-    public function testCreateTask()
+    public function testCreateTask(): void
     {
         $countUserTasks = Auth::user()->tasks()->count();
         $countUserNotifications = Auth::user()->notifications()->count();
 
-        $contractor = factory(Contractor::class)->create();
+        $contractor = Contractor::factory()->create();
         $changingFields = [];
-        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company, 'old_value' => $contractor->full_name];
+        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company(), 'old_value' => $contractor->full_name];
         $changingFields[] = ['field_name' => 'inn', 'value' => random_int(89000000000, 89999999999), 'old_value' => $contractor->inn];
 
         (new CheckContractorsInfo)->createTask($contractor, $changingFields, Auth::user()->id);
@@ -54,12 +51,11 @@ class ContractorCheckInfoTest extends TestCase
         $this->assertEquals($countUserNotifications + 1, $updatedCountUserNotifications);
     }
 
-
-    public function testCreateTaskNotification()
+    public function testCreateTaskNotification(): void
     {
-        $contractor = factory(Contractor::class)->create();
+        $contractor = Contractor::factory()->create();
         $changingFields = [];
-        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company, 'old_value' => $contractor->full_name];
+        $changingFields[] = ['field_name' => 'full_name', 'value' => $this->faker->company(), 'old_value' => $contractor->full_name];
         $changingFields[] = ['field_name' => 'inn', 'value' => random_int(89000000000, 89999999999), 'old_value' => $contractor->inn];
 
         (new CheckContractorsInfo)->createTask($contractor, $changingFields, Auth::user()->id);

@@ -1,16 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddRowsInNotificationsForPermissionsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -18,11 +16,11 @@ class AddRowsInNotificationsForPermissionsTable extends Migration
             // Tasks-related notifications
             [
                 'notification_id' => 52,
-                'permission' => 'tasks_default_myself'
+                'permission' => 'tasks_default_myself',
             ],
             [
                 'notification_id' => 52,
-                'permission' => 'tasks_default_others'
+                'permission' => 'tasks_default_others',
             ],
         ]);
 
@@ -31,10 +29,8 @@ class AddRowsInNotificationsForPermissionsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -42,4 +38,4 @@ class AddRowsInNotificationsForPermissionsTable extends Migration
 
         DB::commit();
     }
-}
+};

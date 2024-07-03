@@ -1,18 +1,16 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
-class CreateTariffRatesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -30,73 +28,73 @@ class CreateTariffRatesTable extends Migration
                 'name' => 'Обычный час',
                 'type' => 1,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Переработка',
                 'type' => 1,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Монтаж крепления',
                 'type' => 1,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Монтаж крепления (Переработка)',
                 'type' => 1,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Демонтаж крепления',
                 'type' => 1,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Демонтаж крепления (Переработка)',
                 'type' => 1,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Простой',
                 'type' => 1,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Погружение вибро',
                 'type' => 2,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Погружение вдвоём вибро',
                 'type' => 2,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Извлечение вибро',
                 'type' => 2,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Погружение статика',
                 'type' => 2,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'name' => 'Извлечение статика',
                 'type' => 2,
                 'created_at' => now(),
-                'user_id' => 1
+                'user_id' => 1,
             ],
         ]);
 
@@ -105,11 +103,9 @@ class CreateTariffRatesTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('tariff_rates');
     }
-}
+};

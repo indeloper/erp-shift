@@ -3,19 +3,15 @@
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class FillOutManualReferenceCategory3 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -25,11 +21,11 @@ class FillOutManualReferenceCategory3 extends Migration
 
         foreach ($category->materials as $material) {
             $mark = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Марка' . '%');
+                $q->where('name', 'like', '%'.'Марка'.'%');
             })->first();
 
             $diameter = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Диаметр' . '%');
+                $q->where('name', 'like', '%'.'Диаметр'.'%');
             })->first();
 
             if (isset($mark->value) && isset($diameter->value)) {
@@ -55,10 +51,10 @@ class FillOutManualReferenceCategory3 extends Migration
 
         // create ManualReference with parameters based on exist materials
         foreach ($params->unique() as $index => $item) {
-            dump( $index . ' in ' . $params->unique()->count());
+            dump($index.' in '.$params->unique()->count());
 
             $newReference = ManualReference::create([
-                'name' => 'Арматура периодич ' . $item[0]['value'] . ' d' . $item[1]['value'] . 'мм',
+                'name' => 'Арматура периодич '.$item[0]['value'].' d'.$item[1]['value'].'мм',
                 'category_id' => $category->id,
             ]);
 
@@ -84,8 +80,7 @@ class FillOutManualReferenceCategory3 extends Migration
                         'Предел текучести',
                         'Относительное удлинение',
                         'Марка стали',
-                    ]))
-                {
+                    ])) {
                     $newReference->parameters()->create([
                         'attr_id' => $parameter->attr_id,
                         'value' => $parameter->value,
@@ -99,10 +94,8 @@ class FillOutManualReferenceCategory3 extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $manualReferences = ManualReference::where('category_id', 3)->get();
 
@@ -111,4 +104,4 @@ class FillOutManualReferenceCategory3 extends Migration
             $manualReference->delete();
         }
     }
-}
+};

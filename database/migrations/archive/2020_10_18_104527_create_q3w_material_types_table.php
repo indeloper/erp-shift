@@ -2,20 +2,17 @@
 
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
-class CreateQ3wMaterialTypesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-
-    public function up()
+    public function up(): void
     {
         Schema::create('q3w_measure_units', function (Blueprint $table) {
             $table->increments('id')->comment('Уникальный идентификатор');
@@ -48,7 +45,7 @@ class CreateQ3wMaterialTypesTable extends Migration
             $table->index('accounting_type');
         });
 
-        Schema::table('q3w_material_types', function($table) {
+        Schema::table('q3w_material_types', function ($table) {
             $table->foreign('measure_unit')->references('id')->on('q3w_measure_units');
             $table->foreign('accounting_type')->references('id')->on('q3w_material_accounting_types');
         });
@@ -57,16 +54,16 @@ class CreateQ3wMaterialTypesTable extends Migration
 
         foreach ($measuresUnitsNames as $measuresUnitsName) {
             $newMeasureUnit = new q3wMeasureUnit();
-            $newMeasureUnit -> value = $measuresUnitsName;
-            $newMeasureUnit -> save();
+            $newMeasureUnit->value = $measuresUnitsName;
+            $newMeasureUnit->save();
         }
 
         $accountingTypeNames = ['По-умолчанию', 'Шпунт'];
 
         foreach ($accountingTypeNames as $accountingTypeName) {
             $accountingType = new q3wMaterialAccountingType();
-            $accountingType -> value = $accountingTypeName;
-            $accountingType -> save();
+            $accountingType->value = $accountingTypeName;
+            $accountingType->save();
         }
 
         /*Импорт из типов старой версии материального учета*/
@@ -91,13 +88,11 @@ class CreateQ3wMaterialTypesTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('q3w_material_types');
         Schema::dropIfExists('q3w_measure_units');
         Schema::dropIfExists('q3w_material_accounting_types');
     }
-}
+};

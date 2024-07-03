@@ -1,23 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\Models\Manual\ManualMaterialCategory;
-use App\Models\Manual\ManualMaterialCategoryAttribute;
-use App\Models\Manual\ManualMaterialParameter;
-
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-
-class AddMarkToManualMaterialsParameters extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -128,10 +120,8 @@ class AddMarkToManualMaterialsParameters extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $category_tongue = ManualMaterialCategory::find(2);
         $category_tongue->attributes()->where('name', 'Клиновидный')->delete();
@@ -153,4 +143,4 @@ class AddMarkToManualMaterialsParameters extends Migration
         $category_angle->attributes()->where('name', 'Марка')->delete();
         $category_angle->attributes()->where('name', 'Аналоги')->delete();
     }
-}
+};

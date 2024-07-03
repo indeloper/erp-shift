@@ -1,18 +1,16 @@
 <?php
 
 use App\Models\LaborSafety\LaborSafetyWorkerType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddFieldsToLaborSafety extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('labor_safety_requests', function (Blueprint $table) {
             $table->bigInteger('project_manager_employee_id')->unsigned()->nullable()->comment('Руководитель проекта');
@@ -23,12 +21,12 @@ class AddFieldsToLaborSafety extends Migration
 
             $laborSafetyWorkerTypesArray = [
                 'Руководитель проектов',
-                'Заместитель руководителя проектов'
+                'Заместитель руководителя проектов',
             ];
 
             foreach ($laborSafetyWorkerTypesArray as $laborSafetyWorkerTypesElement) {
                 $laborSafetyWorkerTypes = new LaborSafetyWorkerType([
-                    'name' => $laborSafetyWorkerTypesElement
+                    'name' => $laborSafetyWorkerTypesElement,
                 ]);
                 $laborSafetyWorkerTypes->save();
             }
@@ -38,10 +36,8 @@ class AddFieldsToLaborSafety extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('labor_safety_requests', function (Blueprint $table) {
             $table->dropForeign(['project_manager_employee_id']);
@@ -52,4 +48,4 @@ class AddFieldsToLaborSafety extends Migration
 
         });
     }
-}
+};

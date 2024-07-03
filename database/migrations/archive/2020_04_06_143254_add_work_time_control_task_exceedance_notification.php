@@ -3,17 +3,16 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddWorkTimeControlTaskExceedanceNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATIONS = [
         108 => 'Уведомление о возможно неправильном заполнении суточного табеля',
     ];
+
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -23,7 +22,7 @@ class AddWorkTimeControlTaskExceedanceNotification extends Migration
                 'id' => $id,
                 'group' => 11,
                 'name' => $name,
-                'for_everyone' => 0
+                'for_everyone' => 0,
             ];
         }
 
@@ -32,19 +31,19 @@ class AddWorkTimeControlTaskExceedanceNotification extends Migration
         DB::table('notifications_for_groups')->insert([
             [
                 'notification_id' => 108,
-                'group_id' => 8
+                'group_id' => 8,
             ],
             [
                 'notification_id' => 108,
-                'group_id' => 13
+                'group_id' => 13,
             ],
             [
                 'notification_id' => 108,
-                'group_id' => 19
+                'group_id' => 19,
             ],
             [
                 'notification_id' => 108,
-                'group_id' => 27
+                'group_id' => 27,
             ],
         ]);
 
@@ -53,10 +52,8 @@ class AddWorkTimeControlTaskExceedanceNotification extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -66,4 +63,4 @@ class AddWorkTimeControlTaskExceedanceNotification extends Migration
 
         DB::commit();
     }
-}
+};

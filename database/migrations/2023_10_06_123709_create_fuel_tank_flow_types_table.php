@@ -1,18 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class CreateFuelTankFlowTypesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('fuel_tank_flow_types', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -23,15 +21,13 @@ class CreateFuelTankFlowTypesTable extends Migration
         });
 
         DB::statement("ALTER TABLE fuel_tank_flow_types COMMENT 'Типы топливных операций'");
-        $this->uploadData(); 
+        $this->uploadData();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('fuel_tank_flow_types');
     }
@@ -41,16 +37,16 @@ class CreateFuelTankFlowTypesTable extends Migration
         DB::table('fuel_tank_flow_types')->insert([
             [
                 'name' => 'Поступление',
-                'slug' => 'income'
+                'slug' => 'income',
             ],
             [
                 'name' => 'Расход',
-                'slug' => 'outcome'
+                'slug' => 'outcome',
             ],
             [
                 'name' => 'Корректировка',
-                'slug' => 'adjustment'
+                'slug' => 'adjustment',
             ],
         ]);
     }
-}
+};

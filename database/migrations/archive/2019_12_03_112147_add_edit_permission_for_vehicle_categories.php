@@ -1,24 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddEditPermissionForVehicleCategories extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('permissions')->insert([
             // vehicle_categories
             [
                 'category' => 14,
-                "name" => 'Изменение категории транспортных средств',
-                "codename" => 'tech_acc_vehicle_category_edit',
-                'created_at' => now()
+                'name' => 'Изменение категории транспортных средств',
+                'codename' => 'tech_acc_vehicle_category_edit',
+                'created_at' => now(),
             ],
         ]);
 
@@ -28,27 +26,25 @@ class AddEditPermissionForVehicleCategories extends Migration
             [
                 'group_id' => 15,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 17,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -59,4 +55,4 @@ class AddEditPermissionForVehicleCategories extends Migration
 
         DB::commit();
     }
-}
+};

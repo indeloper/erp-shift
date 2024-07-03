@@ -2,19 +2,17 @@
 
 use App\Models\Permission;
 use App\Models\UserPermission;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
-class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('q3w_material_supply_planning', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Уникальный идентификатор');
@@ -35,13 +33,13 @@ class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
 
         $permission = new Permission();
         $permission->name = 'Материальный учет: Доступ к режиму "Планирование поставок"';
-        $permission->codename = "material_supply_planning_access";
+        $permission->codename = 'material_supply_planning_access';
         $permission->category = 7; // Категории описаны в модели "Permission"
         $permission->save();
 
         $permission = new Permission();
         $permission->name = 'Материальный учет: Редактирование данных в режиме "Планирование поставок"';
-        $permission->codename = "material_supply_planning_editing";
+        $permission->codename = 'material_supply_planning_editing';
         $permission->category = 7; // Категории описаны в модели "Permission"
         $permission->save();
 
@@ -79,10 +77,8 @@ class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('q3w_material_supply_materials');
         Schema::dropIfExists('q3w_material_supply_expected_deliveries');
@@ -100,4 +96,4 @@ class AddCreateQ3wMaterialSupplyPlanningTable extends Migration
             $permission->forceDelete();
         }
     }
-}
+};

@@ -11,6 +11,6 @@ class ContractThesisVerifier extends Model
     public $statuses = [
         1 => 'Не просмотрен',
         2 => 'Отклонен',
-        3 => 'Согласован'
+        3 => 'Согласован',
     ];
 }

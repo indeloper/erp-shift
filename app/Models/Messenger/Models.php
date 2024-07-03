@@ -2,10 +2,11 @@
 
 namespace App\Models\Messenger;
 
-use App\Models\Messenger\Message;
-use App\Models\Messenger\Participant;
-use App\Models\Messenger\Thread;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Lexx\ChatMessenger\Models\Message;
+use Lexx\ChatMessenger\Models\Participant;
+use Lexx\ChatMessenger\Models\Thread;
 
 class Models
 {
@@ -32,48 +33,38 @@ class Models
 
     /**
      * Set the model to be used for threads.
-     *
-     * @param string $model
      */
-    public static function setMessageModel($model)
+    public static function setMessageModel(string $model)
     {
         static::$models[Message::class] = $model;
     }
 
     /**
      * Set the model to be used for participants.
-     *
-     * @param  string $model
      */
-    public static function setParticipantModel($model)
+    public static function setParticipantModel(string $model)
     {
         static::$models[Participant::class] = $model;
     }
 
     /**
      * Set the model to be used for threads.
-     *
-     * @param  string $model
      */
-    public static function setThreadModel($model)
+    public static function setThreadModel(string $model)
     {
         static::$models[Thread::class] = $model;
     }
 
     /**
      * Set the model to be used for users.
-     *
-     * @param  string  $model
      */
-    public static function setUserModel($model)
+    public static function setUserModel(string $model)
     {
         static::$models[self::$userModelLookupKey] = $model;
     }
 
     /**
      * Set custom table names.
-     *
-     * @param  array $map
      */
     public static function setTables(array $map)
     {
@@ -82,11 +73,8 @@ class Models
 
     /**
      * Get a custom table name mapping for the given table.
-     *
-     * @param  string $table
-     * @return string
      */
-    public static function table($table)
+    public static function table(string $table): string
     {
         if (isset(static::$tables[$table])) {
             return static::$tables[$table];
@@ -97,11 +85,8 @@ class Models
 
     /**
      * Get the class name mapping for the given model.
-     *
-     * @param  string $model
-     * @return string
      */
-    public static function classname($model)
+    public static function classname(string $model): string
     {
         if (isset(static::$models[$model])) {
             return static::$models[$model];
@@ -112,56 +97,40 @@ class Models
 
     /**
      * Get an instance of the messages model.
-     *
-     * @param  array $attributes
-     * @return \Lexx\ChatMessenger\Models\Message
      */
-    public static function message(array $attributes = [])
+    public static function message(array $attributes = []): Message
     {
         return static::make(Message::class, $attributes);
     }
 
     /**
      * Get an instance of the participants model.
-     *
-     * @param  array $attributes
-     * @return \Lexx\ChatMessenger\Models\Participant
      */
-    public static function participant(array $attributes = [])
+    public static function participant(array $attributes = []): Participant
     {
         return static::make(Participant::class, $attributes);
     }
 
     /**
      * Get an instance of the threads model.
-     *
-     * @param  array $attributes
-     * @return \Lexx\ChatMessenger\Models\Thread
      */
-    public static function thread(array $attributes = [])
+    public static function thread(array $attributes = []): Thread
     {
         return static::make(Thread::class, $attributes);
     }
 
     /**
      * Get an instance of the user model.
-     *
-     * @param  array  $attributes
-     * @return \Illuminate\Database\Eloquent\Model
      */
-    public static function user(array $attributes = [])
+    public static function user(array $attributes = []): Model
     {
         return static::make(User::class, $attributes);
     }
 
     /**
      * Get an instance of the given model.
-     *
-     * @param  string $model
-     * @param  array $attributes
-     * @return \Illuminate\Database\Eloquent\Model
      */
-    protected static function make($model, array $attributes = [])
+    protected static function make(string $model, array $attributes = []): Model
     {
         $model = static::classname($model);
 

@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddCertificatelessOperationsPageViewPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'see_certificateless_operations',
@@ -13,8 +13,7 @@ class AddCertificatelessOperationsPageViewPermission extends Migration
         'Просмотр страницы операций без сертификатов',
     ];
 
-
-    public function up()
+    public function up(): void
     {
         $insert = [];
 
@@ -23,7 +22,7 @@ class AddCertificatelessOperationsPageViewPermission extends Migration
                 'category' => 7,
                 'name' => self::PERMISSION_NAMES[$key],
                 'codename' => $codename,
-                'created_at' => now()
+                'created_at' => now(),
             ];
         }
 
@@ -37,127 +36,126 @@ class AddCertificatelessOperationsPageViewPermission extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
-                'group_id' => 8
-,
+                'group_id' => 8,
                 'permission_id' => $permissionOne,
                 'created_at' => now()],
             [
                 'group_id' => 13,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 14,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 15,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 17,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 23,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 31,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 35,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 39,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 40,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 41,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 42,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 43,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 44,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 45,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 46,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 48,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 52,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 53,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 54,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -166,10 +164,8 @@ class AddCertificatelessOperationsPageViewPermission extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
 
@@ -180,4 +176,4 @@ class AddCertificatelessOperationsPageViewPermission extends Migration
 
         DB::commit();
     }
-}
+};

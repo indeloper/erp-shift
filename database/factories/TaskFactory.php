@@ -1,26 +1,31 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\Models\Task;
-use Faker\Generator as Faker;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(Task::class, function (Faker $faker) {
-    return [
-        'name' => $faker->word,
-        'description' => $faker->text(50),
-        'project_id' => null,
-        'contractor_id' => null,
-        'user_id' => null,
-        'responsible_user_id' => null,
-        'contact_id' => null,
-        'incoming_phone' => null,
-        'internal_phone' => null,
-        'expired_at' => now()->addHours(8),
-        'final_note' => null,
-        'is_solved' => 0,
-        'status' => 1,
-        'is_seen' => 0,
-    ];
-});
+class TaskFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     */
+    public function definition(): array
+    {
+        return [
+            'name' => $this->faker->word(),
+            'description' => $this->faker->text(50),
+            'project_id' => null,
+            'contractor_id' => null,
+            'user_id' => null,
+            'responsible_user_id' => null,
+            'contact_id' => null,
+            'incoming_phone' => null,
+            'internal_phone' => null,
+            'expired_at' => now()->addHours(8),
+            'final_note' => null,
+            'is_solved' => 0,
+            'status' => 1,
+            'is_seen' => 0,
+        ];
+    }
+}

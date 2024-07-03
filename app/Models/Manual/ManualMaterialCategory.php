@@ -2,24 +2,28 @@
 
 namespace App\Models\Manual;
 
-use App\Traits\Reviewable;
 use App\Traits\Documentable;
+use App\Traits\Reviewable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class ManualMaterialCategory extends Model
 {
-    use Reviewable, SoftDeletes, Documentable;
+    use Documentable, Reviewable, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = ['name', 'description', 'category_unit', 'formula'];
 
     protected $appends = ['unit_show'];
 
-    public function attributes()
+    public function attributes(): HasMany
     {
         return $this->hasMany(ManualMaterialCategoryAttribute::class, 'category_id', 'id')
-            ->when((!Auth::user() || Auth::user()->id != 1), function ($query) {
+            ->when((! Auth::user() || Auth::user()->id != 1), function ($query) {
                 return $query->where('is_display', 1);
             });
     }
@@ -36,22 +40,22 @@ class ManualMaterialCategory extends Model
         21 => 'м3',
     ];
 
-    public function attributesAll()
+    public function attributesAll(): HasMany
     {
         return $this->hasMany(ManualMaterialCategoryAttribute::class, 'category_id', 'id');
     }
 
-    public function materials()
+    public function materials(): HasMany
     {
         return $this->hasMany(ManualMaterial::class, 'category_id', 'id');
     }
 
-    public function references()
+    public function references(): HasMany
     {
         return $this->hasMany(ManualReference::class, 'category_id', 'id');
     }
 
-    public function related_works()
+    public function related_works(): BelongsToMany
     {
         return $this->belongsToMany(ManualWork::class, 'manual_material_category_relation_to_works', 'manual_material_category_id', 'work_id');
     }
@@ -76,8 +80,8 @@ class ManualMaterialCategory extends Model
 
             $needAttributes = [];
             foreach ($parsedArrayIds as $key => $item) {
-                if ((int)$item) {
-                    $needAttributes[] = (int)$item;
+                if ((int) $item) {
+                    $needAttributes[] = (int) $item;
                 }
             }
             $attrs = $this->attributesAll()->whereIn('name', ['Длина', 'Ширина'])->whereIn('id', $needAttributes)->get();

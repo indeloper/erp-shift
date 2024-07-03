@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Models\TechAcc\OurTechnicTicket;
+use Illuminate\Database\Eloquent\Builder;
 
 trait TicketResponsibleUser
 {
@@ -20,13 +20,12 @@ trait TicketResponsibleUser
     /**
      * Scope a query to only include users of a given type.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  mixed  $human_type
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeOfType($query, $human_type)
+    public function scopeOfType(Builder $query, $human_type): Builder
     {
         $type = array_search($human_type, $this->ticket_responsible_types);
+
         return $query->where('type', $type);
     }
 

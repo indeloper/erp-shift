@@ -1,21 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
-
 use App\Models\Manual\ManualMaterialCategory;
-
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddWeigthInOneUnitLengthToAllCategoriesWhereItNeed extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -32,7 +26,7 @@ class AddWeigthInOneUnitLengthToAllCategoriesWhereItNeed extends Migration
         foreach ($category->materials as $material) {
             $material->parameters()->create([
                 'attr_id' => $new_attribute->id,
-                'value' => (1 / $material->convert_to('м.п')->value) * 1000
+                'value' => (1 / $material->convert_to('м.п')->value) * 1000,
             ]);
         }
 
@@ -41,11 +35,9 @@ class AddWeigthInOneUnitLengthToAllCategoriesWhereItNeed extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
 
     }
-}
+};

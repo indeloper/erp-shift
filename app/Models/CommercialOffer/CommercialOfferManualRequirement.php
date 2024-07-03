@@ -9,5 +9,5 @@ class CommercialOfferManualRequirement extends Model
 {
     use SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 }

@@ -34,19 +34,17 @@ class AutoConfirmTicket extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $expired_time = Carbon::now()->subMinutes(20);
 
         $old_by_day = OurTechnicTicket::whereDate('created_at', '<', $expired_time)->where('status', 1)->get();
-        $old_by_time = OurTechnicTicket::whereTime('created_at' , '<', $expired_time)->where('status', 1)->get();
+        $old_by_time = OurTechnicTicket::whereTime('created_at', '<', $expired_time)->where('status', 1)->get();
         $all_old = $old_by_day->merge($old_by_time)->unique();
 
         foreach ($all_old as $ticket) {
-            \App\Jobs\AutoConfirmTicket::dispatchNow($ticket);
+            \App\Jobs\AutoConfirmTicket::dispatchSync($ticket);
         }
     }
 }

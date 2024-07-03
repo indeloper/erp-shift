@@ -1,21 +1,19 @@
 <?php
 
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddHumanReadableAliasColumnToQ3wOperationRouteStagesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('q3w_operation_route_stages', function (Blueprint $table) {
-            $table->string('human_readable_name')->nullable()->comment("Человекочитаемый псевдоним имени маршрута");
+            $table->string('human_readable_name')->nullable()->comment('Человекочитаемый псевдоним имени маршрута');
         });
 
         // Поставка
@@ -127,13 +125,11 @@ class AddHumanReadableAliasColumnToQ3wOperationRouteStagesTable extends Migratio
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('q3w_operation_route_stages', function (Blueprint $table) {
             $table->dropColumn('human_readable_name');
         });
     }
-}
+};

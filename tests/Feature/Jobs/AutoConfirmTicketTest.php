@@ -10,24 +10,23 @@ use Tests\TestCase;
 
 class AutoConfirmTicketTest extends TestCase
 {
-
     /** @test */
-    public function it_changes_ticket_status_after_delay()
+    public function it_changes_ticket_status_after_delay(): void
     {
-        $ticket = factory(OurTechnicTicket::class)->create();
+        $ticket = OurTechnicTicket::factory()->create();
 
-        AutoConfirmTicket::dispatchNow($ticket);
+        AutoConfirmTicket::dispatchSync($ticket);
 
         $ticket->refresh();
         $this->assertEquals($ticket->status, 2);
     }
 
     /** @test */
-    public function it_dispatches_job_after_delay()
+    public function it_dispatches_job_after_delay(): void
     {
-        $ticket = factory(OurTechnicTicket::class)->create();
+        $ticket = OurTechnicTicket::factory()->create();
 
-        $old_ticket = factory(OurTechnicTicket::class)->create(['created_at' => Carbon::now()->subDay()]);
+        $old_ticket = OurTechnicTicket::factory()->create(['created_at' => Carbon::now()->subDay()]);
 
         Artisan::call('ticket:auto_confirm');
         $old_ticket->refresh();

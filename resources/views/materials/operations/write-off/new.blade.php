@@ -124,6 +124,15 @@
                         {data: JSON.stringify(loadOptions)});
                 },
             });
+
+            let materialOperationReasonStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('material-operation-reason')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
+            });
             //</editor-fold>
 
             let materialCommentEditForm = $("#commentEditForm").dxForm({
@@ -717,11 +726,11 @@
                 colCount: 2,
                 items: [{
                     itemType: "group",
-                    colCount: 3,
+                    colCount: 4,
                     caption: "Списание",
                     items: [{
                         name: "projectObjectSelectBox",
-                        colSpan: 3,
+                        colSpan: 4,
                         dataField: "project_object_id",
                         label: {
                             text: "Объект"
@@ -794,8 +803,33 @@
                             }]
                         },
                         {
-                            name: "destinationResponsibleUserSelectBox",
+                            name: "materialOperationReasonSelectBox",
                             colSpan: 2,
+                            dataField: "material_operation_reason_id",
+                            label: {
+                                text: "Причина движения"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: {
+                                    store: materialOperationReasonStore,
+                                    filter: [
+                                        'operation_route_id', '=', 4
+                                    ]
+                                },
+                                displayExpr: "name",
+                                valueExpr: "id",
+                                searchEnabled: true
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Причина движения" обязательно для заполнения'
+                            }]
+
+                        },
+                        {
+                            name: "destinationResponsibleUserSelectBox",
+                            colSpan: 1,
                             dataField: "responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -916,6 +950,7 @@
                 //TODO Дата формируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
                 writeOffOperationData.operation_date = new Date(operationForm.option("formData").operation_date).toJSON().split("T")[0];
                 writeOffOperationData.responsible_user_id = operationForm.option("formData").responsible_user_id;
+                writeOffOperationData.material_operation_reason_id = operationForm.option("formData").material_operation_reason_id;
                 writeOffOperationData.new_comment = operationForm.option("formData").new_comment;
 
                 let uploadedFiles = []
@@ -1256,6 +1291,7 @@
             function setElementsDisabledState(state){
                 operationForm.getEditor("createWriteOffOperation").option("disabled", state);
                 operationForm.getEditor("writeOffMaterialGrid").option("disabled", state);
+                operationForm.getEditor("materialOperationReasonSelectBox").option("disabled", state);
                 operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
                 operationForm.getEditor("projectObjectSelectBox").option("disabled", state);
                 operationForm.getEditor("operationDateDateBox").option("disabled", state);

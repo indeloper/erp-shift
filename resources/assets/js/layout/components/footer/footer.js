@@ -1,7 +1,4 @@
-function init(element) {
-  new Vue(
-    require('./Footer.vue').default
-  ).$mount(element)
-}
+import { createApp } from 'vue'
 
-module.exports.init = init
+createApp(require('./Footer.vue').default)
+  .mount('#footer-component')

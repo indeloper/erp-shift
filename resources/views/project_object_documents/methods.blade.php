@@ -105,18 +105,18 @@
         customConfirmDialog("Вы уверены, что хотите удалить документ?")
             .show().then((dialogResult) => {
                 if (dialogResult) {
-                    return $.ajax({
-                        url: getUrlWithId("{{route('project-object-document.destroy', ['id'=>'setId'])}}", deletingRowId),
-                        method: "DELETE",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data, textStatus, jqXHR) {
-                            document.querySelector('.dx-icon-close')?.click()
-                            dataSourceList.reload();
-                            DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
-                        },
-                    })
+                  return $.ajax({
+                    url: getUrlWithId("{{route('project-object-document.destroy', ['project_object_document'=>'setId'])}}", deletingRowId),
+                    method: "DELETE",
+                    headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data, textStatus, jqXHR) {
+                      document.querySelector('.dx-icon-close')?.click()
+                      dataSourceList.reload();
+                      DevExpress.ui.notify("Данные успешно удалены", "success", 1000)
+                    },
+                  })
                 }
             })
     }
@@ -125,17 +125,17 @@
         customConfirmDialog("Вы уверены, что хотите восстановить документ?")
             .show().then((dialogResult) => {
                 if (dialogResult) {
-                    return $.ajax({
-                        url: getUrlWithId("{{route('project-object-document.restoreDocument', ['id'=>'setId'])}}", undeletingRowId),
-                        method: "POST",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data, textStatus, jqXHR) {
-                            dataSourceList.reload();
-                            DevExpress.ui.notify("Документ успешно восстановлен", "success", 1000)
-                        },
-                    })
+                  return $.ajax({
+                    url: getUrlWithId("{{route('project-object-document.restoreDocument', ['id'=>'setId'])}}", undeletingRowId),
+                    method: "POST",
+                    headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data, textStatus, jqXHR) {
+                      dataSourceList.reload();
+                      DevExpress.ui.notify("Документ успешно восстановлен", "success", 1000)
+                    },
+                  })
                 }
             })
     }
@@ -144,22 +144,22 @@
         customConfirmDialog("Создать копию документа?")
             .show().then((dialogResult) => {
                 if (dialogResult) {
-                    return $.ajax({
-                        url: getUrlWithId("{{route('projectObjectDocument.clone', ['id'=>'setId'])}}", copyRowId),
-                        method: "POST",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data, textStatus, jqXHR) {
-                            document.querySelector('.dx-icon-close')?.click()
-                            dataSourceList.reload().done((res) => {
-                                let coreDataGridInstance = getCoreDataGridInstance();
-                                let newRowIndex = coreDataGridInstance.getRowIndexByKey((data.newDocument.id))
-                                coreDataGridInstance.editRow(newRowIndex)
-                            });
-                            DevExpress.ui.notify("Создана копия документа", "success", 1000)
-                        },
-                    })
+                  return $.ajax({
+                    url: getUrlWithId("{{route('projectObjectDocument.clone', ['id'=>'setId'])}}", copyRowId),
+                    method: "POST",
+                    headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data, textStatus, jqXHR) {
+                      document.querySelector('.dx-icon-close')?.click()
+                      dataSourceList.reload().done((res) => {
+                        let coreDataGridInstance = getCoreDataGridInstance();
+                        let newRowIndex = coreDataGridInstance.getRowIndexByKey((data.newDocument.id))
+                        coreDataGridInstance.editRow(newRowIndex)
+                      });
+                      DevExpress.ui.notify("Создана копия документа", "success", 1000)
+                    },
+                  })
                 }
             })
     }
@@ -337,8 +337,9 @@
         body.set('data', JSON.stringify(formDataObj));
 
         if (editingRowId) {
-            var url = getUrlWithId("{{route('project-object-document.update', ['id'=>'setId'])}}", editingRowId);
-            body.append('_method', 'put');
+          var url = getUrlWithId("{{route('project-object-document.update', ['project_object_document'=>'setId'])}}", editingRowId);
+
+          body.append('_method', 'put');
         } else {
             var url = "{{route('project-object-document.store')}}";
         }

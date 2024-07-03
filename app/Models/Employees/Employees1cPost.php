@@ -1,4 +1,5 @@
 <?php
+
 /**  * @mixin ..\Eloquent */
 
 namespace App\Models\Employees;
@@ -9,40 +10,41 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employees1cPost extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable;
+    use DevExtremeDataSourceLoadable, SoftDeletes;
 
     protected $table = 'employees_1c_posts';
-    protected $guarded = array('id');
 
-    function getInflection($inflection)
+    protected $guarded = ['id'];
+
+    public function getInflection($inflection)
     {
         switch (mb_strtolower($inflection)) {
-            case "genitive":
-            case "родительный":
-                $inflectionFieldName = "genitive";
+            case 'genitive':
+            case 'родительный':
+                $inflectionFieldName = 'genitive';
                 break;
-            case "dative":
-            case "дательный":
-                $inflectionFieldName = "dative";
+            case 'dative':
+            case 'дательный':
+                $inflectionFieldName = 'dative';
                 break;
-            case "accusative":
-            case "винительный":
-                $inflectionFieldName = "accusative";
+            case 'accusative':
+            case 'винительный':
+                $inflectionFieldName = 'accusative';
                 break;
-            case "ablative":
-            case "творительный":
-                $inflectionFieldName = "ablative";
+            case 'ablative':
+            case 'творительный':
+                $inflectionFieldName = 'ablative';
                 break;
-            case "prepositional":
-            case "предложный":
-                $inflectionFieldName = "prepositional";
+            case 'prepositional':
+            case 'предложный':
+                $inflectionFieldName = 'prepositional';
                 break;
             default:
-                $inflectionFieldName = "nominative";
+                $inflectionFieldName = 'nominative';
         }
 
         $inflectionQuery = Employees1cPostInflection::where('post_id', '=', $this->id)
-            ->addSelect($inflectionFieldName . ' as inflection')
+            ->addSelect($inflectionFieldName.' as inflection')
             ->first();
 
         if (isset($inflectionQuery)) {

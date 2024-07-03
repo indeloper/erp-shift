@@ -1,26 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\Models\Manual\ManualMaterialCategory;
-
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class RefactorPipeTongueInManualMaterials extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
         $category_tongue = ManualMaterialCategory::find(2);
 
-        $attr_mark = $category_tongue->attributes()->where('name', 'like', '%' . 'марка' . '%')->first();
+        $attr_mark = $category_tongue->attributes()->where('name', 'like', '%'.'марка'.'%')->first();
 
         foreach ($category_tongue->materials()->where('name', 'like', '%Трубошпунт%')->get() as $material) {
             $mark = '';
@@ -32,7 +27,7 @@ class RefactorPipeTongueInManualMaterials extends Migration
             $mark = implode(' ', $explode);
             $material->parameters()->create([
                 'attr_id' => $attr_mark->id,
-                'value' => $mark
+                'value' => $mark,
             ]);
         }
 
@@ -41,16 +36,14 @@ class RefactorPipeTongueInManualMaterials extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
         $category_tongue = ManualMaterialCategory::find(2);
 
-        $attr_mark = $category_tongue->attributes()->where('name', 'like', '%' . 'марка' . '%')->first();
+        $attr_mark = $category_tongue->attributes()->where('name', 'like', '%'.'марка'.'%')->first();
 
         foreach ($category_tongue->materials()->where('name', 'like', '%Трубошпунт%')->get() as $material) {
             $material->parameters()->where('attr_id', $attr_mark->id)->delete();
@@ -58,4 +51,4 @@ class RefactorPipeTongueInManualMaterials extends Migration
 
         DB::commit();
     }
-}
+};

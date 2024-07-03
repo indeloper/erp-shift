@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Fuel\Old;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\FuelTank\UpdateFuelTankOperation;
 use App\Http\Requests\Building\TechAccounting\FuelTank\StoreFuelTankOperation;
+use App\Models\ProjectObject;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\TechAcc\OurTechnic;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
 use App\Models\User;
-use App\Models\ProjectObject;
-
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class FuelTankOperationController extends Controller
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -26,10 +26,8 @@ class FuelTankOperationController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $paginated = FuelTankOperation::filter($request->all())->paginate(10);
         $fuelTankOperationCount = $paginated->total();
@@ -55,11 +53,8 @@ class FuelTankOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(StoreFuelTankOperation $request)
+    public function store(StoreFuelTankOperation $request): Response
     {
         $operation = FuelTankOperation::create($request->all());
 
@@ -80,11 +75,8 @@ class FuelTankOperationController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param  \App\Models\TechAcc\FuelTank\FuelTankOperation  $FuelTankOperation
-     * @return \Illuminate\Http\Response
      */
-    public function show(FuelTankOperation $FuelTankOperation)
+    public function show(FuelTankOperation $FuelTankOperation): Response
     {
         $FuelTankOperation->loadMissing('fuel_tank',
             'author',
@@ -94,7 +86,7 @@ class FuelTankOperationController extends Controller
             'not_videos',
             'our_technic',
             'history'
-            );
+        );
 
         return response(['data' => ['operation' => $FuelTankOperation]]);
     }
@@ -102,7 +94,6 @@ class FuelTankOperationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\TechAcc\FuelTank\FuelTankOperation  $FuelTankOperation
      * @return \Illuminate\Http\Response
      */
     public function edit(FuelTankOperation $FuelTankOperation)
@@ -112,12 +103,8 @@ class FuelTankOperationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\TechAcc\FuelTank\FuelTankOperation  $FuelTankOperation
-     * @return \Illuminate\Http\Response
      */
-    public function update(UpdateFuelTankOperation $request, FuelTankOperation $FuelTankOperation)
+    public function update(UpdateFuelTankOperation $request, FuelTankOperation $FuelTankOperation): Response
     {
         $FuelTankOperation->update($request->all());
 
@@ -137,23 +124,21 @@ class FuelTankOperationController extends Controller
         return response(['data' => ['operation' => $FuelTankOperation]]);
     }
 
-
     /**
      * Remove the specified resource from storage.
      *
-     * @param FuelTankOperation $FuelTankOperation
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     *
      * @throws \Exception
      */
-    public function destroy(FuelTankOperation $FuelTankOperation)
+    public function destroy(FuelTankOperation $FuelTankOperation): Response
     {
         $FuelTankOperation->delete();
 
         return response(['data' => ['result' => 'success']]);
     }
 
-
-    public function getFuelTankOperationsPaginated(Request $request)
+    public function getFuelTankOperationsPaginated(Request $request): Response
     {
         $output = [];
         if ($request->url) {
@@ -170,8 +155,7 @@ class FuelTankOperationController extends Controller
         return response(['fuelTankOperations' => $fuelTankOperations, 'fuelTankOperationCount' => $fuelTankOperationCount]);
     }
 
-
-    public function createReport(Request $request)
+    public function createReport(Request $request): View
     {
         $operations = FuelTankOperation::filter($request->toArray())->orderBy('operation_date')->get();
         $responsible_user = User::with('group')->findOrFail($request->responsible_receiver_id);
@@ -179,7 +163,7 @@ class FuelTankOperationController extends Controller
         $fuelTank = FuelTank::find($request->fuel_tank_id);
         $mode = $request->mode;
         $first_operation = $operations->first();
-        $start_value = $first_operation->result_value ?? 0 -  ($first_operation ? $first_operation->value_diff : 0);
+        $start_value = $first_operation->result_value ?? 0 - ($first_operation ? $first_operation->value_diff : 0);
 
         if ($start_value < 0) {
             $start_value = 0;
@@ -188,7 +172,7 @@ class FuelTankOperationController extends Controller
         return view('tech_accounting.fuel.old.report', compact(['operations', 'responsible_user', 'object', 'start_value', 'fuelTank', 'mode']));
     }
 
-    public function getFuelTanksOperations(Request $request)
+    public function getFuelTanksOperations(Request $request): JsonResponse
     {
         $operations = FuelTankOperation::filter($request->toArray())->count();
 

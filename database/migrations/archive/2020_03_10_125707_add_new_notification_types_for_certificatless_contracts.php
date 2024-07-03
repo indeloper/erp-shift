@@ -1,22 +1,21 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationTypesForCertificatlessContracts extends Migration
+return new class extends Migration
 {
     const NOTIFICATIONS = [
-        104 =>'Уведомление о задаче Контроль наличия сертификатов',
+        104 => 'Уведомление о задаче Контроль наличия сертификатов',
         105 => 'Уведомление о создании задачи Контроль наличия сертификатов',
         106 => 'Уведомление о существовании операций без сертификатов',
     ];
+
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -26,7 +25,7 @@ class AddNewNotificationTypesForCertificatlessContracts extends Migration
                 'id' => $id,
                 'group' => 7,
                 'name' => $name,
-                'for_everyone' => 0
+                'for_everyone' => 0,
             ];
         }
 
@@ -35,114 +34,114 @@ class AddNewNotificationTypesForCertificatlessContracts extends Migration
         DB::table('notifications_for_groups')->insert([
             [
                 'notification_id' => 104,
-                'group_id' => 15
+                'group_id' => 15,
             ],
             [
                 'notification_id' => 105,
-                'group_id' => 5
+                'group_id' => 5,
             ],
             [
                 'notification_id' => 105,
-                'group_id' => 6
+                'group_id' => 6,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 8
+                'group_id' => 8,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 13
+                'group_id' => 13,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 14
+                'group_id' => 14,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 15
+                'group_id' => 15,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 17
+                'group_id' => 17,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 19
+                'group_id' => 19,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 23
+                'group_id' => 23,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 27
+                'group_id' => 27,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 31
+                'group_id' => 31,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 35
+                'group_id' => 35,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 39
+                'group_id' => 39,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 40
+                'group_id' => 40,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 41
+                'group_id' => 41,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 42
+                'group_id' => 42,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 43
+                'group_id' => 43,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 44
+                'group_id' => 44,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 45
+                'group_id' => 45,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 46
+                'group_id' => 46,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 47
+                'group_id' => 47,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 48
+                'group_id' => 48,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 52
+                'group_id' => 52,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 53
+                'group_id' => 53,
             ],
             [
                 'notification_id' => 106,
-                'group_id' => 54
+                'group_id' => 54,
             ],
         ]);
 
         DB::table('notifications_for_users')->insert([
             [
                 'notification_id' => 106,
-                'user_id' => User::HARDCODED_PERSONS['certificateWorker']
+                'user_id' => User::HARDCODED_PERSONS['certificateWorker'],
             ],
         ]);
 
@@ -151,10 +150,8 @@ class AddNewNotificationTypesForCertificatlessContracts extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -164,4 +161,4 @@ class AddNewNotificationTypesForCertificatlessContracts extends Migration
 
         DB::commit();
     }
-}
+};

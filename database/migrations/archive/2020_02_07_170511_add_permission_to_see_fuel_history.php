@@ -1,12 +1,9 @@
 <?php
 
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddPermissionToSeeFuelHistory extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'see_fuel_operation_history',
@@ -16,8 +13,7 @@ class AddPermissionToSeeFuelHistory extends Migration
         'Просмотр истории изменения операции по топливу',
     ];
 
-
-    public function up()
+    public function up(): void
     {
         $insert = [];
 
@@ -26,7 +22,7 @@ class AddPermissionToSeeFuelHistory extends Migration
                 'category' => 17,
                 'name' => self::PERMISSION_NAMES[$key],
                 'codename' => $codename,
-                'created_at' => now()
+                'created_at' => now(),
             ];
         }
 
@@ -40,12 +36,12 @@ class AddPermissionToSeeFuelHistory extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -54,10 +50,8 @@ class AddPermissionToSeeFuelHistory extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
 
@@ -68,4 +62,4 @@ class AddPermissionToSeeFuelHistory extends Migration
 
         DB::commit();
     }
-}
+};

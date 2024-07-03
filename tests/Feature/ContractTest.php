@@ -19,7 +19,7 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_exist()
+    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_exist(): void
     {
         // Given no contracts
         Contract::query()->delete();
@@ -32,10 +32,10 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_KC_date_exist()
+    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_KC_date_exist(): void
     {
         // Given contracts without date of KC
-        $contracts = factory(Contract::class, 3)->create();
+        $contracts = Contract::factory()->count(3)->create();
 
         // When we use tenDaysBeforeDateOfKC scope
         $result = Contract::tenDaysBeforeDateOfKC()->get();
@@ -45,13 +45,13 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_proper_KC_date_exist()
+    public function scope_ten_days_before_date_of_KC_can_return_nothing_if_no_contracts_with_proper_KC_date_exist(): void
     {
         // Set test date
         $newNow = now()->day(15);
         Carbon::setTestNow($newNow);
         // Given contracts with date of KC
-        $contracts = factory(Contract::class, 3)->create(['ks_date' => now()->day(10)->format('d'), 'type' => 1]);
+        $contracts = Contract::factory()->count(3)->create(['ks_date' => now()->day(10)->format('d'), 'type' => 1]);
 
         // When we use tenDaysBeforeDateOfKC scope
         $result = Contract::tenDaysBeforeDateOfKC()->get();
@@ -61,13 +61,13 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function scope_ten_days_before_date_of_KC_can_return_contracts_with_proper_KC_date()
+    public function scope_ten_days_before_date_of_KC_can_return_contracts_with_proper_KC_date(): void
     {
         // Set test date
         $newNow = now()->day(15);
         Carbon::setTestNow($newNow);
         // Given contracts with date of KC
-        $contracts = factory(Contract::class, 3)->create(['ks_date' => now()->addDays(10)->format('d'), 'type' => 1]);
+        $contracts = Contract::factory()->count(3)->create(['ks_date' => now()->addDays(10)->format('d'), 'type' => 1]);
 
         // When we use tenDaysBeforeDateOfKC scope
         $result = Contract::tenDaysBeforeDateOfKC()->get();
@@ -78,14 +78,14 @@ class ContractTest extends TestCase
     }
 
     /** @test */
-    public function contract_can_have_operations_relation()
+    public function contract_can_have_operations_relation(): void
     {
         // Given some project
-        $project = factory(ProjectObject::class)->create();
+        $project = ProjectObject::factory()->create();
         // Given contracts for project with ks date
-        $contract = factory(Contract::class)->create(['project_id' => $project->id, 'type' => 1, 'ks_date' => now()->addDays(10)->format('d')]);
+        $contract = Contract::factory()->create(['project_id' => $project->id, 'type' => 1, 'ks_date' => now()->addDays(10)->format('d')]);
         // Given operation
-        $operation = factory(MaterialAccountingOperation::class)->create(['contract_id' => $contract->id]);
+        $operation = MaterialAccountingOperation::factory()->create(['contract_id' => $contract->id]);
 
         // Then contract should have operations relation
         $operations = $contract->refresh()->operations;

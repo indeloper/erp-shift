@@ -12,22 +12,16 @@ class ProjectObserver
 
     /**
      * Handle the project "created" event.
-     *
-     * @param  Project  $project
-     * @return void
      */
-    public function created(Project $project)
+    public function created(Project $project): void
     {
         //
     }
 
     /**
      * Handle the project "updated" event.
-     *
-     * @param  Project  $project
-     * @return void
      */
-    public function updated(Project $project)
+    public function updated(Project $project): void
     {
         $project->generateAction('update');
 
@@ -53,33 +47,24 @@ class ProjectObserver
 
     /**
      * Handle the project "deleted" event.
-     *
-     * @param  Project  $project
-     * @return void
      */
-    public function deleted(Project $project)
+    public function deleted(Project $project): void
     {
         //
     }
 
     /**
      * Handle the project "restored" event.
-     *
-     * @param  Project  $project
-     * @return void
      */
-    public function restored(Project $project)
+    public function restored(Project $project): void
     {
         //
     }
 
     /**
      * Handle the project "force deleted" event.
-     *
-     * @param  Project  $project
-     * @return void
      */
-    public function forceDeleted(Project $project)
+    public function forceDeleted(Project $project): void
     {
         //
     }

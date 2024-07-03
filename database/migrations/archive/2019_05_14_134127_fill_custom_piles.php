@@ -4,18 +4,14 @@ use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualMaterialCategoryAttribute;
 use App\Models\Manual\ManualMaterialParameter;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class FillCustomPiles extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $moldings = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
         $section = [30, 35, 40];
@@ -25,7 +21,6 @@ class FillCustomPiles extends Migration
         $concrete = ['B20', 'B25', 'B30', 'B35'];
         $impermeability = ['W6', 'W8', 'W10', 'W12'];
         $frost_resistance = ['F50', 'F100', 'F150', 'F200'];
-
 
         $category_id = ManualMaterialCategory::where('name', 'Составные сваи')->pluck('id')->first();
         $molding_attr_id = ManualMaterialCategoryAttribute::where('name', 'Удельный погонаж')->where('category_id', $category_id)->pluck('id')->first();
@@ -49,7 +44,7 @@ class FillCustomPiles extends Migration
 
                                         if ($tail_name == '-нсв') {
                                             $material = new ManualMaterial();
-                                            $material->name = 'С' . $molding * 10 . '.' . $sec . $tail_name . $reinf . $stupid . '(' . $concr . $imperm . $frost . ')';
+                                            $material->name = 'С'.$molding * 10 .'.'.$sec.$tail_name.$reinf.$stupid.'('.$concr.$imperm.$frost.')';
                                             $material->buy_cost = 0;
                                             $material->use_cost = 0;
                                             $material->category_id = $category_id;
@@ -62,7 +57,7 @@ class FillCustomPiles extends Migration
                                             $frost_resistance_attr->save();
                                         } else {
                                             $material = new ManualMaterial();
-                                            $material->name = 'С' . $molding * 10 . '.' . $sec . $tail_name . $reinf . '(' . $concr . $imperm . $frost . ')';
+                                            $material->name = 'С'.$molding * 10 .'.'.$sec.$tail_name.$reinf.'('.$concr.$imperm.$frost.')';
                                             $material->buy_cost = 0;
                                             $material->use_cost = 0;
                                             $material->category_id = $category_id;
@@ -130,11 +125,9 @@ class FillCustomPiles extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         //
     }
-}
+};

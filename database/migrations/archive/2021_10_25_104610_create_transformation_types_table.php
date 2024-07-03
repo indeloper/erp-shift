@@ -1,18 +1,16 @@
 <?php
 
 use App\Models\q3wMaterial\q3wMaterialTransformationType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateTransformationTypesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('q3w_material_transformation_types', function (Blueprint $table) {
             $table->increments('id')->comment('Уникальный идентификатор');
@@ -32,23 +30,21 @@ class CreateTransformationTypesTable extends Migration
 
         foreach ($transformationTypeNames as $transformationTypeName) {
             $transformationType = new q3wMaterialTransformationType();
-            $transformationType -> value = $transformationTypeName;
-            $transformationType -> save();
+            $transformationType->value = $transformationTypeName;
+            $transformationType->save();
         }
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('q3w_material_operations', function(Blueprint $table) {
+        Schema::table('q3w_material_operations', function (Blueprint $table) {
             $table->dropForeign(['transformation_type_id']);
             $table->dropColumn(['transformation_type_id']);
         });
 
         Schema::dropIfExists('q3w_material_transformation_types');
     }
-}
+};

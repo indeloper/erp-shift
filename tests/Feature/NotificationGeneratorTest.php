@@ -4,40 +4,48 @@ namespace Tests\Feature;
 
 use App\Models\Group;
 use App\Models\Notification;
-use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\TechAcc\Defects\Defects;
-use App\Models\TechAcc\OurTechnic;
 use App\Models\TechAcc\OurTechnicTicket;
 use App\Models\User;
 use App\Traits\NotificationGenerator;
 use Carbon\Carbon;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
 class NotificationGeneratorTest extends TestCase
 {
     use DatabaseTransactions;
 
     protected $trait_instance;
+
     protected $DEFECT;
+
     protected $TECHNIC;
+
     protected $CEO;
+
     protected $SUB_CEO;
+
     protected $TECHNIC_RESPONSIBLE_RP;
+
     protected $PRINCIPAL_MECHANIC;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->trait_instance = new class { use NotificationGenerator; };
-        $this->TECHNIC_RESPONSIBLE_RP = Group::find(23)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 23]);
-        $this->CEO = Group::find(5)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 5]);
-        $this->SUB_CEO = Group::find(6)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 6]);
-        $this->PRINCIPAL_MECHANIC = Group::find(47)->getUsers()->first() ?? factory(User::class)->create(['group_id' => 47]);
-        $this->DEFECT = factory(Defects::class)->create();
+        $this->trait_instance = new class
+        {
+            use NotificationGenerator;
+        };
+        $this->TECHNIC_RESPONSIBLE_RP = Group::find(23)->getUsers()->first() ?? User::factory()->create(['group_id' => 23]);
+        $this->CEO = Group::find(5)->getUsers()->first() ?? User::factory()->create(['group_id' => 5]);
+        $this->SUB_CEO = Group::find(6)->getUsers()->first() ?? User::factory()->create(['group_id' => 6]);
+        $this->PRINCIPAL_MECHANIC = Group::find(47)->getUsers()->first() ?? User::factory()->create(['group_id' => 47]);
+        $this->DEFECT = Defects::factory()->create();
         $this->TECHNIC = $this->DEFECT->defectable;
-        $ticket = factory(OurTechnicTicket::class)->create(['our_technic_id' => $this->TECHNIC->id]);
+        $ticket = OurTechnicTicket::factory()->create(['our_technic_id' => $this->TECHNIC->id]);
         $ticket->users()->attach($this->TECHNIC_RESPONSIBLE_RP->id, ['type' => 1]);
     }
 
@@ -47,7 +55,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_create_notification_test()
+    public function defect_create_notification_test(): void
     {
         // Given defect
         $defect = $this->DEFECT;
@@ -65,7 +73,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "Новая заявка о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}",
             $notification->name
@@ -75,7 +83,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_create_notification_second_test()
+    public function defect_create_notification_second_test(): void
     {
         // Given defect without tickets
         $defect = $this->DEFECT;
@@ -94,7 +102,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "Новая заявка о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}",
             $notification->name
@@ -104,7 +112,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_assignment_notification_test()
+    public function defect_responsible_user_assignment_notification_test(): void
     {
         // Given defect
         $defect = $this->DEFECT;
@@ -126,7 +134,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_decline_notification_test_without_resp_user()
+    public function defect_decline_notification_test_without_resp_user(): void
     {
         // Given defect
         $defect = $this->DEFECT->refresh();
@@ -144,7 +152,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}, неисправность не выявлена, заявка отклонена",
             $notification->name
@@ -154,7 +162,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_decline_notification_second_test_without_resp_user()
+    public function defect_decline_notification_second_test_without_resp_user(): void
     {
         // Given defect without tickets
         $defect = $this->DEFECT;
@@ -173,7 +181,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}, неисправность не выявлена, заявка отклонена",
             $notification->name
@@ -183,10 +191,10 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_decline_notification_test_with_resp_user()
+    public function defect_decline_notification_test_with_resp_user(): void
     {
         // Given responsible user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given defect with responsible user
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id]);
         $defect = $this->DEFECT->refresh();
@@ -204,7 +212,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}, неисправность не выявлена, заявка отклонена",
             $notification->name
@@ -214,15 +222,15 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_accept_notification_test()
+    public function defect_accept_notification_test(): void
     {
         // Given defect with responsible user
         $this->DEFECT->update([
             'responsible_user_id' => $this->DEFECT->user_id,
-            'comment' => $this->faker->paragraph,
-            'repair_start_date' => Carbon::createFromFormat('d.m.Y','10.12.2019'),
-            'repair_end_date' => Carbon::createFromFormat('d.m.Y','11.12.2019'),
-            'status' => Defects::IN_WORK
+            'comment' => $this->faker->paragraph(),
+            'repair_start_date' => Carbon::createFromFormat('d.m.Y', '10.12.2019'),
+            'repair_end_date' => Carbon::createFromFormat('d.m.Y', '11.12.2019'),
+            'status' => Defects::IN_WORK,
         ]);
         $defect = $this->DEFECT->refresh();
 
@@ -239,7 +247,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id} был установлен период ремонта с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -249,16 +257,16 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_accept_notification_second_test()
+    public function defect_accept_notification_second_test(): void
     {
         // Given defect with responsible user, but without tickets
         $this->deleteOurTechnicsTickets();
         $this->DEFECT->update([
             'responsible_user_id' => $this->DEFECT->user_id,
-            'comment' => $this->faker->paragraph,
-            'repair_start_date' => Carbon::createFromFormat('d.m.Y','10.12.2019'),
-            'repair_end_date' => Carbon::createFromFormat('d.m.Y','11.12.2019'),
-            'status' => Defects::IN_WORK
+            'comment' => $this->faker->paragraph(),
+            'repair_start_date' => Carbon::createFromFormat('d.m.Y', '10.12.2019'),
+            'repair_end_date' => Carbon::createFromFormat('d.m.Y', '11.12.2019'),
+            'status' => Defects::IN_WORK,
         ]);
         $defect = $this->DEFECT->refresh();
 
@@ -275,7 +283,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id} был установлен период ремонта с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -285,7 +293,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_no_principle_mechanic_notification_second_test()
+    public function defect_no_principle_mechanic_notification_second_test(): void
     {
         // When we call generateDefectAcceptNotification() method
         $this->trait_instance->generateNoPrincipleMechanicNotification();
@@ -301,10 +309,10 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_store_notification_test()
+    public function defect_responsible_user_store_notification_test(): void
     {
         // Given responsible user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given defect with responsible user
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id]);
         $defect = $this->DEFECT->refresh();
@@ -322,7 +330,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "Назначен исполнитель на заявку о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -332,10 +340,10 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_responsible_user_store_notification_second_test()
+    public function defect_responsible_user_store_notification_second_test(): void
     {
         // Given responsible user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given defect with responsible user, but without tickets
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id]);
         $defect = $this->DEFECT->refresh();
@@ -354,7 +362,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "Назначен исполнитель на заявку о неисправности №{$defect->id}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -364,7 +372,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_control_task_notification()
+    public function defect_control_task_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
@@ -373,7 +381,7 @@ class NotificationGeneratorTest extends TestCase
 
         // When we make post request with data
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.select_responsible', $defect->id), [
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         $defect->refresh();
@@ -396,7 +404,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_repair_dates_update_notification()
+    public function defect_repair_dates_update_notification(): void
     {
         // Given user
         $responsible_user = $this->PRINCIPAL_MECHANIC;
@@ -406,7 +414,7 @@ class NotificationGeneratorTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -424,7 +432,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id} был изменен период ремонта, новый период: с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -434,11 +442,11 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_repair_dates_update_notification_second()
+    public function defect_repair_dates_update_notification_second(): void
     {
         // Given user
         $responsible_user = $this->PRINCIPAL_MECHANIC;
-        $user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given new defect with responsible user without notifications
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id, 'status' => 3]);
         $defect = $this->DEFECT->refresh();
@@ -446,7 +454,7 @@ class NotificationGeneratorTest extends TestCase
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -464,7 +472,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id} был изменен период ремонта, новый период: с {$defect->repair_start} по {$defect->repair_end}, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -474,10 +482,10 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_expire_notification_second()
+    public function defect_expire_notification_second(): void
     {
         // Given user
-        $responsible_user = User::inRandomOrder()->first() ?? factory(User::class)->create();
+        $responsible_user = User::inRandomOrder()->first() ?? User::factory()->create();
         // Given new defect with responsible user without notifications
         $this->DEFECT->update(['responsible_user_id' => $responsible_user->id, 'status' => 3]);
         $defect = $this->DEFECT->refresh();
@@ -497,7 +505,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take PRINCIPAL MECHANIC)
-        $notification =  $notifications->where('user_id', $this->PRINCIPAL_MECHANIC->id)->first();
+        $notification = $notifications->where('user_id', $this->PRINCIPAL_MECHANIC->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id} в течение 24ч заканчивается период ремонта, Автор заявки: {$defect->author->full_name}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -507,16 +515,16 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function repair_control_task_notification()
+    public function repair_control_task_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
         // Given new defect with responsible user
-        $defect = factory(Defects::class)->create(['responsible_user_id' => $user->id, 'status' => 2]);
+        $defect = Defects::factory()->create(['responsible_user_id' => $user->id, 'status' => 2]);
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
+            'comment' => $this->faker->paragraph(),
             'repair_start_date' => now()->format('d.m.Y'),
             'repair_end_date' => now()->addDay()->format('d.m.Y'),
         ];
@@ -534,24 +542,24 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_repair_end_notification()
+    public function defect_repair_end_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
         // Given new defect with responsible user
         $this->DEFECT->update([
             'responsible_user_id' => $this->DEFECT->user_id,
-            'comment' => $this->faker->paragraph,
-            'repair_start_date' => Carbon::createFromFormat('d.m.Y','10.12.2019'),
-            'repair_end_date' => Carbon::createFromFormat('d.m.Y','11.12.2019'),
+            'comment' => $this->faker->paragraph(),
+            'repair_start_date' => Carbon::createFromFormat('d.m.Y', '10.12.2019'),
+            'repair_end_date' => Carbon::createFromFormat('d.m.Y', '11.12.2019'),
             'status' => Defects::IN_WORK,
         ]);
         $defect = $this->DEFECT->refresh();
 
         // When we make put request with data
         $data = [
-            'comment' => $this->faker->paragraph,
-            'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? factory(ProjectObject::class)->create()->id,
+            'comment' => $this->faker->paragraph(),
+            'start_location_id' => ProjectObject::inRandomOrder()->first()->id ?? ProjectObject::factory()->create()->id,
         ];
         $response = $this->actingAs($user)->put(route('building::tech_acc::defects.end_repair', $defect->refresh()->id), $data);
 
@@ -566,7 +574,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "По заявке о неисправности №{$defect->id} работы окончены, местоположение техники: {$defect->defectable->refresh()->start_location->location}, Исполнитель: {$defect->responsible_user->full_name}",
             $notification->name
@@ -576,7 +584,7 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function defect_destroy_notification()
+    public function defect_destroy_notification(): void
     {
         // Given user
         $user = $this->PRINCIPAL_MECHANIC;
@@ -598,7 +606,7 @@ class NotificationGeneratorTest extends TestCase
             $notifications->pluck('user_id')->toArray()
         );
         // With text like this (for example we take CEO)
-        $notification =  $notifications->where('user_id', $this->CEO->id)->first();
+        $notification = $notifications->where('user_id', $this->CEO->id)->first();
         $this->assertEquals(
             "Автор заявки {$defect->author->full_name} удалил заявку о неисправности №{$defect->id}.",
             $notification->name
@@ -608,10 +616,10 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function our_technic_ticket_close_notification()
+    public function our_technic_ticket_close_notification(): void
     {
         // Given technic ticket
-        $ticket = factory(OurTechnicTicket::class)->create();
+        $ticket = OurTechnicTicket::factory()->create();
 
         // When we call close() function
         $ticket->close();
@@ -622,7 +630,7 @@ class NotificationGeneratorTest extends TestCase
         $notifications = $ticket->refresh()->notifications;
         $this->assertEquals(User::whereGroupId(47)->count() + (User::find(User::HARDCODED_PERSONS['router']) ? 1 : 0), $notifications->count());
         // With text like this (for example we take any PRINCIPLE MECHANIC)
-        $notification =  $notifications->where('user_id', $this->PRINCIPAL_MECHANIC->id)->first();
+        $notification = $notifications->where('user_id', $this->PRINCIPAL_MECHANIC->id)->first();
         $this->assertEquals(
             "Работы с техникой {$ticket->our_technic->category_name} {$ticket->our_technic->name}, инвентарный номер: {$ticket->our_technic->inventory_number} закончились на объекте: {$ticket->our_technic->start_location->location}.",
             $notification->name
@@ -632,10 +640,10 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function our_technic_ticket_use_extension_notifications()
+    public function our_technic_ticket_use_extension_notifications(): void
     {
         // Given ticket
-        $ourTechnicTicket = factory(OurTechnicTicket::class)->create();
+        $ourTechnicTicket = OurTechnicTicket::factory()->create();
 
         // When we call this method
         $this->trait_instance->generateOurTechnicTicketUseExtensionNotifications($ourTechnicTicket);
@@ -645,7 +653,7 @@ class NotificationGeneratorTest extends TestCase
         $notifications = $ourTechnicTicket->refresh()->notifications;
         $this->assertEquals(User::whereGroupId(47)->count() + (User::find(User::HARDCODED_PERSONS['router']) ? 1 : 0), $notifications->count());
         // With text like this (for example we take any PRINCIPLE MECHANIC)
-        $notification =  $notifications->where('user_id', $this->PRINCIPAL_MECHANIC->id)->first();
+        $notification = $notifications->where('user_id', $this->PRINCIPAL_MECHANIC->id)->first();
         $this->assertEquals(
             "На объекте: {$ourTechnicTicket->our_technic->start_location->location} изменилась дата окончания использования техники {$ourTechnicTicket->our_technic->category_name} {$ourTechnicTicket->our_technic->name}, инвентарный номер: {$ourTechnicTicket->our_technic->inventory_number}.",
             $notification->name
@@ -655,14 +663,14 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_today_notification()
+    public function generate_birthday_today_notification(): void
     {
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call generateBirthdayTodayNotifications()
         $this->trait_instance->generateBirthdayTodayNotifications(collect([$user3]));
@@ -680,14 +688,14 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_today_notification_do_nothing_if_no_users_passed()
+    public function generate_birthday_today_notification_do_nothing_if_no_users_passed(): void
     {
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call generateBirthdayTodayNotifications()
         $this->trait_instance->generateBirthdayTodayNotifications(collect([]));
@@ -698,14 +706,14 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_next_week_notification()
+    public function generate_birthday_next_week_notification(): void
     {
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
         $birthdayDate = now()->addDays(7)->format('d.m.Y');
 
         // When we call generateBirthdayNextWeekNotifications()
@@ -724,14 +732,14 @@ class NotificationGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function generate_birthday_next_week_notification_do_nothing_if_no_users_passed()
+    public function generate_birthday_next_week_notification_do_nothing_if_no_users_passed(): void
     {
         Notification::query()->delete();
         User::query()->delete();
         // Given three users with birthdays
-        $user1 = factory(User::class)->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
-        $user2 = factory(User::class)->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
-        $user3 = factory(User::class)->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
+        $user1 = User::factory()->create(['birthday' => now()->subYear()->subWeek()->format('d.m.Y')]);
+        $user2 = User::factory()->create(['birthday' => now()->subYears(2)->subWeek()->format('d.m.Y')]);
+        $user3 = User::factory()->create(['birthday' => now()->subYears(2)->subMonth()->format('d.m.Y')]);
 
         // When we call generateBirthdayNextWeekNotifications()
         $this->trait_instance->generateBirthdayNextWeekNotifications(collect([]));

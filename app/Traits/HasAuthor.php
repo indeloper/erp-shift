@@ -1,11 +1,13 @@
-<?php namespace App\Traits;
+<?php
 
+namespace App\Traits;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait HasAuthor
 {
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

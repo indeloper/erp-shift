@@ -2,62 +2,56 @@
 
 use App\Models\Permission;
 use App\Models\UserPermission;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EditMaterialAccountingRoles extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $confirmToWriteOffPermission = new Permission();
-        $confirmToWriteOffPermission->name = "Материальный учет: Редактирование типов материалов";
-        $confirmToWriteOffPermission->codename = "material_accounting_materials_types_editing";
+        $confirmToWriteOffPermission->name = 'Материальный учет: Редактирование типов материалов';
+        $confirmToWriteOffPermission->codename = 'material_accounting_materials_types_editing';
         $confirmToWriteOffPermission->category = 7; // Категории описаны в модели "Permission"
         $confirmToWriteOffPermission->save();
 
         $confirmToWriteOffPermission = new Permission();
-        $confirmToWriteOffPermission->name = "Материальный учет: Редактирование эталонов";
-        $confirmToWriteOffPermission->codename = "material_accounting_materials_standards_editing";
+        $confirmToWriteOffPermission->name = 'Материальный учет: Редактирование эталонов';
+        $confirmToWriteOffPermission->codename = 'material_accounting_materials_standards_editing';
         $confirmToWriteOffPermission->category = 7; // Категории описаны в модели "Permission"
         $confirmToWriteOffPermission->save();
 
         $confirmToWriteOffPermission = new Permission();
         $confirmToWriteOffPermission->name = 'Материальный учет: Просмотр «Табеля материального учета»';
-        $confirmToWriteOffPermission->codename = "material_accounting_material_table_access";
+        $confirmToWriteOffPermission->codename = 'material_accounting_material_table_access';
         $confirmToWriteOffPermission->category = 7; // Категории описаны в модели "Permission"
         $confirmToWriteOffPermission->save();
 
         $confirmToWriteOffPermission = new Permission();
         $confirmToWriteOffPermission->name = 'Материальный учет: Просмотр списка операций';
-        $confirmToWriteOffPermission->codename = "material_accounting_operation_list_access";
+        $confirmToWriteOffPermission->codename = 'material_accounting_operation_list_access';
         $confirmToWriteOffPermission->category = 7; // Категории описаны в модели "Permission"
         $confirmToWriteOffPermission->save();
 
         $confirmToWriteOffPermission = new Permission();
         $confirmToWriteOffPermission->name = 'Материальный учет: Просмотр списка материалов на объекте и выполненных операций';
-        $confirmToWriteOffPermission->codename = "material_accounting_material_list_access";
+        $confirmToWriteOffPermission->codename = 'material_accounting_material_list_access';
         $confirmToWriteOffPermission->category = 7; // Категории описаны в модели "Permission"
         $confirmToWriteOffPermission->save();
 
         $confirmToWriteOffPermission = new Permission();
         $confirmToWriteOffPermission->name = 'Материальный учет: cоздание операций';
-        $confirmToWriteOffPermission->codename = "material_accounting_operations_creating";
+        $confirmToWriteOffPermission->codename = 'material_accounting_operations_creating';
         $confirmToWriteOffPermission->category = 7; // Категории описаны в модели "Permission"
         $confirmToWriteOffPermission->save();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permission = Permission::where('codename', 'material_accounting_materials_types_editing')->first();
         if (isset($permission)) {
@@ -94,4 +88,4 @@ class EditMaterialAccountingRoles extends Migration
             $permission->forceDelete();
         }
     }
-}
+};

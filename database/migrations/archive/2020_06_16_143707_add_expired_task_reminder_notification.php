@@ -1,17 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddExpiredTaskReminderNotification extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -21,7 +17,7 @@ class AddExpiredTaskReminderNotification extends Migration
                 'id' => 111,
                 'group' => 1,
                 'name' => 'Уведомление о необходимости выполнить задач',
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ],
         ]);
 
@@ -30,10 +26,8 @@ class AddExpiredTaskReminderNotification extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -41,4 +35,4 @@ class AddExpiredTaskReminderNotification extends Migration
 
         DB::commit();
     }
-}
+};

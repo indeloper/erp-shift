@@ -1,18 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddTimeResponsibleAssignmentNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 90;
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -20,7 +18,7 @@ class AddTimeResponsibleAssignmentNotification extends Migration
             'id' => self::NOTIFICATION_TYPE,
             'group' => 10,
             'name' => 'Уведомление о назначении на позицию ответственного за учёт рабочего времени на проекте',
-            'for_everyone' => 1
+            'for_everyone' => 1,
         ];
 
         DB::table('notification_types')->insert($new_types);
@@ -30,10 +28,8 @@ class AddTimeResponsibleAssignmentNotification extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -41,4 +37,4 @@ class AddTimeResponsibleAssignmentNotification extends Migration
 
         DB::commit();
     }
-}
+};

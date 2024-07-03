@@ -16,9 +16,7 @@ export default {
     }
   },
   mounted() {
-    console.log(
-        this.isOpenCollapse()
-    );
+    this.isOpenCollapse()
   },
   methods: {
     showCollapse() {

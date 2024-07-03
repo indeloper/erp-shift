@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\OurTechnicStoreRequest;
 use App\Http\Requests\OurTechnicUpdateRequest;
 use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\OurTechnic;
 use App\Services\TechAccounting\TechnicCategoryService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class OurTechnicController extends Controller
 {
-
     protected $service;
 
     public function __construct()
@@ -23,35 +25,34 @@ class OurTechnicController extends Controller
         $this->service = new TechnicCategoryService();
     }
 
-    public function index(Request $request, $category_id)
+    public function index(Request $request, $category_id): View
     {
         $data = $this->service->collectDataForTransport($request->all(), $category_id);
 
         return view('tech_accounting.technics.technics_list', $data);
     }
 
-    public function store(OurTechnicStoreRequest $request)
+    public function store(OurTechnicStoreRequest $request): JsonResponse
     {
         $technic = $this->service->createOurTechnicWithAttributes($request->all());
 
         return response()->json([
-                'result' => 'success',
-                'data' => $technic,
-            ]
+            'result' => 'success',
+            'data' => $technic,
+        ]
         );
     }
 
-    public function update(OurTechnicUpdateRequest $request, $category, OurTechnic $ourTechnic)
+    public function update(OurTechnicUpdateRequest $request, $category, OurTechnic $ourTechnic): JsonResponse
     {
         $technic = $this->service->updateOurTechnicWithAttributes($ourTechnic, $request->all());
 
         return response()->json([
-                'result' => 'success',
-                'data' => $technic,
-            ]
+            'result' => 'success',
+            'data' => $technic,
+        ]
         );
     }
-
 
     public function destroy($category_id, OurTechnic $ourTechnic)
     {
@@ -67,7 +68,7 @@ class OurTechnicController extends Controller
 
     }
 
-    public function get_technics(Request $request)
+    public function get_technics(Request $request): Response
     {
         $ourTechnicQuery = OurTechnic::query();
         if ($request->free_only) {
@@ -76,12 +77,10 @@ class OurTechnicController extends Controller
         if ($request->relations) {
             $ourTechnicQuery->with($request->relations);
         }
-        if ($request->q)
-        {
+        if ($request->q) {
             $technics = $ourTechnicQuery->where('model', 'like', "%$request->q%")
                 ->orWhere('brand', 'like', "%$request->q%")->get();
-        } else
-        {
+        } else {
             $technics = $ourTechnicQuery->get();
         }
 
@@ -106,15 +105,17 @@ class OurTechnicController extends Controller
         return response([
             'data' => $technics->get()->map(function ($technic) {
                 $technic['defectable_type'] = 1;
+
                 return $technic;
             })->toBase()->merge($fuelTanks->get()->map(function ($fuelTank) {
                 $fuelTank['defectable_type'] = 2;
+
                 return $fuelTank;
             })),
         ]);
     }
 
-    public function getTechnicsPaginated(Request $request, $ourTechnicCategoryId)
+    public function getTechnicsPaginated(Request $request, $ourTechnicCategoryId): Response
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);
@@ -128,11 +129,11 @@ class OurTechnicController extends Controller
 
         return response([
             'ourTechnics' => $ourTechnics,
-            'ourTechnicCount' => $ourTechnicCount
+            'ourTechnicCount' => $ourTechnicCount,
         ]);
     }
 
-    public function getTrashedTechnicsPaginated(Request $request, $ourTechnicCategoryId)
+    public function getTrashedTechnicsPaginated(Request $request, $ourTechnicCategoryId): Response
     {
         $output = [];
         parse_str(parse_url($request->url)['query'] ?? '', $output);
@@ -146,11 +147,11 @@ class OurTechnicController extends Controller
 
         return response([
             'ourTechnics' => $ourTechnics,
-            'ourTechnicCount' => $ourTechnicCount
+            'ourTechnicCount' => $ourTechnicCount,
         ]);
     }
 
-    public function display_trashed(Request $request, $category_id)
+    public function display_trashed(Request $request, $category_id): View
     {
         $data = $this->service->collectDataForTrashedTransport($request->all(), $category_id);
 

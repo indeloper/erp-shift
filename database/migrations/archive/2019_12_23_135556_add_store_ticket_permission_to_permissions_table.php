@@ -1,54 +1,51 @@
 <?php
 
-use App\Models\Group;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddStoreTicketPermissionToPermissionsTable extends Migration
+return new class extends Migration
 {
     const PERMISSION_HUMAN_NAME = 'Создание заявки на использование и/или перемещение техники';
-    const PERMISSION_NAME = 'create.OurTechnicTicket';
-    const PERMISSION_CATEGORY_ID = 16;
-    const PERMISSION_GROUP_IDS = [8, 13, 19, 27, 14, 23, 31] ;
 
+    const PERMISSION_NAME = 'create.OurTechnicTicket';
+
+    const PERMISSION_CATEGORY_ID = 16;
+
+    const PERMISSION_GROUP_IDS = [8, 13, 19, 27, 14, 23, 31];
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-            DB::table('permissions')->insert([
-                // defects
+        DB::table('permissions')->insert([
+            // defects
+            [
+                'category' => self::PERMISSION_CATEGORY_ID,
+                'name' => self::PERMISSION_HUMAN_NAME,
+                'codename' => self::PERMISSION_NAME,
+                'created_at' => now(),
+            ],
+        ]);
+
+        $permissionId = DB::table('permissions')->where('codename', self::PERMISSION_NAME)->first()->id;
+
+        foreach (self::PERMISSION_GROUP_IDS as $GROUP_ID) {
+            DB::table('group_permissions')->insert([
                 [
-                    'category' => self::PERMISSION_CATEGORY_ID,
-                    "name" => self::PERMISSION_HUMAN_NAME,
-                    "codename" => self::PERMISSION_NAME,
-                    'created_at' => now()
+                    'group_id' => $GROUP_ID,
+                    'permission_id' => $permissionId,
+                    'created_at' => now(),
                 ],
             ]);
-
-            $permissionId = DB::table('permissions')->where('codename', self::PERMISSION_NAME)->first()->id;
-
-            foreach (self::PERMISSION_GROUP_IDS as $GROUP_ID) {
-                DB::table('group_permissions')->insert([
-                    [
-                        'group_id' => $GROUP_ID,
-                        'permission_id' => $permissionId,
-                        'created_at' => now()
-                    ],
-                ]);
-            }
+        }
 
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -59,4 +56,4 @@ class AddStoreTicketPermissionToPermissionsTable extends Migration
 
         DB::commit();
     }
-}
+};

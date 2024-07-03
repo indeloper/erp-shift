@@ -5,13 +5,7 @@ namespace App\Console\Commands\Support\MaterialAccounting;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
 use App\Models\q3wMaterial\operations\q3wOperationMaterial;
 use App\Models\q3wMaterial\q3wMaterial;
-use App\Models\TechAcc\FuelTank\FuelTank;
-use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
-use App\Models\User;
-use App\Services\Fuel\FuelLevelSyncOnFlowCreatedService;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CancelCompletedSupplyOperation extends Command
@@ -42,35 +36,36 @@ class CancelCompletedSupplyOperation extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        $supplyOperationId = (int)$this->ask('Please, enter supply operation id');
+        $supplyOperationId = (int) $this->ask('Please, enter supply operation id');
 
-        if (!$supplyOperationId) {
+        if (! $supplyOperationId) {
             $this->error('Operation id is required!');
+
             return;
         }
 
         $operation = q3wMaterialOperation::find($supplyOperationId);
 
-        if (!$operation) {
+        if (! $operation) {
             $this->error("Operation with id $supplyOperationId not found!");
+
             return;
         }
 
         if ($operation->operation_route_id !== 1) {
             $this->error("Operation with id $supplyOperationId is not supply operation!");
+
             return;
         }
 
         if ($operation->operation_route_stage_id !== 3) {
             $this->error("Operation with id $supplyOperationId is not yet completed or already cancelled!");
+
             return;
         }
-
 
         $operationMaterials = q3wOperationMaterial::where('material_operation_id', $supplyOperationId)
             ->leftJoin('q3w_material_standards', 'q3w_operation_materials.standard_id', 'q3w_material_standards.id')
@@ -120,7 +115,7 @@ class CancelCompletedSupplyOperation extends Command
                     'q3w_materials.amount',
                     'q3w_materials.comment_id',
                     'q3w_material_comments.comment',
-                    'q3w_material_types.accounting_type'
+                    'q3w_material_types.accounting_type',
                 ]
             );
 
@@ -133,6 +128,7 @@ class CancelCompletedSupplyOperation extends Command
                     if ($objectMaterial->amount < 0) {
                         $this->error("Amount of material on object less than 0 ($objectMaterial->amount). Rolling back.");
                         DB::rollBack();
+
                         return;
                     } else {
                         $objectMaterial->save();
@@ -145,6 +141,7 @@ class CancelCompletedSupplyOperation extends Command
                     if ($objectMaterial->quantity < 0) {
                         $this->error("Quantity of material on object less than 0 ($objectMaterial->quantity). Rolling back.");
                         DB::rollBack();
+
                         return;
                     } else {
                         $objectMaterial->save();
@@ -159,10 +156,10 @@ class CancelCompletedSupplyOperation extends Command
 
         if ($this->confirm('Commit changes?')) {
             DB::commit();
-            $this->line("Operation successfully cancelled");
+            $this->line('Operation successfully cancelled');
         } else {
             DB::rollback();
-            $this->line("Rolled back");
+            $this->line('Rolled back');
         }
 
     }
