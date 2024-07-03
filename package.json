@@ -28,7 +28,7 @@
     "devextreme": "23.1.*",
     "frappe-gantt": "^0.3.0",
     "jquery-mask-plugin": "^1.14.16",
-    "lightgallery": "^2.7.1",
+    "lightgallery": "^2.7.2",
     "pusher-js": "^4.4.0",
     "v-inputmask": "^1.1.0",
     "vue-select": "^3.20.2",

@@ -1,0 +1,22 @@
+Index: app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php
+--- a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php	(revision 577a5df4e4167152a8a6d7ec09126c1086763145)
++++ b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php	(revision 9a441c40d828b24056bb1bf38a184fca63c712bc)
+@@ -264,6 +264,13 @@
+                     $sourceProjectObjectMaterial = (new q3wMaterial)
+                         ->where('project_object', $projectObject->id)
+                         ->where('standard_id', $unitedMaterial->standard_id)
++                        ->where(function ($query) use ($unitedMaterial) {
++                            if (empty($unitedMaterial->initial_comment_id)){
++                                $query->whereNull('comment_id');
++                            } else {
++                                $query->where('comment_id', $unitedMaterial->initial_comment_id);
++                            }
++                        })
+                         ->get()
+                         ->first();
+ 

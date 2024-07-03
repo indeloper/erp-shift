@@ -1,0 +1,17 @@
+Index: app/Http/Controllers/System/AdminController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/System/AdminController.php b/app/Http/Controllers/System/AdminController.php
+--- a/app/Http/Controllers/System/AdminController.php	(revision 05458ad68a84a577d67ad96597568680584d82ef)
++++ b/app/Http/Controllers/System/AdminController.php	(revision c5456376b9c2f9586a989cc8f92feacaa771f78b)
+@@ -27,7 +27,7 @@
+ 
+     public function loginAsUserId(Request $request)
+     {
+-        if (auth()->id() == 1) {
++        if (auth()->user()->is_su) {
+             auth()->login(User::findOrFail($request->user_id), false);
+         }
+         return redirect('/');

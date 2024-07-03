@@ -207,11 +207,11 @@ class TasksController extends Controller
 
         $projects_found_count = $projects->count();
 
-        $projects = $projects->take(10)->get();
+        $projects = $projects->take(15)->get();
 
         $results[] = [
             'id' => '',
-            'text' => 'Показано ' . ($projects_found_count < 10 ? $projects_found_count : 10) . ' из ' . $projects_found_count . ' найденных',
+            'text' => 'Показано ' . ($projects_found_count < 15 ? $projects_found_count : 15) . ' из ' . $projects_found_count . ' найденных',
             'disabled' => true,
         ];
         foreach ($projects as $project) {

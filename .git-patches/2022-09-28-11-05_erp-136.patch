@@ -1,0 +1,19 @@
+Index: app/Models/Manual/ManualMaterial.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/Manual/ManualMaterial.php b/app/Models/Manual/ManualMaterial.php
+--- a/app/Models/Manual/ManualMaterial.php	(revision 5d6b35b6afa649ed25f8cb2bac961457b55984ee)
++++ b/app/Models/Manual/ManualMaterial.php	(revision a225b0636fe805585f570eb93194e84d668261af)
+@@ -24,7 +24,9 @@
+         '9' => ['Длина стороны а', 'Длина стороны б', 'Толщина'],
+         '10' => ['Марка'],
+         '11' => ['Длина стороны а', 'Длина стороны б', 'Толщина', 'Марка стали'],
+-        '22' => ['Марка']
++        '22' => ['Марка'],
++        '26' => ['Марка'],
++        '42' => ['Марка'],
+     ];
+ 
+     public function getReferenceNameAttribute()

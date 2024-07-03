@@ -227,7 +227,7 @@ class FuelTankFlowController extends StandardEntityResourceController
         $this->additionalResources->
         fuelResponsibles =
             User::query()->active()
-                ->orWhereIn('group_id', Group::FOREMEN)
+                ->orWhereIn('group_id', array_merge(Group::FOREMEN, Group::MECHANICS))
                 ->get();
 
         $this->additionalResources->

@@ -1,0 +1,21 @@
+Index: backup.sh
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backup.sh b/backup.sh
+--- a/backup.sh	(revision c5456376b9c2f9586a989cc8f92feacaa771f78b)
++++ b/backup.sh	(revision 22f678bc6ec86f7248879a18bd5dfb7621fdad55)
+@@ -1,9 +1,9 @@
+ #!/bin/bash
+ # Backup storage directory
+-backupfolder=/var/backups/erp-sk-gorod-database-backups
++backupfolder=/var/backups/erp.sk-gorod.com_database_backups
+ backupmountpoint=/mnt/web_backup/
+-backuperpfilesfolder=/var/www/accounting
+-logfile=/var/log/erp-sk-gorod-backup.log
++backuperpfilesfolder=/var/www/erp.sk-gorod.com
++logfile=/var/log/erp.sk-gorod.com_backup.log
+ # MySQL user
+ user=root
+ # MySQL password
