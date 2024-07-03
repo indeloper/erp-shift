@@ -383,7 +383,9 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
                     if (!(store instanceof DevExpress.data.ArrayStore)) {
                       store.push([{ type: 'insert', data: data.data }]);
                     }
+
                   }).always(() => {
+                    formInstance.option('dataGridInstance').refresh();
                     formInstance.option('dataGridInstance').endCustomLoading();
                   });
                   break;
@@ -395,8 +397,12 @@ class skDataGrid extends DevExpress.ui.dxDataGrid {
                     if (!(store instanceof DevExpress.data.ArrayStore)) {
                       store.push([{ type: 'update', data: data.data, key: key }]);
                     }
+
                   }).always(() => {
+                    formInstance.option('dataGridInstance').refresh();
+                    
                     formInstance.option('dataGridInstance').endCustomLoading();
+
                   });
 
                   break;
