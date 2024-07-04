@@ -14,7 +14,11 @@ import TabItems from '../Items/TabItems';
 import DirectionItem from '../Items/Objects/DirectionItem';
 import HistoryChangesItem from '../Items/Objects/HistoryChangesItem';
 import ContractorsItem from '../Items/Objects/ContractorsItem';
+import ContactsItem from '../Items/Objects/ContactsItem';
 import ResponsiblesItem from '../Items/Objects/ResponsiblesItem';
+import EventsItem from '../Items/Objects/EventsItem';
+import WorkVolumesItem from '../Items/Objects/WorkVolumesItem';
+import CommercialItem from '../Items/Objects/CommercialItem';
 
 export class DataGridEditForm extends BaseEditForm {
   build() {
@@ -60,7 +64,21 @@ export class DataGridEditForm extends BaseEditForm {
           ], 'link')
           .setTab('Контрагенты', [
             ContractorsItem.build(),
+          ], 'user')
+
+          .setTab('Контакты', [
+            ContactsItem.build(),
           ], 'group')
+          .setTab('Документация', [], 'textdocument')
+          .setTab('Объемы', [
+            WorkVolumesItem.build(),
+          ], 'share')
+          .setTab('Предложения', [
+            CommercialItem.build(),
+          ], 'sun')
+          .setTab('События', [
+            EventsItem.build(),
+          ], 'return')
           .setTab('История', [
             HistoryChangesItem.build(),
           ], 'eyeopen')

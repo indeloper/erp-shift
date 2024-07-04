@@ -15,6 +15,7 @@ final class ProjectController
     {
         return ProjectResource::collection(
             Project::query()
+                ->with(['contractor'])
                 ->latest()
                 ->paginate(15)
         );

@@ -8,7 +8,7 @@ import { BaseEditing } from '../../../BaseEditing';
 import { DataGridPopup } from '../../../Popup/Objects/DataGridPopup';
 import { DataGridEditForm } from '../../Contacts/DataGridEditForm';
 
-export default class ResponsiblesItem {
+export default class ContactsItem {
   static build(label = undefined) {
     return {
       visible: true,
@@ -20,7 +20,7 @@ export default class ResponsiblesItem {
         const currentEmployeeData = options[0];
 
         const initDataGrid = new InitDataGrid('<div>')
-          .setTitle('Ответственные');
+          .setTitle('Контакты');
 
         initDataGrid
           .setEditing(
@@ -29,19 +29,19 @@ export default class ResponsiblesItem {
           .getEditing()
           .setPopup(
             new DataGridPopup()
-              .setTitle('Ответственные'),
+              .setTitle('Контакты'),
           )
           .setForm(
             new DataGridEditForm()
-              .setTitle('Ответственные'),
+              .setTitle('Контакты'),
           );
 
         initDxForm(
           initDataGrid,
           new DefaultDataSource(
-            route('projects::object::responsibles::index', { projectObject: objectId }),
-            route('projects::object::responsibles::index', { projectObject: objectId }),
-            route('projects::object::responsibles::store', { projectObject: objectId }),
+            route('projects::object::contacts::index', { projectObject: objectId }),
+            route('projects::object::contacts::index', { projectObject: objectId }),
+            route('projects::object::contacts::store', { projectObject: objectId }),
           ),
           new ContactsColumns(),
         ).appendTo(currentEmployeeData);

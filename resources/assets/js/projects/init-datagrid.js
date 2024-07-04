@@ -6,10 +6,10 @@ import { DataGridPopup } from '../SkDev/Editing/Popup/Projects/DataGridPopup';
 import {
   DataGridEditForm,
 } from '../SkDev/Editing/Form/Projects/DataGridEditForm';
+import { MasterDetail } from '../SkDev/MasterDetail/Projects/MasterDetail';
 import {
   ProjectColumns,
 } from '../SkDev/DataSource/Columns/Projects/ProjectColumns';
-import { MasterDetail } from '../SkDev/MasterDetail/Projects/MasterDetail';
 
 const initDataGrid = new InitDataGrid('#dataGridAnchor')
   .setTitle('Проект')

@@ -2,6 +2,11 @@ export class BaseEditing {
   constructor() {
     this.form = null;
     this.popup = null;
+    this.allowUpdating = true;
+    this.allowAdding = true;
+    this.allowDeleting = false;
+    this.selectTextOnEditStart = false;
+    this.useIcons = true;
   }
 
   build() {
@@ -11,12 +16,12 @@ export class BaseEditing {
         popup: this.popup.build(),
         form: this.form.build(),
 
-        allowUpdating: true,
-        allowAdding: true,
-        allowDeleting: false,
-        selectTextOnEditStart: false,
+        allowUpdating: this.allowUpdating,
+        allowAdding: this.allowAdding,
+        allowDeleting: this.allowDeleting,
+        selectTextOnEditStart: this.selectTextOnEditStart,
 
-        useIcons: true,
+        useIcons: this.useIcons,
       },
     };
   }
@@ -24,6 +29,17 @@ export class BaseEditing {
   setPopup(popup) {
     this.popup = popup;
 
+    return this;
+  }
+
+  setAllowAdding(allowAdding) {
+    this.allowAdding = allowAdding;
+
+    return this;
+  }
+
+  setAllowUpdating(allowUpdating) {
+    this.allowUpdating = allowUpdating;
     return this;
   }
 

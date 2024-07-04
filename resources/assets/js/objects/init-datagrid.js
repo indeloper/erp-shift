@@ -18,6 +18,7 @@ initDataGrid
     new BaseEditing(),
   )
   .getEditing()
+  .setAllowAdding(false)
   .setPopup(
     new DataGridPopup()
       .setTitle('Информация об проекте'),

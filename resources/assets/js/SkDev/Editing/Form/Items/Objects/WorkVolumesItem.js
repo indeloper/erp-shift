@@ -1,14 +1,14 @@
 import { InitDataGrid } from '../../../../InitDataGrid';
 import { initDxForm } from '../../../../custom';
 import { DefaultDataSource } from '../../../../DataSource/DefaultDataSource';
-import {
-  ContactsColumns,
-} from '../../../../DataSource/Columns/Objects/ContactsColumns';
 import { BaseEditing } from '../../../BaseEditing';
 import { DataGridPopup } from '../../../Popup/Objects/DataGridPopup';
 import { DataGridEditForm } from '../../Contacts/DataGridEditForm';
+import {
+  WorkVolumesColumns,
+} from '../../../../DataSource/Columns/Objects/WorkVolumesColumns';
 
-export default class ResponsiblesItem {
+export default class WorkVolumesItem {
   static build(label = undefined) {
     return {
       visible: true,
@@ -20,30 +20,32 @@ export default class ResponsiblesItem {
         const currentEmployeeData = options[0];
 
         const initDataGrid = new InitDataGrid('<div>')
-          .setTitle('Ответственные');
+          .setTitle('Объемы работ');
 
         initDataGrid
           .setEditing(
             new BaseEditing(),
           )
           .getEditing()
+          .setAllowAdding(false)
+          .setAllowUpdating(false)
           .setPopup(
             new DataGridPopup()
-              .setTitle('Ответственные'),
+              .setTitle('Объемы работ'),
           )
           .setForm(
             new DataGridEditForm()
-              .setTitle('Ответственные'),
+              .setTitle('Объемы работ'),
           );
 
         initDxForm(
           initDataGrid,
           new DefaultDataSource(
-            route('projects::object::responsibles::index', { projectObject: objectId }),
-            route('projects::object::responsibles::index', { projectObject: objectId }),
-            route('projects::object::responsibles::store', { projectObject: objectId }),
+            route('projects::object::work_volumes::index', { projectObject: objectId }),
+            route('projects::object::work_volumes::index', { projectObject: objectId }),
+            route('projects::object::work_volumes::store', { projectObject: objectId }),
           ),
-          new ContactsColumns(),
+          new WorkVolumesColumns(),
         ).appendTo(currentEmployeeData);
       },
 
