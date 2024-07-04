@@ -372,7 +372,7 @@ class Project extends Model
 
     public function getContractorNameAttribute()
     {
-        return $this->contractor->short_name;
+        return $this->contractor?->short_name ?? '-';
     }
 
     /**
