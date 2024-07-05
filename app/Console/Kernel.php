@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CheckExperiencePersonCommand;
 use App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -54,7 +55,8 @@ class Kernel extends ConsoleKernel
         Commands\NotifyFuelTankResponsiblesAboutMovingConfirmationDelay::class,
         Commands\Support\Fuel\FuelTransferHistoriesSetFuelLevels::class,
         Commands\Support\Fuel\FuelTanksFuelLevelCheck::class,
-        Commands\Support\MaterialAccounting\CancelCompletedSupplyOperation::class
+        Commands\Support\MaterialAccounting\CancelCompletedSupplyOperation::class,
+        CheckExperiencePersonCommand::class
     ];
 
     /**
@@ -72,6 +74,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('contractors:check-contacts')->dailyAt('04:00');
         $schedule->command('contacts:check')->dailyAt('04:00');
         $schedule->command('defects:check')->dailyAt('08:00');
+
+        $schedule->command('check:experience-person')
+            ->withoutOverlapping()
+            ->dailyAt('08:00');
+
         $schedule->command('usage_report_task:create')->dailyAt('07:00');
         $schedule->command('birthday:check')->dailyAt('09:00');
 

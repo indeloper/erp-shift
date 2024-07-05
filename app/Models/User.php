@@ -2,27 +2,35 @@
 
 namespace App\Models;
 
-use App\Models\Menu\MenuItem;
-use App\Models\HumanResources\{Appointment, Brigade, JobCategory, ReportGroup, Timecard};
+use App\Models\Employees\Employee;
+use App\Models\HumanResources\{Appointment,
+    Brigade,
+    JobCategory,
+    ReportGroup,
+    Timecard};
 use App\Models\MatAcc\MaterialAccountingOperation;
-use Exception;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use morphos\Russian\FirstNamesInflection;
-use morphos\Russian\LastNamesInflection;
-use morphos\Russian\MiddleNamesInflection;
-use App\Models\Notifications\{NotificationsForUsers, NotificationTypes, UserDisabledNotifications};
+use App\Models\Menu\MenuItem;
+use App\Models\Notifications\{NotificationsForUsers,
+    NotificationTypes,
+    UserDisabledNotifications};
 use App\Models\TechAcc\OurTechnicTicket;
-use App\Models\Vacation\{
-    ProjectResponsibleUserRedirectHistory,
-    VacationsHistory
-};
-use App\Traits\{DevExtremeDataSourceLoadable, Appointmentable, DefaultSortable, Logable, Messagable, Reviewable, TicketResponsibleUser};
+use App\Models\Vacation\{ProjectResponsibleUserRedirectHistory,
+    VacationsHistory};
+use App\Traits\{Appointmentable,
+    DefaultSortable,
+    DevExtremeDataSourceLoadable,
+    Logable,
+    Messagable,
+    Reviewable,
+    TicketResponsibleUser};
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+
 use function morphos\Russian\inflectName;
 
 class User extends Authenticatable
@@ -56,6 +64,7 @@ class User extends Authenticatable
         'gender',
         'INN',
     ];
+
 
     protected $table = 'users';
 
@@ -143,6 +152,11 @@ class User extends Authenticatable
         'company' => 'company', // Компания
         'project_object_id' => 'project_object_id', // Объект
     ];
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 
     protected static function boot()
     {
@@ -373,6 +387,11 @@ class User extends Authenticatable
         return $this->user_full_name;
     }
 
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
 
     public function getLongFullNameAttribute()
     {
@@ -458,6 +477,22 @@ class User extends Authenticatable
     public function tasks()
     {
         return $this->hasMany(Task::class, 'responsible_user_id', 'id')->where('is_solved', 0);
+    }
+
+    public function getExperienceAgeAttribute()
+    {
+        if ($this->employee !== null && $this->employee->employment_date !== null) {
+            return \Illuminate\Support\Carbon::parse($this->employee->employment_date)->age;
+        }
+        return \Illuminate\Support\Carbon::parse($this->created_at)->age;
+    }
+
+    public function getExperienceAttribute()
+    {
+        if ($this->employee !== null && $this->employee->employment_date !== null) {
+            return \Illuminate\Support\Carbon::parse($this->employee->employment_date);
+        }
+        return \Illuminate\Support\Carbon::parse($this->created_at);
     }
 
 
