@@ -54,7 +54,7 @@ RUN docker-php-ext-enable redis.so
 
 WORKDIR /var/www
 
-COPY --chown=www-data .. .
+#RUN chgrp -R www-data .
 
 COPY ./php/php.ini /usr/local/etc/php/php.ini
 COPY ./php/20-xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
