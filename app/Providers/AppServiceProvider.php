@@ -2,16 +2,21 @@
 
 namespace App\Providers;
 
+use App\Models\Manual\ManualMaterial;
 use App\Models\Permission;
+use App\Models\WorkVolume\WorkVolumeMaterialComplect;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use ReflectionClass;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if (config('app.env') !== 'local') {
             URL::forceScheme('https');
-        };
+        }
 
         if (config('app.env') != 'production') {
             DB::listen(function ($query) {
@@ -42,15 +47,15 @@ class AppServiceProvider extends ServiceProvider
             });
         }
 
-        \Illuminate\Pagination\Paginator::useBootstrap();
+        Paginator::useBootstrap();
 
         setlocale(LC_TIME, 'ru_RU.UTF-8');
 
         Carbon::setLocale('ru');
 
         Relation::morphMap([
-            'regular' => \App\Models\Manual\ManualMaterial::class,
-            'complect' => \App\Models\WorkVolume\WorkVolumeMaterialComplect::class,
+            'regular' => ManualMaterial::class,
+            'complect' => WorkVolumeMaterialComplect::class,
         ]);
 
         /**
@@ -91,10 +96,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function bootAuth(): void
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable(app(Permission::class)->getTable())) {
-            return;
-        }
-
         //        Passport::routes();
         //TODO: вынести нахой
         //allow everything for super admin
@@ -103,7 +104,7 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
             if (isset($arguments[0])) {
-                $short_name = (new \ReflectionClass($arguments[0]))->getShortName();
+                $short_name = (new ReflectionClass($arguments[0]))->getShortName();
                 $permission = $ability.'.'.$short_name;
                 $is_authed = $user->hasPermission($permission);
                 if ($is_authed) {
@@ -111,6 +112,10 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+
+        if (!Schema::hasTable(app(Permission::class)->getTable())) {
+            return;
+        }
 
         // load check user permission
         foreach (Permission::all() as $permission) {
