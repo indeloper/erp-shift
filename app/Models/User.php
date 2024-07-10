@@ -4,6 +4,9 @@ namespace App\Models;
 
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\Menu\MenuItem;
+use App\Models\Messenger\Message;
+use App\Models\Messenger\Participant;
+use App\Models\Messenger\Thread;
 use App\Models\Notification\Notification;
 use App\Models\Notifications\NotificationsForUsers;
 use App\Models\Notifications\NotificationTypes;
@@ -17,9 +20,12 @@ use App\Traits\Logable;
 use App\Traits\Messagable;
 use App\Traits\Reviewable;
 use App\Traits\TicketResponsibleUser;
+use Barryvdh\LaravelIdeHelper\Eloquent;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -31,9 +37,129 @@ use Illuminate\Support\Facades\DB;
 
 use function morphos\Russian\inflectName;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property string|null $patronymic
+ * @property string|null $user_full_name
+ * @property string|null $birthday
+ * @property string|null $email
+ * @property string|null $person_phone
+ * @property string|null $work_phone
+ * @property int|null $department_id
+ * @property int|null $group_id
+ * @property int $company
+ * @property int|null $job_category_id
+ * @property int|null $brigade_id
+ * @property string|null $image
+ * @property string $password
+ * @property int $status
+ * @property int $is_su
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $chat_id
+ * @property int $in_vacation
+ * @property int $is_deleted
+ * @property string|null $INN ИНН пользователя
+ * @property string|null $gender Пол пользователя (M - мужской, F - женский)
+ * @property-read Collection<int, Task> $allTasks
+ * @property-read int|null $all_tasks_count
+ * @property-read Collection<int, UserDisabledNotifications> $disabledNotifications
+ * @property-read int|null $disabled_notifications_count
+ * @property-read mixed $all_permissions
+ * @property-read string $card_route
+ * @property-read mixed $company_name
+ * @property-read mixed $full_name
+ * @property-read mixed $group_name
+ * @property-read mixed $long_full_name
+ * @property-read string $name
+ * @property-read Group|null $group
+ * @property-read VacationsHistory|null $last_vacation
+ * @property-read Collection<int, ActionLog> $logs
+ * @property-read int|null $logs_count
+ * @property-read Collection<int, MenuItem> $menuItems
+ * @property-read int|null $menu_items_count
+ * @property-read Collection<int, Message> $messages
+ * @property-read int|null $messages_count
+ * @property-read Collection<int, Notification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read Collection<int, Participant> $participants
+ * @property-read int|null $participants_count
+ * @property-read Collection<int, ProjectResponsibleUser> $projectRoles
+ * @property-read int|null $project_roles_count
+ * @property-read Collection<int, NotificationsForUsers> $relatedNotifications
+ * @property-read int|null $related_notifications_count
+ * @property-read Collection<int, User> $replaced_users
+ * @property-read int|null $replaced_users_count
+ * @property-read Collection<int, User> $replacing_users
+ * @property-read int|null $replacing_users_count
+ * @property-read Collection<int, Review> $reviews
+ * @property-read int|null $reviews_count
+ * @property-read Collection<int, Task> $tasks
+ * @property-read int|null $tasks_count
+ * @property-read Collection<int, OurTechnicTicket> $technic_tickets
+ * @property-read int|null $technic_tickets_count
+ * @property-read Collection<int, Thread> $threads
+ * @property-read int|null $threads_count
+ * @property-read Collection<int, Project> $timeResponsibleProjects
+ * @property-read int|null $time_responsible_projects_count
+ * @property-read Collection<int, Permission> $user_permissions
+ * @property-read int|null $user_permissions_count
+ * @method static Builder|User active()
+ * @method static Builder|User activeResp()
+ * @method static Builder|User filter(Request $request)
+ * @method static Builder|User forDefects(?string $q, array $user_ids = [])
+ * @method static Builder|User forTechTickets(?string $q, ?array $group_ids)
+ * @method static Builder|User newModelQuery()
+ * @method static Builder|User newQuery()
+ * @method static Builder|User ofType($human_type)
+ * @method static Builder|User query()
+ * @method static Builder|User whereBirthday($value)
+ * @method static Builder|User whereBrigadeId($value)
+ * @method static Builder|User whereChatId($value)
+ * @method static Builder|User whereCompany($value)
+ * @method static Builder|User whereCreatedAt($value)
+ * @method static Builder|User whereDepartmentId($value)
+ * @method static Builder|User whereEmail($value)
+ * @method static Builder|User whereFirstName($value)
+ * @method static Builder|User whereGender($value)
+ * @method static Builder|User whereGroupId($value)
+ * @method static Builder|User whereINN($value)
+ * @method static Builder|User whereId($value)
+ * @method static Builder|User whereImage($value)
+ * @method static Builder|User whereInVacation($value)
+ * @method static Builder|User whereIsDeleted($value)
+ * @method static Builder|User whereIsSu($value)
+ * @method static Builder|User whereJobCategoryId($value)
+ * @method static Builder|User whereLastName($value)
+ * @method static Builder|User wherePassword($value)
+ * @method static Builder|User wherePatronymic($value)
+ * @method static Builder|User wherePersonPhone($value)
+ * @method static Builder|User whereRememberToken($value)
+ * @method static Builder|User whereStatus($value)
+ * @method static Builder|User whereUpdatedAt($value)
+ * @method static Builder|User whereUserFullName($value)
+ * @method static Builder|User whereWorkPhone($value)
+ * @method static Builder|User whoHaveBirthdayNextWeek()
+ * @method static Builder|User whoHaveBirthdayToday()
+ * @method static Builder|User withTelegramChatId()
+ * @method static Builder|User withoutTelegramChatId()
+ * @mixin Eloquent
+ */
 class User extends Authenticatable
 {
-    use DefaultSortable, DevExtremeDataSourceLoadable, Logable, Messagable, Notifiable, Reviewable, TicketResponsibleUser;
+    use DefaultSortable,
+        DevExtremeDataSourceLoadable,
+        Logable,
+        Messagable,
+        Notifiable,
+        Reviewable,
+        TicketResponsibleUser,
+        HasFactory;
 
     public $defaultSortOrder = [
         'user_full_name' => 'asc',
@@ -180,19 +306,19 @@ class User extends Authenticatable
                         $query->orWhere('birthday', '<=', $to);
                     }
                 } elseif ($filter == 'name') {
-                    $names = (array) $values[$key];
+                    $names = (array)$values[$key];
                     foreach ($names as $name) {
-                        $query->orWhere('last_name', 'like', '%'.$name.'%')
-                            ->orWhere('first_name', 'like', '%'.$name.'%')
-                            ->orWhere('patronymic', 'like', '%'.$name.'%');
+                        $query->orWhere('last_name', 'like', '%' . $name . '%')
+                            ->orWhere('first_name', 'like', '%' . $name . '%')
+                            ->orWhere('patronymic', 'like', '%' . $name . '%');
                     }
                 } elseif (in_array($filter, [self::FILTERS['person_phone'], self::FILTERS['work_phone']])) {
-                    $phones = (array) $values[$key];
+                    $phones = (array)$values[$key];
                     foreach ($phones as $phone) {
-                        $query->orWhere($filter, 'like', '%'.$phone.'%');
+                        $query->orWhere($filter, 'like', '%' . $phone . '%');
                     }
                 } else {
-                    $query->whereIn($filter, (array) $values[$key]);
+                    $query->whereIn($filter, (array)$values[$key]);
                 }
             }
         }
@@ -214,13 +340,13 @@ class User extends Authenticatable
 
         if ($q) {
             $groups = Group::where('name', $q)
-                ->orWhere('name', 'like', '%'.$q.'%')
+                ->orWhere('name', 'like', '%' . $q . '%')
                 ->pluck('id')
                 ->toArray();
 
-            $query->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$q.'%');
+            $query->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $q . '%');
 
-            if (! empty($groups)) {
+            if (!empty($groups)) {
                 $query->orWhereIn('group_id', [$groups]);
             }
         }
@@ -245,10 +371,10 @@ class User extends Authenticatable
 
         if ($q) {
             $query->where(function ($subquery) use ($q) {
-                $subquery->orWhere('last_name', 'like', '%'.$q.'%')
-                    ->orWhere('first_name', 'like', '%'.$q.'%')
-                    ->orWhere('patronymic', 'like', '%'.$q.'%')
-                    ->orWhere(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$q.'%');
+                $subquery->orWhere('last_name', 'like', '%' . $q . '%')
+                    ->orWhere('first_name', 'like', '%' . $q . '%')
+                    ->orWhere('patronymic', 'like', '%' . $q . '%')
+                    ->orWhere(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $q . '%');
             });
         }
 
@@ -307,7 +433,7 @@ class User extends Authenticatable
      */
     public function scopeWhoHaveBirthdayToday(Builder $query)
     {
-        return $query->where('birthday', 'like', '%'.now()->format('d.m').'%')
+        return $query->where('birthday', 'like', '%' . now()->format('d.m') . '%')
             ->where('status', '=', 1)
             ->where('is_deleted', '=', 0);
     }
@@ -319,7 +445,7 @@ class User extends Authenticatable
      */
     public function scopeWhoHaveBirthdayNextWeek(Builder $query)
     {
-        return $query->where('birthday', 'like', '%'.now()->addWeek()->format('d.m').'%')
+        return $query->where('birthday', 'like', '%' . now()->addWeek()->format('d.m') . '%')
             ->where('status', '=', 1)
             ->where('is_deleted', '=', 0);
     }
@@ -340,7 +466,7 @@ class User extends Authenticatable
     //maxon uses that
     public function getAllPermissionsAttribute()
     {
-        if (! $this->all_permissions_cache) {
+        if (!$this->all_permissions_cache) {
             $all_permissions = $this->user_permissions;
             $all_permissions = $all_permissions->merge($this->group->group_permissions);
 
@@ -366,7 +492,7 @@ class User extends Authenticatable
 
     public function getLongFullNameAttribute()
     {
-        return trim($this->last_name.' '.$this->first_name.($this->patronymic ? ' '.$this->patronymic : ''));
+        return trim($this->last_name . ' ' . $this->first_name . ($this->patronymic ? ' ' . $this->patronymic : ''));
     }
 
     public function getGroupNameAttribute()
@@ -398,7 +524,7 @@ class User extends Authenticatable
      */
     public function isOperationDrafter(string $type): bool
     {
-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
+        if (!in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
             return new Exception("Given Operation type doesn't exist");
         }
 
@@ -413,7 +539,7 @@ class User extends Authenticatable
      */
     public function isOperationCreator(string $type): bool
     {
-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
+        if (!in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
             return new Exception("Given Operation type doesn't exist");
         }
 
@@ -488,7 +614,7 @@ class User extends Authenticatable
 
     public function user_name()
     {
-        return $this->last_name.' '.$this->first_name.' '.$this->patronymic;
+        return $this->last_name . ' ' . $this->first_name . ' ' . $this->patronymic;
     }
 
     /**
@@ -499,7 +625,7 @@ class User extends Authenticatable
      */
     public function isInGroup(...$groups_to_check): bool
     {
-        return ! empty(array_intersect($groups_to_check, $this->getAllGroupIds()));
+        return !empty(array_intersect($groups_to_check, $this->getAllGroupIds()));
     }
 
     public function getAllGroupIds()
@@ -714,7 +840,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @param  string  $format
+     * @param string $format
      *                          F - Full firstname;
      *                          f - Fist letter of firstName;
      *                          L - Full lastname;
@@ -734,7 +860,7 @@ class User extends Authenticatable
 
         $fullName = str_replace($patronymicExcludes, '', $this->long_full_name);
 
-        if (! empty($declension)) {
+        if (!empty($declension)) {
             $fullName = inflectName($fullName, $declension, mb_strtolower($this->gender));
         }
 
@@ -762,7 +888,7 @@ class User extends Authenticatable
             $result = str_replace('F', $firstName, $result);
         }
 
-        if (! empty($patronymic)) {
+        if (!empty($patronymic)) {
             if (mb_strpos($result, 'p') > 0) {
                 $patronymic = mb_substr($patronymic, 0, 1, 'UTF-8');
                 $result = str_replace('p', $patronymic, $result);
@@ -780,8 +906,8 @@ class User extends Authenticatable
     public function getExternalUserUrl()
     {
         return $this->chat_id
-            ? 'tg://user?id='.$this->chat_id
-            : asset('/users/card').'/'.$this->id ?? null;
+            ? 'tg://user?id=' . $this->chat_id
+            : asset('/users/card') . '/' . $this->id ?? null;
     }
 
     public function menuItems(): BelongsToMany

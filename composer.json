@@ -30,10 +30,11 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.10",
+        "barryvdh/laravel-ide-helper": "^3.0",
+        "fakerphp/faker": "^1.23",
         "laravel/dusk": "^8.0",
         "mockery/mockery": "^1.6",
-        "phpunit/phpunit": "^9.5.10",
-        "fakerphp/faker": "^1.23"
+        "phpunit/phpunit": "^9.5.10"
     },
     "config": {
         "platform-check": false,

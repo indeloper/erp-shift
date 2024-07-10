@@ -12,6 +12,7 @@ use App\Models\ProjectObjectDocuments\ProjectObjectDocumentStatus;
 use App\Models\ProjectObjectDocuments\ProjectObjectDocumentType;
 use App\Notifications\DocumentFlow\DocumentFlowOnObjectsNotice;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ProjectObjectDocumentsNotifications
 {
@@ -23,12 +24,18 @@ class ProjectObjectDocumentsNotifications
 
     public function __construct($notificationsToSendArr = [])
     {
+        if (!Schema::hasTable(
+            app(ProjectObjectDocumentType::class)->getTable()
+        )) {
+            return;
+        }
+
         $this->notificationsToSendArr = $notificationsToSendArr;
         $this->twentyDaysBefore = now()->subDays(20)->format('Y-m-d');
         $this->exclude_document_signs = [
             [
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'РД')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'РД')->first()?->id,
+                'document_status_id' => ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()?->id,
                 'option' => [
                     'id' => 'rd_to_production',
                     'type' => 'checkbox',
@@ -36,8 +43,8 @@ class ProjectObjectDocumentsNotifications
                 ],
             ],
             [
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()->id,
-                'document_status_id' => ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()?->id,
+                'document_status_id' => ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()?->id,
                 'option' => [
                     'id' => 'ppr_confirmed_paper_format',
                     'type' => 'checkbox',
@@ -86,6 +93,12 @@ class ProjectObjectDocumentsNotifications
 
     public function checkNeedSendNotifications()
     {
+        if (!Schema::hasTable(
+            app(ActionLog::class)->getTable()
+        )) {
+            return false;
+        }
+
         $isNotificationsTodayAlreadySent = ActionLog::where([
             ['logable_type', \App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications::class],
             ['created_at', '>', now()->today()],
@@ -100,6 +113,8 @@ class ProjectObjectDocumentsNotifications
 
     public function addDataToActionLog()
     {
+
+
         $actions = new \stdClass;
         $actions->event = 'project-object-documents-notifications-sent';
 

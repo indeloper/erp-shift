@@ -2,11 +2,38 @@
 
 namespace App\Models;
 
+use Barryvdh\LaravelIdeHelper\Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string $name
+ * @property-read Collection<int, Group> $groups
+ * @property-read int|null $groups_count
+ * @property-read Collection<int, User> $users
+ * @property-read int|null $users_count
+ * @method static Builder|Department newModelQuery()
+ * @method static Builder|Department newQuery()
+ * @method static Builder|Department query()
+ * @method static Builder|Department whereCreatedAt($value)
+ * @method static Builder|Department whereId($value)
+ * @method static Builder|Department whereName($value)
+ * @method static Builder|Department whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Department extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['name'];
 
     const DEPARTMENTS = [
