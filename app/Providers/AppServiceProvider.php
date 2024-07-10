@@ -3,15 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Permission;
-use App\Models\User;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (config('app.env') !== 'local') {
-            \URL::forceScheme('https');
+            URL::forceScheme('https');
         };
 
         if (config('app.env') != 'production') {
@@ -78,7 +77,9 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        $this->bootAuth();
+        if (auth()->user()) {
+            $this->bootAuth();
+        }
     }
 
     /**

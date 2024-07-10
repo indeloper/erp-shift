@@ -49,14 +49,17 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(using: function (Exceptions $exceptions) {
         $exceptions->report(function (Throwable $e) {
-            ExceptionNotice::send(
-                User::where('is_su', 1)->get()->pluck('id')->toArray(),
-                [
-                    'name'             => ExceptionNotice::DESCRIPTION,
-                    'exceptionMessage' => $e->getMessage(),
-                    'user'             => Auth::user(),
-                    'ip'               => request()?->ip(),
-                ]
-            );
+            if (config('app.env') !== 'local')
+            {
+                ExceptionNotice::send(
+                    User::where('is_su', 1)->get()->pluck('id')->toArray(),
+                    [
+                        'name'             => ExceptionNotice::DESCRIPTION,
+                        'exceptionMessage' => $e->getMessage(),
+                        'user'             => Auth::user(),
+                        'ip'               => request()?->ip(),
+                    ]
+                );
+            }
         });
     })->create();

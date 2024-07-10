@@ -10,4 +10,5 @@ return [
     App\Providers\RouteServiceProvider::class,
     App\Providers\ServiceServiceProvider::class,
     App\Providers\ViewComposerServiceProvider::class,
+    Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 ];
