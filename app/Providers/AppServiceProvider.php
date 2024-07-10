@@ -77,9 +77,7 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        if (auth()->user()) {
-            $this->bootAuth();
-        }
+        $this->bootAuth();
     }
 
     /**
@@ -93,8 +91,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function bootAuth(): void
     {
-        //        Passport::routes();
+        if (!\Illuminate\Support\Facades\Schema::hasTable(app(Permission::class)->getTable())) {
+            return;
+        }
 
+        //        Passport::routes();
+        //TODO: вынести нахой
         //allow everything for super admin
         Gate::before(function ($user, $ability, $arguments) {
             if ($user->is_su) {
