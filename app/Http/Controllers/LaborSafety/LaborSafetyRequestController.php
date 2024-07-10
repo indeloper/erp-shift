@@ -2,34 +2,27 @@
 
 namespace App\Http\Controllers\LaborSafety;
 
-use App\Http\Requests\ProjectRequest\ProjectStatRequest;
-use App\Models\Building\ObjectResponsibleUser;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyReportTemplate;
+use App\Models\Employees\Employee;
+use App\Models\Employees\Employees1cPost;
 use App\Models\LaborSafety\LaborSafetyOrderType;
 use App\Models\LaborSafety\LaborSafetyOrderWorker;
 use App\Models\LaborSafety\LaborSafetyRequest;
-use App\Models\LaborSafety\LaborSafetyRequestOrder;
 use App\Models\LaborSafety\LaborSafetyRequestStatus;
 use App\Models\LaborSafety\LaborSafetyRequestWorker;
 use App\Models\LaborSafety\LaborSafetyWorkerType;
 use App\Models\Notification;
-use App\Models\Employees\Employee;
-use App\Models\Employees\Employees1cPost;
 use App\Models\Permission;
 use App\Models\Project;
 use App\Models\ProjectObject;
 use App\Models\User;
-use App\Models\UserPermission;
 use App\Telegram\TelegramServices;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use morphos\English\NounPluralization;
-use morphos\Russian\NounDeclension;
 use PhpOffice\PhpWord\ComplexType\ProofState;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Row;
@@ -38,7 +31,6 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\NumberFormat;
 use PhpOffice\PhpWord\Style\Language;
-use function morphos\Russian\inflectName;
 
 class LaborSafetyHtml extends Html
 {
@@ -155,7 +147,7 @@ class LaborSafetyHtml extends Html
             // Arguments are passed by reference
             $arguments = array();
             $args = array();
-            list($method, $args[0], $args[1], $args[2], $args[3], $args[4], $args[5]) = $nodes[$node->nodeName];
+            [$method, $args[0], $args[1], $args[2], $args[3], $args[4], $args[5]] = $nodes[$node->nodeName];
             for ($i = 0; $i <= 5; $i++) {
                 if ($args[$i] !== null) {
                     $arguments[$keys[$i]] = &$args[$i];
@@ -1054,11 +1046,28 @@ class LaborSafetyRequestController extends Controller
                     }
                     break;
                 case "{gas_welding_works_employee_full_name}":
-                    $gasWeldingWorksEmployee = Employee::find(LaborSafetyRequestWorker::where('request_id', '=', $request->id)
+                    $labor = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
                         ->where('worker_type_id', '=', 8)
-                        ->first()
-                        ->worker_employee_id);
-                    $orderTemplate = str_replace($variable, $gasWeldingWorksEmployee->format('L F P', 'винительный'), $orderTemplate);
+                        ->first();
+
+                    if ($labor !== null) {
+                        $gasWeldingWorksEmployee = Employee::find($labor->worker_employee_id);
+
+                        if ($gasWeldingWorksEmployee !== null) {
+                            $orderTemplate = str_replace($variable, $gasWeldingWorksEmployee->format('L F P', 'винительный'), $orderTemplate);
+                        }
+
+                        if ($gasWeldingWorksEmployee === null) {
+                            $orderTemplate = '-';
+                        }
+                    }
+
+
+                    if ($labor === null) {
+                        $orderTemplate = '-';
+                    }
+
+
                     break;
                 case "{gas_welding_works_employee_certificate}":
                     //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
