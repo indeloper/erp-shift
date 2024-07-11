@@ -1477,8 +1477,8 @@ class ProjectController extends Controller
                 function ($leftJoin) use ($contact_id) {
                     $leftJoin->on('contractor_contacts.id', '=',
                         'project_contacts.contact_id');
-                    $leftJoin->on(DB::raw('project_contacts.project_id'),
-                        DB::raw('='), DB::raw("'".$contact_id."'"));
+                    $leftJoin->on('project_contacts.project_id', '=',
+                        DB::raw("'".$contact_id."'"));
                 })
             ->select('contractor_contacts.*',
                 'project_contacts.id as proj_contact_id',
@@ -1490,7 +1490,7 @@ class ProjectController extends Controller
                 $phone->phone_number, $matches);
             if (count($matches) > 2) {
                 $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '
-                    .implode(array_slice(array_filter($matches), 3, 3), '-');
+                    .implode('-', array_slice(array_filter($matches), 3, 3));
             }
         }
 
