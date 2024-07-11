@@ -287,12 +287,15 @@
                                                                 @endif
                                                                 @if($solved_task->status > 4 and $com_offers->whereIn('status', [1,2,4]))
                                                                     @foreach($com_offers->whereIn('status', [1,2,4]) as $offer)
-                                                                        <a
-                                                                                class="task-info_file"
-                                                                                target="_blank"
-                                                                                href="{{ route('projects::commercial_offer::card_'. ($offer->is_tongue ? 'tongue' : 'pile'), ['project_volume_id' => $solved_task->project_id, 'id' => $offer->id]) }}"
-                                                                        >Карточка коммерческого
-                                                                            предложения {{ $offer->is_tongue ? '(Шпунт)' : '(Свая)' }}</a>
+                                                                        @if($solved_task->project_id !== null)
+
+                                                                            <a
+                                                                                    class="task-info_file"
+                                                                                    target="_blank"
+                                                                                    href="{{ route('projects::commercial_offer::card_'. ($offer->is_tongue ? 'tongue' : 'pile'), ['id' => $solved_task->project_id, 'offer_id' => $offer->id]) }}"
+                                                                            >Карточка коммерческого
+                                                                                предложения {{ $offer->is_tongue ? '(Шпунт)' : '(Свая)' }}</a>
+                                                                        @endif
                                                                     @endforeach
                                                                 @endif
                                                                 @if(in_array($solved_task->status, $solved_task::CONTR_STATUS))
