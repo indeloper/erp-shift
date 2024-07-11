@@ -255,7 +255,7 @@ class ProjectController extends Controller
                 $phone->phone_number, $matches);
             if (count($matches) > 2) {
                 $phone->phone_number = '+'.$matches[1].' ('.$matches[2].') '
-                    .implode(array_slice(array_filter($matches), 3, 3), '-');
+                    .implode('-', array_slice(array_filter($matches), 3, 3));
             }
         }
 
