@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Traits\Documentable;
 use App\Traits\RussianShortDates;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,7 +35,7 @@ class Comment extends Model
 
     /**
      * This getter parse blade directive if comment
-     * have it, otherwise return old comment
+     * have it, otherwise return styles comment
      */
     public function getPrettyCommentAttribute(): string
     {
@@ -50,7 +49,7 @@ class Comment extends Model
     /**
      * Getter for created_at formatting
      */
-    public function getCreatedAtFormattedAttribute(): ?String
+    public function getCreatedAtFormattedAttribute(): ?string
     {
         return $this->created_at->format(self::DATE_FORMAT);
     }

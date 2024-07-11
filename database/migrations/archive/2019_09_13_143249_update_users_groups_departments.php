@@ -4,8 +4,7 @@ use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -58,7 +57,7 @@ return new class extends Migration
         ]);
 
         /*  !!! NOT actual !!!  */
-        // old key => new key or value
+        // styles key => new key or value
         $department_diffs = [
             // 1 => Администрация unchanged
             // 2 => new department -> Административно-технический отдел
@@ -210,7 +209,7 @@ return new class extends Migration
         ]);
 
         /*  !!! NOT actual !!!  */
-        // 'old key|department_id' => 'new key or value|department_id'
+        // 'styles key|department_id' => 'new key or value|department_id'
         $group_diffs = [
             // administration department
             // 1|1 => new group -> Специалист по управленческому учёту
@@ -390,13 +389,13 @@ return new class extends Migration
         User::find(53)->update(['is_deleted' => 1, 'status' => 0]);
         // special for demo
         $optional = User::find(54);
-        ! $optional ?: $optional->update(['group_id' => 52, 'department_id' => 16]);
+        !$optional ?: $optional->update(['group_id' => 52, 'department_id' => 16]);
         $optional = User::find(55);
-        ! $optional ?: $optional->update(['group_id' => 52, 'department_id' => 16]);
+        !$optional ?: $optional->update(['group_id' => 52, 'department_id' => 16]);
         $optional = User::find(56);
-        ! $optional ?: $optional->update(['group_id' => 17, 'department_id' => 8]);
+        !$optional ?: $optional->update(['group_id' => 17, 'department_id' => 8]);
         $optional = User::find(57);
-        ! $optional ?: $optional->update(['group_id' => 52, 'department_id' => 16]);
+        !$optional ?: $optional->update(['group_id' => 52, 'department_id' => 16]);
 
         DB::commit();
     }

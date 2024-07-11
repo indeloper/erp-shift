@@ -133,7 +133,8 @@ class OurTechnicTicketController extends Controller
                 [
                     'name' => "Необходимо обработать заявку на {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
                     'additional_info' => 'Ссылка: ',
-                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'url' => route('building::tech_acc::our_technic_tickets.index',
+                        ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
@@ -145,11 +146,13 @@ class OurTechnicTicketController extends Controller
                 'author_id' => auth()->id(),
                 'system' => 1,
             ]);
-            //here only one person at a time can send usage reports. old user for his own time period, new one for the rest of time
-            $ourTechnicTicket->users()->ofType('usage_resp_user_id')->where('deactivated_at', null)->update(['deactivated_at' => Carbon::now()->isoFormat('YYYY-MM-DD')]);
+            //here only one person at a time can send usage reports. styles user for his own time period, new one for the rest of time
+            $ourTechnicTicket->users()->ofType('usage_resp_user_id')->where('deactivated_at',
+                null)->update(['deactivated_at' => Carbon::now()->isoFormat('YYYY-MM-DD')]);
 
             if ($ourTechnicTicket->users()->ofType('usage_resp_user_id')->where('user_id', $user->id)->exists()) {
-                $ourTechnicTicket->users()->ofType('usage_resp_user_id')->where('user_id', $user->id)->update(['deactivated_at' => null]);
+                $ourTechnicTicket->users()->ofType('usage_resp_user_id')->where('user_id',
+                    $user->id)->update(['deactivated_at' => null]);
             } else {
                 $ourTechnicTicket->users()->attach($request->user, ['type' => 4]);
             }
@@ -160,7 +163,8 @@ class OurTechnicTicketController extends Controller
                 [
                     'name' => "Вас назначили ответственным за использование техники {$ourTechnicTicket->our_technic->brand} {$ourTechnicTicket->our_technic->model}",
                     'additional_info' => "\nСсылка: ",
-                    'url' => route('building::tech_acc::our_technic_tickets.index', ['ticket_id' => $ourTechnicTicket->id]),
+                    'url' => route('building::tech_acc::our_technic_tickets.index',
+                        ['ticket_id' => $ourTechnicTicket->id]),
                     'created_at' => now(),
                     'target_id' => $ourTechnicTicket->id,
                 ]
