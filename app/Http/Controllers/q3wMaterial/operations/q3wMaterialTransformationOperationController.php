@@ -132,7 +132,7 @@ class q3wMaterialTransformationOperationController extends Controller
                     continue;
                 }
 
-                $accountingType = $materialStandard->materialType->accounting_type;
+                $accountingType = $materialStandard->materialType?->accounting_type;
 
                 switch ($accountingType) {
                     case 2:

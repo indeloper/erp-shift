@@ -12,23 +12,26 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CommercialOfferWork extends Model
 {
+
     use Reviewable;
 
-    protected $fillable = [
-        'user_id',
-        'work_volume_work_id',
-        'commercial_offer_id',
-        'count',
-        'unit',
-        'term',
-        'price_per_one',
-        'result_price',
-        'subcontractor_file_id',
-        'is_hidden',
-        'order',
-    ];
+    protected $fillable
+        = [
+            'user_id',
+            'work_volume_work_id',
+            'commercial_offer_id',
+            'count',
+            'unit',
+            'term',
+            'price_per_one',
+            'result_price',
+            'subcontractor_file_id',
+            'is_hidden',
+            'order',
+        ];
 
     protected $appends = ['shown_materials'];
+
     /*
      * we need this only for dynamic prices, terms, order, is_hidden, subcontractor files
      *
@@ -37,7 +40,8 @@ class CommercialOfferWork extends Model
 
     public function work_volume_parent(): BelongsTo
     {
-        return $this->belongsTo(WorkVolumeWork::class, 'work_volume_work_id', 'id');
+        return $this->belongsTo(WorkVolumeWork::class, 'work_volume_work_id',
+            'id');
     }
 
     public function relations()
@@ -45,7 +49,8 @@ class CommercialOfferWork extends Model
         return $this->work_volume_parent->relations();
     }
 
-    public function materials() //all materials. here raw materials (without complects)
+    public function materials(
+    ) //all materials. here raw materials (without complects)
     {
         return $this->work_volume_parent->materials();
     }
@@ -75,7 +80,8 @@ class CommercialOfferWork extends Model
      */
     public function subcontractor_file(): HasOne
     {
-        return $this->hasOne(ContractorFile::class, 'id', 'subcontractor_file_id');
+        return $this->hasOne(ContractorFile::class, 'id',
+            'subcontractor_file_id');
     }
 
     public function commercial_offer(): BelongsTo
@@ -88,8 +94,9 @@ class CommercialOfferWork extends Model
      *
      * @return Contractor | null
      */
-    public function subcontractor(): Contractor
+    public function subcontractor(): ?Contractor
     {
         return $this->subcontractor_file->contractor ?? null;
     }
+
 }

@@ -36,6 +36,7 @@ use Illuminate\View\View;
 
 class ProjectContractController extends Controller
 {
+
     use TimeCalculator;
 
     protected $prepareNotifications = [];
@@ -43,35 +44,52 @@ class ProjectContractController extends Controller
     public function card($project_id, $contract_id): View
     {
         $contract = Contract::where('contracts.id', $contract_id)
-            ->with('theses.verifiers', 'files', 'theses_check.verifiers', 'key_dates', 'commercial_offers', 'operations.materialsPartTo')
-            ->leftJoin('commercial_offers', 'commercial_offers.id', 'contracts.commercial_offer_id')
+            ->with('theses.verifiers', 'files', 'theses_check.verifiers',
+                'key_dates', 'commercial_offers', 'operations.materialsPartTo')
+            ->leftJoin('commercial_offers', 'commercial_offers.id',
+                'contracts.commercial_offer_id')
             ->leftJoin('projects', 'projects.id', 'contracts.project_id')
-            ->leftJoin('contractors', 'contractors.id', 'projects.contractor_id')
+            ->leftJoin('contractors', 'contractors.id',
+                'projects.contractor_id')
             ->leftJoin('users', 'users.id', '=', 'contracts.user_id')
-            ->select('contracts.*', 'users.last_name', 'users.first_name', 'users.patronymic',
-                'commercial_offers.file_name as commercial_offer_file', 'projects.name as project_name',
-                'projects.contractor_id', 'contractors.short_name as contractor_name')->firstOrFail();
+            ->select('contracts.*', 'users.last_name', 'users.first_name',
+                'users.patronymic',
+                'commercial_offers.file_name as commercial_offer_file',
+                'projects.name as project_name',
+                'projects.contractor_id',
+                'contractors.short_name as contractor_name')->firstOrFail();
 
-        $user_ids = $contract->theses->pluck('verifiers')->flatten()->pluck('user_id');
+        $user_ids = $contract->theses->pluck('verifiers')->flatten()
+            ->pluck('user_id');
 
-        $verifier_users = User::leftJoin('groups', 'groups.id', 'users.group_id')
-            ->select('users.id', 'users.group_id', 'users.first_name', 'users.last_name', 'users.patronymic', 'groups.name as group_name')
+        $verifier_users = User::leftJoin('groups', 'groups.id',
+            'users.group_id')
+            ->select('users.id', 'users.group_id', 'users.first_name',
+                'users.last_name', 'users.patronymic',
+                'groups.name as group_name')
             ->find($user_ids);
 
-        $responsible_user_ids = ProjectResponsibleUser::where('project_id', $project_id)->where('role', 7)->get();
+        $responsible_user_ids = ProjectResponsibleUser::where('project_id',
+            $project_id)->where('role', 7)->get();
 
-        $p_users = ProjectResponsibleUser::where('project_id', $project_id)->pluck('user_id')->toArray();
+        $p_users = ProjectResponsibleUser::where('project_id', $project_id)
+            ->pluck('user_id')->toArray();
 
-        $subcontract = Contractor::where('id', $contract->subcontractor_id)->first();
+        $subcontract = Contractor::where('id', $contract->subcontractor_id)
+            ->first();
 
-        $responsible_users = User::whereIn('users.group_id', [5/*3*/, 53/*16*/, 12/*25*/, 6/*24*/])
-            ->orWhereIn('users.id', $responsible_user_ids)
+        $responsible_users = User::whereIn('users.group_id',
+            [5/*3*/, 53/*16*/, 12/*25*/, 6/*24*/])
+            ->orWhereIn('users.id', $responsible_user_ids->pluck('user_id'))
             ->leftJoin('groups', 'groups.id', 'users.group_id')
-            ->select('users.id', 'users.group_id', 'users.first_name', 'users.last_name', 'users.patronymic', 'groups.name as group_name');
+            ->select('users.id', 'users.group_id', 'users.first_name',
+                'users.last_name', 'users.patronymic',
+                'groups.name as group_name');
 
         $contract_requests = ContractRequest::where('contract_id', $contract_id)
             ->leftJoin('users', 'users.id', '=', 'contract_requests.user_id')
-            ->select('contract_requests.*', 'users.last_name', 'users.first_name', 'users.patronymic')
+            ->select('contract_requests.*', 'users.last_name',
+                'users.first_name', 'users.patronymic')
             ->with('files');
 
         $com_offers_options = CommercialOffer::where('project_id', $project_id)
@@ -81,37 +99,47 @@ class ProjectContractController extends Controller
             })
             ->orderBy('version', 'asc')
             ->groupBy('is_tongue', 'option')
-            ->select('commercial_offers.*', DB::raw('max(version) as version'), DB::raw('max(id) as id'))
+            ->select('commercial_offers.*', DB::raw('max(version) as version'),
+                DB::raw('max(id) as id'))
             ->get();
 
         return view('projects.contracts.card', [
-            'contract' => $contract,
-            'com_offers_options' => $com_offers_options,
-            'contract_requests' => $contract_requests->get(),
-            'responsible_users' => $responsible_users->get(),
-            'verifier_users' => $verifier_users,
+            'contract'              => $contract,
+            'com_offers_options'    => $com_offers_options,
+            'contract_requests'     => $contract_requests->get(),
+            'responsible_users'     => $responsible_users->get(),
+            'verifier_users'        => $verifier_users,
             'project_resp_user_ids' => $p_users,
-            'responsible_user_ids' => $responsible_user_ids->count() > 0 ? $responsible_user_ids->pluck('user_id')->toArray() : [0],
-            'subcontract' => $subcontract,
+            'responsible_user_ids'  => $responsible_user_ids->count() > 0
+                ? $responsible_user_ids->pluck('user_id')->toArray() : [0],
+            'subcontract'           => $subcontract,
         ]);
     }
 
     public function edit($project_id, $contract_id): View
     {
         $contract = Contract::where('contracts.id', $contract_id)
-            ->leftJoin('commercial_offers', 'commercial_offers.id', 'contracts.commercial_offer_id')
+            ->leftJoin('commercial_offers', 'commercial_offers.id',
+                'contracts.commercial_offer_id')
             ->leftJoin('projects', 'projects.id', 'contracts.project_id')
-            ->leftJoin('contractors', 'contractors.id', 'projects.contractor_id')
+            ->leftJoin('contractors', 'contractors.id',
+                'projects.contractor_id')
             ->leftJoin('users', 'users.id', '=', 'contracts.user_id')
-            ->select('contracts.*', 'users.last_name', 'users.first_name', 'users.patronymic', 'commercial_offers.file_name as commercial_offer_file', 'projects.name as project_name', 'projects.contractor_id', 'contractors.short_name as contractor_name');
+            ->select('contracts.*', 'users.last_name', 'users.first_name',
+                'users.patronymic',
+                'commercial_offers.file_name as commercial_offer_file',
+                'projects.name as project_name', 'projects.contractor_id',
+                'contractors.short_name as contractor_name');
 
         $contract->with('theses.verifiers');
 
         $contract->with('theses_check.verifiers');
 
-        $responsible_user_id = isset(ProjectResponsibleUser::where('project_id', $project_id)
-            ->whereIn('role', [5, 6])->first()->user_id) ? ProjectResponsibleUser::where('project_id', $project_id)
-            ->whereIn('role', [5, 6])->pluck('user_id') : 0;
+        $responsible_user_id = isset(ProjectResponsibleUser::where('project_id',
+                $project_id)
+                ->whereIn('role', [5, 6])->first()->user_id)
+            ? ProjectResponsibleUser::where('project_id', $project_id)
+                ->whereIn('role', [5, 6])->pluck('user_id') : 0;
 
         $contract = $contract->first();
 
@@ -119,18 +147,22 @@ class ProjectContractController extends Controller
             $responsible_user_id = [0];
         }
 
-        $responsible_users = User::whereIn('users.group_id', [5/*3*/, 53/*16*/, 12/*25*/, 6/*24*/])
+        $responsible_users = User::whereIn('users.group_id',
+            [5/*3*/, 53/*16*/, 12/*25*/, 6/*24*/])
             ->orWhereIn('users.id', $responsible_user_id)
             ->leftJoin('groups', 'groups.id', 'users.group_id')
-            ->select('users.id', 'users.group_id', 'users.first_name', 'users.last_name', 'users.patronymic', 'groups.name as group_name');
+            ->select('users.id', 'users.group_id', 'users.first_name',
+                'users.last_name', 'users.patronymic',
+                'groups.name as group_name');
 
         $contract_requests = ContractRequest::where('contract_id', $contract_id)
             ->leftJoin('users', 'users.id', '=', 'contract_requests.user_id')
-            ->select('contract_requests.*', 'users.last_name', 'users.first_name', 'users.patronymic')
+            ->select('contract_requests.*', 'users.last_name',
+                'users.first_name', 'users.patronymic')
             ->with('files');
 
         return view('projects.contracts.old_edit', [
-            'contract' => $contract,
+            'contract'          => $contract,
             'contract_requests' => $contract_requests->get(),
             'responsible_users' => $responsible_users->get(),
         ]);
@@ -139,7 +171,8 @@ class ProjectContractController extends Controller
     public function decline(Request $request): RedirectResponse
     {
         $this->prepareNotifications = [];
-        $contract = Contract::with('get_requests.files', 'files')->findOrFail($request->contract_id);
+        $contract                   = Contract::with('get_requests.files',
+            'files')->findOrFail($request->contract_id);
         DB::beginTransaction();
 
         $new_contr_vers = $contract->replicate();
@@ -149,11 +182,11 @@ class ProjectContractController extends Controller
 
         foreach ($contract->get_requests as $old_request) {
             if ($old_request->status === 1) {
-                $new_req = $old_request->replicate();
+                $new_req              = $old_request->replicate();
                 $new_req->contract_id = $new_contr_vers->id;
                 $new_req->save();
                 foreach ($old_request->files as $file) {
-                    $new_file = $file->replicate();
+                    $new_file             = $file->replicate();
                     $new_file->request_id = $new_req->id;
                     $new_file->save();
                 }
@@ -161,41 +194,50 @@ class ProjectContractController extends Controller
             }
         }
         foreach ($contract->files as $file) {
-            $new_file = $file->replicate();
+            $new_file              = $file->replicate();
             $new_file->contract_id = $new_contr_vers->id;
             $new_file->save();
         }
 
         foreach ($new_contr_vers->responsible_user_ids as $user_id) {
             $task = new Task([
-                'project_id' => $new_contr_vers->project_id,
-                'name' => 'Формирование договора: '.$new_contr_vers->name_for_humans,
+                'project_id'          => $new_contr_vers->project_id,
+                'name'                => 'Формирование договора: '
+                    .$new_contr_vers->name_for_humans,
                 'responsible_user_id' => $user_id->user_id,
-                'contractor_id' => Project::find($new_contr_vers->project_id)->contractor_id,
-                'target_id' => $new_contr_vers->id,
-                'prev_task_id' => $new_contr_vers->get_prev_task()->id,
-                'expired_at' => $this->addHours(48),
-                'status' => 7,
+                'contractor_id'       => Project::find($new_contr_vers->project_id)->contractor_id,
+                'target_id'           => $new_contr_vers->id,
+                'prev_task_id'        => $new_contr_vers->get_prev_task()->id,
+                'expired_at'          => $this->addHours(48),
+                'status'              => 7,
             ]);
 
             $task->save();
 
-            $this->prepareNotifications[\App\Notifications\Contract\ContractFormationTaskCreationNotice::class] = [
-                'user_ids' => $task->responsible_user_id,
-                'name' => 'Новая задача «'.$task->name.'»',
+            $this->prepareNotifications[\App\Notifications\Contract\ContractFormationTaskCreationNotice::class]
+                = [
+                'user_ids'        => $task->responsible_user_id,
+                'name'            => 'Новая задача «'.$task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
-                'url' => $task->task_route(),
-                'task_id' => $task->id,
-                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                'url'             => $task->task_route(),
+                'task_id'         => $task->id,
+                'contractor_id'   => $task->project_id
+                    ? Project::find($task->project_id)->contractor_id : null,
+                'project_id'      => $task->project_id ? $task->project_id
+                    : null,
+                'object_id'       => $task->project_id
+                    ? Project::find($task->project_id)->object_id : null,
             ];
         }
-        $solve_tasks = Task::where('target_id', $contract->id)->where('is_solved', 0)->whereIn('status', [8, 9, 10, 13, 11])->get();
-        Task::where('target_id', $contract->id)->where('is_solved', 1)->whereIn('status', [8, 9, 10, 13, 11])->where('revive_at', '<>', null)->update(['revive_at' => null]);
+        $solve_tasks = Task::where('target_id', $contract->id)
+            ->where('is_solved', 0)->whereIn('status', [8, 9, 10, 13, 11])
+            ->get();
+        Task::where('target_id', $contract->id)->where('is_solved', 1)
+            ->whereIn('status', [8, 9, 10, 13, 11])
+            ->where('revive_at', '<>', null)->update(['revive_at' => null]);
 
         if ($solve_tasks->count()) {
-            $solve_tasks[0]->result = 3;
+            $solve_tasks[0]->result     = 3;
             $solve_tasks[0]->final_note = $request->final_note ?? '';
             $solve_tasks[0]->solve_n_notify();
 
@@ -211,7 +253,10 @@ class ProjectContractController extends Controller
 
         $this->sendNotifications();
 
-        $redirect_path = strpos(url()->previous(), 'tasks') ? route('tasks::index') : route('projects::contract::card', [$new_contr_vers->project_id, $new_contr_vers->id]);
+        $redirect_path = strpos(url()->previous(), 'tasks')
+            ? route('tasks::index')
+            : route('projects::contract::card',
+                [$new_contr_vers->project_id, $new_contr_vers->id]);
 
         return redirect($redirect_path);
     }
@@ -230,22 +275,25 @@ class ProjectContractController extends Controller
         }
 
         $contract = new Contract([
-            'name' => $request->name,
-            'main_contract_id' => json_decode($request->main_contract_id)[0],
-            'user_id' => Auth::id(),
-            'foreign_id' => $request->foreign_id,
-            'project_id' => $project_id,
-            'subcontractor_id' => $request->subcontractor_id ? $request->subcontractor_id : 0,
-            'ks_date' => $request->ks_date,
+            'name'                   => $request->name,
+            'main_contract_id'       => json_decode($request->main_contract_id)[0],
+            'user_id'                => Auth::id(),
+            'foreign_id'             => $request->foreign_id,
+            'project_id'             => $project_id,
+            'subcontractor_id'       => $request->subcontractor_id
+                ? $request->subcontractor_id : 0,
+            'ks_date'                => $request->ks_date,
             'start_notifying_before' => $request->start_notifying_before,
         ]);
 
         $contract->save();
-        $contract->type = array_search($request->name, $contract->contract_types) ?? $request->contract_type_name;
+        $contract->type        = array_search($request->name,
+            $contract->contract_types) ?? $request->contract_type_name;
         $contract->contract_id = Contract::max('contract_id') + 1;
 
         if ($contract->type == 7 and $contract->main_contract_id) {
-            $contract->subcontractor_id = $contract->main_contract->subcontractor_id;
+            $contract->subcontractor_id
+                = $contract->main_contract->subcontractor_id;
         }
 
         $contract->save();
@@ -254,54 +302,64 @@ class ProjectContractController extends Controller
         if ($request->offer_ids) {
             foreach ($request->offer_ids as $offer_id) {
                 ContractCommercialOfferRelation::create([
-                    'contract_id' => $contract->id,
+                    'contract_id'         => $contract->id,
                     'commercial_offer_id' => $offer_id,
                 ]);
             }
         }
 
         $tasks = Task::where([
-            'status' => 12,
-            'is_solved' => 0,
+            'status'     => 12,
+            'is_solved'  => 0,
             'project_id' => $contract->project_id,
         ]);
 
         $old_task = $tasks->first();
         $tasks->update(['is_solved' => 1]);
         if ($old_task) {
-            $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
-                'user_ids' => $old_task->responsible_user_id,
-                'name' => 'Задача «'.$old_task->name.'» закрыта',
-                'task_id' => $old_task->id,
-                'contractor_id' => $old_task->project_id ? Project::find($old_task->project_id)->contractor_id : null,
-                'project_id' => $old_task->project_id ? $old_task->project_id : null,
-                'object_id' => $old_task->project_id ? Project::find($old_task->project_id)->object_id : null,
+            $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class]
+                = [
+                'user_ids'      => $old_task->responsible_user_id,
+                'name'          => 'Задача «'.$old_task->name.'» закрыта',
+                'task_id'       => $old_task->id,
+                'contractor_id' => $old_task->project_id
+                    ? Project::find($old_task->project_id)->contractor_id
+                    : null,
+                'project_id'    => $old_task->project_id ? $old_task->project_id
+                    : null,
+                'object_id'     => $old_task->project_id
+                    ? Project::find($old_task->project_id)->object_id : null,
             ];
         }
 
         foreach ($contract->responsible_user_ids as $user_id) {
             $task = new Task([
-                'project_id' => $contract->project_id,
-                'name' => 'Формирование договора: '.$contract->name_for_humans,
+                'project_id'          => $contract->project_id,
+                'name'                => 'Формирование договора: '
+                    .$contract->name_for_humans,
                 'responsible_user_id' => $user_id->user_id,
-                'target_id' => $contract->id,
-                'contractor_id' => Project::find($contract->project_id)->contractor_id,
-                'prev_task_id' => $contract->get_prev_task()->id,
-                'expired_at' => $this->addHours(48),
-                'status' => 7,
+                'target_id'           => $contract->id,
+                'contractor_id'       => Project::find($contract->project_id)->contractor_id,
+                'prev_task_id'        => $contract->get_prev_task()->id,
+                'expired_at'          => $this->addHours(48),
+                'status'              => 7,
             ]);
 
             $task->save();
 
-            $this->prepareNotifications[\App\Notifications\Contract\ContractFormationTaskCreationNotice::class] = [
-                'user_ids' => $task->responsible_user_id,
-                'name' => 'Новая задача «'.$task->name.'»',
+            $this->prepareNotifications[\App\Notifications\Contract\ContractFormationTaskCreationNotice::class]
+                = [
+                'user_ids'        => $task->responsible_user_id,
+                'name'            => 'Новая задача «'.$task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
-                'url' => $task->task_route(),
-                'task_id' => $task->id,
-                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                'url'             => $task->task_route(),
+                'task_id'         => $task->id,
+                'contractor_id'   => $task->project_id
+                    ? Project::find($task->project_id)->contractor_id : null,
+                'project_id'      => $task->project_id ? $task->project_id
+                    : null,
+                'object_id'       => $task->project_id
+                    ? Project::find($task->project_id)->object_id : null,
             ];
         }
         DB::commit();
@@ -317,23 +375,25 @@ class ProjectContractController extends Controller
         $contract = Contract::findOrFail($contract_id);
 
         if ($request->contract_file) {
-            $mime = $request->contract_file->getClientOriginalExtension();
-            $file_name = 'project-'.$contract->project_id.'contract-'.uniqid().'.'.$mime;
-            Storage::disk('contracts')->put($file_name, File::get($request->contract_file));
+            $mime      = $request->contract_file->getClientOriginalExtension();
+            $file_name = 'project-'.$contract->project_id.'contract-'.uniqid()
+                .'.'.$mime;
+            Storage::disk('contracts')
+                ->put($file_name, File::get($request->contract_file));
 
             FileEntry::create([
-                'filename' => $file_name,
-                'size' => $request->contract_file->getSize(),
-                'mime' => $request->contract_file->getClientMimeType(),
+                'filename'          => $file_name,
+                'size'              => $request->contract_file->getSize(),
+                'mime'              => $request->contract_file->getClientMimeType(),
                 'original_filename' => $request->contract_file->getClientOriginalName(),
-                'user_id' => Auth::user()->id,
+                'user_id'           => Auth::user()->id,
             ]);
 
             $contract->file_name = $file_name;
         }
 
-        $contract->foreign_id = $request->foreign_id;
-        $contract->ks_date = $request->ks_date;
+        $contract->foreign_id             = $request->foreign_id;
+        $contract->ks_date                = $request->ks_date;
         $contract->start_notifying_before = $request->start_notifying_before;
 
         $contract->save();
@@ -348,21 +408,21 @@ class ProjectContractController extends Controller
         $this->prepareNotifications = [];
         DB::beginTransaction();
 
-        $thesis = new ContractThesis();
+        $thesis   = new ContractThesis();
         $contract = Contract::find($contract_id);
 
         $project_id = $contract->project_id;
 
-        $thesis->user_id = Auth::user()->id;
+        $thesis->user_id     = Auth::user()->id;
         $thesis->contract_id = $contract_id;
-        $thesis->name = $request->name;
+        $thesis->name        = $request->name;
         $thesis->description = $request->description;
 
         $thesis->save();
 
         foreach ($request->user_ids as $user_id) {
             $verivier = ContractThesisVerifier::create([
-                'user_id' => $user_id,
+                'user_id'   => $user_id,
                 'thesis_id' => $thesis->id,
             ]);
 
@@ -373,27 +433,34 @@ class ProjectContractController extends Controller
 
             if ($task_created === 0) {
                 $task = new Task([
-                    'project_id' => $project_id,
-                    'name' => 'Согласование договора: '.$contract->name_for_humans,
+                    'project_id'          => $project_id,
+                    'name'                => 'Согласование договора: '
+                        .$contract->name_for_humans,
                     'responsible_user_id' => $user_id,
-                    'contractor_id' => Project::find($project_id)->contractor_id,
-                    'target_id' => $contract_id,
-                    'expired_at' => $this->addHours(2),
-                    'prev_task_id' => $contract->tasks()->where('status', 7)->get()->last()->id,
-                    'status' => 8,
+                    'contractor_id'       => Project::find($project_id)->contractor_id,
+                    'target_id'           => $contract_id,
+                    'expired_at'          => $this->addHours(2),
+                    'prev_task_id'        => $contract->tasks()
+                        ->where('status', 7)->get()->last()->id,
+                    'status'              => 8,
                 ]);
 
                 $task->save();
 
-                $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalTaskCreationNotice::class] = [
-                    'user_ids' => $task->responsible_user_id,
-                    'name' => 'Новая задача «'.$task->name.'»',
+                $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalTaskCreationNotice::class]
+                    = [
+                    'user_ids'        => $task->responsible_user_id,
+                    'name'            => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
-                    'url' => $task->task_route(),
-                    'task_id' => $task->id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    'url'             => $task->task_route(),
+                    'task_id'         => $task->id,
+                    'contractor_id'   => $task->project_id
+                        ? Project::find($task->project_id)->contractor_id
+                        : null,
+                    'project_id'      => $task->project_id ? $task->project_id
+                        : null,
+                    'object_id'       => $task->project_id
+                        ? Project::find($task->project_id)->object_id : null,
                 ];
             }
         }
@@ -411,70 +478,89 @@ class ProjectContractController extends Controller
         $this->prepareNotifications = [];
         DB::beginTransaction();
 
-        $contract = Contract::find($request->contract_id);
-        $mime = $request->document->getClientOriginalExtension();
-        $file_name = 'project-'.$contract->project_id.'contract-'.uniqid().'.'.$mime;
+        $contract  = Contract::find($request->contract_id);
+        $mime      = $request->document->getClientOriginalExtension();
+        $file_name = 'project-'.$contract->project_id.'contract-'.uniqid().'.'
+            .$mime;
 
-        Storage::disk('contracts')->put($file_name, File::get($request->document));
+        Storage::disk('contracts')
+            ->put($file_name, File::get($request->document));
 
         FileEntry::create([
-            'filename' => $file_name,
-            'size' => $request->document->getSize(),
-            'mime' => $request->document->getClientMimeType(),
+            'filename'          => $file_name,
+            'size'              => $request->document->getSize(),
+            'mime'              => $request->document->getClientMimeType(),
             'original_filename' => $request->document->getClientOriginalName(),
-            'user_id' => Auth::user()->id,
+            'user_id'           => Auth::user()->id,
         ]);
 
-        if ($request->type === '3') { //just a file for the contract. it comes from first steps of lifecycle. don't do anything with tasks
+        if ($request->type
+            === '3'
+        ) { //just a file for the contract. it comes from first steps of lifecycle. don't do anything with tasks
             ContractFiles::create([
-                'name' => $request->name,
-                'file_name' => $file_name,
+                'name'          => $request->name,
+                'file_name'     => $file_name,
                 'original_name' => $request->document->getClientOriginalName(),
-                'contract_id' => $contract->id,
+                'contract_id'   => $contract->id,
             ]);
         } else {
-            $old_task = Task::where('project_id', $contract->project_id)->where('is_solved', 0)->where('target_id', $contract->id)->whereIn('status', [9, 10])->first();
+            $old_task = Task::where('project_id', $contract->project_id)
+                ->where('is_solved', 0)->where('target_id', $contract->id)
+                ->whereIn('status', [9, 10])->first();
 
             if ($old_task) {
                 $old_task->result = $request->type;
-                $old_task->final_note = $old_task->descriptions[$old_task->status].$old_task->results[$old_task->status][$old_task->result];
+                $old_task->final_note
+                                  = $old_task->descriptions[$old_task->status]
+                    .$old_task->results[$old_task->status][$old_task->result];
                 $old_task->solve_n_notify();
             }
-            Task::where('project_id', $contract->project_id)->where('is_solved', 0)->where('target_id', $contract->id)->whereIn('status', [9, 10])->update(['is_solved' => 1]);
-            Task::where('target_id', $contract->id)->where('is_solved', 1)->whereIn('status', [9, 10])->where('revive_at', '<>', null)->update(['revive_at' => null]);
+            Task::where('project_id', $contract->project_id)
+                ->where('is_solved', 0)->where('target_id', $contract->id)
+                ->whereIn('status', [9, 10])->update(['is_solved' => 1]);
+            Task::where('target_id', $contract->id)->where('is_solved', 1)
+                ->whereIn('status', [9, 10])->where('revive_at', '<>', null)
+                ->update(['revive_at' => null]);
         }
 
-        if ($request->type === '1') { //if it is contract file (endpoint of the contract lifecycle)
+        if ($request->type
+            === '1'
+        ) { //if it is contract file (endpoint of the contract lifecycle)
             $contract->final_file_name = $file_name;
-            $contract->status = 6;
+            $contract->status          = 6;
         } elseif ($request->type === '2') { //garant file one step before end
             $contract->garant_file_name = $file_name;
-            $contract->status = 5;
+            $contract->status           = 5;
 
             foreach ($contract->responsible_user_ids as $user_id) {
-
                 $task = new Task([
-                    'project_id' => $contract->project_id,
-                    'name' => 'Контроль подписания договора: '.$contract->name_for_humans.' (повторно)',
+                    'project_id'          => $contract->project_id,
+                    'name'                => 'Контроль подписания договора: '
+                        .$contract->name_for_humans.' (повторно)',
                     'responsible_user_id' => $user_id->user_id,
-                    'contractor_id' => Project::find($contract->project_id)->contractor_id,
-                    'target_id' => $contract->id,
-                    'prev_task_id' => $contract->get_prev_task()->id,
-                    'expired_at' => $this->addHours(168),
-                    'status' => 10,
+                    'contractor_id'       => Project::find($contract->project_id)->contractor_id,
+                    'target_id'           => $contract->id,
+                    'prev_task_id'        => $contract->get_prev_task()->id,
+                    'expired_at'          => $this->addHours(168),
+                    'status'              => 10,
                 ]);
 
                 $task->save();
 
-                $this->prepareNotifications[\App\Notifications\Contract\ContractSignatureControlTaskRecreationNotice::class] = [
-                    'user_ids' => $task->responsible_user_id,
-                    'name' => 'Новая задача «'.$task->name.'»',
+                $this->prepareNotifications[\App\Notifications\Contract\ContractSignatureControlTaskRecreationNotice::class]
+                    = [
+                    'user_ids'        => $task->responsible_user_id,
+                    'name'            => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
-                    'url' => $task->task_route(),
-                    'task_id' => $task->id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    'url'             => $task->task_route(),
+                    'task_id'         => $task->id,
+                    'contractor_id'   => $task->project_id
+                        ? Project::find($task->project_id)->contractor_id
+                        : null,
+                    'project_id'      => $task->project_id ? $task->project_id
+                        : null,
+                    'object_id'       => $task->project_id
+                        ? Project::find($task->project_id)->object_id : null,
                 ];
             }
         }
@@ -489,7 +575,8 @@ class ProjectContractController extends Controller
 
         $this->sendNotifications();
 
-        $redirect_path = strpos(url()->previous(), 'tasks') ? route('tasks::index') : url()->previous();
+        $redirect_path = strpos(url()->previous(), 'tasks')
+            ? route('tasks::index') : url()->previous();
 
         return redirect($redirect_path);
     }
@@ -498,7 +585,8 @@ class ProjectContractController extends Controller
     {
         DB::beginTransaction();
 
-        ContractThesisVerifier::where('thesis_id', $request->thesis_id)->delete();
+        ContractThesisVerifier::where('thesis_id', $request->thesis_id)
+            ->delete();
         ContractThesis::find($request->thesis_id)->delete();
 
         DB::commit();
@@ -519,47 +607,58 @@ class ProjectContractController extends Controller
 
         $project_id = $contract->project_id;
 
-        $thesis->name = $request->name;
+        $thesis->name        = $request->name;
         $thesis->description = $request->description;
-        $thesis->status = 1;
+        $thesis->status      = 1;
 
         $thesis->save();
 
         $old_thesis_verifiers = $thesis->get_verifiers;
-        $deleted_user_ids = array_diff($old_thesis_verifiers->pluck('user_id')->toArray(), $request->user_ids);
+        $deleted_user_ids
+                              = array_diff($old_thesis_verifiers->pluck('user_id')
+            ->toArray(), $request->user_ids);
 
         $thesis->get_verifiers()->delete();
-        $old_thesis_tasks = Task::where('status', 8)->where('target_id', $contract_id)->where('is_solved', 0)->get();
+        $old_thesis_tasks = Task::where('status', 8)
+            ->where('target_id', $contract_id)->where('is_solved', 0)->get();
 
         foreach ($request->user_ids as $user_id) {
             $verifier = ContractThesisVerifier::create([
-                'user_id' => $user_id,
+                'user_id'   => $user_id,
                 'thesis_id' => $thesis->id,
             ]);
-            if (! in_array($user_id, $old_thesis_tasks->pluck('responsible_user_id')->toArray())) {
-
+            if ( ! in_array($user_id,
+                $old_thesis_tasks->pluck('responsible_user_id')->toArray())
+            ) {
                 $task = new Task([
-                    'project_id' => $project_id,
-                    'name' => 'Согласование договора: '.$contract->name_for_humans,
+                    'project_id'          => $project_id,
+                    'name'                => 'Согласование договора: '
+                        .$contract->name_for_humans,
                     'responsible_user_id' => $user_id,
-                    'contractor_id' => Project::find($project_id)->contractor_id,
-                    'target_id' => $contract_id,
-                    'prev_task_id' => $contract->tasks()->where('status', 7)->get()->last()->id,
-                    'expired_at' => $this->addHours(2),
-                    'status' => 8,
+                    'contractor_id'       => Project::find($project_id)->contractor_id,
+                    'target_id'           => $contract_id,
+                    'prev_task_id'        => $contract->tasks()
+                        ->where('status', 7)->get()->last()->id,
+                    'expired_at'          => $this->addHours(2),
+                    'status'              => 8,
                 ]);
 
                 $task->save();
 
-                $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalTaskCreationNotice::class] = [
-                    'user_ids' => $task->responsible_user_id,
-                    'name' => 'Новая задача «'.$task->name.'»',
+                $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalTaskCreationNotice::class]
+                    = [
+                    'user_ids'        => $task->responsible_user_id,
+                    'name'            => 'Новая задача «'.$task->name.'»',
                     'additional_info' => ' Ссылка на задачу: ',
-                    'url' => $task->task_route(),
-                    'task_id' => $task->id,
-                    'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                    'project_id' => $task->project_id ? $task->project_id : null,
-                    'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                    'url'             => $task->task_route(),
+                    'task_id'         => $task->id,
+                    'contractor_id'   => $task->project_id
+                        ? Project::find($task->project_id)->contractor_id
+                        : null,
+                    'project_id'      => $task->project_id ? $task->project_id
+                        : null,
+                    'object_id'       => $task->project_id
+                        ? Project::find($task->project_id)->object_id : null,
                 ];
             }
         }
@@ -575,14 +674,18 @@ class ProjectContractController extends Controller
     {
         DB::beginTransaction();
 
-        $thesis = ContractThesis::with('verifiers')->where('id', $thesis_id)->first();
-        $contract = Contract::with('get_requests.files', 'theses')->find($thesis->contract_id);
+        $thesis   = ContractThesis::with('verifiers')->where('id', $thesis_id)
+            ->first();
+        $contract = Contract::with('get_requests.files', 'theses')
+            ->find($thesis->contract_id);
 
         $verifier = ContractThesisVerifier::where('user_id', Auth::user()->id)
             ->where('thesis_id', $thesis_id)
             ->update(['status' => 3]);
 
-        if ($thesis->verifiers->where('status', '!=', 1)->count() + 1 == $thesis->verifiers->count()) {
+        if ($thesis->verifiers->where('status', '!=', 1)->count() + 1
+            == $thesis->verifiers->count()
+        ) {
             if ($thesis->get_verifiers->where('status', 2)->count()) {
                 $thesis->status = 2;
             } else {
@@ -591,12 +694,17 @@ class ProjectContractController extends Controller
             $thesis->save();
         }
 
-        $check = ContractThesisVerifier::where('user_id', Auth::id())->whereIn('thesis_id', $contract->theses->pluck('id'))->where('status', 1)->get();
+        $check = ContractThesisVerifier::where('user_id', Auth::id())
+            ->whereIn('thesis_id', $contract->theses->pluck('id'))
+            ->where('status', 1)->get();
 
-        if (! $check->count()) {
-            $task = Task::where('project_id', $contract->project_id)->where('status', 8)->where('is_solved', 0)->where('responsible_user_id', Auth::id())->first();
-            $task->result = 1;
-            $task->final_note = $task->descriptions[$task->status].$task->results[$task->status][$task->result];
+        if ( ! $check->count()) {
+            $task             = Task::where('project_id', $contract->project_id)
+                ->where('status', 8)->where('is_solved', 0)
+                ->where('responsible_user_id', Auth::id())->first();
+            $task->result     = 1;
+            $task->final_note = $task->descriptions[$task->status]
+                .$task->results[$task->status][$task->result];
             $task->solve_n_notify();
         }
 
@@ -611,34 +719,42 @@ class ProjectContractController extends Controller
 
         $thesis = ContractThesis::findOrFail($request->thesis_id);
 
-        $contract = Contract::with('get_requests.files')->findOrFail($thesis->contract_id);
+        $contract = Contract::with('get_requests.files')
+            ->findOrFail($thesis->contract_id);
 
         $verifier = ContractThesisVerifier::where('user_id', Auth::user()->id)
             ->where('thesis_id', $request->thesis_id);
 
         $verifier->update(['status' => 2]);
 
-        if ($thesis->verifiers->where('status', '!=', 1)->count() == $thesis->verifiers->count()) {
+        if ($thesis->verifiers->where('status', '!=', 1)->count()
+            == $thesis->verifiers->count()
+        ) {
             $thesis->status = 2;
             $thesis->save();
         }
 
-        $check = ContractThesisVerifier::where('user_id', Auth::id())->whereIn('thesis_id', $contract->theses->pluck('id'))->where('status', 1)->get();
+        $check = ContractThesisVerifier::where('user_id', Auth::id())
+            ->whereIn('thesis_id', $contract->theses->pluck('id'))
+            ->where('status', 1)->get();
 
-        if (! $check->count()) {
-            $task = Task::where('project_id', $contract->project_id)->where('status', 8)->where('is_solved', 0)->where('responsible_user_id', Auth::id())->first();
-            $task->result = 2;
-            $task->final_note = $task->descriptions[$task->status].$task->results[$task->status][$task->result];
+        if ( ! $check->count()) {
+            $task             = Task::where('project_id', $contract->project_id)
+                ->where('status', 8)->where('is_solved', 0)
+                ->where('responsible_user_id', Auth::id())->first();
+            $task->result     = 2;
+            $task->final_note = $task->descriptions[$task->status]
+                .$task->results[$task->status][$task->result];
             $task->solve_n_notify();
         }
 
         $reject = new ContractRequest();
 
-        $reject->name = $request->name;
-        $reject->project_id = $contract->project_id;
+        $reject->name        = $request->name;
+        $reject->project_id  = $contract->project_id;
         $reject->contract_id = $contract->id;
-        $reject->user_id = Auth::user()->id;
-        $reject->thesis_id = $verifier->first()->id;
+        $reject->user_id     = Auth::user()->id;
+        $reject->thesis_id   = $verifier->first()->id;
         $reject->description = $request->description;
 
         $reject->save();
@@ -647,22 +763,24 @@ class ProjectContractController extends Controller
             foreach ($request->documents as $document) {
                 $file = new ContractRequestFile();
 
-                $mime = $document->getClientOriginalExtension();
-                $file_name = 'project-'.$reject->project_id.'request_file-'.uniqid().'.'.$mime;
+                $mime      = $document->getClientOriginalExtension();
+                $file_name = 'project-'.$reject->project_id.'request_file-'
+                    .uniqid().'.'.$mime;
 
-                Storage::disk('contract_request_files')->put($file_name, File::get($document));
+                Storage::disk('contract_request_files')
+                    ->put($file_name, File::get($document));
 
                 FileEntry::create([
-                    'filename' => $file_name,
-                    'size' => $document->getSize(),
-                    'mime' => $document->getClientMimeType(),
+                    'filename'          => $file_name,
+                    'size'              => $document->getSize(),
+                    'mime'              => $document->getClientMimeType(),
                     'original_filename' => $document->getClientOriginalName(),
-                    'user_id' => Auth::user()->id,
+                    'user_id'           => Auth::user()->id,
                 ]);
 
-                $file->file_name = $file_name;
-                $file->request_id = $reject->id;
-                $file->is_result = 0;
+                $file->file_name     = $file_name;
+                $file->request_id    = $reject->id;
+                $file->is_result     = 0;
                 $file->original_name = $document->getClientOriginalName();
 
                 $file->save();
@@ -674,58 +792,76 @@ class ProjectContractController extends Controller
         return back();
     }
 
-    public function approve(Request $request, $project_id, $contract_id): RedirectResponse
-    {
+    public function approve(
+        Request $request,
+        $project_id,
+        $contract_id
+    ): RedirectResponse {
         $this->prepareNotifications = [];
         DB::beginTransaction();
 
-        $contract = Contract::where('id', $request->contract_id)->first();
+        $contract         = Contract::where('id', $request->contract_id)
+            ->first();
         $contract->status = 4;
         $contract->save();
 
         foreach ($contract->responsible_user_ids as $user_id) {
-
             $task = new Task([
-                'project_id' => $contract->project_id,
-                'name' => 'Контроль подписания договора: '.$contract->name_for_humans,
+                'project_id'          => $contract->project_id,
+                'name'                => 'Контроль подписания договора: '
+                    .$contract->name_for_humans,
                 'responsible_user_id' => $user_id->user_id,
-                'contractor_id' => Project::find($contract->project_id)->contractor_id,
-                'target_id' => $contract->id,
-                'prev_task_id' => $contract->get_prev_task()->id,
-                'expired_at' => $this->addHours(168),
-                'status' => 9,
+                'contractor_id'       => Project::find($contract->project_id)->contractor_id,
+                'target_id'           => $contract->id,
+                'prev_task_id'        => $contract->get_prev_task()->id,
+                'expired_at'          => $this->addHours(168),
+                'status'              => 9,
             ]);
 
             $task->save();
 
-            $this->prepareNotifications[\App\Notifications\Contract\ContractSignatureControlTaskCreationNotice::class] = [
-                'user_ids' => $task->responsible_user_id,
-                'name' => 'Новая задача «'.$task->name.'»',
+            $this->prepareNotifications[\App\Notifications\Contract\ContractSignatureControlTaskCreationNotice::class]
+                = [
+                'user_ids'        => $task->responsible_user_id,
+                'name'            => 'Новая задача «'.$task->name.'»',
                 'additional_info' => ' Ссылка на задачу: ',
-                'url' => $task->task_route(),
-                'task_id' => $task->id,
-                'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-                'project_id' => $task->project_id ? $task->project_id : null,
-                'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+                'url'             => $task->task_route(),
+                'task_id'         => $task->id,
+                'contractor_id'   => $task->project_id
+                    ? Project::find($task->project_id)->contractor_id : null,
+                'project_id'      => $task->project_id ? $task->project_id
+                    : null,
+                'object_id'       => $task->project_id
+                    ? Project::find($task->project_id)->object_id : null,
             ];
         }
-        $solve_task = Task::where('project_id', $contract->project_id)->where('status', 11)->where('is_solved', 0)->where('target_id', $contract->id)->get();
+        $solve_task = Task::where('project_id', $contract->project_id)
+            ->where('status', 11)->where('is_solved', 0)
+            ->where('target_id', $contract->id)->get();
 
         if ($solve_task->count()) {
             $solve_task[0]->result = 1;
-            $solve_task[0]->final_note = $solve_task[0]->descriptions[$solve_task[0]->status].$solve_task[0]->results[$solve_task[0]->status][$solve_task[0]->result];
+            $solve_task[0]->final_note
+                                   = $solve_task[0]->descriptions[$solve_task[0]->status]
+                .$solve_task[0]->results[$solve_task[0]->status][$solve_task[0]->result];
 
             $solve_task[0]->solve_n_notify();
         }
 
-        Task::where('project_id', $contract->project_id)->where('status', 11)->where('is_solved', 0)->where('target_id', $contract->id)->update(['is_solved' => 1]);
-        Task::where('target_id', $contract->id)->where('is_solved', 1)->whereIn('status', [11])->where('revive_at', '<>', null)->update(['revive_at' => null]);
+        Task::where('project_id', $contract->project_id)->where('status', 11)
+            ->where('is_solved', 0)->where('target_id', $contract->id)
+            ->update(['is_solved' => 1]);
+        Task::where('target_id', $contract->id)->where('is_solved', 1)
+            ->whereIn('status', [11])->where('revive_at', '<>', null)
+            ->update(['revive_at' => null]);
 
         DB::commit();
 
         $this->sendNotifications();
 
-        $redirect_path = strpos(url()->previous(), 'tasks') ? route('tasks::index') : route('projects::card', $contract->project_id);
+        $redirect_path = strpos(url()->previous(), 'tasks')
+            ? route('tasks::index')
+            : route('projects::card', $contract->project_id);
 
         return redirect($redirect_path);
     }
@@ -742,44 +878,58 @@ class ProjectContractController extends Controller
         $contract->save();
 
         $task = new Task([
-            'project_id' => $contract->project_id,
-            'name' => 'Контроль согласования договора: '.$contract->name_for_humans,
+            'project_id'          => $contract->project_id,
+            'name'                => 'Контроль согласования договора: '
+                .$contract->name_for_humans,
             'responsible_user_id' => Auth::id(),
-            'contractor_id' => Project::find($contract->project_id)->contractor_id,
-            'target_id' => $contract->id,
-            'prev_task_id' => $contract->get_prev_task()->id,
-            'expired_at' => $this->addHours(2),
-            'status' => 11,
+            'contractor_id'       => Project::find($contract->project_id)->contractor_id,
+            'target_id'           => $contract->id,
+            'prev_task_id'        => $contract->get_prev_task()->id,
+            'expired_at'          => $this->addHours(2),
+            'status'              => 11,
         ]);
 
         $task->save();
 
-        $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalControlTaskCreationNotice::class] = [
-            'user_ids' => $task->responsible_user_id,
-            'name' => 'Новая задача «'.$task->name.'»',
+        $this->prepareNotifications[\App\Notifications\Contract\ContractApprovalControlTaskCreationNotice::class]
+            = [
+            'user_ids'        => $task->responsible_user_id,
+            'name'            => 'Новая задача «'.$task->name.'»',
             'additional_info' => ' Ссылка на задачу: ',
-            'url' => $task->task_route(),
-            'task_id' => $task->id,
-            'contractor_id' => $task->project_id ? Project::find($task->project_id)->contractor_id : null,
-            'project_id' => $task->project_id ? $task->project_id : null,
-            'object_id' => $task->project_id ? Project::find($task->project_id)->object_id : null,
+            'url'             => $task->task_route(),
+            'task_id'         => $task->id,
+            'contractor_id'   => $task->project_id
+                ? Project::find($task->project_id)->contractor_id : null,
+            'project_id'      => $task->project_id ? $task->project_id : null,
+            'object_id'       => $task->project_id
+                ? Project::find($task->project_id)->object_id : null,
         ];
 
-        $solve_task = Task::where('project_id', $contract->project_id)->where('status', 7)->where('is_solved', 0)->where('target_id', $contract->id)->get();
+        $solve_task = Task::where('project_id', $contract->project_id)
+            ->where('status', 7)->where('is_solved', 0)
+            ->where('target_id', $contract->id)->get();
 
         if ($solve_task->count()) {
             if ($solve_task[0]->responsible_user_id != 6) {
                 $this->prepareNotifications['TaskClosureNotice'] = [
-                    'user_ids' => $solve_task[0]->responsible_user_id,
-                    'name' => 'Задача «'.$solve_task[0]->name.'» закрыта',
-                    'task_id' => $solve_task[0]->id,
-                    'contractor_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->contractor_id : null,
-                    'project_id' => $solve_task[0]->project_id ? $solve_task[0]->project_id : null,
-                    'object_id' => $solve_task[0]->project_id ? Project::find($solve_task[0]->project_id)->object_id : null,
+                    'user_ids'      => $solve_task[0]->responsible_user_id,
+                    'name'          => 'Задача «'.$solve_task[0]->name
+                        .'» закрыта',
+                    'task_id'       => $solve_task[0]->id,
+                    'contractor_id' => $solve_task[0]->project_id
+                        ? Project::find($solve_task[0]->project_id)->contractor_id
+                        : null,
+                    'project_id'    => $solve_task[0]->project_id
+                        ? $solve_task[0]->project_id : null,
+                    'object_id'     => $solve_task[0]->project_id
+                        ? Project::find($solve_task[0]->project_id)->object_id
+                        : null,
                 ];
             }
         }
-        Task::where('project_id', $contract->project_id)->where('status', 7)->where('is_solved', 0)->where('target_id', $contract->id)->update(['is_solved' => 1]);
+        Task::where('project_id', $contract->project_id)->where('status', 7)
+            ->where('is_solved', 0)->where('target_id', $contract->id)
+            ->update(['is_solved' => 1]);
 
         DB::commit();
 
@@ -795,10 +945,11 @@ class ProjectContractController extends Controller
         $contract_id = $request->contract_id;
         if ($contract_id === '0') {
             $contract = new Contract([
-                'name' => $request->name,
-                'project_id' => $project_id,
-                'commercial_offer_id' => CommercialOffer::where('status', 4)->first()->id,
-                'user_id' => auth()->id(),
+                'name'                => $request->name,
+                'project_id'          => $project_id,
+                'commercial_offer_id' => CommercialOffer::where('status', 4)
+                    ->first()->id,
+                'user_id'             => auth()->id(),
             ]);
 
             $contract->save();
@@ -807,11 +958,11 @@ class ProjectContractController extends Controller
         }
 
         $contract_request = new ContractRequest([
-            'name' => $request->name,
-            'project_id' => $project_id,
+            'name'        => $request->name,
+            'project_id'  => $project_id,
             'contract_id' => $contract_id,
             'description' => $request->description,
-            'user_id' => auth()->id(),
+            'user_id'     => auth()->id(),
         ]);
 
         $contract_request->save();
@@ -820,22 +971,24 @@ class ProjectContractController extends Controller
             foreach ($request->documents as $document) {
                 $file = new ContractRequestFile();
 
-                $mime = $document->getClientOriginalExtension();
-                $file_name = 'project-'.$contract_request->project_id.'request_file-'.uniqid().'.'.$mime;
+                $mime      = $document->getClientOriginalExtension();
+                $file_name = 'project-'.$contract_request->project_id
+                    .'request_file-'.uniqid().'.'.$mime;
 
-                Storage::disk('contract_request_files')->put($file_name, File::get($document));
+                Storage::disk('contract_request_files')
+                    ->put($file_name, File::get($document));
 
                 FileEntry::create([
-                    'filename' => $file_name,
-                    'size' => $document->getSize(),
-                    'mime' => $document->getClientMimeType(),
+                    'filename'          => $file_name,
+                    'size'              => $document->getSize(),
+                    'mime'              => $document->getClientMimeType(),
                     'original_filename' => $document->getClientOriginalName(),
-                    'user_id' => Auth::user()->id,
+                    'user_id'           => Auth::user()->id,
                 ]);
 
-                $file->file_name = $file_name;
-                $file->request_id = $contract_request->id;
-                $file->is_result = 0;
+                $file->file_name     = $file_name;
+                $file->request_id    = $contract_request->id;
+                $file->is_result     = 0;
                 $file->original_name = $document->getClientOriginalName();
 
                 $file->save();
@@ -843,16 +996,19 @@ class ProjectContractController extends Controller
         }
 
         if ($request->project_documents) {
-            $project_docs = ProjectDocument::whereIn('id', $request->project_documents)->get();
+            $project_docs = ProjectDocument::whereIn('id',
+                $request->project_documents)->get();
 
             foreach ($request->project_documents as $document_id) {
                 $file = new ContractRequestFile();
 
-                $file->file_name = $project_docs->where('id', $document_id)->first()->file_name;
-                $file->request_id = $contract_request->id;
-                $file->is_result = 0;
-                $file->original_name = $project_docs->where('id', $document_id)->first()->name;
-                $file->is_proj_doc = 1;
+                $file->file_name     = $project_docs->where('id', $document_id)
+                    ->first()->file_name;
+                $file->request_id    = $contract_request->id;
+                $file->is_result     = 0;
+                $file->original_name = $project_docs->where('id', $document_id)
+                    ->first()->name;
+                $file->is_proj_doc   = 1;
 
                 $file->save();
             }
@@ -867,10 +1023,12 @@ class ProjectContractController extends Controller
     {
         DB::beginTransaction();
 
-        $contract_request = ContractRequest::findOrFail($request->contract_request_id);
+        $contract_request
+            = ContractRequest::findOrFail($request->contract_request_id);
 
         if (isset($request->status)) {
-            $contract_request->status = $request->status == 'confirm' ? 2 : 3;
+            $contract_request->status         = $request->status == 'confirm'
+                ? 2 : 3;
             $contract_request->result_comment = $request->result_comment;
         }
 
@@ -878,22 +1036,24 @@ class ProjectContractController extends Controller
             foreach ($request->documents as $document) {
                 $file = new ContractRequestFile();
 
-                $mime = $document->getClientOriginalExtension();
-                $file_name = 'project-'.$contract_request->project_id.'request_file-'.uniqid().'.'.$mime;
+                $mime      = $document->getClientOriginalExtension();
+                $file_name = 'project-'.$contract_request->project_id
+                    .'request_file-'.uniqid().'.'.$mime;
 
-                Storage::disk('contract_request_files')->put($file_name, File::get($document));
+                Storage::disk('contract_request_files')
+                    ->put($file_name, File::get($document));
 
                 FileEntry::create([
-                    'filename' => $file_name,
-                    'size' => $document->getSize(),
-                    'mime' => $document->getClientMimeType(),
+                    'filename'          => $file_name,
+                    'size'              => $document->getSize(),
+                    'mime'              => $document->getClientMimeType(),
                     'original_filename' => $document->getClientOriginalName(),
-                    'user_id' => Auth::user()->id,
+                    'user_id'           => Auth::user()->id,
                 ]);
 
-                $file->file_name = $file_name;
-                $file->request_id = $contract_request->id;
-                $file->is_result = 1;
+                $file->file_name     = $file_name;
+                $file->request_id    = $contract_request->id;
+                $file->is_result     = 1;
                 $file->original_name = $document->getClientOriginalName();
 
                 $file->save();
@@ -901,16 +1061,19 @@ class ProjectContractController extends Controller
         }
 
         if ($request->project_documents) {
-            $project_docs = ProjectDocument::whereIn('id', $request->project_documents)->get();
+            $project_docs = ProjectDocument::whereIn('id',
+                $request->project_documents)->get();
 
             foreach ($request->project_documents as $document_id) {
                 $file = new ContractRequestFile();
 
-                $file->file_name = $project_docs->where('id', $document_id)->first()->file_name;
-                $file->request_id = $contract_request->id;
-                $file->is_result = 1;
-                $file->original_name = $project_docs->where('id', $document_id)->first()->name;
-                $file->is_proj_doc = 1;
+                $file->file_name     = $project_docs->where('id', $document_id)
+                    ->first()->file_name;
+                $file->request_id    = $contract_request->id;
+                $file->is_result     = 1;
+                $file->original_name = $project_docs->where('id', $document_id)
+                    ->first()->name;
+                $file->is_proj_doc   = 1;
 
                 $file->save();
             }
@@ -945,35 +1108,43 @@ class ProjectContractController extends Controller
         DB::beginTransaction();
 
         // check remove task existence
-        if (Task::where('status', 20)->where('target_id', $request->contract_id)->where('is_solved', 0)->first()) {
+        if (Task::where('status', 20)->where('target_id', $request->contract_id)
+            ->where('is_solved', 0)->first()
+        ) {
             return back();
         }
 
-        $contract = Contract::with('project')->findOrFail($request->contract_id);
+        $contract = Contract::with('project')
+            ->findOrFail($request->contract_id);
         // create task
         $task = Task::create([
-            'name' => 'Контроль удаления договора '.$request->contract_name,
-            'description' => 'Пользователь '.Auth::user()->full_name.
-                ' отправил заявку на удаление договора с комментарием: '.$request->reason.
+            'name'                => 'Контроль удаления договора '
+                .$request->contract_name,
+            'description'         => 'Пользователь '.Auth::user()->full_name.
+                ' отправил заявку на удаление договора с комментарием: '
+                .$request->reason.
                 '. Необходимо подтвердить или отклонить удаление договора',
-            'responsible_user_id' => Group::find(5/*3*/)->getUsers()->first()->id,
-            'user_id' => Auth::id(),
-            'contractor_id' => $contract->project->contractor_id,
-            'project_id' => $contract->project->id,
-            'target_id' => $request->contract_id,
-            'expired_at' => $this->addHours(48),
-            'status' => 20,
+            'responsible_user_id' => Group::find(5/*3*/)->getUsers()
+                ->first()->id,
+            'user_id'             => Auth::id(),
+            'contractor_id'       => $contract->project->contractor_id,
+            'project_id'          => $contract->project->id,
+            'target_id'           => $request->contract_id,
+            'expired_at'          => $this->addHours(48),
+            'status'              => 20,
         ]);
 
-        $this->prepareNotifications[\App\Notifications\Contract\ContractDeletionControlTaskCreationNotice::class] = [
-            'user_ids' => $task->responsible_user_id,
-            'name' => 'Новая задача «'.$task->name.'. '.$task->description.'»',
+        $this->prepareNotifications[\App\Notifications\Contract\ContractDeletionControlTaskCreationNotice::class]
+            = [
+            'user_ids'        => $task->responsible_user_id,
+            'name'            => 'Новая задача «'.$task->name.'. '
+                .$task->description.'»',
             'additional_info' => ' Ссылка на задачу: ',
-            'url' => $task->task_route(),
-            'task_id' => $task->id,
-            'contractor_id' => $task->contractor_id,
-            'project_id' => $contract->project->id,
-            'object_id' => $contract->project->object_id,
+            'url'             => $task->task_route(),
+            'task_id'         => $task->id,
+            'contractor_id'   => $task->contractor_id,
+            'project_id'      => $contract->project->id,
+            'object_id'       => $contract->project->object_id,
         ];
 
         DB::commit();
@@ -996,7 +1167,7 @@ class ProjectContractController extends Controller
         $results = [];
         foreach ($keyDateNames as $name) {
             $results[] = [
-                'id' => $name->id,
+                'id'   => $name->id,
                 'text' => $name->value,
             ];
         }
@@ -1016,18 +1187,22 @@ class ProjectContractController extends Controller
 
     public function isUpdateRequest(): bool
     {
-        return request('key_id') and ! request('parent_key_id') || request('key_id') != request('parent_key_id');
+        return request('key_id') and ! request('parent_key_id')
+            || request('key_id') != request('parent_key_id');
     }
 
     public function updateExistingKeyDate(): JsonResponse
     {
         $keyDate = ContractKeyDates::findOrFail(request('key_id'));
         $keyDate->update([
-            'name' => request('name'),
-            'sum' => request('sum') ? round(request('sum'), 2) : null,
-            'date_from' => request('date_from') ? Carbon::createFromFormat('d.m.Y', request('date_from')) : null,
-            'date_to' => request('date_to') ? Carbon::createFromFormat('d.m.Y', request('date_to')) : null,
-            'note' => substr(request('note'), 0, 300),
+            'name'      => request('name'),
+            'sum'       => request('sum') ? round(request('sum'), 2) : null,
+            'date_from' => request('date_from')
+                ? Carbon::createFromFormat('d.m.Y', request('date_from'))
+                : null,
+            'date_to'   => request('date_to')
+                ? Carbon::createFromFormat('d.m.Y', request('date_to')) : null,
+            'note'      => substr(request('note'), 0, 300),
         ]);
 
         if ($this->isNewKeyDateName()) {
@@ -1044,11 +1219,14 @@ class ProjectContractController extends Controller
         $keyDate = ContractKeyDates::create([
             'contract_id' => $contract_id,
             'key_date_id' => request('parent_key_id'),
-            'name' => request('name'),
-            'sum' => request('sum') ? round(request('sum'), 2) : null,
-            'date_from' => request('date_from') ? Carbon::createFromFormat('d.m.Y', request('date_from')) : null,
-            'date_to' => request('date_to') ? Carbon::createFromFormat('d.m.Y', request('date_to')) : null,
-            'note' => substr(request('note'), 0, 300),
+            'name'        => request('name'),
+            'sum'         => request('sum') ? round(request('sum'), 2) : null,
+            'date_from'   => request('date_from')
+                ? Carbon::createFromFormat('d.m.Y', request('date_from'))
+                : null,
+            'date_to'     => request('date_to')
+                ? Carbon::createFromFormat('d.m.Y', request('date_to')) : null,
+            'note'        => substr(request('note'), 0, 300),
         ]);
 
         if ($this->isNewKeyDateName()) {
@@ -1062,7 +1240,9 @@ class ProjectContractController extends Controller
 
     public function isNewKeyDateName(): bool
     {
-        return ! in_array(request('name'), ContractKeyDatesPreselectedNames::query()->pluck('value')->toArray());
+        return ! in_array(request('name'),
+            ContractKeyDatesPreselectedNames::query()->pluck('value')
+                ->toArray());
     }
 
     public function getAddNewContractKeyDatesNameValue(string $value): void
@@ -1083,14 +1263,17 @@ class ProjectContractController extends Controller
         return response()->json(true);
     }
 
-    public function attach_com_offers(Request $request, $contract_id): RedirectResponse
-    {
-        ContractCommercialOfferRelation::where('contract_id', $request->$contract_id)->delete();
+    public function attach_com_offers(
+        Request $request,
+        $contract_id
+    ): RedirectResponse {
+        ContractCommercialOfferRelation::where('contract_id',
+            $request->$contract_id)->delete();
 
         if ($request->offer_ids) {
             foreach ($request->offer_ids as $offer_id) {
                 ContractCommercialOfferRelation::create([
-                    'contract_id' => $contract_id,
+                    'contract_id'         => $contract_id,
                     'commercial_offer_id' => $offer_id,
                 ]);
             }
@@ -1110,9 +1293,11 @@ class ProjectContractController extends Controller
                 );
             } catch (\Throwable $throwable) {
                 $controllerName = get_class($this);
-                $message = "В контроллере $controllerName, не удалось отправить уведомление $class, возникла ошибка: ";
+                $message
+                                = "В контроллере $controllerName, не удалось отправить уведомление $class, возникла ошибка: ";
                 Log::error($message.$throwable->getMessage());
             }
         }
     }
+
 }
