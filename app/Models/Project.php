@@ -5,10 +5,15 @@ namespace App\Models;
 use App\Models\CommercialOffer\CommercialOffer;
 use App\Models\Contract\Contract;
 use App\Models\Contractors\Contractor;
+use App\Models\Manual\ManualMaterial;
 use App\Models\WorkVolume\WorkVolume;
 use App\Traits\Logable;
 use App\Traits\Taskable;
+use Barryvdh\LaravelIdeHelper\Eloquent;
+use Carbon\Carbon;
+use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,13 +21,108 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $contractor_id
+ * @property string $name
+ * @property string|null $address Адресс
+ * @property string|null $description
+ * @property int $status
+ * @property int $user_id
+ * @property int $is_start
+ * @property int $is_important
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $sales_user_id
+ * @property int|null $time_responsible_user_id
+ * @property int $entity
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int $is_tongue
+ * @property int $is_pile
+ * @property-read Collection<int, Task> $active_tasks
+ * @property-read int|null $active_tasks_count
+ * @property-read Collection<int, Task> $all_tasks
+ * @property-read int|null $all_tasks_count
+ * @property-read User|null $author
+ * @property-read Collection<int, CommercialOffer> $com_offers
+ * @property-read int|null $com_offers_count
+ * @property-read Contractor|null $contractor
+ * @property-read Collection<int, ProjectContractors> $contractors
+ * @property-read int|null $contractors_count
+ * @property-read Collection<int, Contract> $contracts
+ * @property-read int|null $contracts_count
+ * @property-read mixed $contractor_name
+ * @property-read string $name_with_object
+ * @property-read mixed $pile_statuses
+ * @property-read mixed $rp_names
+ * @property-read mixed $tongue_statuses
+ * @property-read Task|null $last_task
+ * @property-read Collection<int, ActionLog> $logs
+ * @property-read int|null $logs_count
+ * @property-read ProjectObject|null $object
+ * @property-read Collection<int, ProjectObject> $objects
+ * @property-read int|null $objects_count
+ * @property-read Collection<int, ProjectResponsibleUser> $respUsers
+ * @property-read int|null $resp_users_count
+ * @property-read Collection<int, Task> $tasks
+ * @property-read int|null $tasks_count
+ * @property-read User|null $timeResponsible
+ * @property-read Collection<int, WorkVolume> $work_volumes
+ * @property-read int|null $work_volumes_count
+ * @property-read Collection<int, WorkVolume> $wvs
+ * @property-read int|null $wvs_count
+ * @method static Builder|Project contractsStarted()
+ * @method static ProjectFactory factory($count = null, $state = [])
+ * @method static Builder|Project materialFilter($material_names)
+ * @method static Builder|Project newModelQuery()
+ * @method static Builder|Project newQuery()
+ * @method static Builder|Project onlyTrashed()
+ * @method static Builder|Project query()
+ * @method static Builder|Project whereAddress($value)
+ * @method static Builder|Project whereContractorId($value)
+ * @method static Builder|Project whereCreatedAt($value)
+ * @method static Builder|Project whereDeletedAt($value)
+ * @method static Builder|Project whereDescription($value)
+ * @method static Builder|Project whereEntity($value)
+ * @method static Builder|Project whereId($value)
+ * @method static Builder|Project whereIsImportant($value)
+ * @method static Builder|Project whereIsPile($value)
+ * @method static Builder|Project whereIsStart($value)
+ * @method static Builder|Project whereIsTongue($value)
+ * @method static Builder|Project whereName($value)
+ * @method static Builder|Project whereSalesUserId($value)
+ * @method static Builder|Project whereStatus($value)
+ * @method static Builder|Project whereTimeResponsibleUserId($value)
+ * @method static Builder|Project whereUpdatedAt($value)
+ * @method static Builder|Project whereUserId($value)
+ * @method static Builder|Project withTrashed()
+ * @method static Builder|Project withoutTrashed()
+ * @mixin Eloquent
+ */
 class Project extends Model
 {
+    use HasFactory,
+        Logable,
+        SoftDeletes,
+        Taskable;
 
-    use HasFactory;
-    use Logable, SoftDeletes, Taskable;
-
-    protected $guarded = [];
+    protected $fillable = [
+        'contractor_id',
+        'name',
+        'address',
+        'description',
+        'status',
+        'user_id',
+        'is_start',
+        'is_important',
+        'sales_user_id',
+        'time_responsible_user_id',
+        'entity',
+        'is_tongue',
+        'is_pile',
+    ];
 
     public $project_status
         = [
@@ -45,7 +145,6 @@ class Project extends Model
             8 => 'Согласование КП с заказчиком',
             4 => 'Формирование договоров на основании согласованного коммерческого предложения',
             7 => 'Договоры подписаны. Проект готов к производству работ',
-            //5 => 'Завершен',
             5 => 'Не было достигнуто соглашения по коммерческому предложению или договорам',
             6 => 'Проект перемещен в архив',
         ];
@@ -55,19 +154,6 @@ class Project extends Model
             1 => 'ООО «СК ГОРОД»',
             2 => 'ООО «ГОРОД»',
         ];
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::created(function ($project) {
-            //            event((new ProjectEvents())->projectCreated($project));
-        });
-
-        //        static::updated(function($item) { //we might need it in future
-        //            Event::fire('item.updated', $item);
-        //        });
-    }
 
     /**
      * Return projects that have contracts in status 5 or 6,
@@ -124,7 +210,7 @@ class Project extends Model
 
         $contracts = $this->contracts->where('status', '!=', 6);
 
-        $contracts          = $contracts->filter(function ($item, $key) use (
+        $contracts = $contracts->filter(function ($item, $key) use (
             $com_offers
         ) {
             return $item->commercial_offers->count()
@@ -170,7 +256,7 @@ class Project extends Model
                     : '<b>Стандарт').'</b>: Формирование договоров'.'<br>';
         }
 
-        if ( ! $contracts->count() && ! $contracts_complete->count()) {
+        if (!$contracts->count() && !$contracts_complete->count()) {
             foreach ($com_offers_complete as $option) {
                 $statuses .= ($option ? '<b>'.$option : '<b>Стандарт')
                     .'</b>: Формирование договоров'.'<br>';
@@ -193,7 +279,7 @@ class Project extends Model
         }
 
         if ($this->is_tongue && $statuses == ''
-            && ! $this->wvs->where('type', 0)->count()
+            && !$this->wvs->where('type', 0)->count()
         ) {
             $statuses .= 'Запрос от клиента';
         }
@@ -297,7 +383,7 @@ class Project extends Model
                     : '<b>Стандарт').'</b>: Формирование договоров'.'<br>';
         }
 
-        if ( ! $contracts->count() && ! $contracts_complete->count()) {
+        if (!$contracts->count() && !$contracts_complete->count()) {
             foreach ($com_offers_complete as $option) {
                 $statuses .= ($option ? '<b>'.$option.'</br>' : '<b>Стандарт')
                     .'</b>: Формирование договоров'.'<br>';
@@ -320,7 +406,7 @@ class Project extends Model
         }
 
         if ($this->is_pile && $statuses == ''
-            && ! $this->wvs->where('type', 1)->count()
+            && !$this->wvs->where('type', 1)->count()
         ) {
             $statuses .= 'Запрос от клиента';
         }
@@ -330,8 +416,8 @@ class Project extends Model
 
     public function getRpNamesAttribute()
     {
-        $RPs      = $this->respUsers()->whereIn('role', [5, 6])->get();
-        $users    = User::find($RPs->pluck('user_id'));
+        $RPs = $this->respUsers()->whereIn('role', [5, 6])->get();
+        $users = User::find($RPs->pluck('user_id'));
         $rp_names = '';
         foreach ($users as $user) {
             $rp_names .= $user->full_name.'; ';
@@ -342,8 +428,8 @@ class Project extends Model
 
     public function in_not_realized($option, $is_tongue)
     {
-        $type                    = $is_tongue == 1 ? 0 : 1;
-        $all_wvs_declined        = $this->wvs->where('type', $type)
+        $type = $is_tongue == 1 ? 0 : 1;
+        $all_wvs_declined = $this->wvs->where('type', $type)
                 ->where('option', $option)->count() == $this->wvs->where('type',
                 $type)->where('option', $option)->where('status', 3)->count();
         $all_com_offers_declined = ($this->com_offers->where('is_tongue',
@@ -362,12 +448,12 @@ class Project extends Model
 
     public function getCreatedAtAttribute($date)
     {
-        return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
+        return Carbon::parse($date)->format('d.m.Y H:i:s');
     }
 
     public function getUpdatedAtAttribute($date)
     {
-        return \Carbon\Carbon::parse($date)->format('d.m.Y H:i:s');
+        return Carbon::parse($date)->format('d.m.Y H:i:s');
     }
 
     public function getContractorNameAttribute()
@@ -529,7 +615,7 @@ class Project extends Model
             $q->orWhereHas('work_volumes.materials',
                 function ($query) use ($name) {
                     $query->whereHasMorph('manual',
-                        [\App\Models\Manual\ManualMaterial::class],
+                        [ManualMaterial::class],
                         function ($mat) use ($name) {
                             $mat->where('name', 'like', '%'.$name.'%');
                             $mat->where('material_type', 'regular');

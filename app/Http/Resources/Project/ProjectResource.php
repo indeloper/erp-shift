@@ -3,9 +3,13 @@
 namespace App\Http\Resources\Project;
 
 use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Project
+ */
 class ProjectResource extends JsonResource
 {
 
@@ -17,13 +21,13 @@ class ProjectResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'              => $this->id,
-            'address'         => $this->address,
-            'name'            => $this->name,
+            'id' => $this->id,
+            'address' => $this->address,
+            'name' => $this->name,
             'contractor_name' => $this->contractor_name,
             'tongue_statuses' => $this->tongue_statuses,
-            'pile_statuses'   => $this->pile_statuses,
-            'entity'          => MaterialAccountingOperation::$entities[$this->entity],
+            'pile_statuses' => $this->pile_statuses,
+            'entity' => MaterialAccountingOperation::$entities[$this->entity],
         ];
     }
 
