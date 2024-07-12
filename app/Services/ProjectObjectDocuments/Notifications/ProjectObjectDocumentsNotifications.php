@@ -27,9 +27,8 @@ class ProjectObjectDocumentsNotifications
         $this->twentyDaysBefore = now()->subDays(20)->format('Y-m-d');
         $this->exclude_document_signs = [
             [
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'РД')->first()?->id,
-                'document_status_id' => ProjectObjectDocumentStatus::where('name',
-                    'Хранится на площадке')->first()?->id,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'РД')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id,
                 'option' => [
                     'id' => 'rd_to_production',
                     'type' => 'checkbox',
@@ -37,9 +36,8 @@ class ProjectObjectDocumentsNotifications
                 ],
             ],
             [
-                'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()?->id,
-                'document_status_id' => ProjectObjectDocumentStatus::where('name',
-                    'Хранится на площадке')->first()?->id,
+                'document_type_id' => ProjectObjectDocumentType::where('name', 'ППР')->first()->id,
+                'document_status_id' => ProjectObjectDocumentStatus::where('name', 'Хранится на площадке')->first()->id,
                 'option' => [
                     'id' => 'ppr_confirmed_paper_format',
                     'type' => 'checkbox',
@@ -52,7 +50,7 @@ class ProjectObjectDocumentsNotifications
     public function handle()
     {
 
-        if (!$this->checkNeedSendNotifications()) {
+        if (! $this->checkNeedSendNotifications()) {
             return;
         }
 
@@ -89,14 +87,11 @@ class ProjectObjectDocumentsNotifications
     public function checkNeedSendNotifications()
     {
         $isNotificationsTodayAlreadySent = ActionLog::where([
-            [
-                'logable_type',
-                \App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications::class
-            ],
+            ['logable_type', \App\Services\ProjectObjectDocuments\Notifications\ProjectObjectDocumentsNotifications::class],
             ['created_at', '>', now()->today()],
         ])->exists();
 
-        if (!$isNotificationsTodayAlreadySent && now()->format('H') >= 16) {
+        if (! $isNotificationsTodayAlreadySent && now()->format('H') >= 16) {
             return true;
         }
 
@@ -116,11 +111,8 @@ class ProjectObjectDocumentsNotifications
         ]);
     }
 
-    public function addNewElemToNotificationsToSendArrElem(
-        $documentsGroupedByObject,
-        $notificationType,
-        $responsiblesRoles
-    ) {
+    public function addNewElemToNotificationsToSendArrElem($documentsGroupedByObject, $notificationType, $responsiblesRoles)
+    {
         foreach ($documentsGroupedByObject as $object) {
             $rolesIds = ObjectResponsibleUserRole::whereIn('slug', $responsiblesRoles)->pluck('id')->toArray();
 
@@ -198,13 +190,13 @@ class ProjectObjectDocumentsNotifications
         $excludeDocuments = ProjectObjectDocument::query();
         foreach ($this->exclude_document_signs as $sign) {
             $queryArr = [];
-            if (!empty($sign['document_type_id'])) {
+            if (! empty($sign['document_type_id'])) {
                 $queryArr[] = ['document_type_id', $sign['document_type_id']];
             }
-            if (!empty($sign['document_status_id'])) {
+            if (! empty($sign['document_status_id'])) {
                 $queryArr[] = ['document_status_id', $sign['document_status_id']];
             }
-            if (!empty($sign['option'])) {
+            if (! empty($sign['option'])) {
                 $queryArr[] = ['options->'.$sign['option']['id'].'->value', $sign['option']['value']];
             }
 
@@ -232,17 +224,14 @@ class ProjectObjectDocumentsNotifications
             ->toArray();
 
         $documentStatusesIds = ProjectObjectDocumentStatus::query()
-            ->where('status_type_id',
-                ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_not_started')->first()->id)
-            ->orWhere('status_type_id',
-                ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_in_progress')->first()->id)
+            ->where('status_type_id', ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_not_started')->first()->id)
+            ->orWhere('status_type_id', ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_in_progress')->first()->id)
             ->pluck('id')
             ->toArray();
 
         $responsiblesRoles = ['TONGUE_PROJECT_MANAGER', 'TONGUE_PTO_ENGINEER', 'TONGUE_FOREMAN'];
 
-        $documentsGroupedByObject = $this->getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds,
-            $this->twentyDaysBefore);
+        $documentsGroupedByObject = $this->getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds, $this->twentyDaysBefore);
 
         $this->addNewElemToNotificationsToSendArrElem($documentsGroupedByObject, __FUNCTION__, $responsiblesRoles);
     }
@@ -259,15 +248,13 @@ class ProjectObjectDocumentsNotifications
             ->toArray();
 
         $documentStatusesIds = ProjectObjectDocumentStatus::query()
-            ->where('status_type_id',
-                ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_in_progress')->first()->id)
+            ->where('status_type_id', ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_in_progress')->first()->id)
             ->pluck('id')
             ->toArray();
 
         $responsiblesRoles = ['TONGUE_PROJECT_MANAGER', 'TONGUE_PTO_ENGINEER', 'TONGUE_FOREMAN'];
 
-        $documentsGroupedByObject = $this->getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds,
-            $this->twentyDaysBefore);
+        $documentsGroupedByObject = $this->getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds, $this->twentyDaysBefore);
 
         $this->addNewElemToNotificationsToSendArrElem($documentsGroupedByObject, __FUNCTION__, $responsiblesRoles);
     }
@@ -284,15 +271,13 @@ class ProjectObjectDocumentsNotifications
             ->toArray();
 
         $documentStatusesIds = ProjectObjectDocumentStatus::query()
-            ->where('status_type_id',
-                ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_in_progress')->first()->id)
+            ->where('status_type_id', ProjectObjectDocumentsStatusType::where('slug', 'work_with_document_in_progress')->first()->id)
             ->pluck('id')
             ->toArray();
 
         $responsiblesRoles = ['TONGUE_PROJECT_MANAGER', 'TONGUE_PTO_ENGINEER'];
 
-        $documentsGroupedByObject = $this->getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds,
-            $this->twentyDaysBefore);
+        $documentsGroupedByObject = $this->getDocumentsGroupedByObject($documentTypesIds, $documentStatusesIds, $this->twentyDaysBefore);
 
         $this->addNewElemToNotificationsToSendArrElem($documentsGroupedByObject, __FUNCTION__, $responsiblesRoles);
     }
