@@ -103,6 +103,20 @@
                 })
             });
 
+            let materialOperationReasonStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('material-operation-reason')}}",
+                        {operationId: operationData.material_operation_reason_id});
+                },
+            });
+
+            let materialOperationReasonSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: materialOperationReasonStore
+            });
+
             let operationHistoryStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -424,11 +438,11 @@
                 colCount: 2,
                 items: [{
                     itemType: "group",
-                    colCount: 3,
+                    colCount: 4,
                     caption: "Списание",
                     items: [{
                         name: "projectObjectSelectBox",
-                        colSpan: 3,
+                        colSpan: 4,
                         dataField: "project_object_id",
                         label: {
                             text: "Объект"
@@ -464,8 +478,29 @@
                             }]
                         },
                         {
-                            name: "sourceResponsibleUserSelectBox",
+                            name: "materialOperationReasonSelectBox",
                             colSpan: 2,
+                            dataField: "material_operation_reason_id",
+                            label: {
+                                text: "Причина движения"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: materialOperationReasonSource,
+                                displayExpr: "name",
+                                valueExpr: "id",
+                                searchEnabled: true,
+                                disabled: true,
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Причина движения" обязательно для заполнения'
+                            }]
+
+                        },
+                        {
+                            name: "sourceResponsibleUserSelectBox",
+                            colSpan: 1,
                             dataField: "source_responsible_user_id",
                             label: {
                                 text: "Ответственный"
