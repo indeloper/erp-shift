@@ -24,12 +24,17 @@
             <div class="modal-body">
                 <hr style="margin-top:0">
                 <div class="card border-0">
+                    @php
+                        $id = isset($project) ? $project->id : (! isset($commercial_offer) ? $commercial_offer->project_id : '')
+                    @endphp
                     <form
                             id="attach_document"
                             class="axios"
                             @submit.prevent="preSubmitCheck"
                             method="post"
-                            action="{{ route('projects::commercial_offer::upload', [isset($project) ? $project->id : (! isset($commercial_offer) ? $commercial_offer->project_id : '') ]) }}"
+                            @if($id)
+                                action="{{ route('projects::commercial_offer::upload', ['id' =>  $id]) }}"
+                            @endif
                             enctype="multipart/form-data"
                     >
                         @csrf
@@ -309,26 +314,33 @@
             payload.negotiation_type = commercialOfferExistenceChecker.negotiation_type;
             payload.axios = true;
 
-            axios.post('{{ route('projects::commercial_offer::upload', [isset($project) ? $project->id : (! isset($commercial_offer) ? $commercial_offer->project_id : null) ]) }}', payload)
-              .then(function (response) {
-                commercialOfferExistenceChecker.$off('submit');
-                $('#attach_document').removeClass('axios');
-                document.getElementById('attach_document').submit();
-              })
-              .catch(function (request) {
-                var errors = Object.values(request.response.data.errors);
+              @php
+                  $id = isset($project) ? $project->id : (! isset($commercial_offer) ? $commercial_offer->project_id : null)
+              @endphp
 
-                errors.forEach(function (error, key) {
-                  setTimeout(function () {
-                    commercialOfferExistenceChecker.$message({
-                      showClose: true,
-                      message: error[0],
-                      type: 'error',
-                      duration: 5000,
-                    });
-                  }, (key + 1) * 100);
+              @if($id)
+              axios.post('{{ route('projects::commercial_offer::upload', ['id' => $id ]) }}', payload)
+                .then(function (response) {
+                  commercialOfferExistenceChecker.$off('submit');
+                  $('#attach_document').removeClass('axios');
+                  document.getElementById('attach_document').submit();
+                })
+                .catch(function (request) {
+                  var errors = Object.values(request.response.data.errors);
+
+                  errors.forEach(function (error, key) {
+                    setTimeout(function () {
+                      commercialOfferExistenceChecker.$message({
+                        showClose: true,
+                        message: error[0],
+                        type: 'error',
+                        duration: 5000,
+                      });
+                    }, (key + 1) * 100);
+                  });
                 });
-              });
+              @endif
+
           },
         },
       });
