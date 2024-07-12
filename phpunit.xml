@@ -25,7 +25,6 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="DB_DATABASE" value="testing"/>
-<!--        <env name="TESTING_DB_CONNECTION" value="sk_demo_19_12"/>-->
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
