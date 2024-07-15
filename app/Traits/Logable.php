@@ -12,7 +12,7 @@ trait Logable
      * Better to use with three keys in array:
      * 1. event - what happened with model? (create/edit/etc)
      * 2. new values - values, given to model
-     * 3. styles values - values, that model had before
+     * 3. old values - values, that model had before
      */
     public function logs(): MorphMany
     {
