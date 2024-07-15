@@ -6,11 +6,7 @@
 @endsection
 
 @section('content')
-    <div id="app-test">
-        <projects-index></projects-index>
-    </div>
     <div id="dataGridAnchor"></div>
-
 @endsection
 
 @section('js_footer')

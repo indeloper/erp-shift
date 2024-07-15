@@ -28,8 +28,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
 
         $this->response_user = $this->rps->random();
         $this->actingAs($this->response_user);
-        $this->ourTechnicTicket = $this->seedTicketsWithUsers(1, [],
-            ['usage_resp_user_id' => Auth::user()->id])->first();
+        $this->ourTechnicTicket = $this->seedTicketsWithUsers(1, [], ['usage_resp_user_id' => Auth::user()->id])->first();
         $this->response_user = $this->ourTechnicTicket->users()->wherePivot('type', 4)->first();
     }
 
@@ -44,10 +43,8 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
                 ->toArray()
         );
         // ->assertSee('success');
-        $this->assertEquals($this->ourTechnicTicket->id,
-            OurTechnicTicketReport::latest()->first()->our_technic_ticket_id);
-        $this->assertEquals($this->response_user->id,
-            OurTechnicTicketReport::latest()->first()->ticket->users()->wherePivot('type', 4)->first()->id);
+        $this->assertEquals($this->ourTechnicTicket->id, OurTechnicTicketReport::latest()->first()->our_technic_ticket_id);
+        $this->assertEquals($this->response_user->id, OurTechnicTicketReport::latest()->first()->ticket->users()->wherePivot('type', 4)->first()->id);
     }
 
     /** @test */
@@ -58,8 +55,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
                 'our_technic_ticket_id' => $this->ourTechnicTicket->id,
             ]);
 
-        $this->put(route('building::tech_acc::our_technic_tickets.report.update',
-            [$old_ticket->our_technic_ticket_id, $old_ticket->id]),
+        $this->put(route('building::tech_acc::our_technic_tickets.report.update', [$old_ticket->our_technic_ticket_id, $old_ticket->id]),
             [
                 'comment' => $this->faker()->paragraph,
                 'hours' => $old_ticket->hours != 1 ? 1 : 2,
@@ -81,8 +77,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
                 'user_id' => $this->response_user,
             ]);
 
-        $this->delete(route('building::tech_acc::our_technic_tickets.report.destroy',
-            [$ticket_need_delete->first()->our_technic_ticket_id, $ticket_need_delete->first()->id]));
+        $this->delete(route('building::tech_acc::our_technic_tickets.report.destroy', [$ticket_need_delete->first()->our_technic_ticket_id, $ticket_need_delete->first()->id]));
         $ticket_need_delete->fresh();
 
         $this->assertSoftDeleted($ticket_need_delete->first());
@@ -92,8 +87,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_doesnt_close_task_when_last_report_for_today_has_been_closed(): void
     {
-        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()],
-            ['usage_resp_user_id' => $this->response_user->id])->first();
+        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
 
         $task = $this->response_user->tasks()->create([
             'name' => 'Отметка времени использования техники за '.Carbon::now()->isoFormat('DD.MM.YYYY'),
@@ -116,8 +110,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_do_not_close_task_when_there_are_still_reports_to_make(): void
     {
-        $ticket = $this->seedTicketsWithUsers(2, ['status' => 7, 'usage_from_date' => Carbon::now()],
-            ['usage_resp_user_id' => $this->response_user->id])->first();
+        $ticket = $this->seedTicketsWithUsers(2, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
 
         $task = $this->response_user->tasks()->create([
             'name' => 'Отметка времени использования техники за '.Carbon::now()->isoFormat('DD.MM.YYYY'),
@@ -140,8 +133,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_closes_task_on_last_report_in_the_past(): void
     {
-        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(4)],
-            ['usage_resp_user_id' => $this->response_user->id])->first();
+        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(4)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $date = Carbon::now()->subDays(4);
 
         $task = $this->response_user->tasks()->create([
@@ -182,8 +174,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     public function new_usage_resp_get_report_task_not_old_one(): void
     {
         $Mark = $this->prorabs->random(); //actually he is not Mark
-        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()],
-            ['usage_resp_user_id' => $this->response_user->id])->first();
+        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()], ['usage_resp_user_id' => $this->response_user->id])->first();
 
         //test works too fast, so we need to change timestamp manually
         $old_resp_pivot = $ticket->users()->where('type', 4)->where('id', $this->response_user->id)->first();
@@ -224,14 +215,14 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
             'task_status' => 36,
         ])->assertOk();
 
-        //trying to return styles resp back
+        //trying to return old resp back
         $this->post(route('building::tech_acc::our_technic_tickets.reassignment', $ticket->id), [
             'result' => 'usage',
             'user' => $this->response_user->id,
             'task_status' => 36,
         ])->assertOk();
 
-        //there must be the same amount of resps with id of styles resp
+        //there must be the same amount of resps with id of old resp
         $this->assertEquals($old_resp_count, $ticket->users()->where('user_id', $this->response_user->id)->count());
         //and Mark should be deactivated
         $this->assertEquals($Mark->id, $ticket->users()->where('deactivated_at', '!=', '')->first()->id);
@@ -240,8 +231,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     /** @test */
     public function it_creates_new_task_and_closes_old_automatically(): void
     {
-        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(1)],
-            ['usage_resp_user_id' => $this->response_user->id])->first();
+        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(1)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $date = Carbon::now()->subDays(1);
 
         $task = $this->response_user->tasks()->create([
@@ -268,8 +258,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     public function it_creates_new_task_for_old_dates(): void
     {
         //set usage_resp created_at to sub 3 days in seeder
-        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)],
-            ['usage_resp_user_id' => $this->response_user->id])->first();
+        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $user = $ticket->users()->ofType('usage_resp_user_id')->first();
 
         $ser = new TechnicTicketReportService();
@@ -282,8 +271,7 @@ class OurTechnicTicketReportTest extends OurTechnicTicketTestCase
     public function it_creates_new_task_for_compicated_cases(): void
     {
 
-        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)],
-            ['usage_resp_user_id' => $this->response_user->id])->first();
+        $ticket = $this->seedTicketsWithUsers(1, ['status' => 7, 'usage_from_date' => Carbon::now()->subDays(10)], ['usage_resp_user_id' => $this->response_user->id])->first();
         $user = $ticket->users()->ofType('usage_resp_user_id')->first();
         $userTwo = $this->rps_and_prorabs->random();
         $ticket->users()->attach($userTwo->id, ['type' => 4, 'created_at' => Carbon::now()->subDays(1)]);

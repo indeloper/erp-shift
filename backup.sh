@@ -34,7 +34,7 @@ else
 fi
 rm $sqlfile
 echo $zipfile ' - backup was successfully created'
-# Delete styles backups
+# Delete old backups
 find $backupfolder -type f -mtime +$keep_day -delete
 rsync -rtv --delete $backupfolder $backupmountpoint
 rsync -rtv --exclude=node_modules --exclude=public/temp --exclude=storage/framework/sessions --exclude=storage/framework/views $backuperpfilesfolder $backupmountpoint
